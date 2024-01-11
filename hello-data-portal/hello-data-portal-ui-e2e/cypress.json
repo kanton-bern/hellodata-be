@@ -1,0 +1,17 @@
+{
+  "baseUrl": "http://localhost:4200",
+  "chromeWebSecurity": false,
+  "experimentalStudio": true,
+  "env": {
+    "auth_base_url": "http://localhost:38080",
+    "auth_realm": "hellodata",
+    "auth_client_id": "frontend-client",
+    "backendUrl": "http://localhost:8080",
+    "admin_username": "admin",
+    "admin_password": "admin",
+    "reader_username": "reader",
+    "reader_password": "reader",
+    "user_username": "user",
+    "user_password": "user"
+  }
+}

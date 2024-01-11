@@ -1,0 +1,46 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*",
+    "src/app/openapi/**"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json",
+          "e2e/tsconfig.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ],
+      "rules": {
+      },
+      "overrides": [
+        {
+          "files": [
+            "*.spec.ts"
+          ],
+          "rules": {
+            "@typescript-eslint/no-floating-promises": "off"
+          }
+        }
+      ]
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+      ],
+      "rules": {}
+    }
+  ]
+}

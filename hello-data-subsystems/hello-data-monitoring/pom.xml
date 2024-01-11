@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ch.bedag.dap.hellodata</groupId>
+    <artifactId>hello-data-monitoring</artifactId>
+    <version>develop-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>hello-data-monitoring-sba</module>
+        <module>hello-data-monitoring-grafana</module>
+        <module>hello-data-monitoring-storage</module>
+    </modules>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub kanton-bern Maven Packages</name>
+            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
+        </repository>
+        <snapshotRepository>
+            <id>github-snapshots</id>
+            <name>GitHub kanton-bern Maven Snapshots</name>
+            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>check-licence</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <version>4.3</version>
+                        <executions>
+                            <execution>
+                                <id>format</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>format</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <properties>
+                                <owner>Kanton Bern</owner>
+                                <year>2024</year>
+                            </properties>
+                            <licenseSets>
+                                <licenseSet>
+                                    <header>com/mycila/maven/plugin/license/templates/BSD-3.txt</header>
+                                </licenseSet>
+                            </licenseSets>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

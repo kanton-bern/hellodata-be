@@ -1,0 +1,120 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<div class="card">
+  <form *ngIf="(editedFaq$ | async) as editedFaq" [formGroup]="faqForm">
+    <h5>{{'@Faq' | transloco}}</h5>
+
+    <div *ngIf="editedFaq.createdDate" class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{'@Created date' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               disabled
+               id="createdDate"
+               type="text"
+               value="{{editedFaq.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+      </div>
+    </div>
+
+    <div *ngIf="editedFaq.createdDate" class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{'@Created by' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               disabled
+               id="createdBy"
+               type="text"
+               value="{{editedFaq.createdBy}}">
+      </div>
+    </div>
+
+
+    <div *ngIf="editedFaq.modifiedDate" class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{'@Modified date' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               disabled
+               id="modifiedDate"
+               type="text"
+               value="{{editedFaq.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+      </div>
+    </div>
+
+
+    <div *ngIf="editedFaq.modifiedBy" class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{'@Modified by' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+               disabled
+               id="modifiedBy"
+               type="text"
+               value="{{editedFaq.modifiedBy}}">
+      </div>
+    </div>
+
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{'@Title' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               formControlName="title"
+               id="title"
+               type="text">
+      </div>
+    </div>
+
+    <div *ngIf="(availableDataDomains$ | async) as availableDataDomains" class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomainKey">{{'@Data domain' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <p-dropdown [options]="availableDataDomains"
+                    formControlName="dataDomain"
+                    id="dataDomainKey"
+                    optionLabel="label"
+                    optionValue="key"></p-dropdown>
+        <br/>
+      </div>
+    </div>
+
+    <p-editor [style]="{ height: '725px' }" formControlName="message" id="faqMessage"></p-editor>
+
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+      </div>
+      <div class="p-toolbar-group-end">
+        <p-button (click)="saveFaq(editedFaq)"
+                  [disabled]="faqForm.invalid||!faqForm.dirty"
+                  icon="fas fa-floppy-disk"
+                  id="saveFaqButton"
+                  label="{{'@Save' | transloco}}"
+                  styleClass="p-button-success mr-2"></p-button>
+        <p-button (click)="openDeletePopup(editedFaq)" *ngIf="editedFaq.id" icon="fas fa-trash" label="{{'@Delete' | transloco}}" styleClass="p-button-danger"></p-button>
+      </div>
+    </p-toolbar>
+
+  </form>
+</div>
+<app-delete-faq-popup [action]="getDeletionAction()"></app-delete-faq-popup>

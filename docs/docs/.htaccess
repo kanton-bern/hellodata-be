@@ -1,0 +1,8 @@
+Require valid-user
+AuthType Basic
+AuthName 'Authentication required'
+AuthUserFile /home/sspaeti/.htpasswds/htpasswd.3212aa1d-63b4-4d79-842b-e822252a4a2d
+
+
+#@__HCP_END__@#
+# Anything after the comment above is left alone

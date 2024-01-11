@@ -1,0 +1,151 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<h3 class="content-block">{{'@External dashboards' | transloco}}</h3>
+<div *ngIf="(currentUserPermissions$ | async) as permissions" class="card">
+  <div *ngIf="(externalDashboards$ | async) as externalDashboards">
+    <p-table #dt [filterDelay]="0"
+             [globalFilterFields]="['title', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'scheduled', 'datasource']"
+             [paginator]="true"
+             [rowHover]="true"
+             [rows]="10"
+             [showCurrentPageReport]="true"
+             [tableStyle]="{ 'min-width': '50rem' }"
+             [value]="externalDashboards"
+             dataKey="id">
+      <ng-template pTemplate="caption">
+        <div class="flex align-items-center justify-content-between">
+          <button (click)="openNew()"
+                  *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'"
+                  class="p-button-success mr-2"
+                  icon="fas fa-circle-plus"
+                  label="{{'@Create' | transloco}}"
+                  pButton
+                  pRipple></button>
+          <h5 class="m-0">&nbsp;</h5>
+          <span class="p-input-icon-left">
+              <i class="fas fa-magnifying-glass"></i>
+              <input (input)="applyFilterGlobal($event, 'contains')" pInputText placeholder="{{'@Search' | transloco}}" type="text"/>
+          </span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th id="title" pSortableColumn="title">{{'@Dashboard' | transloco}}
+            <p-sortIcon field="title"></p-sortIcon>
+          </th>
+          <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
+            <p-sortIcon field="contextName"></p-sortIcon>
+          </th>
+          <th id="businessProcess" pSortableColumn="businessProcess">{{'@Business process' | transloco}}
+            <p-sortIcon field="businessProcess"></p-sortIcon>
+          </th>
+          <th id="department" pSortableColumn="department">{{'@Department' | transloco}}
+            <p-sortIcon field="department"></p-sortIcon>
+          </th>
+          <th id="responsibility" pSortableColumn="responsibility">{{'@Professional responsibility' | transloco}}
+            <p-sortIcon field="responsibility"></p-sortIcon>
+          </th>
+          <th id="dataAnalyst" pSortableColumn="dataAnalyst">{{'@Data analyst' | transloco}}
+            <p-sortIcon field="dataAnalyst"></p-sortIcon>
+          </th>
+          <th id="scheduled" pSortableColumn="scheduled">{{'@Scheduled' | transloco}}
+            <p-sortIcon field="scheduled"></p-sortIcon>
+          </th>
+          <th id="datasource" pSortableColumn="datasource">{{'@Datasource' | transloco}}
+            <p-sortIcon field="datasource"></p-sortIcon>
+          </th>
+          <th id="modifiedDate" pSortableColumn="modifiedDate">{{'@Modified date' | transloco}}
+            <p-sortIcon field="modifiedDate"></p-sortIcon>
+          </th>
+          <th *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'" id="permissions" style="min-width:8rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-dashboard pTemplate="body">
+        <tr>
+          <td>
+            <a [href]="createExternalUrl(dashboard.url)" rel="noopener" target="_blank">{{ dashboard.title }}</a>
+          </td>
+          <td>
+            {{ dashboard.contextName }}
+          </td>
+          <td>
+            {{ dashboard.businessProcess }}
+          </td>
+          <td>
+            {{ dashboard.department }}
+          </td>
+          <td>
+            {{ dashboard.responsibility }}
+          </td>
+          <td>
+            {{ dashboard.dataAnalyst }}
+          </td>
+          <td>
+            {{ dashboard.scheduled }}
+          </td>
+          <td>
+            {{ dashboard.datasource }}
+          </td>
+          <td [pEditableColumn]="false">
+            <span *ngIf="dashboard.modifiedDate">{{ dashboard.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss'}}</span>
+            <span *ngIf="dashboard.modifiedDate === null">{{ '@Never' | transloco}}</span>
+          </td>
+          <td *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <button (click)="editExternalDashboard(dashboard)"
+                      [pTooltip]="'@Edit' | transloco"
+                      class="p-button-rounded p-button-success mr-2"
+                      icon="fas fa-light fa-pen-to-square"
+                      pButton
+                      pRipple></button>
+              <button (click)="deleteExternalDashboard(dashboard)"
+                      [pTooltip]="'@Delete' | transloco"
+                      class="p-button-rounded p-button-warning"
+                      icon="fas fa-trash"
+                      pButton
+                      pRipple></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-confirmDialog #cd [style]="{width: '50vw'}">
+  <ng-template pTemplate="header">
+    <h3>{{'@Delete external dashboard' | transloco}}</h3>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton type="button"></button>
+    <button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pButton type="button"></button>
+  </ng-template>
+</p-confirmDialog>
+
+

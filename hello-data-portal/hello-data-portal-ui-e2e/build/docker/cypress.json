@@ -1,0 +1,21 @@
+{
+  "baseUrl": "http://hello-data-portal-ui-e2e-tests",
+  "chromeWebSecurity": false,
+  "experimentalStudio": true,
+  "videoCompression": false,
+  "reporter": "junit",
+  "reporterOptions": {
+    "mochaFile": "cypress/results/cypress-junit-[hash].xml",
+    "failsafeSummary": "cypress/results/failsafe-summary.xml"
+  },
+  "env": {
+    "auth_base_url": "http://hello-data-portal-keycloak:8080",
+    "auth_realm": "hellodata",
+    "auth_client_id": "frontend-client",
+    "backendUrl": "http://hello-data-portal-api:8081",
+    "admin_username": "admin",
+    "admin_password": "admin",
+    "reader_username": "hellodata",
+    "reader_password": "hellodata"
+  }
+}

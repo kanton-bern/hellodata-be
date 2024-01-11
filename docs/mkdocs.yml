@@ -1,0 +1,118 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+site_name: HelloDATA BE Docs
+extra_css:
+  - stylesheets/extra.css
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: images/favicon.png
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: custom #check in stylesheets/extra.css
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: custom #check in stylesheets/extra.css
+
+plugins:
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/kanton-bern/hellodata-be/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/kanton_bern
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/kaio/
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.mark
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - md_in_html
+
+copyright: |
+  &copy; 2024 Designed and Developed by <a href="https://www.bedag.ch/" target="blank" rel="noopener">Bedag Solutions AG</a>
+
+# Page tree
+nav:
+  - Home: index.md
+  - Vision:
+      - Vision: vision/vision-and-goal.md
+      - Roadmap: vision/roadmap.md
+  - Architecture:
+      - Data Stack: architecture/data-stack.md
+      - Components & Architecture: architecture/architecture.md
+      - Infrastructure: architecture/infrastructure.md
+  - Concepts:
+      - Showcase: concepts/showcase.md
+      - Workspaces: concepts/workspaces.md
+  - Manuals:
+      - User Manual: manuals/user-manual.md
+      - Roles & Authorization: manuals/role-authorization-concept.md
+  - More:
+      - FAQ: more/faq.md
+      - Glossary: more/glossary.md
+      - Changelog: more/changelog.md
+    # - Features Examples: test/examples.md

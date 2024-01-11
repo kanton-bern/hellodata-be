@@ -1,0 +1,130 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+hellodata:
+  monitoring-interval:
+    cron-expression: "0 0 12 * * *"
+  storages:
+    - name: Management_Cockpit_Superset
+      path: /storage/docs/projects/Management_Cockpit_Superset
+    - name: Management_Cockpit_1
+      path: /storage/docs/projects/Management_Cockpit_1
+  datasources:
+    - name: hd_metainfo
+      jdbc-url: jdbc:postgresql://localhost:5432/hd_metainfo
+      username: postgres
+      password: postgres
+    - name: superset
+      jdbc-url: jdbc:postgresql://localhost:5432/superset
+      username: postgres
+      password: postgres
+    - name: airflow
+      jdbc-url: jdbc:postgresql://localhost:5432/airflow
+      username: postgres
+      password: postgres
+    - name: hd_dbt_docs
+      jdbc-url: jdbc:postgresql://localhost:5432/hd_dbt_docs
+      username: postgres
+      password: postgres
+
+server:
+  port: 8092
+  servlet:
+    context-path: /storage-monitoring
+  error:
+    include-message: always
+    include-exception: false
+    include-stacktrace: never
+  max-http-request-header-size: 32KB
+
+#nats
+nats:
+  spring:
+    server: nats://0.0.0.0:4222
+
+spring:
+  application:
+    name: HelloDATA Storage Monitoring
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+        api-path: instances
+        username: "user"       #These two are needed so that the client
+        password: "password"   #can register at the protected server api
+        instance:
+          metadata:
+            user:
+              name: "user"         #These two are needed so that the server
+              password: "password" #can access the protected client endpoints
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration
+
+
+# Actuator endpoints. List available under http://localhost:8088/actuator
+management:
+  endpoint:
+    health:
+      enabled: true
+    #      show-details: always #if we need some details
+    info:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info, health, prometheus
+  health:
+    nats:
+      enabled: false
+    mail:
+      enabled: false
+    kubernetes:
+      enabled: false
+    ldap:
+      enabled: false # Disable this when not using ldap connection
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    kubernetes:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        spring.data.repository.invocations: true
+        http.server.requests: true
+
+#logging:
+#  level:
+#    org.springframework: DEBUG

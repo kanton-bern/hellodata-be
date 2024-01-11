@@ -1,0 +1,86 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+databaseChangeLog:
+  - include:
+      file: db/changelog/changelogs/0_enable_extensions.sql
+  - include:
+      file: db/changelog/changelogs/1_initial_schema.xml
+  - include:
+      file: db/changelog/changelogs/2_user_table.xml
+  - include:
+      file: db/changelog/changelogs/3_announcement_table.xml
+  - include:
+      file: db/changelog/changelogs/4_add_default_user_column_to_users_table.xml
+  - include:
+      file: db/changelog/changelogs/5_add_permissions_column_to_users.xml
+  - include:
+      file: db/changelog/changelogs/6_rename_workspace_field_to_instance_name.xml
+  - include:
+      file: db/changelog/changelogs/7_add_dashboard_metadata_table.xml
+  - include:
+      file: db/changelog/changelogs/8_faq_table.xml
+  - include:
+      file: db/changelog/changelogs/9_add_external_dashboards_table.xml
+  - include:
+      file: db/changelog/changelogs/10_add_invitations_count_column.xml
+  - include:
+      file: db/changelog/changelogs/11_add_documentation_table.xml
+  - include:
+      file: db/changelog/changelogs/12_add_hd_context_table.xml
+  - include:
+      file: db/changelog/changelogs/13_update_hd_context_table.xml
+  - include:
+      file: db/changelog/changelogs/14_connect_external_dashboard_with_context.xml
+  - include:
+      file: db/changelog/changelogs/15_roles_management.xml
+  - include:
+      file: db/changelog/changelogs/16_context_roles_table.xml
+  - include:
+      file: db/changelog/changelogs/17_add_extra_column_to_context.xml
+  - include:
+      file: db/changelog/changelogs/18_add_system_default_column.xml
+  - include:
+      file: db/changelog/changelogs/19_drop_redundant_columns_in_user.xml
+  - include:
+      file: db/changelog/changelogs/20_add_domain_to_user_portal_role.xml
+  - include:
+      file: db/changelog/changelogs/21_connect_faq_with_context.xml
+  - include:
+      file: db/changelog/changelogs/22_add_creation_email_sent_column.xml
+  - include:
+      file: db/changelog/changelogs/23_add_published_date_to_announcement.xml
+  - include:
+      file: db/changelog/changelogs/24_drop_redundant_columns_in_user.xml
+  - include:
+      file: db/changelog/changelogs/25_add_auth_id_in_users_table.xml
+  - include:
+      file: db/changelog/changelogs/26_extend_email_address_length.xml
+  - include:
+      file: db/changelog/changelogs/27_add_example_users_created_table.xml
+  - include:
+      file: db/changelog/changelogs/28_create_monitoring_storage_table.xml

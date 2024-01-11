@@ -1,0 +1,565 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+x-airflow-common:
+  &airflow-common
+  # In order to add custom dependencies or upgrade provider packages you can use your extended image.
+  # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
+  # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:slim-2.3.3-python3.10}
+  env_file: .env
+  environment:
+    &airflow-common-env
+    KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+    KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+    KEYCLOAK_SERVER_METADATA_URL: ${KEYCLOAK_SERVER_METADATA_URL}
+    KEYCLOAK_API_BASE_URL: ${KEYCLOAK_API_BASE_URL}
+    KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL}
+
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@host.docker.internal:5432/airflow
+    # For backward compatibility, with Airflow <2.3
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@host.docker.internal:5432/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://postgres:postgres@host.docker.internal:5432/airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: "${AIRFLOW__CORE__LOAD_EXAMPLES:-true}"
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+
+  volumes:
+    - shared-data:/opt/airflow/data
+    - ./base/airflow/logs:/opt/airflow/logs
+    - ./base/airflow/plugins:/opt/airflow/plugins
+    - ./base/airflow/conf/airflow.cfg:/opt/airflow/airflow.cfg
+    - ./base/airflow/conf/webserver_config.py:/opt/airflow/webserver_config.py
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    &airflow-common-depends-on
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+    keycloak:
+      condition: service_healthy
+
+version: "3.7"
+
+services:
+  postgres:
+    platform: ${HD_PLATFORM}
+    image: postgres:14
+    env_file: .env
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MAX_CONNECTIONS: 200
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+      - ./base/postgres/init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  keycloak:
+    build: ./base/keycloak
+    env_file: .env
+    ports:
+      - 38080:8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm.json
+      DB_VENDOR: h2
+      KC_HEALTH_ENABLED: true
+    volumes:
+      - keycloakrealmvolume:/tmp
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8080/health/ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  redis:
+    platform: ${HD_PLATFORM}
+    image: redis:latest
+    env_file: .env
+    ports:
+      - "${SUPERSET_REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  nats:
+    platform: ${HD_PLATFORM}
+    image: nats:2.7.2-alpine
+    command: --name hello-data --http_port 8222 --js
+    restart: on-failure
+    ports:
+      # 4222 is for clients.
+      # 8222 is an HTTP management port for information reporting.
+      # 6222 is a routing port for clustering.
+      - 4222:4222
+      - 8222:8222
+
+  nats-box:
+    platform: ${HD_PLATFORM}
+    image: natsio/nats-box
+    entrypoint: /bin/sh -c 'tail -f /dev/null'
+    restart: on-failure
+    # use following commands inside after the docker exec:
+    # nats context add nats --server nats:4222 --description "NATS Demo" --select
+    # nats stream ls
+    # nats stream view
+
+  #   smtp dev server
+  smtp4dev:
+    platform: ${HD_PLATFORM}
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      # port the web interface should be accessible on
+      - '8001:80'
+      # port the SMTP server should be accessible on
+      - '25025:25'
+      # port the IMAP server should be accessible on
+      - '14333:143'
+    volumes:
+      # This is where smtp4dev stores the database..
+      - ./base/smtp4dev-data:/smtp4dev
+    environment:
+      - ServerOptions__HostName=smtp4dev
+
+  monitoring-sba:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-monitoring-sba
+    env_file: .env
+    ports:
+      - 5099:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    links:
+      - smtp4dev
+    depends_on:
+      - smtp4dev
+    restart: always
+
+  cloudbeaver:
+    build: ./base/cloudbeaver
+    env_file: .env
+    restart: always
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    ports:
+      - "8978:8978"
+
+  hello-data-cloudbeaver-gateway:
+    image: bedag/hello-data-cloudbeaver-gateway
+    env_file: .env
+    environment:
+      - HELLO_DATA_CLOUDBEAVER_UPSTREAM_URI=http://cloudbeaver:8978
+      - CLOUDBEAVER_SERVICE_NAME=cloudbeaver:8978
+      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/hd_cloudbeaver
+      - SPRING_R2DBC_USERNAME=postgres
+      - SPRING_R2DBC_PASSWORD=postgres
+      - HELLO_DATA_AUTH_SERVER_REALM=hellodata
+    ports:
+      - "8087:8087"
+    depends_on:
+      - postgres
+      - keycloak
+      - cloudbeaver
+    restart: always
+
+  hello-data-sidecar-cloudbeaver:
+    image: bedag/hello-data-sidecar-cloudbeaver
+    env_file: .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
+      - NATS_SPRING_SERVER=nats://nats:4222
+      - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8089/cloudbeaver/
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
+      - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
+    depends_on:
+      - postgres
+      - keycloak
+      - cloudbeaver
+    restart: always
+
+  filebrowser:
+    build: ./base/filebrowser
+    restart: always
+    ports:
+      - 8090:80
+    volumes:
+      - shared-data:/srv
+
+  hello-data-dbt-docs:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-dbt-docs
+    env_file: .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
+      - SPRING_CLOUD_KUBERNETES_ENABLED=false
+      - HELLO_DATA_FILES_STATIC_LOCATION=/storage
+      - HELLO_DATA_FILES_STATIC_LOCATION_TO_OMIT=/storage/Default_Data_Domain/dags,/storage/Extra_Data_Domain/dags
+    links:
+      - postgres
+      - keycloak
+    depends_on:
+      - postgres
+      - keycloak
+    volumes:
+      - shared-data:/storage
+    ports:
+      - 8086:8086
+    restart: always
+
+  hello-data-dbt-docs-sidecar:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-sidecar-dbt-docs
+    env_file: .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
+      - NATS_SPRING_SERVER=nats://nats:4222
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8086/dbt-docs/
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+    links:
+      - nats
+      - postgres
+      - keycloak
+      - hello-data-dbt-docs
+    depends_on:
+      - nats
+      - postgres
+      - keycloak
+      - hello-data-dbt-docs
+    restart: always
+
+  #AIRFLOW
+  airflow-webserver:
+    platform: ${HD_PLATFORM}
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "${AIRFLOW_WEBSERVER_HOST_PORT:-8080}:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://${AIRFLOW_WEBSERVER_HOST_PORT:-8080}/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    platform: ${HD_PLATFORM}
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: [ "CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"' ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-worker:
+    platform: ${HD_PLATFORM}
+    <<: *airflow-common
+    command: celery worker
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - 'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    environment:
+      <<: *airflow-common-env
+      # Required to handle warm shutdown of the celery workers properly
+      # See https://airflow.apache.org/docs/docker-stack/entrypoint.html#signal-propagation
+      DUMB_INIT_SETSID: "0"
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-triggerer:
+    platform: ${HD_PLATFORM}
+    <<: *airflow-common
+    command: triggerer
+    healthcheck:
+      test: [ "CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"' ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-init:
+    platform: ${HD_PLATFORM}
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    # yamllint disable rule:line-length
+    command:
+      - -c
+      - |
+        airflow_version=$$(gosu airflow airflow version)
+        airflow_version_comparable=$$(ver $${airflow_version})
+        min_airflow_version=2.2.0
+        min_airflow_version_comparable=$$(ver $${min_airflow_version})
+        if (( airflow_version_comparable < min_airflow_version_comparable )); then
+          echo
+          echo -e "\033[1;31mERROR!!!: Too old Airflow version $${airflow_version}!\e[0m"
+          echo "The minimum Airflow version supported: $${min_airflow_version}. Only use this or higher!"
+          echo
+          exit 1
+        fi
+        if [[ -z "${AIRFLOW_UID}" ]]; then
+          echo
+          echo -e "\033[1;33mWARNING!!!: AIRFLOW_UID not set!\e[0m"
+          echo "If you are on Linux, you SHOULD follow the instructions below to set "
+          echo "AIRFLOW_UID environment variable, otherwise files will be owned by root."
+          echo "For other operating systems you can get rid of the warning with manually created .env file:"
+          echo "    See: https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html#setting-the-right-airflow-user"
+          echo
+        fi
+        one_meg=1048576
+        mem_available=$$(($$(getconf _PHYS_PAGES) * $$(getconf PAGE_SIZE) / one_meg))
+        cpus_available=$$(grep -cE 'cpu[0-9]+' /proc/stat)
+        disk_available=$$(df / | tail -1 | awk '{print $$4}')
+        warning_resources="false"
+        if (( mem_available < 4000 )) ; then
+          echo
+          echo -e "\033[1;33mWARNING!!!: Not enough memory available for Docker.\e[0m"
+          echo "At least 4GB of memory required. You have $$(numfmt --to iec $$((mem_available * one_meg)))"
+          echo
+          warning_resources="true"
+        fi
+        if (( cpus_available < 2 )); then
+          echo
+          echo -e "\033[1;33mWARNING!!!: Not enough CPUS available for Docker.\e[0m"
+          echo "At least 2 CPUs recommended. You have $${cpus_available}"
+          echo
+          warning_resources="true"
+        fi
+        if (( disk_available < one_meg * 10 )); then
+          echo
+          echo -e "\033[1;33mWARNING!!!: Not enough Disk space available for Docker.\e[0m"
+          echo "At least 10 GBs recommended. You have $$(numfmt --to iec $$((disk_available * 1024 )))"
+          echo
+          warning_resources="true"
+        fi
+        if [[ $${warning_resources} == "true" ]]; then
+          echo
+          echo -e "\033[1;33mWARNING!!!: You have not enough resources to run Airflow (see above)!\e[0m"
+          echo "Please follow the instructions to increase amount of resources available:"
+          echo "   https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html#before-you-begin"
+          echo
+        fi
+        mkdir -p /sources/airflow/logs /sources/airflow/dags /sources/airflow/plugins
+        chown -R "${AIRFLOW_UID}:0" /sources/airflow/{logs,dags,plugins}
+        exec /entrypoint airflow version
+    # yamllint enable rule:line-length
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+    user: "0:0"
+    volumes:
+      - ./base:/sources
+      - ./base/airflow/conf/:/opt/airflow/
+
+  airflow-cli:
+    platform: ${HD_PLATFORM}
+    <<: *airflow-common
+    profiles:
+      - debug
+    environment:
+      <<: *airflow-common-env
+      CONNECTION_CHECK_MAX_COUNT: "0"
+    # Workaround for entrypoint issue. See: https://github.com/apache/airflow/issues/16252
+    command:
+      - bash
+      - -c
+      - airflow
+
+  flower:
+    platform: ${HD_PLATFORM}
+    <<: *airflow-common
+    command: celery flower
+    ports:
+      - 5555:5555
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:5555/" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+  #END AIRFLOW
+
+  hello-data-airflow-sidecar:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-sidecar-airflow
+    restart: always
+    env_file: .env
+    environment:
+      - NATS_SPRING_SERVER=nats://nats:4222
+      - SPRING_DATA_REDIS_HOST=redis
+      - HELLO_DATA_INSTANCE_URL=http://localhost:28080/
+      - HELLO_DATA_AIRFLOW_HOST=airflow-webserver
+      - HELLO_DATA_AIRFLOW_PORT=8080
+      - HELLO_DATA_BUSINESS_CONTEXT_NAME=
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+    links:
+      - nats
+      - redis
+      - keycloak
+      - airflow-webserver
+    depends_on:
+      - postgres
+      - keycloak
+      - redis
+      - nats
+      - airflow-webserver
+
+  hello-data-portal-ui:
+    build:
+      context: base/hello-data-portal-ui
+      dockerfile: Dockerfile
+      args:
+        HELLO_DATA_AUTH_SERVER_URL: ${HELLO_DATA_AUTH_SERVER_URL}
+    env_file: .env
+    restart: on-failure
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      hello-data-portal-api:
+        condition: service_healthy
+    ports:
+      - 8080:80
+
+  hello-data-portal-api:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-portal-api
+    env_file: .env
+    restart: on-failure
+    environment:
+      - SPRING_PROFILES_ACTIVE=local-user-search,create-example-users
+      - SPRING_MAIL_HOST=smtp4dev
+      - SPRING_MAIL_PORT=25
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
+      - NATS_SPRING_SERVER=nats://nats:4222
+      - SPRING_DATA_REDIS_HOST=redis
+      - HELLO_DATA_AUTH_SERVER_REDIRECT_URL=http://localhost:8080
+      - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
+      - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
+    links:
+      - nats
+      - redis
+      - postgres
+      - keycloak
+      - smtp4dev
+    depends_on:
+      - postgres
+      - keycloak
+      - redis
+      - nats
+      - smtp4dev
+      - superset-app-default-data-domain
+      - superset-app-extra-data-domain
+      - airflow-webserver
+      - cloudbeaver
+      - filebrowser
+      - hello-data-airflow-sidecar
+      - hello-data-sidecar-cloudbeaver
+      - hello-data-dbt-docs-sidecar
+      - hello-data-superset-sidecar-default-data-domain
+      - hello-data-superset-sidecar-extra-data-domain
+    ports:
+      - 8081:8081
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8081/api/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  hello-data-portal-sidecar:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-sidecar-portal
+    env_file: .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
+      - NATS_SPRING_SERVER=nats://nats:4222
+      - SPRING_DATA_REDIS_HOST=redis
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+    links:
+      - nats
+      - redis
+      - postgres
+      - keycloak
+      - hello-data-portal-api
+    depends_on:
+      - postgres
+      - keycloak
+      - redis
+      - nats
+      - hello-data-portal-api

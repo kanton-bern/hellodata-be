@@ -1,0 +1,123 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+x-superset-image:
+  &superset-image bedag/hello-data-superset
+x-superset-depends-on:
+  &superset-depends-on
+  postgres:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  keycloak:
+    condition: service_healthy
+
+x-superset-volumes: &superset-volumes
+  # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
+  - ./default_data_domain/superset/docker:/app/docker
+# uncomment to use a local folder as superset_home, something like:
+#  - ./default_data_domain/superset_home:/app/superset_home
+
+version: "3.7"
+
+services:
+  # Superset
+  superset-app-default-data-domain:
+    platform: ${HD_PLATFORM}
+    image: *superset-image
+    command: [ "/app/docker/docker-bootstrap.sh", "app-gunicorn" ]
+    env_file: ./default_data_domain/.env
+    user: "root"
+    ports:
+      - "${SUPERSET_PORT:-38088}:8088"
+    depends_on:
+      <<: *superset-depends-on
+      superset-init-default-data-domain:
+        condition: service_completed_successfully
+    volumes: *superset-volumes
+    restart: on-failure
+
+  superset-init-default-data-domain:
+    platform: ${HD_PLATFORM}
+    image: *superset-image
+    command: [ "/app/docker/docker-init.sh" ]
+    env_file: ./default_data_domain/.env
+    depends_on: *superset-depends-on
+    user: "root"
+    volumes: *superset-volumes
+    restart: on-failure
+
+  superset-worker-default-data-domain:
+    platform: ${HD_PLATFORM}
+    image: *superset-image
+    command: [ "/app/docker/docker-bootstrap.sh", "worker" ]
+    env_file: ./default_data_domain/.env
+    depends_on:
+      <<: *superset-depends-on
+      superset-init-default-data-domain:
+        condition: service_completed_successfully
+    user: "root"
+    volumes: *superset-volumes
+    restart: on-failure
+
+  superset-worker-beat-default-data-domain:
+    platform: ${HD_PLATFORM}
+    image: *superset-image
+    command: [ "/app/docker/docker-bootstrap.sh", "beat" ]
+    env_file: ./default_data_domain/.env
+    depends_on:
+      <<: *superset-depends-on
+      superset-init-default-data-domain:
+        condition: service_completed_successfully
+    user: "root"
+    volumes: *superset-volumes
+    restart: on-failure
+
+  hello-data-superset-sidecar-default-data-domain:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-sidecar-superset
+    env_file: .env
+    environment:
+      - NATS_SPRING_SERVER=nats://nats:4222
+      - SPRING_DATA_REDIS_HOST=redis
+      - HELLO_DATA_INSTANCE_URL=http://localhost:38088/
+      - HELLO_DATA_INSTANCE_NAME=Superset Default Data Domain
+      - HELLO_DATA_SUPERSET_HOST=superset-app-default-data-domain
+      - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+    links:
+      - nats
+      - redis
+      - keycloak
+      - superset-app-default-data-domain
+    depends_on:
+      - postgres
+      - keycloak
+      - redis
+      - nats
+      - superset-app-default-data-domain
+    restart: on-failure

@@ -1,0 +1,204 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#custom props
+hello-data:
+  #    code: 'type | key | name'
+  business-context: 'Business Domain | HelloDATA_Product_Development | HelloDATA Product Development'
+  auth-server:
+    url: http://localhost:38080
+    realm: hellodata
+    client-id: frontend-client
+    redirect-url: http://localhost:4200
+    # IMPORTANT: admin-cli needs a service-account and manage-users permission: --> ServiceAccountRoles -> assign role -> filter by client -> add "manage-users"
+    admin-client-id: admin-cli
+    admin-client-secret: LiLlI86eFxXNWXUWqov4eyG1ocgWwPEq
+    sync-users-schedule-seconds: 30
+  default-admin:
+    email: admin@hellodata.ch
+    username: admin
+    password: admin
+    first-name: HelloDATA
+    last-name: Admin
+  example-users: #requires create-example-users profile
+    business-domain-admin-password: admin
+    data-domain-admin-password: admin
+    data-domain-editor-password: editor
+    data-domain-viewer-password: viewer
+    email-postfix: hellodata.ch
+  system-properties:
+    no-reply-email: "no-reply@hellodata.ch"
+    default-locale: "de_CH"
+  ldap:
+    url: ldap://ldap.forumsys.com:389
+    base: dc=example,dc=com
+    username: cn=read-only-admin,dc=example,dc=com
+    password: password
+    field-mapping:
+      first-name: givenName
+      last-name: sn
+      email: mail
+  cors:
+    allowed-origins: ${hello-data.auth-server.redirect-url},${hello-data.auth-server.url} #can be comma separated
+
+#spring props
+spring:
+  profiles:
+    group:
+      default:
+        - local-user-search
+  application:
+    name: HelloDATA Portal
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+        api-path: instances
+        username: "user"       #These two are needed so that the client
+        password: "password"   #can register at the protected server api
+        instance:
+          metadata:
+            user:
+              name: "user"         #These two are needed so that the server
+              password: "password" #can access the protected client endpoints
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hd_metainfo
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${hello-data.auth-server.client-id}
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+        provider:
+          keycloak:
+            issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
+  mail:
+    host: localhost
+    port: 25025
+    username: apikey
+    password: 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
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+      ssl:
+        trust: mailrelay.cisvc.local
+  cloud:
+    discovery:
+      enabled: false
+    kubernetes:
+      discovery:
+        enabled: false
+logging:
+  level:
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: WARN # Auf INFO werden hier sehr viele Informationen gelogged.
+
+#server props
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+    include-exception: false
+    include-stacktrace: never
+  max-http-request-header-size: 32KB
+#nats
+nats:
+  spring:
+    server: nats://0.0.0.0:4222
+
+#swagger props
+springdoc:
+  show-actuator: true
+  packagesToScan: ch.bedag.dap.hellodata.portal
+  paths-to-match: /**
+  swagger-ui:
+    enabled: false
+    oauth:
+      clientId: ${hello-data.auth-server.client-id}
+
+
+# Actuator endpoints. List available under http://localhost:8081/api/actuator
+management:
+  endpoint:
+    health:
+      enabled: true
+    #      show-details: always #if we need some details
+    info:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+  health:
+    nats:
+      enabled: false
+    mail:
+      enabled: false
+    kubernetes:
+      enabled: false
+    ldap:
+      enabled: false # Disable this when not using ldap connection
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    kubernetes:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        spring.data.repository.invocations: true
+        http.server.requests: true

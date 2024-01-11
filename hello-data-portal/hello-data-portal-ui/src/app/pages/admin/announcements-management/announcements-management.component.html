@@ -1,0 +1,104 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<h2 class="content-block">{{'@Announcements management' | transloco}}</h2>
+<div class="card">
+  <p-toolbar styleClass="mb-4 gap-2">
+    <ng-template pTemplate="left">
+      <button (click)="createAnnouncement()" class="p-button-success mr-2" icon="fas fa-circle-plus" label="{{'@Create announcement' | transloco }}" pButton pRipple></button>
+    </ng-template>
+  </p-toolbar>
+
+  <div *ngIf="(allAnnouncements$ | async) as announcements">
+    <p-table
+      #dt
+      *ngIf="announcements.length > 0"
+      [paginator]="false"
+      [rowHover]="true"
+      [showCurrentPageReport]="true"
+      [value]="announcements"
+      dataKey="id"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>&nbsp;</th>
+          <th>
+            {{'@Created date' | transloco}}
+          </th>
+          <th>
+            {{'@Published date' | transloco}}
+          </th>
+          <th id="msgEditor" style="min-width:30rem">
+            {{'@Message' | transloco}}
+          </th>
+          <th id="actionHeader"></th>
+        </tr>
+      </ng-template>
+      <ng-template let-announcement pTemplate="body">
+        <tr>
+          <td>
+            <div *ngIf="!announcement.published">
+              <i class="fa-solid fa-circle" style="color: #ff0000;" pTooltip="{{'@Announcement unpublished' | transloco }}"></i>
+            </div>
+            <div *ngIf="announcement.published">
+              <i class="fa-solid fa-circle" style="color: #008000;" pTooltip="{{'@Announcement published' | transloco }}"></i>
+            </div>
+          </td>
+          <td style="vertical-align: top">
+            {{announcement.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}
+          </td>
+          <td style="vertical-align: top">
+            {{ announcement.publishedDate ? (announcement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss') : '-'}}
+          </td>
+          <td>
+            <p-editor [(ngModel)]="announcement.message" [disabled]="true" [readonly]="true" [style]="{ height: '320px' }">
+              <p-header hidden></p-header>
+            </p-editor>
+          </td>
+          <td>
+            <button (click)="editAnnouncement(announcement)"
+                    [pTooltip]="'@Edit' | transloco"
+                    class="p-button-rounded p-button-success mr-2"
+                    icon="fas fa-light fa-pen-to-square"
+                    pButton
+                    pRipple></button>
+            <button (click)="showAnnouncementDeletionPopup(announcement)"
+                    [pTooltip]="'@Delete' | transloco"
+                    class="p-button-rounded p-button-danger"
+                    icon="fas fa-trash"
+                    pButton
+                    pRipple></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<app-delete-announcement-popup [action]="getDeletionAction()"></app-delete-announcement-popup>

@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>ch.bedag.dap.hellodata</groupId>
+    <artifactId>hello-data-portal</artifactId>
+    <version>develop-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>hello-data-portal-ui</artifactId>
+  <packaging>jar</packaging>
+
+  <name>hello-data-portal-ui</name>
+  <url>https://github.com/kanton-bern/hellodata-be</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>17</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <docker.namespace>bedag</docker.namespace>
+    <sonar.typescript.lcov.reportPaths>${project.build.directory}/coverage/lcov.info</sonar.typescript.lcov.reportPaths>
+    <sonar.nodejs.executable>${project.build.directory}/node/node</sonar.nodejs.executable>
+    <sonar.typescript.node>${sonar.nodejs.executable}</sonar.typescript.node>
+    <sonar.css.node>${sonar.nodejs.executable}</sonar.css.node>
+    <sonar.sources>src/app</sonar.sources>
+    <sonar.tests>src/app</sonar.tests>
+    <sonar.exclusions>src/app/oauth2/**/*,src/app/app.module.ts</sonar.exclusions>
+    <sonar.test.inclusions>src/app/**/*.spec.ts</sonar.test.inclusions>
+    <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
+    <frontend-maven-plugin.nodeVersion>v20.9.0</frontend-maven-plugin.nodeVersion>
+    <frontend-maven-plugin.yarnVersion>v1.22.18</frontend-maven-plugin.yarnVersion>
+    <frontend-maven-plugin.npmVersion>9.9.2</frontend-maven-plugin.npmVersion>
+    <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>3.2.0</version>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>node_modules</directory>
+                  <followSymlinks>false</followSymlinks>
+                </fileset>
+              </filesets>
+            </configuration>
+          </plugin>
+          <!--
+            expose the project version as a property that is in compliance with docker tag name restrictions:
+            1 to 128 characters matching the regex [A-Za-z0-9_.-]+
+            see: https://github.com/docker/docker/issues/8445
+            and: https://github.com/docker/docker/pull/8447
+          -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>docker-tag-name</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>regex-property</goal>
+                </goals>
+                <configuration>
+                  <name>docker.tag.name</name>
+                  <value>${project.version}</value>
+                  <!-- inverse match the characters allowed in docker tag names -->
+                  <regex>[^A-Za-z0-9_.-]</regex>
+                  <!-- empty replacement replaces all occurrences with an empty string -->
+                  <!-- if no match is found, the value is a valid docker tag name -->
+                  <failIfNoMatch>false</failIfNoMatch>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- use standard docker-tag latest for development-SNAPSHOT -->
+                <id>use-latest</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>regex-property</goal>
+                </goals>
+                <configuration>
+                  <name>docker.tag.name</name>
+                  <value>${project.version}</value>
+                  <regex>develop-SNAPSHOT</regex>
+                  <replacement>latest</replacement>
+                  <failIfNoMatch>false</failIfNoMatch>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>${frontend-maven-plugin.version}</version>
+            <configuration>
+              <nodeVersion>${frontend-maven-plugin.nodeVersion}</nodeVersion>
+              <yarnVersion>${frontend-maven-plugin.yarnVersion}</yarnVersion>
+              <npmVersion>${frontend-maven-plugin.npmVersion}</npmVersion>
+              <installDirectory>target/</installDirectory>
+              <nodeDownloadRoot>https://nodejs.org/dist/</nodeDownloadRoot>
+              <yarnDownloadRoot>https://github.com/yarnpkg/yarn/releases/download</yarnDownloadRoot>
+              <npmDownloadRoot>https://registry.npmjs.org/npm/-/</npmDownloadRoot>
+            </configuration>
+            <executions>
+              <execution>
+                <!-- This needs to run before install-node-and-yarn. Otherwise the plugin skips the npm installation,
+                because it has already unpacked node -->
+                <!-- Note that npm is only needed because esbuild (used by angular) explicitly calls it from its postinstall hook
+                (see https://github.com/angular/angular-cli/issues/21529).
+                This may get resolved with https://github.com/evanw/esbuild/issues/789 in the future. -->
+                <id>install node and npm</id>
+                <goals>
+                  <goal>install-node-and-npm</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>install node and yarn</id>
+                <goals>
+                  <goal>install-node-and-yarn</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>yarn install</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>install</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>yarn angular-build-info</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>angular-build-info</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>yarn lint</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>lint</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>yarn build</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>build</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>build-docker-image</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
+              <imagePullPolicy>Always</imagePullPolicy>
+              <images>
+                <image>
+                  <name>${docker.namespace}/hello-data-portal-ui:${docker.tag.name}</name>
+                  <build>
+                    <contextDir>${project.basedir}/build/docker</contextDir>
+                    <dockerFile>${project.basedir}/build/docker/Dockerfile</dockerFile>
+                    <!-- extract the assembly into the docker context directory-->
+                    <assembly>
+                      <descriptor>${project.basedir}/assembly-descriptor.xml</descriptor> <!-- copy dist/frontend to docker image -->
+                      <name>hello-data-portal-ui</name>
+                    </assembly>
+                  </build>
+                </image>
+              </images>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>e2e-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>3.2.0</version>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>node_modules</directory>
+                  <followSymlinks>false</followSymlinks>
+                </fileset>
+              </filesets>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>${frontend-maven-plugin.version}</version>
+            <configuration>
+              <nodeVersion>${frontend-maven-plugin.nodeVersion}</nodeVersion>
+              <yarnVersion>${frontend-maven-plugin.yarnVersion}</yarnVersion>
+              <npmVersion>${frontend-maven-plugin.npmVersion}</npmVersion>
+              <installDirectory>target/</installDirectory>
+              <nodeDownloadRoot>https://nodejs.org/dist/</nodeDownloadRoot>
+              <yarnDownloadRoot>https://github.com/yarnpkg/yarn/releases/download/</yarnDownloadRoot>
+              <npmDownloadRoot>https://registry.npmjs.org/npm/-/</npmDownloadRoot>
+            </configuration>
+            <executions>
+
+              <execution>
+                <!-- This needs to run before install-node-and-yarn. Otherwise the plugin skips the npm installation,
+                because it has already unpacked node -->
+                <!-- Note that npm is only needed because esbuild (used by angular) explicitly calls it from its postinstall hook
+                (see and https://github.com/angular/angular-cli/issues/21529).
+                This may get resolved with https://github.com/evanw/esbuild/issues/789 in the future. -->
+                <id>install node and npm</id>
+                <goals>
+                  <goal>install-node-and-npm</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>install node and yarn</id>
+                <goals>
+                  <goal>install-node-and-yarn</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>yarn install</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>install</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>yarn angular-build-info</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>angular-build-info</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>yarn lint</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>lint</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>yarn build</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>build -- --configuration e2e</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!--
+            expose the project version as a property that is in compliance with docker tag name restrictions:
+            1 to 128 characters matching the regex [A-Za-z0-9_.-]+
+            see: https://github.com/docker/docker/issues/8445
+            and: https://github.com/docker/docker/pull/8447
+          -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>docker-tag-name</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>regex-property</goal>
+                </goals>
+                <configuration>
+                  <name>docker.tag.name</name>
+                  <value>${project.version}</value>
+                  <!-- inverse match the characters allowed in docker tag names -->
+                  <regex>[^A-Za-z0-9_.-]</regex>
+                  <!-- empty replacement replaces all occurrences with an empty string -->
+                  <!-- if no match is found, the value is a valid docker tag name -->
+                  <failIfNoMatch>false</failIfNoMatch>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- use standard docker-tag latest for development-SNAPSHOT -->
+                <id>use-latest</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>regex-property</goal>
+                </goals>
+                <configuration>
+                  <name>docker.tag.name</name>
+                  <value>${project.version}</value>
+                  <regex>develop-SNAPSHOT</regex>
+                  <replacement>latest</replacement>
+                  <failIfNoMatch>false</failIfNoMatch>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
+              <imagePullPolicy>Always</imagePullPolicy>
+              <images>
+                <image>
+                  <name>${docker.namespace}/hello-data-portal-ui-e2e-tests:${docker.tag.name}</name>
+                  <build>
+                    <contextDir>${project.basedir}/build/docker</contextDir>
+                    <dockerFile>${project.basedir}/build/docker/Dockerfile</dockerFile>
+                    <!-- extract the assembly into the docker context directory-->
+                    <assembly>
+                      <descriptor>${project.basedir}/assembly-descriptor.xml</descriptor> <!-- copy dist/frontend to docker image -->
+                      <name>hello-data-portal-ui</name>
+                    </assembly>
+                  </build>
+                </image>
+              </images>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

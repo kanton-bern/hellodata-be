@@ -1,0 +1,127 @@
+/*
+ * Copyright © 2024, Kanton Bern
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package ch.bedag.dap.hellodata.sidecars.dbt.service.resource;
+
+import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.sidecars.dbt.entities.Role;
+import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
+import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
+import ch.bedag.dap.hellodata.sidecars.dbt.service.cloud.PodUtilsProvider;
+import io.kubernetes.client.openapi.models.V1Pod;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.kubernetes.commons.PodUtils;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_USER_RESOURCES;
+
+@Log4j2
+@Service
+@RequiredArgsConstructor
+public class DbtDocsUserResourceProviderService {
+
+    private final UserRepository userRepository;
+    private final NatsSenderService natsSenderService;
+    private final PodUtilsProvider podUtilsProvider;
+    @Value("${hello-data.instance.name}")
+    private String instanceName;
+
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-seconds:300}", timeUnit = TimeUnit.SECONDS)
+    @Transactional(readOnly = true)
+    public void publishUsers() {
+        log.info("--> publishUsers()");
+        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
+        //ToDo: Remove this conversion to SupersetUsers, should use a generic interface
+        List<User> allUsers = userRepository.findAll();
+        List<SubsystemUser> subsystemUsers = toSupsetSetUsers(allUsers);
+        if (podUtils != null) {
+            V1Pod current = podUtils.currentPod().get();
+            UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
+            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+        } else {
+            //dummy info for tests
+            UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, "local", subsystemUsers);
+            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
+        }
+    }
+
+    /**
+     * Since dbt doesn't return an id for a user, we just invent one of our own
+     */
+    private List<SubsystemUser> toSupsetSetUsers(List<User> dbtUsers) {
+        if (dbtUsers.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<User> modifiableList = new ArrayList<>(dbtUsers);
+        modifiableList.sort(Comparator.comparing(User::getCreatedDate));
+        return IntStream.range(0, modifiableList.size()).mapToObj(i -> toSubsystemUser(i + 2, modifiableList.get(i))).toList();
+    }
+
+    @NotNull
+    private SubsystemUser toSubsystemUser(int index, User dbtUser) {
+        SubsystemUser subsystemUser = new SubsystemUser();
+        subsystemUser.setId(index);
+        subsystemUser.setUsername(dbtUser.getUserName());
+        subsystemUser.setEmail(dbtUser.getEmail());
+        subsystemUser.setFirstName(dbtUser.getFirstName());
+        subsystemUser.setLastName(dbtUser.getLastName());
+        subsystemUser.setActive(dbtUser.isEnabled());
+        subsystemUser.setRoles(toSupersetRoles(dbtUser.getRoles()));
+        return subsystemUser;
+    }
+
+    private List<SupersetRole> toSupersetRoles(Collection<Role> dbtUserRoles) {
+        return dbtUserRoles.stream().map(this::toSupersetRole).toList();
+    }
+
+    private SupersetRole toSupersetRole(Role dbtRole) {
+        SupersetRole supersetRole = new SupersetRole();
+        supersetRole.setId(getRoleId(dbtRole));
+        supersetRole.setName(dbtRole.getName());
+        return supersetRole;
+    }
+
+    /**
+     * Some small arbitrary mapping of dbt rolename to an Integer
+     */
+    private int getRoleId(Role airflowUserRole) {
+        return airflowUserRole.getKey().equalsIgnoreCase(Role.ADMIN_ROLE_KEY) ? 1 : 2;
+    }
+}

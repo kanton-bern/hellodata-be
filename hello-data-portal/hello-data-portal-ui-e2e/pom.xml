@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ch.bedag.dap.hellodata</groupId>
+        <artifactId>hello-data-portal</artifactId>
+        <version>develop-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hello-data-portal-ui-e2e</artifactId>
+    <version>develop-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>hello-data-portal-ui-e2e</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>17</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <docker.namespace>bedag</docker.namespace>
+    </properties>
+
+    <profiles>
+        <profile>
+            <!-- Workaround for a bug on windows: https://github.com/fabric8io/docker-maven-plugin/issues/794  -->
+            <!-- Direct the docker-maven-plugin to connect to the Docker Host using TCP. -->
+            <id>set-docker-host</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <docker.host>tcp://localhost:2375</docker.host>
+            </properties>
+        </profile>
+        <profile>
+            <id>e2e-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <summaryFile>
+                                ${project.build.directory}/hello-data-portal-ui-e2e/cypress/results/failsafe-summary.xml
+                            </summaryFile>
+                            <reportsDirectory>${project.build.directory}/hello-data-portal-ui-e2e/cypress/results/
+                            </reportsDirectory>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <!-- Additional debugging logs can be enabled here by adding comma-separated aliases to showLogs -->
+                            <showLogs>
+                                <!--                                hello-data-portal-postgres,-->
+                                <!--                                hello-data-portal-keycloak,-->
+                                <!--                                hello-data-portal-nats,-->
+                                <!--                                hello-data-portal-redis,-->
+                                <!--                                hello-data-portal-api,-->
+                                <!--                                hello-data-portal-cypress,-->
+                                hello-data-portal-ui-e2e-tests,
+                            </showLogs>
+                            <images>
+                                <image>
+                                    <alias>hello-data-portal-keycloak</alias>
+                                    <name>${docker.namespace}/hello-data-portal-keycloak</name>
+                                    <build>
+                                        <dockerFile>
+                                            ${project.parent.parent.basedir}/hello-data-deployment/docker-compose/keycloak/Dockerfile
+                                        </dockerFile>
+                                        <tags>
+                                            <tag>${docker.tag.name}</tag>
+                                        </tags>
+                                    </build>
+                                    <run>
+                                        <containerNamePattern>%n-%t-%i</containerNamePattern>
+                                        <env>
+                                            <KEYCLOAK_USER>keycloak</KEYCLOAK_USER>
+                                            <KEYCLOAK_PASSWORD>keycloak</KEYCLOAK_PASSWORD>
+                                            <KEYCLOAK_IMPORT>/opt/realm.json</KEYCLOAK_IMPORT>
+                                            <DB_VENDOR>h2</DB_VENDOR>
+                                        </env>
+                                        <wait>
+                                            <log>Listening on: http://0.0.0.0:8080</log>
+                                            <time>200000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+
+                                <image>
+                                    <alias>hello-data-portal-postgres</alias>
+                                    <name>${docker.namespace}/hello-data-portal-postgres</name>
+                                    <build>
+                                        <dockerFile>${project.parent.parent.basedir}/hello-data-db/src/main/docker/Dockerfile</dockerFile>
+                                        <tags>
+                                            <tag>${docker.tag.name}</tag>
+                                        </tags>
+                                    </build>
+                                    <run>
+                                        <containerNamePattern>%n-%t-%i</containerNamePattern>
+                                        <env>
+                                            <POSTGRES_USER>postgres</POSTGRES_USER>
+                                            <POSTGRES_PASSWORD>postgres</POSTGRES_PASSWORD>
+                                            <POSTGRES_DB>hd_metainfo</POSTGRES_DB>
+                                        </env>
+                                        <wait>
+                                            <log>database system is ready to accept connections</log>
+                                            <time>200000</time>
+                                        </wait>
+                                        <!--                                        <ports>-->
+                                        <!--                                            <port>-->
+                                        <!--                                                5432:5432-->
+                                        <!--                                            </port>-->
+                                        <!--                                        </ports>-->
+                                    </run>
+                                </image>
+
+
+                                <image>
+                                    <alias>hello-data-portal-nats</alias>
+                                    <name>${docker.namespace}/nats:2.7.2-alpine</name>
+                                    <build>
+                                        <dockerFile>${project.parent.basedir}/hello-data-portal-ui-e2e/build/nats/Dockerfile</dockerFile>
+                                        <tags>
+                                            <tag>${docker.tag.name}</tag>
+                                        </tags>
+                                    </build>
+                                    <run>
+                                        <containerNamePattern>%n-%t-%i</containerNamePattern>
+                                        <wait>
+                                            <log>Server is ready</log>
+                                            <time>200000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+
+                                <image>
+                                    <alias>hello-data-portal-redis</alias>
+                                    <name>${docker.namespace}/redis:latest</name>
+                                    <build>
+                                        <dockerFile>${project.parent.basedir}/hello-data-portal-ui-e2e/build/redis/Dockerfile</dockerFile>
+                                        <tags>
+                                            <tag>${docker.tag.name}</tag>
+                                        </tags>
+                                    </build>
+                                    <run>
+                                        <containerNamePattern>%n-%t-%i</containerNamePattern>
+                                        <wait>
+                                            <log>Ready to accept connections tcp</log>
+                                            <time>200000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+
+                                <image>
+                                    <alias>hello-data-portal-api</alias>
+                                    <name>${docker.namespace}/hello-data-portal-api</name>
+                                    <build>
+                                        <contextDir>${project.parent.parent.basedir}/hello-data-portal/hello-data-portal-api</contextDir>
+                                        <dockerFile>${project.parent.parent.basedir}/hello-data-portal/hello-data-portal-api/src/main/docker/Dockerfile</dockerFile>
+                                        <tags>
+                                            <tag>${docker.tag.name}</tag>
+                                        </tags>
+                                    </build>
+                                    <run>
+                                        <containerNamePattern>%n-%t-%i</containerNamePattern>
+                                        <env>
+                                            <HELLO_DATA_AUTH_SERVER_URL>http://hello-data-portal-keycloak:8080</HELLO_DATA_AUTH_SERVER_URL>
+                                            <SPRING_DATASOURCE_URL>jdbc:postgresql://hello-data-portal-postgres:5432/hd_metainfo</SPRING_DATASOURCE_URL>
+                                            <NATS_SPRING_SERVER>nats://hello-data-portal-nats:4222</NATS_SPRING_SERVER>
+                                            <SPRING_DATA_REDIS_HOST>hello-data-portal-redis</SPRING_DATA_REDIS_HOST>
+                                            <HELLO_DATA_BUSINESS_CONTEXT_CONTEXTS_0>
+                                                'Data Domain | Default_Data_Domain | Default Data Domain'
+                                            </HELLO_DATA_BUSINESS_CONTEXT_CONTEXTS_0>
+                                        </env>
+                                        <links>
+                                            <link>hello-data-portal-nats</link>
+                                            <link>hello-data-portal-redis</link>
+                                            <link>hello-data-portal-postgres</link>
+                                            <link>hello-data-portal-keycloak</link>
+                                        </links>
+                                        <dependsOn>
+                                            <container>hello-data-portal-postgres</container>
+                                            <container>hello-data-portal-keycloak</container>
+                                            <container>hello-data-portal-redis</container>
+                                            <container>hello-data-portal-nats</container>
+                                        </dependsOn>
+                                        <wait>
+                                            <log>Tomcat initialized with port</log>
+                                            <time>200000</time>
+                                        </wait>
+                                    </run>
+                                </image>
+
+                                <image>
+                                    <alias>hello-data-portal-ui-e2e-tests</alias>
+                                    <name>${docker.namespace}/hello-data-portal-ui-e2e-tests</name>
+                                    <build>
+                                        <contextDir>${project.parent.basedir}/hello-data-portal-ui</contextDir>
+                                        <dockerFile>
+                                            ${project.parent.basedir}/hello-data-portal-ui-e2e/build/docker-hello-data-ui-e2e/Dockerfile
+                                        </dockerFile>
+                                        <tags>
+                                            <tag>${docker.tag.name}</tag>
+                                        </tags>
+                                    </build>
+                                    <!-- FIXME: image immer neu bauen für tests oder existierendes nehmen? -->
+                                    <run>
+                                        <containerNamePattern>%n-%t-%i</containerNamePattern>
+                                        <links>
+                                            <link>hello-data-portal-keycloak</link>
+                                            <link>hello-data-portal-api</link>
+                                        </links>
+                                        <!--                                        <ports>-->
+                                        <!--                                            <port>80:80</port>-->
+                                        <!--                                        </ports>-->
+                                    </run>
+                                </image>
+
+                                <image>
+                                    <alias>hello-data-portal-cypress</alias>
+                                    <name>${docker.namespace}/hello-data-portal-cypress</name>
+                                    <build>
+                                        <network>host</network>
+                                        <contextDir>${project.basedir}</contextDir>
+                                        <dockerFile>build/docker/Dockerfile</dockerFile>
+                                        <tags>
+                                            <tag>${docker.tag.name}</tag>
+                                        </tags>
+                                    </build>
+                                    <run>
+                                        <containerNamePattern>%n-%t-%i</containerNamePattern>
+                                        <env>
+                                            <ELECTRON_ENABLE_LOGGING>1</ELECTRON_ENABLE_LOGGING>
+                                        </env>
+                                        <links>
+                                            <link>hello-data-portal-api</link>
+                                            <link>hello-data-portal-ui-e2e-tests</link>
+                                            <link>hello-data-portal-keycloak</link>
+                                        </links>
+                                        <workingDir>/e2e</workingDir>
+                                        <wait>
+                                            <log>(Run Finished)</log>
+                                            <time>300000</time>
+                                        </wait>
+                                    </run>
+                                    <copy>
+                                        <entries>
+                                            <entry>
+                                                <containerPath>/e2e/cypress</containerPath>
+                                                <hostDirectory>${bamboo.build.working.directory}/hellodata-portal-ui-e2e/target/e2e</hostDirectory>
+                                            </entry>
+                                        </entries>
+                                    </copy>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

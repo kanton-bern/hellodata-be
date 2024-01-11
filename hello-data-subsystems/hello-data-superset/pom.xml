@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ch.bedag.dap.hellodata</groupId>
+    <artifactId>hello-data-superset</artifactId>
+    <version>develop-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>hello-data-superset</name>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub kanton-bern Maven Packages</name>
+            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
+        </repository>
+        <snapshotRepository>
+            <id>github-snapshots</id>
+            <name>GitHub kanton-bern Maven Snapshots</name>
+            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <properties>
+        <java.version>17</java.version>
+        <jacoco-maven-plugin.version>0.8.7</jacoco-maven-plugin.version>
+        <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
+        <build.number>local-build</build.number>
+        <docker.namespace>bedag</docker.namespace>
+        <push-docker-image-phase>post-integration-test</push-docker-image-phase>
+        <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!--
+                  expose the project version as a property that is in compliance with docker tag name restrictions:
+                  1 to 128 characters matching the regex [A-Za-z0-9_.-]+
+                  see: https://github.com/docker/docker/issues/8445
+                  and: https://github.com/docker/docker/pull/8447
+                -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>docker-tag-name</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>regex-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>docker.tag.name</name>
+                                <value>${project.version}</value>
+                                <!-- inverse match the characters allowed in docker tag names -->
+                                <regex>[^A-Za-z0-9_.-]</regex>
+                                <!-- empty replacement replaces all occurrences with an empty string -->
+                                <!-- if no match is found, the value is a valid docker tag name -->
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <!-- use standard docker-tag latest for development-SNAPSHOT -->
+                            <id>use-latest-on-development</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>regex-property</goal>
+                            </goals>
+                            <configuration>
+                                <name>docker.tag.name</name>
+                                <value>${project.version}</value>
+                                <regex>develop-SNAPSHOT</regex>
+                                <replacement>latest</replacement>
+                                <failIfNoMatch>false</failIfNoMatch>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${docker-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>build-docker-image</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>push-docker-image</id>
+                            <phase>${push-docker-image-phase}</phase>
+                            <goals>
+                                <goal>push</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <verbose>true</verbose>
+                        <logStdout>true</logStdout>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${git-commit-id-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skipPoms>false</skipPoms>
+                    <runOnlyOnce>true</runOnlyOnce>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>check-licence</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <version>4.3</version>
+                        <executions>
+                            <execution>
+                                <id>format</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>format</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <properties>
+                                <owner>Kanton Bern</owner>
+                                <year>2024</year>
+                            </properties>
+                            <licenseSets>
+                                <licenseSet>
+                                    <header>com/mycila/maven/plugin/license/templates/BSD-3.txt</header>
+                                </licenseSet>
+                            </licenseSets>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
+                            <imagePullPolicy>Always</imagePullPolicy>
+                            <images>
+                                <image>
+                                    <name>${docker.namespace}/hello-data-superset:${docker.tag.name}</name>
+                                    <build>
+                                        <contextDir>${project.basedir}/src/main/docker</contextDir>
+                                        <!-- extract the assembly into the docker context directory-->
+                                        <assembly>
+                                            <name>hello-data-superset</name>
+                                        </assembly>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

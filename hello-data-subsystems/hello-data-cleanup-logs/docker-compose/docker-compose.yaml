@@ -1,0 +1,87 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+version: '3.6'
+
+services:
+
+  hd-cleanup-logs:
+    image: registry.mgmtbi.ch/se_gf_sie/hello-data-cleanup-logs:latest
+    restart: always
+    ports:
+      - 8087:8087
+    volumes:
+      - ./application.yml:/config/application.yml:ro
+      - ./application.yml:/app/application.yml:ro
+      - ./application.yml:/app/config/application.yml:ro
+    environment:
+      - SPRING_PROFILES_ACTIVE=dc
+  airflow-db:
+    image: postgres:12.14
+    restart: always
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+      - POSTGRES_PORT=25436
+      - POSTGRESQL_PORT_NUMBER=25436
+      - PGPORT=25436
+    ports:
+      - '25436:25436'
+    volumes:
+      - ./dataset/airflow-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./dataset/airflow-data.sql:/docker-entrypoint-initdb.d/02-init.sql
+  superset-db:
+    image: postgres:12.14
+    restart: always
+    environment:
+      - POSTGRES_USER=superset
+      - POSTGRES_PASSWORD=superset
+      - POSTGRES_DB=superset
+      - POSTGRES_PORT=25438
+      - POSTGRESQL_PORT_NUMBER=25438
+      - PGPORT=25438
+    ports:
+      - '25438:25438'
+    volumes:
+      - ./dataset/superset-init.sql:/docker-entrypoint-initdb.d/00-init.sql
+      - ./dataset/superset-data.sql:/docker-entrypoint-initdb.d/01-init.sql
+  cloudbeaver-db:
+    image: postgres:12.14
+    restart: always
+    environment:
+      - POSTGRES_USER=cloudbeaver
+      - POSTGRES_PASSWORD=cloudbeaver
+      - POSTGRES_DB=cloudbeaver
+      - POSTGRES_PORT=25437
+      - POSTGRESQL_PORT_NUMBER=25437
+      - PGPORT=25437
+    ports:
+      - '25437:25437'
+    volumes:
+      - ./dataset/cloudbeaver-init.sql:/docker-entrypoint-initdb.d/00-init.sql
+      - ./dataset/cloudbeaver-data.sql:/docker-entrypoint-initdb.d/01-init.sql

@@ -1,0 +1,154 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+hello-data:
+  auth-server:
+    url: http://localhost:38080
+    realm: hellodata
+    client-id: frontend-client
+  cloudbeaver:
+    service-name: ${CLOUDBEAVER_SERVICE_NAME}
+  cors:
+    allowed-origins: http://localhost:8080,http://localhost:4200 #can be comma separated
+
+spring:
+  application:
+    name: HelloDATA Gateway for Cloudbeaver
+  main:
+    web-application-type: reactive
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: ${hello-data.auth-server.client-id}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+            scope:
+              - openid
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+        username: "user"       #These two are needed so that the client
+        password: "password"   #can register at the protected server api
+        instance:
+          metadata:
+            user.name: "user"         #These two are needed so that the server
+            user.password: "password" #can access the protected client endpoints
+  cloud:
+    discovery:
+      enabled: false
+    kubernetes:
+      discovery:
+        enabled: false
+    gateway:
+      metrics:
+        enabled: true
+      httpserver:
+        wiretap: true
+      httpclient:
+        wiretap: true
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+      routes:
+        - id: cloudbeaver_route
+          uri: http://${hello-data.cloudbeaver.service-name}
+          predicates:
+            - Path=/**
+          filters:
+            - AddCbAuth
+            - RemoveRequestCookie
+        - id: cloudbeaver_websocket_route
+          uri: ws://${hello-data.cloudbeaver.service-name}
+          predicates:
+            - Path=/**
+          filters:
+            - AddCbAuth
+            - RemoveRequestCookie
+server:
+  port: 8087
+  error:
+    include-message: always
+    include-exception: false
+    include-stacktrace: never
+  max-http-request-header-size: 32KB
+management:
+  endpoint:
+    health:
+      enabled: true
+    #      show-details: always #if we need some details
+    info:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+  health:
+    nats:
+      enabled: false
+    mail:
+      enabled: false
+    kubernetes:
+      enabled: false
+    ldap:
+      enabled: false # Disable this when not using ldap connection
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    kubernetes:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        spring.data.repository.invocations: true
+        http.server.requests: true
+  server:
+    port: 8082
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: INFO
+    org.springframework.web.HttpLogging: INFO
+    reactor.netty.http.server: INFO
+    reactor.netty.http.client: INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: INFO

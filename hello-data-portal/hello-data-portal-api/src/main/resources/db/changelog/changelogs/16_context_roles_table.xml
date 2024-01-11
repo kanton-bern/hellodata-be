@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="uuid_type" value="uuid" dbms="postgresql"/>
+    <property name="uuid_function" value="uuid_generate_v4()" dbms="postgresql"/>
+
+    <changeSet id="16-create-context-role-table" author="slawomir.wieczorek">
+        <comment>Rename table role into portal_role</comment>
+        <renameTable oldTableName="role" newTableName="portal_role"/>
+        <addUniqueConstraint tableName="portal_role" columnNames="name" constraintName="unique_role_name"/>
+        <dropColumn columnName="context_key" tableName="portal_role"/>
+
+        <comment>Create user portal role</comment>
+        <createTable tableName="user_portal_role">
+            <column name="id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="user_id" type="${uuid_type}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="portal_role_id" type="${uuid_type}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_type" type="varchar"/>
+            <column name="created_date" type="timestamp"/>
+            <column name="created_by" type="varchar(150)"/>
+            <column name="modified_date" type="timestamp"/>
+            <column name="modified_by" type="varchar(150)"/>
+        </createTable>
+        <addPrimaryKey columnNames="user_id, portal_role_id" tableName="user_portal_role"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_portal_role"
+                                 constraintName="FK_user_portal_role_user"
+                                 referencedColumnNames="id" referencedTableName="user_"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseColumnNames="portal_role_id" baseTableName="user_portal_role"
+                                 constraintName="FK_user_portal_role_role"
+                                 referencedColumnNames="id" referencedTableName="portal_role"
+                                 onDelete="CASCADE"/>
+
+        <comment>Create role table</comment>
+        <createTable tableName="role">
+            <column name="id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_type" type="varchar"/>
+            <column name="created_date" type="timestamp"/>
+            <column name="created_by" type="varchar(150)"/>
+            <column name="modified_date" type="timestamp"/>
+            <column name="modified_by" type="varchar(150)"/>
+        </createTable>
+
+        <comment>Create user context role</comment>
+        <createTable tableName="user_context_role">
+            <column name="id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="context_key" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="${uuid_type}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="${uuid_type}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="created_by" type="varchar(150)"/>
+            <column name="modified_date" type="timestamp"/>
+            <column name="modified_by" type="varchar(150)"/>
+        </createTable>
+        <addPrimaryKey columnNames="user_id, context_key" tableName="user_context_role"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_context_role"
+                                 constraintName="FK_user_context_role_user"
+                                 referencedColumnNames="id" referencedTableName="user_"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user_context_role"
+                                 constraintName="FK_user_context_role_role"
+                                 referencedColumnNames="id" referencedTableName="role"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="user_context_role" baseColumnNames="context_key"
+                                 referencedTableName="context" referencedColumnNames="context_key"
+                                 constraintName="fk_user_context_role_context" onDelete="CASCADE" onUpdate="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

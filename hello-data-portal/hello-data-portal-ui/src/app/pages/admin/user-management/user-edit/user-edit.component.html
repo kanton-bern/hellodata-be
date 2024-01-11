@@ -1,0 +1,170 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<div *ngIf="userForm" class="card">
+  <form *ngIf="(editedUser$ | async) as editedUser" [formGroup]="userForm" class="form">
+    <h4>{{'@User data' | transloco}}</h4>
+
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+      </div>
+      <div class="p-toolbar-group-end">
+        <p-button (click)="showUserDisablePopup(editedUser)"
+                  *ngIf="!editedUser.superuser && editedUser.enabled"
+                  class="mr-2"
+                  icon="fas fa-circle-xmark"
+                  label="{{'@Disable' | transloco}}"
+                  styleClass="p-button-warning mr-2"></p-button>
+        <p-button (click)="showUserEnablePopup(editedUser)"
+                  *ngIf="!editedUser.superuser && !editedUser.enabled"
+                  class="mr-2"
+                  icon="fas fa-circle-plus"
+                  label="{{'@Enable' | transloco}}"
+                  styleClass="p-button-success"></p-button>
+      </div>
+    </p-toolbar>
+    <p-divider></p-divider>
+
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{'@E-mail' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               disabled id="email" type="text"
+               value="{{editedUser.email}}">
+      </div>
+    </div>
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{'@First name' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               disabled id="firstName" type="text"
+               value="{{editedUser.firstName}}">
+      </div>
+    </div>
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{'@Last name' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+               disabled id="lastName" type="text"
+               value="{{editedUser.lastName}}">
+      </div>
+    </div>
+    <br>
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0">{{'@Enabled' | transloco}}</label>
+      <div class="col-12 md:col-10">
+        <div *ngIf="editedUser.enabled">
+          <i class="fas fa-check"></i>
+        </div>
+        <div *ngIf="!editedUser.enabled">
+          <i class="fas fa-circle-xmark"></i>
+        </div>
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+    <div *ngIf="userForm">
+      <div *ngIf="(dataDomains$ | async) as dataDomains ">
+        <div *ngIf="(availableDataDomainRoles$ | async) as availableDataDomainRoles">
+          <div class="field grid">
+            <h4 class="col-12 mb-2 md:col-2 md:mb-0">{{'@Permissions' | transloco}}</h4>
+            <div class="col-12 md:col-10">
+              &nbsp;
+            </div>
+          </div>
+          <br>
+          <div *ngIf="(businessDomains$ | async) as businessDomains" class="field grid">
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@Business domain' | transloco}}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@User role' | transloco}}</div>
+            <br>
+            <div class="col-12 md:col-12">
+              <div *ngFor="let businessDomain of businessDomains">
+                <br>
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{businessDomain.name}}</label>
+                  <div class="col-12 md:col-10">
+                    <p-dropdown (onChange)="onBusinessDomainRoleSelected($event, dataDomains, availableDataDomainRoles)"
+                                [options]="availableBusinessDomainRoles$ | async"
+                                formControlName="{{businessDomain.contextKey}}"
+                                id="businessDomain"
+                                optionLabel="name"></p-dropdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="field grid">
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@Data domain' | transloco}}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@Domain type' | transloco}}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@User role' | transloco}}</div>
+            <br>
+            <div class="col-12 md:col-12">
+              <div *ngFor="let dataDomain of dataDomains">
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{dataDomain.name}}</label>
+                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{dataDomain.extra ? 'Extra' : 'Standard'}}</label>
+                  <div class="col-12 md:col-2">
+                    <div class="col-12 md:col-10 mt-1">
+                      &nbsp;
+                    </div>
+                    <p-dropdown
+                      (onChange)="onDataDomainRoleSelected($event, dataDomain)"
+                      [options]="availableDataDomainRoles"
+                      formControlName="{{dataDomain.contextKey}}"
+                      id="dataDomain"
+                      optionLabel="name"></p-dropdown>
+                  </div>
+                  <div *ngIf="dashboardTableVisibility.get(dataDomain.contextKey)" class="col-12 md:col-6">
+                    <app-dashboard-viewer-permissions (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
+                                                      [context]="dataDomain"></app-dashboard-viewer-permissions>
+                  </div>
+                </div>
+                <p-divider></p-divider>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+        <button (click)="updateUser()"
+                [pTooltip]="'@Save' | transloco"
+                class="p-button-success mr-2 p-button p-component"
+                label="{{'@Save' | transloco}}" pButton
+                pRipple></button>
+      </div>
+    </p-toolbar>
+
+  </form>
+</div>
+<app-actions-user-popup></app-actions-user-popup>

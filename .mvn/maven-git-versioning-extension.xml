@@ -1,0 +1,52 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<configuration
+        xmlns="https://github.com/qoomon/maven-git-versioning-extension"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://github.com/qoomon/maven-git-versioning-extension https://qoomon.github.io/maven-git-versioning-extension/configuration-7.0.0.xsd">
+  <!-- when considerTagsOnBranches is true, the order of the ref patterns below matters -->
+  <!-- the first pattern (tag or branch) to match will be used for the version -->
+  <refs considerTagsOnBranches="true">
+    <!-- Use tags as-is for the version number -->
+    <!-- If you use a 'v' prefix for version tags, change the pattern to v(.+) -->
+    <ref type="tag">
+      <pattern>(.+)</pattern>
+      <version>${ref.1}</version>
+    </ref>
+    <!-- For Gitflow branches, use the part after the branch prefix as version and add a -SNAPSHOT suffix -->
+    <ref type="branch">
+      <pattern>(feature|release|hotfix|bugfix|support)/(.+)</pattern>
+      <version>${ref.2}-SNAPSHOT</version>
+    </ref>
+  </refs>
+  <!-- If nothing matches, the version is left as-is in the pom.xml -->
+  <rev>
+    <version>${version}</version>
+  </rev>
+</configuration>

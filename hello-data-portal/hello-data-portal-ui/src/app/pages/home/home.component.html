@@ -1,0 +1,125 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<ng-container *ngIf="(waitForPermissionsLoaded$ | async)"></ng-container>
+<ng-container *ngIf="(businessDomain$ | async)"></ng-container>
+<ng-container *ngIf="(adminEmails$ | async)"></ng-container>
+<ng-container *ngIf="(currentUserContextRolesNotNone$ | async)"></ng-container>
+
+<div *ngIf="(loadedPermissions$ | async)" class="home-view">
+
+    <div class="grid" *ngIf="(currentUserContextRolesNotNone$ |async ).length === 0">
+        <p-fieldset class="col-12 lg:col-12" >
+          <ng-template pTemplate="header">
+            <div class="flex align-items-center gap-2 text-primary">
+              <p-badge value="{{ '@Error' | transloco }}" size="large" severity="warning"></p-badge>
+            </div>
+          </ng-template>
+          <div class="h-full permission-error" *ngIf="businessDomain$ | async as businessDomain">
+            {{ '@Permission missing' | transloco: { businessdomain: businessDomain } }}
+            <ng-container *ngIf="adminEmails$ |async as adminEmails">
+              <ul *ngFor="let email of adminEmails" class="email-list">
+                <li>{{ email }}</li>
+              </ul>
+            </ng-container>
+          </div>
+        </p-fieldset>
+    </div>
+
+    <div class="grid" *ngIf="(currentUserContextRolesNotNone$ |async ).length > 0">
+      <p-fieldset class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="dashboardsHeader">{{'@Dashboards' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-dashboards></app-dashboards>
+        </div>
+      </p-fieldset>
+
+      <p-fieldset *ngIf="hasPermissions(['DATA_LINEAGE']) |async" class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="lineageHeader">{{'@Lineage' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-lineage></app-lineage>
+        </div>
+      </p-fieldset>
+
+      <p-fieldset class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="faqHeader">{{'@Faq' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-faq></app-faq>
+        </div>
+      </p-fieldset>
+
+      <p-fieldset *ngIf="hasPermissions(['DATA_MARTS']) |async" class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="dataMartsHeader">{{'@Data Marts' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-dm></app-dm>
+        </div>
+      </p-fieldset>
+
+      <p-fieldset class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="externalDashboardsHeader">{{'@External dashboards' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-external></app-external>
+        </div>
+      </p-fieldset>
+
+      <p-fieldset class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="documentationHeader">{{'@Documentation' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-home-documentation></app-home-documentation>
+        </div>
+      </p-fieldset>
+
+    </div>
+    <div style="display: none">
+      <app-silent-login></app-silent-login>
+    </div>
+</div>

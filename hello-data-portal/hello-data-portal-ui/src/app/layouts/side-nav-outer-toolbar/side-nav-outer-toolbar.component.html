@@ -1,0 +1,105 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<div *ngIf="publishedAnnouncements$ | async"></div>
+<div class="sidebar close">
+  <div class="logo-details">
+    <img alt="logo" routerLink="/home" src="/assets/img/hd.png" style="cursor: pointer"/>
+    <span class="logo_name">HelloDATA</span>
+  </div>
+  <ul *ngIf="(navItems$ | async) as navItems" class="nav-links">
+    <ng-template [ngForOf]="navItems" let-i="index" let-item ngFor>
+      <li>
+        <a *ngIf="item.routerLink" [id]="item.id" [routerLink]="item.routerLink">
+          <i [ngClass]="item.icon"></i>
+          <span class="link_name">{{item.text | transloco }}</span>
+        </a>
+        <a *ngIf="!item.routerLink" [attr.href]="item.url" [attr.target]="item.target" [id]="item.id">
+          <i [ngClass]="item.icon"></i>
+          <span class="link_name">{{item.text | transloco }}</span>
+        </a>
+        <ul *ngIf="item.items" class="second-level-menu">
+          <ng-template [ngForOf]="item.items" let-i="index" let-last="last" let-subItem ngFor>
+            <li>
+              <a *ngIf="subItem.routerLink" [id]="subItem.id" [routerLink]="subItem.routerLink">
+                <span class="link_name">{{subItem.text | transloco }}</span>
+                <i *ngIf="subItem.items" class='fas fa-angle-right'></i>
+              </a>
+              <a *ngIf="!subItem.routerLink" [attr.href]="subItem.url" [attr.target]="subItem.target" [id]="subItem.id">
+                <span class="link_name">{{subItem.text | transloco }}</span>
+                <i *ngIf="subItem.items" class='fas fa-angle-right'></i>
+              </a>
+              <ul *ngIf="subItem.items" class="third-level-menu">
+                <ng-template [ngForOf]="subItem.items" let-i="index" let-subSubItem ngFor>
+                  <li>
+                    <a *ngIf="subSubItem.routerLink" [id]="subSubItem.id" [routerLink]="subSubItem.routerLink">
+                      <span class="link_name">{{subSubItem.text | transloco }}</span>
+                    </a>
+                    <a *ngIf="!subSubItem.routerLink" [attr.href]="subSubItem.url" [attr.target]="subSubItem.target" [id]="subSubItem.id">
+                      <span class="link_name">{{subSubItem.text | transloco }}</span>
+                    </a>
+                  </li>
+                </ng-template>
+              </ul>
+            </li>
+          </ng-template>
+        </ul>
+      </li>
+    </ng-template>
+  </ul>
+</div>
+
+
+<section class="content-section">
+  <app-header
+    [title]="title">
+  </app-header>
+  <div class="grid">
+    <div [ngClass]="'col'">
+      <ng-container *ngIf="(publishedAnnouncements$ | async)"></ng-container>
+      <p-scrollPanel [style]="{ width: 'calc(100vw - 8rem)', height: 'calc(100vh - ' + height + 'rem)' }">
+        <ng-content></ng-content>
+
+        <div class="content-block">
+          <br/>
+          <ng-content select="app-footer"></ng-content>
+        </div>
+        <p-scrollTop [threshold]="100" icon="fas fa-arrow-up" target="parent"></p-scrollTop>
+      </p-scrollPanel>
+    </div>
+    <div [ngClass]="['col-fixed', 'right-panel-close']" *ngIf="selectCurrentUserPermissionsLoaded$"
+         [ngStyle]="{'width': '30px'}" class="right-panel">
+      <app-summary></app-summary>
+    </div>
+  </div>
+
+</section>
+
+<p-toast></p-toast>
+<app-unsaved-changes-dialog></app-unsaved-changes-dialog>
+

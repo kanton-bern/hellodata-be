@@ -1,0 +1,70 @@
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<div *ngIf="(currentUserPermissions$ | async) as permissions">
+  <div *ngIf="(externalDashboards$ | async) as externalDashboards">
+    <p-table #dt [filterDelay]="0"
+             [globalFilterFields]="['title', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'scheduled', 'datasource']"
+             [paginator]="true"
+             [rowHover]="true"
+             [rows]="5"
+             [showCurrentPageReport]="true"
+             [tableStyle]="{ 'min-width': '20rem' }"
+             [value]="externalDashboards"
+             dataKey="id">
+      <ng-template pTemplate="header">
+        <tr>
+          <th id="icon"></th>
+          <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
+            <p-sortIcon field="contextName"></p-sortIcon>
+          </th>
+          <th id="title" pSortableColumn="title">{{'@Dashboard' | transloco}}
+            <p-sortIcon field="title"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template let-dashboard pTemplate="body">
+        <tr>
+          <td>
+            <div class="flex align-items-center justify-content-center gap-2">
+              <i class="fas fa-up-right-from-square"></i>
+            </div>
+          </td>
+          <td>
+            {{ dashboard.contextName }}
+          </td>
+          <td>
+            <a [href]="createExternalUrl(dashboard.url)" rel="noopener" target="_blank">{{ dashboard.title }}</a>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+

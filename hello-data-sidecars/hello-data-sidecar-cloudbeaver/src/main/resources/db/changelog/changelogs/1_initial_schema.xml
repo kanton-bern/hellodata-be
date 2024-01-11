@@ -1,0 +1,124 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="HelloDATA System" id="1688113333413-1">
+        <createTable tableName="hd_user">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="hd_userPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="created_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="modified_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-2">
+        <createTable tableName="hd_privilege">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="privilegePK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="created_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="modified_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-3">
+        <createTable tableName="hd_role">
+            <column name="id" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="rolePK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="created_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="modified_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="key" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-4">
+        <createTable tableName="hd_roles_privileges">
+            <column name="hd_role_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hd_privilege_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-5">
+        <createTable tableName="hd_users_roles">
+            <column name="hd_user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hd_role_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-6">
+        <addUniqueConstraint columnNames="email" constraintName="UC_HD_USEREMAIL_COL" tableName="hd_user"/>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-7">
+        <addUniqueConstraint columnNames="user_name" constraintName="UC_HD_USERUSER_NAME_COL" tableName="hd_user"/>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-8">
+        <addUniqueConstraint columnNames="key" constraintName="UC_ROLEKEY_COL" tableName="hd_role"/>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-9">
+        <addForeignKeyConstraint baseColumnNames="hd_privilege_id" baseTableName="hd_roles_privileges" constraintName="FK5yjwxw2gvfyu76j3rgqwo685u" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="hd_privilege" validate="true"/>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-10">
+        <addForeignKeyConstraint baseColumnNames="hd_user_id" baseTableName="hd_users_roles" constraintName="FK8kka3sjg8u2wrwhhas5chnqky" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="hd_user" validate="true"/>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-11">
+        <addForeignKeyConstraint baseColumnNames="hd_role_id" baseTableName="hd_roles_privileges" constraintName="FK9h2vewsqh8luhfq71xokh4who" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="hd_role" validate="true"/>
+    </changeSet>
+    <changeSet author="HelloDATA System" id="1688113333413-12">
+        <addForeignKeyConstraint baseColumnNames="hd_role_id" baseTableName="hd_users_roles" constraintName="FKt4v0rrweyk393bdgt107vdx0x" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="hd_role" validate="true"/>
+    </changeSet>
+</databaseChangeLog>
