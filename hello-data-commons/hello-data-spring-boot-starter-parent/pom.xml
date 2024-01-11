@@ -33,12 +33,12 @@
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data-commons</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>main-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>hello-data-spring-boot-starter-parent</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>main-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-spring-boot-starter-parent</name>

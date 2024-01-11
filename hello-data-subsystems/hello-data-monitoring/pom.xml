@@ -32,7 +32,7 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-monitoring</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>main-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

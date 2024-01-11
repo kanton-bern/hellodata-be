@@ -33,12 +33,12 @@
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data-spring-boot-starter-parent</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>main-SNAPSHOT</version>
         <relativePath>../../hello-data-commons/hello-data-spring-boot-starter-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>hello-data-sidecar-dbt-docs</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>main-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>hello-data-sidecar-dbt-docs</name>

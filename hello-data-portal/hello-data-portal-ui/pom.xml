@@ -33,7 +33,7 @@
   <parent>
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-portal</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <version>main-SNAPSHOT</version>
   </parent>
 
   <artifactId>hello-data-portal-ui</artifactId>
