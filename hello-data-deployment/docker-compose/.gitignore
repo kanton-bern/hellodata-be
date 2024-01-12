@@ -1,6 +1,5 @@
 cloudbeaver_data
 logs/
-base/airflow/conf
 /smtp4dev-data/
 /plugins/
 /dags/
