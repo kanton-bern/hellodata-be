@@ -4770,10 +4770,10 @@ COPY public.databasechangelog (id, author, filename, dateexecuted, orderexecuted
 0000	hellodata	superset-changelog.xml	2023-12-20 15:07:03.30868	1	EXECUTED	8:eb12f182f36b604524e225be9e9144a4	sqlFile path=changelogs/00_enable_extensions.sql		\N	4.21.1	\N	\N	3084822731
 0001	hellodata	superset-changelog.xml	2023-12-20 15:07:04.098037	2	EXECUTED	8:0e7bc12a61f5b2e6c480397b286c9630	sqlFile path=changelogs/01_inital_HD_roles_and_permissions.sql		\N	4.21.1	\N	\N	3084822731
 0002	hellodata	superset-changelog.xml	2023-12-20 15:07:04.115506	3	EXECUTED	8:73af078d216fba74245a72fb00fc0c28	sqlFile path=changelogs/02_functions.sql		\N	4.21.1	\N	\N	3084822731
-0003	hellodata	superset-changelog.xml	2023-12-20 15:07:04.170324	4	EXECUTED	8:4ffb6f15e3092b397afffad29d5e64c6	sqlFile path=changelogs/03_first_time_migration.sql		\N	4.21.1	\N	\N	3084822731
+0003	hellodata	superset-changelog.xml	2023-12-20 15:07:04.170324	4	EXECUTED	8:26c1b25e9693081dd91a0144934d043e	sqlFile path=changelogs/03_first_time_migration.sql		\N	4.21.1	\N	\N	3084822731
 0004	hellodata	superset-changelog.xml	2023-12-20 15:07:04.255122	5	EXECUTED	8:122a94e4618660459c789747f26b8c7e	sqlFile path=changelogs/04_triggers.sql		\N	4.21.1	\N	\N	3084822731
-0005	hellodata	superset-changelog.xml	2023-12-20 15:07:04.261913	6	EXECUTED	8:23ab9db0bb9dce1b35a6a186b6fe3e5d	sqlFile path=changelogs/05_delete_duplicate_owners.sql		\N	4.21.1	\N	\N	3084822731
-0006	hellodata	superset-changelog.xml	2023-12-20 15:07:04.272775	7	EXECUTED	8:a3d8960572c3b9900b02211f00501075	sqlFile path=changelogs/06_handle_owners_on_datasets.sql		\N	4.21.1	\N	\N	3084822731
+0005	hellodata	superset-changelog.xml	2023-12-20 15:07:04.261913	6	EXECUTED	8:99993b2429a8b306ff0dbb76e5fd6945	sqlFile path=changelogs/05_delete_duplicate_owners.sql		\N	4.21.1	\N	\N	3084822731
+0006	hellodata	superset-changelog.xml	2023-12-20 15:07:04.272775	7	EXECUTED	8:197febca06677018e0f8144009703bec	sqlFile path=changelogs/06_handle_owners_on_datasets.sql		\N	4.21.1	\N	\N	3084822731
 \.
 
 
