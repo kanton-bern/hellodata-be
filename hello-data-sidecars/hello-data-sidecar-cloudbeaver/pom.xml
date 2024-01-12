@@ -206,7 +206,7 @@
                                 <configuration>
                                     <name>docker.tag.name</name>
                                     <value>${project.version}</value>
-                                    <regex>develop-SNAPSHOT</regex>
+                                    <regex>main-SNAPSHOT</regex>
                                     <replacement>latest</replacement>
                                     <failIfNoMatch>false</failIfNoMatch>
                                 </configuration>
