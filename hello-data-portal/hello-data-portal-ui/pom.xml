@@ -133,7 +133,7 @@
               <npmVersion>${frontend-maven-plugin.npmVersion}</npmVersion>
               <installDirectory>target/</installDirectory>
               <nodeDownloadRoot>https://nodejs.org/dist/</nodeDownloadRoot>
-              <yarnDownloadRoot>https://github.com/yarnpkg/yarn/releases/download</yarnDownloadRoot>
+              <yarnDownloadRoot>https://github.com/yarnpkg/yarn/releases/download/</yarnDownloadRoot>
               <npmDownloadRoot>https://registry.npmjs.org/npm/-/</npmDownloadRoot>
             </configuration>
             <executions>
