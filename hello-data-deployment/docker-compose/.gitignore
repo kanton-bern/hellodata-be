@@ -1,11 +1,10 @@
 cloudbeaver_data
 logs/
-base/airflow/conf
 /smtp4dev-data/
-/smtp4dev-data/database.db
 /plugins/
 /dags/
 /default_data_domain/plugins/
 /base/airflow/plugins/
 /base/dags/
 /base/plugins/
+/base/smtp4dev-data/database.db
