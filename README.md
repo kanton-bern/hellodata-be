@@ -12,18 +12,25 @@ HelloDATA BE integrates the prowess of open-source tools into a unified, enterpr
 
 Agile and transparent data platforms are vital in a rapidly evolving digital landscape. HelloDATA BE tries to help by offering an open-source solution tailored to enterprise needs. Our mission is to democratize data and provide end-to-end- innovation-driven data handling. [Learn More](docs/docs/vision/vision-and-goal.md).
 
+
 ## Quick Start
 
-Change directory to `hello-data-deployment/docker-compose` and run the following command:
+**Essential Setup**
+1. **Docker Desktop Settings**: For Mac users, adjust Docker Desktop settings for multi-platform support (especially for arm64-chip users). [Details](hello-data-deployment/docker-compose/README.md#mac).
+2. **Hosts File Entry**: Ensure `127.0.0.1 host.docker.internal` is added to `/etc/hosts`. For Windows enable in Docker Desktop WSL settings [How to](hello-data-deployment/docker-compose/README.md#prepare-environment).
 
+**Start-Up Instructions**
+
+Change directory to `hello-data-deployment/docker-compose` and run:
 ```sh
 docker-compose up -d
 ```
 
-This will take a while to pull all images and wramp up the containers. Check the webportal at [localhost:8080](http://localhost:8080) when everything is up and running. Default user/password is admin/admin for the admin user.
+Pulling all images and starting up the containers will take a while. Once completed, access the web portal at [localhost:8080](http://localhost:8080) (default: admin/admin).
 
-> **Note:** Refer to our [docker-compose README](hello-data-deployment/docker-compose/README.md) for additional commands and troubleshooting. <br>
-> **Hint:** Windows users need to change line to `LF`, see more details in [Windows section](hello-data-deployment/docker-compose/README.md)
+> **Note:**
+> - Detailed start-up instructions, troubleshooting, and FAQs are in the [docker-compose README](hello-data-deployment/docker-compose/README.md).
+> - Specific setup information for [Windows users](hello-data-deployment/docker-compose/README.md#windows).
 
 ## Key Features
 

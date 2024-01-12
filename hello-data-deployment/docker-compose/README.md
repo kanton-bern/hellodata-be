@@ -21,6 +21,8 @@ Make sure the `host.docker.internal` is added to the /etc/hosts file with either
 - **Linux/MacOS**: add `127.0.0.1 host.docker.internal` to the `/etc/hosts` file.
 - **Windows**: Enable in Docker Desktop under `Settings -> General -> Use WSL 2 based engine` the settings: `Add the *.docker.internal names to the host's etc/hosts file (Requires password)`
 
+If you are on [Mac](#mac), [Windows](#windows) or general [FAQ](#faq), please check the enhanced instructions on the bottom.
+
 ## Quick Start
 
 First **pull and build** all required images.
@@ -55,8 +57,13 @@ After all started, go to [localhost:8080](http://localhost:8080/) in your browse
 
 ## FAQ
 
-- **Platform architecture:** If you are on a Mac or another `arm64` architecture, you mostly likely get the message `requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested`. It should still work, but much slower. Ensure you use the latest Docker Desktop and enable `Use Rosetta for x86/amd64 emulation on Apple Silicon` under `Settings -> General`. This setting substantially boosts the speed of non-native containers. Find more on [Docker Desktop Settings](https://docs.docker.com/desktop/settings/mac/?uuid=740D92D0-4D7C-4DD7-9DFD-8AF8D62F42F7) and [Multi-platform images](https://docs.docker.com/build/building/multi-platform/).
 - **Filebrowser login:** `admin/admin`. After successful login, the user should see the dbt-docs shared storage. Also, files can be opened in local file explorer from `./docker-compose/shared` path.
+
+## Mac
+
+- **Mac**: And for images unlike intel (e.g. Apple Sillicon), ensure that you are on latest Docker Desktop, and that you enable `Use Rosetta for x86/amd64 emulation on Apple Silicon` under `Settings -> General`. This setting substantially boosts the speed of non-native containers. Find more on [Docker Desktop Settings](https://docs.docker.com/desktop/settings/mac/?uuid=740D92D0-4D7C-4DD7-9DFD-8AF8D62F42F7) and [Multi-platform images](https://docs.docker.com/build/building/multi-platform/).
+- **Platform architecture:** If you are on a Mac or another `arm64` architecture, you mostly likely get the message `requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested`. It should still work, but much slower. 
+
 
 ## Windows
 
