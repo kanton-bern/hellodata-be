@@ -33,7 +33,8 @@ Sounds too good to be true? Give it a try. Do you want to knot the best thing? I
 Want to run HelloDATA BE and test it locally? Run the following command in the docker-compose directory to deploy all components:
 
 ```sh
-make up
+cd hello-data-deployment/docker-compose
+docker-compose up -d
 ```
 
-**Note:** Refer to our [docker-compose README](https://github.com/kanton-bern/hellodata-be/tree/main/hello-data-deployment/docker-compose/README.md) for more information. Windows users can [install `make` here](https://stackoverflow.com/a/32127632).
+**Note:** Please refer to our [docker-compose README](https://github.com/kanton-bern/hellodata-be/tree/main/hello-data-deployment/docker-compose/README.md) for more information; there are some must presets you need to configure.
