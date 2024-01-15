@@ -72,6 +72,7 @@ Stay updated with our progress and plans on our [Roadmap](docs/docs/vision/roadm
 
 ## Contributors
 
+- [Adrian Berger](https://github.com/adberger) (Developer)
 - Andreea Hansel (Tester)
 - [Dario Bagatto](https://github.com/bedag-bad) (Developer)
 - [Lorin Reber](https://github.com/lreber) (Product-Owner, Value-Lead)
