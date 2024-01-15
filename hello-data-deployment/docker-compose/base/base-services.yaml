@@ -99,7 +99,7 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin
       KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm.json
       DB_VENDOR: h2
-      KC_HEALTH_ENABLED: true
+      KC_HEALTH_ENABLED: "true"
     volumes:
       - keycloakrealmvolume:/tmp
     healthcheck:
