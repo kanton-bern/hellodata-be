@@ -72,13 +72,16 @@ Stay updated with our progress and plans on our [Roadmap](docs/docs/vision/roadm
 
 ## Contributors
 
+- Andreea Hansel (Tester)
 - [Dario Bagatto](https://github.com/bedag-bad) (Developer)
-- [Lorin Reber](https://github.com/lre-bedag) (Product-Owner, Value-Lead)
+- [Lorin Reber](https://github.com/lreber) (Product-Owner, Value-Lead)
+- [Micha Eichmann](https://github.com/michadavid) (Developer)
 - [Michael Disteli](https://www.linkedin.com/in/michael-disteli-0044311b7/) (Product-Manager)
 - [Nicolas Schmid](https://github.com/nschmid) (Initial developer & Architect)
 - [Rajib Mitra](https://github.com/ramich) (Developer)
 - [Simon Späti](https://github.com/sspaeti) (Developer)
 - [Slawomir Wieczorek](https://github.com/wieczorslawo) (Developer)
+- [Thomas Amlang](https://github.com/Thomas-Amlang) (Developer)
   
 (in alphabetical order)
 

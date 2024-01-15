@@ -16,16 +16,16 @@ Kubernetes [Namesspaces](https://kubernetes.io/docs/concepts/overview/working-w
 - Everything runs in a single Kubernetes Cluster but can also be deployed on-prem on any Kubernetes Cluster.
 - Persistent data will run within the "Data Domain" and must run on a [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) on Kubernetes or a central Postgres service (e.g., on Azure or internal).
 
-![](/images/Kubernetes%20Namespaces.png)
+![](../images/Kubernetes%20Namespaces.png)
 ## Module deployment view
 
 Here, we have a look at the module view with an inside view of accessing the HelloDATA Portal.
 
 The Portal API serves with [SpringBoot](https://spring.io/projects/spring-boot), [Wildfly](https://www.wildfly.org/) and [Angular](https://angular.io/).
 
-![](/images/1046873413.png)
+![](../images/1046873413.png)
 
-![](/images/1110083707.png)
+![](../images/1110083707.png)
 ## Storage (Data Domain)
 
 Following up on how storage is persistent for the [Domain View](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&Concepts-DomainView) introduced in the above chapters. 
@@ -40,14 +40,14 @@ Each domain holds its data on **persistent storage**, whether Postgres for rela
 
 GitSync is a tool we added to allow **GitOps**-type deployment. As a user, you can push changes to your git repo, and GitSync will automatically deploy that into your cluster on Kubernetes.
 
-![](/images/1046873438.png)
+![](../images/1046873438.png)
 
 ### Business-Domain Storage View
 Here is another view that persistent storage within Kubernetes (K8s) can hold data across the Data Domain. If these **persistent volumes** are used to store Data Domain information, it will also require implementing a backup and restore plan for these data.
 
 Alternatively, blob storage on any **cloud vendor or services** such as Postgres service can be used, as these are typically managed and come with features such as backup and restore.
 
-![](/images/1046873449.png)
+![](../images/1046873449.png)
 
 ## K8s Jobs
 
@@ -60,7 +60,7 @@ Contents:
 - Cleaning up user activity logs
 - Cleaning up logfiles
 
-![](/images/1110083807.png)
+![](../images/1110083807.png)
 
 ## Deployment Platforms
 

@@ -18,7 +18,7 @@ The entry page of HelloDATA is the [Web Portal](/architecture/data-stack/#contro
 3. User and profile information of logged-in user. 
 4. Overview of your dashboards
 
-![](/images/1068204566.png)
+![](../images/1068204566.png)
 
 #### Business & Data Domain
 As explained in [Domain View](../architecture/architecture.md#Domain%20View), a key feature is to create business domains with n-data domains. If you have access to more than one data domain, you can switch between them by clicking the `drop-down` at the top and switch between them.
@@ -31,14 +31,14 @@ The most important navigation button is the dashboard links. If you hover over i
 
 You can either click the dashboard list in the hover menu (2) to see the list of dashboards with thumbnails, or directly choose your dashboard (3).
 
-![](/images/1068204575.png)
+![](../images/1068204575.png)
 
 ### Data-Lineage
 
 To see the data lineage (dependencies of your data tables), you have the second menu option. Again, you chose the list or directly on "data lineage" (2).
 
 Button 2 will bring you to the project site, where you choose your project and load the lineage.
-![](/images/1068204578.png)
+![](../images/1068204578.png)
 
 Once loaded, you see all sources (1) and dbt Projects (2). On the detail page, you can see all the beautiful and helpful documentation such as:
 
@@ -50,10 +50,10 @@ Once loaded, you see all sources (1) and dbt Projects (2). On the detail page, y
 - and dependency graph (7)
     - which you can expand to full view (8) after clicking (7)
     - interactive data lineage view (9)
-	
-![](/images/1068204586.png)
-![](/images/1068204588.png)
-![](/images/1068204591.png)
+
+![](../images/1068204586.png)
+![](../images/1068204588.png)
+![](../images/1068204591.png)
 
 ### Data Marts Viewer
 
@@ -98,14 +98,14 @@ The orchestrator is your task manager. You tell [Airflow](https://wiki.bedag.ch
 - Airflow offers lots of different visualization modes, e.g. the Graph view (6), that allows you to see each step of this task.
     - As you can see, you can choose calendar, task duration, Gantt, etc.
 
-![](/images/1068204596.png)
-![](/images/1068204607.png)
+![](../images/1068204596.png)
+![](../images/1068204607.png)
 
 ### Administration
 
 Here you manage the portal configurations such as user, roles, announcements, FAQs, and documentation management.
 
-![](/images/1068204613.png)
+![](../images/1068204613.png)
 
 #### Benutzerverwaltung / User Management
 
@@ -137,7 +137,7 @@ And or give access to specific data domains:
 
 See more in [role-authorization-concept](role-authorization-concept.md).
 #### Portal Rollenverwaltung / Portal Role Management
-In this portal role management, you can see all the roles that exist. 
+In this portal role management, you can see all the roles that exist.
 
 !!! warning
 
@@ -187,32 +187,32 @@ We provide two different ways of monitoring: 
 - Status: 
 - Workspaces
 
-![](/images/1068204614.png)
+![](../images/1068204614.png)
 
 #### Status
 It will show you details information on instances of HelloDATA, how is the situation for the Portal, is the monitoring running, etc.
-![](/images/1068204616.png)
+![](../images/1068204616.png)
 
 #### Data Domains
 
 In Monitoring your data domains you see each system and the link to the native application. You can easily and quickly observer permission, roles and users by different subsystems (1). Click the one you want, and you can choose different levels (2) for each, and see its permissions (3).
 
-![](/images/1068204622.png)
+![](../images/1068204622.png)
 
-![](/images/1068204620.png)
+![](../images/1068204620.png)
 
 By clicking on the blue underlined `DBT Docs`, you will be navigated to the native dbt docs. Same is true if you click on a Airflow or Superset instance.
 ### DevTools
 
 DevTools are additional tools HelloDATA provides out of the box to e.g. send Mail (Mailbox) or browse files (FileBrowser).
 
-![](/images/1068204623.png)
+![](../images/1068204623.png)
 
 #### Mailbox
 
 You can check in Mailbox (we use [MailHog](https://github.com/mailhog/MailHog)) what emails have been sending or what accounts are updated.|
 
-![](/images/1068204627.png)
+![](../images/1068204627.png)
 
 #### FileBrowser
 
@@ -223,7 +223,7 @@ Here you can browse all the documentation or code from the git repos as file bro
     Make sure you have the login credentials to log in. Your administrator should be able to provide these to you.
 
 
-![](/images/1068204628.png)
+![](../images/1068204628.png)
 
 ## More: Know-How
 
@@ -238,4 +238,3 @@ Here you can browse all the documentation or code from the git repos as file bro
 
 
 Find further important references, know-how, and best practices on [HelloDATA Know-How](https://confluence.bedag.ch/x/4wHXE).
-

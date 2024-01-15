@@ -39,10 +39,10 @@ Below, you see dbt docs, lineage, and templates:
 4. SQL Compiled (practical SQL that gets executed)
 5. Full Data lineage where with the source and transformation for the current object
 
-![](/images/1063555293.png)
+![](../images/1063555293.png)
 
 Or zoom dbt lineage (when clicked):
-![](/images/1063555295.png)
+![](../images/1063555295.png)
 
 
 ## Task Orchestration - Airflow
@@ -69,25 +69,24 @@ Next, you can click on each of the DAGs and get into a detailed view:
 4. Check details in the table view
 5. Gantt view for another example to see how long each sub-task had of the DAG
 
-![](/images/1063555296.png)
+![](../images/1063555296.png)
 
-![](/images/1063555298.png)
+![](../images/1063555298.png)
 
-### Graph view of DAG 
+### Graph view of DAG
 It shows you the dependencies of your business's various tasks, ensuring that the order is handled correctly.
 
-![](/images/1063555299.png)
+![](../images/1063555299.png)
 ## Dashboards - Superset
 
 [Superset](https://superset.apache.org/) is the entry point to your data. It's a popular open-source business intelligence dashboard tool that visualizes your data according to your needs. It's able to handle all the latest chart types. You can combine them into dashboards filtered and drilled down as expected from a BI tool. The access to dashboards is restricted to authenticated users only. A user can be given view or edit rights to individual dashboards using roles and permissions. Public access to dashboards is not supported.
 ### Example dashboard
 
-![](/images/1062338737.png)
-### Supported Charts 
+![](../images/1062338737.png)
+### Supported Charts
 *([see live in action](https://superset.datatest.ch/chart/add))*
 
-![](/images/1062338827.png)
+![](../images/1062338827.png)
 ## Storage Layer - Postgres
 
 Let's start with the storage layer. We use Postgres, the currently [most used and loved database](https://survey.stackoverflow.co/2023/#section-most-popular-technologies-databases). Postgres is versatile and simple to use. It's a **relational database** that can be customized and scaled extensively.
-

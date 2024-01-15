@@ -68,12 +68,13 @@ Subsets of the data from the Core are stored in a form suitable for user queries
 
     Different types of metadata are needed for the smooth operation of the Data Warehouse. Business metadata contains business descriptions of all attributes, drill paths, and aggregation rules for the front-end applications and code designations. Technical metadata describes, for example, data structures, mapping rules, and parameters for ETL control. Operational metadata contains all log tables, error messages, logging of ETL processes, and much more. The metadata forms the infrastructure of a DWH system and is described as "data about data".
 
-![](/images/1014792293.png)
+![](../images/1014792293.png)
+
 ##### Example: Multiple Superset Dashboards within a Data Domain
 
 Within a Data Domain, several users build up different dashboards. Think of a dashboard as a specific use case e.g., Covid, Sales, etc., that solves a particular purpose. Each of these dashboards consists of individual charts and data sources in superset. Ultimately, what you see in the HelloDATA portal are the dashboards that combine all of the sub-components of what Superset provides.
 
-![](/images/1063555338.png)
+![](../images/1063555338.png)
 ### Portal/UI View
 
 As described in the intro. The portal is the heart of the HelloDATA application, with access to all critical applications.
@@ -95,7 +96,7 @@ As described in the intro. The portal is the heart of the HelloDATA application,
 
 More technical details are in the "Module deployment view" chapter below.
 
-![](/images/helloDATA-portal-entry.jpg)
+![](../images/helloDATA-portal-entry.jpg)
 
 
 ### Module View and Communication
@@ -111,7 +112,7 @@ We have the following modules:
 - [NATS](https://nats.io/): Open-source connective technology for the cloud. It handles communication with the different tools we use.
 - **Data Stack**: We use the open-source data stack with dbt, Airflow, and Superset. See more information in the intro chapters above. Subsystems can be added on demand as extensible plugins.
 
-![](/images/1046873417.png)
+![](../images/1046873417.png)
 
 ##### What is Keycloak and how does it work?
 
@@ -143,7 +144,7 @@ Here is an example of subsystem communication. NATS, obviously at the center, ha
 
 The HelloDATA portal has workers. These workers are deployed as extra containers with sidecars, called "Sidecar Containers". Each module needing communicating needs a sidecar with these workers deployed to communicate with NATS. Therefore, the subsystem itself has its workers to share with NATS as well.
 
-![](/images/1046873407.png)
+![](../images/1046873407.png)
 #### Messaging component workers
 Everything starts with a **web browser** session. The HelloDATA user accesses the **HelloDATA Portal** through HTTP. Before you see any of your modules or components, you must authorize yourself again, Keycloak. Once logged in, you have a Single Sign-on Token that will give access to different business domains or data domains depending on your role.
 
@@ -151,13 +152,13 @@ The HelloDATA portal sends an event to the EventWorkers via JDBC to the Portal d
 
 The **EventWorkers**, on the other side communicate with the different **HelloDATA Modules** discussed above (Keycloak, NATS, Data Stack with dbt, Airflow, and Superset) where needed. Each module is part of the domain view, which persists their data within their datastore.
 
-![](/images/1046873182.png)
+![](../images/1046873182.png)
 #### Flow Chart
 In this flow chart, you see again what we discussed above in a different way. Here, we **assign a new user role**. Again, everything starts with the HelloDATA Portal and an existing session from Keycloak. With that, the portal worker will publish a JSON message via UserRoleEvent to NATS. As the communication hub for HelloDATA, NATS knows what to do with each message and sends it to the respective subsystem worker.
 
 Subsystem workers will execute that instruction and create and populate roles on, e.g., Superset and Airflow, and once done, inform the spawned subsystem worker that it's done. The worker will push it back to NATS, telling the portal worker, and at the end, will populate a message on the HelloDATA portal.
 
-![](/images/1046873411.png)
+![](../images/1046873411.png)
 #### Building Block View
 
-![](/images/1110083764.png)
+![](../images/1110083764.png)
