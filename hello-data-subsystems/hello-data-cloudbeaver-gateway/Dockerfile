@@ -25,8 +25,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM registry.mgmtbi.ch/docker_base/fat-jar:17-ubuntu
-LABEL MAINTAINER="HelloDATA Team"
-ARG JAR_FILE=/target/*.jar
-COPY ${JAR_FILE} /app/app.jar
-EXPOSE 8086
+FROM eclipse-temurin:17.0.9_9-jre
+LABEL MAINTAINER="HelloData Team"
+
+# add 'app' user with uid 3012 and corresponding group
+RUN useradd -d /app -m -s /bin/bash -u 3012 app -U
+USER app
+WORKDIR app
+
+COPY target/*.jar /app/app.jar
+CMD ["java", "-jar", "/app/app.jar"]
