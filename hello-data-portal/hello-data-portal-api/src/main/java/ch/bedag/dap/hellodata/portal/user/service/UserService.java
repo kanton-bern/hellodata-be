@@ -663,7 +663,7 @@ public class UserService {
     }
 
     public List<UserEntity> findHelloDataAdminUsers() {
-        List<UserEntity> portalUsers = userRepository.findUsersByHdRoleName(HdRoleName.HELLODATA_ADMIN);
+        List<UserEntity> portalUsers = userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN);
         List<UserEntity> activeUsers = new ArrayList<>();
         for (UserEntity currentUser : portalUsers) {
             UserRepresentation userRepresentation = getUserRepresentation(currentUser);
