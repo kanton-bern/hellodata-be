@@ -32,6 +32,8 @@ x-airflow-common:
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
   image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:slim-2.3.3-python3.10}
   env_file: .env
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
   environment:
     &airflow-common-env
     KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
@@ -184,6 +186,8 @@ services:
     build: ./base/cloudbeaver
     env_file: .env
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
     links:
@@ -208,6 +212,8 @@ services:
       - keycloak
       - cloudbeaver
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   hello-data-sidecar-cloudbeaver:
     image: bedag/hello-data-sidecar-cloudbeaver
@@ -225,6 +231,8 @@ services:
       - keycloak
       - cloudbeaver
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   filebrowser:
     build: ./base/filebrowser
@@ -254,6 +262,8 @@ services:
     ports:
       - 8086:8086
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   hello-data-dbt-docs-sidecar:
     platform: ${HD_PLATFORM}
@@ -275,6 +285,8 @@ services:
       - keycloak
       - hello-data-dbt-docs
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   #AIRFLOW
   airflow-webserver:
@@ -459,6 +471,8 @@ services:
     image: bedag/hello-data-sidecar-airflow
     restart: always
     env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - NATS_SPRING_SERVER=nats://nats:4222
       - SPRING_DATA_REDIS_HOST=redis
@@ -487,6 +501,8 @@ services:
         HELLO_DATA_AUTH_SERVER_URL: ${HELLO_DATA_AUTH_SERVER_URL}
     env_file: .env
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       keycloak:
         condition: service_healthy
@@ -502,6 +518,8 @@ services:
     image: bedag/hello-data-portal-api
     env_file: .env
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - SPRING_PROFILES_ACTIVE=local-user-search,create-example-users
       - SPRING_MAIL_HOST=smtp4dev
@@ -546,6 +564,8 @@ services:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-sidecar-portal
     env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
