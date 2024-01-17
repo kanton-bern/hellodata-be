@@ -60,6 +60,8 @@ services:
         condition: service_completed_successfully
     volumes: *superset-volumes
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   superset-init-extra-data-domain:
     platform: ${HD_PLATFORM}
@@ -70,6 +72,8 @@ services:
     user: "root"
     volumes: *superset-volumes
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   superset-worker-extra-data-domain:
     platform: ${HD_PLATFORM}
@@ -83,6 +87,8 @@ services:
     user: "root"
     volumes: *superset-volumes
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   superset-worker-beat-extra-data-domain:
     platform: ${HD_PLATFORM}
@@ -96,11 +102,15 @@ services:
     user: "root"
     volumes: *superset-volumes
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   hello-data-superset-sidecar-extra-data-domain:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-sidecar-superset
     env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - NATS_SPRING_SERVER=nats://nats:4222
       - SPRING_DATA_REDIS_HOST=redis
