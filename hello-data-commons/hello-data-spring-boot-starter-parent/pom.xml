@@ -47,7 +47,7 @@
         <commons-io.version>2.11.0</commons-io.version>
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
-        <push-docker-image-phase>post-integration-test</push-docker-image-phase>
+        <push-docker-image-phase>deploy</push-docker-image-phase>
         <docker.namespace>bedag</docker.namespace>
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
@@ -427,7 +427,7 @@
                     <executions>
                         <execution>
                             <id>build-docker-image</id>
-                            <phase>post-integration-test</phase>
+                            <phase>deploy</phase>
                             <goals>
                                 <goal>build</goal>
                             </goals>
