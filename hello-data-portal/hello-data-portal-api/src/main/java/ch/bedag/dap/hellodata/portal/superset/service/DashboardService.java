@@ -44,6 +44,8 @@ import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadata
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.entity.DashboardMetadataEntity;
 import ch.bedag.dap.hellodata.portal.superset.repository.DashboardMetadataRepository;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -146,7 +148,8 @@ public class DashboardService {
             dashboardDto.setScheduled(dashboardMetadataEntity.getScheduled());
             dashboardDto.setDatasource(dashboardMetadataEntity.getDatasource());
             LocalDateTime lastAccessDate = dashboardMetadataEntity.getModifiedDate() != null ? dashboardMetadataEntity.getModifiedDate() : dashboardMetadataEntity.getCreatedDate();
-            long metadataModifiedBy = lastAccessDate.toInstant(ZoneOffset.UTC).toEpochMilli();
+            ZonedDateTime zdt = ZonedDateTime.of(lastAccessDate, ZoneId.systemDefault());
+            long metadataModifiedBy =zdt.toInstant().toEpochMilli();
             dashboardDto.setModified(Math.max(changedOnUtcInSuperset, metadataModifiedBy));
         }
     }

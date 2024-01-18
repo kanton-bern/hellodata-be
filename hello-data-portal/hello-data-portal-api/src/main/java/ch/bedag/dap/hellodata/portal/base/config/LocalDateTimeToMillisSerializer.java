@@ -31,12 +31,18 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class LocalDateTimeToMillisSerializer extends JsonSerializer<LocalDateTime> {
 
     @Override
     public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeNumber(value.toEpochSecond(ZoneOffset.UTC) * 1000L);
+        log.debug("Serializing date {}", value);
+        ZonedDateTime zdt = ZonedDateTime.of(value, ZoneId.systemDefault());
+        gen.writeNumber(zdt.toInstant().toEpochMilli());
     }
 }
