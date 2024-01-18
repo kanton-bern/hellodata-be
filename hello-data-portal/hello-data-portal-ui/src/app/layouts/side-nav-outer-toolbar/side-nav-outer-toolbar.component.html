@@ -28,7 +28,7 @@
 -->
 <div *ngIf="publishedAnnouncements$ | async"></div>
 <div class="sidebar close">
-  <div class="logo-details">
+  <div class="logo-details" [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
     <img alt="logo" routerLink="/home" src="/assets/img/hd.png" style="cursor: pointer"/>
     <span class="logo_name">HelloDATA</span>
   </div>
