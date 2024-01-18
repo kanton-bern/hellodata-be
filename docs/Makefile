@@ -11,8 +11,8 @@ build: #build docs as HTML page under `site` folder
        source ~/.venvs/hd-docs/bin/activate; \
        mkdocs build; \
        docker build -t bedag/hd-docs:latest --platform "linux/amd64" .; \
-       docker push bedag/hd-docs:latest; \
     )
+       # docker push bedag/hd-docs:latest; \
 
 install: #run ones to create and activate your virtual environment and install dependencies
 	( \
