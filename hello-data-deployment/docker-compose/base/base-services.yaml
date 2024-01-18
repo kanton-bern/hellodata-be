@@ -495,7 +495,7 @@ services:
 
   hello-data-portal-ui:
     build:
-      context: base/hello-data-portal-ui
+      context: base/portal
       dockerfile: Dockerfile
       args:
         HELLO_DATA_AUTH_SERVER_URL: ${HELLO_DATA_AUTH_SERVER_URL}

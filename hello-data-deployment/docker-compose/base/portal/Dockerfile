@@ -69,8 +69,6 @@ RUN echo "window.environment = { \
             } \
           }" > /app/config/environment.js
 
-COPY nginx.conf /etc/nginx/nginx.conf
-
 RUN chown -R nginx: /app
 
 EXPOSE 80

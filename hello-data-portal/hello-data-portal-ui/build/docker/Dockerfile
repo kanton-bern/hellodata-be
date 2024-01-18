@@ -25,12 +25,12 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM nginx:1
+FROM nginx:1.25.3
 
 LABEL MAINTAINER="HelloDATA Team"
 
 COPY hello-data-portal-ui /app
-
+RUN rm -rf /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY csp.conf /etc/nginx/conf.d/csp.conf.template
 
