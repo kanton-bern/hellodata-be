@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM registry.mgmtbi.ch/docker_base/nginx:1
+FROM nginx:1
 
 LABEL MAINTAINER="HelloDATA Team"
 
@@ -38,7 +38,4 @@ RUN chown -R nginx: /app
 
 EXPOSE 80
 
-# run nginx under tini's supervision
-# -s is not necessary, since tini will run as PID 1
-ENTRYPOINT ["tini", "--"]
 CMD ["sh", "-c", "envsubst < /etc/nginx/conf.d/csp.conf.template > /etc/nginx/conf.d/csp.conf && nginx -g 'daemon off;'"]

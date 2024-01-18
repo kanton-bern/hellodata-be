@@ -28,9 +28,13 @@
 # The fat JAR base-image executes a JAR /app/app.jar (or, if there is no /app/app.jar, it executes the first JAR it finds in the /app folder).
 # The java executable is wrapped with tini and executed as the user app with uid 3012.
 
-FROM registry.mgmtbi.ch/docker_base/fat-jar:17-ubuntu
+FROM eclipse-temurin:17.0.9_9-jre
 LABEL MAINTAINER="HelloData Team"
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} /app/app.jar
 
-EXPOSE 8080
+# add 'app' user with uid 3012 and corresponding group
+RUN useradd -d /app -m -s /bin/bash -u 3012 app -U
+USER app
+WORKDIR app
+
+COPY target/*.jar /app/app.jar
+CMD ["java", "-jar", "/app/app.jar"]

@@ -25,4 +25,4 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM registry-group.mgmtbi.ch/redis:latest
+FROM redis:latest

@@ -75,8 +75,4 @@ RUN chown -R nginx: /app
 
 EXPOSE 80
 
-# run nginx under tini's supervision
-# -s is not necessary, since tini will run as PID 1
-ENTRYPOINT ["tini", "--"]
-
 CMD ["nginx", "-g", "daemon off;"]
