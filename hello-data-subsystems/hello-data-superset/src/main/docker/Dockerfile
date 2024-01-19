@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hellodata-superset:2.1.0-HD1
+FROM bedag/hellodata-superset:2.1.0-HD2
 
 COPY ./assets/images/* /app/superset/static/assets/images/
 
