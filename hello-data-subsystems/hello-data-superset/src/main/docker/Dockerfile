@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM registry.mgmtbi.ch/se_gf_sie/hellodata-superset:2.1.0-HD1
+FROM bedag/hellodata-superset:2.1.0-HD1
 
 COPY ./assets/images/* /app/superset/static/assets/images/
 

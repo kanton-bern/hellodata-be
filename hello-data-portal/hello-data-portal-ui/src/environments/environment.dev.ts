@@ -51,7 +51,7 @@ export const environment: Environment = window.environment != undefined ? window
   deploymentEnvironment: {
     name: 'DEV',
     showEnvironment: true,
-    headerColor: 'rgb(60, 179, 113)'
+    headerColor: 'rgb(253,186,177)'
   },
   locale: 'de-CH',
   domainNamespace: 'hellodata-local',

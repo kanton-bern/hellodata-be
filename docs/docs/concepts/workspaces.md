@@ -1,5 +1,11 @@
 # Data Engineering Workspaces
 On this page, we'll explain what workspaces in the context of HelloDATA-BE are and how to use them, and you'll create your own based on a prepared boiler-plate repo.
+
+
+!!! info
+
+    Also see the [step-by-step video](https://youtu.be/EVolsYgKnWw?si=FQcakmSJzpADHeoR) we created that might help you further.
+
 ## What is a Workspace?
 Within the context of HelloDATA-BE, data, engineers, or technical people can develop their dbt, airflow, or even bring their tool, all packed into a separate git-repo and run as part of HelloDATA-BE where they enjoy the benefits of persistent storage, visualization tools, user management, monitoring, etc.
 
