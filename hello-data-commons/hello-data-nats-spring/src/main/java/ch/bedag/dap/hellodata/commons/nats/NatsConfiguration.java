@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.commons.nats;
 
 import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
 import ch.bedag.dap.hellodata.commons.nats.bean.NatsConfigBeanPostProcessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.spring.boot.autoconfigure.NatsAutoConfiguration;
