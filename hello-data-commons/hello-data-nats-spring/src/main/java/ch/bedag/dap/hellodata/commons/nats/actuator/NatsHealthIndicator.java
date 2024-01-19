@@ -26,12 +26,48 @@
  */
 package ch.bedag.dap.hellodata.commons.nats.actuator;
 
+import ch.bedag.dap.hellodata.commons.SlugifyUtil;
+import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import io.nats.client.Connection;
+import io.nats.client.Dispatcher;
+import io.nats.client.Message;
+import jakarta.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Base64;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.util.StringUtils;
 
+@Log4j2
 public class NatsHealthIndicator extends AbstractHealthIndicator {
     private final Connection natsConnection;
+    @Value("${spring.application.name}")
+    private String appName;
+    @Value("${hello-data.instance.name:}")
+    private String instanceName;
+    private String subject;
+    private String subjectBase64;
+
+    /**
+     * Generate subject and listen for connection messages within the request/reply pattern
+     */
+    @PostConstruct
+    public void listenForConnectionCheckRequests() {
+        String subjectBase = SlugifyUtil.slugify(RequestReplySubject.NATS_CONNECTION_HEALTH_CHECK.getSubject());
+        subject = this.appName + "-" + subjectBase + (StringUtils.hasText(instanceName) ? "-" + instanceName : "");
+        subjectBase64 = new String(Base64.getEncoder().encode(subject.getBytes(StandardCharsets.UTF_8)));
+        log.debug("[NATS connection check] Listening for messages on subject {}", subject);
+        Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
+            String message = new String(msg.getData());
+            log.debug("[NATS connection check] Received request for NATS connection check", message);
+            natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));
+            msg.ack();
+        });
+        dispatcher.subscribe(subjectBase64);
+    }
 
     public NatsHealthIndicator(Connection natsConnection) {
         this.natsConnection = natsConnection;
@@ -39,7 +75,6 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
 
     @Override
     protected void doHealthCheck(Health.Builder builder) {
-        //builder.withDetail("connection", natsConnection.getConnectedUrl()).withDetail("servers", natsConnection.getOptions().getServers());
         String connectionName = natsConnection.getOptions().getConnectionName();
         if (connectionName != null) {
             builder.withDetail("name", connectionName);
@@ -47,10 +82,34 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
 
         builder.withDetail("status", natsConnection.getStatus());
         switch (natsConnection.getStatus()) {
-            case CONNECTED -> builder.up();
+            case CONNECTED -> checkRequestReplyConnection(builder);
             case CONNECTING, RECONNECTING -> builder.outOfService();
             default -> // CLOSED, DISCONNECTED
                     builder.down();
         }
+    }
+
+    /**
+     * Utilize the connection to be sure if request/reply pattern works (even tho the connection is up)
+     * @param builder
+     * @return builder status
+     */
+    private Health.Builder checkRequestReplyConnection(Health.Builder builder) {
+        String subjectBase64 = new String(Base64.getEncoder().encode(subject.getBytes(StandardCharsets.UTF_8)));
+        log.debug("[NATS connection check] Sending request to subjectBase: {}", subject);
+        Message reply = null;
+        try {
+            reply = natsConnection.request(subjectBase64, subject.getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
+        } catch (Exception exception) {
+            log.error("[NATS connection check] Could not connect to NATS", exception);
+            return builder.down();
+        }
+        if (reply == null) {
+            log.warn("[NATS connection check] Reply is null, please verify NATS connection");
+            return builder.down();
+        }
+        reply.ack();
+        log.debug("[NATS connection check] Reply received: " + new String(reply.getData()));
+        return builder.up();
     }
 }

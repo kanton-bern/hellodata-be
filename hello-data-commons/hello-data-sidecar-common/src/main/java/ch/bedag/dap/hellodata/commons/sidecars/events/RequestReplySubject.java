@@ -34,6 +34,7 @@ import lombok.Getter;
 @Getter
 public enum RequestReplySubject {
     UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
+    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
     ;
     private final String subject;
 

@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.user;
 
+import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
@@ -75,6 +76,8 @@ public abstract class KeycloakTestContainerTest {
     private RoleService roleService;
     @MockBean
     private StorageSizeService storageSizeService;
+    @MockBean
+    private NatsHealthIndicator natsHealthIndicator;
 
     @DynamicPropertySource
     static void registerResourceServerIssuerProperty(DynamicPropertyRegistry registry) {
