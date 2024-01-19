@@ -83,7 +83,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(expectedDoc.html()).isEqualTo(actualDoc.html());
+        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
     }
 
     @Test
@@ -115,7 +115,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(expectedDoc.html()).isEqualTo(actualDoc.html());
+        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
     }
 
     @Test
@@ -162,7 +162,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(expectedDoc.html()).isEqualTo(actualDoc.html());
+        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
     }
 
     @Test
@@ -210,6 +210,6 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(expectedDoc.html()).isEqualTo(actualDoc.html());
+        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
     }
 }
