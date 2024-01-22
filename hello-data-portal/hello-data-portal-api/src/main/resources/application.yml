@@ -50,6 +50,7 @@ hello-data:
     data-domain-editor-password: editor
     data-domain-viewer-password: viewer
     email-postfix: hellodata.ch
+  check-user-context-roles-in-minutes: 3
   system-properties:
     no-reply-email: "no-reply@hellodata.ch"
     default-locale: "de_CH"

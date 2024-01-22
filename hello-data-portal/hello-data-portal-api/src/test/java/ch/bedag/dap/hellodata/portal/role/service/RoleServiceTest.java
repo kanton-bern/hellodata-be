@@ -51,7 +51,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -210,6 +212,45 @@ public class RoleServiceTest {
         assertEquals(userContextRoles, result);
 
         verify(userContextRoleRepository, times(1)).findAllByUser(userEntity);
+    }
+
+    @Test
+    public void testAddContextRoleToUser() {
+        // given
+        UserEntity user = new UserEntity();
+        String contextKey = UUID.randomUUID().toString();
+        HdRoleName roleName = HdRoleName.NONE;
+
+        RoleEntity mockRoleEntity = new RoleEntity();
+        when(roleRepository.findByName(roleName)).thenReturn(Optional.of(mockRoleEntity));
+
+        // when
+        roleService.addContextRoleToUser(user, contextKey, roleName);
+
+        // then
+        verify(userContextRoleRepository, times(1)).save(argThat(argument -> {
+            return argument.getUser().equals(user) && argument.getContextKey().equals(contextKey) && argument.getRole().equals(mockRoleEntity);
+        }));
+    }
+
+    @Test
+    public void testAddContextRoleToUserRoleNotFound() {
+        // given
+        UserEntity user = new UserEntity();
+        String contextKey = "yourContextKey";
+        HdRoleName roleName = HdRoleName.NONE;
+
+        when(roleRepository.findByName(roleName)).thenReturn(Optional.empty());
+
+        // when
+        try {
+            roleService.addContextRoleToUser(user, contextKey, roleName);
+            // If the role is not found, an exception should be thrown, so the test should fail if it reaches this point
+            fail("Expected RuntimeException, but method executed successfully");
+        } catch (RuntimeException e) {
+            // then
+            assertEquals("NONE role not found!", e.getMessage());
+        }
     }
 
     private UserContextRoleEntity setUpContextRoles(UserEntity userEntity) {

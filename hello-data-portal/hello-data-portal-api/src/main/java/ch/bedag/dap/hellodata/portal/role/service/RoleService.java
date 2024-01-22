@@ -172,6 +172,20 @@ public class RoleService {
         }
     }
 
+    @Transactional
+    public void addContextRoleToUser(UserEntity user, String contextKey, HdRoleName roleName) {
+        Optional<RoleEntity> noneRole = roleRepository.findByName(roleName);
+        if (noneRole.isPresent()) {
+            UserContextRoleEntity userContextRoleEntity = new UserContextRoleEntity();
+            userContextRoleEntity.setUser(user);
+            userContextRoleEntity.setContextKey(contextKey);
+            userContextRoleEntity.setRole(noneRole.get());
+            userContextRoleRepository.save(userContextRoleEntity);
+        } else {
+            throw new RuntimeException("NONE role not found!");
+        }
+    }
+
     @Transactional(readOnly = true)
     public List<UserContextRoleEntity> getAllContextRolesForUser(UserEntity userEntity) {
         return userContextRoleRepository.findAllByUser(userEntity);
