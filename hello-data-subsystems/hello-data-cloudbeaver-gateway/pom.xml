@@ -203,7 +203,7 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-cloudbeaver-gateway:${docker.tag.name}</name>
+                                    <name>${docker.namespace}/hello-data-cloudbeaver-gateway:1.0.11</name>
                                     <build>
                                         <dockerFile>Dockerfile</dockerFile>
                                         <dockerFileDir>${project.basedir}</dockerFileDir>

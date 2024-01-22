@@ -181,7 +181,7 @@
               <imagePullPolicy>Always</imagePullPolicy>
               <images>
                 <image>
-                  <name>${docker.namespace}/hello-data-portal-ui:${docker.tag.name}</name>
+                  <name>${docker.namespace}/hello-data-portal-ui:1.0.11</name>
                   <build>
                     <contextDir>${project.basedir}/build/docker</contextDir>
                     <dockerFile>${project.basedir}/build/docker/Dockerfile</dockerFile>
@@ -335,7 +335,7 @@
               <imagePullPolicy>Always</imagePullPolicy>
               <images>
                 <image>
-                  <name>${docker.namespace}/hello-data-portal-ui-e2e-tests:${docker.tag.name}</name>
+                  <name>${docker.namespace}/hello-data-portal-ui-e2e-tests:1.0.11</name>
                   <build>
                     <contextDir>${project.basedir}/build/docker</contextDir>
                     <dockerFile>${project.basedir}/build/docker/Dockerfile</dockerFile>

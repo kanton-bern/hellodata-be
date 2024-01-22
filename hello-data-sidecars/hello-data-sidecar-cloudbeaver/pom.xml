@@ -211,7 +211,7 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-sidecar-cloudbeaver:${docker.tag.name}</name>
+                                    <name>${docker.namespace}/hello-data-sidecar-cloudbeaver:1.0.11</name>
                                     <build>
                                         <dockerFile>Dockerfile</dockerFile>
                                         <dockerFileDir>${project.basedir}</dockerFileDir>

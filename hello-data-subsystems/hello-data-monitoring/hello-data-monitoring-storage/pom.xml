@@ -206,7 +206,7 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-monitoring-storage:${docker.tag.name}</name>
+                                    <name>${docker.namespace}/hello-data-monitoring-storage:1.0.11</name>
                                     <build>
                                         <dockerFile>Dockerfile</dockerFile>
                                         <dockerFileDir>${project.basedir}</dockerFileDir>

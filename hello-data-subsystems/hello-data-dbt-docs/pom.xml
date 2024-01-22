@@ -319,7 +319,7 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-dbt-docs:${docker.tag.name}</name>
+                                    <name>${docker.namespace}/hello-data-dbt-docs:1.0.11</name>
                                     <build>
                                         <dockerFile>Dockerfile</dockerFile>
                                         <dockerFileDir>${project.basedir}</dockerFileDir>
