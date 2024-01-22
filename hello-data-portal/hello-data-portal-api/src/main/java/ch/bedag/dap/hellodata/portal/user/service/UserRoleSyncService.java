@@ -25,6 +25,7 @@ public class UserRoleSyncService {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final HdContextRepository contextRepository;
+    private final UserService userService;
 
     /**
      * In case of another data domain has been plugged in, add missing context roles to users
@@ -44,7 +45,7 @@ public class UserRoleSyncService {
     }
 
     /**
-     * Check if user has all context roles, if not add a default one (DATA_DOMAIN_ADMIN for admins, NONE to others)
+     * Check if user has all data domain roles, if not add a default one (DATA_DOMAIN_ADMIN for admins, NONE to others)
      *
      * @param userEntity
      * @param dataDomainKeys
@@ -73,6 +74,7 @@ public class UserRoleSyncService {
                 log.debug("User {} is not an admin, setting missing role to NONE", userEntity.getEmail());
                 roleService.addContextRoleToUser(userEntity, dataDomainKeyNotFoundInUserRole, HdRoleName.NONE);
             }
+            userService.synchronizeContextRolesWithSubsystems(userEntity);
         }
     }
 

@@ -218,7 +218,7 @@ public class RoleServiceTest {
     public void testAddContextRoleToUser() {
         // given
         UserEntity user = new UserEntity();
-        String contextKey = UUID.randomUUID().toString();
+        String contextKey = "some_context_key";
         HdRoleName roleName = HdRoleName.NONE;
 
         RoleEntity mockRoleEntity = new RoleEntity();
@@ -228,7 +228,7 @@ public class RoleServiceTest {
         roleService.addContextRoleToUser(user, contextKey, roleName);
 
         // then
-        verify(userContextRoleRepository, times(1)).save(argThat(argument -> {
+        verify(userContextRoleRepository, times(1)).saveAndFlush(argThat(argument -> {
             return argument.getUser().equals(user) && argument.getContextKey().equals(contextKey) && argument.getRole().equals(mockRoleEntity);
         }));
     }
@@ -237,7 +237,7 @@ public class RoleServiceTest {
     public void testAddContextRoleToUserRoleNotFound() {
         // given
         UserEntity user = new UserEntity();
-        String contextKey = "yourContextKey";
+        String contextKey = "some_context_key";
         HdRoleName roleName = HdRoleName.NONE;
 
         when(roleRepository.findByName(roleName)).thenReturn(Optional.empty());
@@ -249,7 +249,7 @@ public class RoleServiceTest {
             fail("Expected RuntimeException, but method executed successfully");
         } catch (RuntimeException e) {
             // then
-            assertEquals("NONE role not found!", e.getMessage());
+            assertEquals("Role not found!", e.getMessage());
         }
     }
 
