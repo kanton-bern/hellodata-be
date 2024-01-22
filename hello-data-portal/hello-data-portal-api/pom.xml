@@ -273,6 +273,22 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>build-docker-image</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>push-docker-image</id>
+                                <phase>${push-docker-image-phase}</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                         <configuration>
                             <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
                             <imagePullPolicy>Always</imagePullPolicy>

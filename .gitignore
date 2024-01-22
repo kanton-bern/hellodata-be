@@ -270,6 +270,7 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/angular,windows,linux,macos,intellij,maven,java
 /hello-data-portal-ui/src/build.ts
 /docker-compose/smtp4dev-data/database.db
+/hello-data-deployment/docker-compose/base/shared/Extra_Data_Domain/dags/__pycache__/
 .git-versioned-pom.xml
 /hello-data-deployment/docker-compose/.env
 /hello-data-deployment/etls/
