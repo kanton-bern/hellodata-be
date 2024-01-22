@@ -190,7 +190,7 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-monitoring-sba:1.0.11</name>
+                                    <name>${docker.namespace}/hello-data-monitoring-sba:${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}</contextDir>
                                     </build>

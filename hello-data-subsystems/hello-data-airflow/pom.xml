@@ -159,7 +159,7 @@
                             <imagePullPolicy>Always</imagePullPolicy>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-airflow:1.0.11</name>
+                                    <name>${docker.namespace}/hello-data-airflow:${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/main/docker</contextDir>
                                         <!-- extract the assembly into the docker context directory-->

@@ -176,7 +176,7 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-sidecar-portal:1.0.11</name>
+                                    <name>${docker.namespace}/hello-data-sidecar-portal:${docker.tag.name}</name>
                                     <build>
                                         <dockerFile>Dockerfile</dockerFile>
                                         <dockerFileDir>${project.basedir}</dockerFileDir>

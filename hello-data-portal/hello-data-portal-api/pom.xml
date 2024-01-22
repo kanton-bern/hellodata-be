@@ -294,7 +294,7 @@
                             <imagePullPolicy>Always</imagePullPolicy>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-portal-api:1.0.11</name>
+                                    <name>${docker.namespace}/hello-data-portal-api:${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}</contextDir>
                                         <dockerFile>${project.basedir}/src/main/docker/Dockerfile</dockerFile>
