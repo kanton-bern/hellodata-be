@@ -32,7 +32,6 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
 import {Faq} from "../../../../store/faq/faq.model";
-import {DeleteEditedFaq, SaveChangesToFaq, ShowDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {selectAvailableDataDomainsWithAllEntry} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "../../../../store/app/app.constants";
@@ -41,6 +40,7 @@ import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-chan
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 
 @Component({
   selector: 'app-faq-edit',
@@ -108,15 +108,15 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(new SaveChangesToFaq(faqToBeSaved));
+    this.store.dispatch(saveChangesToFaq(faqToBeSaved));
   }
 
   openDeletePopup(editedFaq: Faq) {
-    this.store.dispatch(new ShowDeleteFaqPopup(editedFaq));
+    this.store.dispatch(showDeleteFaqPopup({faq: editedFaq}));
   }
 
   getDeletionAction() {
-    return new DeleteEditedFaq();
+    return deleteEditedFaq();
   }
 
   ngOnDestroy(): void {
@@ -131,7 +131,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(new MarkUnsavedChanges(new SaveChangesToFaq(faqToBeSaved), faqToBeSaved.id === undefined));
+    this.store.dispatch(new MarkUnsavedChanges(saveChangesToFaq(faqToBeSaved), faqToBeSaved.id === undefined));
   }
 
   private unsubFormValueChanges() {

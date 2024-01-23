@@ -25,44 +25,35 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {FaqState, initialFaqState} from "./faq.state";
-import {FaqActions, FaqActionType} from "./faq.action";
+import {initialFaqState} from "./faq.state";
+import {hideDeleteFaqPopup, loadFaqByIdSuccess, loadFaqSuccess, showDeleteFaqPopup} from "./faq.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const faqReducer = (
-  state = initialFaqState,
-  action: FaqActions
-): FaqState => {
-  switch (action.type) {
-    case FaqActionType.LOAD_FAQ_SUCCESS: {
-      return {
-        ...state,
-        faq: action.payload,
-        editedFaq: {}
-      };
-    }
-
-    case FaqActionType.LOAD_FAQ_BY_ID_SUCCESS: {
-      return {
-        ...state,
-        editedFaq: action.faq
-      };
-    }
-
-    case FaqActionType.SHOW_DELETE_FAQ_POP_UP: {
-      return {
-        ...state,
-        faqForDeletion: action.faq
-      };
-    }
-
-    case FaqActionType.HIDE_DELETE_FAQ_POP_UP: {
-      return {
-        ...state,
-        faqForDeletion: null
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+export const faqReducer = createReducer(
+  initialFaqState,
+  on(loadFaqSuccess, (state, {payload}) => {
+    return {
+      ...state,
+      faq: payload,
+      editedFaq: {}
+    };
+  }),
+  on(loadFaqByIdSuccess, (state, {faq}) => {
+    return {
+      ...state,
+      editedFaq: faq
+    };
+  }),
+  on(showDeleteFaqPopup, (state, {faq}) => {
+    return {
+      ...state,
+      faqForDeletion: faq
+    };
+  }),
+  on(hideDeleteFaqPopup, (state) => {
+    return {
+      ...state,
+      faqForDeletion: null
+    };
+  }),
+);

@@ -31,10 +31,10 @@ import {catchError, EMPTY, of, switchMap} from "rxjs";
 import {LoadPortalRoleById} from "../portal-roles-management/portal-roles-management.action";
 import {Injectable} from "@angular/core";
 import {loadAnnouncementById} from "../announcement/announcement.action";
-import {LoadFaqById} from "../faq/faq.action";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {showError} from "../app/app.action";
 import {loadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
+import {loadFaqById} from "../faq/faq.action";
 
 @Injectable()
 export class RouterEffects {
@@ -44,19 +44,15 @@ export class RouterEffects {
     switchMap(action => {
       const urlParts = action.payload.routerState.url.split('/');
       if (urlParts.length === 4 && urlParts[1] === 'roles-management' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
         return of(new LoadPortalRoleById());
       }
       if (urlParts.length === 4 && urlParts[1] === 'announcements-management' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
         return of(loadAnnouncementById());
       }
       if (urlParts.length === 4 && urlParts[1] === 'faq-management' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
-        return of(new LoadFaqById());
+        return of(loadFaqById());
       }
       if (urlParts.length === 4 && urlParts[1] === 'external-dashboards' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
         return of(loadExternalDashboardById());
       }
       return EMPTY;

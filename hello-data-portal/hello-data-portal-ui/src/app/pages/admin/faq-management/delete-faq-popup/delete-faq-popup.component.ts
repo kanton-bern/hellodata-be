@@ -30,9 +30,9 @@ import {Action, Store} from "@ngrx/store";
 import {Observable, tap, withLatestFrom} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedFaqForDeletion} from "../../../../store/faq/faq.selector";
-import {HideDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
+import {hideDeleteFaqPopup} from "../../../../store/faq/faq.action";
 
 @Component({
   selector: 'app-delete-faq-popup',
@@ -73,7 +73,7 @@ export class DeleteFaqPopupComponent {
   }
 
   hideDeletionPopup(): void {
-    this.store.dispatch(new HideDeleteFaqPopup());
+    this.store.dispatch(hideDeleteFaqPopup());
   }
 
 }
