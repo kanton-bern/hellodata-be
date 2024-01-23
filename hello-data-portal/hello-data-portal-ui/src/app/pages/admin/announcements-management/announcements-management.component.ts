@@ -30,11 +30,11 @@ import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAllAnnouncements} from "../../../store/announcement/announcement.selector";
-import {DeleteAnnouncement, LoadAllAnnouncements, OpenAnnouncementEdition, ShowDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
 import {Announcement} from "../../../store/announcement/announcement.model";
 import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
 
 @Component({
   selector: 'app-announcements-management',
@@ -48,7 +48,7 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
   constructor(private store: Store<AppState>) {
     super();
     this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
-    store.dispatch(new LoadAllAnnouncements());
+    store.dispatch(loadAllAnnouncements());
     this.store.dispatch(new CreateBreadcrumbs([
       {
         label: naviElements.announcementsManagement.label,
@@ -62,19 +62,19 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
   }
 
   createAnnouncement() {
-    this.store.dispatch(new OpenAnnouncementEdition());
+    this.store.dispatch(openAnnouncementEdition({announcement: {}}));
   }
 
   editAnnouncement(data: Announcement) {
-    this.store.dispatch(new OpenAnnouncementEdition(data));
+    this.store.dispatch(openAnnouncementEdition({announcement: data}));
   }
 
   showAnnouncementDeletionPopup(data: Announcement) {
-    this.store.dispatch(new ShowDeleteAnnouncementPopup(data));
+    this.store.dispatch(showDeleteAnnouncementPopup({announcement: data}));
   }
 
   getDeletionAction() {
-    return new DeleteAnnouncement()
+    return deleteAnnouncement();
   }
 
 }

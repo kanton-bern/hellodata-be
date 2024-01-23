@@ -30,9 +30,9 @@ import {Action, Store} from "@ngrx/store";
 import {combineLatest, Observable, tap} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedAnnouncementForDeletion} from "../../../../store/announcement/announcement.selector";
-import {HideDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 import {ConfirmationService} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
+import {hideDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 
 @Component({
   selector: 'app-delete-announcement-popup[action]',
@@ -62,7 +62,7 @@ export class DeleteAnnouncementPopupComponent {
   }
 
   hideDeletionPopup(): void {
-    this.store.dispatch(new HideDeleteAnnouncementPopup());
+    this.store.dispatch(hideDeleteAnnouncementPopup());
   }
 
   private confirmDeletion(msg: string) {

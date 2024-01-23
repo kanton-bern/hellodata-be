@@ -33,11 +33,11 @@ import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {Navigate} from "../../../../store/app/app.action";
-import {DeleteEditedAnnouncement, SaveChangesToAnnouncement, ShowDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {deleteEditedAnnouncement, saveChangesToAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -100,15 +100,15 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const formAnnouncement = this.announcementForm.getRawValue() as Announcement;
     announcementToBeSaved.message = formAnnouncement.message;
     announcementToBeSaved.published = formAnnouncement.published;
-    this.store.dispatch(new SaveChangesToAnnouncement(announcementToBeSaved));
+    this.store.dispatch(saveChangesToAnnouncement({announcement: announcementToBeSaved}));
   }
 
   openDeletePopup(editedAnnouncement: Announcement) {
-    this.store.dispatch(new ShowDeleteAnnouncementPopup(editedAnnouncement));
+    this.store.dispatch(showDeleteAnnouncementPopup({announcement: editedAnnouncement}));
   }
 
   getDeletionAction() {
-    return new DeleteEditedAnnouncement();
+    return deleteEditedAnnouncement();
   }
 
   ngOnDestroy(): void {
@@ -120,7 +120,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const formAnnouncement = this.announcementForm.getRawValue() as Announcement;
     announcementToBeSaved.message = formAnnouncement.message;
     announcementToBeSaved.published = formAnnouncement.published;
-    this.store.dispatch(new MarkUnsavedChanges(new SaveChangesToAnnouncement(announcementToBeSaved), announcementToBeSaved.id === undefined));
+    this.store.dispatch(new MarkUnsavedChanges(saveChangesToAnnouncement({announcement: announcementToBeSaved}), announcementToBeSaved.id === undefined));
   }
 
   private unsubFormValueChanges() {

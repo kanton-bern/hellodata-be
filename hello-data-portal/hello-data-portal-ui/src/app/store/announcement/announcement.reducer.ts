@@ -25,51 +25,48 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AnnouncementActionType, AnnouncementsActions} from "./announcement.action";
-import {AnnouncementState, initialAnnouncementState} from "./announcement.state";
+import {
+  hideDeleteAnnouncementPopup,
+  loadAllAnnouncementsSuccess,
+  loadAnnouncementByIdSuccess,
+  loadPublishedAnnouncementsSuccess,
+  showDeleteAnnouncementPopup
+} from "./announcement.action";
+import {initialAnnouncementState} from "./announcement.state";
+import {createReducer, on} from "@ngrx/store";
 
-export const announcementReducer = (
-  state = initialAnnouncementState,
-  action: AnnouncementsActions
-): AnnouncementState => {
-  switch (action.type) {
-    case AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS_SUCCESS: {
-      return {
-        ...state,
-        publishedAnnouncements: action.payload
-      };
-    }
 
-    case AnnouncementActionType.LOAD_ALL_ANNOUNCEMENTS_SUCCESS: {
-      return {
-        ...state,
-        allAnnouncements: action.payload,
-        editedAnnouncement: {}
-      };
-    }
-
-    case AnnouncementActionType.LOAD_ANNOUNCEMENT_BY_ID_SUCCESS: {
-      return {
-        ...state,
-        editedAnnouncement: action.announcement
-      };
-    }
-
-    case AnnouncementActionType.SHOW_DELETE_ANNOUNCEMENT_POP_UP: {
-      return {
-        ...state,
-        announcementForDeletion: action.announcement
-      };
-    }
-
-    case AnnouncementActionType.HIDE_DELETE_ANNOUNCEMENT_POP_UP: {
-      return {
-        ...state,
-        announcementForDeletion: null
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+export const announcementReducer = createReducer(
+  initialAnnouncementState,
+  on(loadPublishedAnnouncementsSuccess, (state, {payload}) => {
+    return {
+      ...state,
+      selectedAnnouncement: payload
+    };
+  }),
+  on(loadAllAnnouncementsSuccess, (state, {payload}) => {
+    return {
+      ...state,
+      allAnnouncements: payload,
+      editedAnnouncement: {}
+    };
+  }),
+  on(loadAnnouncementByIdSuccess, (state, {announcement}) => {
+    return {
+      ...state,
+      editedAnnouncement: announcement
+    };
+  }),
+  on(showDeleteAnnouncementPopup, (state, {announcement}) => {
+    return {
+      ...state,
+      announcementForDeletion: announcement
+    };
+  }),
+  on(hideDeleteAnnouncementPopup, (state) => {
+    return {
+      ...state,
+      announcementForDeletion: null
+    };
+  }),
+);

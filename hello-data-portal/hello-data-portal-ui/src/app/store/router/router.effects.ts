@@ -33,7 +33,7 @@ import {ShowError} from "../app/app.action";
 import {Injectable} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {LoadAnnouncementById} from "../announcement/announcement.action";
+import {loadAnnouncementById} from "../announcement/announcement.action";
 import {LoadFaqById} from "../faq/faq.action";
 import {LoadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
@@ -51,7 +51,7 @@ export class RouterEffects {
       }
       if (urlParts.length === 4 && urlParts[1] === 'announcements-management' && urlParts[2] === 'edit') {
         // const roleId = urlParts[3];
-        return of(new LoadAnnouncementById());
+        return of(loadAnnouncementById());
       }
       if (urlParts.length === 4 && urlParts[1] === 'faq-management' && urlParts[2] === 'edit') {
         // const roleId = urlParts[3];

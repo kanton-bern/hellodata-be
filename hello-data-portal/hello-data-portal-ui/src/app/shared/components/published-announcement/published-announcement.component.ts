@@ -28,10 +28,10 @@
 import {AfterViewInit, Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {LoadPublishedAnnouncements, MarkAnnouncementAsRead} from "../../../store/announcement/announcement.action";
 import {selectPublishedAnnouncements} from "../../../store/announcement/announcement.selector";
 import {Observable} from "rxjs";
 import {Announcement} from "../../../store/announcement/announcement.model";
+import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../store/announcement/announcement.action";
 
 @Component({
   selector: 'app-published-announcements',
@@ -44,7 +44,7 @@ export class PublishedAnnouncementComponent implements AfterViewInit {
 
   constructor(private store: Store<AppState>) {
     this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements);
-    store.dispatch(new LoadPublishedAnnouncements());
+    store.dispatch(loadPublishedAnnouncements());
   }
 
   ngAfterViewInit(): void {
@@ -52,7 +52,7 @@ export class PublishedAnnouncementComponent implements AfterViewInit {
   }
 
   hide(announcement: Announcement): void {
-    this.store.dispatch(new MarkAnnouncementAsRead(announcement));
+    this.store.dispatch(markAnnouncementAsRead({announcement}));
   }
 
 }
