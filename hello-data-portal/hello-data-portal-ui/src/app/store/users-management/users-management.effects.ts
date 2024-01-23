@@ -57,7 +57,7 @@ import {
 } from "./users-management.action";
 import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
-import {select, Store} from '@ngrx/store';
+import {Store} from '@ngrx/store';
 import {AppState} from "../app/app.state";
 import {selectDashboardsForUser, selectParamUserId, selectSelectedRolesForUser, selectUserForPopup} from "./users-management.selector";
 import {Navigate, ShowError, ShowSuccess} from "../app/app.action";
@@ -80,7 +80,7 @@ export class UsersManagementEffects {
 
   userPopupAction$ = createEffect(() => this._actions$.pipe(
     ofType<InvokeActionFromUserPopup>(UsersManagementActionType.INVOKE_ACTION_FROM_USER_POPUP),
-    withLatestFrom(this._store.pipe(select(selectUserForPopup))),
+    withLatestFrom(this._store.select(selectUserForPopup)),
     switchMap(([action, userActionForPopup]) => {
         switch (userActionForPopup!.action) {
           case (UserAction.DISABLE):
@@ -147,7 +147,7 @@ export class UsersManagementEffects {
 
   loadUserById$ = createEffect(() => this._actions$.pipe(
     ofType<LoadUserById>(UsersManagementActionType.LOAD_USER_BY_ID),
-    withLatestFrom(this._store.pipe(select(selectParamUserId))),
+    withLatestFrom(this._store.select(selectParamUserId)),
     tap(([action, userId]) => sessionStorage.setItem(CURRENT_EDITED_USER_ID, userId as string)),
     switchMap(([action, userId]) => this._usersManagementService.getUserById(userId as string)),
     switchMap(result => of(new LoadUserByIdSuccess(result))),
@@ -161,7 +161,7 @@ export class UsersManagementEffects {
 
   loadAllDashboardsWithMarkedUser$ = createEffect(() => this._actions$.pipe(
     ofType<LoadDashboards>(UsersManagementActionType.LOAD_DASHBOARDS),
-    withLatestFrom(this._store.pipe(select(selectParamUserId))),
+    withLatestFrom(this._store.select(selectParamUserId)),
     switchMap(([action, userId]) => {
         return this._usersManagementService.getDashboardsWithMarkedUser(userId as string).pipe(
           map((result) => new LoadDashboardsSuccess(result.dashboards)),
@@ -204,7 +204,7 @@ export class UsersManagementEffects {
 
   loadUserContextRoles$ = createEffect(() => this._actions$.pipe(
     ofType<LoadUserContextRoles>(UsersManagementActionType.LOAD_USER_CONTEXT_ROLES),
-    withLatestFrom(this._store.pipe(select(selectParamUserId))),
+    withLatestFrom(this._store.select(selectParamUserId)),
     switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
     switchMap(result => of(new LoadUserContextRolesSuccess(result))),
     catchError(e => of(new ShowError(e)))
@@ -213,8 +213,8 @@ export class UsersManagementEffects {
   updateUserRoles$ = createEffect(() => this._actions$.pipe(
     ofType<UpdateUserRoles>(UsersManagementActionType.UPDATE_USER_ROLES),
     withLatestFrom(
-      this._store.pipe(select(selectSelectedRolesForUser)),
-      this._store.pipe(select(selectDashboardsForUser))
+      this._store.select(selectSelectedRolesForUser),
+      this._store.select(selectDashboardsForUser)
     ),
     switchMap(([action, selectedRoles, selectedDashboards]) => this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards)),
     switchMap(() => of(new UpdateUserRolesSuccess(), new ClearUnsavedChanges())),

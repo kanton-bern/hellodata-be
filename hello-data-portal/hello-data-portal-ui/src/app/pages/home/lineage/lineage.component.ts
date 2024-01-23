@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {LineageDocsService} from "../../../store/lineage-docs/lineage-docs.service";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
@@ -45,7 +45,7 @@ export class LineageComponent implements OnInit {
   docs$: Observable<any>;
 
   constructor(private _store: Store<AppState>, private docsService: LineageDocsService, private fb: FormBuilder) {
-    this.docs$ = this._store.pipe(select(selectMyLineageDocs));
+    this.docs$ = this._store.select(selectMyLineageDocs);
   }
 
   ngOnInit(): void {

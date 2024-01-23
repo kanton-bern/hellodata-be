@@ -26,7 +26,7 @@
 ///
 
 import {Component, Input} from '@angular/core';
-import {Action, select, Store} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {combineLatest, Observable, tap} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedAnnouncementForDeletion} from "../../../../store/announcement/announcement.selector";
@@ -46,7 +46,7 @@ export class DeleteAnnouncementPopupComponent {
 
   constructor(private store: Store<AppState>, private confirmationService: ConfirmationService, private translateService: TranslateService) {
     this.announcementToBeDeleted$ = combineLatest([
-      this.store.pipe(select(selectSelectedAnnouncementForDeletion)),
+      this.store.select(selectSelectedAnnouncementForDeletion),
       this.translateService.selectTranslate('@Delete announcement question')
     ]).pipe(tap(([announcementForDeletion, msg]) => {
       if (announcementForDeletion) {

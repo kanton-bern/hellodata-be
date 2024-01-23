@@ -28,7 +28,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../../store/announcement/announcement.model";
@@ -51,12 +51,12 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
-    this.editedAnnouncement$ = this.store.pipe(select(selectEditedAnnouncement));
+    this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement);
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
-    this.editedAnnouncement$ = this.store.pipe(select(selectEditedAnnouncement)).pipe(
+    this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement).pipe(
       tap(announcement => {
         this.announcementForm = this.fb.group({
           message: [announcement?.message, [Validators.required.bind(this), Validators.minLength(3)]],

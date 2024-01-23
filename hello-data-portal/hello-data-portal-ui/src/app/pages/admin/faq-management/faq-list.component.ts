@@ -27,7 +27,7 @@
 
 import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAllFaq} from "../../../store/faq/faq.selector";
 import {Faq} from "../../../store/faq/faq.model";
@@ -41,12 +41,12 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
   templateUrl: './faq-list.component.html',
   styleUrls: ['./faq-list.component.scss']
 })
-export class FaqListComponent extends BaseComponent implements OnInit{
+export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.faq$ = this.store.pipe(select(selectAllFaq));
+    this.faq$ = this.store.select(selectAllFaq);
     store.dispatch(new LoadFaq());
     this.store.dispatch(new CreateBreadcrumbs([
       {

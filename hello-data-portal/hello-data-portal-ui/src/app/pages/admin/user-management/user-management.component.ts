@@ -26,7 +26,7 @@
 ///
 
 import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {CreateUser, LoadUsers, NavigateToUserEdition, ShowUserActionPopup, SyncUsers} from "../../../store/users-management/users-management.action";
 import {debounceTime, distinctUntilChanged, Observable, Subject, Subscription} from "rxjs";
@@ -76,7 +76,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
     super();
-    this.users$ = this.store.pipe(select(selectUsers)).pipe(map(d => [...d]));
+    this.users$ = this.store.select(selectUsers).pipe(map(d => [...d]));
     this.store.dispatch(new LoadUsers());
     this.store.dispatch(new CreateBreadcrumbs([
       {

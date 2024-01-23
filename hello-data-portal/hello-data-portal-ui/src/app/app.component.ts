@@ -27,7 +27,7 @@
 
 import {Component, HostBinding} from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
 import {CheckAuth} from "./store/auth/auth.action";
 import {selectCurrentBusinessDomain, selectIsAuthenticated} from "./store/auth/auth.selector";
@@ -41,21 +41,23 @@ import {Title} from "@angular/platform-browser";
 })
 export class AppComponent {
 
-  isAuthenticated$ = this.store.pipe(select(selectIsAuthenticated));
+  isAuthenticated$: Observable<boolean>;
   businessDomain$: Observable<string>;
+  checkAuth = false;
 
   constructor(private store: Store<AppState>, private screen: ScreenService, public appInfo: AppInfoService,
               private title: Title) {
     setTimeout(() => {
-      this.isAuthenticated$.subscribe(isAuthenticated => {
-        console.debug('is authenticated', isAuthenticated)
-        if (!isAuthenticated) {
-          this.store.dispatch(new CheckAuth());
-        }
-      })
+      this.checkAuth = true;
     }, 500);
 
-    this.businessDomain$ = this.store.pipe(select(selectCurrentBusinessDomain)).pipe(tap(businessDomainName => {
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated).pipe(tap(isAuthenticated => {
+      console.debug('is authenticated', isAuthenticated)
+      if (!isAuthenticated) {
+        this.store.dispatch(new CheckAuth());
+      }
+    }))
+    this.businessDomain$ = this.store.select(selectCurrentBusinessDomain).pipe(tap(businessDomainName => {
       title.setTitle(`${appInfo.title} -- ${businessDomainName}`);
     }));
   }

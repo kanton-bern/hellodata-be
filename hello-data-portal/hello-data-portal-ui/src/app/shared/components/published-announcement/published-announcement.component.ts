@@ -26,7 +26,7 @@
 ///
 
 import {AfterViewInit, Component} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {LoadPublishedAnnouncements, MarkAnnouncementAsRead} from "../../../store/announcement/announcement.action";
 import {selectPublishedAnnouncements} from "../../../store/announcement/announcement.selector";
@@ -43,7 +43,7 @@ export class PublishedAnnouncementComponent implements AfterViewInit {
   publishedAnnouncements$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
-    this.publishedAnnouncements$ = this.store.pipe(select(selectPublishedAnnouncements));
+    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements);
     store.dispatch(new LoadPublishedAnnouncements());
   }
 

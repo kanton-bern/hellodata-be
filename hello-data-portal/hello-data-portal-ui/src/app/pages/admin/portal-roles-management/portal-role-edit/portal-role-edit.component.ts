@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
@@ -59,20 +59,20 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   formValueChangedSub!: Subscription;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomainItems));
-    this.editedRole$ = this.store.pipe(select(selectEditedPortalRole));
-    this.availableDataPermissions$ = this.store.pipe(select(selectAvailablePermissions)).pipe(
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
+    this.editedRole$ = this.store.select(selectEditedPortalRole);
+    this.availableDataPermissions$ = this.store.select(selectAvailablePermissions).pipe(
       tap(availablePermissions => {
         this.allPermissions = availablePermissions;
         this.filteredPermissions = availablePermissions;
       }));
-    this.workspaces$ = this.store.pipe(select(selectAppInfos));
+    this.workspaces$ = this.store.select(selectAppInfos);
     this.store.dispatch(new LoadPermissionResources());
     this.store.dispatch(new LoadAppInfoResources());
   }
 
   ngOnInit(): void {
-    this.editedRole$ = this.store.pipe(select(selectEditedPortalRole)).pipe(
+    this.editedRole$ = this.store.select(selectEditedPortalRole).pipe(
       tap(role => {
         this.roleForm = this.fb.group({
           name: [role?.name, Validators.compose([Validators.required.bind(this), Validators.minLength(3), Validators.maxLength(255), Validators.pattern('[A-Za-z0-9_ ]*')])],

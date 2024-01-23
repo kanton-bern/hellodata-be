@@ -28,7 +28,7 @@
 import {Component, EventEmitter, Input, NgModule, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
@@ -81,10 +81,10 @@ export class HeaderComponent {
   selectedDataDomain$: Observable<DataDomain | null>;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
-    this.isAuthenticated$ = this.store.pipe(select(selectIsAuthenticated));
-    this.userData$ = this.store.pipe(select(selectProfile));
-    this.businessDomain$ = this.store.pipe(select(selectCurrentBusinessDomain));
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomains)).pipe(tap(availableDataDomains => {
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+    this.userData$ = this.store.select(selectProfile);
+    this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomains).pipe(tap(availableDataDomains => {
       this.dataDomainSelectionItems = [];
       for (const availableDataDomain of availableDataDomains) {
         this.dataDomainSelectionItems.push({
@@ -96,7 +96,7 @@ export class HeaderComponent {
         })
       }
     }));
-    this.selectedDataDomain$ = this.store.pipe(select(selectSelectedDataDomain));
+    this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.environment = {
       name: environment.deploymentEnvironment.name,
       showEnvironment: environment.deploymentEnvironment.showEnvironment != undefined ? environment.deploymentEnvironment.showEnvironment : true,

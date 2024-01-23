@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {CreateOrUpdateDocumentation, LoadDocumentation} from "../../../store/summary/summary.actions";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
@@ -41,14 +41,14 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
   templateUrl: './documentation-management.component.html',
   styleUrls: ['./documentation-management.component.scss']
 })
-export class DocumentationManagementComponent extends BaseComponent implements OnInit{
+export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   documentation = '';
   documentation$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
     this.store.dispatch(new LoadDocumentation());
-    this.documentation$ = this.store.pipe(select(selectDocumentation)).pipe(tap(doc => {
+    this.documentation$ = this.store.select(selectDocumentation).pipe(tap(doc => {
       this.documentation = doc;
     }));
     this.createBreadcrumbs();

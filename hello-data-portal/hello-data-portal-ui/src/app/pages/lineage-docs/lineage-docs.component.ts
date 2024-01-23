@@ -27,7 +27,7 @@
 
 import {Component, ElementRef, NgModule, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from "@angular/common";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
@@ -68,7 +68,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
         routerLink: naviElements.lineageDocsList.path
       }
     ]));
-    this.docs$ = this.store.pipe(select(selectMyLineageDocs));
+    this.docs$ = this.store.select(selectMyLineageDocs);
   }
 
   override ngOnInit(): void {

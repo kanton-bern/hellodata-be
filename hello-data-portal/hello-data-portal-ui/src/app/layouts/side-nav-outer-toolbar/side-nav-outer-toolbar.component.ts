@@ -31,7 +31,7 @@ import {CommonModule} from '@angular/common';
 
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {ScrollPanelModule} from "primeng/scrollpanel";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable, tap} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
@@ -59,12 +59,12 @@ export class SideNavOuterToolbarComponent {
   height = 8;
 
   constructor(private store: Store<AppState>) {
-    this.navItems$ = this.store.pipe(select(selectNavItems));
-    this.publishedAnnouncements$ = this.store.pipe(select(selectPublishedAnnouncements)).pipe(tap(value => {
+    this.navItems$ = this.store.select(selectNavItems);
+    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements).pipe(tap(value => {
         this.height = 8 + (value.length * 4);
       }
     ));
-    this.selectCurrentUserPermissionsLoaded$ = this.store.pipe(select(selectCurrentUserPermissionsLoaded));
+    this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
   }
 
 }

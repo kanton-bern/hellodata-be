@@ -27,7 +27,7 @@
 
 import {Component, OnInit} from '@angular/core';
 import {Observable, tap} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {LoadAppInfoResources, LoadSelectedAppInfoResource, LoadSelectedAppInfoResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 import {
@@ -44,7 +44,7 @@ import {BaseComponent} from "../../../../shared/components/base/base.component";
   templateUrl: './selected-workspace.component.html',
   styleUrls: ['./selected-workspace.component.scss']
 })
-export class SelectedWorkspaceComponent extends BaseComponent implements OnInit{
+export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
 
   resources$: Observable<any>;
   selectedResource$: Observable<any>;
@@ -56,10 +56,10 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit{
     super();
     this.store.dispatch(new LoadAppInfoResources());
     this.store.dispatch(new LoadSelectedAppInfoResources());
-    this.headerInfo$ = this.store.pipe(select(selectSelectedAppInfoResourcesParams));
-    this.resources$ = this.store.pipe(select(selectedAppInfoResources));
-    this.selectedResource$ = this.store.pipe(select(selectedAppInfoResource));
-    this.selectedAppInfo$ = this.store.pipe(select(selectSelectedAppInfo)).pipe(tap((appInfo: any) => {
+    this.headerInfo$ = this.store.select(selectSelectedAppInfoResourcesParams);
+    this.resources$ = this.store.select(selectedAppInfoResources);
+    this.selectedResource$ = this.store.select(selectedAppInfoResource);
+    this.selectedAppInfo$ = this.store.select(selectSelectedAppInfo).pipe(tap((appInfo: any) => {
       this.selectedResourceUrl = appInfo?.data?.url;
     }));
   }

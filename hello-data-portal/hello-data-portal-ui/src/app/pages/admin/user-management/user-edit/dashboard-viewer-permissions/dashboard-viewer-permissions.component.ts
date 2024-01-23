@@ -29,7 +29,7 @@ import {Component, EventEmitter, Input, Output} from "@angular/core";
 import {Context} from "../../../../../store/users-management/context-role.model";
 import {DashboardForUser} from "../../../../../store/users-management/users-management.model";
 import {Observable, tap} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../../store/app/app.state";
 import {UpdateUserRoles} from "../../../../../store/users-management/users-management.action";
 import {selectAllDashboardsWithMarkedUser, selectAllDashboardsWithMarkedUserFetched} from "../../../../../store/users-management/users-management.selector";
@@ -54,9 +54,9 @@ export class DashboardViewerPermissionsComponent {
   selectedDashboardsEvent = new EventEmitter<DashboardForUser[]>();
 
   constructor(private store: Store<AppState>) {
-    this.dashboardsFetched$ = this.store.pipe(select(selectAllDashboardsWithMarkedUserFetched)).pipe(tap(fetched => console.debug("dashboards fetched?", fetched)));
+    this.dashboardsFetched$ = this.store.select(selectAllDashboardsWithMarkedUserFetched).pipe(tap(fetched => console.debug("dashboards fetched?", fetched)));
     this.dashboards$ =
-      this.store.pipe(select(selectAllDashboardsWithMarkedUser)).pipe(
+      this.store.select(selectAllDashboardsWithMarkedUser).pipe(
         take(1),
         tap((allDashboards) => {
           this.extractDashboardsForSelectedContext(allDashboards);

@@ -27,23 +27,14 @@
 
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs";
-import {Faq} from "../../../store/faq/faq.model";
 import {ActivatedRoute} from "@angular/router";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {selectFaq} from "../../../store/start-page/start-page.selector";
-import {LoadFaqStartPage} from "../../../store/start-page/start-page.action";
 import {Table} from "primeng/table";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
-import {ConfirmationService} from "primeng/api";
-import {TranslateService} from "../../../shared/services/translate.service";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
-import {
-  DeleteExternalDashboard,
-  LoadExternalDashboards,
-  OpenExternalDashboardEdition
-} from "../../../store/external-dashboards/external-dasboards.action";
+import {LoadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
 
 @Component({
   selector: 'app-external',
@@ -56,8 +47,8 @@ export class ExternalComponent implements OnInit {
   currentUserPermissions$: Observable<string[]>;
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>) {
-    this.externalDashboards$ = this.store.pipe(select(selectExternalDashboards));
-    this.currentUserPermissions$ = this.store.pipe(select(selectCurrentUserPermissions));
+    this.externalDashboards$ = this.store.select(selectExternalDashboards);
+    this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
 
   ngOnInit(): void {

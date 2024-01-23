@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {
   LoadAvailableContextRoles,
@@ -88,17 +88,17 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.store.dispatch(new LoadAvailableContexts());
     this.store.dispatch(new LoadUserContextRoles());
     this.store.dispatch(new LoadUserById());
-    this.editedUser$ = this.store.pipe(select(selectEditedUser)).pipe(tap(editedUser => {
+    this.editedUser$ = this.store.select(selectEditedUser).pipe(tap(editedUser => {
       this.editedUserSuperuser = editedUser ? editedUser.superuser : false;
       this.createBreadcrumbs(editedUser);
     }));
-    this.businessDomains$ = this.store.pipe(select(selectAllBusinessDomains));
-    this.dataDomains$ = this.store.pipe(select(selectAllDataDomains));
-    this.availableBusinessDomainRoles$ = this.store.pipe(select(selectAvailableRolesForBusinessDomain));
-    this.availableDataDomainRoles$ = this.store.pipe(select(selectAvailableRolesForDataDomain));
+    this.businessDomains$ = this.store.select(selectAllBusinessDomains);
+    this.dataDomains$ = this.store.select(selectAllDataDomains);
+    this.availableBusinessDomainRoles$ = this.store.select(selectAvailableRolesForBusinessDomain);
+    this.availableDataDomainRoles$ = this.store.select(selectAvailableRolesForDataDomain);
     this.userContextRoles$ = combineLatest([
-      this.store.pipe(select(selectUserContextRoles)),
-      this.store.pipe(select(selectIsSuperuser))
+      this.store.select(selectUserContextRoles),
+      this.store.select(selectIsSuperuser)
     ]).pipe(tap(([userContextRoles, isCurrentSuperuser]) => {
       this.generateForm(userContextRoles, isCurrentSuperuser);
     }));

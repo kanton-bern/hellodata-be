@@ -29,7 +29,7 @@ import {Component, NgModule, OnInit} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PortalRoleEditComponent} from './portal-role-edit/portal-role-edit.component';
-import {Action, select, Store} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {DeletePortalRole, LoadPortalRoles, OpenPortalRoleEdition, ShowDeletePortalRolePopup} from "../../../store/portal-roles-management/portal-roles-management.action";
 import {Observable} from "rxjs";
@@ -58,13 +58,13 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
   templateUrl: './portal-roles-management.component.html',
   styleUrls: ['./portal-roles-management.component.scss']
 })
-export class PortalRolesManagementComponent extends BaseComponent implements OnInit{
+export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
 
   roles$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.roles$ = this.store.pipe(select(selectPortalRoles));
+    this.roles$ = this.store.select(selectPortalRoles);
     this.store.dispatch(new LoadPortalRoles());
     this.store.dispatch(new CreateBreadcrumbs([
       {

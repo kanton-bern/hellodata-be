@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
@@ -55,7 +55,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>, private menuService: MenuService) {
     super();
-    this.dashboards$ = this.store.pipe(select(selectMyDashboards));
+    this.dashboards$ = this.store.select(selectMyDashboards);
     this.store.dispatch(new CreateBreadcrumbs([
       {
         label: naviElements.myDashboards.label,

@@ -28,7 +28,7 @@
 import {Injectable} from "@angular/core";
 import {Router} from "@angular/router";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
 import {FaqService} from "./faq.service";
@@ -75,7 +75,7 @@ export class FaqEffects {
 
   loadFaqById$ = createEffect(() => this._actions$.pipe(
     ofType<LoadFaqById>(FaqActionType.LOAD_FAQ_BY_ID),
-    withLatestFrom(this._store.pipe(select(selectParamFaqId))),
+    withLatestFrom(this._store.select(selectParamFaqId)),
     switchMap(([action, faqId]) => this._faqService.getFaqById(faqId as string)),
     switchMap(result => of(new LoadFaqByIdSuccess(result))),
     catchError(e => of(new ShowError(e)))
@@ -113,7 +113,7 @@ export class FaqEffects {
 
   deleteFaq$ = createEffect(() => this._actions$.pipe(
     ofType<DeleteFaq>(FaqActionType.DELETE_FAQ),
-    withLatestFrom(this._store.pipe(select(selectSelectedFaqForDeletion))),
+    withLatestFrom(this._store.select(selectSelectedFaqForDeletion)),
     switchMap(([action, faq]) => this._faqService.deleteFaqById((faq as Faq).id as string).pipe(
       map(() => new DeleteFaqSuccess(faq as Faq)),
       catchError(e => of(new ShowError(e)))
@@ -128,7 +128,7 @@ export class FaqEffects {
 
   deleteEditedFaq$ = createEffect(() => this._actions$.pipe(
     ofType<DeleteEditedFaq>(FaqActionType.DELETE_EDITED_FAQ),
-    withLatestFrom(this._store.pipe(select(selectSelectedFaqForDeletion))),
+    withLatestFrom(this._store.select(selectSelectedFaqForDeletion)),
     switchMap(([action, faqToBeDeleted]) => {
         return this._faqService.deleteFaqById((faqToBeDeleted as Faq).id as string).pipe(
           map(() => new DeleteEditedFaqSuccess()),

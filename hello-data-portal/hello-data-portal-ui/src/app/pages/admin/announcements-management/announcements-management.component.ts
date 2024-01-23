@@ -27,7 +27,7 @@
 
 import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAllAnnouncements} from "../../../store/announcement/announcement.selector";
 import {DeleteAnnouncement, LoadAllAnnouncements, OpenAnnouncementEdition, ShowDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
@@ -41,13 +41,13 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
   templateUrl: './announcements-management.component.html',
   styleUrls: ['./announcements-management.component.scss']
 })
-export class AnnouncementsManagementComponent extends BaseComponent implements OnInit{
+export class AnnouncementsManagementComponent extends BaseComponent implements OnInit {
 
   allAnnouncements$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.allAnnouncements$ = this.store.pipe(select(selectAllAnnouncements));
+    this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
     store.dispatch(new LoadAllAnnouncements());
     this.store.dispatch(new CreateBreadcrumbs([
       {

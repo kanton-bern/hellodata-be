@@ -27,7 +27,7 @@
 
 import {Component, NgModule, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource.selector";
 import {LoadAppInfoResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 import {AppState} from "../../../store/app/app.state";
@@ -66,7 +66,7 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
   constructor(private store: Store<AppState>) {
     super();
     this.store.dispatch(new LoadAppInfoResources());
-    this.appInfos$ = this.store.pipe(select(selectAppInfos));
+    this.appInfos$ = this.store.select(selectAppInfos);
     this.store.dispatch(new CreateBreadcrumbs([
       {
         label: naviElements.workspaces.label,

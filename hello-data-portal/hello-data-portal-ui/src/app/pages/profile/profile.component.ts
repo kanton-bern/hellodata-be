@@ -26,7 +26,7 @@
 ///
 
 import {Component} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentContextRoles, selectProfile} from "../../store/auth/auth.selector";
 import {Observable} from "rxjs";
@@ -46,8 +46,8 @@ export class ProfileComponent {
   protected readonly DATA_DOMAIN_CONTEXT_TYPE = DATA_DOMAIN_CONTEXT_TYPE;
 
   constructor(private store: Store<AppState>) {
-    this.userDetails$ = this.store.pipe(select(selectProfile));
-    this.userContextRoles$ = this.store.pipe(select(selectCurrentContextRoles));
+    this.userDetails$ = this.store.select(selectProfile);
+    this.userContextRoles$ = this.store.select(selectCurrentContextRoles);
     this.store.dispatch(new CreateBreadcrumbs([
       {
         label: naviElements.profile.label,

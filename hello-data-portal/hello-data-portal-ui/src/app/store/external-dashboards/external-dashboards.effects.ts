@@ -45,7 +45,7 @@ import {
   UpdateExternalDashboardSuccess
 } from "./external-dasboards.action";
 import {ExternalDashboardsService} from "./external-dashboards.service";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectParamExternalDashboardId} from "./external-dashboards.selector";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
@@ -111,7 +111,7 @@ export class ExternalDashboardsEffects {
 
   loadExternalDashboardById$ = createEffect(() => this._actions$.pipe(
     ofType<LoadExternalDashboardById>(ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID),
-    withLatestFrom(this._store.pipe(select(selectParamExternalDashboardId))),
+    withLatestFrom(this._store.select(selectParamExternalDashboardId)),
     switchMap(([action, externalDashboardId]) => this._externalDashboardsService.getExternalDashboardById(externalDashboardId as string)),
     switchMap(result => of(new LoadExternalDashboardByIdSuccess(result))),
     catchError(e => of(new ShowError(e)))

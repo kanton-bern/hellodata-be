@@ -27,7 +27,7 @@
 
 import {Component} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
@@ -45,7 +45,7 @@ export class DashboardsComponent {
   dashboard!: SupersetDashboardWithMetadata;
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>, private menuService: MenuService) {
-    this.dashboards$ = this.store.pipe(select(selectMyDashboards));
+    this.dashboards$ = this.store.select(selectMyDashboards);
   }
 
   createLink(dashboard: SupersetDashboardWithMetadata): string {

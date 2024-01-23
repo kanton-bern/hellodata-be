@@ -27,7 +27,7 @@
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {map, Observable, Subscription} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedExternalDashboard} from "../../../../store/external-dashboards/external-dashboards.selector";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
@@ -59,9 +59,9 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
               private translateService: TranslateService) {
 
     super();
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomainItems));
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
 
-    this.editedExternalDashboard$ = this.store.pipe(select(selectEditedExternalDashboard)).pipe(
+    this.editedExternalDashboard$ = this.store.select(selectEditedExternalDashboard).pipe(
       map(externalDashboard => {
         let externalDashboardForEdition = externalDashboard;
         if (externalDashboard === null) {

@@ -28,7 +28,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
 import {Navigate} from "../../../../store/app/app.action";
@@ -55,8 +55,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomainsWithAllEntry));
-    this.editedFaq$ = this.store.pipe(select(selectEditedFaq)).pipe(
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainsWithAllEntry);
+    this.editedFaq$ = this.store.select(selectEditedFaq).pipe(
       tap(faq => {
         this.faqForm = this.fb.group({
           title: [faq?.title, [Validators.required.bind(this), Validators.minLength(3)]],

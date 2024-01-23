@@ -33,7 +33,7 @@ import {FieldsetModule} from "primeng/fieldset";
 import {AccordionModule} from "primeng/accordion";
 import {EditorModule} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation, selectPipelines, selectStorageSize} from "../../../store/summary/summary.selector";
 import {ButtonModule} from "primeng/button";
@@ -47,7 +47,6 @@ import {TooltipModule} from "primeng/tooltip";
 import {DataViewModule} from "primeng/dataview";
 import {Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
-import {LoadStorageSize} from "../../../store/summary/summary.actions";
 
 
 @Component({
@@ -66,10 +65,10 @@ export class SummaryComponent {
   storeSize$: Observable<StorageMonitoringResult | null>;
 
   constructor(private store: Store<AppState>) {
-    this.documentation$ = store.pipe(select(selectDocumentation));
-    this.currentUserPermissions$ = this.store.pipe(select(selectCurrentUserPermissions));
-    this.pipelines$ = this.store.pipe(select(selectPipelines));
-    this.storeSize$ = this.store.pipe(select(selectStorageSize));
+    this.documentation$ = store.select(selectDocumentation);
+    this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
+    this.pipelines$ = this.store.select(selectPipelines);
+    this.storeSize$ = this.store.select(selectStorageSize);
   }
 
   toggleSummaryPanel() {

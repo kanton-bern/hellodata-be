@@ -28,7 +28,7 @@
 import {Injectable} from "@angular/core";
 import {Router} from "@angular/router";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
@@ -94,7 +94,7 @@ export class AnnouncementEffects {
 
   loadAnnouncementById$ = createEffect(() => this._actions$.pipe(
     ofType<LoadAnnouncementById>(AnnouncementActionType.LOAD_ANNOUNCEMENT_BY_ID),
-    withLatestFrom(this._store.pipe(select(selectParamAnnouncementId))),
+    withLatestFrom(this._store.select(selectParamAnnouncementId)),
     switchMap(([action, announcementId]) => this._announcementService.getAnnouncementById(announcementId as string)),
     switchMap(result => of(new LoadAnnouncementByIdSuccess(result))),
     catchError(e => of(new ShowError(e)))
@@ -130,7 +130,7 @@ export class AnnouncementEffects {
 
   deleteAnnouncement$ = createEffect(() => this._actions$.pipe(
     ofType<DeleteAnnouncement>(AnnouncementActionType.DELETE_ANNOUNCEMENT),
-    withLatestFrom(this._store.pipe(select(selectSelectedAnnouncementForDeletion))),
+    withLatestFrom(this._store.select(selectSelectedAnnouncementForDeletion)),
     switchMap(([action, announcement]) => this._announcementService.deleteAnnouncementById((announcement as Announcement).id as string).pipe(
       map(() => new DeleteAnnouncementSuccess(announcement as Announcement)),
       catchError(e => of(new ShowError(e)))
@@ -145,7 +145,7 @@ export class AnnouncementEffects {
 
   deleteEditedAnnouncement$ = createEffect(() => this._actions$.pipe(
     ofType<DeleteEditedAnnouncement>(AnnouncementActionType.DELETE_EDITED_ANNOUNCEMENT),
-    withLatestFrom(this._store.pipe(select(selectSelectedAnnouncementForDeletion))),
+    withLatestFrom(this._store.select(selectSelectedAnnouncementForDeletion)),
     switchMap(([action, announcementToBeDeleted]) => {
         return this._announcementService.deleteAnnouncementById((announcementToBeDeleted as Announcement).id as string).pipe(
           map(() => new DeleteEditedAnnouncementSuccess()),

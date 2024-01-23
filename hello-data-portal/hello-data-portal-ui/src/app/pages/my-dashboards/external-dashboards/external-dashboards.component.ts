@@ -28,7 +28,7 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs";
 import {ActivatedRoute} from "@angular/router";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {ConfirmationService} from "primeng/api";
 import {TranslateService} from "../../../shared/services/translate.service";
@@ -40,6 +40,7 @@ import {Table} from "primeng/table";
 import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+
 @Component({
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
@@ -53,8 +54,8 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   constructor(private route: ActivatedRoute, private store: Store<AppState>, private confirmationService: ConfirmationService,
               private translateService: TranslateService) {
     super();
-    this.externalDashboards$ = this.store.pipe(select(selectExternalDashboards));
-    this.currentUserPermissions$ = this.store.pipe(select(selectCurrentUserPermissions));
+    this.externalDashboards$ = this.store.select(selectExternalDashboards);
+    this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.store.dispatch(new CreateBreadcrumbs([
       {
         label: naviElements.externalDashboards.label,

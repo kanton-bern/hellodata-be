@@ -40,7 +40,7 @@ import {
   LoadSelectedAppInfoResourcesSuccess,
   MetaInfoResourceActionType
 } from "./metainfo-resource.action";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectSelectedAppInfoResourcesParams} from "./metainfo-resource.selector";
 import {ShowError} from "../app/app.action";
@@ -71,7 +71,7 @@ export class MetaInfoResourceEffects {
 
   loadSelectedAppInfoResources$ = createEffect(() => this._actions$.pipe(
     ofType<LoadSelectedAppInfoResources>(MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCES),
-    withLatestFrom(this._store.pipe(select(selectSelectedAppInfoResourcesParams))),
+    withLatestFrom(this._store.select(selectSelectedAppInfoResourcesParams)),
     switchMap(([action, params]) => this._metaInfoResourceService.getResourcesFilteredByAppInfo(params.apiVersion as string, params.instanceName as string, params.moduleType as string)),
     switchMap(result => of(new LoadSelectedAppInfoResourcesSuccess(result))),
     catchError(e => of(new ShowError(e)))
