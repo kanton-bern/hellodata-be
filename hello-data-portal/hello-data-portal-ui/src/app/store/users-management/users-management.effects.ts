@@ -60,12 +60,12 @@ import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
 import {AppState} from "../app/app.state";
 import {selectDashboardsForUser, selectParamUserId, selectSelectedRolesForUser, selectUserForPopup} from "./users-management.selector";
-import {Navigate, ShowError, ShowSuccess} from "../app/app.action";
 import {Router} from "@angular/router";
 import {UserAction, UserActionForPopup} from "./users-management.model";
 import {CURRENT_EDITED_USER_ID} from "./users-management.reducer";
 import {ContextRoleService} from "./context-role.service";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {navigate, showError, showSuccess} from "../app/app.action";
 
 @Injectable()
 export class UsersManagementEffects {
@@ -74,7 +74,7 @@ export class UsersManagementEffects {
     ofType<LoadUsers>(UsersManagementActionType.LOAD_USERS),
     switchMap(() => this._usersManagementService.getUsers()),
     switchMap(result => of(new LoadUsersSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
 
@@ -86,17 +86,17 @@ export class UsersManagementEffects {
           case (UserAction.DISABLE):
             return this._usersManagementService.disableUser(userActionForPopup!.user).pipe(
               map(() => new UserPopupActionSuccess(userActionForPopup!.user.email, userActionForPopup as UserActionForPopup)),
-              catchError(e => of(new ShowError(e)))
+              catchError(e => of(showError(e)))
             );
           case (UserAction.ENABLE):
             return this._usersManagementService.enableUser(userActionForPopup!.user).pipe(
               map(() => new UserPopupActionSuccess(userActionForPopup!.user.email, userActionForPopup as UserActionForPopup)),
-              catchError(e => of(new ShowError(e)))
+              catchError(e => of(showError(e)))
             );
           default:
             return this._usersManagementService.deleteUser(userActionForPopup!.user).pipe(
               map(() => new UserPopupActionSuccess(userActionForPopup!.user.email, userActionForPopup as UserActionForPopup)),
-              catchError(e => of(new ShowError(e)))
+              catchError(e => of(showError(e)))
             );
         }
       }
@@ -116,7 +116,7 @@ export class UsersManagementEffects {
     }),
     switchMap(action => {
       if (action.userActionForPopup.actionFromUsersEdition && action.userActionForPopup.action === UserAction.DELETE) {
-        return of(new HideUserPopupAction(), new Navigate('/user-management'));
+        return of(new HideUserPopupAction(), navigate({url: '/user-management'}));
       } else if (action.userActionForPopup.actionFromUsersEdition) {
         return of(new LoadUserById(), new HideUserPopupAction());
       }
@@ -129,7 +129,7 @@ export class UsersManagementEffects {
     switchMap(action => {
         return this._usersManagementService.createUser(action.createUserForm).pipe(
           map(response => new CreateUserSuccess(action.createUserForm.user.email, response.userId)),
-          catchError(e => of(new ShowError(e)))
+          catchError(e => of(showError(e)))
         )
       }
     )));
@@ -151,7 +151,7 @@ export class UsersManagementEffects {
     tap(([action, userId]) => sessionStorage.setItem(CURRENT_EDITED_USER_ID, userId as string)),
     switchMap(([action, userId]) => this._usersManagementService.getUserById(userId as string)),
     switchMap(result => of(new LoadUserByIdSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   navigateToUsersManagement$ = createEffect(() => this._actions$.pipe(
@@ -165,7 +165,7 @@ export class UsersManagementEffects {
     switchMap(([action, userId]) => {
         return this._usersManagementService.getDashboardsWithMarkedUser(userId as string).pipe(
           map((result) => new LoadDashboardsSuccess(result.dashboards)),
-          catchError(e => of(new ShowError(e)))
+          catchError(e => of(showError(e)))
         )
       }
     ))
@@ -176,7 +176,7 @@ export class UsersManagementEffects {
     switchMap(action => {
         return this._usersManagementService.syncUsers().pipe(
           map((result) => new SyncUsersSuccess()),
-          catchError(e => of(new ShowError(e)))
+          catchError(e => of(showError(e)))
         )
       }
     ))
@@ -192,14 +192,14 @@ export class UsersManagementEffects {
     ofType<LoadAvailableContextRoles>(UsersManagementActionType.LOAD_AVAILABLE_CONTEXT_ROLES),
     switchMap(() => this._contextRoleService.getRoles()),
     switchMap(result => of(new LoadAvailableContextRolesSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadAvailableContexts$ = createEffect(() => this._actions$.pipe(
     ofType<LoadAvailableContexts>(UsersManagementActionType.LOAD_AVAILABLE_CONTEXTS),
     switchMap(() => this._usersManagementService.getAvailableContexts()),
     switchMap(result => of(new LoadAvailableContextsSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadUserContextRoles$ = createEffect(() => this._actions$.pipe(
@@ -207,7 +207,7 @@ export class UsersManagementEffects {
     withLatestFrom(this._store.select(selectParamUserId)),
     switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
     switchMap(result => of(new LoadUserContextRolesSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   updateUserRoles$ = createEffect(() => this._actions$.pipe(
@@ -218,19 +218,19 @@ export class UsersManagementEffects {
     ),
     switchMap(([action, selectedRoles, selectedDashboards]) => this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards)),
     switchMap(() => of(new UpdateUserRolesSuccess(), new ClearUnsavedChanges())),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   updateUserRoles$UserSuccess$ = createEffect(() => this._actions$.pipe(
     ofType<UpdateUserRolesSuccess>(UsersManagementActionType.UPDATE_USER_ROLES_SUCCESS),
-    switchMap((action) => of(new ShowSuccess('@User roles updated'))),
+    switchMap((action) => of(showSuccess({message: '@User roles updated'}))),
   ));
 
   loadAdminEmails$ = createEffect(() => this._actions$.pipe(
     ofType<NavigateToUsersManagement>(UsersManagementActionType.LOAD_ADMIN_EMAILS),
     switchMap(() => this._usersManagementService.getAdminEmails()),
     switchMap(result => of(new LoadAdminEmailsSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   constructor(

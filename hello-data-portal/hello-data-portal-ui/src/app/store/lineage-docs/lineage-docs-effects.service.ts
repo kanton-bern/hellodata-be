@@ -30,13 +30,13 @@ import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
 import {LineageDocsActionType, LoadMyLineageDocs, LoadMyLineageDocsSuccess} from "./lineage-docs.action";
 import {catchError, combineLatestWith, of, switchMap} from "rxjs";
-import {ShowError} from "../app/app.action";
 import {ProcessNavigation} from "../menu/menu.action";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectAvailableDataDomains} from "../my-dashboards/my-dashboards.selector";
 import {DataDomain} from "../my-dashboards/my-dashboards.model";
 import {LineageDoc} from "./lineage-docs.model";
+import {showError} from "../app/app.action";
 
 @Injectable()
 export class LineageDocsEffects {
@@ -53,7 +53,7 @@ export class LineageDocsEffects {
     switchMap(() => this._docsService.getProjectDocs()),
     combineLatestWith(this._store.select(selectAvailableDataDomains)),
     switchMap(([result, dataDomains]) => of(new LoadMyLineageDocsSuccess(this._enhanceResult(result, dataDomains)))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadMyDocsSuccess$ = createEffect(() => this._actions$.pipe(

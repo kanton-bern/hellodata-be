@@ -25,50 +25,44 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AuthState, initialAuthState} from "./auth.state";
-import {AuthActions, AuthActionType} from "./auth.action";
+import {initialAuthState} from "./auth.state";
+import {fetchContextRolesSuccess, fetchPermissionSuccess, loginComplete, logout} from "./auth.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const authReducer = (
-  state = initialAuthState,
-  action: AuthActions
-): AuthState => {
-  switch (action.type) {
-    case AuthActionType.LOGIN_COMPLETE: {
-      return {
-        ...state,
-        profile: action.profile,
-        isLoggedIn: action.isLoggedIn,
-      };
-    }
-    case AuthActionType.FETCH_PERMISSIONS_SUCCESS: {
-      return {
-        ...state,
-        permissions: action.currentUserAuthData.permissions,
-        isSuperuser: action.currentUserAuthData.isSuperuser,
-        businessDomain: action.currentUserAuthData.businessDomain,
-        permissionsLoaded: true
-      };
-    }
-    case AuthActionType.LOGOUT: {
-      return {
-        ...state,
-        profile: null,
-        isLoggedIn: false,
-        permissionsLoaded: false,
-        contextRoles: [],
-        permissions: [],
-        isSuperuser: false,
-        businessDomain: ''
-      };
-    }
-    case AuthActionType.FETCH_CONTEXT_ROLES_SUCCESS: {
-      return {
-        ...state,
-        contextRoles: action.contextRoles
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+export const authReducer = createReducer(
+  initialAuthState,
+  on(loginComplete, (state, {profile, isLoggedIn}) => {
+    return {
+      ...state,
+      profile: profile,
+      isLoggedIn: isLoggedIn,
+    };
+  }),
+  on(fetchPermissionSuccess, (state, {currentUserAuthData}) => {
+    return {
+      ...state,
+      permissions: currentUserAuthData.permissions,
+      isSuperuser: currentUserAuthData.isSuperuser,
+      businessDomain: currentUserAuthData.businessDomain,
+      permissionsLoaded: true
+    };
+  }),
+  on(logout, (state) => {
+    return {
+      ...state,
+      profile: null,
+      isLoggedIn: false,
+      permissionsLoaded: false,
+      contextRoles: [],
+      permissions: [],
+      isSuperuser: false,
+      businessDomain: ''
+    };
+  }),
+  on(fetchContextRolesSuccess, (state, {contextRoles}) => {
+    return {
+      ...state,
+      contextRoles: contextRoles
+    };
+  }),
+);

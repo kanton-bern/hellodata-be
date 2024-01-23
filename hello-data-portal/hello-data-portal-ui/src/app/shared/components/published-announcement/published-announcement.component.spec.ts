@@ -28,9 +28,9 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {PublishedAnnouncementComponent} from './published-announcement.component';
 import {Store} from '@ngrx/store';
-import {LoadPublishedAnnouncements, MarkAnnouncementAsRead} from '../../../store/announcement/announcement.action';
 import {AppState} from '../../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
+import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../store/announcement/announcement.action";
 
 describe('PublishedAnnouncementComponent', () => {
   let fixture: ComponentFixture<PublishedAnnouncementComponent>;
@@ -60,7 +60,7 @@ describe('PublishedAnnouncementComponent', () => {
 
   it('should dispatch LoadPublishedAnnouncements action on initialization', () => {
     fixture.detectChanges();
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new LoadPublishedAnnouncements());
+    expect(mockStore.dispatch).toHaveBeenCalledWith(loadPublishedAnnouncements());
   });
 
   it('should call hide() method and dispatch MarkAnnouncementAsRead action', () => {
@@ -71,6 +71,6 @@ describe('PublishedAnnouncementComponent', () => {
     component.hide(announcement);
 
     expect(component.hide).toHaveBeenCalledWith(announcement);
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new MarkAnnouncementAsRead(announcement));
+    expect(mockStore.dispatch).toHaveBeenCalledWith(markAnnouncementAsRead({announcement}));
   });
 });

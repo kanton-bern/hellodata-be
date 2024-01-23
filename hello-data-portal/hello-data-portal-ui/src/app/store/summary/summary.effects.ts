@@ -27,9 +27,6 @@
 
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
-import {ShowError, ShowSuccess} from "../app/app.action";
-import {Store} from "@ngrx/store";
-import {AppState} from "../app/app.state";
 import {SummaryService} from "./summary.service";
 import {
   CreateOrUpdateDocumentation,
@@ -43,6 +40,7 @@ import {
 } from "./summary.actions";
 import {Injectable} from "@angular/core";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {showError, showSuccess} from "../app/app.action";
 
 @Injectable()
 export class SummaryEffects {
@@ -50,33 +48,32 @@ export class SummaryEffects {
     ofType<LoadDocumentation>(SummaryActionType.LOAD_DOCUMENTATION),
     switchMap(() => this._summaryService.getDocumentation()),
     switchMap(result => of(new LoadDocumentationSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   createOrUpdateDocumentation$ = createEffect(() => this._actions$.pipe(
     ofType<CreateOrUpdateDocumentation>(SummaryActionType.CREATE_OR_UPDATE_DOCUMENTATION),
     switchMap(action => this._summaryService.createOrUpdateDocumentation(action.documentation)),
-    switchMap(result => of(new ClearUnsavedChanges(), new LoadDocumentation(), new ShowSuccess('@Documentation updated'))),
-    catchError(e => of(new ShowError(e)))
+    switchMap(result => of(new ClearUnsavedChanges(), new LoadDocumentation(), showSuccess({message: '@Documentation updated'}))),
+    catchError(e => of(showError(e)))
   ));
 
   loadPipelines$ = createEffect(() => this._actions$.pipe(
     ofType<LoadPipelines>(SummaryActionType.LOAD_PIPELINES),
     switchMap(() => this._summaryService.getPipelines()),
     switchMap(result => of(new LoadPipelinesSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadStorageSize$ = createEffect(() => this._actions$.pipe(
     ofType<LoadStorageSize>(SummaryActionType.LOAD_STORAGE_SIZE),
     switchMap(() => this._summaryService.getStorageSize()),
     switchMap(result => of(new LoadStorageSizeSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   constructor(
     private _actions$: Actions,
-    private _store: Store<AppState>,
     private _summaryService: SummaryService
   ) {
   }

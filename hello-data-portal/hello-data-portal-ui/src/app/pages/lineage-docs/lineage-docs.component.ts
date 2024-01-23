@@ -40,7 +40,6 @@ import {AppState} from "../../store/app/app.state";
 import {LineageDocsService} from "../../store/lineage-docs/lineage-docs.service";
 import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {HdCommonModule} from "../../hd-common.module";
-import {Navigate} from "../../store/app/app.action";
 import {naviElements} from "../../app-navi-elements";
 import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {Observable} from "rxjs";
@@ -48,6 +47,7 @@ import {selectMyLineageDocs} from "../../store/lineage-docs/lineage-docs.selecto
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {navigate} from "../../store/app/app.action";
 
 @Component({
   selector: 'app-docs',
@@ -83,7 +83,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
     const contextKey = projectDoc.contextKey;
     const urlEncodedProjectPath = encodeURIComponent(projectDoc.path);
     const docLink = `/${naviElements.lineageDocs.path}/detail/${contextKey}/${id}/${urlEncodedProjectPath}`;
-    this.store.dispatch(new Navigate(docLink));
+    this.store.dispatch(navigate({url: docLink}));
   }
 }
 

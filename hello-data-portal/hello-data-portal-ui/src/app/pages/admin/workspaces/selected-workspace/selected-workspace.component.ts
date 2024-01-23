@@ -36,8 +36,8 @@ import {
   selectSelectedAppInfoResource,
   selectSelectedAppInfoResourcesParams
 } from "../../../../store/metainfo-resource/metainfo-resource.selector";
-import {Navigate} from "../../../../store/app/app.action";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {navigate} from "../../../../store/app/app.action";
 
 @Component({
   selector: 'app-selected-workspace',
@@ -73,7 +73,7 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
   }
 
   cancel() {
-    this.store.dispatch(new Navigate('workspaces'));
+    this.store.dispatch(navigate({url: 'workspaces'}));
   }
 
 }

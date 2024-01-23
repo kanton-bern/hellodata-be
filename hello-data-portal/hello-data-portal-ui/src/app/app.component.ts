@@ -29,10 +29,10 @@ import {Component, HostBinding} from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
-import {CheckAuth} from "./store/auth/auth.action";
 import {selectCurrentBusinessDomain, selectIsAuthenticated} from "./store/auth/auth.selector";
 import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
+import {checkAuth} from "./store/auth/auth.action";
 
 @Component({
   selector: 'app-root',
@@ -54,7 +54,7 @@ export class AppComponent {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated).pipe(tap(isAuthenticated => {
       console.debug('is authenticated', isAuthenticated)
       if (!isAuthenticated) {
-        this.store.dispatch(new CheckAuth());
+        this.store.dispatch(checkAuth());
       }
     }))
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain).pipe(tap(businessDomainName => {

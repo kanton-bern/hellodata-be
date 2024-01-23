@@ -29,7 +29,6 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {LineageDocsComponent} from './lineage-docs.component';
 import {Store} from '@ngrx/store';
 import {LineageDoc} from '../../store/lineage-docs/lineage-docs.model';
-import {Navigate} from '../../store/app/app.action';
 import {naviElements} from '../../app-navi-elements';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {of} from 'rxjs';
@@ -45,6 +44,7 @@ import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/su
 import {HdCommonModule} from "../../hd-common.module";
 import {TableModule} from "primeng/table";
 import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {navigate} from "../../store/app/app.action";
 
 describe('LineageDocsComponent', () => {
   let component: LineageDocsComponent;
@@ -109,7 +109,7 @@ describe('LineageDocsComponent', () => {
     component.openLineage(mockProjectDoc);
 
     const expectedDocLink = `/${naviElements.lineageDocs.path}/detail/${mockProjectDoc.contextKey}/${mockProjectDoc.name}/${encodeURIComponent(mockProjectDoc.path)}`;
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new Navigate(expectedDocLink));
+    expect(mockStore.dispatch).toHaveBeenCalledWith(navigate({url: expectedDocLink}));
   });
 });
 

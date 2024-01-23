@@ -34,11 +34,11 @@ import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.m
 import {MenuService} from "../../store/menu/menu.service";
 import {UpdateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {Table} from "primeng/table";
-import {Navigate} from "../../store/app/app.action";
 import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
 import {selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {navigate} from "../../store/app/app.action";
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
@@ -93,7 +93,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   onRowSelect($event: any) {
     const dashboardLink = this.menuService.createDashboardLink($event.data);
-    this.store.dispatch(new Navigate(dashboardLink));
+    this.store.dispatch(navigate({url: dashboardLink}));
   }
 
   applyFilterGlobal($event: any, stringVal: string) {
@@ -104,7 +104,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   openDashboard(dashboard: SupersetDashboardWithMetadata) {
     const dashboardLink = this.menuService.createDashboardLink(dashboard);
-    this.store.dispatch(new Navigate(dashboardLink));
+    this.store.dispatch(navigate({url: dashboardLink}));
   }
 
   openInfoPanel(dashboard: any) {

@@ -31,7 +31,6 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
-import {Navigate} from "../../../../store/app/app.action";
 import {Faq} from "../../../../store/faq/faq.model";
 import {DeleteEditedFaq, SaveChangesToFaq, ShowDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
@@ -41,6 +40,7 @@ import {ALL_DATA_DOMAINS} from "../../../../store/app/app.constants";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {navigate} from "../../../../store/app/app.action";
 
 @Component({
   selector: 'app-faq-edit',
@@ -93,7 +93,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   navigateToFaqList() {
-    this.store.dispatch(new Navigate('faq-management'));
+    this.store.dispatch(navigate({url: 'faq-management'}));
   }
 
   saveFaq(editedFaq: Faq) {

@@ -38,7 +38,6 @@ import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
 import {MenuModule} from "primeng/menu";
 import {ButtonModule} from "primeng/button";
-import {Navigate} from "../../../store/app/app.action";
 import {SidebarModule} from "primeng/sidebar";
 import {BreadcrumbComponent} from "../breadcrumb/breadcrumb.component";
 import {BreadcrumbModule} from "primeng/breadcrumb";
@@ -54,6 +53,7 @@ import {SetSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.
 import {environment} from "../../../../environments/environment";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
+import {navigate} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-header',
@@ -112,14 +112,14 @@ export class HeaderComponent {
           label: profileTranslation,
           icon: 'fas fa-light fa-user',
           command: () => {
-            this.store.dispatch(new Navigate('/profile'));
+            this.store.dispatch(navigate({url: '/profile'}));
           }
         },
         {
           label: logoutTranslation,
           icon: 'fas fa-light fa-power-off',
           command: () => {
-            this.store.dispatch(new Navigate('/logout'));
+            this.store.dispatch(navigate({url: '/logout'}));
           }
         }
       ];

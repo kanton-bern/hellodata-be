@@ -33,7 +33,6 @@ import {LoadAppInfoResources} from "../../../store/metainfo-resource/metainfo-re
 import {AppState} from "../../../store/app/app.state";
 import {CommonModule} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
-import {Navigate} from "../../../store/app/app.action";
 import {AnimateModule} from "primeng/animate";
 import {RippleModule} from "primeng/ripple";
 import {SelectedWorkspaceComponent} from "./selected-workspace/selected-workspace.component";
@@ -53,6 +52,7 @@ import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {NgArrayPipesModule} from "ngx-pipes";
+import {navigate} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-workspaces',
@@ -80,7 +80,7 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
   }
 
   navigateToSelectedWorkspace(selectedAppInfo: any) {
-    this.store.dispatch(new Navigate(`workspaces/selected-workspace/${selectedAppInfo.instanceName}/${selectedAppInfo.moduleType}/${selectedAppInfo.apiVersion}`))
+    this.store.dispatch(navigate({url: `workspaces/selected-workspace/${selectedAppInfo.instanceName}/${selectedAppInfo.moduleType}/${selectedAppInfo.apiVersion}`}))
   }
 
 }

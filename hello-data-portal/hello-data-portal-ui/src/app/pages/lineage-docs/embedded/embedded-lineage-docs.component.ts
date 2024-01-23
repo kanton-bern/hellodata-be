@@ -31,12 +31,12 @@ import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {LineageDocsService} from "../../../store/lineage-docs/lineage-docs.service";
-import {Navigate} from "../../../store/app/app.action";
 import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {LoadAvailableContexts} from "../../../store/users-management/users-management.action";
 import {Context} from "../../../store/users-management/context-role.model";
 import {selectLineageInfo} from "../../../store/lineage-docs/lineage-docs.selector";
+import {navigate} from "../../../store/app/app.action";
 
 @Component({
   templateUrl: 'embedded-lineage-docs.component.html',
@@ -64,7 +64,7 @@ export class EmbeddedLineageDocsComponent {
   }
 
   cancel() {
-    this.store.dispatch(new Navigate('/lineage-docs/list'));
+    this.store.dispatch(navigate({url: '/lineage-docs/list'}));
   }
 
   @HostListener("window:scroll", ["$event"])

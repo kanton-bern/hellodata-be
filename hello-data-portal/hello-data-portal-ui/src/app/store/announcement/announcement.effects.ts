@@ -26,13 +26,11 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Router} from "@angular/router";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
-import {Navigate, ShowError} from "../app/app.action";
 import {
   deleteAnnouncement,
   deleteAnnouncementSuccess,
@@ -54,6 +52,7 @@ import {AnnouncementService} from "./announcement.service";
 import {selectParamAnnouncementId, selectSelectedAnnouncementForDeletion} from "./announcement.selector";
 import {Announcement} from "./announcement.model";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class AnnouncementEffects {
@@ -62,7 +61,7 @@ export class AnnouncementEffects {
     ofType(loadAllAnnouncements),
     switchMap(() => this._announcementService.getAllAnnouncements()),
     switchMap(result => of(loadAllAnnouncementsSuccess({payload: result}))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadPublishedAnnouncements$ = createEffect(() =>
@@ -84,11 +83,11 @@ export class AnnouncementEffects {
     ofType(openAnnouncementEdition),
     switchMap(action => {
       if (action.announcement.id) {
-        return of(new Navigate(`announcements-management/edit/${action.announcement.id}`));
+        return of(navigate({url: `announcements-management/edit/${action.announcement.id}`}));
       }
-      return of(new Navigate('announcements-management/create'));
+      return of(navigate({url: 'announcements-management/create'}));
     }),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadAnnouncementById$ = createEffect(() => this._actions$.pipe(
@@ -96,7 +95,7 @@ export class AnnouncementEffects {
     withLatestFrom(this._store.select(selectParamAnnouncementId)),
     switchMap(([action, announcementId]) => this._announcementService.getAnnouncementById(announcementId as string)),
     switchMap(result => of(loadAnnouncementByIdSuccess({announcement: result}))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   saveChangesToAnnouncement$ = createEffect(() => this._actions$.pipe(
@@ -123,8 +122,8 @@ export class AnnouncementEffects {
 
   saveChangesToAnnouncementSuccess$ = createEffect(() => this._actions$.pipe(
     ofType(saveChangesToAnnouncementSuccess),
-    switchMap(action => of(new Navigate('announcements-management'), new ClearUnsavedChanges())),
-    catchError(e => of(new ShowError(e)))
+    switchMap(action => of(navigate({url: 'announcements-management'}), new ClearUnsavedChanges())),
+    catchError(e => of(showError(e)))
   ));
 
   deleteAnnouncement$ = createEffect(() => this._actions$.pipe(
@@ -132,7 +131,7 @@ export class AnnouncementEffects {
     withLatestFrom(this._store.select(selectSelectedAnnouncementForDeletion)),
     switchMap(([action, announcement]) => this._announcementService.deleteAnnouncementById((announcement as Announcement).id as string).pipe(
       map(() => deleteAnnouncementSuccess({announcement: announcement as Announcement})),
-      catchError(e => of(new ShowError(e)))
+      catchError(e => of(showError(e)))
     )),
   ));
 
@@ -148,7 +147,7 @@ export class AnnouncementEffects {
     switchMap(([action, announcementToBeDeleted]) => {
         return this._announcementService.deleteAnnouncementById((announcementToBeDeleted as Announcement).id as string).pipe(
           map(() => deleteEditedAnnouncementSuccess()),
-          catchError(e => of(new ShowError(e)))
+          catchError(e => of(showError(e)))
         )
       }
     ),
@@ -157,7 +156,7 @@ export class AnnouncementEffects {
   deleteEditedAnnouncementSuccess$ = createEffect(() => this._actions$.pipe(
     ofType(deleteEditedAnnouncementSuccess),
     tap(action => this._notificationService.success('@Announcement deleted successfully')),
-    switchMap(() => of(new Navigate('announcements-management'), hideDeleteAnnouncementPopup()))
+    switchMap(() => of(navigate({url: 'announcements-management'}), hideDeleteAnnouncementPopup()))
   ));
 
   markAnnouncementAsRead$ = createEffect(() => this._actions$.pipe(
@@ -165,14 +164,13 @@ export class AnnouncementEffects {
     switchMap(action => {
       return this._announcementService.hideAnnouncement(action.announcement).pipe(
         map(() => loadPublishedAnnouncements()),
-        catchError(e => of(new ShowError(e)))
+        catchError(e => of(showError(e)))
       )
     })
   ));
 
 
   constructor(
-    private _router: Router,
     private _actions$: Actions,
     private _store: Store<AppState>,
     private _announcementService: AnnouncementService,

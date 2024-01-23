@@ -38,7 +38,6 @@ import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation, selectPipelines, selectStorageSize} from "../../../store/summary/summary.selector";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
-import {Navigate} from "../../../store/app/app.action";
 import {Observable} from "rxjs";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {HdCommonModule} from "../../../hd-common.module";
@@ -47,6 +46,7 @@ import {TooltipModule} from "primeng/tooltip";
 import {DataViewModule} from "primeng/dataview";
 import {Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
+import {navigate} from "../../../store/app/app.action";
 
 
 @Component({
@@ -81,11 +81,11 @@ export class SummaryComponent {
   }
 
   editDocumentation() {
-    this.store.dispatch(new Navigate('documentation-management'))
+    this.store.dispatch(navigate({url: 'documentation-management'}))
   }
 
   navigateToDetails(pipeline: Pipeline) {
-    this.store.dispatch(new Navigate(`/embedded-orchestration/details/${pipeline.id}`));
+    this.store.dispatch(navigate({url: `/embedded-orchestration/details/${pipeline.id}`}));
   }
 }
 

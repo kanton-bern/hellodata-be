@@ -26,14 +26,12 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Router} from "@angular/router";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
 import {FaqService} from "./faq.service";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
-import {Navigate, ShowError} from "../app/app.action";
 import {
   DeleteEditedFaq,
   DeleteEditedFaqSuccess,
@@ -52,6 +50,7 @@ import {
 import {selectParamFaqId, selectSelectedFaqForDeletion} from "../faq/faq.selector";
 import {Faq} from "../faq/faq.model";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class FaqEffects {
@@ -59,18 +58,18 @@ export class FaqEffects {
     ofType<LoadFaq>(FaqActionType.LOAD_FAQ),
     switchMap(() => this._faqService.getFaq()),
     switchMap(result => of(new LoadFaqSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   openFaqEdition$ = createEffect(() => this._actions$.pipe(
     ofType<OpenFaqEdition>(FaqActionType.OPEN_FAQ_EDITION),
     switchMap(action => {
       if (action.faq.id) {
-        return of(new Navigate(`faq-management/edit/${action.faq.id}`));
+        return of(navigate({url: `faq-management/edit/${action.faq.id}`}));
       }
-      return of(new Navigate('faq-management/create'));
+      return of(navigate({url: 'faq-management/create'}));
     }),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadFaqById$ = createEffect(() => this._actions$.pipe(
@@ -78,7 +77,7 @@ export class FaqEffects {
     withLatestFrom(this._store.select(selectParamFaqId)),
     switchMap(([action, faqId]) => this._faqService.getFaqById(faqId as string)),
     switchMap(result => of(new LoadFaqByIdSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   saveChangesToFaq$ = createEffect(() => this._actions$.pipe(
@@ -107,8 +106,8 @@ export class FaqEffects {
 
   saveChangesToFaqSuccess$ = createEffect(() => this._actions$.pipe(
     ofType<SaveChangesToFaqSuccess>(FaqActionType.SAVE_CHANGES_TO_FAQ_SUCCESS),
-    switchMap(action => of(new ClearUnsavedChanges(), new Navigate('faq-management'))),
-    catchError(e => of(new ShowError(e)))
+    switchMap(action => of(new ClearUnsavedChanges(), navigate({url: 'faq-management'}))),
+    catchError(e => of(showError(e)))
   ));
 
   deleteFaq$ = createEffect(() => this._actions$.pipe(
@@ -116,7 +115,7 @@ export class FaqEffects {
     withLatestFrom(this._store.select(selectSelectedFaqForDeletion)),
     switchMap(([action, faq]) => this._faqService.deleteFaqById((faq as Faq).id as string).pipe(
       map(() => new DeleteFaqSuccess(faq as Faq)),
-      catchError(e => of(new ShowError(e)))
+      catchError(e => of(showError(e)))
     )),
   ));
 
@@ -132,7 +131,7 @@ export class FaqEffects {
     switchMap(([action, faqToBeDeleted]) => {
         return this._faqService.deleteFaqById((faqToBeDeleted as Faq).id as string).pipe(
           map(() => new DeleteEditedFaqSuccess()),
-          catchError(e => of(new ShowError(e)))
+          catchError(e => of(showError(e)))
         )
       }
     ),
@@ -141,11 +140,10 @@ export class FaqEffects {
   deleteEditedFaqSuccess$ = createEffect(() => this._actions$.pipe(
     ofType<DeleteEditedFaqSuccess>(FaqActionType.DELETE_EDITED_FAQ_SUCCESS),
     tap(action => this._notificationService.success('@Faq deleted successfully')),
-    switchMap(() => of(new Navigate('faq-management'), new HideDeleteFaqPopup()))
+    switchMap(() => of(navigate({url: 'faq-management'}), new HideDeleteFaqPopup()))
   ));
 
   constructor(
-    private _router: Router,
     private _actions$: Actions,
     private _store: Store<AppState>,
     private _faqService: FaqService,

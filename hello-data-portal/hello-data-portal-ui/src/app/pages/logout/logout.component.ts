@@ -32,7 +32,7 @@ import {VISITED_SUPERSETS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-d
 import {HttpClient} from "@angular/common/http";
 import {SubsystemIframeComponent} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {environment} from "../../../environments/environment";
-import {Logout} from "../../store/auth/auth.action";
+import {logout} from "../../store/auth/auth.action";
 
 @Component({
   selector: 'app-logout',
@@ -67,7 +67,7 @@ export class LogoutComponent implements AfterViewInit {
       sessionStorage.removeItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY);
       const cookieName = 'auth.access_token';
       document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-      this.store.dispatch(new Logout());
+      this.store.dispatch(logout());
     }, 150);
 
   }

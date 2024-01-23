@@ -28,7 +28,6 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
-import {ShowError, ShowSuccess} from "../app/app.action";
 import {
   LoadAvailableDataDomains,
   LoadAvailableDataDomainsSuccess,
@@ -39,6 +38,7 @@ import {
 } from "./my-dashboards.action";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {ProcessNavigation} from "../menu/menu.action";
+import {showError, showSuccess} from "../app/app.action";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -47,7 +47,7 @@ export class MyDashboardsEffects {
     ofType<LoadMyDashboards>(MyDashboardsActionType.LOAD_MY_DASHBOARDS),
     switchMap(() => this._myDashboardsService.getMyDashboards()),
     switchMap(result => of(new LoadMyDashboardsSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   loadMyDashboardsSuccess$ = createEffect(() => this._actions$.pipe(
@@ -57,14 +57,14 @@ export class MyDashboardsEffects {
 
   setSelectedDataDomain = createEffect(() => this._actions$.pipe(
     ofType<SetSelectedDataDomain>(MyDashboardsActionType.SET_SELECTED_DATA_DOMAIN),
-    switchMap((action) => of(new ShowSuccess('@Data domain changed', {'dataDomainName': action.dataDomain.name}))),
+    switchMap((action) => of(showSuccess({message: '@Data domain changed', interpolateParams: {'dataDomainName': action.dataDomain.name}}))),
   ));
 
   loadAvailableDataDomains$ = createEffect(() => this._actions$.pipe(
     ofType<LoadAvailableDataDomains>(MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS),
     switchMap(() => this._myDashboardsService.getAvailableDataDomains()),
     switchMap(result => of(new LoadAvailableDataDomainsSuccess(result))),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   constructor(

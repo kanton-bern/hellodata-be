@@ -31,7 +31,6 @@ import {AppState} from "../../../../store/app/app.state";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
 import {selectAvailablePermissions, selectEditedPortalRole} from "../../../../store/portal-roles-management/portal-roles-management.selector";
-import {Navigate} from "../../../../store/app/app.action";
 import {DeleteEditedPortalRole, SaveChangesToPortalRole, ShowDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
 import {LoadAppInfoResources, LoadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
@@ -40,6 +39,7 @@ import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my
 import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {navigate} from "../../../../store/app/app.action";
 
 @Component({
   selector: 'app-role-edit',
@@ -100,7 +100,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   }
 
   navigateToRoleList(): void {
-    this.store.dispatch(new Navigate('roles-management'));
+    this.store.dispatch(navigate({url: 'roles-management'}));
   }
 
   getDeletionAction() {

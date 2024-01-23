@@ -32,12 +32,12 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {Navigate} from "../../../../store/app/app.action";
 import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {deleteEditedAnnouncement, saveChangesToAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
+import {navigate} from "../../../../store/app/app.action";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -92,7 +92,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   }
 
   navigateToAnnouncementList() {
-    this.store.dispatch(new Navigate('announcements-management'));
+    this.store.dispatch(navigate({url: 'announcements-management'}));
   }
 
   saveAnnouncement(editedAnnouncement: Announcement) {

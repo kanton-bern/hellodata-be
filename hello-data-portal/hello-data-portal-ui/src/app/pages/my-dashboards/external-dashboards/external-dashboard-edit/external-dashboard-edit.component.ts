@@ -31,7 +31,6 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedExternalDashboard} from "../../../../store/external-dashboards/external-dashboards.selector";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {Navigate} from "../../../../store/app/app.action";
 import {CreateExternalDashboard, DeleteExternalDashboard, UpdateExternalDashboard} from "../../../../store/external-dashboards/external-dasboards.action";
 import {ExternalDashboard, ExternalDashboardMetadata} from "../../../../store/external-dashboards/external-dashboards.model";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
@@ -41,6 +40,7 @@ import {ClearUnsavedChanges, MarkUnsavedChanges} from "../../../../store/unsaved
 import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {navigate} from "../../../../store/app/app.action";
 
 @Component({
   selector: 'app-external-dashboard-edit',
@@ -125,7 +125,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
   }
 
   cancel() {
-    this.store.dispatch(new Navigate('external-dashboards'));
+    this.store.dispatch(navigate({url: 'external-dashboards'}));
   }
 
   saveChanges(editedExternalDashboard: any) {

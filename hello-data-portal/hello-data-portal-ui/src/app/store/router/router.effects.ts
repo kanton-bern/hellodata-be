@@ -29,14 +29,12 @@ import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATED, ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {catchError, EMPTY, of, switchMap} from "rxjs";
 import {LoadPortalRoleById} from "../portal-roles-management/portal-roles-management.action";
-import {ShowError} from "../app/app.action";
 import {Injectable} from "@angular/core";
-import {Store} from "@ngrx/store";
-import {AppState} from "../app/app.state";
 import {loadAnnouncementById} from "../announcement/announcement.action";
 import {LoadFaqById} from "../faq/faq.action";
 import {LoadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {showError} from "../app/app.action";
 
 @Injectable()
 export class RouterEffects {
@@ -63,7 +61,7 @@ export class RouterEffects {
       }
       return EMPTY;
     }),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ));
 
   navigated$ = createEffect(() => this._actions$.pipe(
@@ -71,12 +69,11 @@ export class RouterEffects {
     switchMap(action => {
       return of(new ClearUnsavedChanges());
     }),
-    catchError(e => of(new ShowError(e)))
+    catchError(e => of(showError(e)))
   ))
 
   constructor(
     private _actions$: Actions,
-    private _store: Store<AppState>,
   ) {
   }
 
