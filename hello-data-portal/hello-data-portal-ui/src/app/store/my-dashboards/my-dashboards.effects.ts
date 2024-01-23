@@ -37,35 +37,43 @@ import {
   SetSelectedDataDomain,
 } from "./my-dashboards.action";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {ProcessNavigation} from "../menu/menu.action";
 import {showError, showSuccess} from "../app/app.action";
+import {processNavigation} from "../menu/menu.action";
 
 @Injectable()
 export class MyDashboardsEffects {
 
-  loadMyDashboards$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadMyDashboards>(MyDashboardsActionType.LOAD_MY_DASHBOARDS),
-    switchMap(() => this._myDashboardsService.getMyDashboards()),
-    switchMap(result => of(new LoadMyDashboardsSuccess(result))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadMyDashboards$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<LoadMyDashboards>(MyDashboardsActionType.LOAD_MY_DASHBOARDS),
+      switchMap(() => this._myDashboardsService.getMyDashboards()),
+      switchMap(result => of(new LoadMyDashboardsSuccess(result))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  loadMyDashboardsSuccess$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadMyDashboardsSuccess>(MyDashboardsActionType.LOAD_MY_DASHBOARDS_SUCCESS),
-    switchMap(() => of(new ProcessNavigation(false))),
-  ) });
+  loadMyDashboardsSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<LoadMyDashboardsSuccess>(MyDashboardsActionType.LOAD_MY_DASHBOARDS_SUCCESS),
+      switchMap(() => of(processNavigation({compactMode: false}))),
+    )
+  });
 
-  setSelectedDataDomain = createEffect(() => { return this._actions$.pipe(
-    ofType<SetSelectedDataDomain>(MyDashboardsActionType.SET_SELECTED_DATA_DOMAIN),
-    switchMap((action) => of(showSuccess({message: '@Data domain changed', interpolateParams: {'dataDomainName': action.dataDomain.name}}))),
-  ) });
+  setSelectedDataDomain = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<SetSelectedDataDomain>(MyDashboardsActionType.SET_SELECTED_DATA_DOMAIN),
+      switchMap((action) => of(showSuccess({message: '@Data domain changed', interpolateParams: {'dataDomainName': action.dataDomain.name}}))),
+    )
+  });
 
-  loadAvailableDataDomains$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadAvailableDataDomains>(MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS),
-    switchMap(() => this._myDashboardsService.getAvailableDataDomains()),
-    switchMap(result => of(new LoadAvailableDataDomainsSuccess(result))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadAvailableDataDomains$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<LoadAvailableDataDomains>(MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS),
+      switchMap(() => this._myDashboardsService.getAvailableDataDomains()),
+      switchMap(result => of(new LoadAvailableDataDomainsSuccess(result))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
   constructor(
     private _actions$: Actions,

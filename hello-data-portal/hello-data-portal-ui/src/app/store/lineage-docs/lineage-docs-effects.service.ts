@@ -29,7 +29,6 @@ import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
 import {catchError, combineLatestWith, of, switchMap} from "rxjs";
-import {ProcessNavigation} from "../menu/menu.action";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectAvailableDataDomains} from "../my-dashboards/my-dashboards.selector";
@@ -37,6 +36,7 @@ import {DataDomain} from "../my-dashboards/my-dashboards.model";
 import {LineageDoc} from "./lineage-docs.model";
 import {showError} from "../app/app.action";
 import {loadMyLineageDocs, loadMyLineageDocsSuccess} from "./lineage-docs.action";
+import {processNavigation} from "../menu/menu.action";
 
 @Injectable()
 export class LineageDocsEffects {
@@ -61,7 +61,7 @@ export class LineageDocsEffects {
   loadMyLineageDocsSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadMyLineageDocsSuccess),
-      switchMap(() => of(new ProcessNavigation(false))),
+      switchMap(() => of(processNavigation({compactMode: false}))),
     )
   });
 
