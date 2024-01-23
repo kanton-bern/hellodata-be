@@ -45,6 +45,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -169,6 +170,20 @@ public class RoleService {
             }
         } else {
             throw new RuntimeException("NONE role not found!");
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void addContextRoleToUser(UserEntity user, String contextKey, HdRoleName roleName) {
+        Optional<RoleEntity> noneRole = roleRepository.findByName(roleName);
+        if (noneRole.isPresent()) {
+            UserContextRoleEntity userContextRoleEntity = new UserContextRoleEntity();
+            userContextRoleEntity.setUser(user);
+            userContextRoleEntity.setContextKey(contextKey);
+            userContextRoleEntity.setRole(noneRole.get());
+            userContextRoleRepository.saveAndFlush(userContextRoleEntity);
+        } else {
+            throw new RuntimeException("Role not found!");
         }
     }
 
