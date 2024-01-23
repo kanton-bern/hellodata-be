@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {Actions, createEffect, ofType, concatLatestFrom} from "@ngrx/effects";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
@@ -36,9 +36,9 @@ import {showError} from "../app/app.action";
 
 @Injectable()
 export class UnsavedChangesEffects {
-  runSaveAction = createEffect(() => this._actions$.pipe(
+  runSaveAction = createEffect(() => { return this._actions$.pipe(
     ofType<RunSaveAction>(UnsavedChangesActionType.RUN_SAVE_ACTION),
-    withLatestFrom(this._store.select(selectActionToRun)),
+    concatLatestFrom(() => this._store.select(selectActionToRun)),
     switchMap(([result, actionToRun]) => {
       if (actionToRun) {
         return of(actionToRun, new ClearUnsavedChanges())
@@ -46,7 +46,7 @@ export class UnsavedChangesEffects {
       return of(new ClearUnsavedChanges());
     }),
     catchError(e => of(showError(e), new ClearUnsavedChanges()))
-  ));
+  ) });
 
 
   constructor(

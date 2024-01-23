@@ -37,19 +37,19 @@ import {showError, showSuccess} from "../app/app.action";
 @Injectable()
 export class StartPageEffects {
 
-  updateDashboardsMetadata$ = createEffect(() => this._actions$.pipe(
+  updateDashboardsMetadata$ = createEffect(() => { return this._actions$.pipe(
     ofType<UpdateDashboardMetadata>(StartPageActionType.UPDATE_DASHBOARD_METADATA),
     switchMap(action => this._startPageService.updateDashboardMetadata(action.dashboard)),
     switchMap(result => of(new LoadMyDashboards(), showSuccess({message: '@Dashboard metadata updated'}))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadFaqStartPage$ = createEffect(() => this._actions$.pipe(
+  loadFaqStartPage$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadFaqStartPage>(StartPageActionType.LOAD_FAQ_START_PAGE),
     switchMap(() => this._faqService.getFaq()),
     switchMap(result => of(new LoadFaqStartPageSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
   constructor(
     private _actions$: Actions,

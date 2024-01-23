@@ -41,19 +41,19 @@ import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class AuthEffects {
-  login$ = createEffect(() => this._actions$.pipe(
+  login$ = createEffect(() => { return this._actions$.pipe(
     ofType(login),
     tap(() => this._authService.doLogin()),
     catchError(e => of(authError(e)))
-  ), {dispatch: false});
+  ) }, {dispatch: false});
 
-  logout$ = createEffect(() => this._actions$.pipe(
+  logout$ = createEffect(() => { return this._actions$.pipe(
     ofType(logout),
     switchMap(() => this._authService.signOut()),
     catchError(e => of(authError(e)))
-  ));
+  ) });
 
-  checkAuth$ = createEffect(() => this._actions$.pipe(
+  checkAuth$ = createEffect(() => { return this._actions$.pipe(
     ofType(checkAuth),
     switchMap(() => {
         return this._authService.checkAuth().pipe(
@@ -63,9 +63,9 @@ export class AuthEffects {
       }
     ),
     catchError(e => of(authError(e)))
-  ));
+  ) });
 
-  checkAuthComplete$ = createEffect(() => this._actions$.pipe(
+  checkAuthComplete$ = createEffect(() => { return this._actions$.pipe(
     ofType(checkAuthComplete),
     switchMap((action) => {
         if (action.isLoggedIn) {
@@ -89,16 +89,16 @@ export class AuthEffects {
       }
     ),
     catchError(e => of(authError(e)))
-  ));
+  ) });
 
-  loginComplete$ = createEffect(() => this._actions$.pipe(
+  loginComplete$ = createEffect(() => { return this._actions$.pipe(
     ofType(loginComplete),
     switchMap(({profile, isLoggedIn, accessToken}) => this._usersManagementService.getCurrentAuthData()),
     switchMap((permissions) => of(fetchPermissionSuccess(permissions))),
     catchError(e => of(authError(e)))
-  ));
+  ) });
 
-  fetchPermissionSuccess$ = createEffect(() => this._actions$.pipe(
+  fetchPermissionSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType(fetchPermissionSuccess),
     switchMap(() => of(
       new LoadAvailableDataDomains(),
@@ -109,20 +109,20 @@ export class AuthEffects {
       fetchContextRoles(),
       new LoadPipelines(),
       new LoadStorageSize())),
-  ));
+  ) });
 
 
-  authError$ = createEffect(() => this._actions$.pipe(
+  authError$ = createEffect(() => { return this._actions$.pipe(
     ofType(authError),
     tap(action => this._store.dispatch(showError({error: action.error})))
-  ), {dispatch: false});
+  ) }, {dispatch: false});
 
-  fetchContextRoles$ = createEffect(() => this._actions$.pipe(
+  fetchContextRoles$ = createEffect(() => { return this._actions$.pipe(
     ofType(fetchContextRoles),
     switchMap(() => this._usersManagementService.getCurrentContextRoles()),
     switchMap(result => of(fetchContextRolesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
   constructor(
     private _actions$: Actions,

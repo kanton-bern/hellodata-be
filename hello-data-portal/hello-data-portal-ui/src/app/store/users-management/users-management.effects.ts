@@ -26,7 +26,7 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {Actions, createEffect, ofType, concatLatestFrom} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   CreateUser,
@@ -70,17 +70,17 @@ import {navigate, showError, showSuccess} from "../app/app.action";
 @Injectable()
 export class UsersManagementEffects {
 
-  loadUsers$ = createEffect(() => this._actions$.pipe(
+  loadUsers$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadUsers>(UsersManagementActionType.LOAD_USERS),
     switchMap(() => this._usersManagementService.getUsers()),
     switchMap(result => of(new LoadUsersSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
 
-  userPopupAction$ = createEffect(() => this._actions$.pipe(
+  userPopupAction$ = createEffect(() => { return this._actions$.pipe(
     ofType<InvokeActionFromUserPopup>(UsersManagementActionType.INVOKE_ACTION_FROM_USER_POPUP),
-    withLatestFrom(this._store.select(selectUserForPopup)),
+    concatLatestFrom(() => this._store.select(selectUserForPopup)),
     switchMap(([action, userActionForPopup]) => {
         switch (userActionForPopup!.action) {
           case (UserAction.DISABLE):
@@ -100,9 +100,9 @@ export class UsersManagementEffects {
             );
         }
       }
-    )));
+    )) });
 
-  userPopupActionSuccess$ = createEffect(() => this._actions$.pipe(
+  userPopupActionSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType<UserPopupActionSuccess>(UsersManagementActionType.USER_POPUP_ACTION_SUCCESS),
     tap(action => {
       switch (action.userActionForPopup.action) {
@@ -122,9 +122,9 @@ export class UsersManagementEffects {
       }
       return of(new LoadUsers(), new HideUserPopupAction());
     })
-  ));
+  ) });
 
-  createUser$ = createEffect(() => this._actions$.pipe(
+  createUser$ = createEffect(() => { return this._actions$.pipe(
     ofType<CreateUser>(UsersManagementActionType.CREATE_USER),
     switchMap(action => {
         return this._usersManagementService.createUser(action.createUserForm).pipe(
@@ -132,46 +132,46 @@ export class UsersManagementEffects {
           catchError(e => of(showError(e)))
         )
       }
-    )));
+    )) });
 
-  createUserSuccess$ = createEffect(() => this._actions$.pipe(
+  createUserSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType<CreateUserSuccess>(UsersManagementActionType.CREATE_USER_SUCCESS),
     tap(action => this._notificationService.success('@User created successfully', {email: action.email})),
     switchMap(action => of(new NavigateToUserEdition(action.userId)))
-  ));
+  ) });
 
-  navigateToUserEdition$ = createEffect(() => this._actions$.pipe(
+  navigateToUserEdition$ = createEffect(() => { return this._actions$.pipe(
     ofType<NavigateToUserEdition>(UsersManagementActionType.NAVIGATE_TO_USER_EDITION),
     tap((action) => this._router.navigate([`user-management/edit/${action.userId}`])),
-  ), {dispatch: false});
+  ) }, {dispatch: false});
 
-  loadUserById$ = createEffect(() => this._actions$.pipe(
+  loadUserById$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadUserById>(UsersManagementActionType.LOAD_USER_BY_ID),
-    withLatestFrom(this._store.select(selectParamUserId)),
+    concatLatestFrom(() => this._store.select(selectParamUserId)),
     tap(([action, userId]) => sessionStorage.setItem(CURRENT_EDITED_USER_ID, userId as string)),
     switchMap(([action, userId]) => this._usersManagementService.getUserById(userId as string)),
     switchMap(result => of(new LoadUserByIdSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  navigateToUsersManagement$ = createEffect(() => this._actions$.pipe(
+  navigateToUsersManagement$ = createEffect(() => { return this._actions$.pipe(
     ofType<NavigateToUsersManagement>(UsersManagementActionType.NAVIGATE_TO_USERS_MANAGEMENT),
     tap((action) => this._router.navigate(['user-management'])),
-  ), {dispatch: false});
+  ) }, {dispatch: false});
 
-  loadAllDashboardsWithMarkedUser$ = createEffect(() => this._actions$.pipe(
+  loadAllDashboardsWithMarkedUser$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadDashboards>(UsersManagementActionType.LOAD_DASHBOARDS),
-    withLatestFrom(this._store.select(selectParamUserId)),
+    concatLatestFrom(() => this._store.select(selectParamUserId)),
     switchMap(([action, userId]) => {
         return this._usersManagementService.getDashboardsWithMarkedUser(userId as string).pipe(
           map((result) => new LoadDashboardsSuccess(result.dashboards)),
           catchError(e => of(showError(e)))
         )
       }
-    ))
+    )) }
   );
 
-  syncUsers$ = createEffect(() => this._actions$.pipe(
+  syncUsers$ = createEffect(() => { return this._actions$.pipe(
     ofType<SyncUsers>(UsersManagementActionType.SYNC_ALL_USERS),
     switchMap(action => {
         return this._usersManagementService.syncUsers().pipe(
@@ -179,38 +179,38 @@ export class UsersManagementEffects {
           catchError(e => of(showError(e)))
         )
       }
-    ))
+    )) }
   );
 
-  syncUsersSuccess$ = createEffect(() => this._actions$.pipe(
+  syncUsersSuccess$ = createEffect(() => { return this._actions$.pipe(
       ofType<SyncUsersSuccess>(UsersManagementActionType.SYNC_ALL_USERS_SUCCESS),
       tap(action => this._notificationService.success('@Sync Started'))
-    ), {dispatch: false}
+    ) }, {dispatch: false}
   );
 
-  loadAvailableContextRoles$ = createEffect(() => this._actions$.pipe(
+  loadAvailableContextRoles$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadAvailableContextRoles>(UsersManagementActionType.LOAD_AVAILABLE_CONTEXT_ROLES),
     switchMap(() => this._contextRoleService.getRoles()),
     switchMap(result => of(new LoadAvailableContextRolesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadAvailableContexts$ = createEffect(() => this._actions$.pipe(
+  loadAvailableContexts$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadAvailableContexts>(UsersManagementActionType.LOAD_AVAILABLE_CONTEXTS),
     switchMap(() => this._usersManagementService.getAvailableContexts()),
     switchMap(result => of(new LoadAvailableContextsSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadUserContextRoles$ = createEffect(() => this._actions$.pipe(
+  loadUserContextRoles$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadUserContextRoles>(UsersManagementActionType.LOAD_USER_CONTEXT_ROLES),
-    withLatestFrom(this._store.select(selectParamUserId)),
+    concatLatestFrom(() => this._store.select(selectParamUserId)),
     switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
     switchMap(result => of(new LoadUserContextRolesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  updateUserRoles$ = createEffect(() => this._actions$.pipe(
+  updateUserRoles$ = createEffect(() => { return this._actions$.pipe(
     ofType<UpdateUserRoles>(UsersManagementActionType.UPDATE_USER_ROLES),
     withLatestFrom(
       this._store.select(selectSelectedRolesForUser),
@@ -219,19 +219,19 @@ export class UsersManagementEffects {
     switchMap(([action, selectedRoles, selectedDashboards]) => this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards)),
     switchMap(() => of(new UpdateUserRolesSuccess(), new ClearUnsavedChanges())),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  updateUserRoles$UserSuccess$ = createEffect(() => this._actions$.pipe(
+  updateUserRoles$UserSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType<UpdateUserRolesSuccess>(UsersManagementActionType.UPDATE_USER_ROLES_SUCCESS),
     switchMap((action) => of(showSuccess({message: '@User roles updated'}))),
-  ));
+  ) });
 
-  loadAdminEmails$ = createEffect(() => this._actions$.pipe(
+  loadAdminEmails$ = createEffect(() => { return this._actions$.pipe(
     ofType<NavigateToUsersManagement>(UsersManagementActionType.LOAD_ADMIN_EMAILS),
     switchMap(() => this._usersManagementService.getAdminEmails()),
     switchMap(result => of(new LoadAdminEmailsSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
   constructor(
     private _router: Router,

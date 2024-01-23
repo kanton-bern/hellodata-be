@@ -48,18 +48,18 @@ export class LineageDocsEffects {
   ) {
   }
 
-  loadMyDocs$ = createEffect(() => this._actions$.pipe(
+  loadMyDocs$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadMyLineageDocs>(LineageDocsActionType.LOAD_MY_LINEAGE_DOCS),
     switchMap(() => this._docsService.getProjectDocs()),
     combineLatestWith(this._store.select(selectAvailableDataDomains)),
     switchMap(([result, dataDomains]) => of(new LoadMyLineageDocsSuccess(this._enhanceResult(result, dataDomains)))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadMyDocsSuccess$ = createEffect(() => this._actions$.pipe(
+  loadMyDocsSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadMyLineageDocsSuccess>(LineageDocsActionType.LOAD_MY_LINEAGE_DOCS_SUCCESS),
     switchMap(() => of(new ProcessNavigation(false))),
-  ));
+  ) });
 
   private _enhanceResult(result: LineageDoc[], dataDomains: DataDomain[]): LineageDoc[] {
     if (result) {

@@ -26,7 +26,7 @@
 ///
 
 import {Injectable} from '@angular/core';
-import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {Actions, createEffect, ofType, concatLatestFrom} from '@ngrx/effects';
 import {catchError, of, switchMap, withLatestFrom} from 'rxjs';
 import {MetaInfoResourceService} from "./metainfo-resource.service";
 import {
@@ -48,34 +48,34 @@ import {showError} from "../app/app.action";
 @Injectable()
 export class MetaInfoResourceEffects {
 
-  loadAppInfos$ = createEffect(() => this._actions$.pipe(
+  loadAppInfos$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadAppInfoResources>(MetaInfoResourceActionType.LOAD_APP_INFOS),
     switchMap(() => this._metaInfoResourceService.getAppInfoResources()),
     switchMap(result => of(new LoadAppInfoResourcesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadRoles$ = createEffect(() => this._actions$.pipe(
+  loadRoles$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadRoleResources>(MetaInfoResourceActionType.LOAD_ROLES_SUCCESS),
     switchMap(() => this._metaInfoResourceService.getRoleResources()),
     switchMap(result => of(new LoadRoleResourcesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadPermissions$ = createEffect(() => this._actions$.pipe(
+  loadPermissions$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadPermissionResources>(MetaInfoResourceActionType.LOAD_PERMISSIONS),
     switchMap(() => this._metaInfoResourceService.getPermissionResources()),
     switchMap(result => of(new LoadPermissionResourcesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadSelectedAppInfoResources$ = createEffect(() => this._actions$.pipe(
+  loadSelectedAppInfoResources$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadSelectedAppInfoResources>(MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCES),
-    withLatestFrom(this._store.select(selectSelectedAppInfoResourcesParams)),
+    concatLatestFrom(() => this._store.select(selectSelectedAppInfoResourcesParams)),
     switchMap(([action, params]) => this._metaInfoResourceService.getResourcesFilteredByAppInfo(params.apiVersion as string, params.instanceName as string, params.moduleType as string)),
     switchMap(result => of(new LoadSelectedAppInfoResourcesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
   constructor(
     private _actions$: Actions,

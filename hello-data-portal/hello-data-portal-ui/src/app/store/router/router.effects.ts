@@ -39,7 +39,7 @@ import {loadFaqById} from "../faq/faq.action";
 @Injectable()
 export class RouterEffects {
 
-  openEditionFinished$ = createEffect(() => this._actions$.pipe(
+  openEditionFinished$ = createEffect(() => { return this._actions$.pipe(
     ofType<RouterNavigationAction>(ROUTER_NAVIGATION),
     switchMap(action => {
       const urlParts = action.payload.routerState.url.split('/');
@@ -58,15 +58,15 @@ export class RouterEffects {
       return EMPTY;
     }),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  navigated$ = createEffect(() => this._actions$.pipe(
+  navigated$ = createEffect(() => { return this._actions$.pipe(
     ofType<RouterNavigationAction>(ROUTER_NAVIGATED),
     switchMap(action => {
       return of(new ClearUnsavedChanges());
     }),
     catchError(e => of(showError(e)))
-  ))
+  ) })
 
   constructor(
     private _actions$: Actions,

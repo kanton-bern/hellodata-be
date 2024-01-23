@@ -26,7 +26,7 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {Actions, createEffect, ofType, concatLatestFrom} from "@ngrx/effects";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
@@ -53,14 +53,14 @@ import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class FaqEffects {
-  loadAllFaq$ = createEffect(() => this._actions$.pipe(
+  loadAllFaq$ = createEffect(() => { return this._actions$.pipe(
     ofType(loadFaq),
     switchMap(() => this._faqService.getFaq()),
     switchMap(result => of(loadFaqSuccess({payload: result}))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  openFaqEdition$ = createEffect(() => this._actions$.pipe(
+  openFaqEdition$ = createEffect(() => { return this._actions$.pipe(
     ofType(openFaqEdition),
     switchMap(action => {
       if (action.faq.id) {
@@ -69,17 +69,17 @@ export class FaqEffects {
       return of(navigate({url: 'faq-management/create'}));
     }),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  loadFaqById$ = createEffect(() => this._actions$.pipe(
+  loadFaqById$ = createEffect(() => { return this._actions$.pipe(
     ofType(loadFaqById),
-    withLatestFrom(this._store.select(selectParamFaqId)),
+    concatLatestFrom(() => this._store.select(selectParamFaqId)),
     switchMap(([action, faqId]) => this._faqService.getFaqById(faqId as string)),
     switchMap(result => of(loadFaqByIdSuccess({faq: result}))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  saveChangesToFaq$ = createEffect(() => this._actions$.pipe(
+  saveChangesToFaq$ = createEffect(() => { return this._actions$.pipe(
     ofType(saveChangesToFaq),
     switchMap((action) => {
       return action.faq.id
@@ -101,32 +101,32 @@ export class FaqEffects {
           map(() => saveChangesToFaqSuccess({faq: action.faq}))
         )
     }),
-  ));
+  ) });
 
-  saveChangesToFaqSuccess$ = createEffect(() => this._actions$.pipe(
+  saveChangesToFaqSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType(saveChangesToFaqSuccess),
     switchMap(action => of(new ClearUnsavedChanges(), navigate({url: 'faq-management'}))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  deleteFaq$ = createEffect(() => this._actions$.pipe(
+  deleteFaq$ = createEffect(() => { return this._actions$.pipe(
     ofType(deleteFaq),
-    withLatestFrom(this._store.select(selectSelectedFaqForDeletion)),
+    concatLatestFrom(() => this._store.select(selectSelectedFaqForDeletion)),
     switchMap(([action, faq]) => this._faqService.deleteFaqById((faq as Faq).id as string).pipe(
       map(() => deleteFaqSuccess({faq: faq as Faq})),
       catchError(e => of(showError(e)))
     )),
-  ));
+  ) });
 
-  deleteFaqSuccess$ = createEffect(() => this._actions$.pipe(
+  deleteFaqSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType(deleteFaqSuccess),
     tap(action => this._notificationService.success('@Faq deleted successfully')),
     switchMap(() => of(loadFaq(), hideDeleteFaqPopup()))
-  ));
+  ) });
 
-  deleteEditedFaq$ = createEffect(() => this._actions$.pipe(
+  deleteEditedFaq$ = createEffect(() => { return this._actions$.pipe(
     ofType(deleteEditedFaq),
-    withLatestFrom(this._store.select(selectSelectedFaqForDeletion)),
+    concatLatestFrom(() => this._store.select(selectSelectedFaqForDeletion)),
     switchMap(([action, faqToBeDeleted]) => {
         return this._faqService.deleteFaqById((faqToBeDeleted as Faq).id as string).pipe(
           map(() => deleteEditedFaqSuccess()),
@@ -134,13 +134,13 @@ export class FaqEffects {
         )
       }
     ),
-  ));
+  ) });
 
-  deleteEditedFaqSuccess$ = createEffect(() => this._actions$.pipe(
+  deleteEditedFaqSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType(deleteEditedFaqSuccess),
     tap(action => this._notificationService.success('@Faq deleted successfully')),
     switchMap(() => of(navigate({url: 'faq-management'}), hideDeleteFaqPopup()))
-  ));
+  ) });
 
   constructor(
     private _actions$: Actions,

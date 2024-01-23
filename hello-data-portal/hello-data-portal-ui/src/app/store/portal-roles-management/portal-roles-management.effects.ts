@@ -26,7 +26,7 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {Actions, createEffect, ofType, concatLatestFrom} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
@@ -55,14 +55,14 @@ import {navigate, showError} from "../app/app.action";
 @Injectable()
 export class PortalRolesManagementEffects {
 
-  loadRoles$ = createEffect(() => this._actions$.pipe(
+  loadRoles$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadPortalRoles>(RolesManagementActionType.LOAD_PORTAL_ROLES),
     switchMap(action => this._portalRoleService.getPortalRoles()),
     switchMap(result => of(new LoadPortalRolesSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  openRoleEdition$ = createEffect(() => this._actions$.pipe(
+  openRoleEdition$ = createEffect(() => { return this._actions$.pipe(
     ofType<OpenPortalRoleEdition>(RolesManagementActionType.OPEN_PORTAL_ROLE_EDITION),
     switchMap(action => {
       if (action.role.id) {
@@ -71,9 +71,9 @@ export class PortalRolesManagementEffects {
       return of(navigate({url: 'roles-management/create'}));
     }),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  saveChangesToRole$ = createEffect(() => this._actions$.pipe(
+  saveChangesToRole$ = createEffect(() => { return this._actions$.pipe(
     ofType<SaveChangesToPortalRole>(RolesManagementActionType.SAVE_CHANGES_TO_PORTAL_ROLE),
     switchMap((action: SaveChangesToPortalRole) => {
       return action.role.id
@@ -96,32 +96,32 @@ export class PortalRolesManagementEffects {
         )
     }),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  saveChangesToRoleSuccess$ = createEffect(() => this._actions$.pipe(
+  saveChangesToRoleSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType<SaveChangesToPortalRoleSuccess>(RolesManagementActionType.SAVE_CHANGES_TO_PORTAL_ROLE_SUCCESS),
     switchMap(action => of(navigate({url: 'roles-management'}), new ClearUnsavedChanges())),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
-  deleteRole$ = createEffect(() => this._actions$.pipe(
+  deleteRole$ = createEffect(() => { return this._actions$.pipe(
     ofType<DeletePortalRole>(RolesManagementActionType.DELETE_PORTAL_ROLE),
-    withLatestFrom(this._store.select(selectSelectedPortalRoleForDeletion)),
+    concatLatestFrom(() => this._store.select(selectSelectedPortalRoleForDeletion)),
     switchMap(([action, role]) => this._portalRoleService.deletePortalRoleById((role as PortalRole).id as string).pipe(
       map(() => new DeletePortalRoleSuccess(role as PortalRole)),
       catchError(e => of(showError(e)))
     )),
-  ));
+  ) });
 
-  deleteRoleSuccess$ = createEffect(() => this._actions$.pipe(
+  deleteRoleSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType<DeletePortalRoleSuccess>(RolesManagementActionType.DELETE_PORTAL_ROLE_SUCCESS),
     tap(action => this._notificationService.success('@Portal role deleted successfully', {role: action.role.name})),
     switchMap(() => of(new LoadPortalRoles(), new HideDeletePortalRolePopup()))
-  ));
+  ) });
 
-  deleteEditedRole$ = createEffect(() => this._actions$.pipe(
+  deleteEditedRole$ = createEffect(() => { return this._actions$.pipe(
     ofType<DeleteEditedPortalRole>(RolesManagementActionType.DELETE_EDITED_PORTAL_ROLE),
-    withLatestFrom(this._store.select(selectSelectedPortalRoleForDeletion)),
+    concatLatestFrom(() => this._store.select(selectSelectedPortalRoleForDeletion)),
     switchMap(([action, roleToBeDeleted]) => {
         return this._portalRoleService.deletePortalRoleById((roleToBeDeleted as PortalRole).id as string).pipe(
           map(() => new DeleteEditedPortalRoleSuccess(roleToBeDeleted!.name as string)),
@@ -129,21 +129,21 @@ export class PortalRolesManagementEffects {
         )
       }
     ),
-  ));
+  ) });
 
-  deleteEditedRoleSuccess$ = createEffect(() => this._actions$.pipe(
+  deleteEditedRoleSuccess$ = createEffect(() => { return this._actions$.pipe(
     ofType<DeleteEditedPortalRoleSuccess>(RolesManagementActionType.DELETE_EDITED_PORTAL_ROLE_SUCCESS),
     tap(action => this._notificationService.success('@Portal role deleted successfully', {role: action.name})),
     switchMap(() => of(navigate({url: 'roles-management'}), new HideDeletePortalRolePopup()))
-  ));
+  ) });
 
-  loadRoleById$ = createEffect(() => this._actions$.pipe(
+  loadRoleById$ = createEffect(() => { return this._actions$.pipe(
     ofType<LoadPortalRoleById>(RolesManagementActionType.LOAD_PORTAL_ROLE_BY_ID),
-    withLatestFrom(this._store.select(selectPortalParamRoleId)),
+    concatLatestFrom(() => this._store.select(selectPortalParamRoleId)),
     switchMap(([action, roleId]) => this._portalRoleService.getPortalRoleById(roleId as string)),
     switchMap(result => of(new LoadPortalRoleByIdSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
   constructor(
     private _actions$: Actions,

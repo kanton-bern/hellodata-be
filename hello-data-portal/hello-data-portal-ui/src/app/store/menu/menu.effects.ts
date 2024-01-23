@@ -35,13 +35,13 @@ import {showError} from "../app/app.action";
 @Injectable()
 export class MenuEffects {
 
-  processNavigation$ = createEffect(() => this._actions$.pipe(
+  processNavigation$ = createEffect(() => { return this._actions$.pipe(
     ofType<ProcessNavigation>(MenuActionType.PROCESS_NAVIGATION),
     switchMap((action) =>
       this._menuService.processNavigation(action.compactMode)),
     switchMap(result => of(new ProcessNavigationSuccess(result))),
     catchError(e => of(showError(e)))
-  ));
+  ) });
 
   constructor(
     private _actions$: Actions,
