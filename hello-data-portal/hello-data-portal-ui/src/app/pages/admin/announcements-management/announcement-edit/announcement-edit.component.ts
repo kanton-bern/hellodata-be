@@ -32,12 +32,12 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {deleteEditedAnnouncement, saveChangesToAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -63,25 +63,29 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
           published: [announcement.published ? announcement.published : false]
         });
         if (announcement.id) {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.announcementsManagement.label,
-              routerLink: naviElements.announcementsManagement.path,
-            },
-            {
-              label: naviElements.announcementEdit.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.announcementsManagement.label,
+                routerLink: naviElements.announcementsManagement.path,
+              },
+              {
+                label: naviElements.announcementEdit.label,
+              }
+            ]
+          }));
         } else {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.announcementsManagement.label,
-              routerLink: naviElements.announcementsManagement.path,
-            },
-            {
-              label: naviElements.announcementCreate.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.announcementsManagement.label,
+                routerLink: naviElements.announcementsManagement.path,
+              },
+              {
+                label: naviElements.announcementCreate.label,
+              }
+            ]
+          }));
         }
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.announcementForm.valueChanges.subscribe(newValues => {

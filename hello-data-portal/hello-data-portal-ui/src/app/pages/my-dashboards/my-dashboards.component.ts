@@ -34,11 +34,11 @@ import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.m
 import {MenuService} from "../../store/menu/menu.service";
 import {UpdateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {Table} from "primeng/table";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
 import {selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
@@ -56,12 +56,14 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   constructor(private store: Store<AppState>, private menuService: MenuService) {
     super();
     this.dashboards$ = this.store.select(selectMyDashboards);
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.myDashboards.label,
-        routerLink: naviElements.myDashboards.path
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.myDashboards.label,
+          routerLink: naviElements.myDashboards.path
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {

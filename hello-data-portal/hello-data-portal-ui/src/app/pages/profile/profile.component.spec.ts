@@ -29,11 +29,11 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ProfileComponent} from './profile.component';
 import {Store} from '@ngrx/store';
 import {of} from 'rxjs';
-import {CreateBreadcrumbs} from '../../store/breadcrumb/breadcrumb.action';
 import {naviElements} from '../../app-navi-elements';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {TranslocoTestingModule} from "@ngneat/transloco";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 describe('ProfileComponent', () => {
   let component: ProfileComponent;
@@ -68,14 +68,16 @@ describe('ProfileComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch CreateBreadcrumbs on initialization', () => {
+  it('should dispatch createBreadcrumbs on initialization', () => {
     expect(mockStore.dispatch).toHaveBeenCalledWith(
-      new CreateBreadcrumbs([
-        {
-          label: naviElements.profile.label,
-          routerLink: naviElements.profile.path,
-        },
-      ])
+      createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.profile.label,
+            routerLink: naviElements.profile.path,
+          },
+        ]
+      })
     );
   });
 

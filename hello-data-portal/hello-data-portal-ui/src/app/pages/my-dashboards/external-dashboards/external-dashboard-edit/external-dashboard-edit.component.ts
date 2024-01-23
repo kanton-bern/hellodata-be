@@ -37,10 +37,10 @@ import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my
 import {ConfirmationService} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {ClearUnsavedChanges, MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-external-dashboard-edit',
@@ -78,25 +78,29 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
             contextKey: '',
             contextName: ''
           };
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.externalDashboards.label,
-              routerLink: naviElements.externalDashboards.path
-            },
-            {
-              label: naviElements.externalDashboardCreate.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.externalDashboards.label,
+                routerLink: naviElements.externalDashboards.path
+              },
+              {
+                label: naviElements.externalDashboardCreate.label,
+              }
+            ]
+          }));
         } else {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.externalDashboards.label,
-              routerLink: naviElements.externalDashboards.path
-            },
-            {
-              label: externalDashboardForEdition?.title
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.externalDashboards.label,
+                routerLink: naviElements.externalDashboards.path
+              },
+              {
+                label: externalDashboardForEdition?.title
+              }
+            ]
+          }));
         }
         const urlRegex = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=%.]+$/;
         this.externalDashboardForm = this.fb.group({

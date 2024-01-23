@@ -43,8 +43,8 @@ import {TooltipModule} from "primeng/tooltip";
 import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {HdCommonModule} from "../../hd-common.module";
 import {TableModule} from "primeng/table";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {navigate} from "../../store/app/app.action";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 describe('LineageDocsComponent', () => {
   let component: LineageDocsComponent;
@@ -84,14 +84,16 @@ describe('LineageDocsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch CreateBreadcrumbs on initialization', () => {
+  it('should dispatch createBreadcrumbs on initialization', () => {
     expect(mockStore.dispatch).toHaveBeenCalledWith(
-      new CreateBreadcrumbs([
-        {
-          label: naviElements.lineageDocsList.label,
-          routerLink: naviElements.lineageDocsList.path,
-        },
-      ])
+      createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.lineageDocsList.label,
+            routerLink: naviElements.lineageDocsList.path,
+          },
+        ]
+      })
     );
   });
 

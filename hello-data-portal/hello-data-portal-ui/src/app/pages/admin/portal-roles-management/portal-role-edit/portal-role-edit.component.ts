@@ -36,10 +36,10 @@ import {PortalRole} from "../../../../store/portal-roles-management/portal-roles
 import {LoadAppInfoResources, LoadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 import {selectAppInfos} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-role-edit',
@@ -132,27 +132,31 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   }
 
   private createBreadcrumbsNewRole() {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.rolesManagement.label,
-        routerLink: naviElements.rolesManagement.path,
-      },
-      {
-        label: naviElements.roleCreate.label,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.rolesManagement.label,
+          routerLink: naviElements.rolesManagement.path,
+        },
+        {
+          label: naviElements.roleCreate.label,
+        }
+      ]
+    }));
   }
 
   private createBreadcrumbsEditedRole(role: PortalRole) {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.rolesManagement.label,
-        routerLink: naviElements.rolesManagement.path,
-      },
-      {
-        label: role.name,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.rolesManagement.label,
+          routerLink: naviElements.rolesManagement.path,
+        },
+        {
+          label: role.name,
+        }
+      ]
+    }));
   }
 
   private onChange(editedRole: PortalRole) {

@@ -30,12 +30,12 @@ import {Action, Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {AnnouncementsManagementComponent} from './announcements-management.component';
 import {AppState} from '../../../store/app/app.state';
-import {CreateBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
 import {naviElements} from '../../../app-navi-elements';
 import {Announcement} from '../../../store/announcement/announcement.model';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {TranslocoTestingModule} from "@ngneat/transloco";
 import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 describe('AnnouncementsManagementComponent', () => {
   let component: AnnouncementsManagementComponent;
@@ -78,12 +78,14 @@ describe('AnnouncementsManagementComponent', () => {
   it('should dispatch loadAllAnnouncements and createBreadcrumbs actions on initialization', () => {
     expect(mockStore.dispatch).toHaveBeenCalledWith(loadAllAnnouncements());
     expect(mockStore.dispatch).toHaveBeenCalledWith(
-      new CreateBreadcrumbs([
-        {
-          label: naviElements.announcementsManagement.label,
-          routerLink: naviElements.announcementsManagement.path,
-        },
-      ])
+      createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.announcementsManagement.label,
+            routerLink: naviElements.announcementsManagement.path,
+          },
+        ]
+      })
     );
   });
 

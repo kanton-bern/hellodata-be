@@ -49,9 +49,9 @@ import {DropdownModule} from "primeng/dropdown";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TooltipModule} from "primeng/tooltip";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-roles-management',
@@ -66,12 +66,14 @@ export class PortalRolesManagementComponent extends BaseComponent implements OnI
     super();
     this.roles$ = this.store.select(selectPortalRoles);
     this.store.dispatch(new LoadPortalRoles());
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.rolesManagement.label,
-        routerLink: naviElements.rolesManagement.path,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.rolesManagement.label,
+          routerLink: naviElements.rolesManagement.path,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {

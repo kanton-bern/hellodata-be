@@ -32,9 +32,9 @@ import {AppState} from "../../../store/app/app.state";
 import {selectAllFaq} from "../../../store/faq/faq.selector";
 import {Faq} from "../../../store/faq/faq.model";
 import {DeleteFaq, LoadFaq, OpenFaqEdition, ShowDeleteFaqPopup} from "../../../store/faq/faq.action";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-faq-list',
@@ -48,12 +48,14 @@ export class FaqListComponent extends BaseComponent implements OnInit {
     super();
     this.faq$ = this.store.select(selectAllFaq);
     store.dispatch(new LoadFaq());
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.faqManagement.label,
-        routerLink: naviElements.faqManagement.path,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.faqManagement.label,
+          routerLink: naviElements.faqManagement.path,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {

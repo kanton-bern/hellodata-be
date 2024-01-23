@@ -31,11 +31,11 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentBusinessDomain, selectCurrentContextRoles, selectCurrentUserPermissions, selectIsAuthenticated, selectProfile} from "../../store/auth/auth.selector";
 import {IUser} from "../../store/auth/auth.model";
-import {ResetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectAdminEmails} from "../../store/users-management/users-management.selector";
 import {LoadAdminEmails} from "../../store/users-management/users-management.action";
+import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'home.component.html',
@@ -57,7 +57,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
     super();
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
-    this.store.dispatch(new ResetBreadcrumb());
+    this.store.dispatch(resetBreadcrumb());
     this.store.dispatch(new LoadAdminEmails());
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
 

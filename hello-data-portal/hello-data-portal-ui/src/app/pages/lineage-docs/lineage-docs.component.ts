@@ -41,13 +41,13 @@ import {LineageDocsService} from "../../store/lineage-docs/lineage-docs.service"
 import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {HdCommonModule} from "../../hd-common.module";
 import {naviElements} from "../../app-navi-elements";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {Observable} from "rxjs";
 import {selectMyLineageDocs} from "../../store/lineage-docs/lineage-docs.selector";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-docs',
@@ -62,12 +62,14 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>, private docsService: LineageDocsService, private fb: FormBuilder) {
     super();
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.lineageDocsList.label,
-        routerLink: naviElements.lineageDocsList.path
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.lineageDocsList.label,
+          routerLink: naviElements.lineageDocsList.path
+        }
+      ]
+    }));
     this.docs$ = this.store.select(selectMyLineageDocs);
   }
 

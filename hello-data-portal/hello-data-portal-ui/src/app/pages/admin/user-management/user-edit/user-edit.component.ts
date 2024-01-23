@@ -54,10 +54,10 @@ import {DashboardForUser, DATA_DOMAIN_VIEWER_ROLE, NONE_ROLE, User, UserAction} 
 import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {Context} from "../../../../store/users-management/context-role.model";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-user-edit',
@@ -161,15 +161,17 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   private createBreadcrumbs(editedUser: User | null) {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.userManagement.label,
-        routerLink: naviElements.userManagement.path
-      },
-      {
-        label: editedUser?.email
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.userManagement.label,
+          routerLink: naviElements.userManagement.path
+        },
+        {
+          label: editedUser?.email
+        }
+      ]
+    }));
   }
 
   private generateForm(userContextRoles: any[], isCurrentSuperuser: boolean) {

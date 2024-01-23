@@ -29,12 +29,12 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Observable, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentPipelineInfo} from "../../store/orchestration/orchestration.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
 
@@ -80,12 +80,14 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
   }
 
   private createBreadcrumbs() {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.embeddedOrchestration.label,
-        routerLink: 'redirect/' + naviElements.embeddedOrchestration.path
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.embeddedOrchestration.label,
+          routerLink: 'redirect/' + naviElements.embeddedOrchestration.path
+        }
+      ]
+    }));
   }
 
 }

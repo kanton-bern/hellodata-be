@@ -48,11 +48,11 @@ import {SelectedWorkspacePermissionsComponent} from "./selected-workspace-permis
 import {SelectedWorkspaceUsersComponent} from "./selected-workspace-users/selected-workspace-users.component";
 import {FieldsetModule} from "primeng/fieldset";
 import {SelectedWorkspacePipelinesComponent} from "./selected-workspace-pipelines/selected-workspace-pipelines.component";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {NgArrayPipesModule} from "ngx-pipes";
 import {navigate} from "../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-workspaces',
@@ -67,12 +67,14 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
     super();
     this.store.dispatch(new LoadAppInfoResources());
     this.appInfos$ = this.store.select(selectAppInfos);
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.workspaces.label,
-        routerLink: naviElements.workspaces.path,
-      },
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.workspaces.label,
+          routerLink: naviElements.workspaces.path,
+        },
+      ]
+    }));
   }
 
   override ngOnInit(): void {

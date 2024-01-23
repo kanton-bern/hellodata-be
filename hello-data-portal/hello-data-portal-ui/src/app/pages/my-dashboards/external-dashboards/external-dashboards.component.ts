@@ -37,9 +37,9 @@ import {ExternalDashboard} from "../../../store/external-dashboards/external-das
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
 import {DeleteExternalDashboard, LoadExternalDashboards, OpenExternalDashboardEdition} from "../../../store/external-dashboards/external-dasboards.action";
 import {Table} from "primeng/table";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-external-dashboards',
@@ -56,11 +56,13 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
     super();
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.externalDashboards.label,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.externalDashboards.label,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {

@@ -56,10 +56,10 @@ import {map, switchMap} from "rxjs/operators";
 import {DropdownModule} from "primeng/dropdown";
 import {DashboardViewerPermissionsComponent} from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
 import {MultiSelectModule} from "primeng/multiselect";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {UsersManagementService} from "../../../store/users-management/users-management.service";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-user-management',
@@ -78,12 +78,14 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     super();
     this.users$ = this.store.select(selectUsers).pipe(map(d => [...d]));
     this.store.dispatch(new LoadUsers());
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.userManagement.label,
-        routerLink: naviElements.userManagement.path,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.userManagement.label,
+          routerLink: naviElements.userManagement.path,
+        }
+      ]
+    }));
 
     this.searchSubscription = this.searchSubject
       .pipe(

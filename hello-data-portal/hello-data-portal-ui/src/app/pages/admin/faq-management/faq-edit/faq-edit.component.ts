@@ -33,7 +33,6 @@ import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
 import {Faq} from "../../../../store/faq/faq.model";
 import {DeleteEditedFaq, SaveChangesToFaq, ShowDeleteFaqPopup} from "../../../../store/faq/faq.action";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {selectAvailableDataDomainsWithAllEntry} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "../../../../store/app/app.constants";
@@ -41,6 +40,7 @@ import {Announcement} from "../../../../store/announcement/announcement.model";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-faq-edit',
@@ -64,25 +64,29 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
           dataDomain: [faq && faq.contextKey ? faq.contextKey : ALL_DATA_DOMAINS],
         });
         if (faq.id) {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.faqManagement.label,
-              routerLink: naviElements.faqManagement.path,
-            },
-            {
-              label: naviElements.faqEdit.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.faqManagement.label,
+                routerLink: naviElements.faqManagement.path,
+              },
+              {
+                label: naviElements.faqEdit.label,
+              }
+            ]
+          }));
         } else {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.faqManagement.label,
-              routerLink: naviElements.faqManagement.path,
-            },
-            {
-              label: naviElements.faqCreate.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.faqManagement.label,
+                routerLink: naviElements.faqManagement.path,
+              },
+              {
+                label: naviElements.faqCreate.label,
+              }
+            ]
+          }));
         }
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.faqForm.valueChanges.subscribe(newValues => {

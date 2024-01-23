@@ -31,10 +31,10 @@ import {AppState} from "../../../store/app/app.state";
 import {CreateOrUpdateDocumentation, LoadDocumentation} from "../../../store/summary/summary.actions";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
 import {Observable, tap} from "rxjs";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-documentation',
@@ -67,11 +67,13 @@ export class DocumentationManagementComponent extends BaseComponent implements O
   }
 
   private createBreadcrumbs() {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.documentationManagement.label,
-        routerLink: naviElements.documentationManagement.path,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.documentationManagement.label,
+          routerLink: naviElements.documentationManagement.path,
+        }
+      ]
+    }));
   }
 }
