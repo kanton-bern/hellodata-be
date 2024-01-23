@@ -31,9 +31,9 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {LoadAppInfoResources, LoadSelectedAppInfoResource, LoadSelectedAppInfoResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 import {
-  selectedAppInfoResource,
-  selectedAppInfoResources,
+  selectAppInfoResources,
   selectSelectedAppInfo,
+  selectSelectedAppInfoResource,
   selectSelectedAppInfoResourcesParams
 } from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {Navigate} from "../../../../store/app/app.action";
@@ -57,8 +57,8 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
     this.store.dispatch(new LoadAppInfoResources());
     this.store.dispatch(new LoadSelectedAppInfoResources());
     this.headerInfo$ = this.store.select(selectSelectedAppInfoResourcesParams);
-    this.resources$ = this.store.select(selectedAppInfoResources);
-    this.selectedResource$ = this.store.select(selectedAppInfoResource);
+    this.resources$ = this.store.select(selectAppInfoResources);
+    this.selectedResource$ = this.store.select(selectSelectedAppInfoResource);
     this.selectedAppInfo$ = this.store.select(selectSelectedAppInfo).pipe(tap((appInfo: any) => {
       this.selectedResourceUrl = appInfo?.data?.url;
     }));
