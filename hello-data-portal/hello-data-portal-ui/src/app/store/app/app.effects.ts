@@ -32,7 +32,7 @@ import {UsersManagementEffects} from "../users-management/users-management.effec
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {tap} from "rxjs";
 import {NotificationService} from "../../shared/services/notification.service";
-import {AppActionType, Navigate, ShowError, ShowInfo, ShowSuccess} from "./app.action";
+import {navigate, showError, showInfo, showSuccess} from "./app.action";
 import {AuthEffects} from "../auth/auth.effects";
 import {Router} from "@angular/router";
 import {PortalRolesManagementEffects} from "../portal-roles-management/portal-roles-management.effects";
@@ -50,7 +50,7 @@ import {UnsavedChangesEffects} from "../unsaved-changes/unsaved-changes.effects"
 @Injectable()
 export class AppEffects {
   showError$ = createEffect(() => this._actions$.pipe(
-    ofType<ShowError>(AppActionType.APP_SHOW_ERROR),
+    ofType(showError),
     tap(action => {
       if (action.error.error.message) {
         this._notificationService.error(action.error.error.message);
@@ -62,17 +62,17 @@ export class AppEffects {
   ), {dispatch: false});
 
   showInfo$ = createEffect(() => this._actions$.pipe(
-    ofType<ShowInfo>(AppActionType.APP_SHOW_INFO),
+    ofType(showInfo),
     tap(action => this._notificationService.info(action.message, action.interpolateParams))
   ), {dispatch: false});
 
   showSuccess$ = createEffect(() => this._actions$.pipe(
-    ofType<ShowSuccess>(AppActionType.APP_SHOW_SUCCESS),
+    ofType(showSuccess),
     tap(action => this._notificationService.success(action.message, action.interpolateParams))
   ), {dispatch: false});
 
   navigate$ = createEffect(() => this._actions$.pipe(
-    ofType<Navigate>(AppActionType.NAVIGATE),
+    ofType(navigate),
     tap((action) => this._router.navigate([action.url], action.extras)),
   ), {dispatch: false});
 
