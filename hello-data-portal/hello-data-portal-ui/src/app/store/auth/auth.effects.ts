@@ -36,93 +36,109 @@ import {UsersManagementService} from "../users-management/users-management.servi
 import {LoadAvailableDataDomains, LoadMyDashboards} from "../my-dashboards/my-dashboards.action";
 import {LoadDocumentation, LoadPipelines, LoadStorageSize} from "../summary/summary.actions";
 import {LoadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
-import {LoadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
 import {navigate, showError} from "../app/app.action";
+import {loadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
 
 @Injectable()
 export class AuthEffects {
-  login$ = createEffect(() => { return this._actions$.pipe(
-    ofType(login),
-    tap(() => this._authService.doLogin()),
-    catchError(e => of(authError(e)))
-  ) }, {dispatch: false});
+  login$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(login),
+      tap(() => this._authService.doLogin()),
+      catchError(e => of(authError(e)))
+    )
+  }, {dispatch: false});
 
-  logout$ = createEffect(() => { return this._actions$.pipe(
-    ofType(logout),
-    switchMap(() => this._authService.signOut()),
-    catchError(e => of(authError(e)))
-  ) });
+  logout$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(logout),
+      switchMap(() => this._authService.signOut()),
+      catchError(e => of(authError(e)))
+    )
+  });
 
-  checkAuth$ = createEffect(() => { return this._actions$.pipe(
-    ofType(checkAuth),
-    switchMap(() => {
-        return this._authService.checkAuth().pipe(
-          map(authResult => checkAuthComplete({isLoggedIn: authResult.isAuthenticated, accessToken: authResult.accessToken, profile: authResult.userData})),
-          catchError(e => of(authError(e)))
-        )
-      }
-    ),
-    catchError(e => of(authError(e)))
-  ) });
-
-  checkAuthComplete$ = createEffect(() => { return this._actions$.pipe(
-    ofType(checkAuthComplete),
-    switchMap((action) => {
-        if (action.isLoggedIn) {
-          if (!action.profile) {//sometimes the userinfo is not fetched properly from the auth server, so we use an already obtained access_token
-            return this._authService.payloadFromAccessToken.pipe(
-              map(accessTokenPayload => {
-                const userData = {
-                  sub: accessTokenPayload['sub'],
-                  name: accessTokenPayload['name'],
-                  family_name: accessTokenPayload['family_name'],
-                  given_name: accessTokenPayload['given_name'],
-                  email: accessTokenPayload['email'],
-                }
-                return loginComplete({profile: userData, isLoggedIn: action.isLoggedIn, accessToken: action.accessToken})
-              })
-            );
-          }
-          return of(loginComplete({profile: action.profile, isLoggedIn: action.isLoggedIn, accessToken: action.accessToken}));
+  checkAuth$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(checkAuth),
+      switchMap(() => {
+          return this._authService.checkAuth().pipe(
+            map(authResult => checkAuthComplete({isLoggedIn: authResult.isAuthenticated, accessToken: authResult.accessToken, profile: authResult.userData})),
+            catchError(e => of(authError(e)))
+          )
         }
-        return of(navigate({url: 'home'}));
-      }
-    ),
-    catchError(e => of(authError(e)))
-  ) });
+      ),
+      catchError(e => of(authError(e)))
+    )
+  });
 
-  loginComplete$ = createEffect(() => { return this._actions$.pipe(
-    ofType(loginComplete),
-    switchMap(({profile, isLoggedIn, accessToken}) => this._usersManagementService.getCurrentAuthData()),
-    switchMap((permissions) => of(fetchPermissionSuccess(permissions))),
-    catchError(e => of(authError(e)))
-  ) });
+  checkAuthComplete$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(checkAuthComplete),
+      switchMap((action) => {
+          if (action.isLoggedIn) {
+            if (!action.profile) {//sometimes the userinfo is not fetched properly from the auth server, so we use an already obtained access_token
+              return this._authService.payloadFromAccessToken.pipe(
+                map(accessTokenPayload => {
+                  const userData = {
+                    sub: accessTokenPayload['sub'],
+                    name: accessTokenPayload['name'],
+                    family_name: accessTokenPayload['family_name'],
+                    given_name: accessTokenPayload['given_name'],
+                    email: accessTokenPayload['email'],
+                  }
+                  return loginComplete({profile: userData, isLoggedIn: action.isLoggedIn, accessToken: action.accessToken})
+                })
+              );
+            }
+            return of(loginComplete({profile: action.profile, isLoggedIn: action.isLoggedIn, accessToken: action.accessToken}));
+          }
+          return of(navigate({url: 'home'}));
+        }
+      ),
+      catchError(e => of(authError(e)))
+    )
+  });
 
-  fetchPermissionSuccess$ = createEffect(() => { return this._actions$.pipe(
-    ofType(fetchPermissionSuccess),
-    switchMap(() => of(
-      new LoadAvailableDataDomains(),
-      new LoadAppInfoResources(),
-      new LoadMyDashboards(),
-      new LoadDocumentation(),
-      new LoadMyLineageDocs(),
-      fetchContextRoles(),
-      new LoadPipelines(),
-      new LoadStorageSize())),
-  ) });
+  loginComplete$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loginComplete),
+      switchMap(({profile, isLoggedIn, accessToken}) => this._usersManagementService.getCurrentAuthData()),
+      switchMap((permissions) => of(fetchPermissionSuccess(permissions))),
+      catchError(e => of(authError(e)))
+    )
+  });
+
+  fetchPermissionSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(fetchPermissionSuccess),
+      switchMap(() => of(
+        new LoadAvailableDataDomains(),
+        new LoadAppInfoResources(),
+        new LoadMyDashboards(),
+        new LoadDocumentation(),
+        loadMyLineageDocs(),
+        fetchContextRoles(),
+        new LoadPipelines(),
+        new LoadStorageSize())),
+    )
+  });
 
 
-  authError$ = createEffect(() => { return this._actions$.pipe(
-    ofType(authError),
-    tap(action => this._store.dispatch(showError({error: action.error})))
-  ) }, {dispatch: false});
+  authError$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(authError),
+      tap(action => this._store.dispatch(showError({error: action.error})))
+    )
+  }, {dispatch: false});
 
-  fetchContextRoles$ = createEffect(() => { return this._actions$.pipe(
-    ofType(fetchContextRoles),
-    switchMap(() => this._usersManagementService.getCurrentContextRoles()),
-    switchMap(result => of(fetchContextRolesSuccess(result))),
-    catchError(e => of(showError(e)))
-  ) });
+  fetchContextRoles$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(fetchContextRoles),
+      switchMap(() => this._usersManagementService.getCurrentContextRoles()),
+      switchMap(result => of(fetchContextRolesSuccess(result))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
   constructor(
     private _actions$: Actions,

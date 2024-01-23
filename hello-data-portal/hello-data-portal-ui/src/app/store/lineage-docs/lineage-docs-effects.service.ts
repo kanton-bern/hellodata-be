@@ -28,7 +28,6 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
-import {LineageDocsActionType, LoadMyLineageDocs, LoadMyLineageDocsSuccess} from "./lineage-docs.action";
 import {catchError, combineLatestWith, of, switchMap} from "rxjs";
 import {ProcessNavigation} from "../menu/menu.action";
 import {Store} from "@ngrx/store";
@@ -37,6 +36,7 @@ import {selectAvailableDataDomains} from "../my-dashboards/my-dashboards.selecto
 import {DataDomain} from "../my-dashboards/my-dashboards.model";
 import {LineageDoc} from "./lineage-docs.model";
 import {showError} from "../app/app.action";
+import {loadMyLineageDocs, loadMyLineageDocsSuccess} from "./lineage-docs.action";
 
 @Injectable()
 export class LineageDocsEffects {
@@ -48,18 +48,22 @@ export class LineageDocsEffects {
   ) {
   }
 
-  loadMyDocs$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadMyLineageDocs>(LineageDocsActionType.LOAD_MY_LINEAGE_DOCS),
-    switchMap(() => this._docsService.getProjectDocs()),
-    combineLatestWith(this._store.select(selectAvailableDataDomains)),
-    switchMap(([result, dataDomains]) => of(new LoadMyLineageDocsSuccess(this._enhanceResult(result, dataDomains)))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadMyLineageDocs$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadMyLineageDocs),
+      switchMap(() => this._docsService.getProjectDocs()),
+      combineLatestWith(this._store.select(selectAvailableDataDomains)),
+      switchMap(([result, dataDomains]) => of(loadMyLineageDocsSuccess({payload: this._enhanceResult(result, dataDomains)}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  loadMyDocsSuccess$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadMyLineageDocsSuccess>(LineageDocsActionType.LOAD_MY_LINEAGE_DOCS_SUCCESS),
-    switchMap(() => of(new ProcessNavigation(false))),
-  ) });
+  loadMyLineageDocsSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadMyLineageDocsSuccess),
+      switchMap(() => of(new ProcessNavigation(false))),
+    )
+  });
 
   private _enhanceResult(result: LineageDoc[], dataDomains: DataDomain[]): LineageDoc[] {
     if (result) {
