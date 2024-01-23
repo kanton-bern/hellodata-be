@@ -37,10 +37,10 @@ import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
 import {TranslateService} from "../../shared/services/translate.service";
 import {ALL_MENU_ITEMS} from "./menu.model";
-import {LoadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
+import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 
 @Injectable({
   providedIn: 'root'
@@ -86,7 +86,7 @@ export class MenuService {
   }
 
   private internalProcessNavigation(compactMode: boolean, currentUserPermissions: string[]): Observable<any[]> {
-    this._store.dispatch(new LoadAppInfoResources());
+    this._store.dispatch(loadAppInfoResources());
     return combineLatest([
       this._store.select(selectMyDashboards),
       this._store.select(selectMyLineageDocs),

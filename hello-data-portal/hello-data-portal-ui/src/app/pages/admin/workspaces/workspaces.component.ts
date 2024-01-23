@@ -29,7 +29,6 @@ import {Component, NgModule, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource.selector";
-import {LoadAppInfoResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 import {AppState} from "../../../store/app/app.state";
 import {CommonModule} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
@@ -53,6 +52,7 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
 import {NgArrayPipesModule} from "ngx-pipes";
 import {navigate} from "../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {loadAppInfoResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 
 @Component({
   selector: 'app-workspaces',
@@ -65,7 +65,7 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>) {
     super();
-    this.store.dispatch(new LoadAppInfoResources());
+    this.store.dispatch(loadAppInfoResources());
     this.appInfos$ = this.store.select(selectAppInfos);
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [

@@ -33,13 +33,13 @@ import {Observable, Subscription, tap} from "rxjs";
 import {selectAvailablePermissions, selectEditedPortalRole} from "../../../../store/portal-roles-management/portal-roles-management.selector";
 import {DeleteEditedPortalRole, SaveChangesToPortalRole, ShowDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
-import {LoadAppInfoResources, LoadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 import {selectAppInfos} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {naviElements} from "../../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {loadAppInfoResources, loadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 
 @Component({
   selector: 'app-role-edit',
@@ -67,8 +67,8 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
         this.filteredPermissions = availablePermissions;
       }));
     this.workspaces$ = this.store.select(selectAppInfos);
-    this.store.dispatch(new LoadPermissionResources());
-    this.store.dispatch(new LoadAppInfoResources());
+    this.store.dispatch(loadPermissionResources());
+    this.store.dispatch(loadAppInfoResources());
   }
 
   ngOnInit(): void {

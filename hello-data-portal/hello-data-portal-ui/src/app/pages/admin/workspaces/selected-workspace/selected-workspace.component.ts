@@ -29,7 +29,6 @@ import {Component, OnInit} from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {LoadAppInfoResources, LoadSelectedAppInfoResource, LoadSelectedAppInfoResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 import {
   selectAppInfoResources,
   selectSelectedAppInfo,
@@ -38,6 +37,7 @@ import {
 } from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
+import {loadAppInfoResources, loadSelectedAppInfoResource, loadSelectedAppInfoResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 
 @Component({
   selector: 'app-selected-workspace',
@@ -54,8 +54,8 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
 
   constructor(private store: Store<AppState>) {
     super();
-    this.store.dispatch(new LoadAppInfoResources());
-    this.store.dispatch(new LoadSelectedAppInfoResources());
+    this.store.dispatch(loadAppInfoResources());
+    this.store.dispatch(loadSelectedAppInfoResources());
     this.headerInfo$ = this.store.select(selectSelectedAppInfoResourcesParams);
     this.resources$ = this.store.select(selectAppInfoResources);
     this.selectedResource$ = this.store.select(selectSelectedAppInfoResource);
@@ -69,7 +69,7 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
   }
 
   navigateToSelectedResource(selectedResource: any) {
-    this.store.dispatch(new LoadSelectedAppInfoResource(selectedResource));
+    this.store.dispatch(loadSelectedAppInfoResource(selectedResource));
   }
 
   cancel() {

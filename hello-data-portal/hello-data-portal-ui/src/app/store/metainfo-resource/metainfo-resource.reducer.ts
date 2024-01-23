@@ -25,58 +25,54 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialMetaInfoResourceState, MetaInfoResourceState} from "./metainfo-resource.state";
-import {MetaInfoResourceActions, MetaInfoResourceActionType} from "./metainfo-resource.action";
+import {initialMetaInfoResourceState} from "./metainfo-resource.state";
+import {
+  loadAppInfoResourcesSuccess,
+  loadPermissionResourcesSuccess,
+  loadRoleResourcesSuccess,
+  loadSelectedAppInfoResource,
+  loadSelectedAppInfoResources,
+  loadSelectedAppInfoResourcesSuccess
+} from "./metainfo-resource.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const metaInfoResourceReducer = (
-  state = initialMetaInfoResourceState,
-  action: MetaInfoResourceActions
-): MetaInfoResourceState => {
-  switch (action.type) {
-    case MetaInfoResourceActionType.LOAD_APP_INFOS_SUCCESS: {
-      return {
-        ...state,
-        appInfos: action.result
-      };
-    }
-
-    case MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCES: {
-      return {
-        ...state,
-        selectedAppInfoResources: [],
-        selectedAppInfoResource: null
-      };
-    }
-
-    case MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCE: {
-      return {
-        ...state,
-        selectedAppInfoResource: action.selectedResource
-      };
-    }
-
-    case MetaInfoResourceActionType.LOAD_SELECTED_APP_INFOS_RESOURCES_SUCCESS: {
-      return {
-        ...state,
-        selectedAppInfoResources: action.payload
-      };
-    }
-
-    case MetaInfoResourceActionType.LOAD_ROLES_SUCCESS: {
-      return {
-        ...state,
-        roles: action.result
-      };
-    }
-
-    case MetaInfoResourceActionType.LOAD_PERMISSIONS_SUCCESS: {
-      return {
-        ...state,
-        permissions: action.result
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+export const metaInfoResourceReducer = createReducer(
+  initialMetaInfoResourceState,
+  on(loadAppInfoResourcesSuccess, (state, {result}) => {
+    return {
+      ...state,
+      appInfos: result
+    };
+  }),
+  on(loadSelectedAppInfoResources, (state) => {
+    return {
+      ...state,
+      selectedAppInfoResources: [],
+      selectedAppInfoResource: null
+    };
+  }),
+  on(loadSelectedAppInfoResource, (state, {selectedResource}) => {
+    return {
+      ...state,
+      selectedAppInfoResource: selectedResource
+    };
+  }),
+  on(loadSelectedAppInfoResourcesSuccess, (state, {payload}) => {
+    return {
+      ...state,
+      selectedAppInfoResources: payload
+    };
+  }),
+  on(loadRoleResourcesSuccess, (state, {result}) => {
+    return {
+      ...state,
+      roles: result
+    };
+  }),
+  on(loadPermissionResourcesSuccess, (state, {result}) => {
+    return {
+      ...state,
+      permissions: result
+    };
+  }),
+);
