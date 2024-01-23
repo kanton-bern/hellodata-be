@@ -28,7 +28,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {LineageDocsService} from "../../../store/lineage-docs/lineage-docs.service";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {naviElements} from "../../../app-navi-elements";
 import {LineageDoc} from "../../../store/lineage-docs/lineage-docs.model";
@@ -44,8 +43,8 @@ export class LineageComponent implements OnInit {
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
 
-  constructor(private _store: Store<AppState>, private docsService: LineageDocsService, private fb: FormBuilder) {
-    this.docs$ = this._store.select(selectMyLineageDocs);
+  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+    this.docs$ = this.store.select(selectMyLineageDocs);
   }
 
   ngOnInit(): void {

@@ -35,7 +35,6 @@ import {filter, take} from "rxjs/operators";
 import {selectAvailableDataDomainItems, selectAvailableDataDomains, selectMyDashboards} from "../my-dashboards/my-dashboards.selector";
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
-import {LineageDocsService} from "../lineage-docs/lineage-docs.service";
 import {TranslateService} from "../../shared/services/translate.service";
 import {ALL_MENU_ITEMS} from "./menu.model";
 import {LoadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
@@ -53,8 +52,7 @@ export class MenuService {
 
   constructor(
     private _store: Store<AppState>,
-    private _translateService: TranslateService,
-    private _docsService: LineageDocsService
+    private _translateService: TranslateService
   ) {
   }
 

@@ -42,13 +42,13 @@ import {LoadFaqStartPage} from "../../../store/start-page/start-page.action";
 export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;
 
-  constructor(private _store: Store<AppState>, private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
     this.faq$ = this._getGroupedFaqs();
   }
 
   private _getGroupedFaqs(): Observable<GroupedFaq[]> {
     return combineLatest([
-      this._store.select(selectFaq),
+      this.store.select(selectFaq),
     ]).pipe(
       map(([faqs]) => {
         const myDashboards: GroupedFaq[] = [];
