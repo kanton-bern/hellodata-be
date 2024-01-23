@@ -34,7 +34,7 @@ import {Table} from "primeng/table";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
-import {LoadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
+import {loadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
 
 @Component({
   selector: 'app-external',
@@ -52,7 +52,7 @@ export class ExternalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(new LoadExternalDashboards());
+    this.store.dispatch(loadExternalDashboards());
   }
 
   createExternalUrl(url: string): string {

@@ -35,11 +35,11 @@ import {TranslateService} from "../../../shared/services/translate.service";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
-import {DeleteExternalDashboard, LoadExternalDashboards, OpenExternalDashboardEdition} from "../../../store/external-dashboards/external-dasboards.action";
 import {Table} from "primeng/table";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {deleteExternalDashboard, loadExternalDashboards, openExternalDashboardEdition} from "../../../store/external-dashboards/external-dasboards.action";
 
 @Component({
   selector: 'app-external-dashboards',
@@ -67,15 +67,15 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
 
   override ngOnInit(): void {
     super.ngOnInit();
-    this.store.dispatch(new LoadExternalDashboards());
+    this.store.dispatch(loadExternalDashboards());
   }
 
   openNew() {
-    this.store.dispatch(new OpenExternalDashboardEdition());
+    this.store.dispatch(openExternalDashboardEdition({dashboard: null}));
   }
 
   editExternalDashboard(externalDashboard: ExternalDashboard) {
-    this.store.dispatch(new OpenExternalDashboardEdition(externalDashboard));
+    this.store.dispatch(openExternalDashboardEdition({dashboard: externalDashboard}));
   }
 
   deleteExternalDashboard(externalDashboard: ExternalDashboard) {
@@ -84,7 +84,7 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
       header: 'Confirm',
       icon: 'fas fa-triangle-exclamation',
       accept: () => {
-        this.store.dispatch(new DeleteExternalDashboard(externalDashboard));
+        this.store.dispatch(deleteExternalDashboard({dashboard: externalDashboard}));
       }
     });
   }

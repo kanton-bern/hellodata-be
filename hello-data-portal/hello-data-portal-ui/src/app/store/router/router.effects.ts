@@ -32,9 +32,9 @@ import {LoadPortalRoleById} from "../portal-roles-management/portal-roles-manage
 import {Injectable} from "@angular/core";
 import {loadAnnouncementById} from "../announcement/announcement.action";
 import {LoadFaqById} from "../faq/faq.action";
-import {LoadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {showError} from "../app/app.action";
+import {loadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
 
 @Injectable()
 export class RouterEffects {
@@ -57,7 +57,7 @@ export class RouterEffects {
       }
       if (urlParts.length === 4 && urlParts[1] === 'external-dashboards' && urlParts[2] === 'edit') {
         // const roleId = urlParts[3];
-        return of(new LoadExternalDashboardById());
+        return of(loadExternalDashboardById());
       }
       return EMPTY;
     }),

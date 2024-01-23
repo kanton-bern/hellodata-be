@@ -27,21 +27,19 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {MyDashboardsService} from "../my-dashboards/my-dashboards.service";
 import {catchError, map, of, switchMap, withLatestFrom} from "rxjs";
 import {
-  CreateExternalDashboard,
-  CreateExternalDashboardSuccess,
-  DeleteExternalDashboard,
-  DeleteExternalDashboardSuccess,
-  ExternalDashboardsActionType,
-  LoadExternalDashboardById,
-  LoadExternalDashboardByIdSuccess,
-  LoadExternalDashboards,
-  LoadExternalDashboardsSuccess,
-  OpenExternalDashboardEdition,
-  UpdateExternalDashboard,
-  UpdateExternalDashboardSuccess
+  createExternalDashboard,
+  createExternalDashboardSuccess,
+  deleteExternalDashboard,
+  deleteExternalDashboardSuccess,
+  loadExternalDashboardById,
+  loadExternalDashboardByIdSuccess,
+  loadExternalDashboards,
+  loadExternalDashboardsSuccess,
+  openExternalDashboardEdition,
+  updateExternalDashboard,
+  updateExternalDashboardSuccess,
 } from "./external-dasboards.action";
 import {ExternalDashboardsService} from "./external-dashboards.service";
 import {Store} from "@ngrx/store";
@@ -55,21 +53,21 @@ export class ExternalDashboardsEffects {
 
 
   loadExternalDashboards$ = createEffect(() => this._actions$.pipe(
-    ofType<LoadExternalDashboards>(ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARDS),
+    ofType(loadExternalDashboards),
     switchMap(() => this._externalDashboardsService.getExternalDashboards()),
-    switchMap(result => of(new LoadExternalDashboardsSuccess(result))),
+    switchMap(result => of(loadExternalDashboardsSuccess({payload: result}))),
     catchError(e => of(showError(e)))
   ));
 
   createExternalDashboard$ = createEffect(() => this._actions$.pipe(
-    ofType<CreateExternalDashboard>(ExternalDashboardsActionType.CREATE_EXTERNAL_DASHBOARD),
-    switchMap(action => this._externalDashboardsService.createExternalDashboard(action.dashboard).pipe(map(() => new CreateExternalDashboardSuccess(action.dashboard)))),
+    ofType(createExternalDashboard),
+    switchMap(action => this._externalDashboardsService.createExternalDashboard(action.dashboard).pipe(map(() => createExternalDashboardSuccess({dashboard: action.dashboard})))),
     catchError(e => of(showError(e)))
   ));
 
   createExternalDashboardSuccess$ = createEffect(() => this._actions$.pipe(
-    ofType<CreateExternalDashboardSuccess>(ExternalDashboardsActionType.CREATE_EXTERNAL_DASHBOARD_SUCCESS),
-    switchMap(action => of(new ClearUnsavedChanges(), new LoadExternalDashboards(), showSuccess({
+    ofType(createExternalDashboardSuccess),
+    switchMap(action => of(new ClearUnsavedChanges(), loadExternalDashboards(), showSuccess({
       message: '@External dashboard created', interpolateParams: {
         title: action.dashboard.title
       }
@@ -78,14 +76,14 @@ export class ExternalDashboardsEffects {
   ));
 
   updateExternalDashboard$ = createEffect(() => this._actions$.pipe(
-    ofType<UpdateExternalDashboard>(ExternalDashboardsActionType.UPDATE_EXTERNAL_DASHBOARD),
-    switchMap(action => this._externalDashboardsService.updateExternalDashboard(action.dashboard).pipe(map(() => new UpdateExternalDashboardSuccess(action.dashboard)))),
+    ofType(updateExternalDashboard),
+    switchMap(action => this._externalDashboardsService.updateExternalDashboard(action.dashboard).pipe(map(() => updateExternalDashboardSuccess({dashboard: action.dashboard})))),
     catchError(e => of(showError(e)))
   ));
 
   updateExternalDashboardSuccess$ = createEffect(() => this._actions$.pipe(
-    ofType<UpdateExternalDashboardSuccess>(ExternalDashboardsActionType.UPDATE_EXTERNAL_DASHBOARD_SUCCESS),
-    switchMap(action => of(new ClearUnsavedChanges(), new LoadExternalDashboards(), showSuccess({
+    ofType(updateExternalDashboardSuccess),
+    switchMap(action => of(new ClearUnsavedChanges(), loadExternalDashboards(), showSuccess({
       message: '@External dashboard updated',
       interpolateParams: {title: action.dashboard.title}
     }), navigate({url: 'external-dashboards'}))),
@@ -93,14 +91,14 @@ export class ExternalDashboardsEffects {
   ));
 
   deleteExternalDashboard$ = createEffect(() => this._actions$.pipe(
-    ofType<DeleteExternalDashboard>(ExternalDashboardsActionType.DELETE_EXTERNAL_DASHBOARD),
-    switchMap(action => this._externalDashboardsService.deleteExternalDashboard(action.dashboard).pipe(map(() => new DeleteExternalDashboardSuccess(action.dashboard)))),
+    ofType(deleteExternalDashboard),
+    switchMap(action => this._externalDashboardsService.deleteExternalDashboard(action.dashboard).pipe(map(() => deleteExternalDashboardSuccess({dashboard: action.dashboard})))),
     catchError(e => of(showError(e)))
   ));
 
   deleteExternalDashboardSuccess$ = createEffect(() => this._actions$.pipe(
-    ofType<DeleteExternalDashboardSuccess>(ExternalDashboardsActionType.DELETE_EXTERNAL_DASHBOARD_SUCCESS),
-    switchMap(action => of(new LoadExternalDashboards(), showSuccess({
+    ofType(deleteExternalDashboardSuccess),
+    switchMap(action => of(loadExternalDashboards(), showSuccess({
       message: '@External dashboard deleted',
       interpolateParams: {title: action.dashboard.title}
     }), navigate({url: 'external-dashboards'}))),
@@ -108,7 +106,7 @@ export class ExternalDashboardsEffects {
   ));
 
   openExternalDashboardEdition$ = createEffect(() => this._actions$.pipe(
-    ofType<OpenExternalDashboardEdition>(ExternalDashboardsActionType.OPEN_EXTERNAL_DASHBOARD_EDITION),
+    ofType(openExternalDashboardEdition),
     switchMap(action => {
       if (action.dashboard) {
         return of(navigate({
@@ -122,10 +120,10 @@ export class ExternalDashboardsEffects {
 
 
   loadExternalDashboardById$ = createEffect(() => this._actions$.pipe(
-    ofType<LoadExternalDashboardById>(ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID),
+    ofType(loadExternalDashboardById),
     withLatestFrom(this._store.select(selectParamExternalDashboardId)),
     switchMap(([action, externalDashboardId]) => this._externalDashboardsService.getExternalDashboardById(externalDashboardId as string)),
-    switchMap(result => of(new LoadExternalDashboardByIdSuccess(result))),
+    switchMap(result => of(loadExternalDashboardByIdSuccess({dashboard: result}))),
     catchError(e => of(showError(e)))
   ));
 
@@ -133,7 +131,6 @@ export class ExternalDashboardsEffects {
     private _actions$: Actions,
     private _store: Store<AppState>,
     private _externalDashboardsService: ExternalDashboardsService,
-    private _myDashboardsService: MyDashboardsService,
   ) {
   }
 }

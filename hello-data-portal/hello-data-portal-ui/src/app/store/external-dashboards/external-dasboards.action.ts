@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {ExternalDashboard, ExternalDashboardMetadata} from "./external-dashboards.model";
 
 export enum ExternalDashboardsActionType {
@@ -42,79 +42,55 @@ export enum ExternalDashboardsActionType {
   OPEN_EXTERNAL_DASHBOARD_EDITION = '[EXTERNAL DASHBOARDS] Open EXTERNAL DASHBOARD edition',
 }
 
+export const loadExternalDashboards = createAction(
+  ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARDS
+);
 
-export class LoadExternalDashboards implements Action {
-  public readonly type = ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARDS;
-}
+export const loadExternalDashboardsSuccess = createAction(
+  ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARDS_SUCCESS,
+  props<{ payload: ExternalDashboard[] }>()
+);
 
-export class LoadExternalDashboardsSuccess implements Action {
-  public readonly type = ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARDS_SUCCESS;
+export const createExternalDashboard = createAction(
+  ExternalDashboardsActionType.CREATE_EXTERNAL_DASHBOARD,
+  props<{ dashboard: ExternalDashboardMetadata }>()
+);
 
-  constructor(public payload: ExternalDashboard[]) {
-  }
-}
+export const createExternalDashboardSuccess = createAction(
+  ExternalDashboardsActionType.CREATE_EXTERNAL_DASHBOARD_SUCCESS,
+  props<{ dashboard: ExternalDashboardMetadata }>()
+);
 
-export class CreateExternalDashboard implements Action {
-  public readonly type = ExternalDashboardsActionType.CREATE_EXTERNAL_DASHBOARD;
+export const updateExternalDashboard = createAction(
+  ExternalDashboardsActionType.UPDATE_EXTERNAL_DASHBOARD,
+  props<{ dashboard: ExternalDashboard }>()
+);
 
-  constructor(public dashboard: ExternalDashboardMetadata) {
-  }
-}
+export const updateExternalDashboardSuccess = createAction(
+  ExternalDashboardsActionType.UPDATE_EXTERNAL_DASHBOARD_SUCCESS,
+  props<{ dashboard: ExternalDashboard }>()
+);
 
-export class CreateExternalDashboardSuccess implements Action {
-  public readonly type = ExternalDashboardsActionType.CREATE_EXTERNAL_DASHBOARD_SUCCESS;
+export const deleteExternalDashboard = createAction(
+  ExternalDashboardsActionType.DELETE_EXTERNAL_DASHBOARD,
+  props<{ dashboard: ExternalDashboard }>()
+);
 
-  constructor(public dashboard: ExternalDashboardMetadata) {
-  }
-}
+export const deleteExternalDashboardSuccess = createAction(
+  ExternalDashboardsActionType.DELETE_EXTERNAL_DASHBOARD_SUCCESS,
+  props<{ dashboard: ExternalDashboard }>()
+);
 
-export class UpdateExternalDashboard implements Action {
-  public readonly type = ExternalDashboardsActionType.UPDATE_EXTERNAL_DASHBOARD;
+export const loadExternalDashboardById = createAction(
+  ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID
+);
 
-  constructor(public dashboard: ExternalDashboard) {
-  }
-}
+export const loadExternalDashboardByIdSuccess = createAction(
+  ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID_SUCCESS,
+  props<{ dashboard: ExternalDashboard }>()
+);
 
-export class UpdateExternalDashboardSuccess implements Action {
-  public readonly type = ExternalDashboardsActionType.UPDATE_EXTERNAL_DASHBOARD_SUCCESS;
-
-  constructor(public dashboard: ExternalDashboard) {
-  }
-}
-
-export class DeleteExternalDashboard implements Action {
-  public readonly type = ExternalDashboardsActionType.DELETE_EXTERNAL_DASHBOARD;
-
-  constructor(public dashboard: ExternalDashboard) {
-  }
-}
-
-export class DeleteExternalDashboardSuccess implements Action {
-  public readonly type = ExternalDashboardsActionType.DELETE_EXTERNAL_DASHBOARD_SUCCESS;
-
-  constructor(public dashboard: ExternalDashboard) {
-  }
-}
-
-export class LoadExternalDashboardById implements Action {
-  public readonly type = ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID;
-}
-
-export class LoadExternalDashboardByIdSuccess implements Action {
-  public readonly type = ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID_SUCCESS;
-
-  constructor(public dashboard: ExternalDashboard) {
-  }
-}
-
-export class OpenExternalDashboardEdition implements Action {
-  public readonly type = ExternalDashboardsActionType.OPEN_EXTERNAL_DASHBOARD_EDITION;
-
-  constructor(public dashboard: ExternalDashboard | null = null) {
-  }
-}
-
-export type ExternalDashboardsActions =
-  LoadExternalDashboards | LoadExternalDashboardsSuccess | CreateExternalDashboard | UpdateExternalDashboard | DeleteExternalDashboard |
-  CreateExternalDashboardSuccess | UpdateExternalDashboardSuccess | DeleteExternalDashboardSuccess |
-  LoadExternalDashboardById | LoadExternalDashboardByIdSuccess | OpenExternalDashboardEdition
+export const openExternalDashboardEdition = createAction(
+  ExternalDashboardsActionType.OPEN_EXTERNAL_DASHBOARD_EDITION,
+  props<{ dashboard: ExternalDashboard | null }>()
+);

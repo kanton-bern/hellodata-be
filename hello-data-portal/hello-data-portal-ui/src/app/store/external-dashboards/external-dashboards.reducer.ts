@@ -25,31 +25,25 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ExternalDashboardsState, initialExternalDashboardsState} from "./external-dashboards.state";
-import {ExternalDashboardsActions, ExternalDashboardsActionType} from "./external-dasboards.action";
+import {initialExternalDashboardsState} from "./external-dashboards.state";
+import {loadExternalDashboardByIdSuccess, loadExternalDashboardsSuccess} from "./external-dasboards.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const externalDashboardsReducer = (
-  state = initialExternalDashboardsState,
-  action: ExternalDashboardsActions
-): ExternalDashboardsState => {
-  switch (action.type) {
 
-    case ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARDS_SUCCESS: {
-      return {
-        ...state,
-        externalDashboards: action.payload,
-        editedExternalDashboard: null,
-      };
+export const externalDashboardsReducer = createReducer(
+  initialExternalDashboardsState,
+  on(loadExternalDashboardsSuccess, (state, {payload}) => {
+    return {
+      ...state,
+      externalDashboards: payload,
+      editedExternalDashboard: null,
+    };
+  }),
+  on(loadExternalDashboardByIdSuccess, (state, {dashboard}) => {
+    return {
+      ...state,
+      editedExternalDashboard: dashboard
     }
+  }),
+);
 
-    case ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID_SUCCESS: {
-      return {
-        ...state,
-        editedExternalDashboard: action.dashboard
-      }
-    }
-
-    default:
-      return state;
-  }
-};
