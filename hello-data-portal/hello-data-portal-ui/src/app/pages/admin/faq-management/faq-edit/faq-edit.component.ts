@@ -108,7 +108,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(saveChangesToFaq(faqToBeSaved));
+    this.store.dispatch(saveChangesToFaq({faq: faqToBeSaved}));
   }
 
   openDeletePopup(editedFaq: Faq) {

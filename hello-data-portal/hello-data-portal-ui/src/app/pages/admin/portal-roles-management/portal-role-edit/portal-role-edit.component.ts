@@ -92,7 +92,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
     const role = this.roleForm.getRawValue() as any;
     role.id = editedRole.id;
     role.contextKey = role.dataDomain;
-    this.store.dispatch(saveChangesToPortalRole(role));
+    this.store.dispatch(saveChangesToPortalRole({role}));
   }
 
   openDeletePopup(editedRole: PortalRole): void {

@@ -128,7 +128,7 @@ export class HeaderComponent {
   }
 
   onDataDomainChanged($event: any) {
-    this.store.dispatch(setSelectedDataDomain($event.item.data));
+    this.store.dispatch(setSelectedDataDomain({dataDomain: $event.item.data}));
   }
 
 }
