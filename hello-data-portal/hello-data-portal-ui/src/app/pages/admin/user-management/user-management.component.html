@@ -87,13 +87,15 @@
     dataKey="id"
     id="userTable"
     styleClass="p-datatable-striped"
+    stateStorage="session"
+    stateKey="portal-users-table"
   >
     <ng-template pTemplate="caption">
       <div>
         <div id="searchBox">
           <span class="p-input-icon-left p-ml-auto">
           <i class="pi pi-search"></i>
-          <input #textInput (input)="dt.filterGlobal(textInput.value, 'contains')" pInputText placeholder="{{'@Search' | transloco}}" type="text"/>
+          <input #textInput [(ngModel)]="filterValue" (input)="dt.filterGlobal(filterValue, 'contains')" pInputText placeholder="{{'@Search' | transloco}}" type="text"/>
           </span>
         </div>
       </div>

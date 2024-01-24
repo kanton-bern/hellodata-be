@@ -71,6 +71,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   users$: Observable<any>;
   inviteForm!: FormGroup;
   suggestedAdUsers: AdUser[] = [];
+  filterValue = '';
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
 
@@ -109,6 +110,18 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       firstName: [null, Validators.compose([Validators.required.bind(this), Validators.minLength(3), Validators.maxLength(255), Validators.pattern(/[\p{L}\p{N}].*/u)])],
       lastName: [null, Validators.compose([Validators.required.bind(this), Validators.minLength(3), Validators.maxLength(255), Validators.pattern(/[\p{L}\p{N}].*/u)])],
     });
+    this.restoreUserTableSearchFilter();
+  }
+
+  private restoreUserTableSearchFilter() {
+    let storageItem = sessionStorage.getItem("portal-users-table");
+    if (storageItem) {
+      let storageItemObject = JSON.parse(storageItem);
+      let filterValue = storageItemObject.filters?.global?.value;
+      if (filterValue) {
+        this.filterValue = filterValue;
+      }
+    }
   }
 
   public ngOnDestroy(): void {

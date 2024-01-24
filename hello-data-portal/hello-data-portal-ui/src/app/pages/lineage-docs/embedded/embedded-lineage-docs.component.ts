@@ -26,7 +26,6 @@
 ///
 
 import {Component, ElementRef, HostListener, ViewChild} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -51,13 +50,13 @@ export class EmbeddedLineageDocsComponent {
   @ViewChild('container') container!: ElementRef;
   @ViewChild('doc') docIframe!: ElementRef;
 
-  constructor(private store: Store<AppState>, private docsService: LineageDocsService, private route: ActivatedRoute) {
+  constructor(private store: Store<AppState>, private docsService: LineageDocsService) {
     this.store.dispatch(loadAvailableContexts());
     this.lineageInfo$ = this.store.select(selectLineageInfo).pipe(tap((lineageInfo) => {
       if (lineageInfo) {
-        this.url = docsService.getProjectPathUrl(lineageInfo.path as string);
-        this.createBreadCrumbs(lineageInfo.dataDomain);
+        this.url = this.docsService.getProjectPathUrl(lineageInfo.path as string);
         this.projectId = lineageInfo.projectId as string;
+        this.createBreadCrumbs(lineageInfo.dataDomain);
         console.debug("Embed ProjectDocs. Open url", this.url);
       }
     }))
