@@ -29,14 +29,13 @@ import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
 import {SummaryService} from "./summary.service";
 import {
-  CreateOrUpdateDocumentation,
-  LoadDocumentation,
-  LoadDocumentationSuccess,
-  LoadPipelines,
-  LoadPipelinesSuccess,
-  LoadStorageSize,
-  LoadStorageSizeSuccess,
-  SummaryActionType
+  createOrUpdateDocumentation,
+  loadDocumentation,
+  loadDocumentationSuccess,
+  loadPipelines,
+  loadPipelinesSuccess,
+  loadStorageSize,
+  loadStorageSizeSuccess,
 } from "./summary.actions";
 import {Injectable} from "@angular/core";
 import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
@@ -44,33 +43,41 @@ import {showError, showSuccess} from "../app/app.action";
 
 @Injectable()
 export class SummaryEffects {
-  loadDocumentation$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadDocumentation>(SummaryActionType.LOAD_DOCUMENTATION),
-    switchMap(() => this._summaryService.getDocumentation()),
-    switchMap(result => of(new LoadDocumentationSuccess(result))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadDocumentation$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadDocumentation),
+      switchMap(() => this._summaryService.getDocumentation()),
+      switchMap(result => of(loadDocumentationSuccess({payload: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  createOrUpdateDocumentation$ = createEffect(() => { return this._actions$.pipe(
-    ofType<CreateOrUpdateDocumentation>(SummaryActionType.CREATE_OR_UPDATE_DOCUMENTATION),
-    switchMap(action => this._summaryService.createOrUpdateDocumentation(action.documentation)),
-    switchMap(result => of(new ClearUnsavedChanges(), new LoadDocumentation(), showSuccess({message: '@Documentation updated'}))),
-    catchError(e => of(showError(e)))
-  ) });
+  createOrUpdateDocumentation$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(createOrUpdateDocumentation),
+      switchMap(action => this._summaryService.createOrUpdateDocumentation(action.documentation)),
+      switchMap(result => of(new ClearUnsavedChanges(), loadDocumentation(), showSuccess({message: '@Documentation updated'}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  loadPipelines$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadPipelines>(SummaryActionType.LOAD_PIPELINES),
-    switchMap(() => this._summaryService.getPipelines()),
-    switchMap(result => of(new LoadPipelinesSuccess(result))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadPipelines$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadPipelines),
+      switchMap(() => this._summaryService.getPipelines()),
+      switchMap(result => of(loadPipelinesSuccess({payload: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  loadStorageSize$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadStorageSize>(SummaryActionType.LOAD_STORAGE_SIZE),
-    switchMap(() => this._summaryService.getStorageSize()),
-    switchMap(result => of(new LoadStorageSizeSuccess(result))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadStorageSize$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadStorageSize),
+      switchMap(() => this._summaryService.getStorageSize()),
+      switchMap(result => of(loadStorageSizeSuccess({payload: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
   constructor(
     private _actions$: Actions,

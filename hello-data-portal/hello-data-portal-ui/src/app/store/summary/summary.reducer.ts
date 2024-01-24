@@ -25,54 +25,46 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialSummaryState, SummaryState} from "./summary.state";
-import {SummaryActions, SummaryActionType} from "./summary.actions";
+import {initialSummaryState} from "./summary.state";
+import {loadDocumentationSuccess, loadPipelinesSuccess, loadStorageSizeSuccess} from "./summary.actions";
+import {createReducer, on} from "@ngrx/store";
 
-export const summaryReducer = (
-  state = initialSummaryState,
-  action: SummaryActions
-): SummaryState => {
-  switch (action.type) {
-    case SummaryActionType.LOAD_DOCUMENTATION_SUCCESS: {
-      if (action.payload) {
-        return {
-          ...state,
-          documentation: action.payload.text
-        };
-      }
+export const summaryReducer = createReducer(
+  initialSummaryState,
+  on(loadDocumentationSuccess, (state, {payload}) => {
+    if (payload) {
       return {
         ...state,
-        documentation: ''
+        documentation: payload.text
       };
     }
-
-    case SummaryActionType.LOAD_PIPELINES_SUCCESS: {
-      if (action.payload) {
-        return {
-          ...state,
-          pipelines: action.payload
-        };
-      }
+    return {
+      ...state,
+      documentation: ''
+    };
+  }),
+  on(loadPipelinesSuccess, (state, {payload}) => {
+    if (payload) {
       return {
         ...state,
-        pipelines: []
+        pipelines: payload
       };
     }
-
-    case SummaryActionType.LOAD_STORAGE_SIZE_SUCCESS: {
-      if (action.payload) {
-        return {
-          ...state,
-          storageMonitoringResult: action.payload
-        };
-      }
+    return {
+      ...state,
+      pipelines: []
+    };
+  }),
+  on(loadStorageSizeSuccess, (state, {payload}) => {
+    if (payload) {
       return {
         ...state,
-        storageMonitoringResult: null
+        storageMonitoringResult: payload
       };
     }
-
-    default:
-      return state
-  }
-}
+    return {
+      ...state,
+      storageMonitoringResult: null
+    };
+  }),
+);

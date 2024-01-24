@@ -28,13 +28,13 @@
 import {Component, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {CreateOrUpdateDocumentation, LoadDocumentation} from "../../../store/summary/summary.actions";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
 import {Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
 import {MarkUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/summary/summary.actions";
 
 @Component({
   selector: 'app-documentation',
@@ -47,7 +47,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
 
   constructor(private store: Store<AppState>) {
     super();
-    this.store.dispatch(new LoadDocumentation());
+    this.store.dispatch(loadDocumentation());
     this.documentation$ = this.store.select(selectDocumentation).pipe(tap(doc => {
       this.documentation = doc;
     }));
@@ -59,11 +59,15 @@ export class DocumentationManagementComponent extends BaseComponent implements O
   }
 
   createOrUpdateDocumentation() {
-    this.store.dispatch(new CreateOrUpdateDocumentation({text: this.documentation}))
+    this.store.dispatch(createOrUpdateDocumentation({
+      documentation: {text: this.documentation}
+    }));
   }
 
   onTextChange() {
-    this.store.dispatch(new MarkUnsavedChanges(new CreateOrUpdateDocumentation({text: this.documentation})));
+    this.store.dispatch(new MarkUnsavedChanges(createOrUpdateDocumentation({
+      documentation: {text: this.documentation}
+    })));
   }
 
   private createBreadcrumbs() {

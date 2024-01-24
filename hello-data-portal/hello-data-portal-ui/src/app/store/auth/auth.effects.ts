@@ -33,11 +33,11 @@ import {AppState} from "../app/app.state";
 import {authError, checkAuth, checkAuthComplete, fetchContextRoles, fetchContextRolesSuccess, fetchPermissionSuccess, login, loginComplete, logout} from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
-import {LoadDocumentation, LoadPipelines, LoadStorageSize} from "../summary/summary.actions";
 import {navigate, showError} from "../app/app.action";
 import {loadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {loadAvailableDataDomains, loadMyDashboards} from "../my-dashboards/my-dashboards.action";
+import {loadDocumentation, loadPipelines, loadStorageSize} from "../summary/summary.actions";
 
 @Injectable()
 export class AuthEffects {
@@ -102,7 +102,7 @@ export class AuthEffects {
   loginComplete$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loginComplete),
-      switchMap(({profile, isLoggedIn, accessToken}) => this._usersManagementService.getCurrentAuthData()),
+      switchMap(() => this._usersManagementService.getCurrentAuthData()),
       switchMap((permissions) => of(fetchPermissionSuccess(permissions))),
       catchError(e => of(authError(e)))
     )
@@ -115,11 +115,11 @@ export class AuthEffects {
         loadAvailableDataDomains(),
         loadAppInfoResources(),
         loadMyDashboards(),
-        new LoadDocumentation(),
+        loadDocumentation(),
         loadMyLineageDocs(),
         fetchContextRoles(),
-        new LoadPipelines(),
-        new LoadStorageSize())),
+        loadPipelines(),
+        loadStorageSize())),
     )
   });
 

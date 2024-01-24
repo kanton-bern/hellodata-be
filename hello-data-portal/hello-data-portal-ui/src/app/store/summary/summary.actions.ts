@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {Documentation, Pipeline, StorageMonitoringResult} from "./summary.model";
 
 export enum SummaryActionType {
@@ -39,57 +39,38 @@ export enum SummaryActionType {
   LOAD_STORAGE_SIZE_SUCCESS = '[SUMMARY] Load storage size SUCCESS',
 }
 
-export class LoadDocumentation implements Action {
-  public readonly type = SummaryActionType.LOAD_DOCUMENTATION;
-}
+export const loadDocumentation = createAction(
+  SummaryActionType.LOAD_DOCUMENTATION
+);
 
-export class LoadDocumentationSuccess implements Action {
-  public readonly type = SummaryActionType.LOAD_DOCUMENTATION_SUCCESS;
+export const loadDocumentationSuccess = createAction(
+  SummaryActionType.LOAD_DOCUMENTATION_SUCCESS,
+  props<{ payload: Documentation }>()
+);
 
-  constructor(public payload: Documentation) {
-  }
-}
+export const createOrUpdateDocumentation = createAction(
+  SummaryActionType.CREATE_OR_UPDATE_DOCUMENTATION,
+  props<{ documentation: Documentation }>()
+);
 
-export class CreateOrUpdateDocumentation implements Action {
-  public readonly type = SummaryActionType.CREATE_OR_UPDATE_DOCUMENTATION;
+export const createOrUpdateDocumentationSuccess = createAction(
+  SummaryActionType.CREATE_OR_UPDATE_DOCUMENTATION_SUCCESS
+);
 
-  constructor(public documentation: Documentation) {
-  }
-}
+export const loadPipelines = createAction(
+  SummaryActionType.LOAD_PIPELINES
+);
 
-export class CreateOrUpdateDocumentationSuccess implements Action {
-  public readonly type = SummaryActionType.CREATE_OR_UPDATE_DOCUMENTATION_SUCCESS;
-}
+export const loadPipelinesSuccess = createAction(
+  SummaryActionType.LOAD_PIPELINES_SUCCESS,
+  props<{ payload: Pipeline[] }>()
+);
 
-export class LoadPipelines implements Action {
-  public readonly type = SummaryActionType.LOAD_PIPELINES;
-}
+export const loadStorageSize = createAction(
+  SummaryActionType.LOAD_STORAGE_SIZE
+);
 
-export class LoadPipelinesSuccess implements Action {
-  public readonly type = SummaryActionType.LOAD_PIPELINES_SUCCESS;
-
-  constructor(public payload: Pipeline[]) {
-  }
-}
-
-export class LoadStorageSize implements Action {
-  public readonly type = SummaryActionType.LOAD_STORAGE_SIZE;
-}
-
-export class LoadStorageSizeSuccess implements Action {
-  public readonly type = SummaryActionType.LOAD_STORAGE_SIZE_SUCCESS;
-
-  constructor(public payload: StorageMonitoringResult) {
-  }
-}
-
-
-export type SummaryActions =
-  LoadDocumentation
-  | LoadDocumentationSuccess
-  | CreateOrUpdateDocumentation
-  | CreateOrUpdateDocumentationSuccess
-  | LoadPipelines
-  | LoadPipelinesSuccess
-  | LoadStorageSize
-  | LoadStorageSizeSuccess
+export const loadStorageSizeSuccess = createAction(
+  SummaryActionType.LOAD_STORAGE_SIZE_SUCCESS,
+  props<{ payload: StorageMonitoringResult }>()
+);
