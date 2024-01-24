@@ -25,13 +25,25 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {hideDeleteAnnouncementPopup, loadAllAnnouncementsSuccess, loadAnnouncementByIdSuccess, showDeleteAnnouncementPopup} from "./announcement.action";
+import {
+  hideDeleteAnnouncementPopup,
+  loadAllAnnouncementsSuccess,
+  loadAnnouncementByIdSuccess,
+  loadPublishedAnnouncementsSuccess,
+  showDeleteAnnouncementPopup
+} from "./announcement.action";
 import {AnnouncementState, initialAnnouncementState} from "./announcement.state";
 import {createReducer, on} from "@ngrx/store";
 
 
 export const announcementReducer = createReducer(
   initialAnnouncementState,
+  on(loadPublishedAnnouncementsSuccess, (state: AnnouncementState, {payload}): AnnouncementState => {
+    return {
+      ...state,
+      publishedAnnouncements: payload
+    };
+  }),
   on(loadAllAnnouncementsSuccess, (state: AnnouncementState, {payload}): AnnouncementState => {
     return {
       ...state,

@@ -39,7 +39,6 @@ export const authReducer = createReducer(
     };
   }),
   on(fetchPermissionSuccess, (state: AuthState, {currentUserAuthData}): AuthState => {
-    console.log('fetch permissions success', currentUserAuthData)
     return {
       ...state,
       permissions: currentUserAuthData.permissions,

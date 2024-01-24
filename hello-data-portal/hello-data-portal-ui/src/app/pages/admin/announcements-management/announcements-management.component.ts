@@ -31,8 +31,10 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAllAnnouncements} from "../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../store/announcement/announcement.model";
+import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {announcementsComponentLoaded, deleteAnnouncement, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
+import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-announcements-management',
@@ -46,11 +48,19 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
   constructor(private store: Store<AppState>) {
     super();
     this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
+    store.dispatch(loadAllAnnouncements());
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.announcementsManagement.label,
+          routerLink: naviElements.announcementsManagement.path,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
-    this.store.dispatch(announcementsComponentLoaded());
   }
 
   createAnnouncement() {

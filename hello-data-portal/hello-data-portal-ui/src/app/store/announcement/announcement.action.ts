@@ -29,7 +29,6 @@ import {createAction, props} from "@ngrx/store";
 import {Announcement} from "./announcement.model";
 
 export enum AnnouncementActionType {
-  ANNOUNCEMENTS_COMPONENT_LOADED = '[ANNOUNCEMENTS] Component loaded',
   //published announcements
   LOAD_PUBLISHED_ANNOUNCEMENTS = '[ANNOUNCEMENTS] Load ACTIVE ANNOUNCEMENTS',
   LOAD_PUBLISHED_ANNOUNCEMENTS_SUCCESS = '[ANNOUNCEMENTS] Load ACTIVE ANNOUNCEMENTS SUCCESS',
@@ -51,9 +50,6 @@ export enum AnnouncementActionType {
   DELETE_EDITED_ANNOUNCEMENT_SUCCESS = '[ANNOUNCEMENTS MANAGEMENT] Delete edited ANNOUNCEMENT success',
 }
 
-export const announcementsComponentLoaded = createAction(
-  AnnouncementActionType.ANNOUNCEMENTS_COMPONENT_LOADED
-);
 
 export const loadAllAnnouncements = createAction(
   AnnouncementActionType.LOAD_ALL_ANNOUNCEMENTS

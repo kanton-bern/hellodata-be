@@ -29,7 +29,13 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {debounceTime, Observable, of, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {selectCurrentBusinessDomain, selectCurrentContextRoles, selectCurrentUserPermissions, selectIsAuthenticated, selectProfile} from "../../store/auth/auth.selector";
+import {
+  selectCurrentBusinessDomain,
+  selectCurrentContextRolesFilterOffNone,
+  selectCurrentUserPermissions,
+  selectIsAuthenticated,
+  selectProfile
+} from "../../store/auth/auth.selector";
 import {IUser} from "../../store/auth/auth.model";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../shared/components/base/base.component";
@@ -60,12 +66,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
     this.store.dispatch(resetBreadcrumb());
     this.store.dispatch(loadAdminEmails());
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
-
-    this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRoles).pipe(
-      map(contextRoles => {
-        return contextRoles.filter(contextRole => contextRole?.role?.name != 'NONE');
-      })
-    );
+    this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone);
     this.waitForPermissionsLoaded$ = this.currentUserContextRolesNotNone$.pipe(
       debounceTime(700),
       tap(() => {

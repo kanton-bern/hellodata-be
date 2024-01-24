@@ -29,7 +29,7 @@ import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {debounceTime, distinctUntilChanged, Observable, Subject, Subscription} from "rxjs";
-import {selectUsers} from "../../../store/users-management/users-management.selector";
+import {selectUsersCopy} from "../../../store/users-management/users-management.selector";
 import {CommonModule} from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
@@ -51,7 +51,7 @@ import {TabViewModule} from "primeng/tabview";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {CheckboxModule} from "primeng/checkbox";
 import {DividerModule} from "primeng/divider";
-import {map, switchMap} from "rxjs/operators";
+import {switchMap} from "rxjs/operators";
 import {DropdownModule} from "primeng/dropdown";
 import {DashboardViewerPermissionsComponent} from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
 import {MultiSelectModule} from "primeng/multiselect";
@@ -76,7 +76,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
     super();
-    this.users$ = this.store.select(selectUsers).pipe(map(d => [...d]));
+    this.users$ = this.store.select(selectUsersCopy);
     this.store.dispatch(loadUsers());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [

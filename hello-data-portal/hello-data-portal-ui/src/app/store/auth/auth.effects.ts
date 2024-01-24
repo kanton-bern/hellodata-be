@@ -28,8 +28,6 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap} from "rxjs";
-import {Store} from "@ngrx/store";
-import {AppState} from "../app/app.state";
 import {authError, checkAuth, checkAuthComplete, fetchContextRoles, fetchContextRolesSuccess, fetchPermissionSuccess, login, loginComplete, logout} from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
@@ -103,7 +101,6 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(loginComplete),
       switchMap(() => this._usersManagementService.getCurrentAuthData()),
-      tap((userProfile) => console.log('perm', userProfile)),
       switchMap((currentUserAuthData) => of(fetchPermissionSuccess({currentUserAuthData}))),
       catchError(e => of(authError(e)))
     )
@@ -124,11 +121,10 @@ export class AuthEffects {
     )
   });
 
-
   authError$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(authError),
-      tap(action => this._store.dispatch(showError({error: action.error})))
+      switchMap(action => of(showError({error: action.error})))
     )
   }, {dispatch: false});
 
@@ -143,7 +139,6 @@ export class AuthEffects {
 
   constructor(
     private _actions$: Actions,
-    private _store: Store<AppState>,
     private _authService: AuthService,
     private _usersManagementService: UsersManagementService,
   ) {

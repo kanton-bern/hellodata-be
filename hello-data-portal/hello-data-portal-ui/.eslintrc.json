@@ -62,7 +62,9 @@
         "@ngrx/no-typed-global-store": "off",
         "@ngrx/prefer-selector-in-select": "off",
         "@ngrx/avoid-combining-selectors": "off",
-        "@ngrx/use-consistent-global-store-name": "off"
+        "@ngrx/use-consistent-global-store-name": "off",
+        "@ngrx/avoid-dispatching-multiple-actions-sequentially": "off",
+        "@ngrx/prefer-concat-latest-from": "off"
       }
     }
   ]

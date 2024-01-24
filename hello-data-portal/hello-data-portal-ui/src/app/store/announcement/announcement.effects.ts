@@ -53,26 +53,9 @@ import {selectParamAnnouncementId, selectSelectedAnnouncementForDeletion} from "
 import {Announcement} from "./announcement.model";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError} from "../app/app.action";
-import {createBreadcrumbs} from "../breadcrumb/breadcrumb.action";
-import {naviElements} from "../../app-navi-elements";
 
 @Injectable()
 export class AnnouncementEffects {
-
-  anouncementsComponentLoaded$ = createEffect(() => {
-      return this._actions$.pipe(
-        ofType(loadAllAnnouncements),
-        switchMap(action => of(loadAllAnnouncements(), createBreadcrumbs({
-          breadcrumbs: [
-            {
-              label: naviElements.announcementsManagement.label,
-              routerLink: naviElements.announcementsManagement.path,
-            }
-          ]
-        })))
-      )
-    }
-  );
 
   loadAllAnnouncements$ = createEffect(() => {
     return this._actions$.pipe(
@@ -88,6 +71,9 @@ export class AnnouncementEffects {
         ofType(loadPublishedAnnouncements),
         switchMap(() => this._announcementService.getHiddenAnnouncements()),
         switchMap((hiddenAnnouncements) => this._announcementService.getPublishedAnnouncements().pipe(
+          tap(publishedAnnouncements => {
+            console.log("published announcements", publishedAnnouncements)
+          }),
           map(publishedAnnouncements => {
             return publishedAnnouncements.filter(publishedAnnouncement => {
               return !hiddenAnnouncements.some(hiddenAnnouncement => hiddenAnnouncement.id === publishedAnnouncement.id);
