@@ -38,8 +38,8 @@ import {
   loadStorageSizeSuccess,
 } from "./summary.actions";
 import {Injectable} from "@angular/core";
-import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {showError, showSuccess} from "../app/app.action";
+import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 
 @Injectable()
 export class SummaryEffects {
@@ -56,7 +56,7 @@ export class SummaryEffects {
     return this._actions$.pipe(
       ofType(createOrUpdateDocumentation),
       switchMap(action => this._summaryService.createOrUpdateDocumentation(action.documentation)),
-      switchMap(result => of(new ClearUnsavedChanges(), loadDocumentation(), showSuccess({message: '@Documentation updated'}))),
+      switchMap(result => of(clearUnsavedChanges(), loadDocumentation(), showSuccess({message: '@Documentation updated'}))),
       catchError(e => of(showError(e)))
     )
   });

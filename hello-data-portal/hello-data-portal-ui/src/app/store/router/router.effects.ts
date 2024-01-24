@@ -30,11 +30,11 @@ import {ROUTER_NAVIGATED, ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx
 import {catchError, EMPTY, of, switchMap} from "rxjs";
 import {Injectable} from "@angular/core";
 import {loadAnnouncementById} from "../announcement/announcement.action";
-import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {showError} from "../app/app.action";
 import {loadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
 import {loadFaqById} from "../faq/faq.action";
 import {loadPortalRoleById} from "../portal-roles-management/portal-roles-management.action";
+import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 
 @Injectable()
 export class RouterEffects {
@@ -66,7 +66,7 @@ export class RouterEffects {
     return this._actions$.pipe(
       ofType<RouterNavigationAction>(ROUTER_NAVIGATED),
       switchMap(action => {
-        return of(new ClearUnsavedChanges());
+        return of(clearUnsavedChanges());
       }),
       catchError(e => of(showError(e)))
     )

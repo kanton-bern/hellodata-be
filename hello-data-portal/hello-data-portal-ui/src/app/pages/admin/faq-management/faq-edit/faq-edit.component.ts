@@ -36,7 +36,7 @@ import {naviElements} from "../../../../app-navi-elements";
 import {selectAvailableDataDomainsWithAllEntry} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "../../../../store/app/app.constants";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
@@ -131,7 +131,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(new MarkUnsavedChanges(saveChangesToFaq(faqToBeSaved), faqToBeSaved.id === undefined));
+    this.store.dispatch(markUnsavedChanges({action: saveChangesToFaq(faqToBeSaved), stayOnPage: faqToBeSaved.id === undefined}));
   }
 
   private unsubFormValueChanges() {

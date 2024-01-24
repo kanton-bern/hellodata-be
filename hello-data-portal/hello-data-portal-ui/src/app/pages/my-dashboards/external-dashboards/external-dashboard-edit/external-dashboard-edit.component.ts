@@ -35,7 +35,7 @@ import {ExternalDashboard, ExternalDashboardMetadata} from "../../../../store/ex
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ConfirmationService} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
-import {ClearUnsavedChanges, MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {clearUnsavedChanges, markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {naviElements} from "../../../../app-navi-elements";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
@@ -182,7 +182,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
       header: 'Confirm',
       icon: 'fas fa-triangle-exclamation',
       accept: () => {
-        this.store.dispatch(new ClearUnsavedChanges());
+        this.store.dispatch(clearUnsavedChanges());
         this.store.dispatch(deleteExternalDashboard({dashboard: externalDashboard}));
       }
     });
@@ -195,7 +195,10 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
   private onChange(externalDashboard: any) {
     const action = this.prepareActionWithData(externalDashboard);
     if (action) {
-      this.store.dispatch(new MarkUnsavedChanges(action, externalDashboard === null || externalDashboard.id === undefined));
+      this.store.dispatch(markUnsavedChanges({
+        action,
+        stayOnPage: externalDashboard === null || externalDashboard.id === undefined
+      }));
     }
   }
 

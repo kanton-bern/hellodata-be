@@ -34,7 +34,7 @@ import {PortalRolesManagementService} from "./portal-roles-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {selectPortalParamRoleId, selectSelectedPortalRoleForDeletion} from "./portal-roles-management.selector";
 import {PortalRole} from "./portal-roles-management.model";
-import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError} from "../app/app.action";
 import {
   deleteEditedPortalRole,
@@ -106,7 +106,7 @@ export class PortalRolesManagementEffects {
   saveChangesToRoleSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToPortalRoleSuccess),
-      switchMap(action => of(navigate({url: 'roles-management'}), new ClearUnsavedChanges())),
+      switchMap(action => of(navigate({url: 'roles-management'}), clearUnsavedChanges())),
       catchError(e => of(showError(e)))
     )
   });

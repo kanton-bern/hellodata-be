@@ -55,7 +55,7 @@ import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {Context} from "../../../../store/users-management/context-role.model";
 import {naviElements} from "../../../../app-navi-elements";
-import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 
@@ -138,7 +138,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       })
     }
     this.store.dispatch(new SelectBusinessDomainRoleForEditedUser($event.value));
-    this.store.dispatch(new MarkUnsavedChanges(new UpdateUserRoles()));
+    this.store.dispatch(markUnsavedChanges({action: new UpdateUserRoles()}));
   }
 
   onDataDomainRoleSelected($event: any, dataDomain: Context) {
@@ -149,7 +149,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       this.dashboardTableVisibility.set(dataDomain.contextKey as string, false);
     }
     this.store.dispatch(new SelectDataDomainRoleForEditedUser({role: $event.value, context: dataDomain}));
-    this.store.dispatch(new MarkUnsavedChanges(new UpdateUserRoles()));
+    this.store.dispatch(markUnsavedChanges({action: new UpdateUserRoles()}));
   }
 
   updateUser() {

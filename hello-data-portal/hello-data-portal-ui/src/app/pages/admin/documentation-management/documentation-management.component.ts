@@ -31,7 +31,7 @@ import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
 import {Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
-import {MarkUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/summary/summary.actions";
@@ -65,9 +65,11 @@ export class DocumentationManagementComponent extends BaseComponent implements O
   }
 
   onTextChange() {
-    this.store.dispatch(new MarkUnsavedChanges(createOrUpdateDocumentation({
-      documentation: {text: this.documentation}
-    })));
+    this.store.dispatch(markUnsavedChanges({
+      action: createOrUpdateDocumentation({
+        documentation: {text: this.documentation}
+      })
+    }));
   }
 
   private createBreadcrumbs() {

@@ -33,7 +33,7 @@ import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {naviElements} from "../../../../app-navi-elements";
-import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {deleteEditedAnnouncement, saveChangesToAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 import {navigate} from "../../../../store/app/app.action";
@@ -124,7 +124,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const formAnnouncement = this.announcementForm.getRawValue() as Announcement;
     announcementToBeSaved.message = formAnnouncement.message;
     announcementToBeSaved.published = formAnnouncement.published;
-    this.store.dispatch(new MarkUnsavedChanges(saveChangesToAnnouncement({announcement: announcementToBeSaved}), announcementToBeSaved.id === undefined));
+    this.store.dispatch(markUnsavedChanges({action: saveChangesToAnnouncement({announcement: announcementToBeSaved}), stayOnPage: announcementToBeSaved.id === undefined}));
   }
 
   private unsubFormValueChanges() {

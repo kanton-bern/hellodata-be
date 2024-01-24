@@ -33,7 +33,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../../store/app/app.state";
 import {UpdateUserRoles} from "../../../../../store/users-management/users-management.action";
 import {selectAllDashboardsWithMarkedUser, selectAllDashboardsWithMarkedUserFetched} from "../../../../../store/users-management/users-management.selector";
-import {MarkUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
 import {take} from "rxjs/operators";
 
 @Component({
@@ -67,7 +67,7 @@ export class DashboardViewerPermissionsComponent {
   onSelectionChange($event: any) {
     this.selectedDashboards = $event.value;
     this.selectedDashboardsEvent.emit($event.value);
-    this.store.dispatch(new MarkUnsavedChanges(new UpdateUserRoles()));
+    this.store.dispatch(markUnsavedChanges({action: new UpdateUserRoles()}));
   }
 
   private extractDashboardsForSelectedContext(allDashboards: DashboardForUser[]) {

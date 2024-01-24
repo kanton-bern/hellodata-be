@@ -25,36 +25,28 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialUnsavedChangesState, UnsavedChangesState} from "./unsaved-changes.state";
-import {UnsavedChangesActions, UnsavedChangesActionType} from "./unsaved-changes.actions";
+import {initialUnsavedChangesState} from "./unsaved-changes.state";
+import {clearUnsavedChanges, markUnsavedChanges} from "./unsaved-changes.actions";
+import {createReducer, on} from "@ngrx/store";
 
-export const unsavedChangesReducer = (
-  state = initialUnsavedChangesState,
-  action: UnsavedChangesActions
-): UnsavedChangesState => {
-  switch (action.type) {
-    case UnsavedChangesActionType.CLEAR_UNSAVED_CHANGES: {
-      return {
-        ...state,
-        unsavedChanges: false,
-        unsavedChangesAction: undefined,
-        stayOnPage: {value: false}
-      };
-    }
-
-    case UnsavedChangesActionType.MARK_UNSAVED_CHANGES: {
-      return {
-        ...state,
-        unsavedChanges: true,
-        unsavedChangesAction: action.action,
-        stayOnPage: {value: action.stayOnPage}
-      };
-
-    }
-
-    default:
-      return state
-  }
-}
+export const unsavedChangesReducer = createReducer(
+  initialUnsavedChangesState,
+  on(clearUnsavedChanges, (state) => {
+    return {
+      ...state,
+      unsavedChanges: false,
+      unsavedChangesAction: undefined,
+      stayOnPage: {value: false}
+    };
+  }),
+  on(markUnsavedChanges, (state, {action, stayOnPage}) => {
+    return {
+      ...state,
+      unsavedChanges: true,
+      unsavedChangesAction: action,
+      stayOnPage: {value: stayOnPage === undefined ? false : stayOnPage}
+    };
+  }),
+);
 
 

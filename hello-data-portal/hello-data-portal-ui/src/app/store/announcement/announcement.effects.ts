@@ -26,11 +26,11 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, createEffect, ofType, concatLatestFrom} from "@ngrx/effects";
+import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
-import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
+import {catchError, map, of, switchMap, tap} from "rxjs";
 import {
   deleteAnnouncement,
   deleteAnnouncementSuccess,
@@ -51,123 +51,144 @@ import {
 import {AnnouncementService} from "./announcement.service";
 import {selectParamAnnouncementId, selectSelectedAnnouncementForDeletion} from "./announcement.selector";
 import {Announcement} from "./announcement.model";
-import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class AnnouncementEffects {
 
-  loadAllAnnouncements$ = createEffect(() => { return this._actions$.pipe(
-    ofType(loadAllAnnouncements),
-    switchMap(() => this._announcementService.getAllAnnouncements()),
-    switchMap(result => of(loadAllAnnouncementsSuccess({payload: result}))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadAllAnnouncements$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadAllAnnouncements),
+      switchMap(() => this._announcementService.getAllAnnouncements()),
+      switchMap(result => of(loadAllAnnouncementsSuccess({payload: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  loadPublishedAnnouncements$ = createEffect(() =>
-    { return this._actions$.pipe(
-      ofType(loadPublishedAnnouncements),
-      switchMap(() => this._announcementService.getHiddenAnnouncements()),
-      switchMap((hiddenAnnouncements) => this._announcementService.getPublishedAnnouncements().pipe(
-        map(publishedAnnouncements => {
-          return publishedAnnouncements.filter(publishedAnnouncement => {
-            return !hiddenAnnouncements.some(hiddenAnnouncement => hiddenAnnouncement.id === publishedAnnouncement.id);
-          });
-        })
-      )),
-      switchMap((result) => of(loadPublishedAnnouncementsSuccess({payload: result}))),
-    ) }
+  loadPublishedAnnouncements$ = createEffect(() => {
+      return this._actions$.pipe(
+        ofType(loadPublishedAnnouncements),
+        switchMap(() => this._announcementService.getHiddenAnnouncements()),
+        switchMap((hiddenAnnouncements) => this._announcementService.getPublishedAnnouncements().pipe(
+          map(publishedAnnouncements => {
+            return publishedAnnouncements.filter(publishedAnnouncement => {
+              return !hiddenAnnouncements.some(hiddenAnnouncement => hiddenAnnouncement.id === publishedAnnouncement.id);
+            });
+          })
+        )),
+        switchMap((result) => of(loadPublishedAnnouncementsSuccess({payload: result}))),
+      )
+    }
   );
 
-  openAnnouncementEdition$ = createEffect(() => { return this._actions$.pipe(
-    ofType(openAnnouncementEdition),
-    switchMap(action => {
-      if (action.announcement.id) {
-        return of(navigate({url: `announcements-management/edit/${action.announcement.id}`}));
-      }
-      return of(navigate({url: 'announcements-management/create'}));
-    }),
-    catchError(e => of(showError(e)))
-  ) });
-
-  loadAnnouncementById$ = createEffect(() => { return this._actions$.pipe(
-    ofType(loadAnnouncementById),
-    concatLatestFrom(() => this._store.select(selectParamAnnouncementId)),
-    switchMap(([action, announcementId]) => this._announcementService.getAnnouncementById(announcementId as string)),
-    switchMap(result => of(loadAnnouncementByIdSuccess({announcement: result}))),
-    catchError(e => of(showError(e)))
-  ) });
-
-  saveChangesToAnnouncement$ = createEffect(() => { return this._actions$.pipe(
-    ofType(saveChangesToAnnouncement),
-    switchMap((action) => {
-      return action.announcement.id
-        ? this._announcementService.updateAnnouncement({
-          id: action.announcement.id,
-          published: action.announcement.published as boolean,
-          message: action.announcement.message as string,
-        }).pipe(
-          tap(() => this._notificationService.success('@Announcement updated successfully')),
-          map(() => saveChangesToAnnouncementSuccess({announcement: action.announcement}))
-        )
-        : this._announcementService.createAnnouncement({
-          published: action.announcement.published as boolean,
-          message: action.announcement.message as string,
-        }).pipe(
-          tap(() => this._notificationService.success('@Announcement added successfully')),
-          map(() => saveChangesToAnnouncementSuccess({announcement: action.announcement}))
-        )
-    }),
-  ) });
-
-  saveChangesToAnnouncementSuccess$ = createEffect(() => { return this._actions$.pipe(
-    ofType(saveChangesToAnnouncementSuccess),
-    switchMap(action => of(navigate({url: 'announcements-management'}), new ClearUnsavedChanges())),
-    catchError(e => of(showError(e)))
-  ) });
-
-  deleteAnnouncement$ = createEffect(() => { return this._actions$.pipe(
-    ofType(deleteAnnouncement),
-    concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
-    switchMap(([action, announcement]) => this._announcementService.deleteAnnouncementById((announcement as Announcement).id as string).pipe(
-      map(() => deleteAnnouncementSuccess({announcement: announcement as Announcement})),
+  openAnnouncementEdition$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(openAnnouncementEdition),
+      switchMap(action => {
+        if (action.announcement.id) {
+          return of(navigate({url: `announcements-management/edit/${action.announcement.id}`}));
+        }
+        return of(navigate({url: 'announcements-management/create'}));
+      }),
       catchError(e => of(showError(e)))
-    )),
-  ) });
+    )
+  });
 
-  deleteAnnouncementSuccess$ = createEffect(() => { return this._actions$.pipe(
-    ofType(deleteAnnouncementSuccess),
-    tap(action => this._notificationService.success('@Announcement deleted successfully')),
-    switchMap(() => of(loadAllAnnouncements(), hideDeleteAnnouncementPopup()))
-  ) });
+  loadAnnouncementById$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadAnnouncementById),
+      concatLatestFrom(() => this._store.select(selectParamAnnouncementId)),
+      switchMap(([action, announcementId]) => this._announcementService.getAnnouncementById(announcementId as string)),
+      switchMap(result => of(loadAnnouncementByIdSuccess({announcement: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  deleteEditedAnnouncement$ = createEffect(() => { return this._actions$.pipe(
-    ofType(deleteEditedAnnouncement),
-    concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
-    switchMap(([action, announcementToBeDeleted]) => {
-        return this._announcementService.deleteAnnouncementById((announcementToBeDeleted as Announcement).id as string).pipe(
-          map(() => deleteEditedAnnouncementSuccess()),
+  saveChangesToAnnouncement$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(saveChangesToAnnouncement),
+      switchMap((action) => {
+        return action.announcement.id
+          ? this._announcementService.updateAnnouncement({
+            id: action.announcement.id,
+            published: action.announcement.published as boolean,
+            message: action.announcement.message as string,
+          }).pipe(
+            tap(() => this._notificationService.success('@Announcement updated successfully')),
+            map(() => saveChangesToAnnouncementSuccess({announcement: action.announcement}))
+          )
+          : this._announcementService.createAnnouncement({
+            published: action.announcement.published as boolean,
+            message: action.announcement.message as string,
+          }).pipe(
+            tap(() => this._notificationService.success('@Announcement added successfully')),
+            map(() => saveChangesToAnnouncementSuccess({announcement: action.announcement}))
+          )
+      }),
+    )
+  });
+
+  saveChangesToAnnouncementSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(saveChangesToAnnouncementSuccess),
+      switchMap(action => of(navigate({url: 'announcements-management'}), clearUnsavedChanges())),
+      catchError(e => of(showError(e)))
+    )
+  });
+
+  deleteAnnouncement$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteAnnouncement),
+      concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
+      switchMap(([action, announcement]) => this._announcementService.deleteAnnouncementById((announcement as Announcement).id as string).pipe(
+        map(() => deleteAnnouncementSuccess({announcement: announcement as Announcement})),
+        catchError(e => of(showError(e)))
+      )),
+    )
+  });
+
+  deleteAnnouncementSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteAnnouncementSuccess),
+      tap(action => this._notificationService.success('@Announcement deleted successfully')),
+      switchMap(() => of(loadAllAnnouncements(), hideDeleteAnnouncementPopup()))
+    )
+  });
+
+  deleteEditedAnnouncement$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteEditedAnnouncement),
+      concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
+      switchMap(([action, announcementToBeDeleted]) => {
+          return this._announcementService.deleteAnnouncementById((announcementToBeDeleted as Announcement).id as string).pipe(
+            map(() => deleteEditedAnnouncementSuccess()),
+            catchError(e => of(showError(e)))
+          )
+        }
+      ),
+    )
+  });
+
+  deleteEditedAnnouncementSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteEditedAnnouncementSuccess),
+      tap(action => this._notificationService.success('@Announcement deleted successfully')),
+      switchMap(() => of(navigate({url: 'announcements-management'}), hideDeleteAnnouncementPopup()))
+    )
+  });
+
+  markAnnouncementAsRead$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(markAnnouncementAsRead),
+      switchMap(action => {
+        return this._announcementService.hideAnnouncement(action.announcement).pipe(
+          map(() => loadPublishedAnnouncements()),
           catchError(e => of(showError(e)))
         )
-      }
-    ),
-  ) });
-
-  deleteEditedAnnouncementSuccess$ = createEffect(() => { return this._actions$.pipe(
-    ofType(deleteEditedAnnouncementSuccess),
-    tap(action => this._notificationService.success('@Announcement deleted successfully')),
-    switchMap(() => of(navigate({url: 'announcements-management'}), hideDeleteAnnouncementPopup()))
-  ) });
-
-  markAnnouncementAsRead$ = createEffect(() => { return this._actions$.pipe(
-    ofType(markAnnouncementAsRead),
-    switchMap(action => {
-      return this._announcementService.hideAnnouncement(action.announcement).pipe(
-        map(() => loadPublishedAnnouncements()),
-        catchError(e => of(showError(e)))
-      )
-    })
-  ) });
+      })
+    )
+  });
 
 
   constructor(

@@ -35,7 +35,7 @@ import {PortalRole} from "../../../../store/portal-roles-management/portal-roles
 import {selectAppInfos} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {naviElements} from "../../../../app-navi-elements";
-import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {loadAppInfoResources, loadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
@@ -163,7 +163,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
     const role = this.roleForm.getRawValue() as any;
     role.id = editedRole.id;
     role.contextKey = role.dataDomain;
-    this.store.dispatch(new MarkUnsavedChanges(saveChangesToPortalRole(role), role.id === undefined));
+    this.store.dispatch(markUnsavedChanges({action: saveChangesToPortalRole(role), stayOnPage: role.id === undefined}));
   }
 
   private unsubFormValueChanges() {

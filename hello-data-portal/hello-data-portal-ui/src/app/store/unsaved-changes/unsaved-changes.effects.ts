@@ -25,28 +25,30 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Actions, createEffect, ofType, concatLatestFrom} from "@ngrx/effects";
-import {catchError, of, switchMap, withLatestFrom} from "rxjs";
+import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
+import {catchError, of, switchMap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {Injectable} from "@angular/core";
-import {ClearUnsavedChanges, RunSaveAction, UnsavedChangesActionType} from "./unsaved-changes.actions";
+import {clearUnsavedChanges, runSaveAction} from "./unsaved-changes.actions";
 import {selectActionToRun} from "./unsaved-changes.selector";
 import {showError} from "../app/app.action";
 
 @Injectable()
 export class UnsavedChangesEffects {
-  runSaveAction = createEffect(() => { return this._actions$.pipe(
-    ofType<RunSaveAction>(UnsavedChangesActionType.RUN_SAVE_ACTION),
-    concatLatestFrom(() => this._store.select(selectActionToRun)),
-    switchMap(([result, actionToRun]) => {
-      if (actionToRun) {
-        return of(actionToRun, new ClearUnsavedChanges())
-      }
-      return of(new ClearUnsavedChanges());
-    }),
-    catchError(e => of(showError(e), new ClearUnsavedChanges()))
-  ) });
+  runSaveAction = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(runSaveAction),
+      concatLatestFrom(() => this._store.select(selectActionToRun)),
+      switchMap(([result, actionToRun]) => {
+        if (actionToRun) {
+          return of(actionToRun, clearUnsavedChanges())
+        }
+        return of(clearUnsavedChanges());
+      }),
+      catchError(e => of(showError(e), clearUnsavedChanges()))
+    )
+  });
 
 
   constructor(

@@ -34,7 +34,7 @@ import {selectHasUnsavedChanges} from "../../store/unsaved-changes/unsaved-chang
 import {ConfirmationService} from "primeng/api";
 import {AppState} from "../../store/app/app.state";
 import {ActivatedRouteSnapshot, CanDeactivateFn, RouterStateSnapshot} from "@angular/router";
-import {ClearUnsavedChanges, RunSaveAction} from "../../store/unsaved-changes/unsaved-changes.actions";
+import {clearUnsavedChanges, runSaveAction} from "../../store/unsaved-changes/unsaved-changes.actions";
 import {TranslateService} from "../services/translate.service";
 import {navigate} from "../../store/app/app.action";
 
@@ -67,11 +67,11 @@ export class UnsavedChangesGuard {
             message: msg,
             icon: 'fas fa-triangle-exclamation',
             accept: () => {
-              this.store.dispatch(new RunSaveAction());
+              this.store.dispatch(runSaveAction());
               this.store.dispatch(navigate({url: nextState.url}));
             },
             reject: () => {
-              this.store.dispatch(new ClearUnsavedChanges());
+              this.store.dispatch(clearUnsavedChanges());
               this.store.dispatch(navigate({url: nextState.url}));
             },
 
