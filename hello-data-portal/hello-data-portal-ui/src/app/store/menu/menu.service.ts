@@ -254,18 +254,14 @@ export class MenuService {
 
   private createDataMartsSubNav(availableDataDomains: any[]) {
     const subMenuEntry: any[] = [];
-    //subMenuEntry.push({text: '@List', routerLink: '/datamart-list', requiredPermissions: ['DATA_MARTS']})
-    const sortedAvailableDataDomains = [...availableDataDomains].sort((a, b) => a.label.localeCompare(b.label));
-    sortedAvailableDataDomains.forEach((item, index) => {
-      const myDashboards: any[] = [];
-      myDashboards.push({
-        id: 'dataMartsDetails' + index,
+    if(availableDataDomains.length > 0){
+      subMenuEntry.push({
+        id: 'dataMartsDetails',
         text: '@DM Viewer Link',
         routerLink: '/embedded-dm-viewer',
         requiredPermissions: ['DATA_MARTS']
       })
-      subMenuEntry.push({id: 'dm' + index, text: item.label, items: myDashboards, requiredPermissions: ['DATA_MARTS']});
-    });
+    }
     return subMenuEntry;
   }
 }
