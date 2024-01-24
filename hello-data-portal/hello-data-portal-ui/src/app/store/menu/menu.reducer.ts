@@ -26,12 +26,12 @@
 ///
 
 import {processNavigationSuccess} from "./menu.action";
-import {initialMenuState} from "./menu.state";
+import {initialMenuState, MenuState} from "./menu.state";
 import {createReducer, on} from "@ngrx/store";
 
 export const menuReducer = createReducer(
   initialMenuState,
-  on(processNavigationSuccess, (state, {navItems}) => {
+  on(processNavigationSuccess, (state: MenuState, {navItems}): MenuState => {
     return {
       ...state,
       navItems: navItems

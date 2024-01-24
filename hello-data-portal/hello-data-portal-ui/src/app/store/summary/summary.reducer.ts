@@ -25,13 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialSummaryState} from "./summary.state";
+import {initialSummaryState, SummaryState} from "./summary.state";
 import {loadDocumentationSuccess, loadPipelinesSuccess, loadStorageSizeSuccess} from "./summary.actions";
 import {createReducer, on} from "@ngrx/store";
 
 export const summaryReducer = createReducer(
   initialSummaryState,
-  on(loadDocumentationSuccess, (state, {payload}) => {
+  on(loadDocumentationSuccess, (state: SummaryState, {payload}): SummaryState => {
     if (payload) {
       return {
         ...state,
@@ -43,7 +43,7 @@ export const summaryReducer = createReducer(
       documentation: ''
     };
   }),
-  on(loadPipelinesSuccess, (state, {payload}) => {
+  on(loadPipelinesSuccess, (state: SummaryState, {payload}): SummaryState => {
     if (payload) {
       return {
         ...state,
@@ -55,7 +55,7 @@ export const summaryReducer = createReducer(
       pipelines: []
     };
   }),
-  on(loadStorageSizeSuccess, (state, {payload}) => {
+  on(loadStorageSizeSuccess, (state: SummaryState, {payload}): SummaryState => {
     if (payload) {
       return {
         ...state,

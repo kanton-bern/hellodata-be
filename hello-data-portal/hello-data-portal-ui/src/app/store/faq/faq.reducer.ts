@@ -25,32 +25,32 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialFaqState} from "./faq.state";
+import {FaqState, initialFaqState} from "./faq.state";
 import {hideDeleteFaqPopup, loadFaqByIdSuccess, loadFaqSuccess, showDeleteFaqPopup} from "./faq.action";
 import {createReducer, on} from "@ngrx/store";
 
 export const faqReducer = createReducer(
   initialFaqState,
-  on(loadFaqSuccess, (state, {payload}) => {
+  on(loadFaqSuccess, (state: FaqState, {payload}): FaqState => {
     return {
       ...state,
       faq: payload,
       editedFaq: {}
     };
   }),
-  on(loadFaqByIdSuccess, (state, {faq}) => {
+  on(loadFaqByIdSuccess, (state: FaqState, {faq}): FaqState => {
     return {
       ...state,
       editedFaq: faq
     };
   }),
-  on(showDeleteFaqPopup, (state, {faq}) => {
+  on(showDeleteFaqPopup, (state: FaqState, {faq}): FaqState => {
     return {
       ...state,
       faqForDeletion: faq
     };
   }),
-  on(hideDeleteFaqPopup, (state) => {
+  on(hideDeleteFaqPopup, (state: FaqState): FaqState => {
     return {
       ...state,
       faqForDeletion: null

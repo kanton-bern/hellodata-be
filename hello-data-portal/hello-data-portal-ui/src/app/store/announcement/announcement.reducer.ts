@@ -25,45 +25,33 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {
-  hideDeleteAnnouncementPopup,
-  loadAllAnnouncementsSuccess,
-  loadAnnouncementByIdSuccess,
-  loadPublishedAnnouncementsSuccess,
-  showDeleteAnnouncementPopup
-} from "./announcement.action";
-import {initialAnnouncementState} from "./announcement.state";
+import {hideDeleteAnnouncementPopup, loadAllAnnouncementsSuccess, loadAnnouncementByIdSuccess, showDeleteAnnouncementPopup} from "./announcement.action";
+import {AnnouncementState, initialAnnouncementState} from "./announcement.state";
 import {createReducer, on} from "@ngrx/store";
 
 
 export const announcementReducer = createReducer(
   initialAnnouncementState,
-  on(loadPublishedAnnouncementsSuccess, (state, {payload}) => {
-    return {
-      ...state,
-      selectedAnnouncement: payload
-    };
-  }),
-  on(loadAllAnnouncementsSuccess, (state, {payload}) => {
+  on(loadAllAnnouncementsSuccess, (state: AnnouncementState, {payload}): AnnouncementState => {
     return {
       ...state,
       allAnnouncements: payload,
       editedAnnouncement: {}
     };
   }),
-  on(loadAnnouncementByIdSuccess, (state, {announcement}) => {
+  on(loadAnnouncementByIdSuccess, (state: AnnouncementState, {announcement}): AnnouncementState => {
     return {
       ...state,
       editedAnnouncement: announcement
     };
   }),
-  on(showDeleteAnnouncementPopup, (state, {announcement}) => {
+  on(showDeleteAnnouncementPopup, (state: AnnouncementState, {announcement}): AnnouncementState => {
     return {
       ...state,
       announcementForDeletion: announcement
     };
   }),
-  on(hideDeleteAnnouncementPopup, (state) => {
+  on(hideDeleteAnnouncementPopup, (state: AnnouncementState): AnnouncementState => {
     return {
       ...state,
       announcementForDeletion: null

@@ -25,19 +25,19 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {HOME_BREADCRUMB, initialBreadcrumbState} from "./breadcrumb.state";
+import {BreadcrumbState, HOME_BREADCRUMB, initialBreadcrumbState} from "./breadcrumb.state";
 import {createBreadcrumbs, resetBreadcrumb} from "./breadcrumb.action";
 import {createReducer, on} from "@ngrx/store";
 
 export const breadcrumbReducer = createReducer(
   initialBreadcrumbState,
-  on(createBreadcrumbs, (state, {breadcrumbs}) => {
+  on(createBreadcrumbs, (state: BreadcrumbState, {breadcrumbs}): BreadcrumbState => {
     return {
       ...state,
       breadcrumbs: [HOME_BREADCRUMB, ...breadcrumbs]
     };
   }),
-  on(resetBreadcrumb, (state) => {
+  on(resetBreadcrumb, (state: BreadcrumbState): BreadcrumbState => {
     return {
       ...state,
       breadcrumbs: initialBreadcrumbState.breadcrumbs

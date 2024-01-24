@@ -25,14 +25,14 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialStartPageState} from "./start-page.state";
+import {initialStartPageState, StartPageState} from "./start-page.state";
 import {loadFaqStartPageSuccess} from "./start-page.action";
 import {createReducer, on} from "@ngrx/store";
 
 
 export const startPageReducer = createReducer(
   initialStartPageState,
-  on(loadFaqStartPageSuccess, (state, {payload}) => {
+  on(loadFaqStartPageSuccess, (state: StartPageState, {payload}): StartPageState => {
     return {
       ...state,
       faq: payload,

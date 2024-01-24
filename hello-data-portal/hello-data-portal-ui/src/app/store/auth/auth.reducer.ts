@@ -25,20 +25,20 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialAuthState} from "./auth.state";
+import {AuthState, initialAuthState} from "./auth.state";
 import {fetchContextRolesSuccess, fetchPermissionSuccess, loginComplete, logout} from "./auth.action";
 import {createReducer, on} from "@ngrx/store";
 
 export const authReducer = createReducer(
   initialAuthState,
-  on(loginComplete, (state, {profile, isLoggedIn}) => {
+  on(loginComplete, (state: AuthState, {profile, isLoggedIn}): AuthState => {
     return {
       ...state,
       profile: profile,
       isLoggedIn: isLoggedIn,
     };
   }),
-  on(fetchPermissionSuccess, (state, {currentUserAuthData}) => {
+  on(fetchPermissionSuccess, (state: AuthState, {currentUserAuthData}): AuthState => {
     return {
       ...state,
       permissions: currentUserAuthData.permissions,
@@ -47,7 +47,7 @@ export const authReducer = createReducer(
       permissionsLoaded: true
     };
   }),
-  on(logout, (state) => {
+  on(logout, (state: AuthState): AuthState => {
     return {
       ...state,
       profile: null,
@@ -59,7 +59,7 @@ export const authReducer = createReducer(
       businessDomain: ''
     };
   }),
-  on(fetchContextRolesSuccess, (state, {contextRoles}) => {
+  on(fetchContextRolesSuccess, (state: AuthState, {contextRoles}): AuthState => {
     return {
       ...state,
       contextRoles: contextRoles

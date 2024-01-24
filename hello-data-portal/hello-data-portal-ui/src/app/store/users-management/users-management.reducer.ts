@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialUsersManagementState} from "./users-management.state";
+import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
 import {
   hideUserPopupAction,
   loadAdminEmailsSuccess,
@@ -48,7 +48,7 @@ import {createReducer, on} from "@ngrx/store";
 
 export const usersManagementReducer = createReducer(
   initialUsersManagementState,
-  on(loadUsersSuccess, (state, {payload}) => {
+  on(loadUsersSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
     for (const key in sessionStorage) {
       if (key.startsWith('UM_')) {
         sessionStorage.removeItem(key);
@@ -65,50 +65,50 @@ export const usersManagementReducer = createReducer(
       editedUser: null,
     };
   }),
-  on(showUserActionPopup, (state, {userActionForPopup}) => {
+  on(showUserActionPopup, (state: UsersManagementState, {userActionForPopup}): UsersManagementState => {
     return {
       ...state,
       userForPopup: userActionForPopup,
     };
   }),
-  on(hideUserPopupAction, (state) => {
+  on(hideUserPopupAction, (state: UsersManagementState): UsersManagementState => {
     return {
       ...state,
       userForPopup: null,
     };
   }),
-  on(loadUserByIdSuccess, (state, {user}) => {
+  on(loadUserByIdSuccess, (state: UsersManagementState, {user}): UsersManagementState => {
     return {
       ...state,
       editedUser: user
     };
   }),
-  on(loadDashboardsSuccess, (state, {dashboards}) => {
+  on(loadDashboardsSuccess, (state: UsersManagementState, {dashboards}): UsersManagementState => {
     return {
       ...state,
       allDashboardsWithMarkedUser: dashboards,
       allDashboardsWithMarkedUserFetched: true
     };
   }),
-  on(loadAvailableContextRolesSuccess, (state, {payload}) => {
+  on(loadAvailableContextRolesSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
     return {
       ...state,
       allAvailableContextRoles: payload
     };
   }),
-  on(loadAvailableContextsSuccess, (state, {payload}) => {
+  on(loadAvailableContextsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
     return {
       ...state,
       allAvailableContexts: payload.contexts
     };
   }),
-  on(selectBusinessDomainRoleForEditedUser, (state, {selectedRole}) => {
+  on(selectBusinessDomainRoleForEditedUser, (state: UsersManagementState, {selectedRole}): UsersManagementState => {
     return {
       ...state,
       selectedBusinessContextRoleForEditedUser: selectedRole,
     };
   }),
-  on(loadUserContextRolesSuccess, (state, {payload}) => {
+  on(loadUserContextRolesSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
     const selectedBusinessContextRole = payload.filter((userContextRole: any) => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE)[0];
     const selectedDataDomainContextRoles = payload.filter((userContextRole: any) => userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE);
 
@@ -119,7 +119,7 @@ export const usersManagementReducer = createReducer(
       selectedDataDomainRolesForEditedUser: selectedDataDomainContextRoles ? selectedDataDomainContextRoles : []
     }
   }),
-  on(selectDataDomainRoleForEditedUser, (state, {selectedRoleForContext}) => {
+  on(selectDataDomainRoleForEditedUser, (state: UsersManagementState, {selectedRoleForContext}): UsersManagementState => {
     const selectedContextId = selectedRoleForContext.context.id;
     let updatedDataDomainRoles;
     const isRoleForContextAlreadySelected = state.selectedDataDomainRolesForEditedUser.some(
@@ -148,7 +148,7 @@ export const usersManagementReducer = createReducer(
       selectedDataDomainRolesForEditedUser: updatedDataDomainRoles
     };
   }),
-  on(setSelectedDashboardForUser, (state, {contextKey, dashboards}) => {
+  on(setSelectedDashboardForUser, (state: UsersManagementState, {contextKey, dashboards}): UsersManagementState => {
     const contextDashboardsForUser = copy(state.selectedDashboardsForUser);
     let found = false;
     contextDashboardsForUser.forEach(contextDashboardsForUser => {
@@ -168,13 +168,13 @@ export const usersManagementReducer = createReducer(
       selectedDashboardsForUser: contextDashboardsForUser
     };
   }),
-  on(navigateToUsersManagement, (state) => {
+  on(navigateToUsersManagement, (state: UsersManagementState): UsersManagementState => {
     return {
       ...state,
       selectedDashboardsForUser: [],
     };
   }),
-  on(loadAdminEmailsSuccess, (state, {payload}) => {
+  on(loadAdminEmailsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
     return {
       ...state,
       adminEmails: payload

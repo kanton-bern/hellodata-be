@@ -25,13 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialUnsavedChangesState} from "./unsaved-changes.state";
+import {initialUnsavedChangesState, UnsavedChangesState} from "./unsaved-changes.state";
 import {clearUnsavedChanges, markUnsavedChanges} from "./unsaved-changes.actions";
 import {createReducer, on} from "@ngrx/store";
 
 export const unsavedChangesReducer = createReducer(
   initialUnsavedChangesState,
-  on(clearUnsavedChanges, (state) => {
+  on(clearUnsavedChanges, (state: UnsavedChangesState): UnsavedChangesState => {
     return {
       ...state,
       unsavedChanges: false,
@@ -39,7 +39,7 @@ export const unsavedChangesReducer = createReducer(
       stayOnPage: {value: false}
     };
   }),
-  on(markUnsavedChanges, (state, {action, stayOnPage}) => {
+  on(markUnsavedChanges, (state: UnsavedChangesState, {action, stayOnPage}): UnsavedChangesState => {
     return {
       ...state,
       unsavedChanges: true,

@@ -25,13 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialLineageDocsState} from "./lineageDocsState";
+import {initialLineageDocsState, LineageDocsState} from "./lineageDocsState";
 import {loadMyLineageDocsSuccess} from "./lineage-docs.action";
 import {createReducer, on} from "@ngrx/store";
 
 export const myLineageDocsReducer = createReducer(
   initialLineageDocsState,
-  on(loadMyLineageDocsSuccess, (state, {payload}) => {
+  on(loadMyLineageDocsSuccess, (state: LineageDocsState, {payload}): LineageDocsState => {
     if (payload) {
       return {
         ...state,

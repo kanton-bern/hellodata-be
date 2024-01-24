@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialMetaInfoResourceState} from "./metainfo-resource.state";
+import {initialMetaInfoResourceState, MetaInfoResourceState} from "./metainfo-resource.state";
 import {
   loadAppInfoResourcesSuccess,
   loadPermissionResourcesSuccess,
@@ -38,38 +38,38 @@ import {createReducer, on} from "@ngrx/store";
 
 export const metaInfoResourceReducer = createReducer(
   initialMetaInfoResourceState,
-  on(loadAppInfoResourcesSuccess, (state, {result}) => {
+  on(loadAppInfoResourcesSuccess, (state: MetaInfoResourceState, {result}): MetaInfoResourceState => {
     return {
       ...state,
       appInfos: result
     };
   }),
-  on(loadSelectedAppInfoResources, (state) => {
+  on(loadSelectedAppInfoResources, (state: MetaInfoResourceState): MetaInfoResourceState => {
     return {
       ...state,
       selectedAppInfoResources: [],
       selectedAppInfoResource: null
     };
   }),
-  on(loadSelectedAppInfoResource, (state, {selectedResource}) => {
+  on(loadSelectedAppInfoResource, (state: MetaInfoResourceState, {selectedResource}): MetaInfoResourceState => {
     return {
       ...state,
       selectedAppInfoResource: selectedResource
     };
   }),
-  on(loadSelectedAppInfoResourcesSuccess, (state, {payload}) => {
+  on(loadSelectedAppInfoResourcesSuccess, (state: MetaInfoResourceState, {payload}): MetaInfoResourceState => {
     return {
       ...state,
       selectedAppInfoResources: payload
     };
   }),
-  on(loadRoleResourcesSuccess, (state, {result}) => {
+  on(loadRoleResourcesSuccess, (state: MetaInfoResourceState, {result}): MetaInfoResourceState => {
     return {
       ...state,
       roles: result
     };
   }),
-  on(loadPermissionResourcesSuccess, (state, {result}) => {
+  on(loadPermissionResourcesSuccess, (state: MetaInfoResourceState, {result}): MetaInfoResourceState => {
     return {
       ...state,
       permissions: result

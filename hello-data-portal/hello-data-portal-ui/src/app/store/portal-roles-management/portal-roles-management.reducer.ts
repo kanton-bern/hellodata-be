@@ -25,44 +25,44 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialPortalRolesManagementState} from "./portal-roles-management.state";
+import {initialPortalRolesManagementState, PortalRolesManagementState} from "./portal-roles-management.state";
 import {hideDeletePortalRolePopup, loadPortalRoleByIdSuccess, loadPortalRolesSuccess, saveChangesToPortalRole, showDeletePortalRolePopup} from "./portal-roles-management.action";
 import {createReducer, on} from "@ngrx/store";
 
 export const portalRolesManagementReducer = createReducer(
   initialPortalRolesManagementState,
-  on(loadPortalRolesSuccess, (state, {roles}) => {
+  on(loadPortalRolesSuccess, (state: PortalRolesManagementState, {roles}): PortalRolesManagementState => {
     return {
       ...state,
       portalRoles: roles,
       editedPortalRole: {},
     };
   }),
-  on(saveChangesToPortalRole, (state, {role}) => {
+  on(saveChangesToPortalRole, (state: PortalRolesManagementState, {role}): PortalRolesManagementState => {
     return {
       ...state,
       portalRoles: [...state.portalRoles, role]
     };
   }),
-  on(saveChangesToPortalRole, (state, {role}) => {
+  on(saveChangesToPortalRole, (state: PortalRolesManagementState, {role}): PortalRolesManagementState => {
     return {
       ...state,
       portalRoles: [...state.portalRoles, role]
     };
   }),
-  on(showDeletePortalRolePopup, (state, {role}) => {
+  on(showDeletePortalRolePopup, (state: PortalRolesManagementState, {role}): PortalRolesManagementState => {
     return {
       ...state,
       portalRoleForDeletion: role
     };
   }),
-  on(hideDeletePortalRolePopup, (state) => {
+  on(hideDeletePortalRolePopup, (state: PortalRolesManagementState): PortalRolesManagementState => {
     return {
       ...state,
       portalRoleForDeletion: null
     };
   }),
-  on(loadPortalRoleByIdSuccess, (state, {role}) => {
+  on(loadPortalRoleByIdSuccess, (state: PortalRolesManagementState, {role}): PortalRolesManagementState => {
     return {
       ...state,
       editedPortalRole: role

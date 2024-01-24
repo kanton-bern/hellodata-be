@@ -25,26 +25,26 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialMyDashboardsState} from "./my-dashboards.state";
+import {initialMyDashboardsState, MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {createReducer, on} from "@ngrx/store";
 import {loadAvailableDataDomainsSuccess, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
 
 export const myDashboardsReducer = createReducer(
   initialMyDashboardsState,
-  on(loadMyDashboardsSuccess, (state, {payload}) => {
+  on(loadMyDashboardsSuccess, (state: MyDashboardsState, {payload}): MyDashboardsState => {
     return {
       ...state,
       myDashboards: payload,
     };
   }),
-  on(setSelectedDataDomain, (state, {dataDomain}) => {
+  on(setSelectedDataDomain, (state: MyDashboardsState, {dataDomain}): MyDashboardsState => {
     return {
       ...state,
       selectedDataDomain: dataDomain
     }
   }),
-  on(loadAvailableDataDomainsSuccess, (state, {payload}) => {
+  on(loadAvailableDataDomainsSuccess, (state: MyDashboardsState, {payload}): MyDashboardsState => {
     const uniqueDataDomains = [
       {
         id: '',

@@ -25,21 +25,21 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialExternalDashboardsState} from "./external-dashboards.state";
+import {ExternalDashboardsState, initialExternalDashboardsState} from "./external-dashboards.state";
 import {loadExternalDashboardByIdSuccess, loadExternalDashboardsSuccess} from "./external-dasboards.action";
 import {createReducer, on} from "@ngrx/store";
 
 
 export const externalDashboardsReducer = createReducer(
   initialExternalDashboardsState,
-  on(loadExternalDashboardsSuccess, (state, {payload}) => {
+  on(loadExternalDashboardsSuccess, (state: ExternalDashboardsState, {payload}): ExternalDashboardsState => {
     return {
       ...state,
       externalDashboards: payload,
       editedExternalDashboard: null,
     };
   }),
-  on(loadExternalDashboardByIdSuccess, (state, {dashboard}) => {
+  on(loadExternalDashboardByIdSuccess, (state: ExternalDashboardsState, {dashboard}): ExternalDashboardsState => {
     return {
       ...state,
       editedExternalDashboard: dashboard
