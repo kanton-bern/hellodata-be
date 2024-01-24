@@ -25,23 +25,17 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialStartPageState, StartPageState} from "./start-page.state";
-import {StartPageActions, StartPageActionType} from "./start-page.action";
+import {initialStartPageState} from "./start-page.state";
+import {loadFaqStartPageSuccess} from "./start-page.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const startPageReducer = (
-  state = initialStartPageState,
-  action: StartPageActions
-): StartPageState => {
-  switch (action.type) {
 
-    case StartPageActionType.LOAD_FAQ_START_PAGE_SUCCESS: {
-      return {
-        ...state,
-        faq: action.payload,
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+export const startPageReducer = createReducer(
+  initialStartPageState,
+  on(loadFaqStartPageSuccess, (state, {payload}) => {
+    return {
+      ...state,
+      faq: payload,
+    };
+  }),
+);

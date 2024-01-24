@@ -32,7 +32,7 @@ import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectFaq} from "../../../store/start-page/start-page.selector";
-import {LoadFaqStartPage} from "../../../store/start-page/start-page.action";
+import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 
 @Component({
   selector: 'app-faq',
@@ -72,7 +72,7 @@ export class FaqComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(new LoadFaqStartPage());
+    this.store.dispatch(loadFaqStartPage());
   }
 }
 

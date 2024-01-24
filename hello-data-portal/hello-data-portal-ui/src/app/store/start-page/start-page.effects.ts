@@ -28,7 +28,7 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
-import {LoadFaqStartPage, LoadFaqStartPageSuccess, StartPageActionType, UpdateDashboardMetadata,} from "./start-page.action";
+import {loadFaqStartPage, loadFaqStartPageSuccess, updateDashboardMetadata,} from "./start-page.action";
 import {StartPageService} from "./start-page.service";
 import {FaqService} from "../faq/faq.service";
 import {showError, showSuccess} from "../app/app.action";
@@ -39,7 +39,7 @@ export class StartPageEffects {
 
   updateDashboardsMetadata$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType<UpdateDashboardMetadata>(StartPageActionType.UPDATE_DASHBOARD_METADATA),
+      ofType(updateDashboardMetadata),
       switchMap(action => this._startPageService.updateDashboardMetadata(action.dashboard)),
       switchMap(result => of(loadMyDashboards(), showSuccess({message: '@Dashboard metadata updated'}))),
       catchError(e => of(showError(e)))
@@ -48,9 +48,9 @@ export class StartPageEffects {
 
   loadFaqStartPage$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType<LoadFaqStartPage>(StartPageActionType.LOAD_FAQ_START_PAGE),
+      ofType(loadFaqStartPage),
       switchMap(() => this._faqService.getFaq()),
-      switchMap(result => of(new LoadFaqStartPageSuccess(result))),
+      switchMap(result => of(loadFaqStartPageSuccess({payload: result}))),
       catchError(e => of(showError(e)))
     )
   });

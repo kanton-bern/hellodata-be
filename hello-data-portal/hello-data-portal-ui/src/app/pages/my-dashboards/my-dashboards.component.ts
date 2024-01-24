@@ -32,13 +32,13 @@ import {Observable} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
-import {UpdateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {Table} from "primeng/table";
 import {naviElements} from "../../app-navi-elements";
 import {selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
@@ -76,7 +76,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   updateDashboard(dashboard: SupersetDashboardWithMetadata) {
     this.selectedDashboard = {...dashboard};
-    this.store.dispatch(new UpdateDashboardMetadata(this.selectedDashboard))
+    this.store.dispatch(updateDashboardMetadata({dashboard: this.selectedDashboard}))
     this.hideEditMetadataDialog();
   }
 
