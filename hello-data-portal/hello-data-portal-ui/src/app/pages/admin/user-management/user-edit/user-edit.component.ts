@@ -28,19 +28,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {
-  LoadAvailableContextRoles,
-  LoadAvailableContexts,
-  LoadDashboards,
-  LoadUserById,
-  LoadUserContextRoles,
-  NavigateToUsersManagement,
-  SelectBusinessDomainRoleForEditedUser,
-  SelectDataDomainRoleForEditedUser,
-  SetSelectedDashboardForUser,
-  ShowUserActionPopup,
-  UpdateUserRoles
-} from "../../../../store/users-management/users-management.action";
 import {combineLatest, Observable, Subscription, tap} from "rxjs";
 import {
   selectAllBusinessDomains,
@@ -58,6 +45,19 @@ import {naviElements} from "../../../../app-navi-elements";
 import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {
+  loadAvailableContextRoles,
+  loadAvailableContexts,
+  loadDashboards,
+  loadUserById,
+  loadUserContextRoles,
+  navigateToUsersManagement,
+  selectBusinessDomainRoleForEditedUser,
+  selectDataDomainRoleForEditedUser,
+  setSelectedDashboardForUser,
+  showUserActionPopup,
+  updateUserRoles
+} from "../../../../store/users-management/users-management.action";
 
 @Component({
   selector: 'app-user-edit',
@@ -83,11 +83,11 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
-    this.store.dispatch(new LoadDashboards());
-    this.store.dispatch(new LoadAvailableContextRoles());
-    this.store.dispatch(new LoadAvailableContexts());
-    this.store.dispatch(new LoadUserContextRoles());
-    this.store.dispatch(new LoadUserById());
+    this.store.dispatch(loadDashboards());
+    this.store.dispatch(loadAvailableContextRoles());
+    this.store.dispatch(loadAvailableContexts());
+    this.store.dispatch(loadUserContextRoles());
+    this.store.dispatch(loadUserById());
     this.editedUser$ = this.store.select(selectEditedUser).pipe(tap(editedUser => {
       this.editedUserSuperuser = editedUser ? editedUser.superuser : false;
       this.createBreadcrumbs(editedUser);
@@ -116,15 +116,15 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   cancel() {
-    this.store.dispatch(new NavigateToUsersManagement());
+    this.store.dispatch(navigateToUsersManagement());
   }
 
   showUserDisablePopup(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.DISABLE, actionFromUsersEdition: true}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DISABLE, actionFromUsersEdition: true}}));
   }
 
   showUserEnablePopup(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.ENABLE, actionFromUsersEdition: true}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.ENABLE, actionFromUsersEdition: true}}));
   }
 
   onBusinessDomainRoleSelected($event: any, dataDomains: Context[], availableDataDomainRoles: any[]) {
@@ -134,30 +134,30 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       });
       dataDomains.forEach(dataDomain => {
         const dataDomainAdmin = availableDataDomainRoles.find(dataDomainRole => dataDomainRole.name === 'DATA_DOMAIN_ADMIN');
-        this.store.dispatch(new SelectDataDomainRoleForEditedUser({role: dataDomainAdmin, context: dataDomain}));
+        this.store.dispatch(selectDataDomainRoleForEditedUser({selectedRoleForContext: {role: dataDomainAdmin, context: dataDomain}}));
       })
     }
-    this.store.dispatch(new SelectBusinessDomainRoleForEditedUser($event.value));
-    this.store.dispatch(markUnsavedChanges({action: new UpdateUserRoles()}));
+    this.store.dispatch(selectBusinessDomainRoleForEditedUser($event.value));
+    this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
 
   onDataDomainRoleSelected($event: any, dataDomain: Context) {
     if ($event.value.name === DATA_DOMAIN_VIEWER_ROLE) {
       this.dashboardTableVisibility.set(dataDomain.contextKey as string, true);
     } else if ($event.value.name !== DATA_DOMAIN_VIEWER_ROLE) {
-      this.store.dispatch(new SetSelectedDashboardForUser([], dataDomain.contextKey as string));
+      this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey: dataDomain.contextKey as string}));
       this.dashboardTableVisibility.set(dataDomain.contextKey as string, false);
     }
-    this.store.dispatch(new SelectDataDomainRoleForEditedUser({role: $event.value, context: dataDomain}));
-    this.store.dispatch(markUnsavedChanges({action: new UpdateUserRoles()}));
+    this.store.dispatch(selectDataDomainRoleForEditedUser({selectedRoleForContext: {role: $event.value, context: dataDomain}}));
+    this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
 
   updateUser() {
-    this.store.dispatch(new UpdateUserRoles());
+    this.store.dispatch(updateUserRoles());
   }
 
   selectedDashboardsEvent(dashboards: DashboardForUser[], dataDomain: Context) {
-    this.store.dispatch(new SetSelectedDashboardForUser(dashboards, dataDomain.contextKey as string));
+    this.store.dispatch(setSelectedDashboardForUser({dashboards, contextKey: dataDomain.contextKey as string}));
   }
 
   private createBreadcrumbs(editedUser: User | null) {

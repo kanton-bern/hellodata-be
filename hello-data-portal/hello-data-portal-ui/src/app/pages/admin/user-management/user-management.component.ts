@@ -28,7 +28,6 @@
 import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {CreateUser, LoadUsers, NavigateToUserEdition, ShowUserActionPopup, SyncUsers} from "../../../store/users-management/users-management.action";
 import {debounceTime, distinctUntilChanged, Observable, Subject, Subscription} from "rxjs";
 import {selectUsers} from "../../../store/users-management/users-management.selector";
 import {CommonModule} from "@angular/common";
@@ -60,6 +59,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {UsersManagementService} from "../../../store/users-management/users-management.service";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {createUser, loadUsers, navigateToUserEdition, showUserActionPopup, syncUsers} from "../../../store/users-management/users-management.action";
 
 @Component({
   selector: 'app-user-management',
@@ -77,7 +77,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
     super();
     this.users$ = this.store.select(selectUsers).pipe(map(d => [...d]));
-    this.store.dispatch(new LoadUsers());
+    this.store.dispatch(loadUsers());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -118,29 +118,29 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   createUser() {
     if (this.inviteForm.valid) {
       const inviteFormData = this.inviteForm.getRawValue() as CreateUserForm;
-      this.store.dispatch(new CreateUser(inviteFormData));
+      this.store.dispatch(createUser({createUserForm: inviteFormData}));
       this.inviteForm.reset();
     }
   }
 
   editUser(data: User) {
-    this.store.dispatch(new NavigateToUserEdition(data.id));
+    this.store.dispatch(navigateToUserEdition({userId: data.id}));
   }
 
   showUserDeletionPopup(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.DELETE, actionFromUsersEdition: false}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DELETE, actionFromUsersEdition: false}}));
   }
 
   enableUser(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.ENABLE, actionFromUsersEdition: false}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.ENABLE, actionFromUsersEdition: false}}));
   }
 
   disableUser(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.DISABLE, actionFromUsersEdition: false}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DISABLE, actionFromUsersEdition: false}}));
   }
 
   syncUsers() {
-    this.store.dispatch(new SyncUsers());
+    this.store.dispatch(syncUsers());
   }
 
   filterMails($event: any) {

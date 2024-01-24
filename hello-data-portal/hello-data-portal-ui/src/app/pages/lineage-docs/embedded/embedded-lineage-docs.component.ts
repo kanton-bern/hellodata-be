@@ -32,7 +32,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {LineageDocsService} from "../../../store/lineage-docs/lineage-docs.service";
 import {naviElements} from "../../../app-navi-elements";
-import {LoadAvailableContexts} from "../../../store/users-management/users-management.action";
+import {loadAvailableContexts} from "../../../store/users-management/users-management.action";
 import {Context} from "../../../store/users-management/context-role.model";
 import {selectLineageInfo} from "../../../store/lineage-docs/lineage-docs.selector";
 import {navigate} from "../../../store/app/app.action";
@@ -52,7 +52,7 @@ export class EmbeddedLineageDocsComponent {
   @ViewChild('doc') docIframe!: ElementRef;
 
   constructor(private store: Store<AppState>, private docsService: LineageDocsService, private route: ActivatedRoute) {
-    this.store.dispatch(new LoadAvailableContexts());
+    this.store.dispatch(loadAvailableContexts());
     this.lineageInfo$ = this.store.select(selectLineageInfo).pipe(tap((lineageInfo) => {
       if (lineageInfo) {
         this.url = docsService.getProjectPathUrl(lineageInfo.path as string);
