@@ -25,53 +25,47 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {initialPortalRolesManagementState, PortalRolesManagementState} from "./portal-roles-management.state";
-import {PortalRolesManagementActions, RolesManagementActionType} from "./portal-roles-management.action";
+import {initialPortalRolesManagementState} from "./portal-roles-management.state";
+import {hideDeletePortalRolePopup, loadPortalRoleByIdSuccess, loadPortalRolesSuccess, saveChangesToPortalRole, showDeletePortalRolePopup} from "./portal-roles-management.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const portalRolesManagementReducer = (
-  state = initialPortalRolesManagementState,
-  action: PortalRolesManagementActions
-): PortalRolesManagementState => {
-  switch (action.type) {
-    case RolesManagementActionType.LOAD_PORTAL_ROLES_SUCCESS: {
-      return {
-        ...state,
-        portalRoles: action.roles,
-        editedPortalRole: {},
-      };
-    }
-
-    case RolesManagementActionType.SAVE_CHANGES_TO_PORTAL_ROLE: {
-      return {
-        ...state,
-        portalRoles: [...state.portalRoles, action.role]
-      };
-    }
-
-    case RolesManagementActionType.SHOW_DELETE_PORTAL_ROLE_POP_UP: {
-      return {
-        ...state,
-        portalRoleForDeletion: action.role
-      };
-    }
-
-    case RolesManagementActionType.HIDE_DELETE_PORTAL_ROLE_POP_UP: {
-      return {
-        ...state,
-        portalRoleForDeletion: null
-      };
-    }
-
-    case RolesManagementActionType.LOAD_PORTAL_ROLE_BY_ID_SUCCESS: {
-      return {
-        ...state,
-        editedPortalRole: action.role
-      };
-    }
-
-    default:
-      return state;
-  }
-};
-
-
+export const portalRolesManagementReducer = createReducer(
+  initialPortalRolesManagementState,
+  on(loadPortalRolesSuccess, (state, {roles}) => {
+    return {
+      ...state,
+      portalRoles: roles,
+      editedPortalRole: {},
+    };
+  }),
+  on(saveChangesToPortalRole, (state, {role}) => {
+    return {
+      ...state,
+      portalRoles: [...state.portalRoles, role]
+    };
+  }),
+  on(saveChangesToPortalRole, (state, {role}) => {
+    return {
+      ...state,
+      portalRoles: [...state.portalRoles, role]
+    };
+  }),
+  on(showDeletePortalRolePopup, (state, {role}) => {
+    return {
+      ...state,
+      portalRoleForDeletion: role
+    };
+  }),
+  on(hideDeletePortalRolePopup, (state) => {
+    return {
+      ...state,
+      portalRoleForDeletion: null
+    };
+  }),
+  on(loadPortalRoleByIdSuccess, (state, {role}) => {
+    return {
+      ...state,
+      editedPortalRole: role
+    };
+  }),
+);

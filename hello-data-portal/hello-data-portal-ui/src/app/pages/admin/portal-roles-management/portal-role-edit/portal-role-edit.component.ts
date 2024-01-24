@@ -31,7 +31,6 @@ import {AppState} from "../../../../store/app/app.state";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
 import {selectAvailablePermissions, selectEditedPortalRole} from "../../../../store/portal-roles-management/portal-roles-management.selector";
-import {DeleteEditedPortalRole, SaveChangesToPortalRole, ShowDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
 import {selectAppInfos} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
@@ -40,6 +39,7 @@ import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-chan
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {loadAppInfoResources, loadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
+import {deleteEditedPortalRole, saveChangesToPortalRole, showDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 
 @Component({
   selector: 'app-role-edit',
@@ -92,11 +92,11 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
     const role = this.roleForm.getRawValue() as any;
     role.id = editedRole.id;
     role.contextKey = role.dataDomain;
-    this.store.dispatch(new SaveChangesToPortalRole(role));
+    this.store.dispatch(saveChangesToPortalRole(role));
   }
 
   openDeletePopup(editedRole: PortalRole): void {
-    this.store.dispatch(new ShowDeletePortalRolePopup(editedRole));
+    this.store.dispatch(showDeletePortalRolePopup({role: editedRole}));
   }
 
   navigateToRoleList(): void {
@@ -104,7 +104,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   }
 
   getDeletionAction() {
-    return new DeleteEditedPortalRole();
+    return deleteEditedPortalRole();
   }
 
   filterPermission($event: any) {
@@ -163,7 +163,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
     const role = this.roleForm.getRawValue() as any;
     role.id = editedRole.id;
     role.contextKey = role.dataDomain;
-    this.store.dispatch(new MarkUnsavedChanges(new SaveChangesToPortalRole(role), role.id === undefined));
+    this.store.dispatch(new MarkUnsavedChanges(saveChangesToPortalRole(role), role.id === undefined));
   }
 
   private unsubFormValueChanges() {

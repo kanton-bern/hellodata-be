@@ -31,7 +31,6 @@ import {ReactiveFormsModule} from "@angular/forms";
 import {PortalRoleEditComponent} from './portal-role-edit/portal-role-edit.component';
 import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {DeletePortalRole, LoadPortalRoles, OpenPortalRoleEdition, ShowDeletePortalRolePopup} from "../../../store/portal-roles-management/portal-roles-management.action";
 import {Observable} from "rxjs";
 import {selectPortalRoles} from "../../../store/portal-roles-management/portal-roles-management.selector";
 import {DeletePortalRolePopupComponent} from "./delete-portal-role-popup/delete-portal-role-popup.component";
@@ -52,6 +51,7 @@ import {TooltipModule} from "primeng/tooltip";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {deletePortalRole, loadPortalRoles, openPortalRoleEdition, showDeletePortalRolePopup} from "../../../store/portal-roles-management/portal-roles-management.action";
 
 @Component({
   selector: 'app-roles-management',
@@ -65,7 +65,7 @@ export class PortalRolesManagementComponent extends BaseComponent implements OnI
   constructor(private store: Store<AppState>) {
     super();
     this.roles$ = this.store.select(selectPortalRoles);
-    this.store.dispatch(new LoadPortalRoles());
+    this.store.dispatch(loadPortalRoles());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -81,19 +81,19 @@ export class PortalRolesManagementComponent extends BaseComponent implements OnI
   }
 
   createRole() {
-    this.store.dispatch(new OpenPortalRoleEdition());
+    this.store.dispatch(openPortalRoleEdition({role: {}}));
   }
 
   showRoleDeletionPopup(data: PortalRole) {
-    this.store.dispatch(new ShowDeletePortalRolePopup(data));
+    this.store.dispatch(showDeletePortalRolePopup({role: data}));
   }
 
   getDeletionAction(): Action {
-    return new DeletePortalRole();
+    return deletePortalRole();
   }
 
   editRole(data: PortalRole): void {
-    this.store.dispatch(new OpenPortalRoleEdition(data));
+    this.store.dispatch(openPortalRoleEdition({role: data}));
   }
 
 }

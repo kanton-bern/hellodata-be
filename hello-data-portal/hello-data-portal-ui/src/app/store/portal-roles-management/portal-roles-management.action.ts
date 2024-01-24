@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {PortalRole} from "./portal-roles-management.model";
 
 export enum RolesManagementActionType {
@@ -44,85 +44,62 @@ export enum RolesManagementActionType {
   LOAD_PORTAL_ROLE_BY_ID_SUCCESS = '[PORTAL ROLES MANAGEMENT] Load role by id success',
 }
 
-export class LoadPortalRoles implements Action {
-  public readonly type = RolesManagementActionType.LOAD_PORTAL_ROLES;
-}
+export const loadPortalRoles = createAction(
+  RolesManagementActionType.LOAD_PORTAL_ROLES
+);
 
-export class LoadPortalRolesSuccess implements Action {
-  public readonly type = RolesManagementActionType.LOAD_PORTAL_ROLES_SUCCESS;
+export const loadPortalRolesSuccess = createAction(
+  RolesManagementActionType.LOAD_PORTAL_ROLES_SUCCESS,
+  props<{ roles: PortalRole[] }>()
+);
 
-  constructor(public roles: PortalRole[]) {
-  }
-}
+export const openPortalRoleEdition = createAction(
+  RolesManagementActionType.OPEN_PORTAL_ROLE_EDITION,
+  props<{ role: PortalRole }>()
+);
 
-export class OpenPortalRoleEdition implements Action {
-  public readonly type = RolesManagementActionType.OPEN_PORTAL_ROLE_EDITION;
+export const saveChangesToPortalRole = createAction(
+  RolesManagementActionType.SAVE_CHANGES_TO_PORTAL_ROLE,
+  props<{ role: PortalRole }>()
+);
 
-  constructor(public role: PortalRole = {}) {
-  }
-}
+export const saveChangesToPortalRoleSuccess = createAction(
+  RolesManagementActionType.SAVE_CHANGES_TO_PORTAL_ROLE_SUCCESS,
+  props<{ role: PortalRole }>()
+);
 
-export class SaveChangesToPortalRole implements Action {
-  public readonly type = RolesManagementActionType.SAVE_CHANGES_TO_PORTAL_ROLE;
+export const deletePortalRole = createAction(
+  RolesManagementActionType.DELETE_PORTAL_ROLE
+);
 
-  constructor(public role: PortalRole) {
-  }
-}
+export const deletePortalRoleSuccess = createAction(
+  RolesManagementActionType.DELETE_PORTAL_ROLE_SUCCESS,
+  props<{ role: PortalRole }>()
+);
 
-export class SaveChangesToPortalRoleSuccess implements Action {
-  public readonly type = RolesManagementActionType.SAVE_CHANGES_TO_PORTAL_ROLE_SUCCESS;
+export const deleteEditedPortalRole = createAction(
+  RolesManagementActionType.DELETE_EDITED_PORTAL_ROLE
+);
 
-  constructor(public role: PortalRole) {
-  }
-}
+export const deleteEditedPortalRoleSuccess = createAction(
+  RolesManagementActionType.DELETE_EDITED_PORTAL_ROLE_SUCCESS,
+  props<{ name: string }>()
+);
 
-export class DeletePortalRole implements Action {
-  public readonly type = RolesManagementActionType.DELETE_PORTAL_ROLE;
+export const showDeletePortalRolePopup = createAction(
+  RolesManagementActionType.SHOW_DELETE_PORTAL_ROLE_POP_UP,
+  props<{ role: PortalRole }>()
+);
 
-}
+export const hideDeletePortalRolePopup = createAction(
+  RolesManagementActionType.HIDE_DELETE_PORTAL_ROLE_POP_UP
+);
 
-export class DeletePortalRoleSuccess implements Action {
-  public readonly type = RolesManagementActionType.DELETE_PORTAL_ROLE_SUCCESS;
+export const loadPortalRoleById = createAction(
+  RolesManagementActionType.LOAD_PORTAL_ROLE_BY_ID
+);
 
-  constructor(public role: PortalRole) {
-  }
-}
-
-export class DeleteEditedPortalRole implements Action {
-  public readonly type = RolesManagementActionType.DELETE_EDITED_PORTAL_ROLE;
-}
-
-export class DeleteEditedPortalRoleSuccess implements Action {
-  public readonly type = RolesManagementActionType.DELETE_EDITED_PORTAL_ROLE_SUCCESS;
-
-  constructor(public name: string) {
-  }
-}
-
-export class ShowDeletePortalRolePopup implements Action {
-  public readonly type = RolesManagementActionType.SHOW_DELETE_PORTAL_ROLE_POP_UP;
-
-  constructor(public role: PortalRole) {
-  }
-}
-
-export class HideDeletePortalRolePopup implements Action {
-  public readonly type = RolesManagementActionType.HIDE_DELETE_PORTAL_ROLE_POP_UP;
-}
-
-export class LoadPortalRoleById implements Action {
-  public readonly type = RolesManagementActionType.LOAD_PORTAL_ROLE_BY_ID;
-}
-
-export class LoadPortalRoleByIdSuccess implements Action {
-  public readonly type = RolesManagementActionType.LOAD_PORTAL_ROLE_BY_ID_SUCCESS;
-
-  constructor(public role: PortalRole) {
-  }
-}
-
-
-export type PortalRolesManagementActions = OpenPortalRoleEdition | SaveChangesToPortalRole | LoadPortalRoles | LoadPortalRolesSuccess | SaveChangesToPortalRoleSuccess |
-  DeletePortalRole | DeletePortalRoleSuccess | ShowDeletePortalRolePopup | HideDeletePortalRolePopup | DeleteEditedPortalRole | DeleteEditedPortalRoleSuccess |
-  LoadPortalRoleById | LoadPortalRoleByIdSuccess
-
+export const loadPortalRoleByIdSuccess = createAction(
+  RolesManagementActionType.LOAD_PORTAL_ROLE_BY_ID_SUCCESS,
+  props<{ role: PortalRole }>()
+);
