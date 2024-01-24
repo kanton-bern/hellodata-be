@@ -53,9 +53,26 @@ import {selectParamAnnouncementId, selectSelectedAnnouncementForDeletion} from "
 import {Announcement} from "./announcement.model";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError} from "../app/app.action";
+import {createBreadcrumbs} from "../breadcrumb/breadcrumb.action";
+import {naviElements} from "../../app-navi-elements";
 
 @Injectable()
 export class AnnouncementEffects {
+
+  anouncementsComponentLoaded$ = createEffect(() => {
+      return this._actions$.pipe(
+        ofType(loadAllAnnouncements),
+        switchMap(action => of(loadAllAnnouncements(), createBreadcrumbs({
+          breadcrumbs: [
+            {
+              label: naviElements.announcementsManagement.label,
+              routerLink: naviElements.announcementsManagement.path,
+            }
+          ]
+        })))
+      )
+    }
+  );
 
   loadAllAnnouncements$ = createEffect(() => {
     return this._actions$.pipe(
