@@ -27,32 +27,27 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {NotificationService} from "../../shared/services/notification.service";
-import {Store} from '@ngrx/store';
-import {AppState} from "../app/app.state";
-import {Router} from "@angular/router";
 import {MenuService} from "./menu.service";
 import {catchError, of, switchMap} from "rxjs";
-import {MenuActionType, ProcessNavigation, ProcessNavigationSuccess} from "./menu.action";
-import {ShowError} from "../app/app.action";
+import {processNavigation, processNavigationSuccess} from "./menu.action";
+import {showError} from "../app/app.action";
 
 @Injectable()
 export class MenuEffects {
 
-  processNavigation$ = createEffect(() => this._actions$.pipe(
-    ofType<ProcessNavigation>(MenuActionType.PROCESS_NAVIGATION),
-    switchMap((action) =>
-      this._menuService.processNavigation(action.compactMode)),
-    switchMap(result => of(new ProcessNavigationSuccess(result))),
-    catchError(e => of(new ShowError(e)))
-  ));
+  processNavigation$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(processNavigation),
+      switchMap((action) =>
+        this._menuService.processNavigation(action.compactMode)),
+      switchMap(result => of(processNavigationSuccess({navItems: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
   constructor(
-    private _router: Router,
     private _actions$: Actions,
-    private _store: Store<AppState>,
     private _menuService: MenuService,
-    private _notificationService: NotificationService
   ) {
   }
 }

@@ -26,13 +26,13 @@
 ///
 
 import {Component} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentContextRoles, selectProfile} from "../../store/auth/auth.selector";
 import {Observable} from "rxjs";
 import {BUSINESS_DOMAIN_CONTEXT_TYPE, DATA_DOMAIN_CONTEXT_TYPE} from "../../store/users-management/users-management.model";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'profile.component.html',
@@ -46,14 +46,16 @@ export class ProfileComponent {
   protected readonly DATA_DOMAIN_CONTEXT_TYPE = DATA_DOMAIN_CONTEXT_TYPE;
 
   constructor(private store: Store<AppState>) {
-    this.userDetails$ = this.store.pipe(select(selectProfile));
-    this.userContextRoles$ = this.store.pipe(select(selectCurrentContextRoles));
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.profile.label,
-        routerLink: naviElements.profile.path
-      }
-    ]));
+    this.userDetails$ = this.store.select(selectProfile);
+    this.userContextRoles$ = this.store.select(selectCurrentContextRoles);
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.profile.label,
+          routerLink: naviElements.profile.path
+        }
+      ]
+    }));
   }
 
 }

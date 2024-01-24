@@ -26,29 +26,29 @@
 ///
 
 import {Component, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {CreateOrUpdateDocumentation, LoadDocumentation} from "../../../store/summary/summary.actions";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
 import {Observable, tap} from "rxjs";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
-import {MarkUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/summary/summary.actions";
 
 @Component({
   selector: 'app-documentation',
   templateUrl: './documentation-management.component.html',
   styleUrls: ['./documentation-management.component.scss']
 })
-export class DocumentationManagementComponent extends BaseComponent implements OnInit{
+export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   documentation = '';
   documentation$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.store.dispatch(new LoadDocumentation());
-    this.documentation$ = this.store.pipe(select(selectDocumentation)).pipe(tap(doc => {
+    this.store.dispatch(loadDocumentation());
+    this.documentation$ = this.store.select(selectDocumentation).pipe(tap(doc => {
       this.documentation = doc;
     }));
     this.createBreadcrumbs();
@@ -59,19 +59,27 @@ export class DocumentationManagementComponent extends BaseComponent implements O
   }
 
   createOrUpdateDocumentation() {
-    this.store.dispatch(new CreateOrUpdateDocumentation({text: this.documentation}))
+    this.store.dispatch(createOrUpdateDocumentation({
+      documentation: {text: this.documentation}
+    }));
   }
 
   onTextChange() {
-    this.store.dispatch(new MarkUnsavedChanges(new CreateOrUpdateDocumentation({text: this.documentation})));
+    this.store.dispatch(markUnsavedChanges({
+      action: createOrUpdateDocumentation({
+        documentation: {text: this.documentation}
+      })
+    }));
   }
 
   private createBreadcrumbs() {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.documentationManagement.label,
-        routerLink: naviElements.documentationManagement.path,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.documentationManagement.label,
+          routerLink: naviElements.documentationManagement.path,
+        }
+      ]
+    }));
   }
 }

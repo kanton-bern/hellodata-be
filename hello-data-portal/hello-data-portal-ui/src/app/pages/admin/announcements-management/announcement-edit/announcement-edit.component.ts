@@ -28,16 +28,16 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {Navigate} from "../../../../store/app/app.action";
-import {DeleteEditedAnnouncement, SaveChangesToAnnouncement, ShowDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
-import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {deleteEditedAnnouncement, saveChangesToAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
+import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -51,37 +51,41 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
-    this.editedAnnouncement$ = this.store.pipe(select(selectEditedAnnouncement));
+    this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement);
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
-    this.editedAnnouncement$ = this.store.pipe(select(selectEditedAnnouncement)).pipe(
+    this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement).pipe(
       tap(announcement => {
         this.announcementForm = this.fb.group({
           message: [announcement?.message, [Validators.required.bind(this), Validators.minLength(3)]],
           published: [announcement.published ? announcement.published : false]
         });
         if (announcement.id) {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.announcementsManagement.label,
-              routerLink: naviElements.announcementsManagement.path,
-            },
-            {
-              label: naviElements.announcementEdit.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.announcementsManagement.label,
+                routerLink: naviElements.announcementsManagement.path,
+              },
+              {
+                label: naviElements.announcementEdit.label,
+              }
+            ]
+          }));
         } else {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.announcementsManagement.label,
-              routerLink: naviElements.announcementsManagement.path,
-            },
-            {
-              label: naviElements.announcementCreate.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.announcementsManagement.label,
+                routerLink: naviElements.announcementsManagement.path,
+              },
+              {
+                label: naviElements.announcementCreate.label,
+              }
+            ]
+          }));
         }
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.announcementForm.valueChanges.subscribe(newValues => {
@@ -92,7 +96,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   }
 
   navigateToAnnouncementList() {
-    this.store.dispatch(new Navigate('announcements-management'));
+    this.store.dispatch(navigate({url: 'announcements-management'}));
   }
 
   saveAnnouncement(editedAnnouncement: Announcement) {
@@ -100,15 +104,15 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const formAnnouncement = this.announcementForm.getRawValue() as Announcement;
     announcementToBeSaved.message = formAnnouncement.message;
     announcementToBeSaved.published = formAnnouncement.published;
-    this.store.dispatch(new SaveChangesToAnnouncement(announcementToBeSaved));
+    this.store.dispatch(saveChangesToAnnouncement({announcement: announcementToBeSaved}));
   }
 
   openDeletePopup(editedAnnouncement: Announcement) {
-    this.store.dispatch(new ShowDeleteAnnouncementPopup(editedAnnouncement));
+    this.store.dispatch(showDeleteAnnouncementPopup({announcement: editedAnnouncement}));
   }
 
   getDeletionAction() {
-    return new DeleteEditedAnnouncement();
+    return deleteEditedAnnouncement();
   }
 
   ngOnDestroy(): void {
@@ -120,7 +124,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const formAnnouncement = this.announcementForm.getRawValue() as Announcement;
     announcementToBeSaved.message = formAnnouncement.message;
     announcementToBeSaved.published = formAnnouncement.published;
-    this.store.dispatch(new MarkUnsavedChanges(new SaveChangesToAnnouncement(announcementToBeSaved), announcementToBeSaved.id === undefined));
+    this.store.dispatch(markUnsavedChanges({action: saveChangesToAnnouncement({announcement: announcementToBeSaved}), stayOnPage: announcementToBeSaved.id === undefined}));
   }
 
   private unsubFormValueChanges() {

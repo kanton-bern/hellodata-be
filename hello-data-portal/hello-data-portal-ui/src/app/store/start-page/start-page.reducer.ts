@@ -26,22 +26,16 @@
 ///
 
 import {initialStartPageState, StartPageState} from "./start-page.state";
-import {StartPageActions, StartPageActionType} from "./start-page.action";
+import {loadFaqStartPageSuccess} from "./start-page.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const startPageReducer = (
-  state = initialStartPageState,
-  action: StartPageActions
-): StartPageState => {
-  switch (action.type) {
 
-    case StartPageActionType.LOAD_FAQ_START_PAGE_SUCCESS: {
-      return {
-        ...state,
-        faq: action.payload,
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+export const startPageReducer = createReducer(
+  initialStartPageState,
+  on(loadFaqStartPageSuccess, (state: StartPageState, {payload}): StartPageState => {
+    return {
+      ...state,
+      faq: payload,
+    };
+  }),
+);

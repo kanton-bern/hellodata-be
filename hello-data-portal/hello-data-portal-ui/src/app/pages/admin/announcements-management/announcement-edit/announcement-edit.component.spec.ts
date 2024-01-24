@@ -31,9 +31,9 @@ import {Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {AnnouncementEditComponent} from './announcement-edit.component';
 import {AppState} from '../../../../store/app/app.state';
-import {DeleteEditedAnnouncement, ShowDeleteAnnouncementPopup,} from '../../../../store/announcement/announcement.action';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {TestModule} from "../../../../test.module";
+import {deleteEditedAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 
 describe('AnnouncementEditComponent', () => {
   let component: AnnouncementEditComponent;
@@ -60,22 +60,22 @@ describe('AnnouncementEditComponent', () => {
     mockStore.select.mockReturnValue(of({}));
   });
 
-  it('should create the AnnouncementEditComponent', () => {
+  it('should create the announcementEditComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch ShowDeleteAnnouncementPopup action on openDeletePopup', () => {
+  it('should dispatch showDeleteAnnouncementPopup action on openDeletePopup', () => {
     const mockAnnouncement = {id: '1', message: 'Test Message', published: true};
 
     component.openDeletePopup(mockAnnouncement);
 
-    expect(store.dispatch).toHaveBeenCalledWith(new ShowDeleteAnnouncementPopup(mockAnnouncement));
+    expect(store.dispatch).toHaveBeenCalledWith(showDeleteAnnouncementPopup({announcement: mockAnnouncement}));
   });
 
-  it('should return DeleteEditedAnnouncement action from getDeletionAction', () => {
+  it('should return deleteEditedAnnouncement action from getDeletionAction', () => {
     const deleteAction = component.getDeletionAction();
 
-    expect(deleteAction).toEqual(new DeleteEditedAnnouncement());
+    expect(deleteAction).toEqual(deleteEditedAnnouncement());
   });
 
 });

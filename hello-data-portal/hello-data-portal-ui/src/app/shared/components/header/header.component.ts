@@ -28,7 +28,7 @@
 import {Component, EventEmitter, Input, NgModule, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
@@ -38,7 +38,6 @@ import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
 import {MenuModule} from "primeng/menu";
 import {ButtonModule} from "primeng/button";
-import {Navigate} from "../../../store/app/app.action";
 import {SidebarModule} from "primeng/sidebar";
 import {BreadcrumbComponent} from "../breadcrumb/breadcrumb.component";
 import {BreadcrumbModule} from "primeng/breadcrumb";
@@ -50,10 +49,11 @@ import {selectAvailableDataDomains, selectSelectedDataDomain} from "../../../sto
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {RippleModule} from "primeng/ripple";
 import {AnimateModule} from "primeng/animate";
-import {SetSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
+import {navigate} from "../../../store/app/app.action";
+import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
 
 @Component({
   selector: 'app-header',
@@ -81,10 +81,10 @@ export class HeaderComponent {
   selectedDataDomain$: Observable<DataDomain | null>;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
-    this.isAuthenticated$ = this.store.pipe(select(selectIsAuthenticated));
-    this.userData$ = this.store.pipe(select(selectProfile));
-    this.businessDomain$ = this.store.pipe(select(selectCurrentBusinessDomain));
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomains)).pipe(tap(availableDataDomains => {
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+    this.userData$ = this.store.select(selectProfile);
+    this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomains).pipe(tap(availableDataDomains => {
       this.dataDomainSelectionItems = [];
       for (const availableDataDomain of availableDataDomains) {
         this.dataDomainSelectionItems.push({
@@ -96,7 +96,7 @@ export class HeaderComponent {
         })
       }
     }));
-    this.selectedDataDomain$ = this.store.pipe(select(selectSelectedDataDomain));
+    this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.environment = {
       name: environment.deploymentEnvironment.name,
       showEnvironment: environment.deploymentEnvironment.showEnvironment != undefined ? environment.deploymentEnvironment.showEnvironment : true,
@@ -112,14 +112,14 @@ export class HeaderComponent {
           label: profileTranslation,
           icon: 'fas fa-light fa-user',
           command: () => {
-            this.store.dispatch(new Navigate('/profile'));
+            this.store.dispatch(navigate({url: '/profile'}));
           }
         },
         {
           label: logoutTranslation,
           icon: 'fas fa-light fa-power-off',
           command: () => {
-            this.store.dispatch(new Navigate('/logout'));
+            this.store.dispatch(navigate({url: '/logout'}));
           }
         }
       ];
@@ -128,7 +128,7 @@ export class HeaderComponent {
   }
 
   onDataDomainChanged($event: any) {
-    this.store.dispatch(new SetSelectedDataDomain($event.item.data));
+    this.store.dispatch(setSelectedDataDomain({dataDomain: $event.item.data}));
   }
 
 }

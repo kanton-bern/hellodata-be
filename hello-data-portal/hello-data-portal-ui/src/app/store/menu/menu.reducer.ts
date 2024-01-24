@@ -25,22 +25,16 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {MenuActions, MenuActionType} from "./menu.action";
+import {processNavigationSuccess} from "./menu.action";
 import {initialMenuState, MenuState} from "./menu.state";
+import {createReducer, on} from "@ngrx/store";
 
-export const menuReducer = (
-  state = initialMenuState,
-  action: MenuActions
-): MenuState => {
-  switch (action.type) {
-    case MenuActionType.PROCESS_NAVIGATION_SUCCESS: {
-      return {
-        ...state,
-        navItems: action.navItems
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+export const menuReducer = createReducer(
+  initialMenuState,
+  on(processNavigationSuccess, (state: MenuState, {navItems}): MenuState => {
+    return {
+      ...state,
+      navItems: navItems
+    };
+  }),
+);

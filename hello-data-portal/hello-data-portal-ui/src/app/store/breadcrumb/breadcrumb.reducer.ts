@@ -26,28 +26,21 @@
 ///
 
 import {BreadcrumbState, HOME_BREADCRUMB, initialBreadcrumbState} from "./breadcrumb.state";
-import {BreadcrumbActions, BreadcrumbActionType} from "./breadcrumb.action";
+import {createBreadcrumbs, resetBreadcrumb} from "./breadcrumb.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const breadcrumbReducer = (
-  state = initialBreadcrumbState,
-  action: BreadcrumbActions
-): BreadcrumbState => {
-  switch (action.type) {
-    case BreadcrumbActionType.CREATE_BREADCRUMBS: {
-      return {
-        ...state,
-        breadcrumbs: [HOME_BREADCRUMB, ...action.breadcrumbs]
-      };
+export const breadcrumbReducer = createReducer(
+  initialBreadcrumbState,
+  on(createBreadcrumbs, (state: BreadcrumbState, {breadcrumbs}): BreadcrumbState => {
+    return {
+      ...state,
+      breadcrumbs: [HOME_BREADCRUMB, ...breadcrumbs]
+    };
+  }),
+  on(resetBreadcrumb, (state: BreadcrumbState): BreadcrumbState => {
+    return {
+      ...state,
+      breadcrumbs: initialBreadcrumbState.breadcrumbs
     }
-
-    case BreadcrumbActionType.RESET_BREADCRUMB: {
-      return {
-        ...state,
-        breadcrumbs: initialBreadcrumbState.breadcrumbs
-      }
-    }
-
-    default:
-      return state;
-  }
-};
+  }),
+);

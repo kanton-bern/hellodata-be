@@ -27,7 +27,7 @@
 
 import {Component, ElementRef, NgModule, OnInit, ViewChild} from '@angular/core';
 import {CommonModule} from "@angular/common";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
@@ -40,14 +40,14 @@ import {AppState} from "../../store/app/app.state";
 import {LineageDocsService} from "../../store/lineage-docs/lineage-docs.service";
 import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {HdCommonModule} from "../../hd-common.module";
-import {Navigate} from "../../store/app/app.action";
 import {naviElements} from "../../app-navi-elements";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {Observable} from "rxjs";
 import {selectMyLineageDocs} from "../../store/lineage-docs/lineage-docs.selector";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {navigate} from "../../store/app/app.action";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   selector: 'app-docs',
@@ -62,13 +62,15 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>, private docsService: LineageDocsService, private fb: FormBuilder) {
     super();
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.lineageDocsList.label,
-        routerLink: naviElements.lineageDocsList.path
-      }
-    ]));
-    this.docs$ = this.store.pipe(select(selectMyLineageDocs));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.lineageDocsList.label,
+          routerLink: naviElements.lineageDocsList.path
+        }
+      ]
+    }));
+    this.docs$ = this.store.select(selectMyLineageDocs);
   }
 
   override ngOnInit(): void {
@@ -83,7 +85,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
     const contextKey = projectDoc.contextKey;
     const urlEncodedProjectPath = encodeURIComponent(projectDoc.path);
     const docLink = `/${naviElements.lineageDocs.path}/detail/${contextKey}/${id}/${urlEncodedProjectPath}`;
-    this.store.dispatch(new Navigate(docLink));
+    this.store.dispatch(navigate({url: docLink}));
   }
 }
 

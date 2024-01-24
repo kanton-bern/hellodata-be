@@ -28,18 +28,19 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs";
 import {ActivatedRoute} from "@angular/router";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {ConfirmationService} from "primeng/api";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
-import {DeleteExternalDashboard, LoadExternalDashboards, OpenExternalDashboardEdition} from "../../../store/external-dashboards/external-dasboards.action";
 import {Table} from "primeng/table";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {deleteExternalDashboard, loadExternalDashboards, openExternalDashboardEdition} from "../../../store/external-dashboards/external-dasboards.action";
+
 @Component({
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
@@ -53,26 +54,28 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   constructor(private route: ActivatedRoute, private store: Store<AppState>, private confirmationService: ConfirmationService,
               private translateService: TranslateService) {
     super();
-    this.externalDashboards$ = this.store.pipe(select(selectExternalDashboards));
-    this.currentUserPermissions$ = this.store.pipe(select(selectCurrentUserPermissions));
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.externalDashboards.label,
-      }
-    ]));
+    this.externalDashboards$ = this.store.select(selectExternalDashboards);
+    this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.externalDashboards.label,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
-    this.store.dispatch(new LoadExternalDashboards());
+    this.store.dispatch(loadExternalDashboards());
   }
 
   openNew() {
-    this.store.dispatch(new OpenExternalDashboardEdition());
+    this.store.dispatch(openExternalDashboardEdition({dashboard: null}));
   }
 
   editExternalDashboard(externalDashboard: ExternalDashboard) {
-    this.store.dispatch(new OpenExternalDashboardEdition(externalDashboard));
+    this.store.dispatch(openExternalDashboardEdition({dashboard: externalDashboard}));
   }
 
   deleteExternalDashboard(externalDashboard: ExternalDashboard) {
@@ -81,7 +84,7 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
       header: 'Confirm',
       icon: 'fas fa-triangle-exclamation',
       accept: () => {
-        this.store.dispatch(new DeleteExternalDashboard(externalDashboard));
+        this.store.dispatch(deleteExternalDashboard({dashboard: externalDashboard}));
       }
     });
   }

@@ -27,20 +27,20 @@
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {map, Observable, Subscription} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedExternalDashboard} from "../../../../store/external-dashboards/external-dashboards.selector";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {Navigate} from "../../../../store/app/app.action";
-import {CreateExternalDashboard, DeleteExternalDashboard, UpdateExternalDashboard} from "../../../../store/external-dashboards/external-dasboards.action";
 import {ExternalDashboard, ExternalDashboardMetadata} from "../../../../store/external-dashboards/external-dashboards.model";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ConfirmationService} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
-import {ClearUnsavedChanges, MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {clearUnsavedChanges, markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {naviElements} from "../../../../app-navi-elements";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {createExternalDashboard, deleteExternalDashboard, updateExternalDashboard} from "../../../../store/external-dashboards/external-dasboards.action";
 
 @Component({
   selector: 'app-external-dashboard-edit',
@@ -59,9 +59,9 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
               private translateService: TranslateService) {
 
     super();
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomainItems));
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
 
-    this.editedExternalDashboard$ = this.store.pipe(select(selectEditedExternalDashboard)).pipe(
+    this.editedExternalDashboard$ = this.store.select(selectEditedExternalDashboard).pipe(
       map(externalDashboard => {
         let externalDashboardForEdition = externalDashboard;
         if (externalDashboard === null) {
@@ -78,25 +78,29 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
             contextKey: '',
             contextName: ''
           };
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.externalDashboards.label,
-              routerLink: naviElements.externalDashboards.path
-            },
-            {
-              label: naviElements.externalDashboardCreate.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.externalDashboards.label,
+                routerLink: naviElements.externalDashboards.path
+              },
+              {
+                label: naviElements.externalDashboardCreate.label,
+              }
+            ]
+          }));
         } else {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.externalDashboards.label,
-              routerLink: naviElements.externalDashboards.path
-            },
-            {
-              label: externalDashboardForEdition?.title
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.externalDashboards.label,
+                routerLink: naviElements.externalDashboards.path
+              },
+              {
+                label: externalDashboardForEdition?.title
+              }
+            ]
+          }));
         }
         const urlRegex = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=%.]+$/;
         this.externalDashboardForm = this.fb.group({
@@ -125,7 +129,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
   }
 
   cancel() {
-    this.store.dispatch(new Navigate('external-dashboards'));
+    this.store.dispatch(navigate({url: 'external-dashboards'}));
   }
 
   saveChanges(editedExternalDashboard: any) {
@@ -152,7 +156,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
         title: formData.title,
         contextName: ''
       };
-      return new CreateExternalDashboard(dashboard);
+      return createExternalDashboard({dashboard});
     } else {
       const formData = this.externalDashboardForm.getRawValue() as any;
       const dashboard: ExternalDashboard = {
@@ -168,7 +172,7 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
         title: formData.title,
         contextName: ''
       };
-      return new UpdateExternalDashboard(dashboard);
+      return updateExternalDashboard({dashboard});
     }
   }
 
@@ -178,8 +182,8 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
       header: 'Confirm',
       icon: 'fas fa-triangle-exclamation',
       accept: () => {
-        this.store.dispatch(new ClearUnsavedChanges());
-        this.store.dispatch(new DeleteExternalDashboard(externalDashboard));
+        this.store.dispatch(clearUnsavedChanges());
+        this.store.dispatch(deleteExternalDashboard({dashboard: externalDashboard}));
       }
     });
   }
@@ -191,7 +195,10 @@ export class ExternalDashboardEditComponent extends BaseComponent implements OnI
   private onChange(externalDashboard: any) {
     const action = this.prepareActionWithData(externalDashboard);
     if (action) {
-      this.store.dispatch(new MarkUnsavedChanges(action, externalDashboard === null || externalDashboard.id === undefined));
+      this.store.dispatch(markUnsavedChanges({
+        action,
+        stayOnPage: externalDashboard === null || externalDashboard.id === undefined
+      }));
     }
   }
 

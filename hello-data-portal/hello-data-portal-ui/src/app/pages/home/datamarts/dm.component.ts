@@ -27,7 +27,7 @@
 
 import {Component} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAvailableDataDomainItems} from "../../../store/my-dashboards/my-dashboards.selector";
 import {combineLatest, map, Observable} from "rxjs";
@@ -43,7 +43,7 @@ export class DmComponent {
   constructor(private route: ActivatedRoute, private store: Store<AppState>) {
     this.dataMarts$ =
       combineLatest([
-        this.store.pipe(select(selectAvailableDataDomainItems)),
+        this.store.select(selectAvailableDataDomainItems),
       ]).pipe(
         map(([availableDataDomainItems]) => {
           const newDmEntries = [];

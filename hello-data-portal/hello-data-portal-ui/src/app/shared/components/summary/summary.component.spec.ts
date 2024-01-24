@@ -63,9 +63,9 @@ describe('SummaryComponent', () => {
     component = fixture.componentInstance;
 
     // Mock store.pipe and store.select calls to return sample data
-    jest.spyOn(mockStore, 'pipe').mockReturnValueOnce(of(documentation));
-    jest.spyOn(mockStore, 'pipe').mockReturnValueOnce(of(currentUserPermissions));
-    jest.spyOn(mockStore, 'pipe').mockReturnValueOnce(of(pipelines));
+    jest.spyOn(mockStore, 'select').mockReturnValueOnce(of(documentation));
+    jest.spyOn(mockStore, 'select').mockReturnValueOnce(of(currentUserPermissions));
+    jest.spyOn(mockStore, 'select').mockReturnValueOnce(of(pipelines));
 
     fixture.detectChanges();
   });

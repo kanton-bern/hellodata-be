@@ -26,30 +26,24 @@
 ///
 
 import {ExternalDashboardsState, initialExternalDashboardsState} from "./external-dashboards.state";
-import {ExternalDashboardsActions, ExternalDashboardsActionType} from "./external-dasboards.action";
+import {loadExternalDashboardByIdSuccess, loadExternalDashboardsSuccess} from "./external-dasboards.action";
+import {createReducer, on} from "@ngrx/store";
 
-export const externalDashboardsReducer = (
-  state = initialExternalDashboardsState,
-  action: ExternalDashboardsActions
-): ExternalDashboardsState => {
-  switch (action.type) {
 
-    case ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARDS_SUCCESS: {
-      return {
-        ...state,
-        externalDashboards: action.payload,
-        editedExternalDashboard: null,
-      };
+export const externalDashboardsReducer = createReducer(
+  initialExternalDashboardsState,
+  on(loadExternalDashboardsSuccess, (state: ExternalDashboardsState, {payload}): ExternalDashboardsState => {
+    return {
+      ...state,
+      externalDashboards: payload,
+      editedExternalDashboard: null,
+    };
+  }),
+  on(loadExternalDashboardByIdSuccess, (state: ExternalDashboardsState, {dashboard}): ExternalDashboardsState => {
+    return {
+      ...state,
+      editedExternalDashboard: dashboard
     }
+  }),
+);
 
-    case ExternalDashboardsActionType.LOAD_EXTERNAL_DASHBOARD_BY_ID_SUCCESS: {
-      return {
-        ...state,
-        editedExternalDashboard: action.dashboard
-      }
-    }
-
-    default:
-      return state;
-  }
-};

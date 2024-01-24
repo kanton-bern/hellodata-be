@@ -28,55 +28,52 @@
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATED, ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {catchError, EMPTY, of, switchMap} from "rxjs";
-import {LoadPortalRoleById} from "../portal-roles-management/portal-roles-management.action";
-import {ShowError} from "../app/app.action";
 import {Injectable} from "@angular/core";
-import {Store} from "@ngrx/store";
-import {AppState} from "../app/app.state";
-import {LoadAnnouncementById} from "../announcement/announcement.action";
-import {LoadFaqById} from "../faq/faq.action";
-import {LoadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
-import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {loadAnnouncementById} from "../announcement/announcement.action";
+import {showError} from "../app/app.action";
+import {loadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
+import {loadFaqById} from "../faq/faq.action";
+import {loadPortalRoleById} from "../portal-roles-management/portal-roles-management.action";
+import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 
 @Injectable()
 export class RouterEffects {
 
-  openEditionFinished$ = createEffect(() => this._actions$.pipe(
-    ofType<RouterNavigationAction>(ROUTER_NAVIGATION),
-    switchMap(action => {
-      const urlParts = action.payload.routerState.url.split('/');
-      if (urlParts.length === 4 && urlParts[1] === 'roles-management' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
-        return of(new LoadPortalRoleById());
-      }
-      if (urlParts.length === 4 && urlParts[1] === 'announcements-management' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
-        return of(new LoadAnnouncementById());
-      }
-      if (urlParts.length === 4 && urlParts[1] === 'faq-management' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
-        return of(new LoadFaqById());
-      }
-      if (urlParts.length === 4 && urlParts[1] === 'external-dashboards' && urlParts[2] === 'edit') {
-        // const roleId = urlParts[3];
-        return of(new LoadExternalDashboardById());
-      }
-      return EMPTY;
-    }),
-    catchError(e => of(new ShowError(e)))
-  ));
+  openEditionFinished$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<RouterNavigationAction>(ROUTER_NAVIGATION),
+      switchMap(action => {
+        const urlParts = action.payload.routerState.url.split('/');
+        if (urlParts.length === 4 && urlParts[1] === 'roles-management' && urlParts[2] === 'edit') {
+          return of(loadPortalRoleById());
+        }
+        if (urlParts.length === 4 && urlParts[1] === 'announcements-management' && urlParts[2] === 'edit') {
+          return of(loadAnnouncementById());
+        }
+        if (urlParts.length === 4 && urlParts[1] === 'faq-management' && urlParts[2] === 'edit') {
+          return of(loadFaqById());
+        }
+        if (urlParts.length === 4 && urlParts[1] === 'external-dashboards' && urlParts[2] === 'edit') {
+          return of(loadExternalDashboardById());
+        }
+        return EMPTY;
+      }),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  navigated$ = createEffect(() => this._actions$.pipe(
-    ofType<RouterNavigationAction>(ROUTER_NAVIGATED),
-    switchMap(action => {
-      return of(new ClearUnsavedChanges());
-    }),
-    catchError(e => of(new ShowError(e)))
-  ))
+  navigated$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<RouterNavigationAction>(ROUTER_NAVIGATED),
+      switchMap(action => {
+        return of(clearUnsavedChanges());
+      }),
+      catchError(e => of(showError(e)))
+    )
+  })
 
   constructor(
     private _actions$: Actions,
-    private _store: Store<AppState>,
   ) {
   }
 

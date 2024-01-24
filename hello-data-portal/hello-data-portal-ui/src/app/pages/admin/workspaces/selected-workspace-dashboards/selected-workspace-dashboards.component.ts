@@ -26,7 +26,7 @@
 ///
 
 import {Component, Input} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {map} from "rxjs/operators";
@@ -50,7 +50,7 @@ export class SelectedWorkspaceDashboardsComponent {
   }
 
   createLink(dashboardResource: any): Observable<string> {
-    return this.store.pipe(select(selectAppInfoByInstanceName(this.instanceName))).pipe(map(appinfos => {
+    return this.store.select(selectAppInfoByInstanceName(this.instanceName)).pipe(map(appinfos => {
       if (appinfos) {
         let dashboardId = dashboardResource.id;
         if (dashboardResource.slug) {
