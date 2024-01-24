@@ -103,7 +103,8 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(loginComplete),
       switchMap(() => this._usersManagementService.getCurrentAuthData()),
-      switchMap((permissions) => of(fetchPermissionSuccess(permissions))),
+      tap((userProfile) => console.log('perm', userProfile)),
+      switchMap((currentUserAuthData) => of(fetchPermissionSuccess({currentUserAuthData}))),
       catchError(e => of(authError(e)))
     )
   });
@@ -135,7 +136,7 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(fetchContextRoles),
       switchMap(() => this._usersManagementService.getCurrentContextRoles()),
-      switchMap(result => of(fetchContextRolesSuccess(result))),
+      switchMap(result => of(fetchContextRolesSuccess({contextRoles: result}))),
       catchError(e => of(showError(e)))
     )
   });

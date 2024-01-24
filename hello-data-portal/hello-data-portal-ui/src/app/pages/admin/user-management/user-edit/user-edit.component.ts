@@ -137,7 +137,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
         this.store.dispatch(selectDataDomainRoleForEditedUser({selectedRoleForContext: {role: dataDomainAdmin, context: dataDomain}}));
       })
     }
-    this.store.dispatch(selectBusinessDomainRoleForEditedUser($event.value));
+    this.store.dispatch(selectBusinessDomainRoleForEditedUser({selectedRole: $event.value}));
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
 

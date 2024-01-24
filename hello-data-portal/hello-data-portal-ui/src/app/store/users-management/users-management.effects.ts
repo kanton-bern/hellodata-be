@@ -233,7 +233,7 @@ export class UsersManagementEffects {
       ofType(loadUserContextRoles),
       concatLatestFrom(() => this._store.select(selectParamUserId)),
       switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
-      switchMap(result => of(loadUserContextRolesSuccess(result))),
+      switchMap(result => of(loadUserContextRolesSuccess({payload: result}))),
       catchError(e => of(showError(e)))
     )
   });
