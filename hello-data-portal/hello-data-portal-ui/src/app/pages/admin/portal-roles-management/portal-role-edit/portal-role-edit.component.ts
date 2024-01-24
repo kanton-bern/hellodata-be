@@ -76,7 +76,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
       tap(role => {
         this.roleForm = this.fb.group({
           name: [role?.name, Validators.compose([Validators.required.bind(this), Validators.minLength(3), Validators.maxLength(255), Validators.pattern('[A-Za-z0-9_ ]*')])],
-          description: [role?.description, Validators.maxLength(2048)],
+          description: [role?.description, Validators.compose([Validators.required.bind(this), Validators.maxLength(2048)])],
           permissions: [role?.permissions ? role.permissions : []]
         });
         this.createBreadcrumbs(role);
