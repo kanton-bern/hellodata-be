@@ -28,20 +28,19 @@
 import {Injectable} from "@angular/core";
 import {combineLatest, map, Observable, switchMap} from "rxjs";
 import {DataDomain, SupersetDashboard} from "../my-dashboards/my-dashboards.model";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {selectCurrentUserPermissionsLoaded, selectCurrentContextRoles, selectCurrentUserPermissions} from "../auth/auth.selector";
+import {selectCurrentContextRoles, selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../auth/auth.selector";
 import {filter, take} from "rxjs/operators";
 import {selectAvailableDataDomainItems, selectAvailableDataDomains, selectMyDashboards} from "../my-dashboards/my-dashboards.selector";
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
-import {LineageDocsService} from "../lineage-docs/lineage-docs.service";
 import {TranslateService} from "../../shared/services/translate.service";
 import {ALL_MENU_ITEMS} from "./menu.model";
-import {LoadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
+import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 
 @Injectable({
   providedIn: 'root'
@@ -53,19 +52,16 @@ export class MenuService {
 
   constructor(
     private _store: Store<AppState>,
-    private _translateService: TranslateService,
-    private _docsService: LineageDocsService
+    private _translateService: TranslateService
   ) {
   }
 
   public processNavigation(compactMode: boolean): Observable<any[]> {
-    return this._store.pipe(
-      select(selectCurrentUserPermissions),
+    return this._store.select(selectCurrentUserPermissions).pipe(
       switchMap((currentUserPermissions) => {
         if (!currentUserPermissions || currentUserPermissions.length === 0) {
           // Permissions not yet loaded, return observable that will wait for them to be loaded
-          return this._store.pipe(
-            select(selectCurrentUserPermissionsLoaded),
+          return this._store.select(selectCurrentUserPermissionsLoaded).pipe(
             filter((loaded) => loaded),
             take(1),
             switchMap(() => {
@@ -90,14 +86,14 @@ export class MenuService {
   }
 
   private internalProcessNavigation(compactMode: boolean, currentUserPermissions: string[]): Observable<any[]> {
-    this._store.dispatch(new LoadAppInfoResources());
+    this._store.dispatch(loadAppInfoResources());
     return combineLatest([
-      this._store.pipe(select(selectMyDashboards)),
-      this._store.pipe(select(selectMyLineageDocs)),
-      this._store.pipe(select(selectAvailableDataDomains)),
-      this._store.pipe(select(selectAppInfos)),
-      this._store.pipe(select(selectCurrentContextRoles)),
-      this._store.pipe(select(selectAvailableDataDomainItems))
+      this._store.select(selectMyDashboards),
+      this._store.select(selectMyLineageDocs),
+      this._store.select(selectAvailableDataDomains),
+      this._store.select(selectAppInfos),
+      this._store.select(selectCurrentContextRoles),
+      this._store.select(selectAvailableDataDomainItems)
     ]).pipe(
       map(([myDashboards, myDocs, availableDataDomains,
              appInfos, contextRoles, availableDomainItems]) => {
@@ -148,8 +144,7 @@ export class MenuService {
   }
 
   private permissionsLoadedProcessNavigation(compactMode: boolean): Observable<any[]> {
-    return this._store.pipe(
-      select(selectCurrentUserPermissions),
+    return this._store.select(selectCurrentUserPermissions).pipe(
       switchMap((permissions) => {
         return this.internalProcessNavigation(compactMode, permissions);
       })

@@ -27,7 +27,7 @@
 
 import {Component, EventEmitter, Output} from '@angular/core';
 import {Observable, tap} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
@@ -47,10 +47,10 @@ export class HomeDocumentationComponent {
   documentation = '';
 
   constructor(private store: Store<AppState>) {
-    this.documentation$ = this.store.pipe(select(selectDocumentation)).pipe(tap(documentationText => {
+    this.documentation$ = this.store.select(selectDocumentation).pipe(tap(documentationText => {
       this.documentation = documentationText;
     }));
-    this.currentUserPermissions$ = this.store.pipe(select(selectCurrentUserPermissions));
+    this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
 
   toggleSummaryPanel() {

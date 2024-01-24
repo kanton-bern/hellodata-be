@@ -28,7 +28,7 @@
 import {Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../store/app/app.state";
-import {CheckAuth} from "../store/auth/auth.action";
+import {checkAuth} from "../store/auth/auth.action";
 
 @Component({
   selector: 'app-callback',
@@ -37,7 +37,7 @@ import {CheckAuth} from "../store/auth/auth.action";
 })
 export class CallbackComponent {
   constructor(private store: Store<AppState>) {
-    this.store.dispatch(new CheckAuth());
+    this.store.dispatch(checkAuth());
   }
 
 }

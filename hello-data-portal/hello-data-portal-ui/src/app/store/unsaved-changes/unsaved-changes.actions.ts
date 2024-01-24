@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {Action, createAction, props} from "@ngrx/store";
 
 export enum UnsavedChangesActionType {
   MARK_UNSAVED_CHANGES = '[UNSAVED CHANGES] Mark unsaved changes',
@@ -33,23 +33,15 @@ export enum UnsavedChangesActionType {
   RUN_SAVE_ACTION = '[UNSAVED CHANGES] Run save action',
 }
 
-export class MarkUnsavedChanges implements Action {
-  public readonly type = UnsavedChangesActionType.MARK_UNSAVED_CHANGES;
+export const markUnsavedChanges = createAction(
+  UnsavedChangesActionType.MARK_UNSAVED_CHANGES,
+  props<{ action: Action, stayOnPage?: boolean }>()
+);
 
-  constructor(public action: Action, public stayOnPage: boolean = false) {
-  }
-}
+export const clearUnsavedChanges = createAction(
+  UnsavedChangesActionType.CLEAR_UNSAVED_CHANGES
+);
 
-export class ClearUnsavedChanges implements Action {
-  public readonly type = UnsavedChangesActionType.CLEAR_UNSAVED_CHANGES;
-
-}
-
-export class RunSaveAction implements Action {
-  public readonly type = UnsavedChangesActionType.RUN_SAVE_ACTION;
-
-}
-
-
-export type UnsavedChangesActions =
-  MarkUnsavedChanges | ClearUnsavedChanges | RunSaveAction
+export const runSaveAction = createAction(
+  UnsavedChangesActionType.RUN_SAVE_ACTION
+);

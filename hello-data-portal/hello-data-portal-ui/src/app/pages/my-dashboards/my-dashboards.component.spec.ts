@@ -30,15 +30,15 @@ import {MyDashboardsComponent} from './my-dashboards.component';
 import {Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {SupersetDashboard} from '../../store/my-dashboards/my-dashboards.model';
-import {UpdateDashboardMetadata} from '../../store/start-page/start-page.action';
 import {naviElements} from '../../app-navi-elements';
 import {ActivatedRoute} from '@angular/router';
 import {MenuService} from '../../store/menu/menu.service';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {TranslocoTestingModule} from "@ngneat/transloco";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 
 describe('MyDashboardsComponent', () => {
   let component: MyDashboardsComponent;
@@ -87,14 +87,16 @@ describe('MyDashboardsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch CreateBreadcrumbs on initialization', () => {
+  it('should dispatch createBreadcrumbs on initialization', () => {
     expect(mockStore.dispatch).toHaveBeenCalledWith(
-      new CreateBreadcrumbs([
-        {
-          label: naviElements.myDashboards.label,
-          routerLink: naviElements.myDashboards.path,
-        },
-      ])
+      createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.myDashboards.label,
+            routerLink: naviElements.myDashboards.path,
+          },
+        ]
+      })
     );
   });
 
@@ -127,7 +129,7 @@ describe('MyDashboardsComponent', () => {
 
     component.updateDashboard(mockDashboard);
 
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new UpdateDashboardMetadata(mockDashboard));
+    expect(mockStore.dispatch).toHaveBeenCalledWith(updateDashboardMetadata({dashboard: mockDashboard}));
   });
 
 });

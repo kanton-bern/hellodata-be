@@ -1,4 +1,3 @@
-
 <ng-container>
   <app-side-nav-outer-toolbar title="{{appInfo.title}}">
     <router-outlet></router-outlet>
@@ -8,3 +7,6 @@
 </ng-container>
 
 <div *ngIf="(businessDomain$ | async)" style="display: none"></div>
+<div *ngIf="checkAuth">
+  <div *ngIf="(isAuthenticated$ | async)" style="display: none"></div>
+</div>

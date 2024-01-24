@@ -26,19 +26,19 @@
 ///
 
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
-import {UpdateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {Table} from "primeng/table";
-import {Navigate} from "../../store/app/app.action";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
 import {selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {navigate} from "../../store/app/app.action";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
@@ -55,13 +55,15 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>, private menuService: MenuService) {
     super();
-    this.dashboards$ = this.store.pipe(select(selectMyDashboards));
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.myDashboards.label,
-        routerLink: naviElements.myDashboards.path
-      }
-    ]));
+    this.dashboards$ = this.store.select(selectMyDashboards);
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.myDashboards.label,
+          routerLink: naviElements.myDashboards.path
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {
@@ -74,7 +76,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   updateDashboard(dashboard: SupersetDashboardWithMetadata) {
     this.selectedDashboard = {...dashboard};
-    this.store.dispatch(new UpdateDashboardMetadata(this.selectedDashboard))
+    this.store.dispatch(updateDashboardMetadata({dashboard: this.selectedDashboard}))
     this.hideEditMetadataDialog();
   }
 
@@ -93,7 +95,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   onRowSelect($event: any) {
     const dashboardLink = this.menuService.createDashboardLink($event.data);
-    this.store.dispatch(new Navigate(dashboardLink));
+    this.store.dispatch(navigate({url: dashboardLink}));
   }
 
   applyFilterGlobal($event: any, stringVal: string) {
@@ -104,7 +106,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   openDashboard(dashboard: SupersetDashboardWithMetadata) {
     const dashboardLink = this.menuService.createDashboardLink(dashboard);
-    this.store.dispatch(new Navigate(dashboardLink));
+    this.store.dispatch(navigate({url: dashboardLink}));
   }
 
   openInfoPanel(dashboard: any) {

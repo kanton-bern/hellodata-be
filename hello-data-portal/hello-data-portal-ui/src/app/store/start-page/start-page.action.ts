@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {SupersetDashboardWithMetadata} from "./start-page.model";
 import {Faq} from "../faq/faq.model";
 
@@ -36,24 +36,16 @@ export enum StartPageActionType {
   LOAD_FAQ_START_PAGE_SUCCESS = '[START PAGE] Load FAQ start page SUCCESS',
 }
 
-export class UpdateDashboardMetadata implements Action {
-  public readonly type = StartPageActionType.UPDATE_DASHBOARD_METADATA;
+export const updateDashboardMetadata = createAction(
+  StartPageActionType.UPDATE_DASHBOARD_METADATA,
+  props<{ dashboard: SupersetDashboardWithMetadata }>()
+);
 
-  constructor(public dashboard: SupersetDashboardWithMetadata) {
-  }
-}
+export const loadFaqStartPage = createAction(
+  StartPageActionType.LOAD_FAQ_START_PAGE
+);
 
-export class LoadFaqStartPage implements Action {
-  public readonly type = StartPageActionType.LOAD_FAQ_START_PAGE;
-}
-
-export class LoadFaqStartPageSuccess implements Action {
-  public readonly type = StartPageActionType.LOAD_FAQ_START_PAGE_SUCCESS;
-
-  constructor(public payload: Faq[]) {
-  }
-}
-
-
-export type StartPageActions =
-  UpdateDashboardMetadata | LoadFaqStartPage | LoadFaqStartPageSuccess
+export const loadFaqStartPageSuccess = createAction(
+  StartPageActionType.LOAD_FAQ_START_PAGE_SUCCESS,
+  props<{ payload: Faq[] }>()
+);

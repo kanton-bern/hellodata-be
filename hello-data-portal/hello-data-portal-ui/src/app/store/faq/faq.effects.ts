@@ -26,126 +26,141 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Router} from "@angular/router";
-import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {select, Store} from "@ngrx/store";
+import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
+import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
 import {FaqService} from "./faq.service";
-import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
-import {Navigate, ShowError} from "../app/app.action";
+import {catchError, map, of, switchMap, tap} from "rxjs";
 import {
-  DeleteEditedFaq,
-  DeleteEditedFaqSuccess,
-  DeleteFaq,
-  DeleteFaqSuccess,
-  FaqActionType,
-  HideDeleteFaqPopup,
-  LoadFaq,
-  LoadFaqById,
-  LoadFaqByIdSuccess,
-  LoadFaqSuccess,
-  OpenFaqEdition,
-  SaveChangesToFaq,
-  SaveChangesToFaqSuccess
+  deleteEditedFaq,
+  deleteEditedFaqSuccess,
+  deleteFaq,
+  deleteFaqSuccess,
+  hideDeleteFaqPopup,
+  loadFaq,
+  loadFaqById,
+  loadFaqByIdSuccess,
+  loadFaqSuccess,
+  openFaqEdition,
+  saveChangesToFaq,
+  saveChangesToFaqSuccess
 } from "./faq.action";
 import {selectParamFaqId, selectSelectedFaqForDeletion} from "../faq/faq.selector";
 import {Faq} from "../faq/faq.model";
-import {ClearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class FaqEffects {
-  loadAllFaq$ = createEffect(() => this._actions$.pipe(
-    ofType<LoadFaq>(FaqActionType.LOAD_FAQ),
-    switchMap(() => this._faqService.getFaq()),
-    switchMap(result => of(new LoadFaqSuccess(result))),
-    catchError(e => of(new ShowError(e)))
-  ));
+  loadAllFaq$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadFaq),
+      switchMap(() => this._faqService.getFaq()),
+      switchMap(result => of(loadFaqSuccess({payload: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  openFaqEdition$ = createEffect(() => this._actions$.pipe(
-    ofType<OpenFaqEdition>(FaqActionType.OPEN_FAQ_EDITION),
-    switchMap(action => {
-      if (action.faq.id) {
-        return of(new Navigate(`faq-management/edit/${action.faq.id}`));
-      }
-      return of(new Navigate('faq-management/create'));
-    }),
-    catchError(e => of(new ShowError(e)))
-  ));
+  openFaqEdition$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(openFaqEdition),
+      switchMap(action => {
+        if (action.faq.id) {
+          return of(navigate({url: `faq-management/edit/${action.faq.id}`}));
+        }
+        return of(navigate({url: 'faq-management/create'}));
+      }),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  loadFaqById$ = createEffect(() => this._actions$.pipe(
-    ofType<LoadFaqById>(FaqActionType.LOAD_FAQ_BY_ID),
-    withLatestFrom(this._store.pipe(select(selectParamFaqId))),
-    switchMap(([action, faqId]) => this._faqService.getFaqById(faqId as string)),
-    switchMap(result => of(new LoadFaqByIdSuccess(result))),
-    catchError(e => of(new ShowError(e)))
-  ));
+  loadFaqById$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadFaqById),
+      concatLatestFrom(() => this._store.select(selectParamFaqId)),
+      switchMap(([action, faqId]) => this._faqService.getFaqById(faqId as string)),
+      switchMap(result => of(loadFaqByIdSuccess({faq: result}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  saveChangesToFaq$ = createEffect(() => this._actions$.pipe(
-    ofType<SaveChangesToFaq>(FaqActionType.SAVE_CHANGES_TO_FAQ),
-    switchMap((action: SaveChangesToFaq) => {
-      return action.faq.id
-        ? this._faqService.updateFaq({
-          id: action.faq.id,
-          title: action.faq.title as string,
-          message: action.faq.message as string,
-          contextKey: action.faq.contextKey as string
-        }).pipe(
-          tap(() => this._notificationService.success('@Faq updated successfully')),
-          map(() => new SaveChangesToFaqSuccess(action.faq))
-        )
-        : this._faqService.createFaq({
-          title: action.faq.title as string,
-          message: action.faq.message as string,
-          contextKey: action.faq.contextKey as string
-        }).pipe(
-          tap(() => this._notificationService.success('@Faq added successfully')),
-          map(() => new SaveChangesToFaqSuccess(action.faq))
-        )
-    }),
-  ));
+  saveChangesToFaq$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(saveChangesToFaq),
+      switchMap((action) => {
+        return action.faq.id
+          ? this._faqService.updateFaq({
+            id: action.faq.id,
+            title: action.faq.title as string,
+            message: action.faq.message as string,
+            contextKey: action.faq.contextKey as string
+          }).pipe(
+            tap(() => this._notificationService.success('@Faq updated successfully')),
+            map(() => saveChangesToFaqSuccess({faq: action.faq}))
+          )
+          : this._faqService.createFaq({
+            title: action.faq.title as string,
+            message: action.faq.message as string,
+            contextKey: action.faq.contextKey as string
+          }).pipe(
+            tap(() => this._notificationService.success('@Faq added successfully')),
+            map(() => saveChangesToFaqSuccess({faq: action.faq}))
+          )
+      }),
+    )
+  });
 
-  saveChangesToFaqSuccess$ = createEffect(() => this._actions$.pipe(
-    ofType<SaveChangesToFaqSuccess>(FaqActionType.SAVE_CHANGES_TO_FAQ_SUCCESS),
-    switchMap(action => of(new ClearUnsavedChanges(), new Navigate('faq-management'))),
-    catchError(e => of(new ShowError(e)))
-  ));
+  saveChangesToFaqSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(saveChangesToFaqSuccess),
+      switchMap(action => of(clearUnsavedChanges(), navigate({url: 'faq-management'}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  deleteFaq$ = createEffect(() => this._actions$.pipe(
-    ofType<DeleteFaq>(FaqActionType.DELETE_FAQ),
-    withLatestFrom(this._store.pipe(select(selectSelectedFaqForDeletion))),
-    switchMap(([action, faq]) => this._faqService.deleteFaqById((faq as Faq).id as string).pipe(
-      map(() => new DeleteFaqSuccess(faq as Faq)),
-      catchError(e => of(new ShowError(e)))
-    )),
-  ));
+  deleteFaq$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteFaq),
+      concatLatestFrom(() => this._store.select(selectSelectedFaqForDeletion)),
+      switchMap(([action, faq]) => this._faqService.deleteFaqById((faq as Faq).id as string).pipe(
+        map(() => deleteFaqSuccess({faq: faq as Faq})),
+        catchError(e => of(showError(e)))
+      )),
+    )
+  });
 
-  deleteFaqSuccess$ = createEffect(() => this._actions$.pipe(
-    ofType<DeleteFaqSuccess>(FaqActionType.DELETE_FAQ_SUCCESS),
-    tap(action => this._notificationService.success('@Faq deleted successfully')),
-    switchMap(() => of(new LoadFaq(), new HideDeleteFaqPopup()))
-  ));
+  deleteFaqSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteFaqSuccess),
+      tap(action => this._notificationService.success('@Faq deleted successfully')),
+      switchMap(() => of(loadFaq(), hideDeleteFaqPopup()))
+    )
+  });
 
-  deleteEditedFaq$ = createEffect(() => this._actions$.pipe(
-    ofType<DeleteEditedFaq>(FaqActionType.DELETE_EDITED_FAQ),
-    withLatestFrom(this._store.pipe(select(selectSelectedFaqForDeletion))),
-    switchMap(([action, faqToBeDeleted]) => {
-        return this._faqService.deleteFaqById((faqToBeDeleted as Faq).id as string).pipe(
-          map(() => new DeleteEditedFaqSuccess()),
-          catchError(e => of(new ShowError(e)))
-        )
-      }
-    ),
-  ));
+  deleteEditedFaq$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteEditedFaq),
+      concatLatestFrom(() => this._store.select(selectSelectedFaqForDeletion)),
+      switchMap(([action, faqToBeDeleted]) => {
+          return this._faqService.deleteFaqById((faqToBeDeleted as Faq).id as string).pipe(
+            map(() => deleteEditedFaqSuccess()),
+            catchError(e => of(showError(e)))
+          )
+        }
+      ),
+    )
+  });
 
-  deleteEditedFaqSuccess$ = createEffect(() => this._actions$.pipe(
-    ofType<DeleteEditedFaqSuccess>(FaqActionType.DELETE_EDITED_FAQ_SUCCESS),
-    tap(action => this._notificationService.success('@Faq deleted successfully')),
-    switchMap(() => of(new Navigate('faq-management'), new HideDeleteFaqPopup()))
-  ));
+  deleteEditedFaqSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteEditedFaqSuccess),
+      tap(action => this._notificationService.success('@Faq deleted successfully')),
+      switchMap(() => of(navigate({url: 'faq-management'}), hideDeleteFaqPopup()))
+    )
+  });
 
   constructor(
-    private _router: Router,
     private _actions$: Actions,
     private _store: Store<AppState>,
     private _faqService: FaqService,

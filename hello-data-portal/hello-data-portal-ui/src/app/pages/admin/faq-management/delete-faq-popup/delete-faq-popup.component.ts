@@ -26,13 +26,13 @@
 ///
 
 import {Component, Input} from '@angular/core';
-import {Action, select, Store} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {Observable, tap, withLatestFrom} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedFaqForDeletion} from "../../../../store/faq/faq.selector";
-import {HideDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
+import {hideDeleteFaqPopup} from "../../../../store/faq/faq.action";
 
 @Component({
   selector: 'app-delete-faq-popup',
@@ -46,7 +46,7 @@ export class DeleteFaqPopupComponent {
   faqToBeDeleted$: Observable<any>;
 
   constructor(private store: Store<AppState>, private confirmationService: ConfirmationService, private translateService: TranslateService) {
-    this.faqToBeDeleted$ = this.store.pipe(select(selectSelectedFaqForDeletion))
+    this.faqToBeDeleted$ = this.store.select(selectSelectedFaqForDeletion)
       .pipe(
         withLatestFrom(this.translateService.selectTranslate('@Delete faq question'))
       )
@@ -73,7 +73,7 @@ export class DeleteFaqPopupComponent {
   }
 
   hideDeletionPopup(): void {
-    this.store.dispatch(new HideDeleteFaqPopup());
+    this.store.dispatch(hideDeleteFaqPopup());
   }
 
 }

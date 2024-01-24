@@ -26,7 +26,7 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectBreadcrumbs} from "../../store/breadcrumb/breadcrumb.selector";
 import {map, Observable} from "rxjs";
@@ -42,7 +42,7 @@ export class BreadcrumbService {
   }
 
   getBreadCrumbs(): Observable<MenuItem[]> {
-    return this.store.pipe(select(selectBreadcrumbs)).pipe(map(breadcrumbs => {
+    return this.store.select(selectBreadcrumbs).pipe(map(breadcrumbs => {
       const translatedBreadCrumbs: MenuItem[] = []
       breadcrumbs.forEach(breadcrumb => {
         const labelTranslated = breadcrumb.label?.startsWith('@') ? this.translateService.translate(breadcrumb.label as string) : breadcrumb.label

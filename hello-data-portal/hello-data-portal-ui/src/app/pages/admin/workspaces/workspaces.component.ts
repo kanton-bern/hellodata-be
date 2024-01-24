@@ -27,13 +27,11 @@
 
 import {Component, NgModule, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource.selector";
-import {LoadAppInfoResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 import {AppState} from "../../../store/app/app.state";
 import {CommonModule} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
-import {Navigate} from "../../../store/app/app.action";
 import {AnimateModule} from "primeng/animate";
 import {RippleModule} from "primeng/ripple";
 import {SelectedWorkspaceComponent} from "./selected-workspace/selected-workspace.component";
@@ -49,10 +47,12 @@ import {SelectedWorkspacePermissionsComponent} from "./selected-workspace-permis
 import {SelectedWorkspaceUsersComponent} from "./selected-workspace-users/selected-workspace-users.component";
 import {FieldsetModule} from "primeng/fieldset";
 import {SelectedWorkspacePipelinesComponent} from "./selected-workspace-pipelines/selected-workspace-pipelines.component";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {NgArrayPipesModule} from "ngx-pipes";
+import {navigate} from "../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {loadAppInfoResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 
 @Component({
   selector: 'app-workspaces',
@@ -65,14 +65,16 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>) {
     super();
-    this.store.dispatch(new LoadAppInfoResources());
-    this.appInfos$ = this.store.pipe(select(selectAppInfos));
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.workspaces.label,
-        routerLink: naviElements.workspaces.path,
-      },
-    ]));
+    this.store.dispatch(loadAppInfoResources());
+    this.appInfos$ = this.store.select(selectAppInfos);
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.workspaces.label,
+          routerLink: naviElements.workspaces.path,
+        },
+      ]
+    }));
   }
 
   override ngOnInit(): void {
@@ -80,7 +82,7 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
   }
 
   navigateToSelectedWorkspace(selectedAppInfo: any) {
-    this.store.dispatch(new Navigate(`workspaces/selected-workspace/${selectedAppInfo.instanceName}/${selectedAppInfo.moduleType}/${selectedAppInfo.apiVersion}`))
+    this.store.dispatch(navigate({url: `workspaces/selected-workspace/${selectedAppInfo.instanceName}/${selectedAppInfo.moduleType}/${selectedAppInfo.apiVersion}`}))
   }
 
 }

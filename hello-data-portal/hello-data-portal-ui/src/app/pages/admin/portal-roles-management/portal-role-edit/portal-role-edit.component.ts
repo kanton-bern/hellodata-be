@@ -26,20 +26,20 @@
 ///
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
 import {selectAvailablePermissions, selectEditedPortalRole} from "../../../../store/portal-roles-management/portal-roles-management.selector";
-import {Navigate} from "../../../../store/app/app.action";
-import {DeleteEditedPortalRole, SaveChangesToPortalRole, ShowDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
-import {LoadAppInfoResources, LoadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
 import {selectAppInfos} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
-import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {loadAppInfoResources, loadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
+import {deleteEditedPortalRole, saveChangesToPortalRole, showDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 
 @Component({
   selector: 'app-role-edit',
@@ -59,24 +59,24 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   formValueChangedSub!: Subscription;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomainItems));
-    this.editedRole$ = this.store.pipe(select(selectEditedPortalRole));
-    this.availableDataPermissions$ = this.store.pipe(select(selectAvailablePermissions)).pipe(
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
+    this.editedRole$ = this.store.select(selectEditedPortalRole);
+    this.availableDataPermissions$ = this.store.select(selectAvailablePermissions).pipe(
       tap(availablePermissions => {
         this.allPermissions = availablePermissions;
         this.filteredPermissions = availablePermissions;
       }));
-    this.workspaces$ = this.store.pipe(select(selectAppInfos));
-    this.store.dispatch(new LoadPermissionResources());
-    this.store.dispatch(new LoadAppInfoResources());
+    this.workspaces$ = this.store.select(selectAppInfos);
+    this.store.dispatch(loadPermissionResources());
+    this.store.dispatch(loadAppInfoResources());
   }
 
   ngOnInit(): void {
-    this.editedRole$ = this.store.pipe(select(selectEditedPortalRole)).pipe(
+    this.editedRole$ = this.store.select(selectEditedPortalRole).pipe(
       tap(role => {
         this.roleForm = this.fb.group({
           name: [role?.name, Validators.compose([Validators.required.bind(this), Validators.minLength(3), Validators.maxLength(255), Validators.pattern('[A-Za-z0-9_ ]*')])],
-          description: [role?.description, Validators.maxLength(2048)],
+          description: [role?.description, Validators.compose([Validators.required.bind(this), Validators.maxLength(2048)])],
           permissions: [role?.permissions ? role.permissions : []]
         });
         this.createBreadcrumbs(role);
@@ -92,19 +92,19 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
     const role = this.roleForm.getRawValue() as any;
     role.id = editedRole.id;
     role.contextKey = role.dataDomain;
-    this.store.dispatch(new SaveChangesToPortalRole(role));
+    this.store.dispatch(saveChangesToPortalRole({role}));
   }
 
   openDeletePopup(editedRole: PortalRole): void {
-    this.store.dispatch(new ShowDeletePortalRolePopup(editedRole));
+    this.store.dispatch(showDeletePortalRolePopup({role: editedRole}));
   }
 
   navigateToRoleList(): void {
-    this.store.dispatch(new Navigate('roles-management'));
+    this.store.dispatch(navigate({url: 'roles-management'}));
   }
 
   getDeletionAction() {
-    return new DeleteEditedPortalRole();
+    return deleteEditedPortalRole();
   }
 
   filterPermission($event: any) {
@@ -132,34 +132,38 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   }
 
   private createBreadcrumbsNewRole() {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.rolesManagement.label,
-        routerLink: naviElements.rolesManagement.path,
-      },
-      {
-        label: naviElements.roleCreate.label,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.rolesManagement.label,
+          routerLink: naviElements.rolesManagement.path,
+        },
+        {
+          label: naviElements.roleCreate.label,
+        }
+      ]
+    }));
   }
 
   private createBreadcrumbsEditedRole(role: PortalRole) {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.rolesManagement.label,
-        routerLink: naviElements.rolesManagement.path,
-      },
-      {
-        label: role.name,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.rolesManagement.label,
+          routerLink: naviElements.rolesManagement.path,
+        },
+        {
+          label: role.name,
+        }
+      ]
+    }));
   }
 
   private onChange(editedRole: PortalRole) {
     const role = this.roleForm.getRawValue() as any;
     role.id = editedRole.id;
     role.contextKey = role.dataDomain;
-    this.store.dispatch(new MarkUnsavedChanges(new SaveChangesToPortalRole(role), role.id === undefined));
+    this.store.dispatch(markUnsavedChanges({action: saveChangesToPortalRole(role), stayOnPage: role.id === undefined}));
   }
 
   private unsubFormValueChanges() {

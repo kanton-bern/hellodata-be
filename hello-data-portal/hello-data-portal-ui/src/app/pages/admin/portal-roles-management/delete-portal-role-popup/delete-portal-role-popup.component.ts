@@ -27,13 +27,13 @@
 
 import {Component, Input} from '@angular/core';
 import {Observable, tap} from "rxjs";
-import {Action, select, Store} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedPortalRoleForDeletion} from "../../../../store/portal-roles-management/portal-roles-management.selector";
-import {HideDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 import {ConfirmationService, ConfirmEventType} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
+import {hideDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
 
 @Component({
   selector: 'app-delete-role-popup[action]',
@@ -46,7 +46,7 @@ export class DeletePortalRolePopupComponent {
   roleToBeDeleted$: Observable<any>;
 
   constructor(private store: Store<AppState>, private confirmationService: ConfirmationService, private translateService: TranslateService) {
-    this.roleToBeDeleted$ = this.store.pipe(select(selectSelectedPortalRoleForDeletion)).pipe(tap(portalRoleForDeletion => {
+    this.roleToBeDeleted$ = this.store.select(selectSelectedPortalRoleForDeletion).pipe(tap(portalRoleForDeletion => {
       this.confirmDeleteRole(portalRoleForDeletion);
     }));
   }
@@ -56,7 +56,7 @@ export class DeletePortalRolePopupComponent {
   }
 
   hideDeletionPopup(): void {
-    this.store.dispatch(new HideDeletePortalRolePopup());
+    this.store.dispatch(hideDeletePortalRolePopup());
   }
 
   private confirmDeleteRole(portalRoleForDeletion: PortalRole | null) {

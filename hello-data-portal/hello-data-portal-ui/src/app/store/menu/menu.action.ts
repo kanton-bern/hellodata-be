@@ -25,25 +25,19 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 
 export enum MenuActionType {
   PROCESS_NAVIGATION = "[MENU] Process navigation",
   PROCESS_NAVIGATION_SUCCESS = "[MENU] Process navigation SUCCESS",
 }
 
-export class ProcessNavigation implements Action {
-  public readonly type = MenuActionType.PROCESS_NAVIGATION;
+export const processNavigation = createAction(
+  MenuActionType.PROCESS_NAVIGATION,
+  props<{ compactMode: boolean }>()
+);
 
-  constructor(public compactMode: boolean) {
-  }
-}
-
-export class ProcessNavigationSuccess implements Action {
-  public readonly type = MenuActionType.PROCESS_NAVIGATION_SUCCESS;
-
-  constructor(public navItems: any[]) {
-  }
-}
-
-export type MenuActions = ProcessNavigation | ProcessNavigationSuccess
+export const processNavigationSuccess = createAction(
+  MenuActionType.PROCESS_NAVIGATION_SUCCESS,
+  props<{ navItems: any[] }>()
+);

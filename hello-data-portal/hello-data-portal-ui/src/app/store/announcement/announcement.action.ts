@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {Announcement} from "./announcement.model";
 
 export enum AnnouncementActionType {
@@ -51,102 +51,75 @@ export enum AnnouncementActionType {
 }
 
 
-export class LoadAllAnnouncements implements Action {
-  public readonly type = AnnouncementActionType.LOAD_ALL_ANNOUNCEMENTS;
-}
+export const loadAllAnnouncements = createAction(
+  AnnouncementActionType.LOAD_ALL_ANNOUNCEMENTS
+);
 
-export class LoadAllAnnouncementsSuccess implements Action {
-  public readonly type = AnnouncementActionType.LOAD_ALL_ANNOUNCEMENTS_SUCCESS;
+export const loadAllAnnouncementsSuccess = createAction(
+  AnnouncementActionType.LOAD_ALL_ANNOUNCEMENTS_SUCCESS,
+  props<{ payload: Announcement[] }>()
+);
 
-  constructor(public payload: Announcement[]) {
-  }
-}
+export const loadPublishedAnnouncements = createAction(
+  AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS
+);
 
-export class LoadPublishedAnnouncements implements Action {
-  public readonly type = AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS;
-}
+export const loadPublishedAnnouncementsSuccess = createAction(
+  AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS_SUCCESS,
+  props<{ payload: Announcement[] }>()
+);
 
-export class LoadPublishedAnnouncementsSuccess implements Action {
-  public readonly type = AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS_SUCCESS;
+export const openAnnouncementEdition = createAction(
+  AnnouncementActionType.OPEN_ANNOUNCEMENT_EDITION,
+  props<{ announcement: Announcement }>()
+);
 
-  constructor(public payload: Announcement[]) {
-  }
-}
+export const loadAnnouncementById = createAction(
+  AnnouncementActionType.LOAD_ANNOUNCEMENT_BY_ID
+);
 
-export class OpenAnnouncementEdition implements Action {
-  public readonly type = AnnouncementActionType.OPEN_ANNOUNCEMENT_EDITION;
+export const loadAnnouncementByIdSuccess = createAction(
+  AnnouncementActionType.LOAD_ANNOUNCEMENT_BY_ID_SUCCESS,
+  props<{ announcement: Announcement }>()
+);
 
-  constructor(public announcement: Announcement = {}) {
-  }
-}
+export const saveChangesToAnnouncement = createAction(
+  AnnouncementActionType.SAVE_CHANGES_TO_ANNOUNCEMENT,
+  props<{ announcement: Announcement }>()
+);
 
-export class LoadAnnouncementById implements Action {
-  public readonly type = AnnouncementActionType.LOAD_ANNOUNCEMENT_BY_ID;
-}
+export const saveChangesToAnnouncementSuccess = createAction(
+  AnnouncementActionType.SAVE_CHANGES_TO_ANNOUNCEMENT_SUCCESS,
+  props<{ announcement: Announcement }>()
+);
 
-export class LoadAnnouncementByIdSuccess implements Action {
-  public readonly type = AnnouncementActionType.LOAD_ANNOUNCEMENT_BY_ID_SUCCESS;
+export const showDeleteAnnouncementPopup = createAction(
+  AnnouncementActionType.SHOW_DELETE_ANNOUNCEMENT_POP_UP,
+  props<{ announcement: Announcement }>()
+);
 
-  constructor(public announcement: Announcement) {
-  }
-}
+export const hideDeleteAnnouncementPopup = createAction(
+  AnnouncementActionType.HIDE_DELETE_ANNOUNCEMENT_POP_UP
+);
 
-export class SaveChangesToAnnouncement implements Action {
-  public readonly type = AnnouncementActionType.SAVE_CHANGES_TO_ANNOUNCEMENT;
+export const deleteAnnouncement = createAction(
+  AnnouncementActionType.DELETE_ANNOUNCEMENT
+);
 
-  constructor(public announcement: Announcement) {
-  }
-}
+export const deleteAnnouncementSuccess = createAction(
+  AnnouncementActionType.DELETE_ANNOUNCEMENT_SUCCESS,
+  props<{ announcement: Announcement }>()
+);
 
-export class SaveChangesToAnnouncementSuccess implements Action {
-  public readonly type = AnnouncementActionType.SAVE_CHANGES_TO_ANNOUNCEMENT_SUCCESS;
+export const deleteEditedAnnouncement = createAction(
+  AnnouncementActionType.DELETE_EDITED_ANNOUNCEMENT
+);
 
-  constructor(public announcement: Announcement) {
-  }
-}
+export const deleteEditedAnnouncementSuccess = createAction(
+  AnnouncementActionType.DELETE_EDITED_ANNOUNCEMENT_SUCCESS
+);
 
-export class ShowDeleteAnnouncementPopup implements Action {
-  public readonly type = AnnouncementActionType.SHOW_DELETE_ANNOUNCEMENT_POP_UP;
-
-  constructor(public announcement: Announcement) {
-  }
-}
-
-export class HideDeleteAnnouncementPopup implements Action {
-  public readonly type = AnnouncementActionType.HIDE_DELETE_ANNOUNCEMENT_POP_UP;
-}
-
-export class DeleteAnnouncement implements Action {
-  public readonly type = AnnouncementActionType.DELETE_ANNOUNCEMENT;
-
-}
-
-export class DeleteAnnouncementSuccess implements Action {
-  public readonly type = AnnouncementActionType.DELETE_ANNOUNCEMENT_SUCCESS;
-
-  constructor(public announcement: Announcement) {
-  }
-}
-
-export class DeleteEditedAnnouncement implements Action {
-  public readonly type = AnnouncementActionType.DELETE_EDITED_ANNOUNCEMENT;
-}
-
-export class DeleteEditedAnnouncementSuccess implements Action {
-  public readonly type = AnnouncementActionType.DELETE_EDITED_ANNOUNCEMENT_SUCCESS;
-}
-
-export class MarkAnnouncementAsRead implements Action {
-  public readonly type = AnnouncementActionType.MARK_ANNOUNCEMENT_AS_READ;
-
-  constructor(public announcement: Announcement) {
-  }
-}
-
-
-export type AnnouncementsActions =
-  LoadAllAnnouncements | LoadAllAnnouncementsSuccess | LoadPublishedAnnouncements | LoadPublishedAnnouncementsSuccess |
-  OpenAnnouncementEdition | LoadAnnouncementById | LoadAnnouncementByIdSuccess |
-  SaveChangesToAnnouncement | SaveChangesToAnnouncementSuccess | ShowDeleteAnnouncementPopup | HideDeleteAnnouncementPopup |
-  DeleteAnnouncement | DeleteAnnouncementSuccess | DeleteEditedAnnouncement | DeleteEditedAnnouncementSuccess |
-  MarkAnnouncementAsRead
+export const markAnnouncementAsRead = createAction(
+  AnnouncementActionType.MARK_ANNOUNCEMENT_AS_READ,
+  props<{ announcement: Announcement }>()
+);

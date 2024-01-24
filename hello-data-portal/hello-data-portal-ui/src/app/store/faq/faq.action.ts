@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {Faq} from "./faq.model";
 
 export enum FaqActionType {
@@ -46,84 +46,61 @@ export enum FaqActionType {
   DELETE_EDITED_FAQ_SUCCESS = '[FAQ MANAGEMENT] Delete edited FAQ success',
 }
 
-export class LoadFaq implements Action {
-  public readonly type = FaqActionType.LOAD_FAQ;
-}
+export const loadFaq = createAction(
+  FaqActionType.LOAD_FAQ
+);
 
-export class LoadFaqSuccess implements Action {
-  public readonly type = FaqActionType.LOAD_FAQ_SUCCESS;
+export const loadFaqSuccess = createAction(
+  FaqActionType.LOAD_FAQ_SUCCESS,
+  props<{ payload: Faq[] }>()
+);
 
-  constructor(public payload: Faq[]) {
-  }
-}
+export const openFaqEdition = createAction(
+  FaqActionType.OPEN_FAQ_EDITION,
+  props<{ faq: Faq }>()
+);
 
+export const loadFaqById = createAction(
+  FaqActionType.LOAD_FAQ_BY_ID
+);
 
-export class OpenFaqEdition implements Action {
-  public readonly type = FaqActionType.OPEN_FAQ_EDITION;
+export const loadFaqByIdSuccess = createAction(
+  FaqActionType.LOAD_FAQ_BY_ID_SUCCESS,
+  props<{ faq: Faq }>()
+);
 
-  constructor(public faq: Faq = {}) {
-  }
-}
+export const saveChangesToFaq = createAction(
+  FaqActionType.SAVE_CHANGES_TO_FAQ,
+  props<{ faq: Faq }>()
+);
 
-export class LoadFaqById implements Action {
-  public readonly type = FaqActionType.LOAD_FAQ_BY_ID;
-}
+export const saveChangesToFaqSuccess = createAction(
+  FaqActionType.SAVE_CHANGES_TO_FAQ_SUCCESS,
+  props<{ faq: Faq }>()
+);
 
-export class LoadFaqByIdSuccess implements Action {
-  public readonly type = FaqActionType.LOAD_FAQ_BY_ID_SUCCESS;
+export const showDeleteFaqPopup = createAction(
+  FaqActionType.SHOW_DELETE_FAQ_POP_UP,
+  props<{ faq: Faq }>()
+);
 
-  constructor(public faq: Faq) {
-  }
-}
+export const hideDeleteFaqPopup = createAction(
+  FaqActionType.HIDE_DELETE_FAQ_POP_UP
+);
 
-export class SaveChangesToFaq implements Action {
-  public readonly type = FaqActionType.SAVE_CHANGES_TO_FAQ;
+export const deleteFaq = createAction(
+  FaqActionType.DELETE_FAQ
+);
 
-  constructor(public faq: Faq) {
-  }
-}
+export const deleteFaqSuccess = createAction(
+  FaqActionType.DELETE_FAQ_SUCCESS,
+  props<{ faq: Faq }>()
+);
 
-export class SaveChangesToFaqSuccess implements Action {
-  public readonly type = FaqActionType.SAVE_CHANGES_TO_FAQ_SUCCESS;
+export const deleteEditedFaq = createAction(
+  FaqActionType.DELETE_EDITED_FAQ
+);
 
-  constructor(public faq: Faq) {
-  }
-}
-
-export class ShowDeleteFaqPopup implements Action {
-  public readonly type = FaqActionType.SHOW_DELETE_FAQ_POP_UP;
-
-  constructor(public faq: Faq) {
-  }
-}
-
-export class HideDeleteFaqPopup implements Action {
-  public readonly type = FaqActionType.HIDE_DELETE_FAQ_POP_UP;
-}
-
-export class DeleteFaq implements Action {
-  public readonly type = FaqActionType.DELETE_FAQ;
-
-}
-
-export class DeleteFaqSuccess implements Action {
-  public readonly type = FaqActionType.DELETE_FAQ_SUCCESS;
-
-  constructor(public faq: Faq) {
-  }
-}
-
-export class DeleteEditedFaq implements Action {
-  public readonly type = FaqActionType.DELETE_EDITED_FAQ;
-}
-
-export class DeleteEditedFaqSuccess implements Action {
-  public readonly type = FaqActionType.DELETE_EDITED_FAQ_SUCCESS;
-}
-
-
-export type FaqActions =
-  LoadFaq | LoadFaqSuccess | OpenFaqEdition | LoadFaqById | LoadFaqByIdSuccess |
-  SaveChangesToFaq | SaveChangesToFaqSuccess | ShowDeleteFaqPopup | HideDeleteFaqPopup |
-  DeleteFaq | DeleteFaqSuccess | DeleteEditedFaq | DeleteEditedFaqSuccess
-
+export const deleteEditedFaqSuccess = createAction(
+  FaqActionType.DELETE_EDITED_FAQ_SUCCESS
+);

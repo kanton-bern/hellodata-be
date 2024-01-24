@@ -29,12 +29,12 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Observable, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentPipelineInfo} from "../../store/orchestration/orchestration.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
 
@@ -42,7 +42,7 @@ export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
   templateUrl: 'embedded-orchestration.component.html',
   styleUrls: ['./embedded-orchestration.component.scss']
 })
-export class EmbeddedOrchestrationComponent extends BaseComponent implements OnInit{
+export class EmbeddedOrchestrationComponent extends BaseComponent implements OnInit {
 
   url!: string;
 
@@ -50,7 +50,7 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>) {
     super();
-    this.currentPipelineInfo$ = this.store.pipe(select(selectCurrentPipelineInfo)).pipe(tap((pipelineInfo) => {
+    this.currentPipelineInfo$ = this.store.select(selectCurrentPipelineInfo).pipe(tap((pipelineInfo) => {
       const pipelineId = pipelineInfo.pipelineId;
       const protocol = environment.subSystemsConfig.airflow.protocol;
       const host = environment.subSystemsConfig.airflow.host;
@@ -80,12 +80,14 @@ export class EmbeddedOrchestrationComponent extends BaseComponent implements OnI
   }
 
   private createBreadcrumbs() {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.embeddedOrchestration.label,
-        routerLink: 'redirect/' + naviElements.embeddedOrchestration.path
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.embeddedOrchestration.label,
+          routerLink: 'redirect/' + naviElements.embeddedOrchestration.path
+        }
+      ]
+    }));
   }
 
 }

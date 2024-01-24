@@ -30,12 +30,12 @@ import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {LineageDocsService} from "../../../store/lineage-docs/lineage-docs.service";
-import {Navigate} from "../../../store/app/app.action";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
-import {LoadAvailableContexts} from "../../../store/users-management/users-management.action";
+import {loadAvailableContexts} from "../../../store/users-management/users-management.action";
 import {Context} from "../../../store/users-management/context-role.model";
 import {selectLineageInfo} from "../../../store/lineage-docs/lineage-docs.selector";
+import {navigate} from "../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'embedded-lineage-docs.component.html',
@@ -51,7 +51,7 @@ export class EmbeddedLineageDocsComponent {
   @ViewChild('doc') docIframe!: ElementRef;
 
   constructor(private store: Store<AppState>, private docsService: LineageDocsService) {
-    this.store.dispatch(new LoadAvailableContexts());
+    this.store.dispatch(loadAvailableContexts());
     this.lineageInfo$ = this.store.select(selectLineageInfo).pipe(tap((lineageInfo) => {
       if (lineageInfo) {
         this.url = this.docsService.getProjectPathUrl(lineageInfo.path as string);
@@ -63,7 +63,7 @@ export class EmbeddedLineageDocsComponent {
   }
 
   cancel() {
-    this.store.dispatch(new Navigate('/lineage-docs/list'));
+    this.store.dispatch(navigate({url: '/lineage-docs/list'}));
   }
 
   @HostListener("window:scroll", ["$event"])
@@ -80,17 +80,19 @@ export class EmbeddedLineageDocsComponent {
   }
 
   private createBreadCrumbs(dataDomain: Context | undefined) {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.lineageDocsList.label,
-        routerLink: naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path
-      },
-      {
-        label: dataDomain?.name,
-      },
-      {
-        label: this.projectId + ' Data Lineage',
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.lineageDocsList.label,
+          routerLink: naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path
+        },
+        {
+          label: dataDomain?.name,
+        },
+        {
+          label: this.projectId + ' Data Lineage',
+        }
+      ]
+    }));
   }
 }

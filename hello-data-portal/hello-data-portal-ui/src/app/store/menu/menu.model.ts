@@ -33,6 +33,7 @@ export const ALL_MENU_ITEMS: any[] = [
     text: '@Dashboards',
     icon: 'fas fa-light fa-chart-line',
     requiresAuthentication: true,
+    requiredPermissions: ['DASHBOARDS'],
     items: []
   },
   {

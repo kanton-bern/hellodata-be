@@ -26,7 +26,7 @@
 ///
 
 import {Component, ViewContainerRef} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAppInfoByModuleType} from "../../../store/metainfo-resource/metainfo-resource.selector";
 import {Observable} from "rxjs";
@@ -48,15 +48,9 @@ export class SilentLoginComponent {
   profile$: Observable<any>;
 
   constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
-    this.supersetInfos$ = this.store.pipe(
-      select(selectAppInfoByModuleType('SUPERSET')),
-    );
-    this.airflowInfos$ = this.store.pipe(
-      select(selectAppInfoByModuleType('AIRFLOW')),
-    );
-    this.profile$ = this.store.pipe(
-      select(selectProfile)
-    );
+    this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
+    this.airflowInfos$ = this.store.select(selectAppInfoByModuleType('AIRFLOW'));
+    this.profile$ = this.store.select(selectProfile);
   }
 
   loginSupersets(supersetInfos: MetaInfoResource[], email: any) {

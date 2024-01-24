@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {CurrentUserAuthData} from "./auth.state";
 
 export enum AuthActionType {
@@ -40,57 +40,43 @@ export enum AuthActionType {
   FETCH_CONTEXT_ROLES_SUCCESS = '[AUTH] Fetch context roles success',
 }
 
-export class Login implements Action {
-  public readonly type = AuthActionType.LOGIN;
-}
+export const login = createAction(
+  AuthActionType.LOGIN
+);
 
-export class LoginComplete implements Action {
-  public readonly type = AuthActionType.LOGIN_COMPLETE;
+export const loginComplete = createAction(
+  AuthActionType.LOGIN_COMPLETE,
+  props<{ profile: any, isLoggedIn: boolean, accessToken: any }>()
+);
 
-  constructor(public profile: any, public isLoggedIn: boolean, public accessToken: any) {
-  }
-}
+export const fetchPermissionSuccess = createAction(
+  AuthActionType.FETCH_PERMISSIONS_SUCCESS,
+  props<{ currentUserAuthData: CurrentUserAuthData }>()
+);
 
-export class FetchPermissionSuccess implements Action {
-  public readonly type = AuthActionType.FETCH_PERMISSIONS_SUCCESS;
+export const logout = createAction(
+  AuthActionType.LOGOUT
+);
 
-  constructor(public currentUserAuthData: CurrentUserAuthData) {
-  }
-}
+export const checkAuth = createAction(
+  AuthActionType.CHECK_AUTH
+);
 
-export class Logout implements Action {
-  public readonly type = AuthActionType.LOGOUT;
-}
+export const checkAuthComplete = createAction(
+  AuthActionType.CHECK_AUTH_COMPLETE,
+  props<{ isLoggedIn: boolean, accessToken: any, profile: any }>()
+);
 
-export class CheckAuth implements Action {
-  public readonly type = AuthActionType.CHECK_AUTH;
-}
+export const authError = createAction(
+  AuthActionType.AUTH_ERROR,
+  props<{ error: Error }>()
+);
 
-export class CheckAuthComplete implements Action {
-  public readonly type = AuthActionType.CHECK_AUTH_COMPLETE;
+export const fetchContextRoles = createAction(
+  AuthActionType.FETCH_CONTEXT_ROLES
+);
 
-  constructor(public isLoggedIn: boolean, public accessToken: any, public profile: any) {
-  }
-}
-
-export class AuthError implements Action {
-  public readonly type = AuthActionType.AUTH_ERROR;
-
-  constructor(public error: Error) {
-  }
-}
-
-export class FetchContextRoles implements Action {
-  public readonly type = AuthActionType.FETCH_CONTEXT_ROLES;
-}
-
-export class FetchContextRolesSuccess implements Action {
-  public readonly type = AuthActionType.FETCH_CONTEXT_ROLES_SUCCESS;
-
-  constructor(public contextRoles: any[]) {
-  }
-}
-
-
-export type AuthActions =
-  Login | LoginComplete | Logout | CheckAuth | CheckAuthComplete | AuthError | FetchPermissionSuccess | FetchContextRoles | FetchContextRolesSuccess
+export const fetchContextRolesSuccess = createAction(
+  AuthActionType.FETCH_CONTEXT_ROLES_SUCCESS,
+  props<{ contextRoles: any[] }>()
+);
