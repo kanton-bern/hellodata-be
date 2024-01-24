@@ -65,3 +65,8 @@ export const selectCurrentContextRoles = createSelector(
   authState,
   (state: AuthState) => state.contextRoles
 );
+
+export const selectCurrentContextRolesFilterOffNone = createSelector(
+  authState,
+  (state: AuthState) => state.contextRoles.filter((contextRole: any) => contextRole?.role?.name != 'NONE')
+);

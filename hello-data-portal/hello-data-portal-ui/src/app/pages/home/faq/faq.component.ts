@@ -29,10 +29,10 @@ import {Component, OnInit} from '@angular/core';
 import {combineLatest, map, Observable} from "rxjs";
 import {Faq} from "../../../store/faq/faq.model";
 import {ActivatedRoute} from "@angular/router";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectFaq} from "../../../store/start-page/start-page.selector";
-import {LoadFaqStartPage} from "../../../store/start-page/start-page.action";
+import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 
 @Component({
   selector: 'app-faq',
@@ -42,13 +42,13 @@ import {LoadFaqStartPage} from "../../../store/start-page/start-page.action";
 export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;
 
-  constructor(private _store: Store<AppState>, private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
     this.faq$ = this._getGroupedFaqs();
   }
 
   private _getGroupedFaqs(): Observable<GroupedFaq[]> {
     return combineLatest([
-      this._store.pipe(select(selectFaq)),
+      this.store.select(selectFaq),
     ]).pipe(
       map(([faqs]) => {
         const myDashboards: GroupedFaq[] = [];
@@ -56,11 +56,13 @@ export class FaqComponent implements OnInit {
           const contextKey = db.contextKey ? db.contextKey : "ALL_DATA_DOMAINS";
           const contextName = db.contextName ? db.contextName : contextKey;
           if (myDashboards.filter(d => d.contextKey == contextKey).length == 0) {
-            const items = {contextKey: contextKey, contextName: contextName, faqs: [] } as GroupedFaq;
+            const items = {contextKey: contextKey, contextName: contextName, faqs: []} as GroupedFaq;
             myDashboards.push(items);
           }
-          const faqGroup = myDashboards.find(element => { return element.contextKey == contextKey; });
-          if(faqGroup){
+          const faqGroup = myDashboards.find(element => {
+            return element.contextKey == contextKey;
+          });
+          if (faqGroup) {
             faqGroup.faqs.push(db);
           }
         });
@@ -70,7 +72,7 @@ export class FaqComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(new LoadFaqStartPage());
+    this.store.dispatch(loadFaqStartPage());
   }
 }
 

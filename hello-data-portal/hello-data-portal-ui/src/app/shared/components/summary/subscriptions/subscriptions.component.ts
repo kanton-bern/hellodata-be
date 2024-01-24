@@ -31,7 +31,7 @@ import {AppState} from "../../../../store/app/app.state";
 import {selectAllBusinessDomains, selectAllDataDomains} from "../../../../store/users-management/users-management.selector";
 import {Observable} from "rxjs";
 import {Context} from "../../../../store/users-management/context-role.model";
-import {LoadAvailableContexts} from "../../../../store/users-management/users-management.action";
+import {loadAvailableContexts} from "../../../../store/users-management/users-management.action";
 
 @Component({
   selector: 'app-subscriptions',
@@ -43,7 +43,7 @@ export class SubscriptionsComponent {
   dataDomains$: Observable<Context[]>;
 
   constructor(private store: Store<AppState>) {
-    this.store.dispatch(new LoadAvailableContexts());
+    this.store.dispatch(loadAvailableContexts());
     this.businessDomains$ = this.store.select(selectAllBusinessDomains);
     this.dataDomains$ = this.store.select(selectAllDataDomains);
   }

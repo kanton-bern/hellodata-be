@@ -29,8 +29,8 @@ import {Component} from '@angular/core';
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
@@ -41,11 +41,13 @@ export class DataWarehouseViewerComponent {
   url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain
 
   constructor(private store: Store<AppState>) {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.dataWarehouseViewer.label,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.dataWarehouseViewer.label,
+        }
+      ]
+    }));
   }
 
 }

@@ -26,11 +26,10 @@
 ///
 
 import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {CreateUser, LoadUsers, NavigateToUserEdition, ShowUserActionPopup, SyncUsers} from "../../../store/users-management/users-management.action";
 import {debounceTime, distinctUntilChanged, Observable, Subject, Subscription} from "rxjs";
-import {selectUsers} from "../../../store/users-management/users-management.selector";
+import {selectUsersCopy} from "../../../store/users-management/users-management.selector";
 import {CommonModule} from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
@@ -52,14 +51,15 @@ import {TabViewModule} from "primeng/tabview";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {CheckboxModule} from "primeng/checkbox";
 import {DividerModule} from "primeng/divider";
-import {map, switchMap} from "rxjs/operators";
+import {switchMap} from "rxjs/operators";
 import {DropdownModule} from "primeng/dropdown";
 import {DashboardViewerPermissionsComponent} from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
 import {MultiSelectModule} from "primeng/multiselect";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {UsersManagementService} from "../../../store/users-management/users-management.service";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {createUser, loadUsers, navigateToUserEdition, showUserActionPopup, syncUsers} from "../../../store/users-management/users-management.action";
 
 @Component({
   selector: 'app-user-management',
@@ -77,14 +77,16 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
     super();
-    this.users$ = this.store.pipe(select(selectUsers)).pipe(map(d => [...d]));
-    this.store.dispatch(new LoadUsers());
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.userManagement.label,
-        routerLink: naviElements.userManagement.path,
-      }
-    ]));
+    this.users$ = this.store.select(selectUsersCopy);
+    this.store.dispatch(loadUsers());
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.userManagement.label,
+          routerLink: naviElements.userManagement.path,
+        }
+      ]
+    }));
 
     this.searchSubscription = this.searchSubject
       .pipe(
@@ -129,29 +131,29 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   createUser() {
     if (this.inviteForm.valid) {
       const inviteFormData = this.inviteForm.getRawValue() as CreateUserForm;
-      this.store.dispatch(new CreateUser(inviteFormData));
+      this.store.dispatch(createUser({createUserForm: inviteFormData}));
       this.inviteForm.reset();
     }
   }
 
   editUser(data: User) {
-    this.store.dispatch(new NavigateToUserEdition(data.id));
+    this.store.dispatch(navigateToUserEdition({userId: data.id}));
   }
 
   showUserDeletionPopup(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.DELETE, actionFromUsersEdition: false}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DELETE, actionFromUsersEdition: false}}));
   }
 
   enableUser(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.ENABLE, actionFromUsersEdition: false}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.ENABLE, actionFromUsersEdition: false}}));
   }
 
   disableUser(data: User) {
-    this.store.dispatch(new ShowUserActionPopup({user: data, action: UserAction.DISABLE, actionFromUsersEdition: false}));
+    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DISABLE, actionFromUsersEdition: false}}));
   }
 
   syncUsers() {
-    this.store.dispatch(new SyncUsers());
+    this.store.dispatch(syncUsers());
   }
 
   filterMails($event: any) {

@@ -30,10 +30,10 @@ import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectUserForPopup} from "../../../../store/users-management/users-management.selector";
-import {HideUserPopupAction, InvokeActionFromUserPopup} from "../../../../store/users-management/users-management.action";
 import {UserAction} from "../../../../store/users-management/users-management.model";
 import {ConfirmationService, ConfirmEventType} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
+import {hideUserPopupAction, invokeActionFromUserPopup} from "../../../../store/users-management/users-management.action";
 
 @Component({
   selector: 'app-actions-user-popup',
@@ -67,10 +67,10 @@ export class ActionsUserPopupComponent {
         message: msg,
         icon: 'fas fa-triangle-exclamation',
         accept: () => {
-          this.store.dispatch(new InvokeActionFromUserPopup());
+          this.store.dispatch(invokeActionFromUserPopup());
         },
         reject: (type: ConfirmEventType) => {
-          this.store.dispatch(new HideUserPopupAction());
+          this.store.dispatch(hideUserPopupAction());
         }
       });
     }

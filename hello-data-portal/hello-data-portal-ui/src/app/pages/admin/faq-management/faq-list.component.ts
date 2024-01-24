@@ -27,33 +27,35 @@
 
 import {Component, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAllFaq} from "../../../store/faq/faq.selector";
 import {Faq} from "../../../store/faq/faq.model";
-import {DeleteFaq, LoadFaq, OpenFaqEdition, ShowDeleteFaqPopup} from "../../../store/faq/faq.action";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../store/faq/faq.action";
 
 @Component({
   selector: 'app-faq-list',
   templateUrl: './faq-list.component.html',
   styleUrls: ['./faq-list.component.scss']
 })
-export class FaqListComponent extends BaseComponent implements OnInit{
+export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.faq$ = this.store.pipe(select(selectAllFaq));
-    store.dispatch(new LoadFaq());
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.faqManagement.label,
-        routerLink: naviElements.faqManagement.path,
-      }
-    ]));
+    this.faq$ = this.store.select(selectAllFaq);
+    store.dispatch(loadFaq());
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.faqManagement.label,
+          routerLink: naviElements.faqManagement.path,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {
@@ -61,19 +63,19 @@ export class FaqListComponent extends BaseComponent implements OnInit{
   }
 
   createFaq() {
-    this.store.dispatch(new OpenFaqEdition());
+    this.store.dispatch(openFaqEdition({faq: {}}));
   }
 
   editFaq(data: Faq) {
-    this.store.dispatch(new OpenFaqEdition(data));
+    this.store.dispatch(openFaqEdition({faq: data}));
   }
 
   showFaqDeletionPopup(data: Faq) {
-    this.store.dispatch(new ShowDeleteFaqPopup(data));
+    this.store.dispatch(showDeleteFaqPopup({faq: data}));
   }
 
   getDeletionAction() {
-    return new DeleteFaq()
+    return deleteFaq();
   }
 
 }

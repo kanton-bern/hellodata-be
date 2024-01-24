@@ -26,28 +26,26 @@
 ///
 
 import {Injectable} from '@angular/core';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
+import {ActivatedRouteSnapshot, Router, RouterStateSnapshot} from '@angular/router';
 import {Observable, of} from 'rxjs';
 import {filter, map, switchMap, take} from 'rxjs/operators';
-import {select, Store} from '@ngrx/store';
+import {Store} from '@ngrx/store';
 import {AppState} from "../../store/app/app.state";
-import {selectCurrentUserPermissionsLoaded, selectCurrentUserPermissions} from "../../store/auth/auth.selector";
+import {selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
 
 @Injectable({
   providedIn: 'root'
 })
-export class PermissionsGuard  {
+export class PermissionsGuard {
   constructor(private store: Store<AppState>, private router: Router) {
   }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
-    return this.store.pipe(
-      select(selectCurrentUserPermissions),
+    return this.store.select(selectCurrentUserPermissions).pipe(
       switchMap((currentUserPermissions) => {
         if (!currentUserPermissions || currentUserPermissions.length === 0) {
           // Permissions not yet loaded, return observable that will wait for them to be loaded
-          return this.store.pipe(
-            select(selectCurrentUserPermissionsLoaded),
+          return this.store.select(selectCurrentUserPermissionsLoaded).pipe(
             filter((loaded) => loaded),
             take(1),
             switchMap(() => this.permissionsLoadedCheckPermissions(next, state))
@@ -61,8 +59,7 @@ export class PermissionsGuard  {
   }
 
   private permissionsLoadedCheckPermissions(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    return this.store.pipe(
-      select(selectCurrentUserPermissions),
+    return this.store.select(selectCurrentUserPermissions).pipe(
       map((currentUserPermissions) => {
         return this.checkPermissions(next, state, currentUserPermissions);
       })

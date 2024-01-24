@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {CreateUserForm, DashboardForUser, User, UserActionForPopup} from "./users-management.model";
 import {ContextResponse, Role} from "./context-role.model";
 
@@ -62,211 +62,139 @@ export enum UsersManagementActionType {
   LOAD_ADMIN_EMAILS_SUCCESS = '[USERS MANAGEMENT] Load email addresses of all HD Administrators SUCCESS'
 }
 
-export class LoadUsers implements Action {
-  public readonly type = UsersManagementActionType.LOAD_USERS;
-}
+export const loadUsers = createAction(
+  UsersManagementActionType.LOAD_USERS
+);
 
-export class LoadUsersSuccess implements Action {
-  public readonly type = UsersManagementActionType.LOAD_USERS_SUCCESS;
+export const loadUsersSuccess = createAction(
+  UsersManagementActionType.LOAD_USERS_SUCCESS,
+  props<{ payload: User[] }>()
+);
 
-  constructor(public payload: User[]) {
-  }
-}
+export const showUserActionPopup = createAction(
+  UsersManagementActionType.SHOW_USER_ACTION_POP_UP,
+  props<{ userActionForPopup: UserActionForPopup }>()
+);
 
-export class ShowUserActionPopup implements Action {
-  public readonly type = UsersManagementActionType.SHOW_USER_ACTION_POP_UP;
+export const hideUserPopupAction = createAction(
+  UsersManagementActionType.HIDE_USER_ACTION_POP_UP
+);
 
-  constructor(public userActionForPopup: UserActionForPopup) {
-  }
-}
+export const invokeActionFromUserPopup = createAction(
+  UsersManagementActionType.INVOKE_ACTION_FROM_USER_POPUP
+);
 
-export class HideUserPopupAction implements Action {
-  public readonly type = UsersManagementActionType.HIDE_USER_ACTION_POP_UP;
-}
+export const userPopupActionSuccess = createAction(
+  UsersManagementActionType.USER_POPUP_ACTION_SUCCESS,
+  props<{ email: string, userActionForPopup: UserActionForPopup }>()
+);
 
-export class InvokeActionFromUserPopup implements Action {
-  public readonly type = UsersManagementActionType.INVOKE_ACTION_FROM_USER_POPUP;
-}
+export const createUser = createAction(
+  UsersManagementActionType.CREATE_USER,
+  props<{ createUserForm: CreateUserForm }>()
+);
 
-export class UserPopupActionSuccess implements Action {
-  public readonly type = UsersManagementActionType.USER_POPUP_ACTION_SUCCESS;
+export const createUserSuccess = createAction(
+  UsersManagementActionType.CREATE_USER_SUCCESS,
+  props<{ email: string, userId: string }>()
+);
 
-  constructor(public email: string, public userActionForPopup: UserActionForPopup) {
-  }
-}
+export const syncUsers = createAction(
+  UsersManagementActionType.SYNC_ALL_USERS
+);
 
-export class CreateUser implements Action {
-  public readonly type = UsersManagementActionType.CREATE_USER;
+export const syncUsersSuccess = createAction(
+  UsersManagementActionType.SYNC_ALL_USERS_SUCCESS
+);
 
-  constructor(public createUserForm: CreateUserForm) {
-  }
-}
+export const navigateToUserEdition = createAction(
+  UsersManagementActionType.NAVIGATE_TO_USER_EDITION,
+  props<{ userId: string }>()
+);
 
-export class CreateUserSuccess implements Action {
-  public readonly type = UsersManagementActionType.CREATE_USER_SUCCESS;
+export const loadUserById = createAction(
+  UsersManagementActionType.LOAD_USER_BY_ID
+);
 
-  constructor(public email: string, public userId: string) {
-  }
+export const loadUserByIdSuccess = createAction(
+  UsersManagementActionType.LOAD_USER_BY_ID_SUCCESS,
+  props<{ user: User }>()
+);
 
-}
+export const navigateToUsersManagement = createAction(
+  UsersManagementActionType.NAVIGATE_TO_USERS_MANAGEMENT
+);
 
-export class SyncUsers implements Action {
-  public readonly type = UsersManagementActionType.SYNC_ALL_USERS;
-}
+export const loadDashboards = createAction(
+  UsersManagementActionType.LOAD_DASHBOARDS
+);
 
-export class SyncUsersSuccess implements Action {
-  public readonly type = UsersManagementActionType.SYNC_ALL_USERS_SUCCESS;
-}
+export const loadDashboardsSuccess = createAction(
+  UsersManagementActionType.LOAD_DASHBOARDS_SUCCESS,
+  props<{ dashboards: DashboardForUser[] }>()
+);
 
-export class NavigateToUserEdition implements Action {
-  public readonly type = UsersManagementActionType.NAVIGATE_TO_USER_EDITION;
+export const resetDashboardsFromBackend = createAction(
+  UsersManagementActionType.RESET_DASHBOARDS_FROM_BACKEND,
+  props<{ dashboards: DashboardForUser[] }>()
+);
 
-  constructor(public userId: string) {
-  }
-}
+export const loadAvailableContextRoles = createAction(
+  UsersManagementActionType.LOAD_AVAILABLE_CONTEXT_ROLES
+);
 
-export class LoadUserById implements Action {
-  public readonly type = UsersManagementActionType.LOAD_USER_BY_ID;
-}
+export const loadAvailableContextRolesSuccess = createAction(
+  UsersManagementActionType.LOAD_AVAILABLE_CONTEXT_ROLES_SUCCESS,
+  props<{ payload: Role[] }>()
+);
 
-export class LoadUserByIdSuccess implements Action {
-  public readonly type = UsersManagementActionType.LOAD_USER_BY_ID_SUCCESS;
+export const loadAvailableContexts = createAction(
+  UsersManagementActionType.LOAD_AVAILABLE_CONTEXTS
+);
 
-  constructor(public user: User) {
-  }
-}
+export const loadAvailableContextsSuccess = createAction(
+  UsersManagementActionType.LOAD_AVAILABLE_CONTEXTS_SUCCESS,
+  props<{ payload: ContextResponse }>()
+);
 
-export class NavigateToUsersManagement implements Action {
-  public readonly type = UsersManagementActionType.NAVIGATE_TO_USERS_MANAGEMENT;
-}
+export const selectBusinessDomainRoleForEditedUser = createAction(
+  UsersManagementActionType.SELECT_BUSINESS_DOMAIN_ROLE_FOR_EDITED_USER,
+  props<{ selectedRole: Role }>()
+);
 
-export class LoadDashboards implements Action {
-  public readonly type = UsersManagementActionType.LOAD_DASHBOARDS;
-}
+export const selectDataDomainRoleForEditedUser = createAction(
+  UsersManagementActionType.SELECT_DATA_DOMAIN_ROLE_FOR_EDITED_USER,
+  props<{ selectedRoleForContext: any }>()
+);
 
-export class LoadDashboardsSuccess implements Action {
-  public readonly type = UsersManagementActionType.LOAD_DASHBOARDS_SUCCESS;
+export const updateUserRoles = createAction(
+  UsersManagementActionType.UPDATE_USER_ROLES
+);
 
-  constructor(public dashboards: DashboardForUser[]) {
-  }
-}
+export const updateUserRolesSuccess = createAction(
+  UsersManagementActionType.UPDATE_USER_ROLES_SUCCESS
+);
 
-export class ResetDashboardsFromBackend implements Action {
-  public readonly type = UsersManagementActionType.RESET_DASHBOARDS_FROM_BACKEND;
+export const loadUserContextRoles = createAction(
+  UsersManagementActionType.LOAD_USER_CONTEXT_ROLES
+);
 
-  constructor(public dashboards: DashboardForUser[]) {
-  }
-}
+export const loadUserContextRolesSuccess = createAction(
+  UsersManagementActionType.LOAD_USER_CONTEXT_ROLES_SUCCESS,
+  props<{ payload: any }>()
+);
 
-export class LoadAvailableContextRoles implements Action {
-  public readonly type = UsersManagementActionType.LOAD_AVAILABLE_CONTEXT_ROLES;
-}
+export const setSelectedDashboardForUser = createAction(
+  UsersManagementActionType.SET_SELECTED_DASHBOARD_FOR_USER,
+  props<{ dashboards: DashboardForUser[], contextKey: string }>()
+);
 
-export class LoadAvailableContextRolesSuccess implements Action {
-  public readonly type = UsersManagementActionType.LOAD_AVAILABLE_CONTEXT_ROLES_SUCCESS;
+export const loadAdminEmails = createAction(
+  UsersManagementActionType.LOAD_ADMIN_EMAILS
+);
 
-  constructor(public payload: Role[]) {
-  }
-}
-
-export class LoadAvailableContexts implements Action {
-  public readonly type = UsersManagementActionType.LOAD_AVAILABLE_CONTEXTS;
-}
-
-export class LoadAvailableContextsSuccess implements Action {
-  public readonly type = UsersManagementActionType.LOAD_AVAILABLE_CONTEXTS_SUCCESS;
-
-  constructor(public payload: ContextResponse) {
-  }
-}
-
-export class SelectBusinessDomainRoleForEditedUser implements Action {
-  public readonly type = UsersManagementActionType.SELECT_BUSINESS_DOMAIN_ROLE_FOR_EDITED_USER;
-
-  constructor(public selectedRole: Role) {
-  }
-}
-
-export class SelectDataDomainRoleForEditedUser implements Action {
-  public readonly type = UsersManagementActionType.SELECT_DATA_DOMAIN_ROLE_FOR_EDITED_USER;
-
-  constructor(public selectedRoleForContext: any) {
-  }
-}
-
-export class UpdateUserRoles implements Action {
-  public readonly type = UsersManagementActionType.UPDATE_USER_ROLES;
-}
-
-export class UpdateUserRolesSuccess implements Action {
-  public readonly type = UsersManagementActionType.UPDATE_USER_ROLES_SUCCESS;
-}
-
-export class LoadUserContextRoles implements Action {
-  public readonly type = UsersManagementActionType.LOAD_USER_CONTEXT_ROLES;
-}
-
-export class LoadUserContextRolesSuccess implements Action {
-  public readonly type = UsersManagementActionType.LOAD_USER_CONTEXT_ROLES_SUCCESS;
-
-  constructor(public payload: any) {
-  }
-}
-
-export class SetSelectedDashboardForUser implements Action {
-  public readonly type = UsersManagementActionType.SET_SELECTED_DASHBOARD_FOR_USER;
-
-  constructor(public dashboards: DashboardForUser[], public contextKey: string) {
-  }
-}
-
-export class LoadAdminEmails implements Action {
-  public readonly type = UsersManagementActionType.LOAD_ADMIN_EMAILS;
-}
-
-export class LoadAdminEmailsSuccess implements Action {
-  public readonly type = UsersManagementActionType.LOAD_ADMIN_EMAILS_SUCCESS;
-
-  constructor(public payload: string[]) {
-  }
-}
-
-export type UsersManagementActions =
-  LoadUsers
-  | LoadUsersSuccess
-  |
-  InvokeActionFromUserPopup
-  | UserPopupActionSuccess
-  |
-  ShowUserActionPopup
-  | HideUserPopupAction
-  |
-  CreateUser
-  | CreateUserSuccess
-  |
-  SyncUsers
-  | SyncUsersSuccess
-  |
-  NavigateToUserEdition
-  | LoadUserById
-  | LoadUserByIdSuccess
-  |
-  NavigateToUsersManagement
-  |
-  LoadDashboards
-  | LoadDashboardsSuccess
-  |
-  LoadAvailableContextRoles
-  | LoadAvailableContextRolesSuccess
-  | LoadAvailableContexts
-  | LoadAvailableContextsSuccess
-  | LoadUserContextRoles
-  | LoadUserContextRolesSuccess
-  |
-  SelectBusinessDomainRoleForEditedUser
-  | SelectDataDomainRoleForEditedUser
-  | SetSelectedDashboardForUser
-  |
-  LoadAdminEmails
-  | LoadAdminEmailsSuccess
+export const loadAdminEmailsSuccess = createAction(
+  UsersManagementActionType.LOAD_ADMIN_EMAILS_SUCCESS,
+  props<{ payload: string[] }>()
+);
 

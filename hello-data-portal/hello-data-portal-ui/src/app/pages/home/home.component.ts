@@ -27,21 +27,21 @@
 
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {debounceTime, Observable, of, tap} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {
   selectCurrentBusinessDomain,
-  selectCurrentContextRoles,
+  selectCurrentContextRolesFilterOffNone,
   selectCurrentUserPermissions,
   selectIsAuthenticated,
   selectProfile
 } from "../../store/auth/auth.selector";
 import {IUser} from "../../store/auth/auth.model";
-import {ResetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectAdminEmails} from "../../store/users-management/users-management.selector";
-import {LoadAdminEmails} from "../../store/users-management/users-management.action";
+import {loadAdminEmails} from "../../store/users-management/users-management.action";
+import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'home.component.html',
@@ -61,25 +61,20 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>) {
     super();
-    this.isAuthenticated$ = this.store.pipe(select(selectIsAuthenticated));
-    this.userData$ = this.store.pipe(select(selectProfile));
-    this.store.dispatch(new ResetBreadcrumb());
-    this.store.dispatch(new LoadAdminEmails());
-    this.currentUserPermissions$ = this.store.pipe(select(selectCurrentUserPermissions));
-
-    this.currentUserContextRolesNotNone$ = this.store.pipe(select(selectCurrentContextRoles)).pipe(
-      map(contextRoles => {
-        return contextRoles.filter(contextRole => contextRole?.role?.name != 'NONE');
-      })
-    );
-    this.waitForPermissionsLoaded$= this.currentUserContextRolesNotNone$.pipe(
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+    this.userData$ = this.store.select(selectProfile);
+    this.store.dispatch(resetBreadcrumb());
+    this.store.dispatch(loadAdminEmails());
+    this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
+    this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone);
+    this.waitForPermissionsLoaded$ = this.currentUserContextRolesNotNone$.pipe(
       debounceTime(700),
       tap(() => {
         this.loadedPermissions$ = of(true);
       }));
 
-    this.businessDomain$ = this.store.pipe(select(selectCurrentBusinessDomain));
-    this.adminEmails$ = this.store.pipe(select(selectAdminEmails));
+    this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
+    this.adminEmails$ = this.store.select(selectAdminEmails);
   }
 
   override ngOnInit(): void {

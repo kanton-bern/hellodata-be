@@ -30,7 +30,7 @@ import {SubscriptionsComponent} from './subscriptions.component';
 import {Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {Context} from '../../../../store/users-management/context-role.model';
-import {LoadAvailableContexts} from '../../../../store/users-management/users-management.action';
+import {loadAvailableContexts} from '../../../../store/users-management/users-management.action';
 import {afterEach, beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {TranslocoTestingModule} from "@ngneat/transloco";
 
@@ -77,7 +77,7 @@ describe('SubscriptionsComponent', () => {
   });
 
   it('should dispatch LoadAvailableContexts action on initialization', () => {
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new LoadAvailableContexts());
+    expect(mockStore.dispatch).toHaveBeenCalledWith(loadAvailableContexts());
   });
 
   it('should set businessDomains$ and dataDomains$ from store', (done: any) => {

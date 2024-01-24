@@ -46,6 +46,11 @@ export const selectUsers = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.users
 );
+
+export const selectUsersCopy = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => [...state.users]
+);
 export const selectUserForPopup = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.userForPopup

@@ -28,19 +28,19 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
-import {Navigate} from "../../../../store/app/app.action";
 import {Faq} from "../../../../store/faq/faq.model";
-import {DeleteEditedFaq, SaveChangesToFaq, ShowDeleteFaqPopup} from "../../../../store/faq/faq.action";
-import {CreateBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../../app-navi-elements";
 import {selectAvailableDataDomainsWithAllEntry} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "../../../../store/app/app.constants";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {MarkUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
+import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
+import {navigate} from "../../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 
 @Component({
   selector: 'app-faq-edit',
@@ -55,8 +55,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
-    this.availableDataDomains$ = this.store.pipe(select(selectAvailableDataDomainsWithAllEntry));
-    this.editedFaq$ = this.store.pipe(select(selectEditedFaq)).pipe(
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainsWithAllEntry);
+    this.editedFaq$ = this.store.select(selectEditedFaq).pipe(
       tap(faq => {
         this.faqForm = this.fb.group({
           title: [faq?.title, [Validators.required.bind(this), Validators.minLength(3)]],
@@ -64,25 +64,29 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
           dataDomain: [faq && faq.contextKey ? faq.contextKey : ALL_DATA_DOMAINS],
         });
         if (faq.id) {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.faqManagement.label,
-              routerLink: naviElements.faqManagement.path,
-            },
-            {
-              label: naviElements.faqEdit.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.faqManagement.label,
+                routerLink: naviElements.faqManagement.path,
+              },
+              {
+                label: naviElements.faqEdit.label,
+              }
+            ]
+          }));
         } else {
-          this.store.dispatch(new CreateBreadcrumbs([
-            {
-              label: naviElements.faqManagement.label,
-              routerLink: naviElements.faqManagement.path,
-            },
-            {
-              label: naviElements.faqCreate.label,
-            }
-          ]));
+          this.store.dispatch(createBreadcrumbs({
+            breadcrumbs: [
+              {
+                label: naviElements.faqManagement.label,
+                routerLink: naviElements.faqManagement.path,
+              },
+              {
+                label: naviElements.faqCreate.label,
+              }
+            ]
+          }));
         }
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.faqForm.valueChanges.subscribe(newValues => {
@@ -93,7 +97,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   navigateToFaqList() {
-    this.store.dispatch(new Navigate('faq-management'));
+    this.store.dispatch(navigate({url: 'faq-management'}));
   }
 
   saveFaq(editedFaq: Faq) {
@@ -104,15 +108,15 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(new SaveChangesToFaq(faqToBeSaved));
+    this.store.dispatch(saveChangesToFaq({faq: faqToBeSaved}));
   }
 
   openDeletePopup(editedFaq: Faq) {
-    this.store.dispatch(new ShowDeleteFaqPopup(editedFaq));
+    this.store.dispatch(showDeleteFaqPopup({faq: editedFaq}));
   }
 
   getDeletionAction() {
-    return new DeleteEditedFaq();
+    return deleteEditedFaq();
   }
 
   ngOnDestroy(): void {
@@ -127,7 +131,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(new MarkUnsavedChanges(new SaveChangesToFaq(faqToBeSaved), faqToBeSaved.id === undefined));
+    this.store.dispatch(markUnsavedChanges({action: saveChangesToFaq(faqToBeSaved), stayOnPage: faqToBeSaved.id === undefined}));
   }
 
   private unsubFormValueChanges() {

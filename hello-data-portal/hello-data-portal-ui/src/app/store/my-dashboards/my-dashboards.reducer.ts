@@ -25,46 +25,38 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {MyDashboardsActions, MyDashboardsActionType} from "./my-dashboards.action";
 import {initialMyDashboardsState, MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
+import {createReducer, on} from "@ngrx/store";
+import {loadAvailableDataDomainsSuccess, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
 
-export const myDashboardsReducer = (
-  state = initialMyDashboardsState,
-  action: MyDashboardsActions
-): MyDashboardsState => {
-  switch (action.type) {
-    case MyDashboardsActionType.LOAD_MY_DASHBOARDS_SUCCESS: {
-      return {
-        ...state,
-        myDashboards: action.payload,
-      };
+export const myDashboardsReducer = createReducer(
+  initialMyDashboardsState,
+  on(loadMyDashboardsSuccess, (state: MyDashboardsState, {payload}): MyDashboardsState => {
+    return {
+      ...state,
+      myDashboards: payload,
+    };
+  }),
+  on(setSelectedDataDomain, (state: MyDashboardsState, {dataDomain}): MyDashboardsState => {
+    return {
+      ...state,
+      selectedDataDomain: dataDomain
     }
-
-    case MyDashboardsActionType.SET_SELECTED_DATA_DOMAIN: {
-      return {
-        ...state,
-        selectedDataDomain: action.dataDomain
-      }
+  }),
+  on(loadAvailableDataDomainsSuccess, (state: MyDashboardsState, {payload}): MyDashboardsState => {
+    const uniqueDataDomains = [
+      {
+        id: '',
+        name: ALL_DATA_DOMAINS,
+        key: ''
+      },
+      ...payload
+    ]
+    return {
+      ...state,
+      selectedDataDomain: uniqueDataDomains[0],
+      availableDataDomains: uniqueDataDomains,
     }
-
-    case MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS: {
-      const uniqueDataDomains = [
-        {
-          id: '',
-          name: ALL_DATA_DOMAINS,
-          key: ''
-        },
-        ...action.payload
-      ]
-      return {
-        ...state,
-        selectedDataDomain: uniqueDataDomains[0],
-        availableDataDomains: uniqueDataDomains,
-      }
-    }
-
-    default:
-      return state; // default MyDashboardsActionType.LOAD_MY_DASHBOARDS
-  }
-};
+  }),
+);

@@ -27,13 +27,13 @@
 
 import {Component, OnInit} from '@angular/core';
 import {Observable, tap} from "rxjs";
-import {select, Store} from "@ngrx/store";
+import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {selectCurrentMyDashboardInfo} from "../../store/my-dashboards/my-dashboards.selector";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../app-navi-elements";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 export const VISITED_SUPERSETS_SESSION_STORAGE_KEY = 'visited_supersets';
 export const LOGGED_IN_SUPERSET_USER = 'logged_in_superset_user';
@@ -42,13 +42,13 @@ export const LOGGED_IN_SUPERSET_USER = 'logged_in_superset_user';
   templateUrl: 'embed-my-dashboard.component.html',
   styleUrls: ['./embed-my-dashboard.component.scss']
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit{
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.currentMyDashboardInfo$ = this.store.pipe(select(selectCurrentMyDashboardInfo)).pipe(tap((dashboardInfo) => {
+    this.currentMyDashboardInfo$ = this.store.select(selectCurrentMyDashboardInfo).pipe(tap((dashboardInfo) => {
       if (dashboardInfo) {
         this.load(dashboardInfo);
       }
@@ -81,19 +81,21 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit{
   }
 
   private createBreadcrumbs(dataDomainName: string, dashboard: SupersetDashboard | undefined, currentUrl: string) {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.myDashboards.label,
-        routerLink: naviElements.myDashboards.path
-      },
-      {
-        label: dataDomainName,
-      },
-      {
-        label: dashboard?.dashboardTitle,
-        routerLink: decodeURIComponent(currentUrl)
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.myDashboards.label,
+          routerLink: naviElements.myDashboards.path
+        },
+        {
+          label: dataDomainName,
+        },
+        {
+          label: dashboard?.dashboardTitle,
+          routerLink: decodeURIComponent(currentUrl)
+        }
+      ]
+    }));
   }
 
   private rememberOpenedSuperset(supersetUrl: string) {

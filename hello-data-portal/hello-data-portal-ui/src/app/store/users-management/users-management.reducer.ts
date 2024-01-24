@@ -26,152 +26,160 @@
 ///
 
 import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
-import {UsersManagementActions, UsersManagementActionType} from "./users-management.action";
+import {
+  hideUserPopupAction,
+  loadAdminEmailsSuccess,
+  loadAvailableContextRolesSuccess,
+  loadAvailableContextsSuccess,
+  loadDashboardsSuccess,
+  loadUserByIdSuccess,
+  loadUserContextRolesSuccess,
+  loadUsersSuccess,
+  navigateToUsersManagement,
+  selectBusinessDomainRoleForEditedUser,
+  selectDataDomainRoleForEditedUser,
+  setSelectedDashboardForUser,
+  showUserActionPopup
+} from "./users-management.action";
 import {BUSINESS_DOMAIN_CONTEXT_TYPE, DATA_DOMAIN_CONTEXT_TYPE} from "./users-management.model";
 import {copy} from "../start-page/start-page.selector";
+import {createReducer, on} from "@ngrx/store";
+
+
+export const usersManagementReducer = createReducer(
+  initialUsersManagementState,
+  on(loadUsersSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    for (const key in sessionStorage) {
+      if (key.startsWith('UM_')) {
+        sessionStorage.removeItem(key);
+      }
+    }
+    return {
+      ...state,
+      users: payload,
+      allDashboardsWithMarkedUser: [],
+      allDashboardsWithMarkedUserFetched: false,
+      userContextRoles: [],
+      selectedDataDomainRolesForEditedUser: [],
+      selectedBusinessContextRoleForEditedUser: null,
+      editedUser: null,
+    };
+  }),
+  on(showUserActionPopup, (state: UsersManagementState, {userActionForPopup}): UsersManagementState => {
+    return {
+      ...state,
+      userForPopup: userActionForPopup,
+    };
+  }),
+  on(hideUserPopupAction, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      userForPopup: null,
+    };
+  }),
+  on(loadUserByIdSuccess, (state: UsersManagementState, {user}): UsersManagementState => {
+    return {
+      ...state,
+      editedUser: user
+    };
+  }),
+  on(loadDashboardsSuccess, (state: UsersManagementState, {dashboards}): UsersManagementState => {
+    return {
+      ...state,
+      allDashboardsWithMarkedUser: dashboards,
+      allDashboardsWithMarkedUserFetched: true
+    };
+  }),
+  on(loadAvailableContextRolesSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    return {
+      ...state,
+      allAvailableContextRoles: payload
+    };
+  }),
+  on(loadAvailableContextsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    return {
+      ...state,
+      allAvailableContexts: payload.contexts
+    };
+  }),
+  on(selectBusinessDomainRoleForEditedUser, (state: UsersManagementState, {selectedRole}): UsersManagementState => {
+    return {
+      ...state,
+      selectedBusinessContextRoleForEditedUser: selectedRole,
+    };
+  }),
+  on(loadUserContextRolesSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    const selectedBusinessContextRole = payload.filter((userContextRole: any) => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE)[0];
+    const selectedDataDomainContextRoles = payload.filter((userContextRole: any) => userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE);
+
+    return {
+      ...state,
+      userContextRoles: payload,
+      selectedBusinessContextRoleForEditedUser: selectedBusinessContextRole ? selectedBusinessContextRole.role : null,
+      selectedDataDomainRolesForEditedUser: selectedDataDomainContextRoles ? selectedDataDomainContextRoles : []
+    }
+  }),
+  on(selectDataDomainRoleForEditedUser, (state: UsersManagementState, {selectedRoleForContext}): UsersManagementState => {
+    const selectedContextId = selectedRoleForContext.context.id;
+    let updatedDataDomainRoles;
+    const isRoleForContextAlreadySelected = state.selectedDataDomainRolesForEditedUser.some(
+      roleForContext => roleForContext.context.id === selectedContextId
+    );
+    if (state.selectedDataDomainRolesForEditedUser.length === 0) {
+      // If the array is empty, simply add the selected element
+      updatedDataDomainRoles = [selectedRoleForContext];
+    } else {
+      // Otherwise, update the existing element with the same context.id or add the selected element
+      updatedDataDomainRoles = state.selectedDataDomainRolesForEditedUser.map(roleForContext => {
+        if (roleForContext.context.id === selectedContextId) {
+          // Replace the existing element with the same context.id
+          return selectedRoleForContext;
+        }
+        return roleForContext;
+      });
+
+      // Add the selected element if it doesn't exist in the array
+      if (!isRoleForContextAlreadySelected) {
+        updatedDataDomainRoles.push(selectedRoleForContext);
+      }
+    }
+    return {
+      ...state,
+      selectedDataDomainRolesForEditedUser: updatedDataDomainRoles
+    };
+  }),
+  on(setSelectedDashboardForUser, (state: UsersManagementState, {contextKey, dashboards}): UsersManagementState => {
+    const contextDashboardsForUser = copy(state.selectedDashboardsForUser);
+    let found = false;
+    contextDashboardsForUser.forEach(contextDashboardsForUser => {
+      if (contextDashboardsForUser.contextKey === contextKey) {
+        contextDashboardsForUser.dashboards = dashboards;
+        found = true;
+      }
+    });
+    if (!found) {
+      contextDashboardsForUser.push({
+        contextKey: contextKey,
+        dashboards: dashboards
+      })
+    }
+    return {
+      ...state,
+      selectedDashboardsForUser: contextDashboardsForUser
+    };
+  }),
+  on(navigateToUsersManagement, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      selectedDashboardsForUser: [],
+    };
+  }),
+  on(loadAdminEmailsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    return {
+      ...state,
+      adminEmails: payload
+    };
+  }),
+);
 
 export const CURRENT_EDITED_USER_ID = 'UM_current_edited_user_id';
-export const usersManagementReducer = (
-  state = initialUsersManagementState,
-  action: UsersManagementActions
-): UsersManagementState => {
-  switch (action.type) {
-    case UsersManagementActionType.LOAD_USERS_SUCCESS: {
-      for (const key in sessionStorage) {
-        if (key.startsWith('UM_')) {
-          sessionStorage.removeItem(key);
-        }
-      }
-      return {
-        ...state,
-        users: action.payload,
-        allDashboardsWithMarkedUser: [],
-        allDashboardsWithMarkedUserFetched: false,
-        userContextRoles: [],
-        selectedDataDomainRolesForEditedUser: [],
-        selectedBusinessContextRoleForEditedUser: null,
-        editedUser: null,
-
-      };
-    }
-    case UsersManagementActionType.SHOW_USER_ACTION_POP_UP: {
-      return {
-        ...state,
-        userForPopup: action.userActionForPopup,
-      };
-    }
-    case UsersManagementActionType.HIDE_USER_ACTION_POP_UP: {
-      return {
-        ...state,
-        userForPopup: null
-      };
-    }
-    case UsersManagementActionType.LOAD_USER_BY_ID_SUCCESS: {
-      return {
-        ...state,
-        editedUser: action.user
-      };
-    }
-    case UsersManagementActionType.LOAD_DASHBOARDS_SUCCESS: {
-      return {
-        ...state,
-        allDashboardsWithMarkedUser: action.dashboards,
-        allDashboardsWithMarkedUserFetched: true
-      };
-    }
-    case UsersManagementActionType.LOAD_AVAILABLE_CONTEXT_ROLES_SUCCESS: {
-      return {
-        ...state,
-        allAvailableContextRoles: action.payload
-      };
-    }
-    case UsersManagementActionType.LOAD_AVAILABLE_CONTEXTS_SUCCESS: {
-      return {
-        ...state,
-        allAvailableContexts: action.payload.contexts
-      };
-    }
-    case UsersManagementActionType.SELECT_BUSINESS_DOMAIN_ROLE_FOR_EDITED_USER: {
-      return {
-        ...state,
-        selectedBusinessContextRoleForEditedUser: action.selectedRole,
-      };
-    }
-    case UsersManagementActionType.LOAD_USER_CONTEXT_ROLES_SUCCESS: {
-      const selectedBusinessContextRole = action.payload.filter((userContextRole: any) => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE)[0];
-      const selectedDataDomainContextRoles = action.payload.filter((userContextRole: any) => userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE);
-
-      return {
-        ...state,
-        userContextRoles: action.payload,
-        selectedBusinessContextRoleForEditedUser: selectedBusinessContextRole ? selectedBusinessContextRole.role : null,
-        selectedDataDomainRolesForEditedUser: selectedDataDomainContextRoles ? selectedDataDomainContextRoles : []
-      }
-    }
-
-    case UsersManagementActionType.SELECT_DATA_DOMAIN_ROLE_FOR_EDITED_USER: {
-      const selectedContextId = action.selectedRoleForContext.context.id;
-      let updatedDataDomainRoles;
-      const isRoleForContextAlreadySelected = state.selectedDataDomainRolesForEditedUser.some(
-        roleForContext => roleForContext.context.id === selectedContextId
-      );
-      if (state.selectedDataDomainRolesForEditedUser.length === 0) {
-        // If the array is empty, simply add the selected element
-        updatedDataDomainRoles = [action.selectedRoleForContext];
-      } else {
-        // Otherwise, update the existing element with the same context.id or add the selected element
-        updatedDataDomainRoles = state.selectedDataDomainRolesForEditedUser.map(roleForContext => {
-          if (roleForContext.context.id === selectedContextId) {
-            // Replace the existing element with the same context.id
-            return action.selectedRoleForContext;
-          }
-          return roleForContext;
-        });
-
-        // Add the selected element if it doesn't exist in the array
-        if (!isRoleForContextAlreadySelected) {
-          updatedDataDomainRoles.push(action.selectedRoleForContext);
-        }
-      }
-      return {
-        ...state,
-        selectedDataDomainRolesForEditedUser: updatedDataDomainRoles
-      };
-    }
-    case UsersManagementActionType.SET_SELECTED_DASHBOARD_FOR_USER: {
-      const contextDashboardsForUser = copy(state.selectedDashboardsForUser);
-      let found = false;
-      contextDashboardsForUser.forEach(contextDashboardsForUser => {
-        if (contextDashboardsForUser.contextKey === action.contextKey) {
-          contextDashboardsForUser.dashboards = action.dashboards;
-          found = true;
-        }
-      });
-      if (!found) {
-        contextDashboardsForUser.push({
-          contextKey: action.contextKey,
-          dashboards: action.dashboards
-        })
-      }
-      return {
-        ...state,
-        selectedDashboardsForUser: contextDashboardsForUser
-      };
-
-    }
-    case UsersManagementActionType.NAVIGATE_TO_USERS_MANAGEMENT: {
-      return {
-        ...state,
-        selectedDashboardsForUser: [],
-      };
-    }
-    case UsersManagementActionType.LOAD_ADMIN_EMAILS_SUCCESS: {
-      return {
-        ...state,
-        adminEmails: action.payload
-      };
-    }
-    default:
-      return state;
-  }
-};

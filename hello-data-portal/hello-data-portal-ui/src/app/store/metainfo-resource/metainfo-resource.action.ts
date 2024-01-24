@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from '@ngrx/store';
+import {createAction, props} from '@ngrx/store';
 import {MetaInfoResource} from "./metainfo-resource.model";
 
 export enum MetaInfoResourceActionType {
@@ -40,59 +40,43 @@ export enum MetaInfoResourceActionType {
   LOAD_SELECTED_APP_INFO_RESOURCE = '[METAINFO RESOURCES] Load Selected AppInfo Resource',
 }
 
-export class LoadAppInfoResources implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_APP_INFOS;
-}
+export const loadAppInfoResources = createAction(
+  MetaInfoResourceActionType.LOAD_APP_INFOS
+);
 
-export class LoadAppInfoResourcesSuccess implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_APP_INFOS_SUCCESS;
+export const loadAppInfoResourcesSuccess = createAction(
+  MetaInfoResourceActionType.LOAD_APP_INFOS_SUCCESS,
+  props<{ result: MetaInfoResource[] }>()
+);
 
-  constructor(public result: MetaInfoResource[]) {
-  }
-}
+export const loadRoleResources = createAction(
+  MetaInfoResourceActionType.LOAD_ROLES
+);
 
-export class LoadRoleResources implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_ROLES;
-}
+export const loadRoleResourcesSuccess = createAction(
+  MetaInfoResourceActionType.LOAD_ROLES_SUCCESS,
+  props<{ result: MetaInfoResource[] }>()
+);
 
-export class LoadRoleResourcesSuccess implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_ROLES_SUCCESS;
+export const loadPermissionResources = createAction(
+  MetaInfoResourceActionType.LOAD_PERMISSIONS
+);
 
-  constructor(public result: MetaInfoResource[]) {
-  }
-}
+export const loadPermissionResourcesSuccess = createAction(
+  MetaInfoResourceActionType.LOAD_PERMISSIONS_SUCCESS,
+  props<{ result: MetaInfoResource[] }>()
+);
 
-export class LoadPermissionResources implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_PERMISSIONS;
-}
+export const loadSelectedAppInfoResources = createAction(
+  MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCES
+);
 
-export class LoadPermissionResourcesSuccess implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_PERMISSIONS_SUCCESS;
+export const loadSelectedAppInfoResourcesSuccess = createAction(
+  MetaInfoResourceActionType.LOAD_SELECTED_APP_INFOS_RESOURCES_SUCCESS,
+  props<{ payload: MetaInfoResource[] }>()
+);
 
-  constructor(public result: MetaInfoResource[]) {
-  }
-}
-
-export class LoadSelectedAppInfoResources implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCES;
-}
-
-export class LoadSelectedAppInfoResourcesSuccess implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_SELECTED_APP_INFOS_RESOURCES_SUCCESS;
-
-  constructor(public payload: MetaInfoResource[]) {
-  }
-}
-
-export class LoadSelectedAppInfoResource implements Action {
-  public readonly type = MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCE;
-
-  constructor(public selectedResource: MetaInfoResource) {
-  }
-}
-
-
-export type MetaInfoResourceActions =
-  LoadAppInfoResources | LoadAppInfoResourcesSuccess |
-  LoadSelectedAppInfoResources | LoadSelectedAppInfoResourcesSuccess | LoadSelectedAppInfoResource |
-  LoadRoleResources | LoadRoleResourcesSuccess | LoadPermissionResources | LoadPermissionResourcesSuccess
+export const loadSelectedAppInfoResource = createAction(
+  MetaInfoResourceActionType.LOAD_SELECTED_APP_INFO_RESOURCE,
+  props<{ selectedResource: MetaInfoResource }>()
+);

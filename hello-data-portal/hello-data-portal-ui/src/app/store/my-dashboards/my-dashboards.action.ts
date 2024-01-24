@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {DataDomain} from "./my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
@@ -38,37 +38,25 @@ export enum MyDashboardsActionType {
   LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS = '[MYDASHBOARDS] Load available Data Domains SUCCESS',
 }
 
+export const loadMyDashboards = createAction(
+  MyDashboardsActionType.LOAD_MY_DASHBOARDS
+);
 
-export class LoadMyDashboards implements Action {
-  public readonly type = MyDashboardsActionType.LOAD_MY_DASHBOARDS;
-}
+export const loadMyDashboardsSuccess = createAction(
+  MyDashboardsActionType.LOAD_MY_DASHBOARDS_SUCCESS,
+  props<{ payload: SupersetDashboardWithMetadata[] }>()
+);
 
-export class LoadMyDashboardsSuccess implements Action {
-  public readonly type = MyDashboardsActionType.LOAD_MY_DASHBOARDS_SUCCESS;
+export const setSelectedDataDomain = createAction(
+  MyDashboardsActionType.SET_SELECTED_DATA_DOMAIN,
+  props<{ dataDomain: DataDomain }>()
+);
 
-  constructor(public payload: SupersetDashboardWithMetadata[]) {
-  }
-}
+export const loadAvailableDataDomains = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS
+);
 
-export class SetSelectedDataDomain implements Action {
-  public readonly type = MyDashboardsActionType.SET_SELECTED_DATA_DOMAIN;
-
-  constructor(public dataDomain: DataDomain) {
-
-  }
-
-}
-
-export class LoadAvailableDataDomains implements Action {
-  public readonly type = MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS;
-}
-
-export class LoadAvailableDataDomainsSuccess implements Action {
-  public readonly type = MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS;
-
-  constructor(public payload: DataDomain[]) {
-  }
-}
-
-export type MyDashboardsActions =
-  LoadMyDashboards | LoadMyDashboardsSuccess | SetSelectedDataDomain | LoadAvailableDataDomains | LoadAvailableDataDomainsSuccess
+export const loadAvailableDataDomainsSuccess = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS,
+  props<{ payload: DataDomain[] }>()
+);

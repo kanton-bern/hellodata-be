@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {MenuItem} from "primeng/api";
 
 export enum BreadcrumbActionType {
@@ -33,16 +33,11 @@ export enum BreadcrumbActionType {
   RESET_BREADCRUMB = '[BREADCRUMB] Reset breadcrumb',
 }
 
-export class CreateBreadcrumbs implements Action {
-  public readonly type = BreadcrumbActionType.CREATE_BREADCRUMBS;
+export const createBreadcrumbs = createAction(
+  BreadcrumbActionType.CREATE_BREADCRUMBS,
+  props<{ breadcrumbs: MenuItem[] }>()
+);
 
-  constructor(public breadcrumbs: MenuItem[]) {
-  }
-}
-
-export class ResetBreadcrumb implements Action {
-  public readonly type = BreadcrumbActionType.RESET_BREADCRUMB;
-
-}
-
-export type BreadcrumbActions = CreateBreadcrumbs | ResetBreadcrumb
+export const resetBreadcrumb = createAction(
+  BreadcrumbActionType.RESET_BREADCRUMB
+);

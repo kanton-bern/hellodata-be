@@ -30,8 +30,8 @@ import {ActivatedRoute} from "@angular/router";
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {CreateBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
@@ -42,11 +42,13 @@ export class EmbeddedDmViewerComponent {
     + environment.subSystemsConfig.dmViewer.domain;
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>) {
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.embeddedDmViewer.label,
-      }
-    ]));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.embeddedDmViewer.label,
+        }
+      ]
+    }));
   }
 
   @HostListener("window:scroll", ["$event"])

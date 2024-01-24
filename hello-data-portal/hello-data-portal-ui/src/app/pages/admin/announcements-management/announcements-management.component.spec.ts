@@ -30,12 +30,12 @@ import {Action, Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {AnnouncementsManagementComponent} from './announcements-management.component';
 import {AppState} from '../../../store/app/app.state';
-import {CreateBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
 import {naviElements} from '../../../app-navi-elements';
-import {DeleteAnnouncement, LoadAllAnnouncements, OpenAnnouncementEdition, ShowDeleteAnnouncementPopup,} from '../../../store/announcement/announcement.action';
 import {Announcement} from '../../../store/announcement/announcement.model';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {TranslocoTestingModule} from "@ngneat/transloco";
+import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 describe('AnnouncementsManagementComponent', () => {
   let component: AnnouncementsManagementComponent;
@@ -71,45 +71,47 @@ describe('AnnouncementsManagementComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create the AnnouncementsManagementComponent', () => {
+  it('should create the announcementsManagementComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch LoadAllAnnouncements and CreateBreadcrumbs actions on initialization', () => {
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new LoadAllAnnouncements());
+  it('should dispatch loadAllAnnouncements and createBreadcrumbs actions on initialization', () => {
+    expect(mockStore.dispatch).toHaveBeenCalledWith(loadAllAnnouncements());
     expect(mockStore.dispatch).toHaveBeenCalledWith(
-      new CreateBreadcrumbs([
-        {
-          label: naviElements.announcementsManagement.label,
-          routerLink: naviElements.announcementsManagement.path,
-        },
-      ])
+      createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.announcementsManagement.label,
+            routerLink: naviElements.announcementsManagement.path,
+          },
+        ]
+      })
     );
   });
 
-  it('should dispatch OpenAnnouncementEdition when createAnnouncement is called', () => {
+  it('should dispatch openAnnouncementEdition when createAnnouncement is called', () => {
     component.createAnnouncement();
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new OpenAnnouncementEdition());
+    expect(mockStore.dispatch).toHaveBeenCalledWith(openAnnouncementEdition({announcement: {}}));
   });
 
-  it('should dispatch OpenAnnouncementEdition with data when editAnnouncement is called', () => {
+  it('should dispatch openAnnouncementEdition with data when editAnnouncement is called', () => {
     const mockData: Announcement = {
       id: '2',
       message: 'Another Announcement',
       published: false,
     };
     component.editAnnouncement(mockData);
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new OpenAnnouncementEdition(mockData));
+    expect(mockStore.dispatch).toHaveBeenCalledWith(openAnnouncementEdition({announcement: mockData}));
   });
 
-  it('should dispatch ShowDeleteAnnouncementPopup with data when showAnnouncementDeletionPopup is called', () => {
+  it('should dispatch showDeleteAnnouncementPopup with data when showAnnouncementDeletionPopup is called', () => {
     component.showAnnouncementDeletionPopup(mockAnnouncement);
-    expect(mockStore.dispatch).toHaveBeenCalledWith(new ShowDeleteAnnouncementPopup(mockAnnouncement));
+    expect(mockStore.dispatch).toHaveBeenCalledWith(showDeleteAnnouncementPopup({announcement: mockAnnouncement}));
   });
 
-  it('should return a DeleteAnnouncement action from getDeletionAction', () => {
+  it('should return a deleteAnnouncement action from getDeletionAction', () => {
     const action: Action = component.getDeletionAction();
-    expect(action).toBeInstanceOf(DeleteAnnouncement);
+    expect(action).toEqual(deleteAnnouncement());
   });
 
 });

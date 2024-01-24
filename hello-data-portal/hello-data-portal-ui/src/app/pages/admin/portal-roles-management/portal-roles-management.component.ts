@@ -29,9 +29,8 @@ import {Component, NgModule, OnInit} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PortalRoleEditComponent} from './portal-role-edit/portal-role-edit.component';
-import {Action, select, Store} from "@ngrx/store";
+import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {DeletePortalRole, LoadPortalRoles, OpenPortalRoleEdition, ShowDeletePortalRolePopup} from "../../../store/portal-roles-management/portal-roles-management.action";
 import {Observable} from "rxjs";
 import {selectPortalRoles} from "../../../store/portal-roles-management/portal-roles-management.selector";
 import {DeletePortalRolePopupComponent} from "./delete-portal-role-popup/delete-portal-role-popup.component";
@@ -49,29 +48,32 @@ import {DropdownModule} from "primeng/dropdown";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TooltipModule} from "primeng/tooltip";
-import {CreateBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {deletePortalRole, loadPortalRoles, openPortalRoleEdition, showDeletePortalRolePopup} from "../../../store/portal-roles-management/portal-roles-management.action";
 
 @Component({
   selector: 'app-roles-management',
   templateUrl: './portal-roles-management.component.html',
   styleUrls: ['./portal-roles-management.component.scss']
 })
-export class PortalRolesManagementComponent extends BaseComponent implements OnInit{
+export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
 
   roles$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.roles$ = this.store.pipe(select(selectPortalRoles));
-    this.store.dispatch(new LoadPortalRoles());
-    this.store.dispatch(new CreateBreadcrumbs([
-      {
-        label: naviElements.rolesManagement.label,
-        routerLink: naviElements.rolesManagement.path,
-      }
-    ]));
+    this.roles$ = this.store.select(selectPortalRoles);
+    this.store.dispatch(loadPortalRoles());
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.rolesManagement.label,
+          routerLink: naviElements.rolesManagement.path,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {
@@ -79,19 +81,19 @@ export class PortalRolesManagementComponent extends BaseComponent implements OnI
   }
 
   createRole() {
-    this.store.dispatch(new OpenPortalRoleEdition());
+    this.store.dispatch(openPortalRoleEdition({role: {}}));
   }
 
   showRoleDeletionPopup(data: PortalRole) {
-    this.store.dispatch(new ShowDeletePortalRolePopup(data));
+    this.store.dispatch(showDeletePortalRolePopup({role: data}));
   }
 
   getDeletionAction(): Action {
-    return new DeletePortalRole();
+    return deletePortalRole();
   }
 
   editRole(data: PortalRole): void {
-    this.store.dispatch(new OpenPortalRoleEdition(data));
+    this.store.dispatch(openPortalRoleEdition({role: data}));
   }
 
 }

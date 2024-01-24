@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 import {LineageDoc} from "./lineage-docs.model";
 
 export enum LineageDocsActionType {
@@ -33,15 +33,11 @@ export enum LineageDocsActionType {
   LOAD_MY_LINEAGE_DOCS_SUCCESS = '[LINEAGEDOCS] Load LOAD_MY_DOCS SUCCESS'
 }
 
-export class LoadMyLineageDocs implements Action {
-  public readonly type = LineageDocsActionType.LOAD_MY_LINEAGE_DOCS;
-}
-export class LoadMyLineageDocsSuccess implements Action {
-  public readonly type = LineageDocsActionType.LOAD_MY_LINEAGE_DOCS_SUCCESS;
+export const loadMyLineageDocs = createAction(
+  LineageDocsActionType.LOAD_MY_LINEAGE_DOCS
+);
 
-  constructor(public payload: LineageDoc[]) {
-  }
-}
-
-export type MyLineageDocsActions =
-  LoadMyLineageDocs | LoadMyLineageDocsSuccess
+export const loadMyLineageDocsSuccess = createAction(
+  LineageDocsActionType.LOAD_MY_LINEAGE_DOCS_SUCCESS,
+  props<{ payload: LineageDoc[] }>()
+);

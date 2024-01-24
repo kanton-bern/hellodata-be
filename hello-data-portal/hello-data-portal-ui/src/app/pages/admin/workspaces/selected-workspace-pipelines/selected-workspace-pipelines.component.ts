@@ -28,11 +28,12 @@
 import {Component, Input} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {Navigate} from "../../../../store/app/app.action";
+import {navigate} from "../../../../store/app/app.action";
 
 export interface PipelineInstance {
-  state: "queued"|"running"|"success"|"failed";
+  state: "queued" | "running" | "success" | "failed";
 }
+
 export interface Pipeline {
   id: string;
   description: string;
@@ -56,6 +57,6 @@ export class SelectedWorkspacePipelinesComponent {
   }
 
   showDetails(pipelineId: string) {
-    this.store.dispatch(new Navigate(`/embedded-orchestration/details/${pipelineId}`));
+    this.store.dispatch(navigate({url: `/embedded-orchestration/details/${pipelineId}`}));
   }
 }

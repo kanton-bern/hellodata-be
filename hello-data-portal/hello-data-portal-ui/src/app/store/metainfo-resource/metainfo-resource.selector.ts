@@ -49,12 +49,12 @@ export const selectAppInfos = createSelector(
   (state: MetaInfoResourceState) => state.appInfos
 );
 
-export const selectedAppInfoResources = createSelector(
+export const selectAppInfoResources = createSelector(
   metaInfoResourcesState,
   (state: MetaInfoResourceState) => state.selectedAppInfoResources
 );
 
-export const selectedAppInfoResource = createSelector(
+export const selectSelectedAppInfoResource = createSelector(
   metaInfoResourcesState,
   (state: MetaInfoResourceState) => state.selectedAppInfoResource
 );

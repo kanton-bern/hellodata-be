@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Action} from "@ngrx/store";
+import {createAction, props} from "@ngrx/store";
 
 export enum AppActionType {
   APP_SHOW_INFO = '[APP] Show info',
@@ -34,30 +34,22 @@ export enum AppActionType {
   NAVIGATE = '[APP] Navigate',
 }
 
-export class ShowError implements Action {
-  public readonly type = AppActionType.APP_SHOW_ERROR;
+export const showError = createAction(
+  AppActionType.APP_SHOW_ERROR,
+  props<{ error: any }>()
+);
 
-  constructor(public error: any) {
-  }
-}
+export const showInfo = createAction(
+  AppActionType.APP_SHOW_INFO,
+  props<{ message: string, interpolateParams?: Record<string, unknown> }>()
+);
 
-export class ShowInfo implements Action {
-  public readonly type = AppActionType.APP_SHOW_INFO;
+export const showSuccess = createAction(
+  AppActionType.APP_SHOW_SUCCESS,
+  props<{ message: string, interpolateParams?: Record<string, unknown> }>()
+);
 
-  constructor(public message: string, public interpolateParams?: Record<string, unknown>) {
-  }
-}
-
-export class ShowSuccess implements Action {
-  public readonly type = AppActionType.APP_SHOW_SUCCESS;
-
-  constructor(public message: string, public interpolateParams?: Record<string, unknown>) {
-  }
-}
-
-export class Navigate implements Action {
-  public readonly type = AppActionType.NAVIGATE;
-
-  constructor(public url: string, public extras: any = {}) {
-  }
-}
+export const navigate = createAction(
+  AppActionType.NAVIGATE,
+  props<{ url: string, extras?: any }>()
+);
