@@ -49,11 +49,11 @@ import {selectAvailableDataDomains, selectSelectedDataDomain} from "../../../sto
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {RippleModule} from "primeng/ripple";
 import {AnimateModule} from "primeng/animate";
-import {SetSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
 import {navigate} from "../../../store/app/app.action";
+import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
 
 @Component({
   selector: 'app-header',
@@ -128,7 +128,7 @@ export class HeaderComponent {
   }
 
   onDataDomainChanged($event: any) {
-    this.store.dispatch(new SetSelectedDataDomain($event.item.data));
+    this.store.dispatch(setSelectedDataDomain($event.item.data));
   }
 
 }

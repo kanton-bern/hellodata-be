@@ -31,25 +31,29 @@ import {catchError, of, switchMap} from "rxjs";
 import {LoadFaqStartPage, LoadFaqStartPageSuccess, StartPageActionType, UpdateDashboardMetadata,} from "./start-page.action";
 import {StartPageService} from "./start-page.service";
 import {FaqService} from "../faq/faq.service";
-import {LoadMyDashboards} from "../my-dashboards/my-dashboards.action";
 import {showError, showSuccess} from "../app/app.action";
+import {loadMyDashboards} from "../my-dashboards/my-dashboards.action";
 
 @Injectable()
 export class StartPageEffects {
 
-  updateDashboardsMetadata$ = createEffect(() => { return this._actions$.pipe(
-    ofType<UpdateDashboardMetadata>(StartPageActionType.UPDATE_DASHBOARD_METADATA),
-    switchMap(action => this._startPageService.updateDashboardMetadata(action.dashboard)),
-    switchMap(result => of(new LoadMyDashboards(), showSuccess({message: '@Dashboard metadata updated'}))),
-    catchError(e => of(showError(e)))
-  ) });
+  updateDashboardsMetadata$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<UpdateDashboardMetadata>(StartPageActionType.UPDATE_DASHBOARD_METADATA),
+      switchMap(action => this._startPageService.updateDashboardMetadata(action.dashboard)),
+      switchMap(result => of(loadMyDashboards(), showSuccess({message: '@Dashboard metadata updated'}))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
-  loadFaqStartPage$ = createEffect(() => { return this._actions$.pipe(
-    ofType<LoadFaqStartPage>(StartPageActionType.LOAD_FAQ_START_PAGE),
-    switchMap(() => this._faqService.getFaq()),
-    switchMap(result => of(new LoadFaqStartPageSuccess(result))),
-    catchError(e => of(showError(e)))
-  ) });
+  loadFaqStartPage$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType<LoadFaqStartPage>(StartPageActionType.LOAD_FAQ_START_PAGE),
+      switchMap(() => this._faqService.getFaq()),
+      switchMap(result => of(new LoadFaqStartPageSuccess(result))),
+      catchError(e => of(showError(e)))
+    )
+  });
 
   constructor(
     private _actions$: Actions,

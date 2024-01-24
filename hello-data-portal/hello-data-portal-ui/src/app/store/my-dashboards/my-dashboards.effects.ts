@@ -28,49 +28,42 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
-import {
-  LoadAvailableDataDomains,
-  LoadAvailableDataDomainsSuccess,
-  LoadMyDashboards,
-  LoadMyDashboardsSuccess,
-  MyDashboardsActionType,
-  SetSelectedDataDomain,
-} from "./my-dashboards.action";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {showError, showSuccess} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
+import {loadAvailableDataDomains, loadAvailableDataDomainsSuccess, loadMyDashboards, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
 
 @Injectable()
 export class MyDashboardsEffects {
 
   loadMyDashboards$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType<LoadMyDashboards>(MyDashboardsActionType.LOAD_MY_DASHBOARDS),
+      ofType(loadMyDashboards),
       switchMap(() => this._myDashboardsService.getMyDashboards()),
-      switchMap(result => of(new LoadMyDashboardsSuccess(result))),
+      switchMap(result => of(loadMyDashboardsSuccess({payload: result}))),
       catchError(e => of(showError(e)))
     )
   });
 
   loadMyDashboardsSuccess$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType<LoadMyDashboardsSuccess>(MyDashboardsActionType.LOAD_MY_DASHBOARDS_SUCCESS),
+      ofType(loadMyDashboardsSuccess),
       switchMap(() => of(processNavigation({compactMode: false}))),
     )
   });
 
-  setSelectedDataDomain = createEffect(() => {
+  setSelectedDataDomain$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType<SetSelectedDataDomain>(MyDashboardsActionType.SET_SELECTED_DATA_DOMAIN),
+      ofType(setSelectedDataDomain),
       switchMap((action) => of(showSuccess({message: '@Data domain changed', interpolateParams: {'dataDomainName': action.dataDomain.name}}))),
     )
   });
 
   loadAvailableDataDomains$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType<LoadAvailableDataDomains>(MyDashboardsActionType.LOAD_AVAILABLE_DATA_DOMAINS),
+      ofType(loadAvailableDataDomains),
       switchMap(() => this._myDashboardsService.getAvailableDataDomains()),
-      switchMap(result => of(new LoadAvailableDataDomainsSuccess(result))),
+      switchMap(result => of(loadAvailableDataDomainsSuccess({payload: result}))),
       catchError(e => of(showError(e)))
     )
   });
