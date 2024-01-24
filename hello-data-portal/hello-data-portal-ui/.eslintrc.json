@@ -38,6 +38,7 @@
           }
         ],
         "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unused-vars": "off"
       }
     },
@@ -56,7 +57,13 @@
       ],
       "extends": [
         "plugin:@ngrx/recommended"
-      ]
+      ],
+      "rules": {
+        "@ngrx/no-typed-global-store": "off",
+        "@ngrx/prefer-selector-in-select": "off",
+        "@ngrx/avoid-combining-selectors": "off",
+        "@ngrx/use-consistent-global-store-name": "off"
+      }
     }
   ]
 }
