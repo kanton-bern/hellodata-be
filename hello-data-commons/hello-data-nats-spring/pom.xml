@@ -22,7 +22,6 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
-        <jackson-databind.version>2.15.1</jackson-databind.version>
         <jnats.version>2.16.8</jnats.version>
         <nats.version>0.5.6</nats.version>
     </properties>
@@ -71,12 +70,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson-databind.version}</version>
         </dependency>
 
         <!--Nats dependency-->
