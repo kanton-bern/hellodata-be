@@ -87,6 +87,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -617,8 +618,15 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<DataDomainDto> getAvailableDataDomains() {
         UUID userId = SecurityUtils.getCurrentUserId();
+        if(userId == null){
+            return Collections.emptyList();
+        }
         UserEntity userEntity = getUserEntity(userId);
-        Set<UserContextRoleEntity> contextRoles = userEntity.getContextRoles();
+        return extractDomainsFromContextRoles(userEntity.getContextRoles());
+    }
+
+    @NotNull
+    private List<DataDomainDto> extractDomainsFromContextRoles(Set<UserContextRoleEntity> contextRoles) {
         List<DataDomainDto> result = new ArrayList<>();
         for (UserContextRoleEntity contextRole : contextRoles) {
             if (HdContextType.DATA_DOMAIN.equals(contextRole.getRole().getContextType()) && !HdRoleName.NONE.equals(contextRole.getRole().getName())) {
