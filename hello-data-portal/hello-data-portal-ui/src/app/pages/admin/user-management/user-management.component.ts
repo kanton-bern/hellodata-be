@@ -114,10 +114,10 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   private restoreUserTableSearchFilter() {
-    let storageItem = sessionStorage.getItem("portal-users-table");
+    const storageItem = sessionStorage.getItem("portal-users-table");
     if (storageItem) {
-      let storageItemObject = JSON.parse(storageItem);
-      let filterValue = storageItemObject.filters?.global?.value;
+      const storageItemObject = JSON.parse(storageItem);
+      const filterValue = storageItemObject.filters?.global?.value;
       if (filterValue) {
         this.filterValue = filterValue;
       }
