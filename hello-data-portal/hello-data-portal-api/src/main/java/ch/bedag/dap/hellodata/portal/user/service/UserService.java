@@ -228,11 +228,11 @@ public class UserService {
         if (userResource == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
         }
-        userResource.remove();
         SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
         UserRepresentation userRepresentation = userResource.toRepresentation();
         subsystemUserDelete.setEmail(userRepresentation.getEmail());
         subsystemUserDelete.setEmail(userRepresentation.getUsername());
+        userResource.remove();
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }
 

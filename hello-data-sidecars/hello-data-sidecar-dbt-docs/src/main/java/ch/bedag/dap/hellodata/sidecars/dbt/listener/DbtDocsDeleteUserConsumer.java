@@ -51,7 +51,7 @@ public class DbtDocsDeleteUserConsumer {
     public CompletableFuture<Void> deleteUser(SubsystemUserDelete subsystemUserDelete) {
         log.info("------- Received dbt docs user deletion request {}", subsystemUserDelete);
         User user = userRepository.findByUserNameOrEmail(subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
-        if (user != null) {
+        if (user == null) {
             log.info("User {} doesn't exist in instance, omitting deletion. Email: {}", subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
             return null;//NOSONAR
         }
