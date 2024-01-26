@@ -44,6 +44,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
@@ -228,6 +229,11 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
         }
         userResource.remove();
+        SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+        subsystemUserDelete.setEmail(userRepresentation.getEmail());
+        subsystemUserDelete.setEmail(userRepresentation.getUsername());
+        natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }
 
     @Transactional(readOnly = true)
@@ -618,7 +624,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<DataDomainDto> getAvailableDataDomains() {
         UUID userId = SecurityUtils.getCurrentUserId();
-        if(userId == null){
+        if (userId == null) {
             return Collections.emptyList();
         }
         UserEntity userEntity = getUserEntity(userId);

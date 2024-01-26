@@ -38,6 +38,9 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserR
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -50,10 +53,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 
 @Log4j2
 public class AirflowClient {
@@ -122,6 +121,17 @@ public class AirflowClient {
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("createUser({}) response json \n{}", airflowUser.getEmail(), new String(bytes));
+        return getObjectMapper().readValue(bytes, AirflowUserResponse.class);
+    }
+
+    /**
+     * Delete a user with the following username.
+     */
+    public AirflowUserResponse deleteUser(String airflowUsername) throws URISyntaxException, IOException {
+        HttpUriRequest request = AirflowApiRequestBuilder.getDeleteUserRequest(host, port, username, password, airflowUsername);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("deleteUser({}) response json \n{}", airflowUsername, new String(bytes));
         return getObjectMapper().readValue(bytes, AirflowUserResponse.class);
     }
 
