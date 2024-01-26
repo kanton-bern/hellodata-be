@@ -66,7 +66,7 @@ public class AirflowDeleteUserConsumer {
                                                                             user.getUsername().equalsIgnoreCase(subsystemUserDelete.getUsername()))
                                                             .findFirst();
             if (!userResult.isPresent()) {
-                log.info("User {} already deleted in instance, omitting. Email: {}", subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
+                log.info("User {} doesn't exist in instance, omitting. Email: {}", subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
                 return null;//NOSONAR
             }
 

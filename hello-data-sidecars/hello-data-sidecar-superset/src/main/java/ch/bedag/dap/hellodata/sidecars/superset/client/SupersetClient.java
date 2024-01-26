@@ -163,6 +163,24 @@ public class SupersetClient {
     }
 
     /**
+     * Deletes a user.
+     *
+     * @return 200 if successfully deleted the user.
+     *
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public void deleteUser(int userId) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteUserRequest(host, port, authToken, userId);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("deleteUser({}) response json \n{}", userId, new String(bytes));
+    }
+
+    /**
      * Returns a list of available permissions for a given role.
      *
      * @return A JSON array containing a list of permissions.
