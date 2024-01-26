@@ -24,13 +24,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.cloudbeaver.listener;
+package ch.bedag.dap.hellodata.sidecars.dbt.listener;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.User;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.UserRepository;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource.CbUserResourceProviderService;
+import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
+import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
+import ch.bedag.dap.hellodata.sidecars.dbt.service.resource.DbtDocsUserResourceProviderService;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -42,30 +42,30 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class CreateUserListenerService {
+@SuppressWarnings("java:S3516")
+public class DbtDocsCreateUserConsumer {
 
-    private final CbUserResourceProviderService userResourceProviderService;
-
+    private final DbtDocsUserResourceProviderService userResourceProviderService;
     private final UserRepository userRepository;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = CREATE_USER)
     public CompletableFuture<Void> createUser(SubsystemUserUpdate supersetUserCreate) {
-        log.info("------- Received cloudbeaver user creation request {}", supersetUserCreate);
+        log.info("------- Received dbt docs user creation request {}", supersetUserCreate);
         User user = userRepository.findByUserNameOrEmail(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
         if (user != null) {
             log.info("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
             return null;//NOSONAR
         }
-        log.info("Going to create new cloudbeaver user with email: {}", supersetUserCreate.getEmail());
-        User dbtDocUser = toCbUser(supersetUserCreate);
+        log.info("Going to create new dbt docs user with email: {}", supersetUserCreate.getEmail());
+        User dbtDocUser = toDbtDocUser(supersetUserCreate);
         userRepository.save(dbtDocUser);
         userResourceProviderService.publishUsers();
         return null;//NOSONAR
     }
 
     @NotNull
-    private User toCbUser(SubsystemUserUpdate supersetUserCreate) {
+    private User toDbtDocUser(SubsystemUserUpdate supersetUserCreate) {
         User dbtDocUser = new User(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
         dbtDocUser.setRoles(new ArrayList<>());
         dbtDocUser.setFirstName(supersetUserCreate.getFirstName());
