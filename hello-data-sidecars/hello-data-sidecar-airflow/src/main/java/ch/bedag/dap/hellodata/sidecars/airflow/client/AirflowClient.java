@@ -44,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
+import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -127,12 +128,13 @@ public class AirflowClient {
     /**
      * Delete a user with the following username.
      */
-    public AirflowUserResponse deleteUser(String airflowUsername) throws URISyntaxException, IOException {
+    public void deleteUser(String airflowUsername) throws URISyntaxException, IOException {
         HttpUriRequest request = AirflowApiRequestBuilder.getDeleteUserRequest(host, port, username, password, airflowUsername);
         ApiResponse resp = executeRequest(request);
-        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("deleteUser({}) response json \n{}", airflowUsername, new String(bytes));
-        return getObjectMapper().readValue(bytes, AirflowUserResponse.class);
+        if (resp.getBody() != null) {
+            byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+            log.debug("deleteUser({}) response json \n{}", airflowUsername, new String(bytes));
+        }
     }
 
     /**
@@ -198,7 +200,11 @@ public class AirflowClient {
     private ApiResponse executeRequest(HttpUriRequest request) throws IOException {
         try (CloseableHttpResponse response = client.execute(request)) {
             int code = response.getStatusLine().getStatusCode();
-            String bodyAsString = EntityUtils.toString(response.getEntity());
+            HttpEntity entity = response.getEntity();
+            String bodyAsString = null;
+            if (entity != null) {
+                bodyAsString = EntityUtils.toString(entity);
+            }
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }

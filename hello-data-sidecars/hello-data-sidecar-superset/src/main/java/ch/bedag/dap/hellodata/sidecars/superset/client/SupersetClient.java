@@ -49,6 +49,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -176,8 +177,10 @@ public class SupersetClient {
     public void deleteUser(int userId) throws URISyntaxException, ClientProtocolException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getDeleteUserRequest(host, port, authToken, userId);
         ApiResponse resp = executeRequest(request);
-        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("deleteUser({}) response json \n{}", userId, new String(bytes));
+        if (resp.getBody() != null) {
+            byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+            log.debug("deleteUser({}) response json \n{}", userId, new String(bytes));
+        }
     }
 
     /**
@@ -358,7 +361,11 @@ public class SupersetClient {
     private ApiResponse executeRequest(HttpUriRequest request) throws IOException {
         try (CloseableHttpResponse response = client.execute(request)) {
             int code = response.getStatusLine().getStatusCode();
-            String bodyAsString = EntityUtils.toString(response.getEntity());
+            HttpEntity entity = response.getEntity();
+            String bodyAsString = null;
+            if (entity != null) {
+                bodyAsString = EntityUtils.toString(entity);
+            }
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }

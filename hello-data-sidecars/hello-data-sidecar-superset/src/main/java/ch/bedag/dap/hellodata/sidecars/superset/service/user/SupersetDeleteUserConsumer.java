@@ -63,7 +63,7 @@ public class SupersetDeleteUserConsumer {
                 log.info("User {} doesn't exist in instance, omitting deletion", subsystemUserDelete.getEmail());
                 return null;//NOSONAR
             }
-
+            log.info("Going to delete user with email: {}", subsystemUserDelete.getEmail());
             supersetClient.deleteUser(supersetUserResult.get().getId());
             userResourceProviderService.publishUsers();
         } catch (URISyntaxException | IOException e) {

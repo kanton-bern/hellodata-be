@@ -231,7 +231,7 @@ public class UserService {
         SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
         UserRepresentation userRepresentation = userResource.toRepresentation();
         subsystemUserDelete.setEmail(userRepresentation.getEmail());
-        subsystemUserDelete.setEmail(userRepresentation.getUsername());
+        subsystemUserDelete.setUsername(userRepresentation.getUsername());
         userResource.remove();
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }

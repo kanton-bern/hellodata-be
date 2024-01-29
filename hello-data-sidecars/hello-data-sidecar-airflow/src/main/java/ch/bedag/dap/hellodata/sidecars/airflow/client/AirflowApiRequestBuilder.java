@@ -91,7 +91,7 @@ public class AirflowApiRequestBuilder {
 
     public static HttpUriRequest getDeleteUserRequest(String host, int port, String username, String password, String userNameToUpdate) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, userNameToUpdate), Collections.emptyList());
-        return RequestBuilder.post() //
+        return RequestBuilder.delete() //
                              .setUri(apiUri) //
                              .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
                              .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
