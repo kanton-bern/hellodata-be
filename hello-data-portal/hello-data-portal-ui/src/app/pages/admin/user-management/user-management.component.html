@@ -154,23 +154,23 @@
           <span *ngIf="user.lastAccess">{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss'  }}</span>
           <span *ngIf="user.lastAccess === null">{{ '@Never' | transloco}}</span>
         </td>
-        <td>
+        <td *ngIf="(loggedInUser$ | async) as loggedInUser">
           <button (click)="editUser(user)"
                   class="p-button-rounded p-button-success mr-2"
                   icon="fas fa-light fa-pen-to-square"
                   pButton
                   pRipple
                   pTooltip="{{'@Edit' | transloco}}"></button>
-          <button (click)="enableUser(user)" *ngIf="!user.superuser && !user.enabled"
+          <button (click)="enableUser(user)" *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
                   class="p-button-rounded p-button-success mr-2"
                   icon="fas fa-circle-plus" pButton pRipple
                   pTooltip="{{'@Enable' | transloco}}"></button>
-          <button (click)="disableUser(user)" *ngIf="!user.superuser && user.enabled"
+          <button (click)="disableUser(user)" *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
                   class="p-button-rounded p-button-warning mr-2"
                   icon="fas fa-circle-xmark" pButton pRipple
                   pTooltip="{{'@Disable' | transloco}}"></button>
           <button (click)="showUserDeletionPopup(user)"
-                  *ngIf="!user.superuser"
+                  *ngIf="!user.superuser && user.email !== loggedInUser.email"
                   class="p-button-rounded p-button-danger mr-2"
                   icon="fas fa-trash" pButton pRipple
                   pTooltip="{{'@Delete' | transloco}}"></button>

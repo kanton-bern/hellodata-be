@@ -220,6 +220,9 @@ public class UserService {
     public void deleteUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
+        if (userId.equals(SecurityUtils.getCurrentUserId().toString())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
+        }
         UserResource userResource = getUserResource(userId);
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
         userEntityResult.ifPresentOrElse(userRepository::delete, () -> {
