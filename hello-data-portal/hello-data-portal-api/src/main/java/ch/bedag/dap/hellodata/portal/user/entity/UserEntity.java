@@ -72,7 +72,7 @@ public class UserEntity extends BaseEntity {
         }
         return this.getPortalRoles()
                    .stream()
-                   .anyMatch(userPortalRoleEntity -> Objects.equals(userPortalRoleEntity.getRole().getName(), SystemDefaultPortalRoleName.SUPERUSER.name()));
+                   .anyMatch(userPortalRoleEntity -> Objects.equals(userPortalRoleEntity.getRole().getName(), SystemDefaultPortalRoleName.HELLODATA_ADMIN.name()));
     }
 
     public List<String> getPermissionsFromAllRoles() {
