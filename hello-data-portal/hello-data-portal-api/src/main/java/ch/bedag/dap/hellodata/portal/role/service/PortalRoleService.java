@@ -57,6 +57,11 @@ public class PortalRoleService {
         return findAllAndOrderBySystemDefaultThenName().stream().map(portalRoleEntity -> modelMapper.map(portalRoleEntity, PortalRoleDto.class)).toList();
     }
 
+    /**
+     * First system default ones at the top, then sort by name
+     *
+     * @return
+     */
     private List<PortalRoleEntity> findAllAndOrderBySystemDefaultThenName() {
         List<PortalRoleEntity> portalRoles = portalRoleRepository.findAll();
         portalRoles.sort((role1, role2) -> {
