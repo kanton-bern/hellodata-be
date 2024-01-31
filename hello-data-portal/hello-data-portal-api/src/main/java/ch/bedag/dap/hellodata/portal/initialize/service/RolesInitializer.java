@@ -78,7 +78,7 @@ public class RolesInitializer {
                 portalRoleEntity.setName(systemDefaultPortalRoleName.name());
                 Permissions permissions = new Permissions();
                 permissions.setPortalPermissions(new ArrayList<>(systemDefaultPortalRoleName.getPermissions().stream().map(Enum::name).toList()));
-                if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.SUPERUSER) {
+                if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.HELLODATA_ADMIN) {
                     permissions.getPortalPermissions().add(WORKSPACES_PERMISSION);
                 }
                 portalRoleEntity.setPermissions(permissions);
@@ -142,7 +142,7 @@ public class RolesInitializer {
             userPortalRoleEntity.setUser(user);
             userPortalRoleEntity.setContextType(HdContextType.BUSINESS_DOMAIN);
             userPortalRoleEntity.setContextKey(helloDataContextConfig.getBusinessContext().getKey());
-            Optional<PortalRoleEntity> portalRole = portalRoleRepository.findByName(SystemDefaultPortalRoleName.SUPERUSER.name());
+            Optional<PortalRoleEntity> portalRole = portalRoleRepository.findByName(SystemDefaultPortalRoleName.HELLODATA_ADMIN.name());
             if (portalRole.isPresent()) {
                 userPortalRoleEntity.setRole(portalRole.get());
                 userPortalRoleRepository.save(userPortalRoleEntity);
