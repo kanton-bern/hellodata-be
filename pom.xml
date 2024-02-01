@@ -4,10 +4,11 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>HelloDATA-BE</name>
+
 
     <modules>
         <module>hello-data-commons</module>
@@ -86,7 +87,7 @@
                             <configuration>
                                 <name>docker.tag.name</name>
                                 <value>${project.version}</value>
-                                <regex>main-SNAPSHOT</regex>
+                                <regex>develop-SNAPSHOT</regex>
                                 <replacement>latest</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>

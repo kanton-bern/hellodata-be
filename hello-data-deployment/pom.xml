@@ -4,7 +4,7 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-deployment</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-deployment</name>

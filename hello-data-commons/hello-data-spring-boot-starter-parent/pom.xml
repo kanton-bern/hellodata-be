@@ -5,12 +5,12 @@
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data-commons</artifactId>
-        <version>main-SNAPSHOT</version>
+        <version>develop-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>hello-data-spring-boot-starter-parent</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-spring-boot-starter-parent</name>
@@ -385,7 +385,7 @@
                             <configuration>
                                 <name>docker.tag.name</name>
                                 <value>${project.version}</value>
-                                <regex>main-SNAPSHOT</regex>
+                                <regex>develop-SNAPSHOT</regex>
                                 <replacement>latest</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>

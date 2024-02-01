@@ -4,7 +4,7 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-cloudbeaver</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-cloudbeaver</name>
@@ -71,7 +71,7 @@
                             <configuration>
                                 <name>docker.tag.name</name>
                                 <value>${project.version}</value>
-                                <regex>main-SNAPSHOT</regex>
+                                <regex>develop-SNAPSHOT</regex>
                                 <replacement>latest</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
