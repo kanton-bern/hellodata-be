@@ -9,7 +9,6 @@
 
     <name>HelloDATA-BE</name>
 
-
     <modules>
         <module>hello-data-commons</module>
         <module>hello-data-portal</module>
