@@ -31,9 +31,12 @@ import ch.bedag.dap.hellodata.monitoring.storage.config.HelloDataStorageConfigur
 import ch.bedag.dap.hellodata.monitoring.storage.config.storage.StorageConfigurationProperty;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileStore;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileAttributeView;
+import java.nio.file.attribute.FileStoreAttributeView;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,26 +66,77 @@ class StorageSizeServiceTest {
     @Test
     void testCheckStorageSize() throws IOException {
         // given
-        StorageConfigurationProperty storageProperty1 = new StorageConfigurationProperty();
-        storageProperty1.setName("Test Storage 1");
-        storageProperty1.setPath("/test/path1");
-        when(configProperties.getStorages()).thenReturn(List.of(storageProperty1));
+        StorageConfigurationProperty storageProperty = new StorageConfigurationProperty();
+        storageProperty.setName("Test Storage");
+        storageProperty.setPath("/test/path");
+        when(configProperties.getStorages()).thenReturn(List.of(storageProperty));
         File mockedFile1 = mock(File.class);
-        try (MockedStatic<FileUtils> fileUtilsMockedStatic = Mockito.mockStatic(FileUtils.class);
-             MockedStatic<FileSystemUtils> fileSystemUtilsMockedStatic = Mockito.mockStatic(FileSystemUtils.class)) {
+        try (MockedStatic<FileUtils> fileUtilsMockedStatic = Mockito.mockStatic(FileUtils.class); MockedStatic<Files> filesMockedStatic = Mockito.mockStatic(Files.class)) {
             when(FileUtils.sizeOfDirectory(any())).thenReturn(1000L);
-            when(FileSystemUtils.freeSpaceKb("/test/path1")).thenReturn(1024L);
+            when(Files.getFileStore(any())).thenReturn(new FileStoreMock());
             // when
             List<StorageSize> result = storageSizeService.checkStorageSize();
 
             // then
             assertEquals(1, result.size());
-            StorageSize storageSize1 = result.get(0);
-            assertEquals("Test Storage 1", storageSize1.getName());
-            assertEquals("/test/path1", storageSize1.getPath());
-            assertEquals("1 kB", storageSize1.getSize());
-            assertEquals("1 MB", storageSize1.getFreeSpace());
+            StorageSize storageSize = result.get(0);
+            assertEquals("Test Storage", storageSize.getName());
+            assertEquals("/test/path", storageSize.getPath());
+            assertEquals("1000", storageSize.getSize());
+            assertEquals("1000000", storageSize.getFreeSpace());
             verify(configProperties, times(1)).getStorages();
+        }
+    }
+
+    private static class FileStoreMock extends FileStore {
+        @Override
+        public String name() {
+            return null;
+        }
+
+        @Override
+        public String type() {
+            return null;
+        }
+
+        @Override
+        public boolean isReadOnly() {
+            return false;
+        }
+
+        @Override
+        public long getTotalSpace() throws IOException {
+            return 0;
+        }
+
+        @Override
+        public long getUsableSpace() throws IOException {
+            return 1_000_000L;
+        }
+
+        @Override
+        public long getUnallocatedSpace() throws IOException {
+            return 0;
+        }
+
+        @Override
+        public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
+            return false;
+        }
+
+        @Override
+        public boolean supportsFileAttributeView(String name) {
+            return false;
+        }
+
+        @Override
+        public <V extends FileStoreAttributeView> V getFileStoreAttributeView(Class<V> type) {
+            return null;
+        }
+
+        @Override
+        public Object getAttribute(String attribute) throws IOException {
+            return null;
         }
     }
 }
