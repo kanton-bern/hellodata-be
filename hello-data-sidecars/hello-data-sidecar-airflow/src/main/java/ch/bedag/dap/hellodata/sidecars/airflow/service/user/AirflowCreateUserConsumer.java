@@ -49,7 +49,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("java:S3516")
-public class CreateUserListenerService {
+public class AirflowCreateUserConsumer {
 
     private final AirflowUserResourceProviderService userResourceProviderService;
     private final AirflowClientProvider airflowClientProvider;
@@ -76,12 +76,12 @@ public class CreateUserListenerService {
             AirflowUsersResponse users = airflowClient.users();
 
             // Airflow only allows unique username and email, so we make sure there is nobody with either of these already existing, before creating a new one
-            Optional<AirflowUserResponse> supersetUserResult = users.getUsers()
-                                                                    .stream()
-                                                                    .filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail()) ||
-                                                                                    user.getUsername().equalsIgnoreCase(supersetUserCreate.getUsername()))
-                                                                    .findFirst();
-            if (supersetUserResult.isPresent()) {
+            Optional<AirflowUserResponse> userResult = users.getUsers()
+                                                            .stream()
+                                                            .filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail()) ||
+                                                                            user.getUsername().equalsIgnoreCase(supersetUserCreate.getUsername()))
+                                                            .findFirst();
+            if (userResult.isPresent()) {
                 log.info("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
                 return null;//NOSONAR
             }

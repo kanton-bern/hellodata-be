@@ -53,6 +53,7 @@ public class AirflowApiRequestBuilder {
 
     private static final String USERS_API_ENDPOINT = "/api/v1/users";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "/%s";
+    private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "/%s";
     private static final String ROLES_API_ENDPOINT = "/api/v1/roles";
     private static final String PERMISSIONS_API_ENDPOINT = "/api/v1/permissions";
     private static final String DAGS_API_ENDPOINT = "/api/v1/dags";
@@ -85,6 +86,15 @@ public class AirflowApiRequestBuilder {
                              .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
                              .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
                              .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                             .build();
+    }
+
+    public static HttpUriRequest getDeleteUserRequest(String host, int port, String username, String password, String userNameToUpdate) throws URISyntaxException, IOException {
+        URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, userNameToUpdate), Collections.emptyList());
+        return RequestBuilder.delete() //
+                             .setUri(apiUri) //
+                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
                              .build();
     }
 

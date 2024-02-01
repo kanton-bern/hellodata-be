@@ -27,54 +27,47 @@
 package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
 
 @Log4j2
 @Service
-@SuppressWarnings("java:S3516")
 @RequiredArgsConstructor
-public class CreateUserListenerService {
+@SuppressWarnings("java:S3516")
+public class SupersetDeleteUserConsumer {
+
     private final UserResourceProviderService userResourceProviderService;
     private final SupersetClientProvider supersetClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate supersetUserCreate) {
+    @JetStreamSubscribe(event = DELETE_USER)
+    public CompletableFuture<Void> deleteUser(SubsystemUserDelete subsystemUserDelete) {
         try {
-            log.info("------- Received superset user creation request {}", supersetUserCreate);
+            log.info("------- Received superset user deletion request {}", subsystemUserDelete);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail())).findFirst();
-            if (supersetUserResult.isPresent()) {
-                log.info("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
+            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserDelete.getEmail())).findFirst();
+            if (!supersetUserResult.isPresent()) {
+                log.info("User {} doesn't exist in instance, omitting deletion", subsystemUserDelete.getEmail());
                 return null;//NOSONAR
             }
-            Optional<Integer> aPublicRole =
-                    supersetClient.roles().getResult().stream().filter(supersetRole -> supersetRole.getName().equalsIgnoreCase("Public")).map(SupersetRole::getId).findFirst();
-            aPublicRole.ifPresent(integer -> supersetUserCreate.setRoles(List.of(integer)));
-
-            // logging with keycloak changes the password in the superset DB
-            supersetUserCreate.setPassword(supersetUserCreate.getFirstName());
-
-            supersetClient.createUser(supersetUserCreate);
+            log.info("Going to delete user with email: {}", subsystemUserDelete.getEmail());
+            supersetClient.deleteUser(supersetUserResult.get().getId());
             userResourceProviderService.publishUsers();
         } catch (URISyntaxException | IOException e) {
-            log.error("Could not create user {}", supersetUserCreate.getEmail(), e);
+            log.error("Could not delete user {}", subsystemUserDelete.getEmail(), e);
         }
         return null;//NOSONAR
     }

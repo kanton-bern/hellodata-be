@@ -60,6 +60,8 @@ import {UsersManagementService} from "../../../store/users-management/users-mana
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {createUser, loadUsers, navigateToUserEdition, showUserActionPopup, syncUsers} from "../../../store/users-management/users-management.action";
+import {selectProfile} from "../../../store/auth/auth.selector";
+import {IUser} from "../../../store/auth/auth.model";
 
 @Component({
   selector: 'app-user-management',
@@ -69,6 +71,7 @@ import {createUser, loadUsers, navigateToUserEdition, showUserActionPopup, syncU
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
 
   users$: Observable<any>;
+  loggedInUser$: Observable<IUser | undefined>;
   inviteForm!: FormGroup;
   suggestedAdUsers: AdUser[] = [];
   filterValue = '';
@@ -78,6 +81,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
     super();
     this.users$ = this.store.select(selectUsersCopy);
+    this.loggedInUser$ = this.store.select(selectProfile);
     this.store.dispatch(loadUsers());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [

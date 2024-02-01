@@ -24,54 +24,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.cloudbeaver.listener;
+package ch.bedag.dap.hellodata.sidecars.dbt.listener;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.User;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.UserRepository;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource.CbUserResourceProviderService;
-import java.util.ArrayList;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
+import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
+import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
+import ch.bedag.dap.hellodata.sidecars.dbt.service.resource.DbtDocsUserResourceProviderService;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class CreateUserListenerService {
+@SuppressWarnings("java:S3516")
+public class DbtDocsDeleteUserConsumer {
 
-    private final CbUserResourceProviderService userResourceProviderService;
-
+    private final DbtDocsUserResourceProviderService userResourceProviderService;
     private final UserRepository userRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate supersetUserCreate) {
-        log.info("------- Received cloudbeaver user creation request {}", supersetUserCreate);
-        User user = userRepository.findByUserNameOrEmail(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-        if (user != null) {
-            log.info("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
+    @JetStreamSubscribe(event = DELETE_USER)
+    public CompletableFuture<Void> deleteUser(SubsystemUserDelete subsystemUserDelete) {
+        log.info("------- Received dbt docs user deletion request {}", subsystemUserDelete);
+        User user = userRepository.findByUserNameOrEmail(subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
+        if (user == null) {
+            log.info("User {} doesn't exist in instance, omitting deletion. Email: {}", subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
             return null;//NOSONAR
         }
-        log.info("Going to create new cloudbeaver user with email: {}", supersetUserCreate.getEmail());
-        User dbtDocUser = toCbUser(supersetUserCreate);
-        userRepository.save(dbtDocUser);
+        log.info("Going to delete dbt docs user with email: {}", subsystemUserDelete.getEmail());
+        userRepository.delete(user);
         userResourceProviderService.publishUsers();
         return null;//NOSONAR
-    }
-
-    @NotNull
-    private User toCbUser(SubsystemUserUpdate supersetUserCreate) {
-        User dbtDocUser = new User(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-        dbtDocUser.setRoles(new ArrayList<>());
-        dbtDocUser.setFirstName(supersetUserCreate.getFirstName());
-        dbtDocUser.setLastName(supersetUserCreate.getLastName());
-        dbtDocUser.setEnabled(true);
-        dbtDocUser.setSuperuser(false);
-        return dbtDocUser;
     }
 }

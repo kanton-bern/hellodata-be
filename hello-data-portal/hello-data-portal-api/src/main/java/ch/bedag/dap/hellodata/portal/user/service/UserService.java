@@ -44,6 +44,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
@@ -219,6 +220,9 @@ public class UserService {
     public void deleteUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
+        if (userId.equals(SecurityUtils.getCurrentUserId().toString())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
+        }
         UserResource userResource = getUserResource(userId);
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
         userEntityResult.ifPresentOrElse(userRepository::delete, () -> {
@@ -227,7 +231,12 @@ public class UserService {
         if (userResource == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
         }
+        SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+        subsystemUserDelete.setEmail(userRepresentation.getEmail());
+        subsystemUserDelete.setUsername(userRepresentation.getUsername());
         userResource.remove();
+        natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }
 
     @Transactional(readOnly = true)
@@ -618,7 +627,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<DataDomainDto> getAvailableDataDomains() {
         UUID userId = SecurityUtils.getCurrentUserId();
-        if(userId == null){
+        if (userId == null) {
             return Collections.emptyList();
         }
         UserEntity userEntity = getUserEntity(userId);
