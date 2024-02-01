@@ -28,15 +28,19 @@ package ch.bedag.dap.hellodata.portal.monitoring.service;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.StorageMonitoringResult;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.database.DatabaseSize;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
 import ch.bedag.dap.hellodata.portal.monitoring.data.StorageMonitoringResultDto;
 import ch.bedag.dap.hellodata.portal.monitoring.entity.StorageSizeEntity;
 import ch.bedag.dap.hellodata.portal.monitoring.repository.StorageSizeRepository;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -47,6 +51,9 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_STOR
 @Service
 @RequiredArgsConstructor
 public class StorageSizeService {
+
+    private static final String[] SIZE_UNITS = new String[] { "B", "kB", "MB", "GB", "TB" };
+
     private final StorageSizeRepository storageSizeRepository;
     private final ModelMapper modelMapper;
 
@@ -72,8 +79,36 @@ public class StorageSizeService {
             StorageSizeEntity storageSizeEntity = firstByOrderByCreatedDateDesc.get();
             StorageMonitoringResultDto dto = modelMapper.map(storageSizeEntity.getSizeInfo(), StorageMonitoringResultDto.class);
             dto.setCreatedDate(storageSizeEntity.getCreatedDate());
+            for (StorageSize storageSize : dto.getStorageSizes()) {
+                long storageSizeLong = convertToLong(storageSize.getSize());
+                storageSize.setSize(toReadableFormat(storageSizeLong));
+                long freeSpaceLong = convertToLong(storageSize.getFreeSpace());
+                storageSize.setFreeSpace(toReadableFormat(freeSpaceLong));
+            }
+            for (DatabaseSize databaseSize : dto.getDatabaseSizes()) {
+                long databaseSizeLong = convertToLong(databaseSize.getSize());
+                databaseSize.setName(toReadableFormat(databaseSizeLong));
+            }
             return dto;
         }
         return null;
+    }
+
+    private static long convertToLong(String value) {
+        try {
+            return StringUtils.isBlank(value) ? 0L : Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            log.error("Could not parse value {} to long", value, e);
+            return 0L;
+        }
+    }
+
+    private String toReadableFormat(long size) {
+        if (size == 0L) {
+            return "0";
+        }
+        int unitIndex = (int) (Math.log10(size) / 3);
+        double unitValue = 1 << (unitIndex * 10);
+        return new DecimalFormat("#,##0.#").format(size / unitValue) + " " + SIZE_UNITS[unitIndex];
     }
 }
