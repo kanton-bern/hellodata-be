@@ -19,7 +19,7 @@
     <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <docker.namespace>bedag</docker.namespace>
+    <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
     <sonar.typescript.lcov.reportPaths>${project.build.directory}/coverage/lcov.info</sonar.typescript.lcov.reportPaths>
     <sonar.nodejs.executable>${project.build.directory}/node/node</sonar.nodejs.executable>
     <sonar.typescript.node>${sonar.nodejs.executable}</sonar.typescript.node>
