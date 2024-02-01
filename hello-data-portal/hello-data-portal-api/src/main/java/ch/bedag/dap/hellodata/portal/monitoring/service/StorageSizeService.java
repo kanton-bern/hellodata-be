@@ -30,7 +30,9 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.StorageMonitoringResult;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.database.DatabaseSize;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
+import ch.bedag.dap.hellodata.portal.monitoring.data.DatabaseSizeDto;
 import ch.bedag.dap.hellodata.portal.monitoring.data.StorageMonitoringResultDto;
+import ch.bedag.dap.hellodata.portal.monitoring.data.StorageSizeDto;
 import ch.bedag.dap.hellodata.portal.monitoring.entity.StorageSizeEntity;
 import ch.bedag.dap.hellodata.portal.monitoring.repository.StorageSizeRepository;
 import java.text.DecimalFormat;
@@ -57,6 +59,7 @@ public class StorageSizeService {
     private final StorageSizeRepository storageSizeRepository;
     private final ModelMapper modelMapper;
 
+    @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_STORAGE_MONITORING_RESULT)
     public CompletableFuture<Void> getStorageSizeUpdate(StorageMonitoringResult storageMonitoringResult) {
         log.info("Received storage monitoring result {}", storageMonitoringResult);
@@ -77,17 +80,28 @@ public class StorageSizeService {
         Optional<StorageSizeEntity> firstByOrderByCreatedDateDesc = storageSizeRepository.findFirstByOrderByCreatedDateDesc();
         if (firstByOrderByCreatedDateDesc.isPresent()) {
             StorageSizeEntity storageSizeEntity = firstByOrderByCreatedDateDesc.get();
-            StorageMonitoringResultDto dto = modelMapper.map(storageSizeEntity.getSizeInfo(), StorageMonitoringResultDto.class);
+            StorageMonitoringResultDto dto = new StorageMonitoringResultDto();
             dto.setCreatedDate(storageSizeEntity.getCreatedDate());
-            for (StorageSize storageSize : dto.getStorageSizes()) {
-                long storageSizeLong = convertToLong(storageSize.getSize());
-                storageSize.setSize(toReadableFormat(storageSizeLong));
-                long freeSpaceLong = convertToLong(storageSize.getFreeSpace());
-                storageSize.setFreeSpace(toReadableFormat(freeSpaceLong));
+            for (StorageSize storageSize : storageSizeEntity.getSizeInfo().getStorageSizes()) {
+                long storageSizeLong = convertToLong(storageSize.getUsedBytes());
+                long freeSpaceLong = convertToLong(storageSize.getFreeSpaceBytes());
+                long totalAvailableSpaceLong = convertToLong(storageSize.getTotalAvailableBytes());
+                StorageSizeDto storageSizeDto = new StorageSizeDto();
+                storageSizeDto.setName(storageSize.getName());
+                storageSizeDto.setPath(storageSize.getPath());
+                storageSizeDto.setUsedSize(toReadableFormat(storageSizeLong));
+                storageSizeDto.setFreeSpaceSize(toReadableFormat(freeSpaceLong));
+                storageSizeDto.setTotalAvailableSize(toReadableFormat(totalAvailableSpaceLong));
+                dto.getStorageSizes().add(storageSizeDto);
             }
-            for (DatabaseSize databaseSize : dto.getDatabaseSizes()) {
-                long databaseSizeLong = convertToLong(databaseSize.getSize());
-                databaseSize.setName(toReadableFormat(databaseSizeLong));
+            for (DatabaseSize databaseSize : storageSizeEntity.getSizeInfo().getDatabaseSizes()) {
+                long databaseSizeLong = convertToLong(databaseSize.getUsedBytes());
+                long availableSizeLong = convertToLong(databaseSize.getTotalAvailableBytes());
+                DatabaseSizeDto databaseSizeDto = new DatabaseSizeDto();
+                databaseSizeDto.setName(databaseSize.getName());
+                databaseSizeDto.setUsedSize(toReadableFormat(databaseSizeLong));
+                databaseSizeDto.setTotalAvailableSize(toReadableFormat(availableSizeLong));
+                dto.getDatabaseSizes().add(databaseSizeDto);
             }
             return dto;
         }

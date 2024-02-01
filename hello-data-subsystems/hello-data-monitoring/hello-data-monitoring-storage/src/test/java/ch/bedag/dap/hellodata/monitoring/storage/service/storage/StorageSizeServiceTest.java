@@ -82,8 +82,8 @@ class StorageSizeServiceTest {
             StorageSize storageSize = result.get(0);
             assertEquals("Test Storage", storageSize.getName());
             assertEquals("/test/path", storageSize.getPath());
-            assertEquals("1000", storageSize.getSize());
-            assertEquals("1000000", storageSize.getFreeSpace());
+            assertEquals("1000", storageSize.getUsedBytes());
+            assertEquals("1000000", storageSize.getFreeSpaceBytes());
             verify(configProperties, times(1)).getStorages();
         }
     }

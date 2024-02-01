@@ -67,9 +67,10 @@ class DatabaseSizeQueryServiceTest {
         Statement mockedStatement = mock(Statement.class);
         ResultSet mockedResultSet = mock(ResultSet.class);
         DataSource mockedDataSource = mock(DataSource.class);
+        String totalAvailableBytes = "3000000";
 
-        Map<String, DataSource> dataSources = new HashMap<>();
-        dataSources.put("testDB1", mockedDataSource);
+        Map<String, DynamicDataSource.DataSourceWrapper> dataSources = new HashMap<>();
+        dataSources.put("testDB1", new DynamicDataSource.DataSourceWrapper(mockedDataSource, totalAvailableBytes));
         when(dynamicDataSource.getDataSources()).thenReturn(dataSources);
         when(dynamicDataSource.getDataSource("testDB1")).thenReturn(mockedDataSource);
 
@@ -87,7 +88,7 @@ class DatabaseSizeQueryServiceTest {
 
         DatabaseSize databaseSize1 = result.get(0);
         assertEquals("testDB1", databaseSize1.getName());
-        assertEquals("100 MB", databaseSize1.getSize());
+        assertEquals("100 MB", databaseSize1.getUsedBytes());
 
         verify(dynamicDataSource, times(1)).getDataSources();
         verify(dynamicDataSource, times(1)).getDataSource(anyString());

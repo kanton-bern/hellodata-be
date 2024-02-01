@@ -87,7 +87,7 @@
           <ul *ngFor="let storageSize of storeSize.storageSizes">
             <li>
               {{storageSize.name + ' '}}
-              <b>{{storageSize.size}}</b>
+              <b>{{storageSize.usedSize}}</b>
             </li>
           </ul>
         </div>
@@ -98,7 +98,7 @@
           <ul *ngFor="let databaseSize of storeSize.databaseSizes">
             <li>
               {{ databaseSize.name + ' '}}
-              <b>{{databaseSize.size}}</b>
+              <b>{{databaseSize.usedSize}}</b>
             </li>
           </ul>
         </div>
