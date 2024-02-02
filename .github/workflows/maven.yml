@@ -41,8 +41,15 @@ jobs:
     #- name: Build with Maven
     #  run: mvn -B package --file pom.xml
 
-    - name: Login to Container Registry
-      run: echo " ${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u kanton-bern --password-stdin
+    - name: login to ghcr.io
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    #- name: Login to Container Registry
+    #  run: echo " ${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u kanton-bern --password-stdin
 
     - name: Publish Packages and Docker Images
       run: mvn --batch-mode deploy -Pdocker -DskipTests
