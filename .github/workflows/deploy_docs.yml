@@ -3,7 +3,8 @@ name: Publish docs via GitHub Pages
 on:
   push:
     branches:
-      - develop
+      # only push released versions to doc
+      - main
 
 jobs:
   build:
@@ -20,5 +21,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REQUIREMENTS: docs/requirements.txt
           CONFIG_FILE: docs/mkdocs.yml
-          # CUSTOM_DOMAIN: hd-docs.kaio.fin.be.ch
-
