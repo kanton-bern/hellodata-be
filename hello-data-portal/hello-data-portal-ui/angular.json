@@ -128,22 +128,22 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "hellodata-portal-ui:build:production"
+              "buildTarget": "hellodata-portal-ui:build:production"
             },
             "development": {
-              "browserTarget": "hellodata-portal-ui:build:development",
-              "proxyConfig": "proxy.conf.json"
+              "proxyConfig": "proxy.conf.json",
+              "buildTarget": "hellodata-portal-ui:build:development"
             },
             "dev-with-remote-keycloak": {
-              "browserTarget": "hellodata-portal-ui:build:dev-with-remote-keycloak",
-              "proxyConfig": "proxy.conf.json"
+              "proxyConfig": "proxy.conf.json",
+              "buildTarget": "hellodata-portal-ui:build:dev-with-remote-keycloak"
             },
             "local-with-dev-apis": {
-              "browserTarget": "hellodata-portal-ui:build:local-with-dev-apis",
-              "proxyConfig": "proxy.conf.json"
+              "proxyConfig": "proxy.conf.json",
+              "buildTarget": "hellodata-portal-ui:build:local-with-dev-apis"
             },
             "e2e": {
-              "browserTarget": "hellodata-portal-ui:build:e2e"
+              "buildTarget": "hellodata-portal-ui:build:e2e"
             }
           },
           "defaultConfiguration": "development"
@@ -151,7 +151,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "hellodata-portal-ui:build"
+            "buildTarget": "hellodata-portal-ui:build"
           }
         },
         "options": {
