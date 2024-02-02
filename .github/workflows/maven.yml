@@ -23,8 +23,8 @@ jobs:
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKER_USERNAME: ${{ github.actor }}
-      DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      #DOCKER_USERNAME: ${{ github.actor }}
+      #DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
