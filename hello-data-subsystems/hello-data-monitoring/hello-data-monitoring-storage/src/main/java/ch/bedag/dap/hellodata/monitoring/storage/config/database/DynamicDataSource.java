@@ -35,17 +35,27 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 @Data
 public class DynamicDataSource {
 
-    private final Map<String, DataSource> dataSources = new HashMap<>();
+    private final Map<String, DataSourceWrapper> dataSources = new HashMap<>();
 
-    public void addDataSource(String name, String url, String username, String password) {
+    public void addDataSource(String name, String url, String username, String password, String totalAvailableBytes) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl(url);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
-        dataSources.put(name, dataSource);
+        dataSources.put(name, new DataSourceWrapper(dataSource, totalAvailableBytes));
     }
 
     public DataSource getDataSource(String name) {
-        return dataSources.get(name);
+        return dataSources.get(name).dataSource;
+    }
+
+    public String getTotalAvailableBytes(String name) {
+        if (dataSources.containsKey(name)) {
+            return dataSources.get(name).totalAvailableBytes;
+        }
+        return null;
+    }
+
+    public record DataSourceWrapper(DataSource dataSource, String totalAvailableBytes) {
     }
 }

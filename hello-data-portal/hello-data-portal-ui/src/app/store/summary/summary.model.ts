@@ -48,12 +48,14 @@ export interface StorageMonitoringResult {
 
 export interface DatabaseSize {
   name: string;
-  size: string;
+  usedSize: string;
+  totalAvailableSize: string;
 }
 
 export interface StorageSize {
   name: string;
   path: string;
-  size: string;
-  freeSpace: string;
+  usedSize: string;
+  freeSpaceSize: string;
+  totalAvailableSize: string;
 }

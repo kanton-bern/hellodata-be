@@ -1,4 +1,3 @@
-
 <div *ngIf="(currentUserPermissions$ | async) as permissions" id="summaryComponent">
   <p-sidebar [(visible)]="overlaySidebarVisible" position="right" styleClass="w-30rem">
     <ng-template pTemplate="header">
@@ -88,7 +87,7 @@
           <ul *ngFor="let storageSize of storeSize.storageSizes">
             <li>
               {{storageSize.name + ' '}}
-              <b>{{storageSize.size + ' ' + ('@Of' | transloco) + ' ' + storageSize.freeSpace}}</b>
+              <b>{{storageSize.usedSize}}</b>
             </li>
           </ul>
         </div>
@@ -99,7 +98,7 @@
           <ul *ngFor="let databaseSize of storeSize.databaseSizes">
             <li>
               {{ databaseSize.name + ' '}}
-              <b>{{databaseSize.size}}</b>
+              <b>{{databaseSize.usedSize}}</b>
             </li>
           </ul>
         </div>

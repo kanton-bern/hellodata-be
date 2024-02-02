@@ -31,5 +31,6 @@ import lombok.Data;
 @Data
 public class DatabaseSize {
     private String name;
-    private String size;
+    private String usedBytes;
+    private String totalAvailableBytes;
 }

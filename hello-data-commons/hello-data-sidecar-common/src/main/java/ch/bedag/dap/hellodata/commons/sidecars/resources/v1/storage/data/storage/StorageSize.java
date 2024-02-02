@@ -32,6 +32,7 @@ import lombok.Data;
 public class StorageSize {
     private String name;
     private String path;
-    private String size;
-    private String freeSpace;
+    private String usedBytes;
+    private String freeSpaceBytes;
+    private String totalAvailableBytes;
 }

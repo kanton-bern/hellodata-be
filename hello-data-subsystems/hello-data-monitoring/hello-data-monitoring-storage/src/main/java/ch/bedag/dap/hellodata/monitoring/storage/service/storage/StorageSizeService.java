@@ -59,8 +59,9 @@ public class StorageSizeService {
                 StorageSize storageSize = new StorageSize();
                 storageSize.setName(storage.getName());
                 storageSize.setPath(path);
-                storageSize.setSize(directorySize);
-                storageSize.setFreeSpace(freeSpace);
+                storageSize.setUsedBytes(directorySize);
+                storageSize.setFreeSpaceBytes(freeSpace);
+                storageSize.setTotalAvailableBytes(storage.getTotalAvailableBytes());
                 result.add(storageSize);
             }
         } catch (IOException e) {

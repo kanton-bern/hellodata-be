@@ -32,4 +32,5 @@ import lombok.Data;
 public class StorageConfigurationProperty {
     private String name;
     private String path;
+    private String totalAvailableBytes;
 }

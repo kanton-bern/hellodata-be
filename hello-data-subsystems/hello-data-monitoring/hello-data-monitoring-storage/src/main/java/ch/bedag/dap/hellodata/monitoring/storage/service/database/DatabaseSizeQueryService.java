@@ -55,11 +55,12 @@ public class DatabaseSizeQueryService {
                 Statement statement = connection.createStatement();
                 ResultSet resultSet = statement.executeQuery("SELECT pg_database_size('" + key + "')");
                 if (resultSet.next()) {
-                    String size = resultSet.getString(1);
-                    log.info("Database: " + key + ", Size: " + size);
+                    String used = resultSet.getString(1);
+                    log.info("Database: " + key + ", Used: " + used);
                     DatabaseSize databaseSize = new DatabaseSize();
-                    databaseSize.setSize(size);
+                    databaseSize.setUsedBytes(used);
                     databaseSize.setName(key);
+                    databaseSize.setTotalAvailableBytes(dynamicDataSource.getTotalAvailableBytes(key));
                     result.add(databaseSize);
                 }
             } catch (SQLException e) {
