@@ -17,9 +17,10 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    permissions: write-all
+    #    permissions:
+    #      contents: read
+    #      packages: write
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
