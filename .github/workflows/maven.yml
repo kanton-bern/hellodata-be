@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     #    permissions:
-    #      contents: read
+    #      contents: read+
     #      packages: write
 
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKER_USERNAME: kanton-bern
-      DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-      GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.CUST_GITHUB_TOKEN }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      GIT_AUTH_TOKEN: ${{ secrets.CUST_GITHUB_TOKEN }}
 
     steps:
     - name: Checkout repository
@@ -46,8 +46,8 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
-        username: kanton-bern
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
     #- name: Login to Container Registry
     #  run: echo " ${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u kanton-bern --password-stdin
