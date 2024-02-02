@@ -7,7 +7,6 @@
 # documentation.
 
 name: Java CI with Maven
-
 on:
   push:
     branches: [ "main", "develop" ]
