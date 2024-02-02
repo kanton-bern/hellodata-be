@@ -4,7 +4,7 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-monitoring-sba</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
 
     <distributionManagement>
         <repository>
@@ -29,7 +29,7 @@
         <spring-version>3.2.1</spring-version>
         <spring-cloud-starter-kubernetes-client-all-version>3.1.0</spring-cloud-starter-kubernetes-client-all-version>
         <spring-boot-admin-version>3.2.0</spring-boot-admin-version>
-        <docker.namespace>bedag</docker.namespace>
+        <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
     </properties>
 
     <dependencies>
@@ -159,7 +159,7 @@
                                 <configuration>
                                     <name>docker.tag.name</name>
                                     <value>${project.version}</value>
-                                    <regex>main-SNAPSHOT</regex>
+                                    <regex>develop-SNAPSHOT</regex>
                                     <replacement>latest</replacement>
                                     <failIfNoMatch>false</failIfNoMatch>
                                 </configuration>

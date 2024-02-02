@@ -5,12 +5,12 @@
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data-commons</artifactId>
-        <version>main-SNAPSHOT</version>
+        <version>develop-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>hello-data-spring-boot-starter-parent</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-spring-boot-starter-parent</name>
@@ -20,7 +20,7 @@
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
-        <docker.namespace>bedag</docker.namespace>
+        <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <java.version>17</java.version>
@@ -385,7 +385,7 @@
                             <configuration>
                                 <name>docker.tag.name</name>
                                 <value>${project.version}</value>
-                                <regex>main-SNAPSHOT</regex>
+                                <regex>develop-SNAPSHOT</regex>
                                 <replacement>latest</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>

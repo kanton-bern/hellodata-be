@@ -5,7 +5,7 @@
   <parent>
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-portal</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
   </parent>
 
   <artifactId>hello-data-portal-ui</artifactId>
@@ -19,7 +19,7 @@
     <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <docker.namespace>bedag</docker.namespace>
+    <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
     <sonar.typescript.lcov.reportPaths>${project.build.directory}/coverage/lcov.info</sonar.typescript.lcov.reportPaths>
     <sonar.nodejs.executable>${project.build.directory}/node/node</sonar.nodejs.executable>
     <sonar.typescript.node>${sonar.nodejs.executable}</sonar.typescript.node>
@@ -88,7 +88,7 @@
                 <configuration>
                   <name>docker.tag.name</name>
                   <value>${project.version}</value>
-                  <regex>main-SNAPSHOT</regex>
+                  <regex>develop-SNAPSHOT</regex>
                   <replacement>latest</replacement>
                   <failIfNoMatch>false</failIfNoMatch>
                 </configuration>
@@ -320,7 +320,7 @@
                 <configuration>
                   <name>docker.tag.name</name>
                   <value>${project.version}</value>
-                  <regex>main-SNAPSHOT</regex>
+                  <regex>develop-SNAPSHOT</regex>
                   <replacement>latest</replacement>
                   <failIfNoMatch>false</failIfNoMatch>
                 </configuration>

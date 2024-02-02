@@ -4,7 +4,7 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-airflow</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-airflow</name>
@@ -28,7 +28,7 @@
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <build.number>local-build</build.number>
-        <docker.namespace>bedag</docker.namespace>
+        <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
     </properties>
 
@@ -71,7 +71,7 @@
                             <configuration>
                                 <name>docker.tag.name</name>
                                 <value>${project.version}</value>
-                                <regex>main-SNAPSHOT</regex>
+                                <regex>develop-SNAPSHOT</regex>
                                 <replacement>latest</replacement>
                                 <failIfNoMatch>false</failIfNoMatch>
                             </configuration>
