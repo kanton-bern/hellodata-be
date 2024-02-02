@@ -23,11 +23,6 @@
             <name>GitHub kanton-bern Maven Packages</name>
             <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
         </repository>
-        <snapshotRepository>
-            <id>github-snapshots</id>
-            <name>GitHub kanton-bern Maven Snapshots</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <properties>
@@ -41,7 +36,7 @@
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
-        <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
+        <docker.namespace>bedag</docker.namespace>
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
         <build.number>local-build</build.number>

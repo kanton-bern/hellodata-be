@@ -12,11 +12,6 @@
             <name>GitHub kanton-bern Maven Packages</name>
             <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
         </repository>
-        <snapshotRepository>
-            <id>github-snapshots</id>
-            <name>GitHub kanton-bern Maven Snapshots</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <properties>
@@ -24,7 +19,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
-        <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
+        <docker.namespace>bedag</docker.namespace>
     </properties>
 
     <profiles>

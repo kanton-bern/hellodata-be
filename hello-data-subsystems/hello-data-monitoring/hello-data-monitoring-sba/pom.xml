@@ -12,11 +12,6 @@
             <name>GitHub kanton-bern Maven Packages</name>
             <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
         </repository>
-        <snapshotRepository>
-            <id>github-snapshots</id>
-            <name>GitHub kanton-bern Maven Snapshots</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <properties>
@@ -29,7 +24,7 @@
         <spring-version>3.2.1</spring-version>
         <spring-cloud-starter-kubernetes-client-all-version>3.1.0</spring-cloud-starter-kubernetes-client-all-version>
         <spring-boot-admin-version>3.2.0</spring-boot-admin-version>
-        <docker.namespace>ghcr.io/kanton-bern</docker.namespace>
+        <docker.namespace>bedag</docker.namespace>
     </properties>
 
     <dependencies>

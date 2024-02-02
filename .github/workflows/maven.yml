@@ -17,14 +17,15 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: dockerhub
     permissions:
       contents: read
       packages: write
 
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKER_USERNAME: ${{ github.actor }}
-      DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Checkout repository
@@ -40,12 +41,15 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Publish to GitHub Packages
-      run: mvn --batch-mode deploy
+    - name: Login to Docker
+      uses: docker/login-action@v2
+      with:
+        #registry: ghcr.io
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-    - name: Build and Push Docker Image
-      run: |
-        mvn docker:build docker:push -P docker
+    - name: Publish Packages and Docker Images
+      run: mvn --batch-mode deploy -Pdocker -DskipTests
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
