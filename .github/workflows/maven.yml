@@ -20,7 +20,7 @@ jobs:
     environment:
       name: dockerhub
     permissions:
-      contents: read+
+      contents: read
       packages: write
 
     env:
