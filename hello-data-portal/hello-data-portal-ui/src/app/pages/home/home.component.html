@@ -36,6 +36,28 @@
         </div>
       </p-fieldset>
 
+      <p-fieldset class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="externalDashboardsHeader">{{'@External dashboards' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-external></app-external>
+        </div>
+      </p-fieldset>
+
+      <p-fieldset *ngIf="hasPermissions(['DATA_MARTS']) |async" class="col-12 lg:col-6">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center text-primary">
+            <h5 class="m-0" id="dataMartsHeader">{{'@Data Marts' | transloco}}</h5>
+          </div>
+        </ng-template>
+        <div class="h-full">
+          <app-dm></app-dm>
+        </div>
+      </p-fieldset>
+
       <p-fieldset *ngIf="hasPermissions(['DATA_LINEAGE']) |async" class="col-12 lg:col-6">
         <ng-template pTemplate="header">
           <div class="flex align-items-center text-primary">
@@ -55,28 +77,6 @@
         </ng-template>
         <div class="h-full">
           <app-faq></app-faq>
-        </div>
-      </p-fieldset>
-
-      <p-fieldset *ngIf="hasPermissions(['DATA_MARTS']) |async" class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="dataMartsHeader">{{'@Data Marts' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-dm></app-dm>
-        </div>
-      </p-fieldset>
-
-      <p-fieldset class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="externalDashboardsHeader">{{'@External dashboards' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-external></app-external>
         </div>
       </p-fieldset>
 
