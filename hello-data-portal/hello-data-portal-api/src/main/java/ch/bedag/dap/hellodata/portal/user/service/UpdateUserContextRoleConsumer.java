@@ -81,7 +81,7 @@ public class UpdateUserContextRoleConsumer {
             SystemDefaultPortalRoleName portalRoleName;
             switch (roleName) {
                 case HELLODATA_ADMIN -> {
-                    portalRoleName = SystemDefaultPortalRoleName.SUPERUSER;
+                    portalRoleName = SystemDefaultPortalRoleName.HELLODATA_ADMIN;
                 }
                 case BUSINESS_DOMAIN_ADMIN -> {
                     portalRoleName = SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN;
@@ -90,10 +90,10 @@ public class UpdateUserContextRoleConsumer {
                     portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
                 }
                 case DATA_DOMAIN_EDITOR -> {
-                    portalRoleName = SystemDefaultPortalRoleName.EDITOR;
+                    portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
                 }
                 case DATA_DOMAIN_VIEWER -> {
-                    portalRoleName = SystemDefaultPortalRoleName.VIEWER;
+                    portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
                 }
                 default -> portalRoleName = null;
             }

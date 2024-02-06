@@ -27,23 +27,19 @@
 package ch.bedag.dap.hellodata.portal.role.entity;
 
 import ch.bedag.dap.hellodata.commons.security.Permission;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
 public enum SystemDefaultPortalRoleName {
-    SUPERUSER(Arrays.asList(Permission.values())),
-    BUSINESS_DOMAIN_ADMIN(List.of(Permission.USER_MANAGEMENT, Permission.FAQ_MANAGEMENT, Permission.EXTERNAL_DASHBOARDS_MANAGEMENT,
-        Permission.DOCUMENTATION_MANAGEMENT, Permission.ANNOUNCEMENT_MANAGEMENT, Permission.DASHBOARDS, Permission.DATA_LINEAGE,
-        Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG)),
-    DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH,
-        Permission.DATA_ENG)),
-    EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS)),
-    VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE));
+    HELLODATA_ADMIN(Arrays.asList(Permission.values())), BUSINESS_DOMAIN_ADMIN(
+            List.of(Permission.USER_MANAGEMENT, Permission.FAQ_MANAGEMENT, Permission.EXTERNAL_DASHBOARDS_MANAGEMENT, Permission.DOCUMENTATION_MANAGEMENT,
+                    Permission.ANNOUNCEMENT_MANAGEMENT, Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG)),
+    DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG)),
+    DATA_DOMAIN_EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS)), DATA_DOMAIN_VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE));
 
     private final List<Permission> permissions;
 }

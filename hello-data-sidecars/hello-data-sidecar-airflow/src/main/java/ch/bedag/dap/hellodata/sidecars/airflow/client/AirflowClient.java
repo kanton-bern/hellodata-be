@@ -38,9 +38,13 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserR
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
+import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -50,10 +54,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 
 @Log4j2
 public class AirflowClient {
@@ -126,6 +126,18 @@ public class AirflowClient {
     }
 
     /**
+     * Delete a user with the following username.
+     */
+    public void deleteUser(String airflowUsername) throws URISyntaxException, IOException {
+        HttpUriRequest request = AirflowApiRequestBuilder.getDeleteUserRequest(host, port, username, password, airflowUsername);
+        ApiResponse resp = executeRequest(request);
+        if (resp.getBody() != null) {
+            byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+            log.debug("deleteUser({}) response json \n{}", airflowUsername, new String(bytes));
+        }
+    }
+
+    /**
      * Update (or rather set) the roles of a user
      **/
     public AirflowUserResponse updateUser(AirflowUserRolesUpdate userRolesUpdate, String usernameToUpdate) throws IOException, URISyntaxException {
@@ -188,7 +200,11 @@ public class AirflowClient {
     private ApiResponse executeRequest(HttpUriRequest request) throws IOException {
         try (CloseableHttpResponse response = client.execute(request)) {
             int code = response.getStatusLine().getStatusCode();
-            String bodyAsString = EntityUtils.toString(response.getEntity());
+            HttpEntity entity = response.getEntity();
+            String bodyAsString = null;
+            if (entity != null) {
+                bodyAsString = EntityUtils.toString(entity);
+            }
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }

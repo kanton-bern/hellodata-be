@@ -1,5 +1,5 @@
 # Data Engineering Workspaces
-On this page, we'll explain what workspaces in the context of HelloDATA-BE are and how to use them, and you'll create your own based on a prepared boiler-plate repo.
+On this page, we'll explain what workspaces in the context of HelloDATA-BE are and how to use them, and you'll create your own based on a prepared starter repo.
 
 
 !!! info
@@ -70,23 +70,29 @@ Below, you see an example of two different Airflow DAGs deployed from two differ
 ![](../images/Pasted%20image%2020231130144943.png)
 
 ## How do I create my own Workspace?
-To implement your own Workspace, we created a [boiler-plate repo](https://git.mgmtbi.ch/hellodata/hellodata-ws-boilerplate). This repo contains a minimal set of artefacts in order to be deployed on HD.
+To implement your own Workspace, we created a [hellodata-be-workspace-starter](https://github.com/bedag/hellodata-be-workspace-starter). This repo contains a minimal set of artefacts in order to be deployed on HD.
+
+### Pre-requisites
+- Install latest Docker Desktop
+- Activate Kubernetes feature in Docker Desktop (needed to run Airflow DAG as an Docker-Image): `Settings -> Kubernetes -> Enable Kubernetes`
 
 ### Step-by-Step Guide
 
-1. Clone [boiler-plate repo](https://git.mgmtbi.ch/hellodata/hellodata-ws-boilerplate).
+1. Clone [hellodata-be-workspace-starter](https://github.com/bedag/hellodata-be-workspace-starter).
 2. Add your own custom logic to the repo, update Dockerfile with relevant libraries and binaries you need.
 3. Create one or multiple Airflow DAGs for running within HelloDATA-BE.
-4. Define needed ENV-Variables and deployments needs (to be set-up by HD-Team initially once)
-5. Build a docker image
-6. Ask HD Team to deploy initially
+4. Build the image with `docker build -t hellodata-ws-boilerplate:0.1.0-a.1 .` (or the name of choice)
+5. Start up Airflow locally with Astro CLI (see more below) and run/test the pipeline
+6. Define needed ENV-Variables and deployments needs (to be set-up by HD-Team initially once)
+7. Push the image to a DockerHub of choice
+8. Ask HD Team to deploy initially
 
 From now on whenever you have a change, you just build a new image and that will be deployed on HelloDATA-BE automatically. Making you and your team independent.
 
 ## Boiler-Plate Example
-Below you find examples of the boiler-plate example that help you understand how to configure workspaces for your needs.
+Below you find an example structure that help you understand how to configure workspaces for your needs.
 ### Boiler-Plate repo
-The [repo](https://git.mgmtbi.ch/hellodata/hellodata-ws-boilerplate) helps you to build your workspace by simply clone the whole repo and adding your changes.
+The [repo](https://github.com/bedag/hellodata-be-workspace-starter) helps you to build your workspace by simply clone the whole repo and adding your changes.
 
 We generally have these boiler plate files:
 ```
@@ -188,8 +194,9 @@ To run locally, the easiest way is to use the [Astro CLI](https://docs.astronome
 For local deployment we have these **requirements**:
 
 - Local Docker installed (either native or Docker-Desktop)
-- make sure Kubernetes is enables
+- make sure Kubernetes is enabled
 - copy you local kube-file to astro: `cp ~/.kube/config src/dags/airflow/include/.kube/`
+- make sure docker image is available locally (for Airflow to use it) -> `docker build` must have run (check with `docker image ls`
 
 The `config` file is used from astro to run on local Kubernetes. Se more infos on [Run your Astro project in a local Airflow environment](https://docs.astronomer.io/astro/cli/run-airflow-locally).
 
@@ -268,5 +275,37 @@ airflow:
       value: "dd01-ws-boilerplate"
 ```
 
+## Example with Airflow and dbt
+
+We've added another demo dag called `showcase-boiler.py` which is an DAG that download data from the web (animal statistics, ~150 CSVs), postgres tables are created, data inserted and a dbt run and docs is ran at the end.
+
+![](../images/showcase-boiler.png)
+
+In this case we use multiple task in a DAG, these have all the same image, but you could use different one for each step. Meaning you could use Python for download, R for transformatin and Java for machine learning. But as long as images are similar, I'd suggest to use the same image.
+
+### Volumes / PVC
+
+Another addition is the use of **voulmes**. These are a persistent storage also called `pvs` in Kubernetes, which allow to store intermediate storage outside of the container. Downloaded CSVs are stored there for the next task to pick up from that storage.
+
+Locally you need to create such a storage once, there is a script in case you want to apply it to you local Docker-Desktop setup. Run this command:
+```sh
+kubectl apply -f src/volume_mount/pvc.yaml
+```
+
+Be sure to use the same name, in this example we use `my-pvc` in your DAGs as well. See in the `showcase-boiler.py` how the volumnes are mounted like this:
+```
+volume_claim = k8s.V1PersistentVolumeClaimVolumeSource(claim_name="my-pvc")
+volume = k8s.V1Volume(name="my-volume", persistent_volume_claim=volume_claim)
+volume_mount = k8s.V1VolumeMount(name="my-volume", mount_path="/mnt/pvc")
+```
+
+
+
 ## Conclusion
 I hope this has illustrated how to create your own workspace. Otherwise let us know in the discussions or create an issue/PR.
+
+
+## Troubleshooting
+
+If you enconter errors, we collect them in [Troubleshooting](workspaces-troubleshoot.md).
+

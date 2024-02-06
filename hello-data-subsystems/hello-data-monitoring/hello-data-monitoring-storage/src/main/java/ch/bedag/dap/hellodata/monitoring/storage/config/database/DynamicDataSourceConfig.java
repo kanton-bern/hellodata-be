@@ -45,11 +45,12 @@ public class DynamicDataSourceConfig {
             String username = dataSourceConfigurationProperty.getUsername();
             String password = dataSourceConfigurationProperty.getPassword();
             String jdbcUrl = dataSourceConfigurationProperty.getJdbcUrl();
+            String totalAvailableBytes = dataSourceConfigurationProperty.getTotalAvailableBytes();
             try {
                 URI uri = new URI(jdbcUrl.substring(5)); // Remove "jdbc:" part
                 String path = uri.getPath();
                 String databaseName = path != null ? path.substring(1) : null;
-                dynamicDataSource.addDataSource(databaseName, jdbcUrl, username, password);
+                dynamicDataSource.addDataSource(databaseName, jdbcUrl, username, password, totalAvailableBytes);
             } catch (URISyntaxException e) {
                 throw new IllegalArgumentException("Bad jdbc url, please check the configuration", e);
             }

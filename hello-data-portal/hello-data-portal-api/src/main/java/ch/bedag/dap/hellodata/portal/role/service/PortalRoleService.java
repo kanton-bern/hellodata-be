@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.portal.role.data.PortalRoleCreateDto;
 import ch.bedag.dap.hellodata.portal.role.data.PortalRoleDto;
 import ch.bedag.dap.hellodata.portal.role.data.PortalRoleUpdateDto;
 import ch.bedag.dap.hellodata.portal.role.entity.PortalRoleEntity;
+import ch.bedag.dap.hellodata.portal.role.entity.SystemDefaultPortalRoleName;
 import ch.bedag.dap.hellodata.portal.role.repository.PortalRoleRepository;
 import ch.bedag.dap.hellodata.portal.user.entity.Permissions;
 import java.util.List;
@@ -53,7 +54,35 @@ public class PortalRoleService {
 
     @Transactional(readOnly = true)
     public List<PortalRoleDto> getAllRoles() {
-        return portalRoleRepository.findAll().stream().map(portalRoleEntity -> modelMapper.map(portalRoleEntity, PortalRoleDto.class)).toList();
+        return findAllAndOrderBySystemDefaultThenName().stream().map(portalRoleEntity -> modelMapper.map(portalRoleEntity, PortalRoleDto.class)).toList();
+    }
+
+    /**
+     * First system default ones at the top, then sort by name
+     *
+     * @return
+     */
+    private List<PortalRoleEntity> findAllAndOrderBySystemDefaultThenName() {
+        List<PortalRoleEntity> portalRoles = portalRoleRepository.findAll();
+        portalRoles.sort((role1, role2) -> {
+            if (role1.isSystemDefault() != role2.isSystemDefault()) {
+                return role1.isSystemDefault() ? -1 : 1;
+            } else if (role1.isSystemDefault()) {
+                return compareSystemDefaultRoles(role1.getName(), role2.getName());
+            } else {
+                return role1.getName().compareTo(role2.getName());
+            }
+        });
+        return portalRoles;
+    }
+
+    private int compareSystemDefaultRoles(String roleName1, String roleName2) {
+        String[] defaultRolesOrder = { SystemDefaultPortalRoleName.HELLODATA_ADMIN.name(), SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN.name(),
+                SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN.name(), SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR.name(),
+                SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER.name() };
+        int index1 = java.util.Arrays.asList(defaultRolesOrder).indexOf(roleName1);
+        int index2 = java.util.Arrays.asList(defaultRolesOrder).indexOf(roleName2);
+        return Integer.compare(index1, index2);
     }
 
     @Transactional(readOnly = true)

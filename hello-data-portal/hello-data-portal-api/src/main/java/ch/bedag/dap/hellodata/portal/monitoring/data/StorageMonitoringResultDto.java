@@ -26,15 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portal.monitoring.data;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.database.DatabaseSize;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 
 @Data
 public class StorageMonitoringResultDto {
-    private List<DatabaseSize> databaseSizes;
-    private List<StorageSize> storageSizes;
+    private List<DatabaseSizeDto> databaseSizes = new ArrayList<>();
+    private List<StorageSizeDto> storageSizes = new ArrayList<>();
     private LocalDateTime createdDate;
 }

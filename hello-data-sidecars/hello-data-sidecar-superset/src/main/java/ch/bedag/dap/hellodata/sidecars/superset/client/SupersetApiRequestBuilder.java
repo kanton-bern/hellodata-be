@@ -70,6 +70,7 @@ public class SupersetApiRequestBuilder {
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
+    private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
 
     public static HttpUriRequest getAuthTokenRequest(String host, int port, String username, String password) throws URISyntaxException, UnsupportedEncodingException {
         URI apiUri = buildUri(host, port, LOGIN_API_ENDPOINT, null);
@@ -107,6 +108,15 @@ public class SupersetApiRequestBuilder {
                              .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
                              .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
                              .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                             .build();
+    }
+
+    public static HttpUriRequest getDeleteUserRequest(String host, int port, String authToken, int supersetUserId) throws URISyntaxException, IOException {
+        URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, supersetUserId), null);
+        return RequestBuilder.delete() //
+                             .setUri(apiUri) //
+                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
                              .build();
     }
 

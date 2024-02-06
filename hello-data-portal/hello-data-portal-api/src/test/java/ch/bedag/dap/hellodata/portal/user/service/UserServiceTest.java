@@ -176,6 +176,7 @@ public class UserServiceTest {
         // when
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+            utilities.when(SecurityUtils::getCurrentUserId).thenReturn(UUID.randomUUID());
             userService.deleteUserById(userId);
         }
 
@@ -197,7 +198,7 @@ public class UserServiceTest {
         // when
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
-
+            utilities.when(SecurityUtils::getCurrentUserId).thenReturn(UUID.randomUUID());
             // then
             ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
                 userService.deleteUserById(userId);
