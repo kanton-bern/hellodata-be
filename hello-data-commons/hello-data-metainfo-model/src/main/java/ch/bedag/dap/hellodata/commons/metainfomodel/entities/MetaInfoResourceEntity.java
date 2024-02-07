@@ -63,7 +63,7 @@ public class MetaInfoResourceEntity extends BaseEntity {
     private String kind;
 
     @NotBlank
-    @Length(max = 55)
+    @Length(max = 255)
     private String instanceName;
 
     @JdbcTypeCode(SqlTypes.JSON)
