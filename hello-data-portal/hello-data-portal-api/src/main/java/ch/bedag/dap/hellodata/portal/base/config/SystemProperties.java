@@ -38,4 +38,5 @@ public class SystemProperties {
     private String noReplyEmail;
     private Locale defaultLocale;
     private String applicationLink;
+    private boolean disableLogout;
 }

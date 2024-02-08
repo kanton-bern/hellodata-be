@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.user.controller;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
+import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
@@ -63,6 +64,8 @@ class UserControllerTest extends HDControllerTest {
     private UserService userService;
     @MockBean
     private HelloDataContextConfig helloDataContextConfig;
+    @MockBean
+    private SystemProperties systemProperties;
 
     @Test
     void createUser_noPrivilegesShouldReturnForbidden() throws Exception {
@@ -170,7 +173,7 @@ class UserControllerTest extends HDControllerTest {
     void getPermissionsForCurrentUser() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName");
+        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName", false);
 
         when(userService.getUserPortalPermissions(userId)).thenReturn(currentUser.permissions());
         HelloDataContextConfig.BusinessContext businessContext = new HelloDataContextConfig.BusinessContext();
