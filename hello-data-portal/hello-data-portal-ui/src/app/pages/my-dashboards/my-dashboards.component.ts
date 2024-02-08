@@ -39,6 +39,7 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
+import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
@@ -68,6 +69,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   override ngOnInit(): void {
     super.ngOnInit();
+    this.store.dispatch(loadMyDashboards());
   }
 
   hideEditMetadataDialog() {
