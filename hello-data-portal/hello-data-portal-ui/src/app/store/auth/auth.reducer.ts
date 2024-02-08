@@ -44,7 +44,8 @@ export const authReducer = createReducer(
       permissions: currentUserAuthData.permissions,
       isSuperuser: currentUserAuthData.isSuperuser,
       businessDomain: currentUserAuthData.businessDomain,
-      permissionsLoaded: true
+      permissionsLoaded: true,
+      disableLogout: currentUserAuthData.disableLogout
     };
   }),
   on(logout, (state: AuthState): AuthState => {

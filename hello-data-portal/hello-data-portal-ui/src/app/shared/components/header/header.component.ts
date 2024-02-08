@@ -33,7 +33,7 @@ import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
 import {PublishedAnnouncementModule} from "../published-announcement/published-announcement.module";
-import {selectCurrentBusinessDomain, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
+import {selectCurrentBusinessDomain, selectDisableLogout, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
 import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
 import {MenuModule} from "primeng/menu";
@@ -105,8 +105,9 @@ export class HeaderComponent {
 
     this.translationsLoaded$ = combineLatest([
       this.translateService.selectTranslate('@Profile'),
-      this.translateService.selectTranslate('@Logout')
-    ]).pipe(tap(([profileTranslation, logoutTranslation]) => {
+      this.translateService.selectTranslate('@Logout'),
+      this.store.select(selectDisableLogout)
+    ]).pipe(tap(([profileTranslation, logoutTranslation, disableLogout]) => {
       this.userMenuItems = [
         {
           label: profileTranslation,
@@ -115,14 +116,16 @@ export class HeaderComponent {
             this.store.dispatch(navigate({url: '/profile'}));
           }
         },
-        {
+      ];
+      if (!disableLogout) {
+        this.userMenuItems.push({
           label: logoutTranslation,
           icon: 'fas fa-light fa-power-off',
           command: () => {
             this.store.dispatch(navigate({url: '/logout'}));
           }
-        }
-      ];
+        })
+      }
     }));
 
   }

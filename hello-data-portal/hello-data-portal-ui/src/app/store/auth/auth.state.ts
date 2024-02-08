@@ -32,13 +32,15 @@ export interface AuthState {
   permissionsLoaded: boolean,
   isSuperuser: boolean,
   businessDomain: string,
-  contextRoles: any[]
+  contextRoles: any[],
+  disableLogout: boolean
 }
 
 export interface CurrentUserAuthData {
   permissions: string[],
   isSuperuser: boolean,
-  businessDomain: string
+  businessDomain: string,
+  disableLogout: boolean
 }
 
 export const initialAuthState: AuthState = {
@@ -48,5 +50,6 @@ export const initialAuthState: AuthState = {
   permissionsLoaded: false,
   isSuperuser: false,
   businessDomain: '',
-  contextRoles: []
+  contextRoles: [],
+  disableLogout: false
 }
