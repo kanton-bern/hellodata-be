@@ -341,12 +341,12 @@ public class UserService {
             for (UserContextRoleDto dataDomainRoleForContextDto : updateContextRolesForUserDto.getDataDomainRoles()) {
                 roleService.updateDomainRoleForUser(userEntity, dataDomainRoleForContextDto.getRole(), dataDomainRoleForContextDto.getContext().getContextKey());
             }
-            setRoleToAllRemainingDataDomainsToNone(updateContextRolesForUserDto, userEntity);
+            setRoleForAllRemainingDataDomainsToNone(updateContextRolesForUserDto, userEntity);
         }
         userRepository.save(userEntity);
     }
 
-    private void setRoleToAllRemainingDataDomainsToNone(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity) {
+    private void setRoleForAllRemainingDataDomainsToNone(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity) {
         List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         List<HdContextEntity> ddDomainsWithoutRoleForUser = allDataDomains.stream()
                                                                           .filter(availableDD -> updateContextRolesForUserDto.getDataDomainRoles()
