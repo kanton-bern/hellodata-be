@@ -146,6 +146,6 @@ springdoc:
   packagesToScan: ch.bedag.dap.hellodata.docs
   paths-to-match: /**
   swagger-ui:
-    enabled: false
+    enabled: true
     oauth:
       clientId: ${hello-data.auth-server.client-id}
