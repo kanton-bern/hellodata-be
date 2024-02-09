@@ -20,7 +20,7 @@ Make sure the `host.docker.internal` is added to the /etc/hosts file with either
 
 - **Linux/MacOS**: add `127.0.0.1 host.docker.internal` to the `/etc/hosts` file.
 - **Windows**: Enable in Docker Desktop under `Settings -> General -> Use WSL 2 based engine` the settings: `Add the *.docker.internal names to the host's etc/hosts file (Requires password)`
-    - Make sure Docker-Desktop entered it correctly in `C:\Windows\System32\drivers\etc\hosts`. There were some [cases](https://github.com/kanton-bern/hellodata-be/issues/21#issuecomment-1913578206) where it added wrongly. It should look something like:
+    - Make sure Docker-Desktop entered it correctly in `C:\Windows\System32\drivers\etc\hosts`. There were some [cases](https://github.com/kanton-bern/hellodata-be/issues/21#issuecomment-1913578206) where its wrong OR the IP is an old one. This will cause an error to communicate between the containers. It should look something like this with your currrent IP placed:
 
 ```sh
 # Added by Docker Desktop

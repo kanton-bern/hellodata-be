@@ -196,6 +196,7 @@ For local deployment we have these **requirements**:
 - Local Docker installed (either native or Docker-Desktop)
 - make sure Kubernetes is enabled
 - copy you local kube-file to astro: `cp ~/.kube/config src/dags/airflow/include/.kube/`
+  - attention, under Windows you find that file most probably under: `C:\Users\[YourIdHere]\.kube\config` 
 - make sure docker image is available locally (for Airflow to use it) -> `docker build` must have run (check with `docker image ls`
 
 The `config` file is used from astro to run on local Kubernetes. Se more infos on [Run your Astro project in a local Airflow environment](https://docs.astronomer.io/astro/cli/run-airflow-locally).
