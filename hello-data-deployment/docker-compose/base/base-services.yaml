@@ -207,6 +207,7 @@ services:
       - HELLO_DATA_AUTH_SERVER_REALM=hellodata
     ports:
       - "8087:8087"
+      - "8082:8082"
     depends_on:
       - postgres
       - keycloak
