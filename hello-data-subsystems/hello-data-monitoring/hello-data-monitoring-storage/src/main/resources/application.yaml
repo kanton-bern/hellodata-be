@@ -27,7 +27,7 @@
 
 hellodata:
   monitoring-interval:
-    cron-expression: "0 0 12 * * *"
+    cron-expression: "0 0 * * * *"
   storages:
     - name: Management_Cockpit_Superset
       path: /storage/docs/projects/Management_Cockpit_Superset
