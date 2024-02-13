@@ -25,23 +25,26 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import jwt
 import logging
 import os
-import requests
 import string
+from base64 import b64decode
+from random import SystemRandom
+from typing import Optional
+
+import jwt
+import requests
 from airflow.www.fab_security.manager import AUTH_OAUTH
 from airflow.www.security import AirflowSecurityManager
-from base64 import b64decode
 from cryptography.hazmat.primitives import serialization
-from flask import g, request, redirect, flash, url_for, session
+from flask import g, request, redirect, flash, url_for, session, Flask
 from flask_appbuilder import expose
 from flask_appbuilder._compat import as_unicode
 from flask_appbuilder.security.views import AuthView
 from flask_appbuilder.utils.base import get_safe_redirect
 from flask_login import login_user, logout_user
-from random import SystemRandom
-from typing import Optional
+from pyctuator.auth import BasicAuth
+from pyctuator.pyctuator import Pyctuator
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 LETTERS_AND_DIGITS = string.ascii_letters + string.digits
@@ -255,3 +258,14 @@ CUSTOM_SECURITY_MANAGER = HdSecurityManager
 SESSION_REFRESH_EACH_REQUEST = True
 ENABLE_PROXY_FIX = True
 AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+
+# pyctuator
+pyctuator_app = Flask(__name__)
+Pyctuator(
+    pyctuator_app,
+    app_name="Airflow Webserver",
+    app_url="http://airflow-webserver:8080",
+    pyctuator_endpoint_url="http://airflow-webserver:8080",
+    registration_url="http://monitoring-sba:8080/instances",
+    registration_auth=BasicAuth("user", "password")
+)
