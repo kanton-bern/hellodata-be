@@ -47,9 +47,14 @@ public class DynamicDataSourceConfig {
             String jdbcUrl = dataSourceConfigurationProperty.getJdbcUrl();
             String totalAvailableBytes = dataSourceConfigurationProperty.getTotalAvailableBytes();
             try {
-                URI uri = new URI(jdbcUrl.substring(5)); // Remove "jdbc:" part
-                String path = uri.getPath();
-                String databaseName = path != null ? path.substring(1) : null;
+                String databaseName;
+                if (dataSourceConfigurationProperty.getName() == null) {
+                    URI uri = new URI(jdbcUrl.substring(5)); // Remove "jdbc:" part
+                    String path = uri.getPath();
+                    databaseName = path != null ? path.substring(1) : null;
+                } else {
+                    databaseName = dataSourceConfigurationProperty.getName();
+                }
                 dynamicDataSource.addDataSource(databaseName, jdbcUrl, username, password, totalAvailableBytes);
             } catch (URISyntaxException e) {
                 throw new IllegalArgumentException("Bad jdbc url, please check the configuration", e);

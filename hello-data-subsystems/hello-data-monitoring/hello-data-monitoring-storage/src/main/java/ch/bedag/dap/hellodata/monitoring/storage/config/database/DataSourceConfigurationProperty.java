@@ -26,12 +26,21 @@
  */
 package ch.bedag.dap.hellodata.monitoring.storage.config.database;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 @Data
+@Validated
 public class DataSourceConfigurationProperty {
+    private String name; // optional, if not present the db name from jdbcUrl will be taken
+    @NotBlank
     private String jdbcUrl;
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
+    @Pattern(regexp = "^\\d+$", message = "This field should contain only digits!")
     private String totalAvailableBytes;
 }

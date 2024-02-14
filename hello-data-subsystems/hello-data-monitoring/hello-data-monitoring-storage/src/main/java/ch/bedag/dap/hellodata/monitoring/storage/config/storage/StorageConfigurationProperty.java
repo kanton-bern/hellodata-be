@@ -26,11 +26,18 @@
  */
 package ch.bedag.dap.hellodata.monitoring.storage.config.storage;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 @Data
+@Validated
 public class StorageConfigurationProperty {
+    @NotBlank
     private String name;
+    @NotBlank
     private String path;
+    @Pattern(regexp = "^\\d+$", message = "This field should contain only digits!")
     private String totalAvailableBytes;
 }
