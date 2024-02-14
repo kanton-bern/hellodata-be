@@ -117,6 +117,7 @@ services:
       - HELLO_DATA_INSTANCE_URL=http://localhost:8089/
       - HELLO_DATA_INSTANCE_NAME=Superset Extra Data Domain
       - HELLO_DATA_SUPERSET_HOST=superset-app-extra-data-domain
+      - HELLO_DATA_SUPERSET_PORT=8089
       - HELLO_DATA_CONTEXTS_0=Data Domain | Extra_Data_Domain | Extra Data Domain | true
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
     links:

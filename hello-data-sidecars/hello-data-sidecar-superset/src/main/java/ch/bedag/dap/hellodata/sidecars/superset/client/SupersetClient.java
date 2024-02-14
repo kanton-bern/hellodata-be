@@ -37,6 +37,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserByIdResp
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -126,7 +127,7 @@ public class SupersetClient {
     }
 
     /**
-     * Updates a user.
+     * Updates user roles.
      *
      * @return an updated user.
      *
@@ -136,11 +137,31 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetUserUpdateResponse updateUser(SupersetUserRolesUpdate supersetUserRoleUpdate, int userId) throws URISyntaxException, ClientProtocolException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserRequest(host, port, authToken, supersetUserRoleUpdate, userId);
+    public SupersetUserUpdateResponse updateUserRoles(SupersetUserRolesUpdate supersetUserRoleUpdate, int userId) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserRolesRequest(host, port, authToken, supersetUserRoleUpdate, userId);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("updateUser({}) response json \n{}", userId, new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetUserUpdateResponse.class);
+    }
+
+    /**
+     * Updates user active flag (enable/disable user).
+     *
+     * @return an updated user.
+     *
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public SupersetUserUpdateResponse updateUsersActiveFlag(SupersetUserActiveUpdate supersetUserActiveUpdate, int userId) throws URISyntaxException, ClientProtocolException,
+            IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserActiveRequest(host, port, authToken, supersetUserActiveUpdate, userId);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("updateUsersActiveFlag({}) response json \n{}", userId, new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetUserUpdateResponse.class);
     }
 
@@ -155,11 +176,11 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public IdResponse createUser(SubsystemUserUpdate userCreate) throws URISyntaxException, ClientProtocolException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getCreateUserRequest(host, port, authToken, userCreate);
+    public IdResponse createUser(SubsystemUserUpdate userUpdate) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getCreateUserRequest(host, port, authToken, userUpdate);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("createUser({}) response json \n{}", userCreate.getEmail(), new String(bytes));
+        log.debug("createUser({}) response json \n{}", userUpdate.getEmail(), new String(bytes));
         return getObjectMapper().readValue(bytes, IdResponse.class);
     }
 

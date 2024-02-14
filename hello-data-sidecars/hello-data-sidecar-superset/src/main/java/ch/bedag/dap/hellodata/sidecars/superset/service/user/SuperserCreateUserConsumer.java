@@ -34,6 +34,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -62,6 +63,12 @@ public class SuperserCreateUserConsumer {
             Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail())).findFirst();
             if (supersetUserResult.isPresent()) {
                 log.info("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
+                if (!supersetUserResult.get().isActive()) {
+                    log.info("User {} has been activated", supersetUserCreate.getEmail());
+                    SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
+                    supersetUserActiveUpdate.setActive(true);
+                    supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, supersetUserResult.get().getId());
+                }
                 return null;//NOSONAR
             }
             Optional<Integer> aPublicRole =

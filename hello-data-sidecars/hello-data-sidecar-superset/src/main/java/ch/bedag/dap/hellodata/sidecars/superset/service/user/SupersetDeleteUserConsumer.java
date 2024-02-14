@@ -33,6 +33,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -42,6 +43,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
 
+/**
+ * For the superset it is recommended to disable user rather than deleting it
+ */
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -59,12 +63,14 @@ public class SupersetDeleteUserConsumer {
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse users = supersetClient.users();
             Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserDelete.getEmail())).findFirst();
-            if (!supersetUserResult.isPresent()) {
+            if (supersetUserResult.isEmpty()) {
                 log.info("User {} doesn't exist in instance, omitting deletion", subsystemUserDelete.getEmail());
                 return null;//NOSONAR
             }
             log.info("Going to delete user with email: {}", subsystemUserDelete.getEmail());
-            supersetClient.deleteUser(supersetUserResult.get().getId());
+            SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
+            supersetUserActiveUpdate.setActive(false);
+            supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, supersetUserResult.get().getId());
             userResourceProviderService.publishUsers();
         } catch (URISyntaxException | IOException e) {
             log.error("Could not delete user {}", subsystemUserDelete.getEmail(), e);
