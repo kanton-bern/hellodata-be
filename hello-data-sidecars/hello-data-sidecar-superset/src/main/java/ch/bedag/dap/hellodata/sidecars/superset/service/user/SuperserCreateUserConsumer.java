@@ -35,6 +35,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersRespons
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -50,6 +51,9 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER
 @SuppressWarnings("java:S3516")
 @RequiredArgsConstructor
 public class SuperserCreateUserConsumer {
+
+    private static final String PUBLIC_ROLE_NAME = "Public";
+
     private final UserResourceProviderService userResourceProviderService;
     private final SupersetClientProvider supersetClientProvider;
 
@@ -59,30 +63,51 @@ public class SuperserCreateUserConsumer {
         try {
             log.info("------- Received superset user creation request {}", supersetUserCreate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
+            Optional<Integer> aPublicRoleId = supersetClient.roles()
+                                                            .getResult()
+                                                            .stream()
+                                                            .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME))
+                                                            .map(SupersetRole::getId)
+                                                            .findFirst();
             SupersetUsersResponse users = supersetClient.users();
             Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail())).findFirst();
             if (supersetUserResult.isPresent()) {
-                log.info("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
-                if (!supersetUserResult.get().isActive()) {
-                    log.info("User {} has been activated", supersetUserCreate.getEmail());
-                    SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
-                    supersetUserActiveUpdate.setActive(true);
-                    supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, supersetUserResult.get().getId());
-                }
-                return null;//NOSONAR
+                enableUser(supersetUserCreate, supersetUserResult.get(), supersetClient, aPublicRoleId);
+            } else {
+                createUser(supersetUserCreate, aPublicRoleId, supersetClient);
             }
-            Optional<Integer> aPublicRole =
-                    supersetClient.roles().getResult().stream().filter(supersetRole -> supersetRole.getName().equalsIgnoreCase("Public")).map(SupersetRole::getId).findFirst();
-            aPublicRole.ifPresent(integer -> supersetUserCreate.setRoles(List.of(integer)));
-
-            // logging with keycloak changes the password in the superset DB
-            supersetUserCreate.setPassword(supersetUserCreate.getFirstName());
-
-            supersetClient.createUser(supersetUserCreate);
             userResourceProviderService.publishUsers();
         } catch (URISyntaxException | IOException e) {
-            log.error("Could not create user {}", supersetUserCreate.getEmail(), e);
+            log.error("Could not create/enable user {}", supersetUserCreate.getEmail(), e);
         }
         return null;//NOSONAR
+    }
+
+    private static void createUser(SubsystemUserUpdate supersetUserCreate, Optional<Integer> aPublicRoleId, SupersetClient supersetClient) throws URISyntaxException, IOException {
+        aPublicRoleId.ifPresentOrElse(roleId -> supersetUserCreate.setRoles(List.of(roleId)),
+                                      () -> log.warn("Couldn't find a Public role to set for created/enabled user {}", supersetUserCreate.getEmail()));
+        // logging with keycloak changes the password in the superset DB
+        supersetUserCreate.setPassword(supersetUserCreate.getFirstName());
+        supersetClient.createUser(supersetUserCreate);
+    }
+
+    private static void enableUser(SubsystemUserUpdate supersetUserCreate, SubsystemUser supersetUser, SupersetClient supersetClient, Optional<Integer> aPublicRoleId) throws
+            URISyntaxException, IOException {
+        log.info("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
+        if (!supersetUser.isActive()) {
+            log.info("User {} has been activated", supersetUserCreate.getEmail());
+            SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
+            supersetUserActiveUpdate.setActive(true);
+            int supersetUserId = supersetUser.getId();
+            supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, supersetUserId);
+            if (aPublicRoleId.isPresent()) {
+                int roleId = aPublicRoleId.get();
+                SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
+                supersetUserRolesUpdate.setRoles(List.of(roleId));
+                supersetClient.updateUserRoles(supersetUserRolesUpdate, supersetUserId);
+            } else {
+                log.warn("Couldn't find a Public role to set for created/enabled user {}", supersetUserCreate.getEmail());
+            }
+        }
     }
 }
