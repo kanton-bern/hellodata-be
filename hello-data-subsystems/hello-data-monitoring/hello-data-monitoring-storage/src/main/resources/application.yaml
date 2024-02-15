@@ -36,7 +36,7 @@ hellodata:
       path: /storage/docs/projects/Management_Cockpit_1
       total-available-bytes: 3000000
   datasources:
-    - name: hd_metainfo
+    - name: hd_metainfo # if name not present the db name will be taken from the jdbc-url property
       jdbc-url: jdbc:postgresql://localhost:5432/hd_metainfo
       username: postgres
       password: postgres
