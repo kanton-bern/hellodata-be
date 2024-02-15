@@ -52,7 +52,7 @@ CREATE TEMPORARY TABLE temp_permission_view_role (
 --
 -- Add default permissions for BI_ADMIN_TEMP role in temp_permission_view_role
 --
--- No special permissions
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','Database','BI_ADMIN_TEMP');
 
 --
 -- Add default permissions for BI_EDITOR_TEMP role in temp_permission_view_role
