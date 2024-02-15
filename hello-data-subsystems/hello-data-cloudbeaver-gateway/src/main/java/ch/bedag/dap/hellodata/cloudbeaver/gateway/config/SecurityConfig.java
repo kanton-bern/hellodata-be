@@ -72,7 +72,6 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     public static final String ACCESS_TOKEN_COOKIE_NAME = "auth.access_token";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
@@ -93,29 +92,31 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, CbJwtAuthenticationConverter cbJwtAuthenticationConverter) throws Exception {
-        http.authorizeExchange(exchanges -> exchanges.anyExchange().authenticated());
+        http.authorizeExchange(exchanges -> {
+            exchanges.anyExchange().permitAll();
+        });
         http.addFilterBefore(webFluxLogFilter(), SecurityWebFiltersOrder.FIRST);
         http.addFilterBefore(new TokenAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
         http.addFilterAfter(new AuthWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(cbJwtAuthenticationConverter))));
         configureCsrf(http);
         configureCors(http);
-        http.headers(headerSpec -> headerSpec.frameOptions(frameOptionsSpec -> frameOptionsSpec.disable())); // disabled to allow embedding into "portal"
+        http.headers(headerSpec -> headerSpec.frameOptions(ServerHttpSecurity.HeaderSpec.FrameOptionsSpec::disable)); // disabled to allow embedding into "portal"
         return http.build();
     }
 
     private void configureCsrf(ServerHttpSecurity http) {
-        http.csrf(csrf -> csrf.disable()); //cloudbeaver has it's own
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable); //cloudbeaver has it's own
     }
 
     private void configureCors(ServerHttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-cors")) {
-            http.cors(cors -> cors.disable());
+            http.cors(ServerHttpSecurity.CorsSpec::disable);
         } else {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
             http.cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration corsConfig = new CorsConfiguration();
-                if (allowedOriginList.size() > 0) {
+                if (!allowedOriginList.isEmpty()) {
                     for (String allowedOrigin : allowedOriginList) {
                         corsConfig.addAllowedOrigin(allowedOrigin);
                     }
@@ -157,6 +158,7 @@ public class SecurityConfig {
             // Delegate to the default implementation for loading a user
             return delegate.loadUser(userRequest).flatMap(oidcUser -> {
                 log.debug("Loading user {}", oidcUser == null ? "unknown" : oidcUser.getEmail());
+                assert oidcUser != null;
                 return userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail());
             }).flatMap(dbUser -> {
                 log.debug("--> Loaded roles ... {}", dbUser.getAuthorities());

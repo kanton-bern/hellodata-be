@@ -207,6 +207,7 @@ services:
       - HELLO_DATA_AUTH_SERVER_REALM=hellodata
     ports:
       - "8087:8087"
+      - "8082:8082"
     depends_on:
       - postgres
       - keycloak
@@ -295,6 +296,7 @@ services:
     command: webserver
     ports:
       - "${AIRFLOW_WEBSERVER_HOST_PORT:-8080}:8080"
+      - "28081:28081"
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://${AIRFLOW_WEBSERVER_HOST_PORT:-8080}/health" ]
       interval: 10s

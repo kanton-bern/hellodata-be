@@ -54,13 +54,16 @@ FEATURE_FLAGS = {
     'EMBEDDED_SUPERSET': True
 }
 
-import jwt
 import logging
 import os
 import re
-import requests
 import string
 from base64 import b64decode
+from random import SystemRandom
+from typing import Optional
+
+import jwt
+import requests
 from cryptography.hazmat.primitives import serialization
 from flask import flash, redirect, request, session, url_for
 from flask_appbuilder._compat import as_unicode
@@ -69,9 +72,9 @@ from flask_appbuilder.security.views import AuthView
 from flask_appbuilder.utils.base import get_safe_redirect
 from flask_appbuilder.views import expose
 from flask_login import login_user, logout_user
-from random import SystemRandom
+from pyctuator.auth import BasicAuth
+from pyctuator.pyctuator import Pyctuator
 from superset.security import SupersetSecurityManager
-from typing import Optional
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 log = logging.getLogger(__name__)
@@ -85,6 +88,18 @@ req = requests.get(OIDC_ISSUER)
 key_der_base64 = req.json()["public_key"]
 key_der = b64decode(key_der_base64.encode())
 public_key = serialization.load_der_public_key(key_der)
+
+
+# pyctuator
+def FLASK_APP_MUTATOR(app):
+    Pyctuator(
+        app,
+        app_name="Superset App Default Data Domain",
+        app_url="http://superset-app-default-data-domain:8088",
+        pyctuator_endpoint_url="http://superset-app-default-data-domain:8088/pyctuator",
+        registration_url="http://monitoring-sba:8080/instances",
+        registration_auth=BasicAuth("user", "password")
+    )
 
 
 def generate_random_string(length=30):
