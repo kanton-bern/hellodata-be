@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ch.bedag.dap.hellodata</groupId>
+        <artifactId>hello-data-deployment</artifactId>
+        <version>develop-SNAPSHOT</version>
+    </parent>
 
-    <groupId>ch.bedag.dap.hellodata</groupId>
-    <artifactId>hello-data</artifactId>
-    <version>develop-SNAPSHOT</version>
-    <packaging>pom</packaging>
-
-    <name>HelloDATA-BE</name>
-
-    <modules>
-        <module>hello-data-commons</module>
-        <module>hello-data-portal</module>
-        <module>hello-data-sidecars</module>
-        <module>hello-data-subsystems</module>
-        <module>hello-data-deployment</module>
-    </modules>
+    <artifactId>hello-data-dc-postgres</artifactId>
 
     <distributionManagement>
         <repository>
@@ -27,20 +20,14 @@
     </distributionManagement>
 
     <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spring-boot-admin.version>3.0.0-M4</spring-boot-admin.version>
-        <spring-cloud.version>2023.0.0</spring-cloud.version>
-        <testcontainers.version>1.17.6</testcontainers.version>
-        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
-        <push-docker-image-phase>post-integration-test</push-docker-image-phase>
-        <docker.namespace>bedag</docker.namespace>
-        <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
         <build.number>local-build</build.number>
+        <docker.namespace>bedag</docker.namespace>
+        <push-docker-image-phase>post-integration-test</push-docker-image-phase>
+        <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
     </properties>
 
     <build>
@@ -58,7 +45,7 @@
                     <executions>
                         <execution>
                             <id>docker-tag-name</id>
-                            <phase>validate</phase>
+                            <phase>post-integration-test</phase>
                             <goals>
                                 <goal>regex-property</goal>
                             </goals>
@@ -74,8 +61,8 @@
                         </execution>
                         <execution>
                             <!-- use standard docker-tag latest for development-SNAPSHOT -->
-                            <id>use-latest</id>
-                            <phase>validate</phase>
+                            <id>use-latest-on-development</id>
+                            <phase>post-integration-test</phase>
                             <goals>
                                 <goal>regex-property</goal>
                             </goals>
@@ -114,11 +101,6 @@
                         <logStdout>true</logStdout>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>tidy-maven-plugin</artifactId>
-                    <version>1.2.0</version>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -135,50 +117,61 @@
                 </executions>
                 <configuration>
                     <skipPoms>false</skipPoms>
-                    <runOnlyOnce>false</runOnlyOnce>
+                    <runOnlyOnce>true</runOnlyOnce>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>${maven-deploy-plugin.version}</version>
-                <configuration>
-                    <deployAtEnd>false</deployAtEnd>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>tidy-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>build-docker-image</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>push-docker-image</id>
+                                <phase>${push-docker-image-phase}</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
+                            <imagePullPolicy>Always</imagePullPolicy>
+                            <images>
+                                <image>
+                                    <name>${docker.namespace}/${project.artifactId}:${docker.tag.name}</name>
+                                    <build>
+                                        <contextDir>${project.basedir}/src/main/docker</contextDir>
+                                        <!-- extract the assembly into the docker context directory-->
+                                        <assembly>
+                                            <name>${project.artifactId}</name>
+                                        </assembly>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

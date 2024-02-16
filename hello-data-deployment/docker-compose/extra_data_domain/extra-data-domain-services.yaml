@@ -26,7 +26,7 @@
 #
 
 x-superset-image:
-  &superset-image bedag/hello-data-superset
+  &superset-image bedag/hello-data-dc-superset
 x-superset-depends-on:
   &superset-depends-on
   postgres:
@@ -35,12 +35,6 @@ x-superset-depends-on:
     condition: service_healthy
   keycloak:
     condition: service_healthy
-
-x-superset-volumes: &superset-volumes
-  # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
-  - ./extra_data_domain/superset/docker:/app/docker
-# uncomment to use a local folder as superset_home, something like:
-#  - ./extra_data_domain/superset_home:/app/superset_home
 
 version: "3.7"
 
@@ -58,7 +52,6 @@ services:
       <<: *superset-depends-on
       superset-init-extra-data-domain:
         condition: service_completed_successfully
-    volumes: *superset-volumes
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -70,7 +63,6 @@ services:
     env_file: ./extra_data_domain/.env
     depends_on: *superset-depends-on
     user: "root"
-    volumes: *superset-volumes
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -85,7 +77,6 @@ services:
       superset-init-extra-data-domain:
         condition: service_completed_successfully
     user: "root"
-    volumes: *superset-volumes
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -100,7 +91,6 @@ services:
       superset-init-extra-data-domain:
         condition: service_completed_successfully
     user: "root"
-    volumes: *superset-volumes
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
