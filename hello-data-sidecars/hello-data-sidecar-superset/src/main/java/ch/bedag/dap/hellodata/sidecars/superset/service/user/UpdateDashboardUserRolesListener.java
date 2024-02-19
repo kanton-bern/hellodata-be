@@ -99,7 +99,7 @@ public class UpdateDashboardUserRolesListener {
                 RoleUtil.leaveOnlyBiViewerRoleIfNoneAttached(allRoles, supersetUserRolesUpdate);
 
                 log.debug("Roles that user should now have: {}", supersetUserRolesUpdate.getRoles());
-                SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUser(supersetUserRolesUpdate, user.getId());
+                SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, user.getId());
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 natsConnection.publish(msg.getReplyTo(), objectMapper.writeValueAsBytes(updatedUser));
                 msg.ack();
