@@ -53,6 +53,11 @@ x-airflow-common:
     AIRFLOW__CORE__LOAD_EXAMPLES: "${AIRFLOW__CORE__LOAD_EXAMPLES:-true}"
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    DB_HOST: postgres
+    DB_NAME: airflow
+    DB_PORT: 5432
+    DB_USER: postgres
+    DB_PASS: postgres
 
   volumes:
     - shared-data:/opt/airflow/data
