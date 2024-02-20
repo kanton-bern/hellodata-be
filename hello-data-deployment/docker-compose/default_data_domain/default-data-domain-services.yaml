@@ -102,8 +102,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - NATS_SPRING_SERVER=nats://nats:4222
-      - SPRING_DATA_REDIS_HOST=redis
       - HELLO_DATA_INSTANCE_URL=http://localhost:38088/
       - HELLO_DATA_INSTANCE_NAME=Superset Default Data Domain
       - HELLO_DATA_SUPERSET_HOST=superset-app-default-data-domain
