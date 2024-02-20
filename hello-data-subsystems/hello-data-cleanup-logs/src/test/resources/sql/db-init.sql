@@ -25,15 +25,6 @@
 -- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 
-CREATE TABLE airflow.log (
-                            id serial4 NOT NULL,
-                            dttm timestamptz NULL,
-                            dag_id varchar(250) NULL,
-                            task_id varchar(250) NULL,
-                            map_index int4 NULL,
-                            "event" varchar(30) NULL,
-                            execution_date timestamptz NULL,
-                            "owner" varchar(500) NULL,
-                            extra text NULL,
-                            CONSTRAINT log_pkey PRIMARY KEY (id)
-);
+CREATE schema airflow;
+CREATE schema superset;
+CREATE schema cloudbeaver;
