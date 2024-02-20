@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 public class SupersetClientProvider {
 
     /**
-     * SupersetClient is in a prototype scope, not singleton
+     * SupersetClient is in a prototype scope, not a singleton
      *
      * @return client
      */

@@ -64,7 +64,7 @@ public class UserResourceProviderService {
         SupersetUsersResponse response = supersetClientProvider.getSupersetClientInstance().users();
 
         PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
-        List<SubsystemUser> subsystemUsers = CollectionUtils.emptyIfNull(response.getResult()).stream().toList();
+        List<SubsystemUser> subsystemUsers = CollectionUtils.emptyIfNull(response.getResult()).stream().filter(SubsystemUser::isActive).toList();
         if (podUtils != null) {
             V1Pod current = podUtils.currentPod().get();
             UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);

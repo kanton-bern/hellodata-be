@@ -104,7 +104,7 @@ public class SupersetUpdateUserContextRoleConsumer {
                 }
                 default -> log.debug("Irrelevant role name? {}", contextRole.getRoleName());
             }
-            SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUser(supersetUserRolesUpdate, subsystemUser.getId());
+            SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, subsystemUser.getId());
             log.info("-=-=-=-= UPDATED USER ROLES: user: {}, role ids: {}", userContextRoleUpdate.getEmail(), updatedUser.getResult().getRoles());
             userResourceProviderService.publishUsers();
         }
