@@ -277,7 +277,6 @@ services:
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
-      - NATS_SPRING_SERVER=nats://nats:4222
       - HELLO_DATA_INSTANCE_URL=http://localhost:8086/dbt-docs/
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
     links:
@@ -481,8 +480,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - NATS_SPRING_SERVER=nats://nats:4222
-      - SPRING_DATA_REDIS_HOST=redis
       - HELLO_DATA_INSTANCE_URL=http://localhost:28080/
       - HELLO_DATA_AIRFLOW_HOST=airflow-webserver
       - HELLO_DATA_AIRFLOW_PORT=8080
@@ -499,6 +496,20 @@ services:
       - redis
       - nats
       - airflow-webserver
+
+  hello-data-monitoring-storage:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-monitoring-storage
+    restart: always
+    env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dc
+    volumes:
+      - shared-data:/storage
+    depends_on:
+      - postgres
 
   hello-data-portal-ui:
     build:
@@ -532,8 +543,6 @@ services:
       - SPRING_MAIL_HOST=smtp4dev
       - SPRING_MAIL_PORT=25
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
-      - NATS_SPRING_SERVER=nats://nats:4222
-      - SPRING_DATA_REDIS_HOST=redis
       - HELLO_DATA_AUTH_SERVER_REDIRECT_URL=http://localhost:8080
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
@@ -575,8 +584,6 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
-      - NATS_SPRING_SERVER=nats://nats:4222
-      - SPRING_DATA_REDIS_HOST=redis
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
     links:
       - nats
