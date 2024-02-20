@@ -53,7 +53,7 @@ public class DatabaseSizeQueryService {
             DataSource dataSource = dynamicDataSource.getDataSource(key);
             try (Connection connection = dataSource.getConnection()) {
                 Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery("SELECT pg_database_size('" + key + "')");
+                ResultSet resultSet = statement.executeQuery("SELECT pg_database_size('" + connection.getCatalog() + "')");
                 if (resultSet.next()) {
                     String used = resultSet.getString(1);
                     log.info("Database: " + key + ", Used: " + used);
