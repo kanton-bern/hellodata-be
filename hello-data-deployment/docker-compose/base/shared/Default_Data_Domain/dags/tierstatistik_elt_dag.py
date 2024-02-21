@@ -94,7 +94,7 @@ def hdShowCase():
         def df_breed_melt(df_data):
             df_data_new = df_data.melt(
                 id_vars=["Year","Month"],
-                var_name=["breed"],
+                var_name='breed',
                 value_name="n_animals"
             )
             return df_data_new
