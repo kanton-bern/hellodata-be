@@ -25,9 +25,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM apache/airflow:slim-2.6.1-python3.10
+FROM apache/airflow:slim-2.8.1-python3.10
 
-ENV AIRFLOW_VERSION=2.6.1
+ENV AIRFLOW_VERSION=2.8.1
 ENV PYTHON_VERSION=3.10
 
 ## Change container image to root user to allow for global
