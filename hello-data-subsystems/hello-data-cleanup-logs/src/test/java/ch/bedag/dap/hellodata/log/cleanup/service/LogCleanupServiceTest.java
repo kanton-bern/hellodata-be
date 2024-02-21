@@ -38,6 +38,8 @@ import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthAttemp
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthTokenRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverSessionRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.superset.SupersetLogRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +52,6 @@ import org.testcontainers.ext.ScriptUtils;
 import org.testcontainers.jdbc.JdbcDatabaseDelegate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -85,43 +83,40 @@ class LogCleanupServiceTest {
     private LogCleanupService logCleanupService;
 
     @Container
-    private static final PostgreSQLContainer<?> airflowSQLContainer = new PostgreSQLContainer<>("postgres:15.4")
-        .withDatabaseName("airflow").withUsername("airflow").withPassword("airflow").withExposedPorts(5432);
-
-    @Container
-    private static final PostgreSQLContainer<?> supersetSQLContainer = new PostgreSQLContainer<>("postgres:15.4")
-        .withDatabaseName("superset").withUsername("superset").withPassword("superset").withExposedPorts(5432);
-
-    @Container
-    private static final PostgreSQLContainer<?> cloudbeaverSQLContainer = new PostgreSQLContainer<>("postgres:15.4")
-        .withDatabaseName("cloudbeaver").withUsername("cloudbeaver").withPassword("cloudbeaver").withExposedPorts(5432);
+    private static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:15.4").withDatabaseName("testdatabase")
+                                                                                                              .withUsername("test")
+                                                                                                              .withPassword("test")
+                                                                                                              .withExposedPorts(5432)
+                                                                                                              .withInitScript("sql/db-init.sql");
 
     @DynamicPropertySource
     static void databaseProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.jdbc-url",
-            () -> String.format("jdbc:postgresql://%s:%d/airflow", airflowSQLContainer.getHost(), airflowSQLContainer.getFirstMappedPort()));
-        registry.add("spring.datasource.username", airflowSQLContainer::getUsername);
-        registry.add("spring.datasource.password", airflowSQLContainer::getPassword);
+                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=airflow", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+        registry.add("jakarta.persistence.jdbc.url",
+                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=airflow", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
 
         registry.add("spring.superset.jdbc-url",
-            () -> String.format("jdbc:postgresql://%s:%d/superset", supersetSQLContainer.getHost(), supersetSQLContainer.getFirstMappedPort()));
-        registry.add("spring.superset.username", supersetSQLContainer::getUsername);
-        registry.add("spring.superset.password", supersetSQLContainer::getPassword);
+                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+        registry.add("spring.superset.username", postgresContainer::getUsername);
+        registry.add("spring.superset.password", postgresContainer::getPassword);
 
         registry.add("spring.cloudbeaver.jdbc-url",
-            () -> String.format("jdbc:postgresql://%s:%d/cloudbeaver", cloudbeaverSQLContainer.getHost(), cloudbeaverSQLContainer.getFirstMappedPort()));
-        registry.add("spring.cloudbeaver.username", cloudbeaverSQLContainer::getUsername);
-        registry.add("spring.cloudbeaver.password", cloudbeaverSQLContainer::getPassword);
+                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=cloudbeaver", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+        registry.add("spring.cloudbeaver.username", postgresContainer::getUsername);
+        registry.add("spring.cloudbeaver.password", postgresContainer::getPassword);
     }
 
     @BeforeEach
     public void setup() {
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(airflowSQLContainer, ""), "sql/airflow-init.sql");
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(airflowSQLContainer, ""), "sql/airflow-test-data.sql");
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(supersetSQLContainer, ""), "sql/superset-init.sql");
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(supersetSQLContainer, ""), "sql/superset-test-data.sql");
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(cloudbeaverSQLContainer, ""), "sql/cloudbeaver-init.sql");
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(cloudbeaverSQLContainer, ""), "sql/cloudbeaver-test-data.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/airflow-init.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/airflow-test-data.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-init.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-test-data.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/cloudbeaver-init.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/cloudbeaver-test-data.sql");
     }
 
     @Test
