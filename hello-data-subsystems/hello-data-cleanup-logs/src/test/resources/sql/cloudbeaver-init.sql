@@ -25,7 +25,7 @@
 -- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 
-CREATE TABLE public.cb_auth_token (
+CREATE TABLE cloudbeaver.cb_auth_token (
                                       token_id varchar(128) NOT NULL,
                                       refresh_token_id varchar(128) NULL,
                                       session_id varchar(64) NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE public.cb_auth_token (
 );
 
 
-CREATE TABLE public.cb_auth_attempt (
+CREATE TABLE cloudbeaver.cb_auth_attempt (
                                         auth_id varchar(128) NOT NULL,
                                         auth_status varchar(32) NOT NULL,
                                         auth_error text NULL,
@@ -50,7 +50,7 @@ CREATE TABLE public.cb_auth_attempt (
                                         CONSTRAINT cb_auth_attempt_pkey PRIMARY KEY (auth_id)
 );
 
-CREATE TABLE public.cb_auth_attempt_info (
+CREATE TABLE cloudbeaver.cb_auth_attempt_info (
                                              auth_id varchar(128) NOT NULL,
                                              auth_provider_id varchar(128) NOT NULL,
                                              auth_provider_configuration_id varchar(128) NULL,
@@ -60,7 +60,7 @@ CREATE TABLE public.cb_auth_attempt_info (
 );
 
 
-CREATE TABLE public.cb_session (
+CREATE TABLE cloudbeaver.cb_session (
                                    session_id varchar(64) NOT NULL,
                                    app_session_id varchar(64) NULL,
                                    user_id varchar(128) NULL,
