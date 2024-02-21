@@ -23,9 +23,9 @@ jobs:
       contents: read
       packages: write
 
-    #env:
-    #  GITHUB_TOKEN: ${{ secrets.CUST_GITHUB_TOKEN }}
-    #  GIT_AUTH_TOKEN: ${{ secrets.CUST_GITHUB_TOKEN }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.CUST_GITHUB_TOKEN }}
+      GIT_AUTH_TOKEN: ${{ secrets.CUST_GITHUB_TOKEN }}
 
     steps:
     - name: Checkout repository
