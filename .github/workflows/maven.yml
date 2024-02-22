@@ -60,7 +60,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish Packages and Docker Images
-      run: mvn --batch-mode deploy -Pdocker -DskipTests
+      run: mvn --batch-mode deploy -Pdocker -DskipTests -Dorg.slf4j.simpleLogger.log.me.qoomon.maven.gitversioning=debug
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
