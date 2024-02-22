@@ -44,9 +44,7 @@ jobs:
         cache: maven
 
     - name: Build with Maven
-      run: ./mvnw install -P docker
-
-
+      run: mvn -B package --file pom.xml
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
@@ -62,7 +60,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish Packages and Docker Images
-      run: ./mvnw install -P docker -DskipTests
+      run: mvn --batch-mode deploy -Pdocker -DskipTests
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     #- name: Update dependency graph
