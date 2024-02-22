@@ -16,6 +16,11 @@
       <pattern>(feature|release|hotfix|bugfix|support)/(.+)</pattern>
       <version>${ref.2}-SNAPSHOT</version>
     </ref>
+    <!-- For merge requests -->
+    <ref type="merge_request">
+      <pattern>refs/pull/(\\d+)/merge</pattern>
+      <version>${ref.1}-MERGE</version>
+    </ref>
   </refs>
   <!-- If nothing matches, the version is left as-is in the pom.xml -->
   <rev>
