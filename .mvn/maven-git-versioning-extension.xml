@@ -17,7 +17,7 @@
       <version>${ref.2}-SNAPSHOT</version>
     </ref>
     <!-- For merge requests -->
-    <ref type="merge_request">
+    <ref type="commit">
       <pattern>refs/pull/(\\d+)/merge</pattern>
       <version>${ref.1}-MERGE</version>
     </ref>
