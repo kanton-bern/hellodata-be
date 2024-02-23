@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data-deployment</artifactId>
         <version>develop-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hello-data-dc-airflow</artifactId>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub kanton-bern Maven Packages</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </repository>
-    </distributionManagement>
+    <artifactId>hello-data-showcase</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -173,4 +165,5 @@
             </build>
         </profile>
     </profiles>
+
 </project>

@@ -39,5 +39,5 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./base/shared
+      device: ./base/shared1
       o: bind

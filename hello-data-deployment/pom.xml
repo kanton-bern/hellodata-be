@@ -16,6 +16,7 @@
         <module>hello-data-dc-postgres</module>
         <module>hello-data-dc-airflow</module>
         <module>hello-data-dc-superset</module>
+        <module>hello-data-showcase</module>
     </modules>
 
     <distributionManagement>

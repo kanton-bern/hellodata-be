@@ -25,25 +25,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hello-data-superset
-USER root
-COPY superset/ /app/docker/
-RUN find /app/docker/ -type f -iname "*.sh" -exec chmod +x {} \;
-RUN find /app/docker/pythonpath_dev -type f -iname "*.py" -exec chmod +x {} \;
+FROM alpine:3.14
+COPY showcase/ /showcase-src
 
-RUN chown -R superset /app/docker
+# Set the working directory
+WORKDIR /storage
 
-RUN ls -la /app/docker
-RUN ls -la /app/docker/pythonpath_dev
+# Create an entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-RUN apt-get update && \
-    # deps for superset
-    apt-get install -y dos2unix
-
-RUN find /app/docker/ -type f -iname "*.sh" -print0 | xargs -0 dos2unix
-RUN find /app/docker/ -type f -iname "*.py" -print0 | xargs -0 dos2unix
-
-USER superset
-
-RUN ls -la /app/docker
-RUN ls -la /app/docker/pythonpath_dev
+# Run the entrypoint script to keep the container running
+ENTRYPOINT ["/entrypoint.sh"]

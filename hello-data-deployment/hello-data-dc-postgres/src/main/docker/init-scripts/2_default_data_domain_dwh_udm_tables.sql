@@ -28,7 +28,8 @@
 -- Default Data Domain dashboard dwh udm schema
 \c hellodata_product_development_default_data_domain_dwh;
 CREATE SCHEMA IF NOT EXISTS udm;
-CREATE SCHEMA IF NOT EXISTS tierstatistik_lzn;
+CREATE SCHEMA IF NOT EXISTS lzn;
+CREATE SCHEMA IF NOT EXISTS lzn;
 
 create table udm.fact_commune_animals_wide
 (
