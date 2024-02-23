@@ -1,0 +1,3368 @@
+year,month,breed,n_animals
+2016,1,American Bull Terrier,10.0
+2016,2,American Bull Terrier,10.0
+2016,3,American Bull Terrier,11.0
+2016,4,American Bull Terrier,11.0
+2016,5,American Bull Terrier,11.0
+2016,6,American Bull Terrier,12.0
+2016,7,American Bull Terrier,13.0
+2016,8,American Bull Terrier,13.0
+2016,9,American Bull Terrier,13.0
+2016,10,American Bull Terrier,13.0
+2016,11,American Bull Terrier,13.0
+2016,12,American Bull Terrier,14.0
+2017,1,American Bull Terrier,12.0
+2017,2,American Bull Terrier,12.0
+2017,3,American Bull Terrier,12.0
+2017,4,American Bull Terrier,12.0
+2017,5,American Bull Terrier,13.0
+2017,6,American Bull Terrier,14.0
+2017,7,American Bull Terrier,13.0
+2017,8,American Bull Terrier,17.0
+2017,9,American Bull Terrier,18.0
+2017,10,American Bull Terrier,19.0
+2017,11,American Bull Terrier,19.0
+2017,12,American Bull Terrier,25.0
+2018,1,American Bull Terrier,25.0
+2018,2,American Bull Terrier,25.0
+2018,3,American Bull Terrier,25.0
+2018,4,American Bull Terrier,26.0
+2018,5,American Bull Terrier,26.0
+2018,6,American Bull Terrier,26.0
+2018,7,American Bull Terrier,25.0
+2018,8,American Bull Terrier,25.0
+2018,9,American Bull Terrier,24.0
+2018,10,American Bull Terrier,24.0
+2018,11,American Bull Terrier,25.0
+2018,12,American Bull Terrier,24.0
+2019,1,American Bull Terrier,24.0
+2019,2,American Bull Terrier,24.0
+2019,3,American Bull Terrier,23.0
+2019,4,American Bull Terrier,23.0
+2019,5,American Bull Terrier,23.0
+2019,6,American Bull Terrier,23.0
+2019,7,American Bull Terrier,23.0
+2019,8,American Bull Terrier,23.0
+2019,9,American Bull Terrier,24.0
+2019,10,American Bull Terrier,26.0
+2019,11,American Bull Terrier,26.0
+2019,12,American Bull Terrier,26.0
+2020,1,American Bull Terrier,26.0
+2020,2,American Bull Terrier,25.0
+2020,3,American Bull Terrier,25.0
+2020,4,American Bull Terrier,25.0
+2020,5,American Bull Terrier,25.0
+2020,6,American Bull Terrier,24.0
+2020,7,American Bull Terrier,24.0
+2020,8,American Bull Terrier,24.0
+2020,9,American Bull Terrier,24.0
+2020,10,American Bull Terrier,24.0
+2020,11,American Bull Terrier,24.0
+2020,12,American Bull Terrier,24.0
+2021,1,American Bull Terrier,25.0
+2021,2,American Bull Terrier,26.0
+2021,3,American Bull Terrier,26.0
+2021,4,American Bull Terrier,26.0
+2021,5,American Bull Terrier,26.0
+2021,6,American Bull Terrier,26.0
+2021,7,American Bull Terrier,26.0
+2021,8,American Bull Terrier,26.0
+2021,9,American Bull Terrier,26.0
+2021,10,American Bull Terrier,26.0
+2021,11,American Bull Terrier,26.0
+2021,12,American Bull Terrier,26.0
+2022,1,American Bull Terrier,26.0
+2022,2,American Bull Terrier,25.0
+2022,3,American Bull Terrier,25.0
+2022,4,American Bull Terrier,25.0
+2022,5,American Bull Terrier,25.0
+2022,6,American Bull Terrier,25.0
+2022,7,American Bull Terrier,25.0
+2022,8,American Bull Terrier,25.0
+2022,9,American Bull Terrier,25.0
+2022,10,American Bull Terrier,25.0
+2022,11,American Bull Terrier,25.0
+2022,12,American Bull Terrier,25.0
+2023,1,American Bull Terrier,25.0
+2023,2,American Bull Terrier,25.0
+2023,3,American Bull Terrier,25.0
+2023,4,American Bull Terrier,25.0
+2023,5,American Bull Terrier,25.0
+2023,6,American Bull Terrier,25.0
+2023,7,American Bull Terrier,25.0
+2016,1,American Bulldog,427.0
+2016,2,American Bulldog,424.0
+2016,3,American Bulldog,426.0
+2016,4,American Bulldog,428.0
+2016,5,American Bulldog,426.0
+2016,6,American Bulldog,430.0
+2016,7,American Bulldog,438.0
+2016,8,American Bulldog,441.0
+2016,9,American Bulldog,443.0
+2016,10,American Bulldog,446.0
+2016,11,American Bulldog,445.0
+2016,12,American Bulldog,446.0
+2017,1,American Bulldog,445.0
+2017,2,American Bulldog,446.0
+2017,3,American Bulldog,457.0
+2017,4,American Bulldog,457.0
+2017,5,American Bulldog,466.0
+2017,6,American Bulldog,469.0
+2017,7,American Bulldog,470.0
+2017,8,American Bulldog,490.0
+2017,9,American Bulldog,495.0
+2017,10,American Bulldog,500.0
+2017,11,American Bulldog,504.0
+2017,12,American Bulldog,515.0
+2018,1,American Bulldog,514.0
+2018,2,American Bulldog,518.0
+2018,3,American Bulldog,516.0
+2018,4,American Bulldog,514.0
+2018,5,American Bulldog,519.0
+2018,6,American Bulldog,532.0
+2018,7,American Bulldog,532.0
+2018,8,American Bulldog,531.0
+2018,9,American Bulldog,538.0
+2018,10,American Bulldog,542.0
+2018,11,American Bulldog,544.0
+2018,12,American Bulldog,548.0
+2019,1,American Bulldog,551.0
+2019,2,American Bulldog,554.0
+2019,3,American Bulldog,551.0
+2019,4,American Bulldog,559.0
+2019,5,American Bulldog,558.0
+2019,6,American Bulldog,560.0
+2019,7,American Bulldog,558.0
+2019,8,American Bulldog,560.0
+2019,9,American Bulldog,556.0
+2019,10,American Bulldog,555.0
+2019,11,American Bulldog,555.0
+2019,12,American Bulldog,559.0
+2020,1,American Bulldog,553.0
+2020,2,American Bulldog,554.0
+2020,3,American Bulldog,551.0
+2020,4,American Bulldog,552.0
+2020,5,American Bulldog,550.0
+2020,6,American Bulldog,548.0
+2020,7,American Bulldog,544.0
+2020,8,American Bulldog,539.0
+2020,9,American Bulldog,534.0
+2020,10,American Bulldog,530.0
+2020,11,American Bulldog,528.0
+2020,12,American Bulldog,521.0
+2021,1,American Bulldog,523.0
+2021,2,American Bulldog,524.0
+2021,3,American Bulldog,524.0
+2021,4,American Bulldog,521.0
+2021,5,American Bulldog,530.0
+2021,6,American Bulldog,527.0
+2021,7,American Bulldog,532.0
+2021,8,American Bulldog,527.0
+2021,9,American Bulldog,526.0
+2021,10,American Bulldog,524.0
+2021,11,American Bulldog,521.0
+2021,12,American Bulldog,516.0
+2022,1,American Bulldog,515.0
+2022,2,American Bulldog,510.0
+2022,3,American Bulldog,500.0
+2022,4,American Bulldog,498.0
+2022,5,American Bulldog,494.0
+2022,6,American Bulldog,492.0
+2022,7,American Bulldog,491.0
+2022,8,American Bulldog,489.0
+2022,9,American Bulldog,488.0
+2022,10,American Bulldog,483.0
+2022,11,American Bulldog,481.0
+2022,12,American Bulldog,485.0
+2023,1,American Bulldog,481.0
+2023,2,American Bulldog,477.0
+2023,3,American Bulldog,473.0
+2023,4,American Bulldog,471.0
+2023,5,American Bulldog,466.0
+2023,6,American Bulldog,463.0
+2023,7,American Bulldog,459.0
+2016,1,American Staffordshire Terrier,1853.0
+2016,2,American Staffordshire Terrier,1856.0
+2016,3,American Staffordshire Terrier,1878.0
+2016,4,American Staffordshire Terrier,1881.0
+2016,5,American Staffordshire Terrier,1872.0
+2016,6,American Staffordshire Terrier,1872.0
+2016,7,American Staffordshire Terrier,1887.0
+2016,8,American Staffordshire Terrier,1887.0
+2016,9,American Staffordshire Terrier,1892.0
+2016,10,American Staffordshire Terrier,1905.0
+2016,11,American Staffordshire Terrier,1912.0
+2016,12,American Staffordshire Terrier,1919.0
+2017,1,American Staffordshire Terrier,1929.0
+2017,2,American Staffordshire Terrier,1938.0
+2017,3,American Staffordshire Terrier,1956.0
+2017,4,American Staffordshire Terrier,1957.0
+2017,5,American Staffordshire Terrier,1971.0
+2017,6,American Staffordshire Terrier,1977.0
+2017,7,American Staffordshire Terrier,1979.0
+2017,8,American Staffordshire Terrier,1991.0
+2017,9,American Staffordshire Terrier,2002.0
+2017,10,American Staffordshire Terrier,2012.0
+2017,11,American Staffordshire Terrier,2021.0
+2017,12,American Staffordshire Terrier,2030.0
+2018,1,American Staffordshire Terrier,2035.0
+2018,2,American Staffordshire Terrier,2048.0
+2018,3,American Staffordshire Terrier,2062.0
+2018,4,American Staffordshire Terrier,2075.0
+2018,5,American Staffordshire Terrier,2091.0
+2018,6,American Staffordshire Terrier,2103.0
+2018,7,American Staffordshire Terrier,2112.0
+2018,8,American Staffordshire Terrier,2110.0
+2018,9,American Staffordshire Terrier,2116.0
+2018,10,American Staffordshire Terrier,2121.0
+2018,11,American Staffordshire Terrier,2112.0
+2018,12,American Staffordshire Terrier,2125.0
+2019,1,American Staffordshire Terrier,2127.0
+2019,2,American Staffordshire Terrier,2129.0
+2019,3,American Staffordshire Terrier,2136.0
+2019,4,American Staffordshire Terrier,2150.0
+2019,5,American Staffordshire Terrier,2179.0
+2019,6,American Staffordshire Terrier,2186.0
+2019,7,American Staffordshire Terrier,2191.0
+2019,8,American Staffordshire Terrier,2207.0
+2019,9,American Staffordshire Terrier,2239.0
+2019,10,American Staffordshire Terrier,2256.0
+2019,11,American Staffordshire Terrier,2263.0
+2019,12,American Staffordshire Terrier,2264.0
+2020,1,American Staffordshire Terrier,2277.0
+2020,2,American Staffordshire Terrier,2283.0
+2020,3,American Staffordshire Terrier,2295.0
+2020,4,American Staffordshire Terrier,2307.0
+2020,5,American Staffordshire Terrier,2314.0
+2020,6,American Staffordshire Terrier,2330.0
+2020,7,American Staffordshire Terrier,2358.0
+2020,8,American Staffordshire Terrier,2389.0
+2020,9,American Staffordshire Terrier,2408.0
+2020,10,American Staffordshire Terrier,2455.0
+2020,11,American Staffordshire Terrier,2474.0
+2020,12,American Staffordshire Terrier,2500.0
+2021,1,American Staffordshire Terrier,2518.0
+2021,2,American Staffordshire Terrier,2534.0
+2021,3,American Staffordshire Terrier,2561.0
+2021,4,American Staffordshire Terrier,2570.0
+2021,5,American Staffordshire Terrier,2582.0
+2021,6,American Staffordshire Terrier,2602.0
+2021,7,American Staffordshire Terrier,2629.0
+2021,8,American Staffordshire Terrier,2652.0
+2021,9,American Staffordshire Terrier,2686.0
+2021,10,American Staffordshire Terrier,2714.0
+2021,11,American Staffordshire Terrier,2723.0
+2021,12,American Staffordshire Terrier,2726.0
+2022,1,American Staffordshire Terrier,2733.0
+2022,2,American Staffordshire Terrier,2767.0
+2022,3,American Staffordshire Terrier,2780.0
+2022,4,American Staffordshire Terrier,2800.0
+2022,5,American Staffordshire Terrier,2802.0
+2022,6,American Staffordshire Terrier,2812.0
+2022,7,American Staffordshire Terrier,2821.0
+2022,8,American Staffordshire Terrier,2823.0
+2022,9,American Staffordshire Terrier,2829.0
+2022,10,American Staffordshire Terrier,2838.0
+2022,11,American Staffordshire Terrier,2878.0
+2022,12,American Staffordshire Terrier,2870.0
+2023,1,American Staffordshire Terrier,2874.0
+2023,2,American Staffordshire Terrier,2881.0
+2023,3,American Staffordshire Terrier,2876.0
+2023,4,American Staffordshire Terrier,2878.0
+2023,5,American Staffordshire Terrier,2886.0
+2023,6,American Staffordshire Terrier,2890.0
+2023,7,American Staffordshire Terrier,2887.0
+2016,1,Berger de Beauce,1237.0
+2016,2,Berger de Beauce,1234.0
+2016,3,Berger de Beauce,1232.0
+2016,4,Berger de Beauce,1238.0
+2016,5,Berger de Beauce,1243.0
+2016,6,Berger de Beauce,1251.0
+2016,7,Berger de Beauce,1256.0
+2016,8,Berger de Beauce,1253.0
+2016,9,Berger de Beauce,1260.0
+2016,10,Berger de Beauce,1267.0
+2016,11,Berger de Beauce,1259.0
+2016,12,Berger de Beauce,1265.0
+2017,1,Berger de Beauce,1256.0
+2017,2,Berger de Beauce,1251.0
+2017,3,Berger de Beauce,1253.0
+2017,4,Berger de Beauce,1254.0
+2017,5,Berger de Beauce,1259.0
+2017,6,Berger de Beauce,1269.0
+2017,7,Berger de Beauce,1266.0
+2017,8,Berger de Beauce,1260.0
+2017,9,Berger de Beauce,1268.0
+2017,10,Berger de Beauce,1261.0
+2017,11,Berger de Beauce,1253.0
+2017,12,Berger de Beauce,1242.0
+2018,1,Berger de Beauce,1239.0
+2018,2,Berger de Beauce,1236.0
+2018,3,Berger de Beauce,1244.0
+2018,4,Berger de Beauce,1240.0
+2018,5,Berger de Beauce,1254.0
+2018,6,Berger de Beauce,1261.0
+2018,7,Berger de Beauce,1266.0
+2018,8,Berger de Beauce,1260.0
+2018,9,Berger de Beauce,1259.0
+2018,10,Berger de Beauce,1247.0
+2018,11,Berger de Beauce,1236.0
+2018,12,Berger de Beauce,1223.0
+2019,1,Berger de Beauce,1217.0
+2019,2,Berger de Beauce,1210.0
+2019,3,Berger de Beauce,1213.0
+2019,4,Berger de Beauce,1213.0
+2019,5,Berger de Beauce,1210.0
+2019,6,Berger de Beauce,1222.0
+2019,7,Berger de Beauce,1213.0
+2019,8,Berger de Beauce,1222.0
+2019,9,Berger de Beauce,1215.0
+2019,10,Berger de Beauce,1208.0
+2019,11,Berger de Beauce,1212.0
+2019,12,Berger de Beauce,1199.0
+2020,1,Berger de Beauce,1190.0
+2020,2,Berger de Beauce,1183.0
+2020,3,Berger de Beauce,1184.0
+2020,4,Berger de Beauce,1185.0
+2020,5,Berger de Beauce,1178.0
+2020,6,Berger de Beauce,1183.0
+2020,7,Berger de Beauce,1175.0
+2020,8,Berger de Beauce,1179.0
+2020,9,Berger de Beauce,1174.0
+2020,10,Berger de Beauce,1164.0
+2020,11,Berger de Beauce,1164.0
+2020,12,Berger de Beauce,1184.0
+2021,1,Berger de Beauce,1188.0
+2021,2,Berger de Beauce,1187.0
+2021,3,Berger de Beauce,1193.0
+2021,4,Berger de Beauce,1193.0
+2021,5,Berger de Beauce,1194.0
+2021,6,Berger de Beauce,1185.0
+2021,7,Berger de Beauce,1186.0
+2021,8,Berger de Beauce,1205.0
+2021,9,Berger de Beauce,1202.0
+2021,10,Berger de Beauce,1207.0
+2021,11,Berger de Beauce,1200.0
+2021,12,Berger de Beauce,1189.0
+2022,1,Berger de Beauce,1201.0
+2022,2,Berger de Beauce,1196.0
+2022,3,Berger de Beauce,1185.0
+2022,4,Berger de Beauce,1201.0
+2022,5,Berger de Beauce,1212.0
+2022,6,Berger de Beauce,1205.0
+2022,7,Berger de Beauce,1199.0
+2022,8,Berger de Beauce,1191.0
+2022,9,Berger de Beauce,1186.0
+2022,10,Berger de Beauce,1193.0
+2022,11,Berger de Beauce,1197.0
+2022,12,Berger de Beauce,1191.0
+2023,1,Berger de Beauce,1201.0
+2023,2,Berger de Beauce,1203.0
+2023,3,Berger de Beauce,1206.0
+2023,4,Berger de Beauce,1216.0
+2023,5,Berger de Beauce,1213.0
+2023,6,Berger de Beauce,1205.0
+2023,7,Berger de Beauce,1202.0
+2016,1,Boerboel,77.0
+2016,2,Boerboel,77.0
+2016,3,Boerboel,79.0
+2016,4,Boerboel,79.0
+2016,5,Boerboel,79.0
+2016,6,Boerboel,78.0
+2016,7,Boerboel,76.0
+2016,8,Boerboel,76.0
+2016,9,Boerboel,76.0
+2016,10,Boerboel,75.0
+2016,11,Boerboel,75.0
+2016,12,Boerboel,75.0
+2017,1,Boerboel,77.0
+2017,2,Boerboel,76.0
+2017,3,Boerboel,76.0
+2017,4,Boerboel,77.0
+2017,5,Boerboel,75.0
+2017,6,Boerboel,76.0
+2017,7,Boerboel,78.0
+2017,8,Boerboel,79.0
+2017,9,Boerboel,79.0
+2017,10,Boerboel,79.0
+2017,11,Boerboel,79.0
+2017,12,Boerboel,80.0
+2018,1,Boerboel,79.0
+2018,2,Boerboel,80.0
+2018,3,Boerboel,81.0
+2018,4,Boerboel,82.0
+2018,5,Boerboel,82.0
+2018,6,Boerboel,83.0
+2018,7,Boerboel,81.0
+2018,8,Boerboel,80.0
+2018,9,Boerboel,82.0
+2018,10,Boerboel,82.0
+2018,11,Boerboel,83.0
+2018,12,Boerboel,84.0
+2019,1,Boerboel,83.0
+2019,2,Boerboel,83.0
+2019,3,Boerboel,81.0
+2019,4,Boerboel,82.0
+2019,5,Boerboel,82.0
+2019,6,Boerboel,83.0
+2019,7,Boerboel,83.0
+2019,8,Boerboel,83.0
+2019,9,Boerboel,83.0
+2019,10,Boerboel,82.0
+2019,11,Boerboel,82.0
+2019,12,Boerboel,82.0
+2020,1,Boerboel,81.0
+2020,2,Boerboel,80.0
+2020,3,Boerboel,80.0
+2020,4,Boerboel,80.0
+2020,5,Boerboel,81.0
+2020,6,Boerboel,81.0
+2020,7,Boerboel,81.0
+2020,8,Boerboel,81.0
+2020,9,Boerboel,81.0
+2020,10,Boerboel,76.0
+2020,11,Boerboel,76.0
+2020,12,Boerboel,75.0
+2021,1,Boerboel,74.0
+2021,2,Boerboel,74.0
+2021,3,Boerboel,73.0
+2021,4,Boerboel,72.0
+2021,5,Boerboel,66.0
+2021,6,Boerboel,65.0
+2021,7,Boerboel,65.0
+2021,8,Boerboel,65.0
+2021,9,Boerboel,64.0
+2021,10,Boerboel,63.0
+2021,11,Boerboel,63.0
+2021,12,Boerboel,62.0
+2022,1,Boerboel,63.0
+2022,2,Boerboel,63.0
+2022,3,Boerboel,48.0
+2022,4,Boerboel,48.0
+2022,5,Boerboel,48.0
+2022,6,Boerboel,48.0
+2022,7,Boerboel,48.0
+2022,8,Boerboel,47.0
+2022,9,Boerboel,47.0
+2022,10,Boerboel,46.0
+2022,11,Boerboel,46.0
+2022,12,Boerboel,46.0
+2023,1,Boerboel,46.0
+2023,2,Boerboel,46.0
+2023,3,Boerboel,45.0
+2023,4,Boerboel,45.0
+2023,5,Boerboel,45.0
+2023,6,Boerboel,44.0
+2023,7,Boerboel,44.0
+2016,1,Bull Terrier,483.0
+2016,2,Bull Terrier,480.0
+2016,3,Bull Terrier,482.0
+2016,4,Bull Terrier,484.0
+2016,5,Bull Terrier,484.0
+2016,6,Bull Terrier,483.0
+2016,7,Bull Terrier,485.0
+2016,8,Bull Terrier,487.0
+2016,9,Bull Terrier,495.0
+2016,10,Bull Terrier,497.0
+2016,11,Bull Terrier,493.0
+2016,12,Bull Terrier,492.0
+2017,1,Bull Terrier,492.0
+2017,2,Bull Terrier,495.0
+2017,3,Bull Terrier,498.0
+2017,4,Bull Terrier,500.0
+2017,5,Bull Terrier,498.0
+2017,6,Bull Terrier,505.0
+2017,7,Bull Terrier,505.0
+2017,8,Bull Terrier,507.0
+2017,9,Bull Terrier,511.0
+2017,10,Bull Terrier,516.0
+2017,11,Bull Terrier,517.0
+2017,12,Bull Terrier,513.0
+2018,1,Bull Terrier,512.0
+2018,2,Bull Terrier,528.0
+2018,3,Bull Terrier,531.0
+2018,4,Bull Terrier,526.0
+2018,5,Bull Terrier,523.0
+2018,6,Bull Terrier,524.0
+2018,7,Bull Terrier,527.0
+2018,8,Bull Terrier,525.0
+2018,9,Bull Terrier,528.0
+2018,10,Bull Terrier,529.0
+2018,11,Bull Terrier,528.0
+2018,12,Bull Terrier,532.0
+2019,1,Bull Terrier,531.0
+2019,2,Bull Terrier,530.0
+2019,3,Bull Terrier,534.0
+2019,4,Bull Terrier,533.0
+2019,5,Bull Terrier,531.0
+2019,6,Bull Terrier,535.0
+2019,7,Bull Terrier,536.0
+2019,8,Bull Terrier,541.0
+2019,9,Bull Terrier,538.0
+2019,10,Bull Terrier,540.0
+2019,11,Bull Terrier,542.0
+2019,12,Bull Terrier,544.0
+2020,1,Bull Terrier,546.0
+2020,2,Bull Terrier,547.0
+2020,3,Bull Terrier,547.0
+2020,4,Bull Terrier,547.0
+2020,5,Bull Terrier,554.0
+2020,6,Bull Terrier,556.0
+2020,7,Bull Terrier,553.0
+2020,8,Bull Terrier,554.0
+2020,9,Bull Terrier,554.0
+2020,10,Bull Terrier,557.0
+2020,11,Bull Terrier,556.0
+2020,12,Bull Terrier,561.0
+2021,1,Bull Terrier,564.0
+2021,2,Bull Terrier,569.0
+2021,3,Bull Terrier,566.0
+2021,4,Bull Terrier,562.0
+2021,5,Bull Terrier,568.0
+2021,6,Bull Terrier,569.0
+2021,7,Bull Terrier,564.0
+2021,8,Bull Terrier,563.0
+2021,9,Bull Terrier,565.0
+2021,10,Bull Terrier,564.0
+2021,11,Bull Terrier,563.0
+2021,12,Bull Terrier,562.0
+2022,1,Bull Terrier,558.0
+2022,2,Bull Terrier,560.0
+2022,3,Bull Terrier,553.0
+2022,4,Bull Terrier,548.0
+2022,5,Bull Terrier,550.0
+2022,6,Bull Terrier,545.0
+2022,7,Bull Terrier,540.0
+2022,8,Bull Terrier,538.0
+2022,9,Bull Terrier,536.0
+2022,10,Bull Terrier,537.0
+2022,11,Bull Terrier,543.0
+2022,12,Bull Terrier,540.0
+2023,1,Bull Terrier,539.0
+2023,2,Bull Terrier,539.0
+2023,3,Bull Terrier,538.0
+2023,4,Bull Terrier,538.0
+2023,5,Bull Terrier,537.0
+2023,6,Bull Terrier,534.0
+2023,7,Bull Terrier,533.0
+2016,1,Bullmastiff,214.0
+2016,2,Bullmastiff,215.0
+2016,3,Bullmastiff,214.0
+2016,4,Bullmastiff,212.0
+2016,5,Bullmastiff,211.0
+2016,6,Bullmastiff,210.0
+2016,7,Bullmastiff,208.0
+2016,8,Bullmastiff,207.0
+2016,9,Bullmastiff,205.0
+2016,10,Bullmastiff,215.0
+2016,11,Bullmastiff,211.0
+2016,12,Bullmastiff,203.0
+2017,1,Bullmastiff,200.0
+2017,2,Bullmastiff,197.0
+2017,3,Bullmastiff,195.0
+2017,4,Bullmastiff,195.0
+2017,5,Bullmastiff,196.0
+2017,6,Bullmastiff,196.0
+2017,7,Bullmastiff,197.0
+2017,8,Bullmastiff,195.0
+2017,9,Bullmastiff,193.0
+2017,10,Bullmastiff,192.0
+2017,11,Bullmastiff,192.0
+2017,12,Bullmastiff,190.0
+2018,1,Bullmastiff,186.0
+2018,2,Bullmastiff,183.0
+2018,3,Bullmastiff,184.0
+2018,4,Bullmastiff,186.0
+2018,5,Bullmastiff,181.0
+2018,6,Bullmastiff,181.0
+2018,7,Bullmastiff,183.0
+2018,8,Bullmastiff,180.0
+2018,9,Bullmastiff,181.0
+2018,10,Bullmastiff,179.0
+2018,11,Bullmastiff,182.0
+2018,12,Bullmastiff,182.0
+2019,1,Bullmastiff,181.0
+2019,2,Bullmastiff,180.0
+2019,3,Bullmastiff,180.0
+2019,4,Bullmastiff,184.0
+2019,5,Bullmastiff,181.0
+2019,6,Bullmastiff,181.0
+2019,7,Bullmastiff,181.0
+2019,8,Bullmastiff,180.0
+2019,9,Bullmastiff,180.0
+2019,10,Bullmastiff,180.0
+2019,11,Bullmastiff,180.0
+2019,12,Bullmastiff,180.0
+2020,1,Bullmastiff,176.0
+2020,2,Bullmastiff,174.0
+2020,3,Bullmastiff,171.0
+2020,4,Bullmastiff,169.0
+2020,5,Bullmastiff,166.0
+2020,6,Bullmastiff,167.0
+2020,7,Bullmastiff,167.0
+2020,8,Bullmastiff,172.0
+2020,9,Bullmastiff,170.0
+2020,10,Bullmastiff,169.0
+2020,11,Bullmastiff,171.0
+2020,12,Bullmastiff,171.0
+2021,1,Bullmastiff,171.0
+2021,2,Bullmastiff,165.0
+2021,3,Bullmastiff,167.0
+2021,4,Bullmastiff,167.0
+2021,5,Bullmastiff,170.0
+2021,6,Bullmastiff,171.0
+2021,7,Bullmastiff,169.0
+2021,8,Bullmastiff,170.0
+2021,9,Bullmastiff,170.0
+2021,10,Bullmastiff,170.0
+2021,11,Bullmastiff,170.0
+2021,12,Bullmastiff,169.0
+2022,1,Bullmastiff,170.0
+2022,2,Bullmastiff,171.0
+2022,3,Bullmastiff,164.0
+2022,4,Bullmastiff,168.0
+2022,5,Bullmastiff,164.0
+2022,6,Bullmastiff,165.0
+2022,7,Bullmastiff,165.0
+2022,8,Bullmastiff,164.0
+2022,9,Bullmastiff,161.0
+2022,10,Bullmastiff,160.0
+2022,11,Bullmastiff,160.0
+2022,12,Bullmastiff,159.0
+2023,1,Bullmastiff,160.0
+2023,2,Bullmastiff,159.0
+2023,3,Bullmastiff,158.0
+2023,4,Bullmastiff,164.0
+2023,5,Bullmastiff,163.0
+2023,6,Bullmastiff,163.0
+2023,7,Bullmastiff,165.0
+2016,1,Cane Corso Italiano,565.0
+2016,2,Cane Corso Italiano,569.0
+2016,3,Cane Corso Italiano,567.0
+2016,4,Cane Corso Italiano,570.0
+2016,5,Cane Corso Italiano,576.0
+2016,6,Cane Corso Italiano,588.0
+2016,7,Cane Corso Italiano,596.0
+2016,8,Cane Corso Italiano,595.0
+2016,9,Cane Corso Italiano,600.0
+2016,10,Cane Corso Italiano,602.0
+2016,11,Cane Corso Italiano,607.0
+2016,12,Cane Corso Italiano,612.0
+2017,1,Cane Corso Italiano,616.0
+2017,2,Cane Corso Italiano,616.0
+2017,3,Cane Corso Italiano,618.0
+2017,4,Cane Corso Italiano,624.0
+2017,5,Cane Corso Italiano,633.0
+2017,6,Cane Corso Italiano,647.0
+2017,7,Cane Corso Italiano,655.0
+2017,8,Cane Corso Italiano,664.0
+2017,9,Cane Corso Italiano,671.0
+2017,10,Cane Corso Italiano,681.0
+2017,11,Cane Corso Italiano,689.0
+2017,12,Cane Corso Italiano,691.0
+2018,1,Cane Corso Italiano,696.0
+2018,2,Cane Corso Italiano,693.0
+2018,3,Cane Corso Italiano,698.0
+2018,4,Cane Corso Italiano,701.0
+2018,5,Cane Corso Italiano,703.0
+2018,6,Cane Corso Italiano,705.0
+2018,7,Cane Corso Italiano,717.0
+2018,8,Cane Corso Italiano,728.0
+2018,9,Cane Corso Italiano,730.0
+2018,10,Cane Corso Italiano,727.0
+2018,11,Cane Corso Italiano,734.0
+2018,12,Cane Corso Italiano,745.0
+2019,1,Cane Corso Italiano,762.0
+2019,2,Cane Corso Italiano,771.0
+2019,3,Cane Corso Italiano,770.0
+2019,4,Cane Corso Italiano,774.0
+2019,5,Cane Corso Italiano,798.0
+2019,6,Cane Corso Italiano,806.0
+2019,7,Cane Corso Italiano,815.0
+2019,8,Cane Corso Italiano,830.0
+2019,9,Cane Corso Italiano,841.0
+2019,10,Cane Corso Italiano,846.0
+2019,11,Cane Corso Italiano,855.0
+2019,12,Cane Corso Italiano,868.0
+2020,1,Cane Corso Italiano,869.0
+2020,2,Cane Corso Italiano,878.0
+2020,3,Cane Corso Italiano,876.0
+2020,4,Cane Corso Italiano,879.0
+2020,5,Cane Corso Italiano,880.0
+2020,6,Cane Corso Italiano,881.0
+2020,7,Cane Corso Italiano,884.0
+2020,8,Cane Corso Italiano,897.0
+2020,9,Cane Corso Italiano,898.0
+2020,10,Cane Corso Italiano,908.0
+2020,11,Cane Corso Italiano,910.0
+2020,12,Cane Corso Italiano,922.0
+2021,1,Cane Corso Italiano,933.0
+2021,2,Cane Corso Italiano,938.0
+2021,3,Cane Corso Italiano,942.0
+2021,4,Cane Corso Italiano,956.0
+2021,5,Cane Corso Italiano,973.0
+2021,6,Cane Corso Italiano,982.0
+2021,7,Cane Corso Italiano,986.0
+2021,8,Cane Corso Italiano,997.0
+2021,9,Cane Corso Italiano,1007.0
+2021,10,Cane Corso Italiano,1018.0
+2021,11,Cane Corso Italiano,1025.0
+2021,12,Cane Corso Italiano,1033.0
+2022,1,Cane Corso Italiano,1034.0
+2022,2,Cane Corso Italiano,1037.0
+2022,3,Cane Corso Italiano,1036.0
+2022,4,Cane Corso Italiano,1042.0
+2022,5,Cane Corso Italiano,1038.0
+2022,6,Cane Corso Italiano,1031.0
+2022,7,Cane Corso Italiano,1042.0
+2022,8,Cane Corso Italiano,1053.0
+2022,9,Cane Corso Italiano,1060.0
+2022,10,Cane Corso Italiano,1077.0
+2022,11,Cane Corso Italiano,1085.0
+2022,12,Cane Corso Italiano,1084.0
+2023,1,Cane Corso Italiano,1093.0
+2023,2,Cane Corso Italiano,1098.0
+2023,3,Cane Corso Italiano,1101.0
+2023,4,Cane Corso Italiano,1105.0
+2023,5,Cane Corso Italiano,1101.0
+2023,6,Cane Corso Italiano,1101.0
+2023,7,Cane Corso Italiano,1101.0
+2016,1,Ceskoslovensky Vlciak,363.0
+2016,2,Ceskoslovensky Vlciak,368.0
+2016,3,Ceskoslovensky Vlciak,372.0
+2016,4,Ceskoslovensky Vlciak,374.0
+2016,5,Ceskoslovensky Vlciak,374.0
+2016,6,Ceskoslovensky Vlciak,370.0
+2016,7,Ceskoslovensky Vlciak,368.0
+2016,8,Ceskoslovensky Vlciak,378.0
+2016,9,Ceskoslovensky Vlciak,375.0
+2016,10,Ceskoslovensky Vlciak,371.0
+2016,11,Ceskoslovensky Vlciak,377.0
+2016,12,Ceskoslovensky Vlciak,381.0
+2017,1,Ceskoslovensky Vlciak,391.0
+2017,2,Ceskoslovensky Vlciak,391.0
+2017,3,Ceskoslovensky Vlciak,396.0
+2017,4,Ceskoslovensky Vlciak,394.0
+2017,5,Ceskoslovensky Vlciak,389.0
+2017,6,Ceskoslovensky Vlciak,389.0
+2017,7,Ceskoslovensky Vlciak,387.0
+2017,8,Ceskoslovensky Vlciak,387.0
+2017,9,Ceskoslovensky Vlciak,388.0
+2017,10,Ceskoslovensky Vlciak,386.0
+2017,11,Ceskoslovensky Vlciak,393.0
+2017,12,Ceskoslovensky Vlciak,394.0
+2018,1,Ceskoslovensky Vlciak,404.0
+2018,2,Ceskoslovensky Vlciak,411.0
+2018,3,Ceskoslovensky Vlciak,406.0
+2018,4,Ceskoslovensky Vlciak,409.0
+2018,5,Ceskoslovensky Vlciak,410.0
+2018,6,Ceskoslovensky Vlciak,409.0
+2018,7,Ceskoslovensky Vlciak,408.0
+2018,8,Ceskoslovensky Vlciak,411.0
+2018,9,Ceskoslovensky Vlciak,413.0
+2018,10,Ceskoslovensky Vlciak,420.0
+2018,11,Ceskoslovensky Vlciak,425.0
+2018,12,Ceskoslovensky Vlciak,429.0
+2019,1,Ceskoslovensky Vlciak,433.0
+2019,2,Ceskoslovensky Vlciak,431.0
+2019,3,Ceskoslovensky Vlciak,434.0
+2019,4,Ceskoslovensky Vlciak,430.0
+2019,5,Ceskoslovensky Vlciak,426.0
+2019,6,Ceskoslovensky Vlciak,424.0
+2019,7,Ceskoslovensky Vlciak,419.0
+2019,8,Ceskoslovensky Vlciak,417.0
+2019,9,Ceskoslovensky Vlciak,419.0
+2019,10,Ceskoslovensky Vlciak,421.0
+2019,11,Ceskoslovensky Vlciak,426.0
+2019,12,Ceskoslovensky Vlciak,429.0
+2020,1,Ceskoslovensky Vlciak,443.0
+2020,2,Ceskoslovensky Vlciak,449.0
+2020,3,Ceskoslovensky Vlciak,454.0
+2020,4,Ceskoslovensky Vlciak,452.0
+2020,5,Ceskoslovensky Vlciak,454.0
+2020,6,Ceskoslovensky Vlciak,455.0
+2020,7,Ceskoslovensky Vlciak,448.0
+2020,8,Ceskoslovensky Vlciak,449.0
+2020,9,Ceskoslovensky Vlciak,446.0
+2020,10,Ceskoslovensky Vlciak,454.0
+2020,11,Ceskoslovensky Vlciak,452.0
+2020,12,Ceskoslovensky Vlciak,463.0
+2021,1,Ceskoslovensky Vlciak,466.0
+2021,2,Ceskoslovensky Vlciak,468.0
+2021,3,Ceskoslovensky Vlciak,469.0
+2021,4,Ceskoslovensky Vlciak,471.0
+2021,5,Ceskoslovensky Vlciak,470.0
+2021,6,Ceskoslovensky Vlciak,467.0
+2021,7,Ceskoslovensky Vlciak,476.0
+2021,8,Ceskoslovensky Vlciak,479.0
+2021,9,Ceskoslovensky Vlciak,480.0
+2021,10,Ceskoslovensky Vlciak,475.0
+2021,11,Ceskoslovensky Vlciak,473.0
+2021,12,Ceskoslovensky Vlciak,474.0
+2022,1,Ceskoslovensky Vlciak,475.0
+2022,2,Ceskoslovensky Vlciak,472.0
+2022,3,Ceskoslovensky Vlciak,469.0
+2022,4,Ceskoslovensky Vlciak,466.0
+2022,5,Ceskoslovensky Vlciak,467.0
+2022,6,Ceskoslovensky Vlciak,470.0
+2022,7,Ceskoslovensky Vlciak,465.0
+2022,8,Ceskoslovensky Vlciak,470.0
+2022,9,Ceskoslovensky Vlciak,468.0
+2022,10,Ceskoslovensky Vlciak,471.0
+2022,11,Ceskoslovensky Vlciak,469.0
+2022,12,Ceskoslovensky Vlciak,468.0
+2023,1,Ceskoslovensky Vlciak,467.0
+2023,2,Ceskoslovensky Vlciak,472.0
+2023,3,Ceskoslovensky Vlciak,471.0
+2023,4,Ceskoslovensky Vlciak,473.0
+2023,5,Ceskoslovensky Vlciak,472.0
+2023,6,Ceskoslovensky Vlciak,467.0
+2023,7,Ceskoslovensky Vlciak,464.0
+2016,1,Chien de Berger Belge,7149.0
+2016,2,Chien de Berger Belge,7126.0
+2016,3,Chien de Berger Belge,7113.0
+2016,4,Chien de Berger Belge,7096.0
+2016,5,Chien de Berger Belge,7065.0
+2016,6,Chien de Berger Belge,7098.0
+2016,7,Chien de Berger Belge,7073.0
+2016,8,Chien de Berger Belge,7052.0
+2016,9,Chien de Berger Belge,7060.0
+2016,10,Chien de Berger Belge,7048.0
+2016,11,Chien de Berger Belge,7030.0
+2016,12,Chien de Berger Belge,6982.0
+2017,1,Chien de Berger Belge,6988.0
+2017,2,Chien de Berger Belge,6965.0
+2017,3,Chien de Berger Belge,6956.0
+2017,4,Chien de Berger Belge,6957.0
+2017,5,Chien de Berger Belge,6956.0
+2017,6,Chien de Berger Belge,6941.0
+2017,7,Chien de Berger Belge,6928.0
+2017,8,Chien de Berger Belge,6927.0
+2017,9,Chien de Berger Belge,6899.0
+2017,10,Chien de Berger Belge,6915.0
+2017,11,Chien de Berger Belge,6917.0
+2017,12,Chien de Berger Belge,6897.0
+2018,1,Chien de Berger Belge,6846.0
+2018,2,Chien de Berger Belge,6841.0
+2018,3,Chien de Berger Belge,6797.0
+2018,4,Chien de Berger Belge,6785.0
+2018,5,Chien de Berger Belge,6804.0
+2018,6,Chien de Berger Belge,6838.0
+2018,7,Chien de Berger Belge,6830.0
+2018,8,Chien de Berger Belge,6822.0
+2018,9,Chien de Berger Belge,6783.0
+2018,10,Chien de Berger Belge,6761.0
+2018,11,Chien de Berger Belge,6737.0
+2018,12,Chien de Berger Belge,6753.0
+2019,1,Chien de Berger Belge,6700.0
+2019,2,Chien de Berger Belge,6725.0
+2019,3,Chien de Berger Belge,6725.0
+2019,4,Chien de Berger Belge,6733.0
+2019,5,Chien de Berger Belge,6749.0
+2019,6,Chien de Berger Belge,6711.0
+2019,7,Chien de Berger Belge,6730.0
+2019,8,Chien de Berger Belge,6750.0
+2019,9,Chien de Berger Belge,6733.0
+2019,10,Chien de Berger Belge,6691.0
+2019,11,Chien de Berger Belge,6701.0
+2019,12,Chien de Berger Belge,6691.0
+2020,1,Chien de Berger Belge,6639.0
+2020,2,Chien de Berger Belge,6615.0
+2020,3,Chien de Berger Belge,6600.0
+2020,4,Chien de Berger Belge,6601.0
+2020,5,Chien de Berger Belge,6581.0
+2020,6,Chien de Berger Belge,6568.0
+2020,7,Chien de Berger Belge,6605.0
+2020,8,Chien de Berger Belge,6606.0
+2020,9,Chien de Berger Belge,6607.0
+2020,10,Chien de Berger Belge,6599.0
+2020,11,Chien de Berger Belge,6616.0
+2020,12,Chien de Berger Belge,6595.0
+2021,1,Chien de Berger Belge,6602.0
+2021,2,Chien de Berger Belge,6582.0
+2021,3,Chien de Berger Belge,6585.0
+2021,4,Chien de Berger Belge,6589.0
+2021,5,Chien de Berger Belge,6611.0
+2021,6,Chien de Berger Belge,6641.0
+2021,7,Chien de Berger Belge,6648.0
+2021,8,Chien de Berger Belge,6693.0
+2021,9,Chien de Berger Belge,6689.0
+2021,10,Chien de Berger Belge,6693.0
+2021,11,Chien de Berger Belge,6686.0
+2021,12,Chien de Berger Belge,6657.0
+2022,1,Chien de Berger Belge,6656.0
+2022,2,Chien de Berger Belge,6645.0
+2022,3,Chien de Berger Belge,6618.0
+2022,4,Chien de Berger Belge,6602.0
+2022,5,Chien de Berger Belge,6622.0
+2022,6,Chien de Berger Belge,6638.0
+2022,7,Chien de Berger Belge,6653.0
+2022,8,Chien de Berger Belge,6653.0
+2022,9,Chien de Berger Belge,6667.0
+2022,10,Chien de Berger Belge,6672.0
+2022,11,Chien de Berger Belge,6638.0
+2022,12,Chien de Berger Belge,6626.0
+2023,1,Chien de Berger Belge,6633.0
+2023,2,Chien de Berger Belge,6669.0
+2023,3,Chien de Berger Belge,6688.0
+2023,4,Chien de Berger Belge,6705.0
+2023,5,Chien de Berger Belge,6730.0
+2023,6,Chien de Berger Belge,6701.0
+2023,7,Chien de Berger Belge,6661.0
+2016,1,Deutscher Schaferhund,10916.0
+2016,2,Deutscher Schaferhund,10861.0
+2016,3,Deutscher Schaferhund,10842.0
+2016,4,Deutscher Schaferhund,10822.0
+2016,5,Deutscher Schaferhund,10790.0
+2016,6,Deutscher Schaferhund,10781.0
+2016,7,Deutscher Schaferhund,10750.0
+2016,8,Deutscher Schaferhund,10712.0
+2016,9,Deutscher Schaferhund,10661.0
+2016,10,Deutscher Schaferhund,10658.0
+2016,11,Deutscher Schaferhund,10614.0
+2016,12,Deutscher Schaferhund,10517.0
+2017,1,Deutscher Schaferhund,10464.0
+2017,2,Deutscher Schaferhund,10474.0
+2017,3,Deutscher Schaferhund,10443.0
+2017,4,Deutscher Schaferhund,10397.0
+2017,5,Deutscher Schaferhund,10372.0
+2017,6,Deutscher Schaferhund,10356.0
+2017,7,Deutscher Schaferhund,10345.0
+2017,8,Deutscher Schaferhund,10335.0
+2017,9,Deutscher Schaferhund,10324.0
+2017,10,Deutscher Schaferhund,10304.0
+2017,11,Deutscher Schaferhund,10287.0
+2017,12,Deutscher Schaferhund,10170.0
+2018,1,Deutscher Schaferhund,10076.0
+2018,2,Deutscher Schaferhund,10072.0
+2018,3,Deutscher Schaferhund,10073.0
+2018,4,Deutscher Schaferhund,10054.0
+2018,5,Deutscher Schaferhund,10058.0
+2018,6,Deutscher Schaferhund,10063.0
+2018,7,Deutscher Schaferhund,10019.0
+2018,8,Deutscher Schaferhund,9977.0
+2018,9,Deutscher Schaferhund,9945.0
+2018,10,Deutscher Schaferhund,9928.0
+2018,11,Deutscher Schaferhund,9884.0
+2018,12,Deutscher Schaferhund,9836.0
+2019,1,Deutscher Schaferhund,9770.0
+2019,2,Deutscher Schaferhund,9729.0
+2019,3,Deutscher Schaferhund,9738.0
+2019,4,Deutscher Schaferhund,9745.0
+2019,5,Deutscher Schaferhund,9742.0
+2019,6,Deutscher Schaferhund,9708.0
+2019,7,Deutscher Schaferhund,9679.0
+2019,8,Deutscher Schaferhund,9686.0
+2019,9,Deutscher Schaferhund,9657.0
+2019,10,Deutscher Schaferhund,9641.0
+2019,11,Deutscher Schaferhund,9625.0
+2019,12,Deutscher Schaferhund,9593.0
+2020,1,Deutscher Schaferhund,9578.0
+2020,2,Deutscher Schaferhund,9536.0
+2020,3,Deutscher Schaferhund,9534.0
+2020,4,Deutscher Schaferhund,9528.0
+2020,5,Deutscher Schaferhund,9593.0
+2020,6,Deutscher Schaferhund,9601.0
+2020,7,Deutscher Schaferhund,9597.0
+2020,8,Deutscher Schaferhund,9605.0
+2020,9,Deutscher Schaferhund,9591.0
+2020,10,Deutscher Schaferhund,9584.0
+2020,11,Deutscher Schaferhund,9616.0
+2020,12,Deutscher Schaferhund,9622.0
+2021,1,Deutscher Schaferhund,9634.0
+2021,2,Deutscher Schaferhund,9644.0
+2021,3,Deutscher Schaferhund,9692.0
+2021,4,Deutscher Schaferhund,9703.0
+2021,5,Deutscher Schaferhund,9715.0
+2021,6,Deutscher Schaferhund,9706.0
+2021,7,Deutscher Schaferhund,9715.0
+2021,8,Deutscher Schaferhund,9718.0
+2021,9,Deutscher Schaferhund,9731.0
+2021,10,Deutscher Schaferhund,9743.0
+2021,11,Deutscher Schaferhund,9755.0
+2021,12,Deutscher Schaferhund,9761.0
+2022,1,Deutscher Schaferhund,9761.0
+2022,2,Deutscher Schaferhund,9744.0
+2022,3,Deutscher Schaferhund,9638.0
+2022,4,Deutscher Schaferhund,9647.0
+2022,5,Deutscher Schaferhund,9708.0
+2022,6,Deutscher Schaferhund,9678.0
+2022,7,Deutscher Schaferhund,9670.0
+2022,8,Deutscher Schaferhund,9632.0
+2022,9,Deutscher Schaferhund,9602.0
+2022,10,Deutscher Schaferhund,9594.0
+2022,11,Deutscher Schaferhund,9610.0
+2022,12,Deutscher Schaferhund,9592.0
+2023,1,Deutscher Schaferhund,9609.0
+2023,2,Deutscher Schaferhund,9591.0
+2023,3,Deutscher Schaferhund,9573.0
+2023,4,Deutscher Schaferhund,9580.0
+2023,5,Deutscher Schaferhund,9571.0
+2023,6,Deutscher Schaferhund,9515.0
+2023,7,Deutscher Schaferhund,9469.0
+2016,1,Do Khyi (Tibet Dogge),67.0
+2016,2,Do Khyi (Tibet Dogge),66.0
+2016,3,Do Khyi (Tibet Dogge),67.0
+2016,4,Do Khyi (Tibet Dogge),66.0
+2016,5,Do Khyi (Tibet Dogge),66.0
+2016,6,Do Khyi (Tibet Dogge),66.0
+2016,7,Do Khyi (Tibet Dogge),66.0
+2016,8,Do Khyi (Tibet Dogge),64.0
+2016,9,Do Khyi (Tibet Dogge),65.0
+2016,10,Do Khyi (Tibet Dogge),64.0
+2016,11,Do Khyi (Tibet Dogge),64.0
+2016,12,Do Khyi (Tibet Dogge),64.0
+2017,1,Do Khyi (Tibet Dogge),62.0
+2017,2,Do Khyi (Tibet Dogge),62.0
+2017,3,Do Khyi (Tibet Dogge),62.0
+2017,4,Do Khyi (Tibet Dogge),62.0
+2017,5,Do Khyi (Tibet Dogge),62.0
+2017,6,Do Khyi (Tibet Dogge),60.0
+2017,7,Do Khyi (Tibet Dogge),59.0
+2017,8,Do Khyi (Tibet Dogge),59.0
+2017,9,Do Khyi (Tibet Dogge),58.0
+2017,10,Do Khyi (Tibet Dogge),58.0
+2017,11,Do Khyi (Tibet Dogge),57.0
+2017,12,Do Khyi (Tibet Dogge),58.0
+2018,1,Do Khyi (Tibet Dogge),58.0
+2018,2,Do Khyi (Tibet Dogge),57.0
+2018,3,Do Khyi (Tibet Dogge),57.0
+2018,4,Do Khyi (Tibet Dogge),57.0
+2018,5,Do Khyi (Tibet Dogge),57.0
+2018,6,Do Khyi (Tibet Dogge),57.0
+2018,7,Do Khyi (Tibet Dogge),57.0
+2018,8,Do Khyi (Tibet Dogge),56.0
+2018,9,Do Khyi (Tibet Dogge),56.0
+2018,10,Do Khyi (Tibet Dogge),54.0
+2018,11,Do Khyi (Tibet Dogge),53.0
+2018,12,Do Khyi (Tibet Dogge),53.0
+2019,1,Do Khyi (Tibet Dogge),51.0
+2019,2,Do Khyi (Tibet Dogge),51.0
+2019,3,Do Khyi (Tibet Dogge),53.0
+2019,4,Do Khyi (Tibet Dogge),53.0
+2019,5,Do Khyi (Tibet Dogge),53.0
+2019,6,Do Khyi (Tibet Dogge),52.0
+2019,7,Do Khyi (Tibet Dogge),51.0
+2019,8,Do Khyi (Tibet Dogge),52.0
+2019,9,Do Khyi (Tibet Dogge),51.0
+2019,10,Do Khyi (Tibet Dogge),51.0
+2019,11,Do Khyi (Tibet Dogge),51.0
+2019,12,Do Khyi (Tibet Dogge),51.0
+2020,1,Do Khyi (Tibet Dogge),51.0
+2020,2,Do Khyi (Tibet Dogge),51.0
+2020,3,Do Khyi (Tibet Dogge),51.0
+2020,4,Do Khyi (Tibet Dogge),51.0
+2020,5,Do Khyi (Tibet Dogge),51.0
+2020,6,Do Khyi (Tibet Dogge),51.0
+2020,7,Do Khyi (Tibet Dogge),52.0
+2020,8,Do Khyi (Tibet Dogge),52.0
+2020,9,Do Khyi (Tibet Dogge),53.0
+2020,10,Do Khyi (Tibet Dogge),53.0
+2020,11,Do Khyi (Tibet Dogge),52.0
+2020,12,Do Khyi (Tibet Dogge),50.0
+2021,1,Do Khyi (Tibet Dogge),48.0
+2021,2,Do Khyi (Tibet Dogge),49.0
+2021,3,Do Khyi (Tibet Dogge),51.0
+2021,4,Do Khyi (Tibet Dogge),50.0
+2021,5,Do Khyi (Tibet Dogge),50.0
+2021,6,Do Khyi (Tibet Dogge),48.0
+2021,7,Do Khyi (Tibet Dogge),47.0
+2021,8,Do Khyi (Tibet Dogge),49.0
+2021,9,Do Khyi (Tibet Dogge),49.0
+2021,10,Do Khyi (Tibet Dogge),49.0
+2021,11,Do Khyi (Tibet Dogge),49.0
+2021,12,Do Khyi (Tibet Dogge),48.0
+2022,1,Do Khyi (Tibet Dogge),49.0
+2022,2,Do Khyi (Tibet Dogge),49.0
+2022,3,Do Khyi (Tibet Dogge),48.0
+2022,4,Do Khyi (Tibet Dogge),49.0
+2022,5,Do Khyi (Tibet Dogge),49.0
+2022,6,Do Khyi (Tibet Dogge),49.0
+2022,7,Do Khyi (Tibet Dogge),49.0
+2022,8,Do Khyi (Tibet Dogge),48.0
+2022,9,Do Khyi (Tibet Dogge),47.0
+2022,10,Do Khyi (Tibet Dogge),47.0
+2022,11,Do Khyi (Tibet Dogge),45.0
+2022,12,Do Khyi (Tibet Dogge),47.0
+2023,1,Do Khyi (Tibet Dogge),46.0
+2023,2,Do Khyi (Tibet Dogge),46.0
+2023,3,Do Khyi (Tibet Dogge),51.0
+2023,4,Do Khyi (Tibet Dogge),51.0
+2023,5,Do Khyi (Tibet Dogge),50.0
+2023,6,Do Khyi (Tibet Dogge),51.0
+2023,7,Do Khyi (Tibet Dogge),51.0
+2016,1,Dobermann,805.0
+2016,2,Dobermann,801.0
+2016,3,Dobermann,794.0
+2016,4,Dobermann,789.0
+2016,5,Dobermann,783.0
+2016,6,Dobermann,779.0
+2016,7,Dobermann,777.0
+2016,8,Dobermann,793.0
+2016,9,Dobermann,790.0
+2016,10,Dobermann,790.0
+2016,11,Dobermann,783.0
+2016,12,Dobermann,778.0
+2017,1,Dobermann,779.0
+2017,2,Dobermann,780.0
+2017,3,Dobermann,785.0
+2017,4,Dobermann,783.0
+2017,5,Dobermann,790.0
+2017,6,Dobermann,785.0
+2017,7,Dobermann,784.0
+2017,8,Dobermann,783.0
+2017,9,Dobermann,776.0
+2017,10,Dobermann,764.0
+2017,11,Dobermann,766.0
+2017,12,Dobermann,766.0
+2018,1,Dobermann,761.0
+2018,2,Dobermann,760.0
+2018,3,Dobermann,755.0
+2018,4,Dobermann,758.0
+2018,5,Dobermann,762.0
+2018,6,Dobermann,756.0
+2018,7,Dobermann,750.0
+2018,8,Dobermann,744.0
+2018,9,Dobermann,743.0
+2018,10,Dobermann,747.0
+2018,11,Dobermann,736.0
+2018,12,Dobermann,725.0
+2019,1,Dobermann,720.0
+2019,2,Dobermann,723.0
+2019,3,Dobermann,717.0
+2019,4,Dobermann,720.0
+2019,5,Dobermann,724.0
+2019,6,Dobermann,723.0
+2019,7,Dobermann,721.0
+2019,8,Dobermann,718.0
+2019,9,Dobermann,717.0
+2019,10,Dobermann,714.0
+2019,11,Dobermann,712.0
+2019,12,Dobermann,715.0
+2020,1,Dobermann,707.0
+2020,2,Dobermann,707.0
+2020,3,Dobermann,700.0
+2020,4,Dobermann,701.0
+2020,5,Dobermann,699.0
+2020,6,Dobermann,693.0
+2020,7,Dobermann,694.0
+2020,8,Dobermann,690.0
+2020,9,Dobermann,683.0
+2020,10,Dobermann,682.0
+2020,11,Dobermann,680.0
+2020,12,Dobermann,682.0
+2021,1,Dobermann,680.0
+2021,2,Dobermann,684.0
+2021,3,Dobermann,685.0
+2021,4,Dobermann,702.0
+2021,5,Dobermann,704.0
+2021,6,Dobermann,699.0
+2021,7,Dobermann,709.0
+2021,8,Dobermann,716.0
+2021,9,Dobermann,714.0
+2021,10,Dobermann,722.0
+2021,11,Dobermann,727.0
+2021,12,Dobermann,722.0
+2022,1,Dobermann,725.0
+2022,2,Dobermann,723.0
+2022,3,Dobermann,711.0
+2022,4,Dobermann,718.0
+2022,5,Dobermann,717.0
+2022,6,Dobermann,722.0
+2022,7,Dobermann,718.0
+2022,8,Dobermann,718.0
+2022,9,Dobermann,733.0
+2022,10,Dobermann,738.0
+2022,11,Dobermann,739.0
+2022,12,Dobermann,730.0
+2023,1,Dobermann,733.0
+2023,2,Dobermann,725.0
+2023,3,Dobermann,725.0
+2023,4,Dobermann,718.0
+2023,5,Dobermann,717.0
+2023,6,Dobermann,718.0
+2023,7,Dobermann,715.0
+2016,1,Dogo Argentino,266.0
+2016,2,Dogo Argentino,265.0
+2016,3,Dogo Argentino,267.0
+2016,4,Dogo Argentino,274.0
+2016,5,Dogo Argentino,273.0
+2016,6,Dogo Argentino,278.0
+2016,7,Dogo Argentino,279.0
+2016,8,Dogo Argentino,281.0
+2016,9,Dogo Argentino,281.0
+2016,10,Dogo Argentino,281.0
+2016,11,Dogo Argentino,281.0
+2016,12,Dogo Argentino,282.0
+2017,1,Dogo Argentino,275.0
+2017,2,Dogo Argentino,280.0
+2017,3,Dogo Argentino,283.0
+2017,4,Dogo Argentino,287.0
+2017,5,Dogo Argentino,286.0
+2017,6,Dogo Argentino,285.0
+2017,7,Dogo Argentino,280.0
+2017,8,Dogo Argentino,282.0
+2017,9,Dogo Argentino,287.0
+2017,10,Dogo Argentino,293.0
+2017,11,Dogo Argentino,300.0
+2017,12,Dogo Argentino,296.0
+2018,1,Dogo Argentino,289.0
+2018,2,Dogo Argentino,286.0
+2018,3,Dogo Argentino,289.0
+2018,4,Dogo Argentino,289.0
+2018,5,Dogo Argentino,290.0
+2018,6,Dogo Argentino,292.0
+2018,7,Dogo Argentino,294.0
+2018,8,Dogo Argentino,295.0
+2018,9,Dogo Argentino,295.0
+2018,10,Dogo Argentino,305.0
+2018,11,Dogo Argentino,305.0
+2018,12,Dogo Argentino,306.0
+2019,1,Dogo Argentino,305.0
+2019,2,Dogo Argentino,310.0
+2019,3,Dogo Argentino,309.0
+2019,4,Dogo Argentino,310.0
+2019,5,Dogo Argentino,309.0
+2019,6,Dogo Argentino,315.0
+2019,7,Dogo Argentino,315.0
+2019,8,Dogo Argentino,314.0
+2019,9,Dogo Argentino,314.0
+2019,10,Dogo Argentino,314.0
+2019,11,Dogo Argentino,316.0
+2019,12,Dogo Argentino,311.0
+2020,1,Dogo Argentino,310.0
+2020,2,Dogo Argentino,309.0
+2020,3,Dogo Argentino,309.0
+2020,4,Dogo Argentino,312.0
+2020,5,Dogo Argentino,312.0
+2020,6,Dogo Argentino,316.0
+2020,7,Dogo Argentino,309.0
+2020,8,Dogo Argentino,309.0
+2020,9,Dogo Argentino,312.0
+2020,10,Dogo Argentino,313.0
+2020,11,Dogo Argentino,311.0
+2020,12,Dogo Argentino,304.0
+2021,1,Dogo Argentino,300.0
+2021,2,Dogo Argentino,305.0
+2021,3,Dogo Argentino,297.0
+2021,4,Dogo Argentino,293.0
+2021,5,Dogo Argentino,295.0
+2021,6,Dogo Argentino,295.0
+2021,7,Dogo Argentino,299.0
+2021,8,Dogo Argentino,302.0
+2021,9,Dogo Argentino,302.0
+2021,10,Dogo Argentino,305.0
+2021,11,Dogo Argentino,307.0
+2021,12,Dogo Argentino,303.0
+2022,1,Dogo Argentino,302.0
+2022,2,Dogo Argentino,304.0
+2022,3,Dogo Argentino,298.0
+2022,4,Dogo Argentino,296.0
+2022,5,Dogo Argentino,295.0
+2022,6,Dogo Argentino,294.0
+2022,7,Dogo Argentino,295.0
+2022,8,Dogo Argentino,295.0
+2022,9,Dogo Argentino,297.0
+2022,10,Dogo Argentino,298.0
+2022,11,Dogo Argentino,296.0
+2022,12,Dogo Argentino,294.0
+2023,1,Dogo Argentino,290.0
+2023,2,Dogo Argentino,292.0
+2023,3,Dogo Argentino,291.0
+2023,4,Dogo Argentino,291.0
+2023,5,Dogo Argentino,294.0
+2023,6,Dogo Argentino,294.0
+2023,7,Dogo Argentino,291.0
+2016,1,Dogo Canario,114.0
+2016,2,Dogo Canario,113.0
+2016,3,Dogo Canario,113.0
+2016,4,Dogo Canario,114.0
+2016,5,Dogo Canario,116.0
+2016,6,Dogo Canario,117.0
+2016,7,Dogo Canario,115.0
+2016,8,Dogo Canario,116.0
+2016,9,Dogo Canario,116.0
+2016,10,Dogo Canario,114.0
+2016,11,Dogo Canario,114.0
+2016,12,Dogo Canario,113.0
+2017,1,Dogo Canario,114.0
+2017,2,Dogo Canario,117.0
+2017,3,Dogo Canario,118.0
+2017,4,Dogo Canario,119.0
+2017,5,Dogo Canario,119.0
+2017,6,Dogo Canario,118.0
+2017,7,Dogo Canario,118.0
+2017,8,Dogo Canario,116.0
+2017,9,Dogo Canario,119.0
+2017,10,Dogo Canario,120.0
+2017,11,Dogo Canario,122.0
+2017,12,Dogo Canario,122.0
+2018,1,Dogo Canario,120.0
+2018,2,Dogo Canario,119.0
+2018,3,Dogo Canario,127.0
+2018,4,Dogo Canario,125.0
+2018,5,Dogo Canario,124.0
+2018,6,Dogo Canario,124.0
+2018,7,Dogo Canario,125.0
+2018,8,Dogo Canario,125.0
+2018,9,Dogo Canario,125.0
+2018,10,Dogo Canario,125.0
+2018,11,Dogo Canario,126.0
+2018,12,Dogo Canario,122.0
+2019,1,Dogo Canario,124.0
+2019,2,Dogo Canario,124.0
+2019,3,Dogo Canario,123.0
+2019,4,Dogo Canario,122.0
+2019,5,Dogo Canario,124.0
+2019,6,Dogo Canario,125.0
+2019,7,Dogo Canario,123.0
+2019,8,Dogo Canario,122.0
+2019,9,Dogo Canario,123.0
+2019,10,Dogo Canario,124.0
+2019,11,Dogo Canario,122.0
+2019,12,Dogo Canario,120.0
+2020,1,Dogo Canario,118.0
+2020,2,Dogo Canario,118.0
+2020,3,Dogo Canario,117.0
+2020,4,Dogo Canario,116.0
+2020,5,Dogo Canario,116.0
+2020,6,Dogo Canario,117.0
+2020,7,Dogo Canario,118.0
+2020,8,Dogo Canario,118.0
+2020,9,Dogo Canario,118.0
+2020,10,Dogo Canario,121.0
+2020,11,Dogo Canario,120.0
+2020,12,Dogo Canario,120.0
+2021,1,Dogo Canario,122.0
+2021,2,Dogo Canario,121.0
+2021,3,Dogo Canario,122.0
+2021,4,Dogo Canario,121.0
+2021,5,Dogo Canario,121.0
+2021,6,Dogo Canario,120.0
+2021,7,Dogo Canario,120.0
+2021,8,Dogo Canario,120.0
+2021,9,Dogo Canario,121.0
+2021,10,Dogo Canario,124.0
+2021,11,Dogo Canario,125.0
+2021,12,Dogo Canario,126.0
+2022,1,Dogo Canario,124.0
+2022,2,Dogo Canario,125.0
+2022,3,Dogo Canario,126.0
+2022,4,Dogo Canario,125.0
+2022,5,Dogo Canario,126.0
+2022,6,Dogo Canario,127.0
+2022,7,Dogo Canario,128.0
+2022,8,Dogo Canario,126.0
+2022,9,Dogo Canario,126.0
+2022,10,Dogo Canario,124.0
+2022,11,Dogo Canario,123.0
+2022,12,Dogo Canario,121.0
+2023,1,Dogo Canario,123.0
+2023,2,Dogo Canario,122.0
+2023,3,Dogo Canario,123.0
+2023,4,Dogo Canario,121.0
+2023,5,Dogo Canario,119.0
+2023,6,Dogo Canario,119.0
+2023,7,Dogo Canario,120.0
+2016,1,Dogue de Bordeaux,312.0
+2016,2,Dogue de Bordeaux,306.0
+2016,3,Dogue de Bordeaux,299.0
+2016,4,Dogue de Bordeaux,297.0
+2016,5,Dogue de Bordeaux,296.0
+2016,6,Dogue de Bordeaux,293.0
+2016,7,Dogue de Bordeaux,292.0
+2016,8,Dogue de Bordeaux,291.0
+2016,9,Dogue de Bordeaux,292.0
+2016,10,Dogue de Bordeaux,291.0
+2016,11,Dogue de Bordeaux,292.0
+2016,12,Dogue de Bordeaux,292.0
+2017,1,Dogue de Bordeaux,293.0
+2017,2,Dogue de Bordeaux,292.0
+2017,3,Dogue de Bordeaux,288.0
+2017,4,Dogue de Bordeaux,287.0
+2017,5,Dogue de Bordeaux,285.0
+2017,6,Dogue de Bordeaux,283.0
+2017,7,Dogue de Bordeaux,276.0
+2017,8,Dogue de Bordeaux,274.0
+2017,9,Dogue de Bordeaux,275.0
+2017,10,Dogue de Bordeaux,274.0
+2017,11,Dogue de Bordeaux,272.0
+2017,12,Dogue de Bordeaux,273.0
+2018,1,Dogue de Bordeaux,280.0
+2018,2,Dogue de Bordeaux,279.0
+2018,3,Dogue de Bordeaux,279.0
+2018,4,Dogue de Bordeaux,278.0
+2018,5,Dogue de Bordeaux,274.0
+2018,6,Dogue de Bordeaux,274.0
+2018,7,Dogue de Bordeaux,269.0
+2018,8,Dogue de Bordeaux,266.0
+2018,9,Dogue de Bordeaux,265.0
+2018,10,Dogue de Bordeaux,264.0
+2018,11,Dogue de Bordeaux,267.0
+2018,12,Dogue de Bordeaux,263.0
+2019,1,Dogue de Bordeaux,262.0
+2019,2,Dogue de Bordeaux,259.0
+2019,3,Dogue de Bordeaux,257.0
+2019,4,Dogue de Bordeaux,250.0
+2019,5,Dogue de Bordeaux,249.0
+2019,6,Dogue de Bordeaux,255.0
+2019,7,Dogue de Bordeaux,254.0
+2019,8,Dogue de Bordeaux,253.0
+2019,9,Dogue de Bordeaux,250.0
+2019,10,Dogue de Bordeaux,251.0
+2019,11,Dogue de Bordeaux,251.0
+2019,12,Dogue de Bordeaux,252.0
+2020,1,Dogue de Bordeaux,251.0
+2020,2,Dogue de Bordeaux,252.0
+2020,3,Dogue de Bordeaux,256.0
+2020,4,Dogue de Bordeaux,256.0
+2020,5,Dogue de Bordeaux,255.0
+2020,6,Dogue de Bordeaux,253.0
+2020,7,Dogue de Bordeaux,255.0
+2020,8,Dogue de Bordeaux,255.0
+2020,9,Dogue de Bordeaux,256.0
+2020,10,Dogue de Bordeaux,258.0
+2020,11,Dogue de Bordeaux,261.0
+2020,12,Dogue de Bordeaux,257.0
+2021,1,Dogue de Bordeaux,259.0
+2021,2,Dogue de Bordeaux,254.0
+2021,3,Dogue de Bordeaux,256.0
+2021,4,Dogue de Bordeaux,254.0
+2021,5,Dogue de Bordeaux,250.0
+2021,6,Dogue de Bordeaux,252.0
+2021,7,Dogue de Bordeaux,253.0
+2021,8,Dogue de Bordeaux,252.0
+2021,9,Dogue de Bordeaux,251.0
+2021,10,Dogue de Bordeaux,250.0
+2021,11,Dogue de Bordeaux,252.0
+2021,12,Dogue de Bordeaux,249.0
+2022,1,Dogue de Bordeaux,252.0
+2022,2,Dogue de Bordeaux,254.0
+2022,3,Dogue de Bordeaux,251.0
+2022,4,Dogue de Bordeaux,249.0
+2022,5,Dogue de Bordeaux,248.0
+2022,6,Dogue de Bordeaux,245.0
+2022,7,Dogue de Bordeaux,241.0
+2022,8,Dogue de Bordeaux,241.0
+2022,9,Dogue de Bordeaux,237.0
+2022,10,Dogue de Bordeaux,235.0
+2022,11,Dogue de Bordeaux,232.0
+2022,12,Dogue de Bordeaux,232.0
+2023,1,Dogue de Bordeaux,230.0
+2023,2,Dogue de Bordeaux,231.0
+2023,3,Dogue de Bordeaux,229.0
+2023,4,Dogue de Bordeaux,233.0
+2023,5,Dogue de Bordeaux,231.0
+2023,6,Dogue de Bordeaux,228.0
+2023,7,Dogue de Bordeaux,226.0
+2016,1,Fila Brasileiro,25.0
+2016,2,Fila Brasileiro,25.0
+2016,3,Fila Brasileiro,24.0
+2016,4,Fila Brasileiro,23.0
+2016,5,Fila Brasileiro,23.0
+2016,6,Fila Brasileiro,24.0
+2016,7,Fila Brasileiro,25.0
+2016,8,Fila Brasileiro,25.0
+2016,9,Fila Brasileiro,24.0
+2016,10,Fila Brasileiro,22.0
+2016,11,Fila Brasileiro,22.0
+2016,12,Fila Brasileiro,21.0
+2017,1,Fila Brasileiro,21.0
+2017,2,Fila Brasileiro,20.0
+2017,3,Fila Brasileiro,19.0
+2017,4,Fila Brasileiro,19.0
+2017,5,Fila Brasileiro,19.0
+2017,6,Fila Brasileiro,19.0
+2017,7,Fila Brasileiro,18.0
+2017,8,Fila Brasileiro,18.0
+2017,9,Fila Brasileiro,16.0
+2017,10,Fila Brasileiro,16.0
+2017,11,Fila Brasileiro,16.0
+2017,12,Fila Brasileiro,14.0
+2018,1,Fila Brasileiro,13.0
+2018,2,Fila Brasileiro,13.0
+2018,3,Fila Brasileiro,13.0
+2018,4,Fila Brasileiro,13.0
+2018,5,Fila Brasileiro,14.0
+2018,6,Fila Brasileiro,15.0
+2018,7,Fila Brasileiro,15.0
+2018,8,Fila Brasileiro,15.0
+2018,9,Fila Brasileiro,15.0
+2018,10,Fila Brasileiro,15.0
+2018,11,Fila Brasileiro,15.0
+2018,12,Fila Brasileiro,15.0
+2019,1,Fila Brasileiro,15.0
+2019,2,Fila Brasileiro,15.0
+2019,3,Fila Brasileiro,15.0
+2019,4,Fila Brasileiro,15.0
+2019,5,Fila Brasileiro,15.0
+2019,6,Fila Brasileiro,15.0
+2019,7,Fila Brasileiro,15.0
+2019,8,Fila Brasileiro,15.0
+2019,9,Fila Brasileiro,14.0
+2019,10,Fila Brasileiro,14.0
+2019,11,Fila Brasileiro,14.0
+2019,12,Fila Brasileiro,14.0
+2020,1,Fila Brasileiro,15.0
+2020,2,Fila Brasileiro,15.0
+2020,3,Fila Brasileiro,15.0
+2020,4,Fila Brasileiro,15.0
+2020,5,Fila Brasileiro,15.0
+2020,6,Fila Brasileiro,15.0
+2020,7,Fila Brasileiro,15.0
+2020,8,Fila Brasileiro,15.0
+2020,9,Fila Brasileiro,15.0
+2020,10,Fila Brasileiro,15.0
+2020,11,Fila Brasileiro,14.0
+2020,12,Fila Brasileiro,14.0
+2021,1,Fila Brasileiro,13.0
+2021,2,Fila Brasileiro,13.0
+2021,3,Fila Brasileiro,13.0
+2021,4,Fila Brasileiro,13.0
+2021,5,Fila Brasileiro,12.0
+2021,6,Fila Brasileiro,12.0
+2021,7,Fila Brasileiro,12.0
+2021,8,Fila Brasileiro,12.0
+2021,9,Fila Brasileiro,12.0
+2021,10,Fila Brasileiro,12.0
+2021,11,Fila Brasileiro,12.0
+2021,12,Fila Brasileiro,12.0
+2022,1,Fila Brasileiro,12.0
+2022,2,Fila Brasileiro,12.0
+2022,3,Fila Brasileiro,12.0
+2022,4,Fila Brasileiro,12.0
+2022,5,Fila Brasileiro,12.0
+2022,6,Fila Brasileiro,12.0
+2022,7,Fila Brasileiro,12.0
+2022,8,Fila Brasileiro,12.0
+2022,9,Fila Brasileiro,12.0
+2022,10,Fila Brasileiro,12.0
+2022,11,Fila Brasileiro,12.0
+2022,12,Fila Brasileiro,12.0
+2023,1,Fila Brasileiro,10.0
+2023,2,Fila Brasileiro,10.0
+2023,3,Fila Brasileiro,10.0
+2023,4,Fila Brasileiro,10.0
+2023,5,Fila Brasileiro,10.0
+2023,6,Fila Brasileiro,10.0
+2023,7,Fila Brasileiro,9.0
+2016,1,Great Dane,1479.0
+2016,2,Great Dane,1484.0
+2016,3,Great Dane,1482.0
+2016,4,Great Dane,1485.0
+2016,5,Great Dane,1485.0
+2016,6,Great Dane,1470.0
+2016,7,Great Dane,1486.0
+2016,8,Great Dane,1509.0
+2016,9,Great Dane,1501.0
+2016,10,Great Dane,1486.0
+2016,11,Great Dane,1478.0
+2016,12,Great Dane,1477.0
+2017,1,Great Dane,1440.0
+2017,2,Great Dane,1443.0
+2017,3,Great Dane,1451.0
+2017,4,Great Dane,1437.0
+2017,5,Great Dane,1434.0
+2017,6,Great Dane,1422.0
+2017,7,Great Dane,1434.0
+2017,8,Great Dane,1423.0
+2017,9,Great Dane,1435.0
+2017,10,Great Dane,1432.0
+2017,11,Great Dane,1415.0
+2017,12,Great Dane,1406.0
+2018,1,Great Dane,1392.0
+2018,2,Great Dane,1404.0
+2018,3,Great Dane,1396.0
+2018,4,Great Dane,1386.0
+2018,5,Great Dane,1375.0
+2018,6,Great Dane,1365.0
+2018,7,Great Dane,1360.0
+2018,8,Great Dane,1348.0
+2018,9,Great Dane,1349.0
+2018,10,Great Dane,1352.0
+2018,11,Great Dane,1335.0
+2018,12,Great Dane,1320.0
+2019,1,Great Dane,1332.0
+2019,2,Great Dane,1328.0
+2019,3,Great Dane,1320.0
+2019,4,Great Dane,1312.0
+2019,5,Great Dane,1315.0
+2019,6,Great Dane,1313.0
+2019,7,Great Dane,1312.0
+2019,8,Great Dane,1312.0
+2019,9,Great Dane,1310.0
+2019,10,Great Dane,1315.0
+2019,11,Great Dane,1318.0
+2019,12,Great Dane,1304.0
+2020,1,Great Dane,1285.0
+2020,2,Great Dane,1278.0
+2020,3,Great Dane,1259.0
+2020,4,Great Dane,1255.0
+2020,5,Great Dane,1258.0
+2020,6,Great Dane,1252.0
+2020,7,Great Dane,1243.0
+2020,8,Great Dane,1238.0
+2020,9,Great Dane,1217.0
+2020,10,Great Dane,1215.0
+2020,11,Great Dane,1227.0
+2020,12,Great Dane,1219.0
+2021,1,Great Dane,1217.0
+2021,2,Great Dane,1209.0
+2021,3,Great Dane,1191.0
+2021,4,Great Dane,1179.0
+2021,5,Great Dane,1184.0
+2021,6,Great Dane,1191.0
+2021,7,Great Dane,1191.0
+2021,8,Great Dane,1179.0
+2021,9,Great Dane,1172.0
+2021,10,Great Dane,1160.0
+2021,11,Great Dane,1158.0
+2021,12,Great Dane,1159.0
+2022,1,Great Dane,1144.0
+2022,2,Great Dane,1136.0
+2022,3,Great Dane,1119.0
+2022,4,Great Dane,1114.0
+2022,5,Great Dane,1109.0
+2022,6,Great Dane,1099.0
+2022,7,Great Dane,1111.0
+2022,8,Great Dane,1102.0
+2022,9,Great Dane,1104.0
+2022,10,Great Dane,1090.0
+2022,11,Great Dane,1095.0
+2022,12,Great Dane,1085.0
+2023,1,Great Dane,1081.0
+2023,2,Great Dane,1068.0
+2023,3,Great Dane,1061.0
+2023,4,Great Dane,1073.0
+2023,5,Great Dane,1059.0
+2023,6,Great Dane,1058.0
+2023,7,Great Dane,1053.0
+2016,1,Hollandse Herdershond,457.0
+2016,2,Hollandse Herdershond,457.0
+2016,3,Hollandse Herdershond,462.0
+2016,4,Hollandse Herdershond,461.0
+2016,5,Hollandse Herdershond,463.0
+2016,6,Hollandse Herdershond,462.0
+2016,7,Hollandse Herdershond,462.0
+2016,8,Hollandse Herdershond,468.0
+2016,9,Hollandse Herdershond,474.0
+2016,10,Hollandse Herdershond,473.0
+2016,11,Hollandse Herdershond,476.0
+2016,12,Hollandse Herdershond,478.0
+2017,1,Hollandse Herdershond,478.0
+2017,2,Hollandse Herdershond,487.0
+2017,3,Hollandse Herdershond,485.0
+2017,4,Hollandse Herdershond,483.0
+2017,5,Hollandse Herdershond,492.0
+2017,6,Hollandse Herdershond,493.0
+2017,7,Hollandse Herdershond,495.0
+2017,8,Hollandse Herdershond,490.0
+2017,9,Hollandse Herdershond,499.0
+2017,10,Hollandse Herdershond,497.0
+2017,11,Hollandse Herdershond,499.0
+2017,12,Hollandse Herdershond,497.0
+2018,1,Hollandse Herdershond,510.0
+2018,2,Hollandse Herdershond,512.0
+2018,3,Hollandse Herdershond,511.0
+2018,4,Hollandse Herdershond,510.0
+2018,5,Hollandse Herdershond,514.0
+2018,6,Hollandse Herdershond,521.0
+2018,7,Hollandse Herdershond,521.0
+2018,8,Hollandse Herdershond,536.0
+2018,9,Hollandse Herdershond,537.0
+2018,10,Hollandse Herdershond,529.0
+2018,11,Hollandse Herdershond,527.0
+2018,12,Hollandse Herdershond,526.0
+2019,1,Hollandse Herdershond,528.0
+2019,2,Hollandse Herdershond,530.0
+2019,3,Hollandse Herdershond,530.0
+2019,4,Hollandse Herdershond,547.0
+2019,5,Hollandse Herdershond,547.0
+2019,6,Hollandse Herdershond,554.0
+2019,7,Hollandse Herdershond,555.0
+2019,8,Hollandse Herdershond,555.0
+2019,9,Hollandse Herdershond,581.0
+2019,10,Hollandse Herdershond,583.0
+2019,11,Hollandse Herdershond,581.0
+2019,12,Hollandse Herdershond,578.0
+2020,1,Hollandse Herdershond,578.0
+2020,2,Hollandse Herdershond,584.0
+2020,3,Hollandse Herdershond,585.0
+2020,4,Hollandse Herdershond,587.0
+2020,5,Hollandse Herdershond,592.0
+2020,6,Hollandse Herdershond,593.0
+2020,7,Hollandse Herdershond,593.0
+2020,8,Hollandse Herdershond,594.0
+2020,9,Hollandse Herdershond,594.0
+2020,10,Hollandse Herdershond,607.0
+2020,11,Hollandse Herdershond,608.0
+2020,12,Hollandse Herdershond,618.0
+2021,1,Hollandse Herdershond,624.0
+2021,2,Hollandse Herdershond,631.0
+2021,3,Hollandse Herdershond,632.0
+2021,4,Hollandse Herdershond,642.0
+2021,5,Hollandse Herdershond,639.0
+2021,6,Hollandse Herdershond,640.0
+2021,7,Hollandse Herdershond,640.0
+2021,8,Hollandse Herdershond,641.0
+2021,9,Hollandse Herdershond,648.0
+2021,10,Hollandse Herdershond,648.0
+2021,11,Hollandse Herdershond,645.0
+2021,12,Hollandse Herdershond,651.0
+2022,1,Hollandse Herdershond,663.0
+2022,2,Hollandse Herdershond,666.0
+2022,3,Hollandse Herdershond,656.0
+2022,4,Hollandse Herdershond,659.0
+2022,5,Hollandse Herdershond,670.0
+2022,6,Hollandse Herdershond,670.0
+2022,7,Hollandse Herdershond,672.0
+2022,8,Hollandse Herdershond,668.0
+2022,9,Hollandse Herdershond,680.0
+2022,10,Hollandse Herdershond,676.0
+2022,11,Hollandse Herdershond,678.0
+2022,12,Hollandse Herdershond,682.0
+2023,1,Hollandse Herdershond,695.0
+2023,2,Hollandse Herdershond,697.0
+2023,3,Hollandse Herdershond,704.0
+2023,4,Hollandse Herdershond,704.0
+2023,5,Hollandse Herdershond,706.0
+2023,6,Hollandse Herdershond,702.0
+2023,7,Hollandse Herdershond,700.0
+2016,1,Hovawart,1073.0
+2016,2,Hovawart,1076.0
+2016,3,Hovawart,1068.0
+2016,4,Hovawart,1064.0
+2016,5,Hovawart,1062.0
+2016,6,Hovawart,1071.0
+2016,7,Hovawart,1076.0
+2016,8,Hovawart,1062.0
+2016,9,Hovawart,1060.0
+2016,10,Hovawart,1048.0
+2016,11,Hovawart,1039.0
+2016,12,Hovawart,1025.0
+2017,1,Hovawart,1014.0
+2017,2,Hovawart,1024.0
+2017,3,Hovawart,1020.0
+2017,4,Hovawart,1020.0
+2017,5,Hovawart,1020.0
+2017,6,Hovawart,1017.0
+2017,7,Hovawart,1012.0
+2017,8,Hovawart,1005.0
+2017,9,Hovawart,1003.0
+2017,10,Hovawart,1002.0
+2017,11,Hovawart,995.0
+2017,12,Hovawart,988.0
+2018,1,Hovawart,987.0
+2018,2,Hovawart,978.0
+2018,3,Hovawart,975.0
+2018,4,Hovawart,960.0
+2018,5,Hovawart,950.0
+2018,6,Hovawart,943.0
+2018,7,Hovawart,936.0
+2018,8,Hovawart,944.0
+2018,9,Hovawart,937.0
+2018,10,Hovawart,935.0
+2018,11,Hovawart,930.0
+2018,12,Hovawart,922.0
+2019,1,Hovawart,922.0
+2019,2,Hovawart,934.0
+2019,3,Hovawart,932.0
+2019,4,Hovawart,929.0
+2019,5,Hovawart,921.0
+2019,6,Hovawart,909.0
+2019,7,Hovawart,905.0
+2019,8,Hovawart,898.0
+2019,9,Hovawart,905.0
+2019,10,Hovawart,900.0
+2019,11,Hovawart,907.0
+2019,12,Hovawart,903.0
+2020,1,Hovawart,898.0
+2020,2,Hovawart,886.0
+2020,3,Hovawart,884.0
+2020,4,Hovawart,880.0
+2020,5,Hovawart,877.0
+2020,6,Hovawart,871.0
+2020,7,Hovawart,864.0
+2020,8,Hovawart,852.0
+2020,9,Hovawart,847.0
+2020,10,Hovawart,843.0
+2020,11,Hovawart,843.0
+2020,12,Hovawart,838.0
+2021,1,Hovawart,837.0
+2021,2,Hovawart,832.0
+2021,3,Hovawart,833.0
+2021,4,Hovawart,826.0
+2021,5,Hovawart,824.0
+2021,6,Hovawart,821.0
+2021,7,Hovawart,822.0
+2021,8,Hovawart,830.0
+2021,9,Hovawart,831.0
+2021,10,Hovawart,839.0
+2021,11,Hovawart,828.0
+2021,12,Hovawart,824.0
+2022,1,Hovawart,823.0
+2022,2,Hovawart,817.0
+2022,3,Hovawart,813.0
+2022,4,Hovawart,818.0
+2022,5,Hovawart,815.0
+2022,6,Hovawart,807.0
+2022,7,Hovawart,797.0
+2022,8,Hovawart,793.0
+2022,9,Hovawart,786.0
+2022,10,Hovawart,787.0
+2022,11,Hovawart,781.0
+2022,12,Hovawart,774.0
+2023,1,Hovawart,782.0
+2023,2,Hovawart,778.0
+2023,3,Hovawart,771.0
+2023,4,Hovawart,771.0
+2023,5,Hovawart,768.0
+2023,6,Hovawart,765.0
+2023,7,Hovawart,759.0
+2016,1,Kangal Coban Kopegi,174.0
+2016,2,Kangal Coban Kopegi,173.0
+2016,3,Kangal Coban Kopegi,172.0
+2016,4,Kangal Coban Kopegi,173.0
+2016,5,Kangal Coban Kopegi,175.0
+2016,6,Kangal Coban Kopegi,179.0
+2016,7,Kangal Coban Kopegi,179.0
+2016,8,Kangal Coban Kopegi,181.0
+2016,9,Kangal Coban Kopegi,181.0
+2016,10,Kangal Coban Kopegi,182.0
+2016,11,Kangal Coban Kopegi,181.0
+2016,12,Kangal Coban Kopegi,182.0
+2017,1,Kangal Coban Kopegi,183.0
+2017,2,Kangal Coban Kopegi,189.0
+2017,3,Kangal Coban Kopegi,188.0
+2017,4,Kangal Coban Kopegi,185.0
+2017,5,Kangal Coban Kopegi,184.0
+2017,6,Kangal Coban Kopegi,183.0
+2017,7,Kangal Coban Kopegi,182.0
+2017,8,Kangal Coban Kopegi,181.0
+2017,9,Kangal Coban Kopegi,183.0
+2017,10,Kangal Coban Kopegi,182.0
+2017,11,Kangal Coban Kopegi,182.0
+2017,12,Kangal Coban Kopegi,181.0
+2018,1,Kangal Coban Kopegi,181.0
+2018,2,Kangal Coban Kopegi,180.0
+2018,3,Kangal Coban Kopegi,181.0
+2018,4,Kangal Coban Kopegi,180.0
+2018,5,Kangal Coban Kopegi,187.0
+2018,6,Kangal Coban Kopegi,187.0
+2018,7,Kangal Coban Kopegi,191.0
+2018,8,Kangal Coban Kopegi,192.0
+2018,9,Kangal Coban Kopegi,191.0
+2018,10,Kangal Coban Kopegi,193.0
+2018,11,Kangal Coban Kopegi,194.0
+2018,12,Kangal Coban Kopegi,192.0
+2019,1,Kangal Coban Kopegi,194.0
+2019,2,Kangal Coban Kopegi,191.0
+2019,3,Kangal Coban Kopegi,189.0
+2019,4,Kangal Coban Kopegi,188.0
+2019,5,Kangal Coban Kopegi,192.0
+2019,6,Kangal Coban Kopegi,190.0
+2019,7,Kangal Coban Kopegi,189.0
+2019,8,Kangal Coban Kopegi,188.0
+2019,9,Kangal Coban Kopegi,187.0
+2019,10,Kangal Coban Kopegi,189.0
+2019,11,Kangal Coban Kopegi,189.0
+2019,12,Kangal Coban Kopegi,192.0
+2020,1,Kangal Coban Kopegi,193.0
+2020,2,Kangal Coban Kopegi,194.0
+2020,3,Kangal Coban Kopegi,195.0
+2020,4,Kangal Coban Kopegi,200.0
+2020,5,Kangal Coban Kopegi,202.0
+2020,6,Kangal Coban Kopegi,204.0
+2020,7,Kangal Coban Kopegi,208.0
+2020,8,Kangal Coban Kopegi,206.0
+2020,9,Kangal Coban Kopegi,205.0
+2020,10,Kangal Coban Kopegi,207.0
+2020,11,Kangal Coban Kopegi,213.0
+2020,12,Kangal Coban Kopegi,222.0
+2021,1,Kangal Coban Kopegi,222.0
+2021,2,Kangal Coban Kopegi,227.0
+2021,3,Kangal Coban Kopegi,232.0
+2021,4,Kangal Coban Kopegi,238.0
+2021,5,Kangal Coban Kopegi,238.0
+2021,6,Kangal Coban Kopegi,237.0
+2021,7,Kangal Coban Kopegi,239.0
+2021,8,Kangal Coban Kopegi,245.0
+2021,9,Kangal Coban Kopegi,248.0
+2021,10,Kangal Coban Kopegi,244.0
+2021,11,Kangal Coban Kopegi,256.0
+2021,12,Kangal Coban Kopegi,262.0
+2022,1,Kangal Coban Kopegi,264.0
+2022,2,Kangal Coban Kopegi,268.0
+2022,3,Kangal Coban Kopegi,271.0
+2022,4,Kangal Coban Kopegi,267.0
+2022,5,Kangal Coban Kopegi,267.0
+2022,6,Kangal Coban Kopegi,270.0
+2022,7,Kangal Coban Kopegi,269.0
+2022,8,Kangal Coban Kopegi,282.0
+2022,9,Kangal Coban Kopegi,286.0
+2022,10,Kangal Coban Kopegi,311.0
+2022,11,Kangal Coban Kopegi,318.0
+2022,12,Kangal Coban Kopegi,319.0
+2023,1,Kangal Coban Kopegi,319.0
+2023,2,Kangal Coban Kopegi,324.0
+2023,3,Kangal Coban Kopegi,326.0
+2023,4,Kangal Coban Kopegi,325.0
+2023,5,Kangal Coban Kopegi,325.0
+2023,6,Kangal Coban Kopegi,323.0
+2023,7,Kangal Coban Kopegi,323.0
+2016,1,Kavkazskaia Ovtcharka,57.0
+2016,2,Kavkazskaia Ovtcharka,56.0
+2016,3,Kavkazskaia Ovtcharka,54.0
+2016,4,Kavkazskaia Ovtcharka,63.0
+2016,5,Kavkazskaia Ovtcharka,63.0
+2016,6,Kavkazskaia Ovtcharka,61.0
+2016,7,Kavkazskaia Ovtcharka,58.0
+2016,8,Kavkazskaia Ovtcharka,57.0
+2016,9,Kavkazskaia Ovtcharka,57.0
+2016,10,Kavkazskaia Ovtcharka,58.0
+2016,11,Kavkazskaia Ovtcharka,58.0
+2016,12,Kavkazskaia Ovtcharka,57.0
+2017,1,Kavkazskaia Ovtcharka,55.0
+2017,2,Kavkazskaia Ovtcharka,55.0
+2017,3,Kavkazskaia Ovtcharka,60.0
+2017,4,Kavkazskaia Ovtcharka,59.0
+2017,5,Kavkazskaia Ovtcharka,57.0
+2017,6,Kavkazskaia Ovtcharka,57.0
+2017,7,Kavkazskaia Ovtcharka,57.0
+2017,8,Kavkazskaia Ovtcharka,68.0
+2017,9,Kavkazskaia Ovtcharka,69.0
+2017,10,Kavkazskaia Ovtcharka,69.0
+2017,11,Kavkazskaia Ovtcharka,74.0
+2017,12,Kavkazskaia Ovtcharka,74.0
+2018,1,Kavkazskaia Ovtcharka,71.0
+2018,2,Kavkazskaia Ovtcharka,68.0
+2018,3,Kavkazskaia Ovtcharka,64.0
+2018,4,Kavkazskaia Ovtcharka,73.0
+2018,5,Kavkazskaia Ovtcharka,75.0
+2018,6,Kavkazskaia Ovtcharka,73.0
+2018,7,Kavkazskaia Ovtcharka,72.0
+2018,8,Kavkazskaia Ovtcharka,72.0
+2018,9,Kavkazskaia Ovtcharka,72.0
+2018,10,Kavkazskaia Ovtcharka,70.0
+2018,11,Kavkazskaia Ovtcharka,69.0
+2018,12,Kavkazskaia Ovtcharka,69.0
+2019,1,Kavkazskaia Ovtcharka,69.0
+2019,2,Kavkazskaia Ovtcharka,68.0
+2019,3,Kavkazskaia Ovtcharka,67.0
+2019,4,Kavkazskaia Ovtcharka,68.0
+2019,5,Kavkazskaia Ovtcharka,68.0
+2019,6,Kavkazskaia Ovtcharka,68.0
+2019,7,Kavkazskaia Ovtcharka,67.0
+2019,8,Kavkazskaia Ovtcharka,67.0
+2019,9,Kavkazskaia Ovtcharka,66.0
+2019,10,Kavkazskaia Ovtcharka,64.0
+2019,11,Kavkazskaia Ovtcharka,65.0
+2019,12,Kavkazskaia Ovtcharka,64.0
+2020,1,Kavkazskaia Ovtcharka,66.0
+2020,2,Kavkazskaia Ovtcharka,63.0
+2020,3,Kavkazskaia Ovtcharka,63.0
+2020,4,Kavkazskaia Ovtcharka,63.0
+2020,5,Kavkazskaia Ovtcharka,63.0
+2020,6,Kavkazskaia Ovtcharka,63.0
+2020,7,Kavkazskaia Ovtcharka,63.0
+2020,8,Kavkazskaia Ovtcharka,62.0
+2020,9,Kavkazskaia Ovtcharka,64.0
+2020,10,Kavkazskaia Ovtcharka,66.0
+2020,11,Kavkazskaia Ovtcharka,66.0
+2020,12,Kavkazskaia Ovtcharka,75.0
+2021,1,Kavkazskaia Ovtcharka,76.0
+2021,2,Kavkazskaia Ovtcharka,75.0
+2021,3,Kavkazskaia Ovtcharka,74.0
+2021,4,Kavkazskaia Ovtcharka,74.0
+2021,5,Kavkazskaia Ovtcharka,75.0
+2021,6,Kavkazskaia Ovtcharka,76.0
+2021,7,Kavkazskaia Ovtcharka,75.0
+2021,8,Kavkazskaia Ovtcharka,76.0
+2021,9,Kavkazskaia Ovtcharka,77.0
+2021,10,Kavkazskaia Ovtcharka,78.0
+2021,11,Kavkazskaia Ovtcharka,77.0
+2021,12,Kavkazskaia Ovtcharka,75.0
+2022,1,Kavkazskaia Ovtcharka,74.0
+2022,2,Kavkazskaia Ovtcharka,76.0
+2022,3,Kavkazskaia Ovtcharka,74.0
+2022,4,Kavkazskaia Ovtcharka,68.0
+2022,5,Kavkazskaia Ovtcharka,69.0
+2022,6,Kavkazskaia Ovtcharka,69.0
+2022,7,Kavkazskaia Ovtcharka,70.0
+2022,8,Kavkazskaia Ovtcharka,71.0
+2022,9,Kavkazskaia Ovtcharka,71.0
+2022,10,Kavkazskaia Ovtcharka,73.0
+2022,11,Kavkazskaia Ovtcharka,73.0
+2022,12,Kavkazskaia Ovtcharka,71.0
+2023,1,Kavkazskaia Ovtcharka,75.0
+2023,2,Kavkazskaia Ovtcharka,75.0
+2023,3,Kavkazskaia Ovtcharka,74.0
+2023,4,Kavkazskaia Ovtcharka,76.0
+2023,5,Kavkazskaia Ovtcharka,76.0
+2023,6,Kavkazskaia Ovtcharka,76.0
+2023,7,Kavkazskaia Ovtcharka,76.0
+2016,1,Komondor,12.0
+2016,2,Komondor,12.0
+2016,3,Komondor,12.0
+2016,4,Komondor,13.0
+2016,5,Komondor,13.0
+2016,6,Komondor,13.0
+2016,7,Komondor,14.0
+2016,8,Komondor,14.0
+2016,9,Komondor,15.0
+2016,10,Komondor,14.0
+2016,11,Komondor,14.0
+2016,12,Komondor,14.0
+2017,1,Komondor,13.0
+2017,2,Komondor,13.0
+2017,3,Komondor,13.0
+2017,4,Komondor,14.0
+2017,5,Komondor,14.0
+2017,6,Komondor,14.0
+2017,7,Komondor,14.0
+2017,8,Komondor,14.0
+2017,9,Komondor,15.0
+2017,10,Komondor,15.0
+2017,11,Komondor,15.0
+2017,12,Komondor,13.0
+2018,1,Komondor,13.0
+2018,2,Komondor,12.0
+2018,3,Komondor,12.0
+2018,4,Komondor,12.0
+2018,5,Komondor,13.0
+2018,6,Komondor,13.0
+2018,7,Komondor,13.0
+2018,8,Komondor,12.0
+2018,9,Komondor,13.0
+2018,10,Komondor,13.0
+2018,11,Komondor,13.0
+2018,12,Komondor,14.0
+2019,1,Komondor,14.0
+2019,2,Komondor,14.0
+2019,3,Komondor,14.0
+2019,4,Komondor,14.0
+2019,5,Komondor,14.0
+2019,6,Komondor,15.0
+2019,7,Komondor,15.0
+2019,8,Komondor,15.0
+2019,9,Komondor,16.0
+2019,10,Komondor,16.0
+2019,11,Komondor,17.0
+2019,12,Komondor,19.0
+2020,1,Komondor,20.0
+2020,2,Komondor,20.0
+2020,3,Komondor,20.0
+2020,4,Komondor,19.0
+2020,5,Komondor,19.0
+2020,6,Komondor,21.0
+2020,7,Komondor,22.0
+2020,8,Komondor,22.0
+2020,9,Komondor,22.0
+2020,10,Komondor,22.0
+2020,11,Komondor,21.0
+2020,12,Komondor,21.0
+2021,1,Komondor,22.0
+2021,2,Komondor,23.0
+2021,3,Komondor,23.0
+2021,4,Komondor,24.0
+2021,5,Komondor,24.0
+2021,6,Komondor,24.0
+2021,7,Komondor,24.0
+2021,8,Komondor,25.0
+2021,9,Komondor,25.0
+2021,10,Komondor,25.0
+2021,11,Komondor,25.0
+2021,12,Komondor,25.0
+2022,1,Komondor,25.0
+2022,2,Komondor,25.0
+2022,3,Komondor,25.0
+2022,4,Komondor,25.0
+2022,5,Komondor,25.0
+2022,6,Komondor,24.0
+2022,7,Komondor,25.0
+2022,8,Komondor,25.0
+2022,9,Komondor,24.0
+2022,10,Komondor,22.0
+2022,11,Komondor,21.0
+2022,12,Komondor,21.0
+2023,1,Komondor,21.0
+2023,2,Komondor,21.0
+2023,3,Komondor,21.0
+2023,4,Komondor,21.0
+2023,5,Komondor,21.0
+2023,6,Komondor,21.0
+2023,7,Komondor,21.0
+2016,1,Kuvasz,110.0
+2016,2,Kuvasz,111.0
+2016,3,Kuvasz,110.0
+2016,4,Kuvasz,110.0
+2016,5,Kuvasz,109.0
+2016,6,Kuvasz,108.0
+2016,7,Kuvasz,108.0
+2016,8,Kuvasz,107.0
+2016,9,Kuvasz,107.0
+2016,10,Kuvasz,104.0
+2016,11,Kuvasz,104.0
+2016,12,Kuvasz,102.0
+2017,1,Kuvasz,101.0
+2017,2,Kuvasz,100.0
+2017,3,Kuvasz,101.0
+2017,4,Kuvasz,103.0
+2017,5,Kuvasz,101.0
+2017,6,Kuvasz,101.0
+2017,7,Kuvasz,101.0
+2017,8,Kuvasz,100.0
+2017,9,Kuvasz,100.0
+2017,10,Kuvasz,99.0
+2017,11,Kuvasz,99.0
+2017,12,Kuvasz,104.0
+2018,1,Kuvasz,102.0
+2018,2,Kuvasz,105.0
+2018,3,Kuvasz,102.0
+2018,4,Kuvasz,103.0
+2018,5,Kuvasz,103.0
+2018,6,Kuvasz,101.0
+2018,7,Kuvasz,100.0
+2018,8,Kuvasz,98.0
+2018,9,Kuvasz,98.0
+2018,10,Kuvasz,97.0
+2018,11,Kuvasz,95.0
+2018,12,Kuvasz,96.0
+2019,1,Kuvasz,93.0
+2019,2,Kuvasz,92.0
+2019,3,Kuvasz,92.0
+2019,4,Kuvasz,92.0
+2019,5,Kuvasz,91.0
+2019,6,Kuvasz,88.0
+2019,7,Kuvasz,88.0
+2019,8,Kuvasz,87.0
+2019,9,Kuvasz,87.0
+2019,10,Kuvasz,87.0
+2019,11,Kuvasz,86.0
+2019,12,Kuvasz,86.0
+2020,1,Kuvasz,84.0
+2020,2,Kuvasz,83.0
+2020,3,Kuvasz,83.0
+2020,4,Kuvasz,83.0
+2020,5,Kuvasz,83.0
+2020,6,Kuvasz,84.0
+2020,7,Kuvasz,84.0
+2020,8,Kuvasz,83.0
+2020,9,Kuvasz,83.0
+2020,10,Kuvasz,83.0
+2020,11,Kuvasz,82.0
+2020,12,Kuvasz,86.0
+2021,1,Kuvasz,85.0
+2021,2,Kuvasz,85.0
+2021,3,Kuvasz,85.0
+2021,4,Kuvasz,84.0
+2021,5,Kuvasz,84.0
+2021,6,Kuvasz,80.0
+2021,7,Kuvasz,79.0
+2021,8,Kuvasz,78.0
+2021,9,Kuvasz,79.0
+2021,10,Kuvasz,79.0
+2021,11,Kuvasz,78.0
+2021,12,Kuvasz,76.0
+2022,1,Kuvasz,75.0
+2022,2,Kuvasz,77.0
+2022,3,Kuvasz,77.0
+2022,4,Kuvasz,77.0
+2022,5,Kuvasz,78.0
+2022,6,Kuvasz,77.0
+2022,7,Kuvasz,77.0
+2022,8,Kuvasz,77.0
+2022,9,Kuvasz,76.0
+2022,10,Kuvasz,77.0
+2022,11,Kuvasz,76.0
+2022,12,Kuvasz,76.0
+2023,1,Kuvasz,76.0
+2023,2,Kuvasz,75.0
+2023,3,Kuvasz,73.0
+2023,4,Kuvasz,73.0
+2023,5,Kuvasz,73.0
+2023,6,Kuvasz,71.0
+2023,7,Kuvasz,69.0
+2016,1,Mastiff,61.0
+2016,2,Mastiff,62.0
+2016,3,Mastiff,62.0
+2016,4,Mastiff,61.0
+2016,5,Mastiff,62.0
+2016,6,Mastiff,62.0
+2016,7,Mastiff,62.0
+2016,8,Mastiff,63.0
+2016,9,Mastiff,63.0
+2016,10,Mastiff,60.0
+2016,11,Mastiff,59.0
+2016,12,Mastiff,58.0
+2017,1,Mastiff,59.0
+2017,2,Mastiff,59.0
+2017,3,Mastiff,59.0
+2017,4,Mastiff,59.0
+2017,5,Mastiff,58.0
+2017,6,Mastiff,57.0
+2017,7,Mastiff,55.0
+2017,8,Mastiff,55.0
+2017,9,Mastiff,55.0
+2017,10,Mastiff,55.0
+2017,11,Mastiff,54.0
+2017,12,Mastiff,55.0
+2018,1,Mastiff,56.0
+2018,2,Mastiff,54.0
+2018,3,Mastiff,54.0
+2018,4,Mastiff,54.0
+2018,5,Mastiff,55.0
+2018,6,Mastiff,56.0
+2018,7,Mastiff,57.0
+2018,8,Mastiff,57.0
+2018,9,Mastiff,57.0
+2018,10,Mastiff,57.0
+2018,11,Mastiff,57.0
+2018,12,Mastiff,57.0
+2019,1,Mastiff,60.0
+2019,2,Mastiff,59.0
+2019,3,Mastiff,58.0
+2019,4,Mastiff,58.0
+2019,5,Mastiff,58.0
+2019,6,Mastiff,58.0
+2019,7,Mastiff,56.0
+2019,8,Mastiff,57.0
+2019,9,Mastiff,55.0
+2019,10,Mastiff,56.0
+2019,11,Mastiff,56.0
+2019,12,Mastiff,56.0
+2020,1,Mastiff,56.0
+2020,2,Mastiff,56.0
+2020,3,Mastiff,54.0
+2020,4,Mastiff,55.0
+2020,5,Mastiff,55.0
+2020,6,Mastiff,56.0
+2020,7,Mastiff,57.0
+2020,8,Mastiff,57.0
+2020,9,Mastiff,57.0
+2020,10,Mastiff,57.0
+2020,11,Mastiff,57.0
+2020,12,Mastiff,57.0
+2021,1,Mastiff,58.0
+2021,2,Mastiff,56.0
+2021,3,Mastiff,58.0
+2021,4,Mastiff,58.0
+2021,5,Mastiff,58.0
+2021,6,Mastiff,58.0
+2021,7,Mastiff,60.0
+2021,8,Mastiff,61.0
+2021,9,Mastiff,61.0
+2021,10,Mastiff,61.0
+2021,11,Mastiff,62.0
+2021,12,Mastiff,62.0
+2022,1,Mastiff,62.0
+2022,2,Mastiff,62.0
+2022,3,Mastiff,61.0
+2022,4,Mastiff,63.0
+2022,5,Mastiff,63.0
+2022,6,Mastiff,62.0
+2022,7,Mastiff,64.0
+2022,8,Mastiff,64.0
+2022,9,Mastiff,65.0
+2022,10,Mastiff,65.0
+2022,11,Mastiff,65.0
+2022,12,Mastiff,64.0
+2023,1,Mastiff,66.0
+2023,2,Mastiff,68.0
+2023,3,Mastiff,67.0
+2023,4,Mastiff,67.0
+2023,5,Mastiff,66.0
+2023,6,Mastiff,65.0
+2023,7,Mastiff,64.0
+2016,1,Mastin Espanol,25.0
+2016,2,Mastin Espanol,25.0
+2016,3,Mastin Espanol,24.0
+2016,4,Mastin Espanol,22.0
+2016,5,Mastin Espanol,23.0
+2016,6,Mastin Espanol,23.0
+2016,7,Mastin Espanol,25.0
+2016,8,Mastin Espanol,26.0
+2016,9,Mastin Espanol,26.0
+2016,10,Mastin Espanol,29.0
+2016,11,Mastin Espanol,31.0
+2016,12,Mastin Espanol,32.0
+2017,1,Mastin Espanol,31.0
+2017,2,Mastin Espanol,31.0
+2017,3,Mastin Espanol,32.0
+2017,4,Mastin Espanol,32.0
+2017,5,Mastin Espanol,34.0
+2017,6,Mastin Espanol,34.0
+2017,7,Mastin Espanol,35.0
+2017,8,Mastin Espanol,35.0
+2017,9,Mastin Espanol,33.0
+2017,10,Mastin Espanol,34.0
+2017,11,Mastin Espanol,35.0
+2017,12,Mastin Espanol,35.0
+2018,1,Mastin Espanol,35.0
+2018,2,Mastin Espanol,35.0
+2018,3,Mastin Espanol,36.0
+2018,4,Mastin Espanol,36.0
+2018,5,Mastin Espanol,36.0
+2018,6,Mastin Espanol,36.0
+2018,7,Mastin Espanol,36.0
+2018,8,Mastin Espanol,36.0
+2018,9,Mastin Espanol,36.0
+2018,10,Mastin Espanol,36.0
+2018,11,Mastin Espanol,37.0
+2018,12,Mastin Espanol,38.0
+2019,1,Mastin Espanol,41.0
+2019,2,Mastin Espanol,41.0
+2019,3,Mastin Espanol,41.0
+2019,4,Mastin Espanol,42.0
+2019,5,Mastin Espanol,42.0
+2019,6,Mastin Espanol,43.0
+2019,7,Mastin Espanol,43.0
+2019,8,Mastin Espanol,43.0
+2019,9,Mastin Espanol,43.0
+2019,10,Mastin Espanol,44.0
+2019,11,Mastin Espanol,45.0
+2019,12,Mastin Espanol,45.0
+2020,1,Mastin Espanol,46.0
+2020,2,Mastin Espanol,46.0
+2020,3,Mastin Espanol,46.0
+2020,4,Mastin Espanol,46.0
+2020,5,Mastin Espanol,46.0
+2020,6,Mastin Espanol,47.0
+2020,7,Mastin Espanol,47.0
+2020,8,Mastin Espanol,47.0
+2020,9,Mastin Espanol,48.0
+2020,10,Mastin Espanol,49.0
+2020,11,Mastin Espanol,50.0
+2020,12,Mastin Espanol,50.0
+2021,1,Mastin Espanol,52.0
+2021,2,Mastin Espanol,54.0
+2021,3,Mastin Espanol,56.0
+2021,4,Mastin Espanol,59.0
+2021,5,Mastin Espanol,59.0
+2021,6,Mastin Espanol,62.0
+2021,7,Mastin Espanol,62.0
+2021,8,Mastin Espanol,61.0
+2021,9,Mastin Espanol,61.0
+2021,10,Mastin Espanol,60.0
+2021,11,Mastin Espanol,60.0
+2021,12,Mastin Espanol,58.0
+2022,1,Mastin Espanol,57.0
+2022,2,Mastin Espanol,59.0
+2022,3,Mastin Espanol,59.0
+2022,4,Mastin Espanol,59.0
+2022,5,Mastin Espanol,59.0
+2022,6,Mastin Espanol,57.0
+2022,7,Mastin Espanol,59.0
+2022,8,Mastin Espanol,60.0
+2022,9,Mastin Espanol,61.0
+2022,10,Mastin Espanol,63.0
+2022,11,Mastin Espanol,63.0
+2022,12,Mastin Espanol,63.0
+2023,1,Mastin Espanol,64.0
+2023,2,Mastin Espanol,64.0
+2023,3,Mastin Espanol,65.0
+2023,4,Mastin Espanol,66.0
+2023,5,Mastin Espanol,66.0
+2023,6,Mastin Espanol,65.0
+2023,7,Mastin Espanol,65.0
+2016,1,Mastino Neapoletano,32.0
+2016,2,Mastino Neapoletano,31.0
+2016,3,Mastino Neapoletano,31.0
+2016,4,Mastino Neapoletano,31.0
+2016,5,Mastino Neapoletano,31.0
+2016,6,Mastino Neapoletano,29.0
+2016,7,Mastino Neapoletano,29.0
+2016,8,Mastino Neapoletano,30.0
+2016,9,Mastino Neapoletano,31.0
+2016,10,Mastino Neapoletano,30.0
+2016,11,Mastino Neapoletano,30.0
+2016,12,Mastino Neapoletano,31.0
+2017,1,Mastino Neapoletano,30.0
+2017,2,Mastino Neapoletano,32.0
+2017,3,Mastino Neapoletano,33.0
+2017,4,Mastino Neapoletano,33.0
+2017,5,Mastino Neapoletano,35.0
+2017,6,Mastino Neapoletano,35.0
+2017,7,Mastino Neapoletano,35.0
+2017,8,Mastino Neapoletano,35.0
+2017,9,Mastino Neapoletano,35.0
+2017,10,Mastino Neapoletano,34.0
+2017,11,Mastino Neapoletano,33.0
+2017,12,Mastino Neapoletano,34.0
+2018,1,Mastino Neapoletano,33.0
+2018,2,Mastino Neapoletano,33.0
+2018,3,Mastino Neapoletano,30.0
+2018,4,Mastino Neapoletano,31.0
+2018,5,Mastino Neapoletano,32.0
+2018,6,Mastino Neapoletano,32.0
+2018,7,Mastino Neapoletano,33.0
+2018,8,Mastino Neapoletano,33.0
+2018,9,Mastino Neapoletano,33.0
+2018,10,Mastino Neapoletano,33.0
+2018,11,Mastino Neapoletano,31.0
+2018,12,Mastino Neapoletano,32.0
+2019,1,Mastino Neapoletano,32.0
+2019,2,Mastino Neapoletano,31.0
+2019,3,Mastino Neapoletano,30.0
+2019,4,Mastino Neapoletano,31.0
+2019,5,Mastino Neapoletano,31.0
+2019,6,Mastino Neapoletano,31.0
+2019,7,Mastino Neapoletano,31.0
+2019,8,Mastino Neapoletano,31.0
+2019,9,Mastino Neapoletano,31.0
+2019,10,Mastino Neapoletano,30.0
+2019,11,Mastino Neapoletano,31.0
+2019,12,Mastino Neapoletano,32.0
+2020,1,Mastino Neapoletano,32.0
+2020,2,Mastino Neapoletano,32.0
+2020,3,Mastino Neapoletano,34.0
+2020,4,Mastino Neapoletano,34.0
+2020,5,Mastino Neapoletano,34.0
+2020,6,Mastino Neapoletano,35.0
+2020,7,Mastino Neapoletano,35.0
+2020,8,Mastino Neapoletano,35.0
+2020,9,Mastino Neapoletano,35.0
+2020,10,Mastino Neapoletano,35.0
+2020,11,Mastino Neapoletano,35.0
+2020,12,Mastino Neapoletano,34.0
+2021,1,Mastino Neapoletano,33.0
+2021,2,Mastino Neapoletano,32.0
+2021,3,Mastino Neapoletano,33.0
+2021,4,Mastino Neapoletano,31.0
+2021,5,Mastino Neapoletano,32.0
+2021,6,Mastino Neapoletano,32.0
+2021,7,Mastino Neapoletano,31.0
+2021,8,Mastino Neapoletano,31.0
+2021,9,Mastino Neapoletano,31.0
+2021,10,Mastino Neapoletano,30.0
+2021,11,Mastino Neapoletano,28.0
+2021,12,Mastino Neapoletano,28.0
+2022,1,Mastino Neapoletano,28.0
+2022,2,Mastino Neapoletano,28.0
+2022,3,Mastino Neapoletano,28.0
+2022,4,Mastino Neapoletano,26.0
+2022,5,Mastino Neapoletano,27.0
+2022,6,Mastino Neapoletano,26.0
+2022,7,Mastino Neapoletano,26.0
+2022,8,Mastino Neapoletano,27.0
+2022,9,Mastino Neapoletano,26.0
+2022,10,Mastino Neapoletano,27.0
+2022,11,Mastino Neapoletano,26.0
+2022,12,Mastino Neapoletano,26.0
+2023,1,Mastino Neapoletano,26.0
+2023,2,Mastino Neapoletano,26.0
+2023,3,Mastino Neapoletano,28.0
+2023,4,Mastino Neapoletano,28.0
+2023,5,Mastino Neapoletano,30.0
+2023,6,Mastino Neapoletano,30.0
+2023,7,Mastino Neapoletano,28.0
+2016,1,Miniature Bull Terrier,341.0
+2016,2,Miniature Bull Terrier,342.0
+2016,3,Miniature Bull Terrier,342.0
+2016,4,Miniature Bull Terrier,344.0
+2016,5,Miniature Bull Terrier,345.0
+2016,6,Miniature Bull Terrier,350.0
+2016,7,Miniature Bull Terrier,349.0
+2016,8,Miniature Bull Terrier,355.0
+2016,9,Miniature Bull Terrier,359.0
+2016,10,Miniature Bull Terrier,359.0
+2016,11,Miniature Bull Terrier,363.0
+2016,12,Miniature Bull Terrier,363.0
+2017,1,Miniature Bull Terrier,367.0
+2017,2,Miniature Bull Terrier,374.0
+2017,3,Miniature Bull Terrier,372.0
+2017,4,Miniature Bull Terrier,380.0
+2017,5,Miniature Bull Terrier,380.0
+2017,6,Miniature Bull Terrier,386.0
+2017,7,Miniature Bull Terrier,390.0
+2017,8,Miniature Bull Terrier,393.0
+2017,9,Miniature Bull Terrier,401.0
+2017,10,Miniature Bull Terrier,408.0
+2017,11,Miniature Bull Terrier,411.0
+2017,12,Miniature Bull Terrier,415.0
+2018,1,Miniature Bull Terrier,423.0
+2018,2,Miniature Bull Terrier,429.0
+2018,3,Miniature Bull Terrier,435.0
+2018,4,Miniature Bull Terrier,438.0
+2018,5,Miniature Bull Terrier,451.0
+2018,6,Miniature Bull Terrier,456.0
+2018,7,Miniature Bull Terrier,460.0
+2018,8,Miniature Bull Terrier,464.0
+2018,9,Miniature Bull Terrier,467.0
+2018,10,Miniature Bull Terrier,474.0
+2018,11,Miniature Bull Terrier,476.0
+2018,12,Miniature Bull Terrier,479.0
+2019,1,Miniature Bull Terrier,478.0
+2019,2,Miniature Bull Terrier,482.0
+2019,3,Miniature Bull Terrier,488.0
+2019,4,Miniature Bull Terrier,495.0
+2019,5,Miniature Bull Terrier,502.0
+2019,6,Miniature Bull Terrier,511.0
+2019,7,Miniature Bull Terrier,514.0
+2019,8,Miniature Bull Terrier,523.0
+2019,9,Miniature Bull Terrier,534.0
+2019,10,Miniature Bull Terrier,539.0
+2019,11,Miniature Bull Terrier,543.0
+2019,12,Miniature Bull Terrier,556.0
+2020,1,Miniature Bull Terrier,557.0
+2020,2,Miniature Bull Terrier,566.0
+2020,3,Miniature Bull Terrier,571.0
+2020,4,Miniature Bull Terrier,565.0
+2020,5,Miniature Bull Terrier,573.0
+2020,6,Miniature Bull Terrier,579.0
+2020,7,Miniature Bull Terrier,580.0
+2020,8,Miniature Bull Terrier,585.0
+2020,9,Miniature Bull Terrier,599.0
+2020,10,Miniature Bull Terrier,606.0
+2020,11,Miniature Bull Terrier,611.0
+2020,12,Miniature Bull Terrier,618.0
+2021,1,Miniature Bull Terrier,628.0
+2021,2,Miniature Bull Terrier,633.0
+2021,3,Miniature Bull Terrier,644.0
+2021,4,Miniature Bull Terrier,646.0
+2021,5,Miniature Bull Terrier,647.0
+2021,6,Miniature Bull Terrier,647.0
+2021,7,Miniature Bull Terrier,662.0
+2021,8,Miniature Bull Terrier,675.0
+2021,9,Miniature Bull Terrier,678.0
+2021,10,Miniature Bull Terrier,688.0
+2021,11,Miniature Bull Terrier,702.0
+2021,12,Miniature Bull Terrier,700.0
+2022,1,Miniature Bull Terrier,706.0
+2022,2,Miniature Bull Terrier,710.0
+2022,3,Miniature Bull Terrier,712.0
+2022,4,Miniature Bull Terrier,717.0
+2022,5,Miniature Bull Terrier,728.0
+2022,6,Miniature Bull Terrier,738.0
+2022,7,Miniature Bull Terrier,735.0
+2022,8,Miniature Bull Terrier,737.0
+2022,9,Miniature Bull Terrier,748.0
+2022,10,Miniature Bull Terrier,753.0
+2022,11,Miniature Bull Terrier,754.0
+2022,12,Miniature Bull Terrier,753.0
+2023,1,Miniature Bull Terrier,755.0
+2023,2,Miniature Bull Terrier,757.0
+2023,3,Miniature Bull Terrier,764.0
+2023,4,Miniature Bull Terrier,764.0
+2023,5,Miniature Bull Terrier,764.0
+2023,6,Miniature Bull Terrier,760.0
+2023,7,Miniature Bull Terrier,760.0
+2016,1,Polski Owczarek Podhalanski,57.0
+2016,2,Polski Owczarek Podhalanski,57.0
+2016,3,Polski Owczarek Podhalanski,56.0
+2016,4,Polski Owczarek Podhalanski,57.0
+2016,5,Polski Owczarek Podhalanski,56.0
+2016,6,Polski Owczarek Podhalanski,55.0
+2016,7,Polski Owczarek Podhalanski,54.0
+2016,8,Polski Owczarek Podhalanski,54.0
+2016,9,Polski Owczarek Podhalanski,54.0
+2016,10,Polski Owczarek Podhalanski,55.0
+2016,11,Polski Owczarek Podhalanski,55.0
+2016,12,Polski Owczarek Podhalanski,55.0
+2017,1,Polski Owczarek Podhalanski,54.0
+2017,2,Polski Owczarek Podhalanski,54.0
+2017,3,Polski Owczarek Podhalanski,54.0
+2017,4,Polski Owczarek Podhalanski,53.0
+2017,5,Polski Owczarek Podhalanski,53.0
+2017,6,Polski Owczarek Podhalanski,53.0
+2017,7,Polski Owczarek Podhalanski,52.0
+2017,8,Polski Owczarek Podhalanski,52.0
+2017,9,Polski Owczarek Podhalanski,52.0
+2017,10,Polski Owczarek Podhalanski,52.0
+2017,11,Polski Owczarek Podhalanski,51.0
+2017,12,Polski Owczarek Podhalanski,51.0
+2018,1,Polski Owczarek Podhalanski,50.0
+2018,2,Polski Owczarek Podhalanski,50.0
+2018,3,Polski Owczarek Podhalanski,46.0
+2018,4,Polski Owczarek Podhalanski,45.0
+2018,5,Polski Owczarek Podhalanski,44.0
+2018,6,Polski Owczarek Podhalanski,44.0
+2018,7,Polski Owczarek Podhalanski,44.0
+2018,8,Polski Owczarek Podhalanski,43.0
+2018,9,Polski Owczarek Podhalanski,43.0
+2018,10,Polski Owczarek Podhalanski,45.0
+2018,11,Polski Owczarek Podhalanski,45.0
+2018,12,Polski Owczarek Podhalanski,44.0
+2019,1,Polski Owczarek Podhalanski,44.0
+2019,2,Polski Owczarek Podhalanski,44.0
+2019,3,Polski Owczarek Podhalanski,45.0
+2019,4,Polski Owczarek Podhalanski,45.0
+2019,5,Polski Owczarek Podhalanski,44.0
+2019,6,Polski Owczarek Podhalanski,44.0
+2019,7,Polski Owczarek Podhalanski,42.0
+2019,8,Polski Owczarek Podhalanski,42.0
+2019,9,Polski Owczarek Podhalanski,41.0
+2019,10,Polski Owczarek Podhalanski,41.0
+2019,11,Polski Owczarek Podhalanski,41.0
+2019,12,Polski Owczarek Podhalanski,41.0
+2020,1,Polski Owczarek Podhalanski,42.0
+2020,2,Polski Owczarek Podhalanski,42.0
+2020,3,Polski Owczarek Podhalanski,43.0
+2020,4,Polski Owczarek Podhalanski,43.0
+2020,5,Polski Owczarek Podhalanski,42.0
+2020,6,Polski Owczarek Podhalanski,41.0
+2020,7,Polski Owczarek Podhalanski,41.0
+2020,8,Polski Owczarek Podhalanski,41.0
+2020,9,Polski Owczarek Podhalanski,40.0
+2020,10,Polski Owczarek Podhalanski,40.0
+2020,11,Polski Owczarek Podhalanski,39.0
+2020,12,Polski Owczarek Podhalanski,39.0
+2021,1,Polski Owczarek Podhalanski,45.0
+2021,2,Polski Owczarek Podhalanski,46.0
+2021,3,Polski Owczarek Podhalanski,46.0
+2021,4,Polski Owczarek Podhalanski,45.0
+2021,5,Polski Owczarek Podhalanski,44.0
+2021,6,Polski Owczarek Podhalanski,43.0
+2021,7,Polski Owczarek Podhalanski,42.0
+2021,8,Polski Owczarek Podhalanski,43.0
+2021,9,Polski Owczarek Podhalanski,43.0
+2021,10,Polski Owczarek Podhalanski,42.0
+2021,11,Polski Owczarek Podhalanski,41.0
+2021,12,Polski Owczarek Podhalanski,41.0
+2022,1,Polski Owczarek Podhalanski,42.0
+2022,2,Polski Owczarek Podhalanski,42.0
+2022,3,Polski Owczarek Podhalanski,40.0
+2022,4,Polski Owczarek Podhalanski,40.0
+2022,5,Polski Owczarek Podhalanski,40.0
+2022,6,Polski Owczarek Podhalanski,40.0
+2022,7,Polski Owczarek Podhalanski,40.0
+2022,8,Polski Owczarek Podhalanski,40.0
+2022,9,Polski Owczarek Podhalanski,40.0
+2022,10,Polski Owczarek Podhalanski,40.0
+2022,11,Polski Owczarek Podhalanski,40.0
+2022,12,Polski Owczarek Podhalanski,40.0
+2023,1,Polski Owczarek Podhalanski,42.0
+2023,2,Polski Owczarek Podhalanski,42.0
+2023,3,Polski Owczarek Podhalanski,41.0
+2023,4,Polski Owczarek Podhalanski,41.0
+2023,5,Polski Owczarek Podhalanski,38.0
+2023,6,Polski Owczarek Podhalanski,39.0
+2023,7,Polski Owczarek Podhalanski,39.0
+2016,1,Rhodesian Ridgeback,1937.0
+2016,2,Rhodesian Ridgeback,1961.0
+2016,3,Rhodesian Ridgeback,1956.0
+2016,4,Rhodesian Ridgeback,1952.0
+2016,5,Rhodesian Ridgeback,1962.0
+2016,6,Rhodesian Ridgeback,1995.0
+2016,7,Rhodesian Ridgeback,1999.0
+2016,8,Rhodesian Ridgeback,2001.0
+2016,9,Rhodesian Ridgeback,2013.0
+2016,10,Rhodesian Ridgeback,2001.0
+2016,11,Rhodesian Ridgeback,1994.0
+2016,12,Rhodesian Ridgeback,1995.0
+2017,1,Rhodesian Ridgeback,1995.0
+2017,2,Rhodesian Ridgeback,2002.0
+2017,3,Rhodesian Ridgeback,2015.0
+2017,4,Rhodesian Ridgeback,2031.0
+2017,5,Rhodesian Ridgeback,2036.0
+2017,6,Rhodesian Ridgeback,2070.0
+2017,7,Rhodesian Ridgeback,2091.0
+2017,8,Rhodesian Ridgeback,2105.0
+2017,9,Rhodesian Ridgeback,2090.0
+2017,10,Rhodesian Ridgeback,2098.0
+2017,11,Rhodesian Ridgeback,2090.0
+2017,12,Rhodesian Ridgeback,2088.0
+2018,1,Rhodesian Ridgeback,2098.0
+2018,2,Rhodesian Ridgeback,2099.0
+2018,3,Rhodesian Ridgeback,2095.0
+2018,4,Rhodesian Ridgeback,2103.0
+2018,5,Rhodesian Ridgeback,2101.0
+2018,6,Rhodesian Ridgeback,2147.0
+2018,7,Rhodesian Ridgeback,2153.0
+2018,8,Rhodesian Ridgeback,2155.0
+2018,9,Rhodesian Ridgeback,2156.0
+2018,10,Rhodesian Ridgeback,2163.0
+2018,11,Rhodesian Ridgeback,2161.0
+2018,12,Rhodesian Ridgeback,2162.0
+2019,1,Rhodesian Ridgeback,2154.0
+2019,2,Rhodesian Ridgeback,2178.0
+2019,3,Rhodesian Ridgeback,2192.0
+2019,4,Rhodesian Ridgeback,2248.0
+2019,5,Rhodesian Ridgeback,2277.0
+2019,6,Rhodesian Ridgeback,2281.0
+2019,7,Rhodesian Ridgeback,2275.0
+2019,8,Rhodesian Ridgeback,2288.0
+2019,9,Rhodesian Ridgeback,2283.0
+2019,10,Rhodesian Ridgeback,2283.0
+2019,11,Rhodesian Ridgeback,2297.0
+2019,12,Rhodesian Ridgeback,2282.0
+2020,1,Rhodesian Ridgeback,2267.0
+2020,2,Rhodesian Ridgeback,2259.0
+2020,3,Rhodesian Ridgeback,2261.0
+2020,4,Rhodesian Ridgeback,2257.0
+2020,5,Rhodesian Ridgeback,2272.0
+2020,6,Rhodesian Ridgeback,2278.0
+2020,7,Rhodesian Ridgeback,2279.0
+2020,8,Rhodesian Ridgeback,2285.0
+2020,9,Rhodesian Ridgeback,2285.0
+2020,10,Rhodesian Ridgeback,2307.0
+2020,11,Rhodesian Ridgeback,2309.0
+2020,12,Rhodesian Ridgeback,2321.0
+2021,1,Rhodesian Ridgeback,2337.0
+2021,2,Rhodesian Ridgeback,2339.0
+2021,3,Rhodesian Ridgeback,2347.0
+2021,4,Rhodesian Ridgeback,2357.0
+2021,5,Rhodesian Ridgeback,2380.0
+2021,6,Rhodesian Ridgeback,2418.0
+2021,7,Rhodesian Ridgeback,2437.0
+2021,8,Rhodesian Ridgeback,2465.0
+2021,9,Rhodesian Ridgeback,2461.0
+2021,10,Rhodesian Ridgeback,2486.0
+2021,11,Rhodesian Ridgeback,2504.0
+2021,12,Rhodesian Ridgeback,2513.0
+2022,1,Rhodesian Ridgeback,2522.0
+2022,2,Rhodesian Ridgeback,2519.0
+2022,3,Rhodesian Ridgeback,2517.0
+2022,4,Rhodesian Ridgeback,2545.0
+2022,5,Rhodesian Ridgeback,2552.0
+2022,6,Rhodesian Ridgeback,2563.0
+2022,7,Rhodesian Ridgeback,2585.0
+2022,8,Rhodesian Ridgeback,2592.0
+2022,9,Rhodesian Ridgeback,2594.0
+2022,10,Rhodesian Ridgeback,2598.0
+2022,11,Rhodesian Ridgeback,2594.0
+2022,12,Rhodesian Ridgeback,2595.0
+2023,1,Rhodesian Ridgeback,2592.0
+2023,2,Rhodesian Ridgeback,2597.0
+2023,3,Rhodesian Ridgeback,2613.0
+2023,4,Rhodesian Ridgeback,2657.0
+2023,5,Rhodesian Ridgeback,2644.0
+2023,6,Rhodesian Ridgeback,2653.0
+2023,7,Rhodesian Ridgeback,2642.0
+2016,1,Rottweiler,1775.0
+2016,2,Rottweiler,1764.0
+2016,3,Rottweiler,1755.0
+2016,4,Rottweiler,1750.0
+2016,5,Rottweiler,1740.0
+2016,6,Rottweiler,1734.0
+2016,7,Rottweiler,1747.0
+2016,8,Rottweiler,1741.0
+2016,9,Rottweiler,1742.0
+2016,10,Rottweiler,1750.0
+2016,11,Rottweiler,1746.0
+2016,12,Rottweiler,1730.0
+2017,1,Rottweiler,1709.0
+2017,2,Rottweiler,1702.0
+2017,3,Rottweiler,1714.0
+2017,4,Rottweiler,1711.0
+2017,5,Rottweiler,1703.0
+2017,6,Rottweiler,1691.0
+2017,7,Rottweiler,1691.0
+2017,8,Rottweiler,1693.0
+2017,9,Rottweiler,1697.0
+2017,10,Rottweiler,1697.0
+2017,11,Rottweiler,1709.0
+2017,12,Rottweiler,1689.0
+2018,1,Rottweiler,1683.0
+2018,2,Rottweiler,1679.0
+2018,3,Rottweiler,1700.0
+2018,4,Rottweiler,1705.0
+2018,5,Rottweiler,1707.0
+2018,6,Rottweiler,1701.0
+2018,7,Rottweiler,1697.0
+2018,8,Rottweiler,1689.0
+2018,9,Rottweiler,1684.0
+2018,10,Rottweiler,1679.0
+2018,11,Rottweiler,1681.0
+2018,12,Rottweiler,1670.0
+2019,1,Rottweiler,1664.0
+2019,2,Rottweiler,1663.0
+2019,3,Rottweiler,1668.0
+2019,4,Rottweiler,1664.0
+2019,5,Rottweiler,1674.0
+2019,6,Rottweiler,1671.0
+2019,7,Rottweiler,1665.0
+2019,8,Rottweiler,1666.0
+2019,9,Rottweiler,1662.0
+2019,10,Rottweiler,1662.0
+2019,11,Rottweiler,1662.0
+2019,12,Rottweiler,1663.0
+2020,1,Rottweiler,1658.0
+2020,2,Rottweiler,1654.0
+2020,3,Rottweiler,1657.0
+2020,4,Rottweiler,1661.0
+2020,5,Rottweiler,1661.0
+2020,6,Rottweiler,1666.0
+2020,7,Rottweiler,1657.0
+2020,8,Rottweiler,1656.0
+2020,9,Rottweiler,1663.0
+2020,10,Rottweiler,1673.0
+2020,11,Rottweiler,1675.0
+2020,12,Rottweiler,1689.0
+2021,1,Rottweiler,1687.0
+2021,2,Rottweiler,1687.0
+2021,3,Rottweiler,1692.0
+2021,4,Rottweiler,1692.0
+2021,5,Rottweiler,1691.0
+2021,6,Rottweiler,1676.0
+2021,7,Rottweiler,1674.0
+2021,8,Rottweiler,1672.0
+2021,9,Rottweiler,1671.0
+2021,10,Rottweiler,1685.0
+2021,11,Rottweiler,1686.0
+2021,12,Rottweiler,1688.0
+2022,1,Rottweiler,1679.0
+2022,2,Rottweiler,1667.0
+2022,3,Rottweiler,1639.0
+2022,4,Rottweiler,1637.0
+2022,5,Rottweiler,1635.0
+2022,6,Rottweiler,1637.0
+2022,7,Rottweiler,1647.0
+2022,8,Rottweiler,1642.0
+2022,9,Rottweiler,1671.0
+2022,10,Rottweiler,1674.0
+2022,11,Rottweiler,1673.0
+2022,12,Rottweiler,1662.0
+2023,1,Rottweiler,1665.0
+2023,2,Rottweiler,1657.0
+2023,3,Rottweiler,1666.0
+2023,4,Rottweiler,1682.0
+2023,5,Rottweiler,1683.0
+2023,6,Rottweiler,1672.0
+2023,7,Rottweiler,1674.0
+2016,1,Sredneasiatskaya Ovtcharka,16.0
+2016,2,Sredneasiatskaya Ovtcharka,16.0
+2016,3,Sredneasiatskaya Ovtcharka,15.0
+2016,4,Sredneasiatskaya Ovtcharka,15.0
+2016,5,Sredneasiatskaya Ovtcharka,14.0
+2016,6,Sredneasiatskaya Ovtcharka,14.0
+2016,7,Sredneasiatskaya Ovtcharka,15.0
+2016,8,Sredneasiatskaya Ovtcharka,16.0
+2016,9,Sredneasiatskaya Ovtcharka,16.0
+2016,10,Sredneasiatskaya Ovtcharka,16.0
+2016,11,Sredneasiatskaya Ovtcharka,16.0
+2016,12,Sredneasiatskaya Ovtcharka,16.0
+2017,1,Sredneasiatskaya Ovtcharka,16.0
+2017,2,Sredneasiatskaya Ovtcharka,16.0
+2017,3,Sredneasiatskaya Ovtcharka,16.0
+2017,4,Sredneasiatskaya Ovtcharka,16.0
+2017,5,Sredneasiatskaya Ovtcharka,16.0
+2017,6,Sredneasiatskaya Ovtcharka,16.0
+2017,7,Sredneasiatskaya Ovtcharka,16.0
+2017,8,Sredneasiatskaya Ovtcharka,16.0
+2017,9,Sredneasiatskaya Ovtcharka,16.0
+2017,10,Sredneasiatskaya Ovtcharka,16.0
+2017,11,Sredneasiatskaya Ovtcharka,16.0
+2017,12,Sredneasiatskaya Ovtcharka,16.0
+2018,1,Sredneasiatskaya Ovtcharka,16.0
+2018,2,Sredneasiatskaya Ovtcharka,16.0
+2018,3,Sredneasiatskaya Ovtcharka,16.0
+2018,4,Sredneasiatskaya Ovtcharka,16.0
+2018,5,Sredneasiatskaya Ovtcharka,17.0
+2018,6,Sredneasiatskaya Ovtcharka,17.0
+2018,7,Sredneasiatskaya Ovtcharka,15.0
+2018,8,Sredneasiatskaya Ovtcharka,15.0
+2018,9,Sredneasiatskaya Ovtcharka,15.0
+2018,10,Sredneasiatskaya Ovtcharka,15.0
+2018,11,Sredneasiatskaya Ovtcharka,15.0
+2018,12,Sredneasiatskaya Ovtcharka,13.0
+2019,1,Sredneasiatskaya Ovtcharka,14.0
+2019,2,Sredneasiatskaya Ovtcharka,14.0
+2019,3,Sredneasiatskaya Ovtcharka,14.0
+2019,4,Sredneasiatskaya Ovtcharka,14.0
+2019,5,Sredneasiatskaya Ovtcharka,14.0
+2019,6,Sredneasiatskaya Ovtcharka,14.0
+2019,7,Sredneasiatskaya Ovtcharka,14.0
+2019,8,Sredneasiatskaya Ovtcharka,13.0
+2019,9,Sredneasiatskaya Ovtcharka,13.0
+2019,10,Sredneasiatskaya Ovtcharka,13.0
+2019,11,Sredneasiatskaya Ovtcharka,13.0
+2019,12,Sredneasiatskaya Ovtcharka,13.0
+2020,1,Sredneasiatskaya Ovtcharka,13.0
+2020,2,Sredneasiatskaya Ovtcharka,13.0
+2020,3,Sredneasiatskaya Ovtcharka,12.0
+2020,4,Sredneasiatskaya Ovtcharka,12.0
+2020,5,Sredneasiatskaya Ovtcharka,13.0
+2020,6,Sredneasiatskaya Ovtcharka,12.0
+2020,7,Sredneasiatskaya Ovtcharka,13.0
+2020,8,Sredneasiatskaya Ovtcharka,13.0
+2020,9,Sredneasiatskaya Ovtcharka,13.0
+2020,10,Sredneasiatskaya Ovtcharka,14.0
+2020,11,Sredneasiatskaya Ovtcharka,14.0
+2020,12,Sredneasiatskaya Ovtcharka,14.0
+2021,1,Sredneasiatskaya Ovtcharka,14.0
+2021,2,Sredneasiatskaya Ovtcharka,14.0
+2021,3,Sredneasiatskaya Ovtcharka,14.0
+2021,4,Sredneasiatskaya Ovtcharka,14.0
+2021,5,Sredneasiatskaya Ovtcharka,14.0
+2021,6,Sredneasiatskaya Ovtcharka,14.0
+2021,7,Sredneasiatskaya Ovtcharka,13.0
+2021,8,Sredneasiatskaya Ovtcharka,13.0
+2021,9,Sredneasiatskaya Ovtcharka,13.0
+2021,10,Sredneasiatskaya Ovtcharka,13.0
+2021,11,Sredneasiatskaya Ovtcharka,12.0
+2021,12,Sredneasiatskaya Ovtcharka,12.0
+2022,1,Sredneasiatskaya Ovtcharka,12.0
+2022,2,Sredneasiatskaya Ovtcharka,12.0
+2022,3,Sredneasiatskaya Ovtcharka,11.0
+2022,4,Sredneasiatskaya Ovtcharka,11.0
+2022,5,Sredneasiatskaya Ovtcharka,12.0
+2022,6,Sredneasiatskaya Ovtcharka,12.0
+2022,7,Sredneasiatskaya Ovtcharka,12.0
+2022,8,Sredneasiatskaya Ovtcharka,15.0
+2022,9,Sredneasiatskaya Ovtcharka,15.0
+2022,10,Sredneasiatskaya Ovtcharka,15.0
+2022,11,Sredneasiatskaya Ovtcharka,15.0
+2022,12,Sredneasiatskaya Ovtcharka,16.0
+2023,1,Sredneasiatskaya Ovtcharka,17.0
+2023,2,Sredneasiatskaya Ovtcharka,16.0
+2023,3,Sredneasiatskaya Ovtcharka,16.0
+2023,4,Sredneasiatskaya Ovtcharka,15.0
+2023,5,Sredneasiatskaya Ovtcharka,16.0
+2023,6,Sredneasiatskaya Ovtcharka,17.0
+2023,7,Sredneasiatskaya Ovtcharka,17.0
+2016,1,Staffordshire Bull Terrier,1272.0
+2016,2,Staffordshire Bull Terrier,1289.0
+2016,3,Staffordshire Bull Terrier,1321.0
+2016,4,Staffordshire Bull Terrier,1342.0
+2016,5,Staffordshire Bull Terrier,1350.0
+2016,6,Staffordshire Bull Terrier,1371.0
+2016,7,Staffordshire Bull Terrier,1385.0
+2016,8,Staffordshire Bull Terrier,1393.0
+2016,9,Staffordshire Bull Terrier,1403.0
+2016,10,Staffordshire Bull Terrier,1419.0
+2016,11,Staffordshire Bull Terrier,1440.0
+2016,12,Staffordshire Bull Terrier,1475.0
+2017,1,Staffordshire Bull Terrier,1480.0
+2017,2,Staffordshire Bull Terrier,1522.0
+2017,3,Staffordshire Bull Terrier,1544.0
+2017,4,Staffordshire Bull Terrier,1578.0
+2017,5,Staffordshire Bull Terrier,1594.0
+2017,6,Staffordshire Bull Terrier,1613.0
+2017,7,Staffordshire Bull Terrier,1640.0
+2017,8,Staffordshire Bull Terrier,1672.0
+2017,9,Staffordshire Bull Terrier,1691.0
+2017,10,Staffordshire Bull Terrier,1715.0
+2017,11,Staffordshire Bull Terrier,1736.0
+2017,12,Staffordshire Bull Terrier,1759.0
+2018,1,Staffordshire Bull Terrier,1772.0
+2018,2,Staffordshire Bull Terrier,1804.0
+2018,3,Staffordshire Bull Terrier,1836.0
+2018,4,Staffordshire Bull Terrier,1852.0
+2018,5,Staffordshire Bull Terrier,1871.0
+2018,6,Staffordshire Bull Terrier,1892.0
+2018,7,Staffordshire Bull Terrier,1916.0
+2018,8,Staffordshire Bull Terrier,1949.0
+2018,9,Staffordshire Bull Terrier,1983.0
+2018,10,Staffordshire Bull Terrier,2032.0
+2018,11,Staffordshire Bull Terrier,2054.0
+2018,12,Staffordshire Bull Terrier,2064.0
+2019,1,Staffordshire Bull Terrier,2092.0
+2019,2,Staffordshire Bull Terrier,2120.0
+2019,3,Staffordshire Bull Terrier,2131.0
+2019,4,Staffordshire Bull Terrier,2146.0
+2019,5,Staffordshire Bull Terrier,2156.0
+2019,6,Staffordshire Bull Terrier,2180.0
+2019,7,Staffordshire Bull Terrier,2197.0
+2019,8,Staffordshire Bull Terrier,2223.0
+2019,9,Staffordshire Bull Terrier,2260.0
+2019,10,Staffordshire Bull Terrier,2280.0
+2019,11,Staffordshire Bull Terrier,2300.0
+2019,12,Staffordshire Bull Terrier,2316.0
+2020,1,Staffordshire Bull Terrier,2329.0
+2020,2,Staffordshire Bull Terrier,2343.0
+2020,3,Staffordshire Bull Terrier,2379.0
+2020,4,Staffordshire Bull Terrier,2405.0
+2020,5,Staffordshire Bull Terrier,2430.0
+2020,6,Staffordshire Bull Terrier,2459.0
+2020,7,Staffordshire Bull Terrier,2483.0
+2020,8,Staffordshire Bull Terrier,2510.0
+2020,9,Staffordshire Bull Terrier,2547.0
+2020,10,Staffordshire Bull Terrier,2586.0
+2020,11,Staffordshire Bull Terrier,2625.0
+2020,12,Staffordshire Bull Terrier,2649.0
+2021,1,Staffordshire Bull Terrier,2692.0
+2021,2,Staffordshire Bull Terrier,2708.0
+2021,3,Staffordshire Bull Terrier,2750.0
+2021,4,Staffordshire Bull Terrier,2767.0
+2021,5,Staffordshire Bull Terrier,2804.0
+2021,6,Staffordshire Bull Terrier,2816.0
+2021,7,Staffordshire Bull Terrier,2853.0
+2021,8,Staffordshire Bull Terrier,2874.0
+2021,9,Staffordshire Bull Terrier,2912.0
+2021,10,Staffordshire Bull Terrier,2954.0
+2021,11,Staffordshire Bull Terrier,3002.0
+2021,12,Staffordshire Bull Terrier,3025.0
+2022,1,Staffordshire Bull Terrier,3052.0
+2022,2,Staffordshire Bull Terrier,3066.0
+2022,3,Staffordshire Bull Terrier,3069.0
+2022,4,Staffordshire Bull Terrier,3105.0
+2022,5,Staffordshire Bull Terrier,3135.0
+2022,6,Staffordshire Bull Terrier,3155.0
+2022,7,Staffordshire Bull Terrier,3165.0
+2022,8,Staffordshire Bull Terrier,3197.0
+2022,9,Staffordshire Bull Terrier,3221.0
+2022,10,Staffordshire Bull Terrier,3235.0
+2022,11,Staffordshire Bull Terrier,3288.0
+2022,12,Staffordshire Bull Terrier,3308.0
+2023,1,Staffordshire Bull Terrier,3341.0
+2023,2,Staffordshire Bull Terrier,3358.0
+2023,3,Staffordshire Bull Terrier,3375.0
+2023,4,Staffordshire Bull Terrier,3384.0
+2023,5,Staffordshire Bull Terrier,3398.0
+2023,6,Staffordshire Bull Terrier,3405.0
+2023,7,Staffordshire Bull Terrier,3407.0
+2016,1,Thai Ridgeback Dog,34.0
+2016,2,Thai Ridgeback Dog,34.0
+2016,3,Thai Ridgeback Dog,35.0
+2016,4,Thai Ridgeback Dog,36.0
+2016,5,Thai Ridgeback Dog,37.0
+2016,6,Thai Ridgeback Dog,37.0
+2016,7,Thai Ridgeback Dog,37.0
+2016,8,Thai Ridgeback Dog,37.0
+2016,9,Thai Ridgeback Dog,38.0
+2016,10,Thai Ridgeback Dog,38.0
+2016,11,Thai Ridgeback Dog,38.0
+2016,12,Thai Ridgeback Dog,39.0
+2017,1,Thai Ridgeback Dog,40.0
+2017,2,Thai Ridgeback Dog,43.0
+2017,3,Thai Ridgeback Dog,43.0
+2017,4,Thai Ridgeback Dog,43.0
+2017,5,Thai Ridgeback Dog,41.0
+2017,6,Thai Ridgeback Dog,40.0
+2017,7,Thai Ridgeback Dog,40.0
+2017,8,Thai Ridgeback Dog,42.0
+2017,9,Thai Ridgeback Dog,42.0
+2017,10,Thai Ridgeback Dog,42.0
+2017,11,Thai Ridgeback Dog,42.0
+2017,12,Thai Ridgeback Dog,41.0
+2018,1,Thai Ridgeback Dog,42.0
+2018,2,Thai Ridgeback Dog,42.0
+2018,3,Thai Ridgeback Dog,42.0
+2018,4,Thai Ridgeback Dog,42.0
+2018,5,Thai Ridgeback Dog,40.0
+2018,6,Thai Ridgeback Dog,40.0
+2018,7,Thai Ridgeback Dog,38.0
+2018,8,Thai Ridgeback Dog,39.0
+2018,9,Thai Ridgeback Dog,39.0
+2018,10,Thai Ridgeback Dog,39.0
+2018,11,Thai Ridgeback Dog,45.0
+2018,12,Thai Ridgeback Dog,45.0
+2019,1,Thai Ridgeback Dog,45.0
+2019,2,Thai Ridgeback Dog,45.0
+2019,3,Thai Ridgeback Dog,46.0
+2019,4,Thai Ridgeback Dog,47.0
+2019,5,Thai Ridgeback Dog,47.0
+2019,6,Thai Ridgeback Dog,47.0
+2019,7,Thai Ridgeback Dog,46.0
+2019,8,Thai Ridgeback Dog,47.0
+2019,9,Thai Ridgeback Dog,46.0
+2019,10,Thai Ridgeback Dog,47.0
+2019,11,Thai Ridgeback Dog,47.0
+2019,12,Thai Ridgeback Dog,47.0
+2020,1,Thai Ridgeback Dog,47.0
+2020,2,Thai Ridgeback Dog,47.0
+2020,3,Thai Ridgeback Dog,46.0
+2020,4,Thai Ridgeback Dog,45.0
+2020,5,Thai Ridgeback Dog,45.0
+2020,6,Thai Ridgeback Dog,45.0
+2020,7,Thai Ridgeback Dog,46.0
+2020,8,Thai Ridgeback Dog,47.0
+2020,9,Thai Ridgeback Dog,46.0
+2020,10,Thai Ridgeback Dog,46.0
+2020,11,Thai Ridgeback Dog,46.0
+2020,12,Thai Ridgeback Dog,47.0
+2021,1,Thai Ridgeback Dog,48.0
+2021,2,Thai Ridgeback Dog,51.0
+2021,3,Thai Ridgeback Dog,52.0
+2021,4,Thai Ridgeback Dog,52.0
+2021,5,Thai Ridgeback Dog,52.0
+2021,6,Thai Ridgeback Dog,52.0
+2021,7,Thai Ridgeback Dog,52.0
+2021,8,Thai Ridgeback Dog,52.0
+2021,9,Thai Ridgeback Dog,54.0
+2021,10,Thai Ridgeback Dog,53.0
+2021,11,Thai Ridgeback Dog,58.0
+2021,12,Thai Ridgeback Dog,57.0
+2022,1,Thai Ridgeback Dog,57.0
+2022,2,Thai Ridgeback Dog,56.0
+2022,3,Thai Ridgeback Dog,57.0
+2022,4,Thai Ridgeback Dog,59.0
+2022,5,Thai Ridgeback Dog,60.0
+2022,6,Thai Ridgeback Dog,61.0
+2022,7,Thai Ridgeback Dog,61.0
+2022,8,Thai Ridgeback Dog,62.0
+2022,9,Thai Ridgeback Dog,62.0
+2022,10,Thai Ridgeback Dog,62.0
+2022,11,Thai Ridgeback Dog,61.0
+2022,12,Thai Ridgeback Dog,61.0
+2023,1,Thai Ridgeback Dog,63.0
+2023,2,Thai Ridgeback Dog,62.0
+2023,3,Thai Ridgeback Dog,64.0
+2023,4,Thai Ridgeback Dog,64.0
+2023,5,Thai Ridgeback Dog,64.0
+2023,6,Thai Ridgeback Dog,63.0
+2023,7,Thai Ridgeback Dog,64.0
+2016,1,Tosa,8.0
+2016,2,Tosa,8.0
+2016,3,Tosa,8.0
+2016,4,Tosa,8.0
+2016,5,Tosa,8.0
+2016,6,Tosa,7.0
+2016,7,Tosa,7.0
+2016,8,Tosa,7.0
+2016,9,Tosa,7.0
+2016,10,Tosa,7.0
+2016,11,Tosa,6.0
+2016,12,Tosa,6.0
+2017,1,Tosa,6.0
+2017,2,Tosa,6.0
+2017,3,Tosa,6.0
+2017,4,Tosa,6.0
+2017,5,Tosa,6.0
+2017,6,Tosa,6.0
+2017,7,Tosa,6.0
+2017,8,Tosa,6.0
+2017,9,Tosa,6.0
+2017,10,Tosa,6.0
+2017,11,Tosa,6.0
+2017,12,Tosa,6.0
+2018,1,Tosa,6.0
+2018,2,Tosa,7.0
+2018,3,Tosa,7.0
+2018,4,Tosa,7.0
+2018,5,Tosa,8.0
+2018,6,Tosa,8.0
+2018,7,Tosa,8.0
+2018,8,Tosa,8.0
+2018,9,Tosa,8.0
+2018,10,Tosa,7.0
+2018,11,Tosa,7.0
+2018,12,Tosa,6.0
+2019,1,Tosa,5.0
+2019,2,Tosa,6.0
+2019,3,Tosa,6.0
+2019,4,Tosa,7.0
+2019,5,Tosa,7.0
+2019,6,Tosa,7.0
+2019,7,Tosa,6.0
+2019,8,Tosa,6.0
+2019,9,Tosa,6.0
+2019,10,Tosa,6.0
+2019,11,Tosa,6.0
+2019,12,Tosa,6.0
+2020,1,Tosa,6.0
+2020,2,Tosa,7.0
+2020,3,Tosa,7.0
+2020,4,Tosa,7.0
+2020,5,Tosa,7.0
+2020,6,Tosa,7.0
+2020,7,Tosa,7.0
+2020,8,Tosa,8.0
+2020,9,Tosa,8.0
+2020,10,Tosa,8.0
+2020,11,Tosa,8.0
+2020,12,Tosa,8.0
+2021,1,Tosa,8.0
+2021,2,Tosa,8.0
+2021,3,Tosa,8.0
+2021,4,Tosa,7.0
+2021,5,Tosa,7.0
+2021,6,Tosa,6.0
+2021,7,Tosa,7.0
+2021,8,Tosa,7.0
+2021,9,Tosa,7.0
+2021,10,Tosa,7.0
+2021,11,Tosa,7.0
+2021,12,Tosa,7.0
+2022,1,Tosa,8.0
+2022,2,Tosa,8.0
+2022,3,Tosa,7.0
+2022,4,Tosa,7.0
+2022,5,Tosa,7.0
+2022,6,Tosa,7.0
+2022,7,Tosa,6.0
+2022,8,Tosa,6.0
+2022,9,Tosa,6.0
+2022,10,Tosa,6.0
+2022,11,Tosa,7.0
+2022,12,Tosa,7.0
+2023,1,Tosa,7.0
+2023,2,Tosa,7.0
+2023,3,Tosa,7.0
+2023,4,Tosa,7.0
+2023,5,Tosa,7.0
+2023,6,Tosa,7.0
+2023,7,Tosa,7.0
+2016,1,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2016,2,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2016,3,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2016,4,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2016,5,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2016,6,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2016,7,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2016,8,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2016,9,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2016,10,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2016,11,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2016,12,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2017,1,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2017,2,Yugoslovenski Ovcarski Pas - Sarplaninac,40.0
+2017,3,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2017,4,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2017,5,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2017,6,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2017,7,Yugoslovenski Ovcarski Pas - Sarplaninac,40.0
+2017,8,Yugoslovenski Ovcarski Pas - Sarplaninac,39.0
+2017,9,Yugoslovenski Ovcarski Pas - Sarplaninac,40.0
+2017,10,Yugoslovenski Ovcarski Pas - Sarplaninac,40.0
+2017,11,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2017,12,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2018,1,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2018,2,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2018,3,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2018,4,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2018,5,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2018,6,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2018,7,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2018,8,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2018,9,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2018,10,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2018,11,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2018,12,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2019,1,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2019,2,Yugoslovenski Ovcarski Pas - Sarplaninac,46.0
+2019,3,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2019,4,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2019,5,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2019,6,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2019,7,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2019,8,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2019,9,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2019,10,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2019,11,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2019,12,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2020,1,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2020,2,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2020,3,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2020,4,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2020,5,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2020,6,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2020,7,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2020,8,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2020,9,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2020,10,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2020,11,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2020,12,Yugoslovenski Ovcarski Pas - Sarplaninac,38.0
+2021,1,Yugoslovenski Ovcarski Pas - Sarplaninac,37.0
+2021,2,Yugoslovenski Ovcarski Pas - Sarplaninac,37.0
+2021,3,Yugoslovenski Ovcarski Pas - Sarplaninac,38.0
+2021,4,Yugoslovenski Ovcarski Pas - Sarplaninac,37.0
+2021,5,Yugoslovenski Ovcarski Pas - Sarplaninac,39.0
+2021,6,Yugoslovenski Ovcarski Pas - Sarplaninac,41.0
+2021,7,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2021,8,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2021,9,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2021,10,Yugoslovenski Ovcarski Pas - Sarplaninac,45.0
+2021,11,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2021,12,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2022,1,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2022,2,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2022,3,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2022,4,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2022,5,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2022,6,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2022,7,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2022,8,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2022,9,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2022,10,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2022,11,Yugoslovenski Ovcarski Pas - Sarplaninac,42.0
+2022,12,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2023,1,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2023,2,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2023,3,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2023,4,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2023,5,Yugoslovenski Ovcarski Pas - Sarplaninac,44.0
+2023,6,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2023,7,Yugoslovenski Ovcarski Pas - Sarplaninac,43.0
+2016,1,Yuzhnorusskaya Ovtcharka,7.0
+2016,2,Yuzhnorusskaya Ovtcharka,7.0
+2016,3,Yuzhnorusskaya Ovtcharka,7.0
+2016,4,Yuzhnorusskaya Ovtcharka,7.0
+2016,5,Yuzhnorusskaya Ovtcharka,7.0
+2016,6,Yuzhnorusskaya Ovtcharka,7.0
+2016,7,Yuzhnorusskaya Ovtcharka,7.0
+2016,8,Yuzhnorusskaya Ovtcharka,8.0
+2016,9,Yuzhnorusskaya Ovtcharka,8.0
+2016,10,Yuzhnorusskaya Ovtcharka,8.0
+2016,11,Yuzhnorusskaya Ovtcharka,8.0
+2016,12,Yuzhnorusskaya Ovtcharka,8.0
+2017,1,Yuzhnorusskaya Ovtcharka,8.0
+2017,2,Yuzhnorusskaya Ovtcharka,8.0
+2017,3,Yuzhnorusskaya Ovtcharka,8.0
+2017,4,Yuzhnorusskaya Ovtcharka,6.0
+2017,5,Yuzhnorusskaya Ovtcharka,6.0
+2017,6,Yuzhnorusskaya Ovtcharka,6.0
+2017,7,Yuzhnorusskaya Ovtcharka,6.0
+2017,8,Yuzhnorusskaya Ovtcharka,6.0
+2017,9,Yuzhnorusskaya Ovtcharka,6.0
+2017,10,Yuzhnorusskaya Ovtcharka,6.0
+2017,11,Yuzhnorusskaya Ovtcharka,6.0
+2017,12,Yuzhnorusskaya Ovtcharka,6.0
+2018,1,Yuzhnorusskaya Ovtcharka,6.0
+2018,2,Yuzhnorusskaya Ovtcharka,6.0
+2018,3,Yuzhnorusskaya Ovtcharka,6.0
+2018,4,Yuzhnorusskaya Ovtcharka,6.0
+2018,5,Yuzhnorusskaya Ovtcharka,6.0
+2018,6,Yuzhnorusskaya Ovtcharka,6.0
+2018,7,Yuzhnorusskaya Ovtcharka,6.0
+2018,8,Yuzhnorusskaya Ovtcharka,6.0
+2018,9,Yuzhnorusskaya Ovtcharka,6.0
+2018,10,Yuzhnorusskaya Ovtcharka,5.0
+2018,11,Yuzhnorusskaya Ovtcharka,5.0
+2018,12,Yuzhnorusskaya Ovtcharka,5.0
+2019,1,Yuzhnorusskaya Ovtcharka,6.0
+2019,2,Yuzhnorusskaya Ovtcharka,6.0
+2019,3,Yuzhnorusskaya Ovtcharka,6.0
+2019,4,Yuzhnorusskaya Ovtcharka,6.0
+2019,5,Yuzhnorusskaya Ovtcharka,6.0
+2019,6,Yuzhnorusskaya Ovtcharka,5.0
+2019,7,Yuzhnorusskaya Ovtcharka,5.0
+2019,8,Yuzhnorusskaya Ovtcharka,5.0
+2019,9,Yuzhnorusskaya Ovtcharka,5.0
+2019,10,Yuzhnorusskaya Ovtcharka,5.0
+2019,11,Yuzhnorusskaya Ovtcharka,5.0
+2019,12,Yuzhnorusskaya Ovtcharka,5.0
+2020,1,Yuzhnorusskaya Ovtcharka,5.0
+2020,2,Yuzhnorusskaya Ovtcharka,5.0
+2020,3,Yuzhnorusskaya Ovtcharka,5.0
+2020,4,Yuzhnorusskaya Ovtcharka,5.0
+2020,5,Yuzhnorusskaya Ovtcharka,5.0
+2020,6,Yuzhnorusskaya Ovtcharka,5.0
+2020,7,Yuzhnorusskaya Ovtcharka,5.0
+2020,8,Yuzhnorusskaya Ovtcharka,5.0
+2020,9,Yuzhnorusskaya Ovtcharka,5.0
+2020,10,Yuzhnorusskaya Ovtcharka,5.0
+2020,11,Yuzhnorusskaya Ovtcharka,5.0
+2020,12,Yuzhnorusskaya Ovtcharka,
+2021,1,Yuzhnorusskaya Ovtcharka,
+2021,2,Yuzhnorusskaya Ovtcharka,
+2021,3,Yuzhnorusskaya Ovtcharka,
+2021,4,Yuzhnorusskaya Ovtcharka,5.0
+2021,5,Yuzhnorusskaya Ovtcharka,5.0
+2021,6,Yuzhnorusskaya Ovtcharka,5.0
+2021,7,Yuzhnorusskaya Ovtcharka,5.0
+2021,8,Yuzhnorusskaya Ovtcharka,5.0
+2021,9,Yuzhnorusskaya Ovtcharka,5.0
+2021,10,Yuzhnorusskaya Ovtcharka,
+2021,11,Yuzhnorusskaya Ovtcharka,
+2021,12,Yuzhnorusskaya Ovtcharka,
+2022,1,Yuzhnorusskaya Ovtcharka,
+2022,2,Yuzhnorusskaya Ovtcharka,
+2022,3,Yuzhnorusskaya Ovtcharka,
+2022,4,Yuzhnorusskaya Ovtcharka,
+2022,5,Yuzhnorusskaya Ovtcharka,
+2022,6,Yuzhnorusskaya Ovtcharka,
+2022,7,Yuzhnorusskaya Ovtcharka,
+2022,8,Yuzhnorusskaya Ovtcharka,
+2022,9,Yuzhnorusskaya Ovtcharka,
+2022,10,Yuzhnorusskaya Ovtcharka,
+2022,11,Yuzhnorusskaya Ovtcharka,
+2022,12,Yuzhnorusskaya Ovtcharka,
+2023,1,Yuzhnorusskaya Ovtcharka,
+2023,2,Yuzhnorusskaya Ovtcharka,
+2023,3,Yuzhnorusskaya Ovtcharka,
+2023,4,Yuzhnorusskaya Ovtcharka,
+2023,5,Yuzhnorusskaya Ovtcharka,
+2023,6,Yuzhnorusskaya Ovtcharka,
+2023,7,Yuzhnorusskaya Ovtcharka,
