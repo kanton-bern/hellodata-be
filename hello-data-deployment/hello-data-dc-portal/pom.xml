@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
         <build.number>local-build</build.number>
-        <docker.namespace>ghrc.io/kanton-bern/hellodata-be</docker.namespace>
+        <docker.namespace>bedag</docker.namespace>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
     </properties>

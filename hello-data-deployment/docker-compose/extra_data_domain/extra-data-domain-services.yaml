@@ -26,7 +26,7 @@
 #
 
 x-superset-image:
-  &superset-image ghrc.io/kanton-bern/hellodata-be/hello-data-dc-superset
+  &superset-image bedag/hello-data-dc-superset
 x-superset-depends-on:
   &superset-depends-on
   postgres:
