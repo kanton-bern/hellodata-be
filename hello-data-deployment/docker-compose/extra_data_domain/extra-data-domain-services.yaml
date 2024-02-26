@@ -26,7 +26,7 @@
 #
 
 x-superset-image:
-  &superset-image bedag/hello-data-dc-superset
+  &superset-image bedag/hello-data-dc-superset:HELLODATA-1269_wrap_dc_images-SNAPSHOT
 x-superset-depends-on:
   &superset-depends-on
   postgres:
