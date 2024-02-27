@@ -1,0 +1,89 @@
+<h2 class="content-block">{{'@Dashboard import-export' | transloco}}</h2>
+<div class="card">
+  <div *ngIf="(supersetInfos$ | async) as supersetInfos">
+    <div *ngFor="let supersetInfo of supersetInfos | orderBy: 'businessContextInfo.subContext.name' ">
+      <h3>{{supersetInfo.businessContextInfo.subContext.name}}</h3>
+      <div>
+        <button (click)="importDashboard()"
+                [pTooltip]="'@Import dashboard' | transloco"
+                class="p-button-rounded p-button-success m-2 p-4"
+                style="width: 25px"
+                icon="fas fa-light fa-upload"
+                pButton
+                pRipple></button>
+      </div>
+      <div *ngIf="(dashboards$ | async) as dashboards">
+        <p-table [filterDelay]="0"
+                 [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
+                 [paginator]="true"
+                 [rowHover]="true"
+                 [rows]="10"
+                 [selectionPageOnly]="true"
+                 [showCurrentPageReport]="true"
+                 [tableStyle]="{ 'min-width': '50rem' }"
+                 [value]="filterDashboardsByContext(dashboards, supersetInfo.businessContextInfo.subContext.key)"
+                 dataKey="id"
+                 selectionMode="single">
+          <ng-template pTemplate="header">
+            <tr>
+              <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{'@Dashboard' | transloco}}
+                <p-sortIcon field="dashboardTitle"></p-sortIcon>
+              </th>
+              <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
+                <p-sortIcon field="contextName"></p-sortIcon>
+              </th>
+              <th id="businessProcessHeader" pSortableColumn="businessProcess">{{'@Business process' | transloco}}
+                <p-sortIcon field="businessProcess"></p-sortIcon>
+              </th>
+              <th id="departmentHeader" pSortableColumn="department">{{'@Department' | transloco}}
+                <p-sortIcon field="department"></p-sortIcon>
+              </th>
+              <th id="responsibilityHeader" pSortableColumn="responsibility">{{'@Professional responsibility' | transloco}}
+                <p-sortIcon field="responsibility"></p-sortIcon>
+              </th>
+              <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{'@Data analyst' | transloco}}
+                <p-sortIcon field="dataAnalyst"></p-sortIcon>
+              </th>
+              <th id="actions" style="min-width:9rem"></th>
+            </tr>
+          </ng-template>
+          <ng-template let-dashboard pTemplate="body">
+            <tr [pSelectableRow]="dashboard">
+              <td>
+                {{dashboard.dashboardTitle}}
+              </td>
+              <td>
+                {{dashboard.contextName}}
+              </td>
+              <td>
+                {{ dashboard.businessProcess }}
+              </td>
+              <td>
+                {{ dashboard.department }}
+              </td>
+              <td>
+                {{ dashboard.responsibility }}
+              </td>
+              <td>
+                {{ dashboard.dataAnalyst }}
+              </td>
+              <td>
+                <button (click)="exportDashboard(dashboard)"
+                        [pTooltip]="'@Export dashboard' | transloco"
+                        class="p-button-rounded p-button-success mr-2"
+                        icon="fas fa-light fa-download"
+                        pButton
+                        pRipple></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="9">No dashboards found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
