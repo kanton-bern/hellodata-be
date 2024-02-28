@@ -37,6 +37,8 @@ import {selectAvailableDataDomainItems, selectMyDashboards} from "../../../store
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
+import {FileSelectEvent} from "primeng/fileupload";
+import {AuthService} from "../../../shared/services";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -48,7 +50,7 @@ export class DashboardImportExportComponent extends BaseComponent {
   dashboards$: Observable<SupersetDashboard[]>;
   availableDataDomains$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
+  constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef, readonly authService: AuthService) {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
     this.dashboards$ = this.store.select(selectMyDashboards);
@@ -79,4 +81,95 @@ export class DashboardImportExportComponent extends BaseComponent {
   importDashboard() {
 
   }
+
+  onSelect($event: FileSelectEvent) {
+    console.log('on select', $event.files)
+  }
+
+  // onFileUploadClicked($event: { files: Blob[] }) {
+  //   console.log('on upload clicked', $event.files)
+  //   const fileUpload: Blob = $event.files[0];
+  //   const formData = new FormData();
+  //   formData.append('formData', fileUpload);
+  //   // formData.append('overwrite', 'true'); // Set overwrite to true
+  //   formData.append('passwords', '{}'); // Set passwords (if required)
+  //
+  //   const uploadReq = new HttpRequest('POST', 'http://localhost:8089/api/v1/dashboard/import/', formData, {
+  //     reportProgress: true, // to track progress
+  //   });
+  //
+  //   this.http.request(uploadReq).subscribe(event => {
+  //     if (event.type === HttpEventType.UploadProgress) {
+  //       const eventTotal = event.total ? event.total : 1;
+  //       // This is an upload progress event. Compute and show the % done:
+  //       const percentDone = Math.round((100 * event.loaded) / eventTotal);
+  //       console.log(`File is ${percentDone}% uploaded.`);
+  //     } else if (event instanceof HttpResponse) {
+  //       console.log('File uploaded successfully!', event.body);
+  //       // Do something with the response if needed
+  //     }
+  //   }, error => {
+  //     console.error('Error occurred while uploading file:', error);
+  //   });
+  // }
+
+  async onFileUploadClicked($event: { files: Blob[] }, accessToken: string) {
+    console.log('on upload clicked', $event.files)
+
+    const csrfToken = await this.getCsrfToken(accessToken);
+
+    if (!csrfToken) {
+      console.error('Failed to obtain CSRF token.');
+      return;
+    }
+    const fileUpload: Blob = $event.files[0];
+    const formData = new FormData();
+    formData.append('formData', fileUpload);
+    // formData.append('overwrite', 'true'); // Set overwrite to true
+    formData.append('passwords', '{}'); // Set passwords (if required)
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost:8089/api/v1/dashboard/import/', true);
+    xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+    xhr.setRequestHeader('X-Csrftoken', `${csrfToken}`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Type', 'application/x-zip-compressed');
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        const percentDone = Math.round((event.loaded / event.total) * 100);
+        console.log(`File is ${percentDone}% uploaded.`);
+      }
+    });
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          console.log('File uploaded successfully!', xhr.responseText);
+          // Do something with the response if needed
+        } else {
+          console.error('Error occurred while uploading file:', xhr.statusText);
+        }
+      }
+    };
+
+    xhr.send(formData);
+  }
+
+  async getCsrfToken(bearerToken: string): Promise<string | null> {
+    const headers = new Headers();
+    headers.append('Authorization', `Bearer ${bearerToken}`);
+    headers.append('Content-Type', 'application/json');
+    const response = await fetch('http://localhost:8089/api/v1/security/csrf_token/', {
+      method: 'GET',
+      headers: headers
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return data.csrf_token;
+    } else {
+      console.error('Failed to fetch CSRF token:', response.statusText);
+      return null;
+    }
+  }
+
 }

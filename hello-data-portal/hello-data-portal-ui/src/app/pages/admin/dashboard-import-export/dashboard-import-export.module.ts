@@ -36,6 +36,7 @@ import {SharedModule} from "primeng/api";
 import {TableModule} from "primeng/table";
 import {TooltipModule} from "primeng/tooltip";
 import {NgArrayPipesModule} from "ngx-pipes";
+import {FileUploadModule} from "primeng/fileupload";
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import {NgArrayPipesModule} from "ngx-pipes";
     SharedModule,
     TableModule,
     TooltipModule,
-    NgArrayPipesModule
+    NgArrayPipesModule,
+    FileUploadModule
   ]
 })
 export class DashboardImportExportModule {

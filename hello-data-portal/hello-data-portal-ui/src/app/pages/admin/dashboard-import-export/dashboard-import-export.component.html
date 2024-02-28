@@ -3,7 +3,7 @@
   <div *ngIf="(supersetInfos$ | async) as supersetInfos">
     <div *ngFor="let supersetInfo of supersetInfos | orderBy: 'businessContextInfo.subContext.name' ">
       <h3>{{supersetInfo.businessContextInfo.subContext.name}}</h3>
-      <div>
+      <div *ngIf="(authService.accessToken | async) as accessToken">
         <button (click)="importDashboard()"
                 [pTooltip]="'@Import dashboard' | transloco"
                 class="p-button-rounded p-button-success m-2 p-4"
@@ -11,6 +11,12 @@
                 icon="fas fa-light fa-upload"
                 pButton
                 pRipple></button>
+        <p-fileUpload name="uploadAvatar"
+                      [customUpload]="true"
+                      (uploadHandler)="onFileUploadClicked($event, accessToken)"
+                      (onSelect)="onSelect($event)"
+                      [maxFileSize]="500000">
+        </p-fileUpload>
       </div>
       <div *ngIf="(dashboards$ | async) as dashboards">
         <p-table [filterDelay]="0"
