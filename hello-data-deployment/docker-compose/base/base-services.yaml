@@ -30,7 +30,7 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: bedag/hello-data-dc-airflow:HELLODATA-1269_wrap_dc_images-SNAPSHOT
+  image: bedag/hello-data-dc-airflow
   env_file: .env
   extra_hosts:
     - "host.docker.internal:host-gateway"
@@ -60,7 +60,7 @@ x-airflow-common:
     DB_PASS: postgres
 
   volumes:
-    - shared-data:/opt/airflow/data
+    - shared-data:/opt/airflow/dags
     - ./base/airflow/logs:/opt/airflow/logs
     - ./base/airflow/plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:0"
@@ -76,9 +76,25 @@ x-airflow-common:
 version: "3.7"
 
 services:
+
+  showcase-files:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-showcase
+    env_file: .env
+    environment:
+      DESTINATION_PATH: /storage/Default_Data_Domain
+      DD_KEY: Default_Data_Domain
+      SHOWCASE_DWH_HOST: postgres
+      SHOWCASE_DWH_PORT: 5432
+      SHOWCASE_DWH_U_MODELER: postgres
+      SHOWCASE_DWH_U_MODELER_PASSWORD: postgres
+      SHOWCASE_DWH_NAME: hellodata_product_development_default_data_domain_dwh
+    volumes:
+      - shared-data:/storage
+
   postgres:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-dc-postgres:HELLODATA-1269_wrap_dc_images-SNAPSHOT
+    image: bedag/hello-data-dc-postgres
     env_file: .env
     ports:
       - 5432:5432
@@ -94,7 +110,7 @@ services:
     restart: always
 
   keycloak:
-    image: bedag/hello-data-dc-keycloak:HELLODATA-1269_wrap_dc_images-SNAPSHOT
+    image: bedag/hello-data-dc-keycloak
     env_file: .env
     ports:
       - 38080:8080
@@ -185,7 +201,7 @@ services:
     restart: always
 
   cloudbeaver:
-    image: bedag/hello-data-dc-cloudbeaver:HELLODATA-1269_wrap_dc_images-SNAPSHOT
+    image: bedag/hello-data-dc-cloudbeaver
     env_file: .env
     restart: always
     extra_hosts:
@@ -509,7 +525,7 @@ services:
       - postgres
 
   hello-data-portal-ui:
-    image: bedag/hello-data-dc-portal:HELLODATA-1269_wrap_dc_images-SNAPSHOT
+    image: bedag/hello-data-dc-portal
     env_file: .env
     restart: on-failure
     extra_hosts:

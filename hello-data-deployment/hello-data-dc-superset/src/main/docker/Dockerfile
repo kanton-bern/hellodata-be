@@ -39,6 +39,13 @@ RUN ls -la /app/docker/pythonpath_dev
 #CORS https://superset.apache.org/docs/installation/networking-settings/
 RUN pip install apache-superset[cors]
 
+RUN apt-get update && \
+    # deps for superset
+    apt-get install -y dos2unix
+
+RUN find /app/docker/ -type f -iname "*.sh" -print0 | xargs -0 dos2unix
+RUN find /app/docker/ -type f -iname "*.py" -print0 | xargs -0 dos2unix
+
 USER superset
 
 RUN ls -la /app/docker
