@@ -79,7 +79,7 @@ services:
 
   showcase-files:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-showcase:HELLODATA-1241_package_showcase_into_image-SNAPSHOT
+    image: bedag/hello-data-showcase
     env_file: .env
     environment:
       DESTINATION_PATH: /storage/Default_Data_Domain
