@@ -36,6 +36,13 @@ RUN chown -R superset /app/docker
 RUN ls -la /app/docker
 RUN ls -la /app/docker/pythonpath_dev
 
+RUN apt-get update && \
+    # deps for superset
+    apt-get install -y dos2unix
+
+RUN find /app/docker/ -type f -iname "*.sh" -print0 | xargs -0 dos2unix
+RUN find /app/docker/ -type f -iname "*.py" -print0 | xargs -0 dos2unix
+
 USER superset
 
 RUN ls -la /app/docker

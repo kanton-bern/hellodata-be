@@ -1,0 +1,14 @@
+showcase_tierstatistik:
+  outputs:
+
+    test:
+      type: postgres
+      threads: 1
+      host: SHOWCASE_DWH_HOST
+      port: SHOWCASE_DWH_PORT
+      user: SHOWCASE_DWH_U_MODELER
+      pass: SHOWCASE_DWH_U_MODELER_PASSWORD
+      dbname: SHOWCASE_DWH_NAME
+      schema: "udm"
+
+  target: test

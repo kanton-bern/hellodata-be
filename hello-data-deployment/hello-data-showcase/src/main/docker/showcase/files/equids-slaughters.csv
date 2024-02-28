@@ -1,0 +1,820 @@
+year,month,breedtype,age1year,age1year,tot
+2016,1,Esel,,11.0,11.0
+2016,1,Hofische Rasse,,,
+2016,1,Iberer,,,
+2016,1,Kaltblut,37.0,45.0,82.0
+2016,1,Maultier-Maulesel,,,
+2016,1,Ponys und Kleinpferde,6.0,26.0,32.0
+2016,1,Vollblut,,,
+2016,1,Warmblut,,56.0,56.0
+2016,1,Wildequiden,,,
+2016,2,Esel,,10.0,10.0
+2016,2,Hofische Rasse,,,
+2016,2,Iberer,,,
+2016,2,Kaltblut,30.0,44.0,74.0
+2016,2,Maultier-Maulesel,,,
+2016,2,Ponys und Kleinpferde,6.0,18.0,24.0
+2016,2,Vollblut,,,
+2016,2,Warmblut,,36.0,36.0
+2016,2,Wildequiden,,,
+2016,3,Esel,,6.0,6.0
+2016,3,Hofische Rasse,,,
+2016,3,Iberer,,,
+2016,3,Kaltblut,24.0,44.0,68.0
+2016,3,Maultier-Maulesel,,,
+2016,3,Ponys und Kleinpferde,,27.0,27.0
+2016,3,Vollblut,,,
+2016,3,Warmblut,,39.0,39.0
+2016,3,Wildequiden,,,
+2016,4,Esel,,,
+2016,4,Hofische Rasse,,,
+2016,4,Iberer,,,
+2016,4,Kaltblut,9.0,37.0,46.0
+2016,4,Maultier-Maulesel,,,
+2016,4,Ponys und Kleinpferde,7.0,12.0,19.0
+2016,4,Vollblut,,,
+2016,4,Warmblut,,43.0,43.0
+2016,4,Wildequiden,,,
+2016,5,Esel,,6.0,6.0
+2016,5,Hofische Rasse,,,
+2016,5,Iberer,,,
+2016,5,Kaltblut,11.0,32.0,43.0
+2016,5,Maultier-Maulesel,,,
+2016,5,Ponys und Kleinpferde,,24.0,24.0
+2016,5,Vollblut,,,
+2016,5,Warmblut,,41.0,41.0
+2016,5,Wildequiden,,,
+2016,6,Esel,,9.0,9.0
+2016,6,Hofische Rasse,,,
+2016,6,Iberer,,,
+2016,6,Kaltblut,6.0,36.0,42.0
+2016,6,Maultier-Maulesel,,,
+2016,6,Ponys und Kleinpferde,,18.0,18.0
+2016,6,Vollblut,,,
+2016,6,Warmblut,,42.0,42.0
+2016,6,Wildequiden,,,
+2016,7,Esel,,,
+2016,7,Hofische Rasse,,,
+2016,7,Iberer,,,
+2016,7,Kaltblut,7.0,26.0,33.0
+2016,7,Maultier-Maulesel,,,
+2016,7,Ponys und Kleinpferde,,24.0,24.0
+2016,7,Vollblut,,,
+2016,7,Warmblut,,34.0,34.0
+2016,7,Wildequiden,,,
+2016,8,Esel,,,
+2016,8,Hofische Rasse,,,
+2016,8,Iberer,,,
+2016,8,Kaltblut,10.0,22.0,32.0
+2016,8,Maultier-Maulesel,,,
+2016,8,Ponys und Kleinpferde,,13.0,13.0
+2016,8,Vollblut,,,
+2016,8,Warmblut,,56.0,56.0
+2016,8,Wildequiden,,,
+2016,9,Esel,,,
+2016,9,Hofische Rasse,,,
+2016,9,Iberer,,,
+2016,9,Kaltblut,25.0,28.0,53.0
+2016,9,Maultier-Maulesel,,,
+2016,9,Ponys und Kleinpferde,,13.0,13.0
+2016,9,Vollblut,,6.0,6.0
+2016,9,Warmblut,,64.0,64.0
+2016,9,Wildequiden,,,
+2016,10,Esel,,10.0,10.0
+2016,10,Hofische Rasse,,,
+2016,10,Iberer,,,
+2016,10,Kaltblut,358.0,47.0,405.0
+2016,10,Maultier-Maulesel,,,
+2016,10,Ponys und Kleinpferde,14.0,19.0,33.0
+2016,10,Vollblut,,,
+2016,10,Warmblut,,51.0,51.0
+2016,10,Wildequiden,,,
+2016,11,Esel,12.0,18.0,30.0
+2016,11,Hofische Rasse,,,
+2016,11,Iberer,,,
+2016,11,Kaltblut,332.0,48.0,380.0
+2016,11,Maultier-Maulesel,,,
+2016,11,Ponys und Kleinpferde,30.0,22.0,52.0
+2016,11,Vollblut,,10.0,10.0
+2016,11,Warmblut,,67.0,67.0
+2016,11,Wildequiden,,,
+2016,12,Esel,,7.0,7.0
+2016,12,Hofische Rasse,,,
+2016,12,Iberer,,,
+2016,12,Kaltblut,63.0,31.0,94.0
+2016,12,Maultier-Maulesel,,,
+2016,12,Ponys und Kleinpferde,13.0,,13.0
+2016,12,Vollblut,,,
+2016,12,Warmblut,,45.0,45.0
+2016,12,Wildequiden,,,
+2017,1,Esel,,12.0,12.0
+2017,1,Hofische Rasse,,,
+2017,1,Iberer,,,
+2017,1,Kaltblut,35.0,35.0,70.0
+2017,1,Maultier-Maulesel,,,
+2017,1,Ponys und Kleinpferde,,14.0,14.0
+2017,1,Vollblut,,,
+2017,1,Warmblut,,38.0,38.0
+2017,1,Wildequiden,,,
+2017,2,Esel,,17.0,17.0
+2017,2,Hofische Rasse,,,
+2017,2,Iberer,,,
+2017,2,Kaltblut,30.0,26.0,56.0
+2017,2,Maultier-Maulesel,,,
+2017,2,Ponys und Kleinpferde,,19.0,19.0
+2017,2,Vollblut,,,
+2017,2,Warmblut,,32.0,32.0
+2017,2,Wildequiden,,,
+2017,3,Esel,,,
+2017,3,Hofische Rasse,,,
+2017,3,Iberer,,,
+2017,3,Kaltblut,13.0,25.0,38.0
+2017,3,Maultier-Maulesel,,,
+2017,3,Ponys und Kleinpferde,7.0,24.0,31.0
+2017,3,Vollblut,,,
+2017,3,Warmblut,,52.0,52.0
+2017,3,Wildequiden,,,
+2017,4,Esel,,7.0,7.0
+2017,4,Hofische Rasse,,,
+2017,4,Iberer,,,
+2017,4,Kaltblut,9.0,27.0,36.0
+2017,4,Maultier-Maulesel,,,
+2017,4,Ponys und Kleinpferde,,10.0,10.0
+2017,4,Vollblut,,,
+2017,4,Warmblut,,34.0,34.0
+2017,4,Wildequiden,,,
+2017,5,Esel,,11.0,11.0
+2017,5,Hofische Rasse,,,
+2017,5,Iberer,,,
+2017,5,Kaltblut,6.0,36.0,42.0
+2017,5,Maultier-Maulesel,,,
+2017,5,Ponys und Kleinpferde,,16.0,16.0
+2017,5,Vollblut,,,
+2017,5,Warmblut,,36.0,36.0
+2017,5,Wildequiden,,,
+2017,6,Esel,,6.0,6.0
+2017,6,Hofische Rasse,,,
+2017,6,Iberer,,,
+2017,6,Kaltblut,,31.0,31.0
+2017,6,Maultier-Maulesel,,,
+2017,6,Ponys und Kleinpferde,,14.0,14.0
+2017,6,Vollblut,,,
+2017,6,Warmblut,,40.0,40.0
+2017,6,Wildequiden,,,
+2017,7,Esel,,9.0,9.0
+2017,7,Hofische Rasse,,,
+2017,7,Iberer,,,
+2017,7,Kaltblut,,21.0,21.0
+2017,7,Maultier-Maulesel,,,
+2017,7,Ponys und Kleinpferde,,15.0,15.0
+2017,7,Vollblut,,,
+2017,7,Warmblut,,44.0,44.0
+2017,7,Wildequiden,,,
+2017,8,Esel,,,
+2017,8,Hofische Rasse,,,
+2017,8,Iberer,,,
+2017,8,Kaltblut,8.0,18.0,26.0
+2017,8,Maultier-Maulesel,,,
+2017,8,Ponys und Kleinpferde,,24.0,24.0
+2017,8,Vollblut,,,
+2017,8,Warmblut,,36.0,36.0
+2017,8,Wildequiden,,,
+2017,9,Esel,,,
+2017,9,Hofische Rasse,,,
+2017,9,Iberer,,,
+2017,9,Kaltblut,31.0,34.0,65.0
+2017,9,Maultier-Maulesel,,,
+2017,9,Ponys und Kleinpferde,,12.0,12.0
+2017,9,Vollblut,,,
+2017,9,Warmblut,,52.0,52.0
+2017,9,Wildequiden,,,
+2017,10,Esel,,15.0,15.0
+2017,10,Hofische Rasse,,,
+2017,10,Iberer,,,
+2017,10,Kaltblut,352.0,54.0,406.0
+2017,10,Maultier-Maulesel,,,
+2017,10,Ponys und Kleinpferde,18.0,19.0,37.0
+2017,10,Vollblut,,,
+2017,10,Warmblut,,45.0,45.0
+2017,10,Wildequiden,,,
+2017,11,Esel,,22.0,22.0
+2017,11,Hofische Rasse,,,
+2017,11,Iberer,,,
+2017,11,Kaltblut,225.0,49.0,274.0
+2017,11,Maultier-Maulesel,,,
+2017,11,Ponys und Kleinpferde,29.0,28.0,57.0
+2017,11,Vollblut,,,
+2017,11,Warmblut,,54.0,54.0
+2017,11,Wildequiden,,,
+2017,12,Esel,,,
+2017,12,Hofische Rasse,,,
+2017,12,Iberer,,,
+2017,12,Kaltblut,64.0,18.0,82.0
+2017,12,Maultier-Maulesel,,,
+2017,12,Ponys und Kleinpferde,9.0,15.0,24.0
+2017,12,Vollblut,,,
+2017,12,Warmblut,,34.0,34.0
+2017,12,Wildequiden,,,
+2018,1,Esel,,,
+2018,1,Hofische Rasse,,,
+2018,1,Iberer,,,
+2018,1,Kaltblut,40.0,49.0,89.0
+2018,1,Maultier-Maulesel,,,
+2018,1,Ponys und Kleinpferde,,14.0,14.0
+2018,1,Vollblut,,,
+2018,1,Warmblut,,41.0,41.0
+2018,1,Wildequiden,,,
+2018,2,Esel,,13.0,13.0
+2018,2,Hofische Rasse,,,
+2018,2,Iberer,,,
+2018,2,Kaltblut,19.0,31.0,50.0
+2018,2,Maultier-Maulesel,,,
+2018,2,Ponys und Kleinpferde,,14.0,14.0
+2018,2,Vollblut,,,
+2018,2,Warmblut,,33.0,33.0
+2018,2,Wildequiden,,,
+2018,3,Esel,,,
+2018,3,Hofische Rasse,,,
+2018,3,Iberer,,,
+2018,3,Kaltblut,15.0,30.0,45.0
+2018,3,Maultier-Maulesel,,,
+2018,3,Ponys und Kleinpferde,,19.0,19.0
+2018,3,Vollblut,,,
+2018,3,Warmblut,,38.0,38.0
+2018,3,Wildequiden,,,
+2018,4,Esel,,11.0,11.0
+2018,4,Hofische Rasse,,,
+2018,4,Iberer,,,
+2018,4,Kaltblut,14.0,36.0,50.0
+2018,4,Maultier-Maulesel,,,
+2018,4,Ponys und Kleinpferde,,19.0,19.0
+2018,4,Vollblut,,,
+2018,4,Warmblut,,48.0,48.0
+2018,4,Wildequiden,,,
+2018,5,Esel,,,
+2018,5,Hofische Rasse,,,
+2018,5,Iberer,,,
+2018,5,Kaltblut,10.0,37.0,47.0
+2018,5,Maultier-Maulesel,,,
+2018,5,Ponys und Kleinpferde,,22.0,22.0
+2018,5,Vollblut,,,
+2018,5,Warmblut,,41.0,41.0
+2018,5,Wildequiden,,,
+2018,6,Esel,,,
+2018,6,Hofische Rasse,,,
+2018,6,Iberer,,,
+2018,6,Kaltblut,8.0,31.0,39.0
+2018,6,Maultier-Maulesel,,,
+2018,6,Ponys und Kleinpferde,,14.0,14.0
+2018,6,Vollblut,,,
+2018,6,Warmblut,,34.0,34.0
+2018,6,Wildequiden,,,
+2018,7,Esel,,,
+2018,7,Hofische Rasse,,,
+2018,7,Iberer,,,
+2018,7,Kaltblut,8.0,27.0,35.0
+2018,7,Maultier-Maulesel,,,
+2018,7,Ponys und Kleinpferde,,12.0,12.0
+2018,7,Vollblut,,,
+2018,7,Warmblut,,30.0,30.0
+2018,7,Wildequiden,,,
+2018,8,Esel,,6.0,6.0
+2018,8,Hofische Rasse,,,
+2018,8,Iberer,,,
+2018,8,Kaltblut,8.0,31.0,39.0
+2018,8,Maultier-Maulesel,,,
+2018,8,Ponys und Kleinpferde,,18.0,18.0
+2018,8,Vollblut,,,
+2018,8,Warmblut,,41.0,41.0
+2018,8,Wildequiden,,,
+2018,9,Esel,,,
+2018,9,Hofische Rasse,,,
+2018,9,Iberer,,,
+2018,9,Kaltblut,25.0,29.0,54.0
+2018,9,Maultier-Maulesel,,,
+2018,9,Ponys und Kleinpferde,,17.0,17.0
+2018,9,Vollblut,,8.0,8.0
+2018,9,Warmblut,,35.0,35.0
+2018,9,Wildequiden,,,
+2018,10,Esel,,10.0,10.0
+2018,10,Hofische Rasse,,,
+2018,10,Iberer,,,
+2018,10,Kaltblut,331.0,56.0,387.0
+2018,10,Maultier-Maulesel,,,
+2018,10,Ponys und Kleinpferde,21.0,23.0,44.0
+2018,10,Vollblut,,,
+2018,10,Warmblut,,52.0,52.0
+2018,10,Wildequiden,,,
+2018,11,Esel,9.0,14.0,23.0
+2018,11,Hofische Rasse,,,
+2018,11,Iberer,,,
+2018,11,Kaltblut,250.0,58.0,308.0
+2018,11,Maultier-Maulesel,,,
+2018,11,Ponys und Kleinpferde,32.0,19.0,51.0
+2018,11,Vollblut,,,
+2018,11,Warmblut,,62.0,62.0
+2018,11,Wildequiden,,,
+2018,12,Esel,6.0,10.0,16.0
+2018,12,Hofische Rasse,,,
+2018,12,Iberer,,,
+2018,12,Kaltblut,61.0,29.0,90.0
+2018,12,Maultier-Maulesel,,,
+2018,12,Ponys und Kleinpferde,13.0,19.0,32.0
+2018,12,Vollblut,,,
+2018,12,Warmblut,,35.0,35.0
+2018,12,Wildequiden,,,
+2019,1,Esel,,12.0,12.0
+2019,1,Hofische Rasse,,,
+2019,1,Iberer,,,
+2019,1,Kaltblut,19.0,39.0,58.0
+2019,1,Maultier-Maulesel,,,
+2019,1,Ponys und Kleinpferde,6.0,16.0,22.0
+2019,1,Vollblut,,,
+2019,1,Warmblut,,51.0,51.0
+2019,1,Wildequiden,,,
+2019,2,Esel,,10.0,10.0
+2019,2,Hofische Rasse,,,
+2019,2,Iberer,,,
+2019,2,Kaltblut,14.0,28.0,42.0
+2019,2,Maultier-Maulesel,,,
+2019,2,Ponys und Kleinpferde,,9.0,9.0
+2019,2,Vollblut,,,
+2019,2,Warmblut,,36.0,36.0
+2019,2,Wildequiden,,,
+2019,3,Esel,,,
+2019,3,Hofische Rasse,,,
+2019,3,Iberer,,,
+2019,3,Kaltblut,48.0,35.0,83.0
+2019,3,Maultier-Maulesel,,,
+2019,3,Ponys und Kleinpferde,,22.0,22.0
+2019,3,Vollblut,,,
+2019,3,Warmblut,,32.0,32.0
+2019,3,Wildequiden,,,
+2019,4,Esel,,,
+2019,4,Hofische Rasse,,,
+2019,4,Iberer,,,
+2019,4,Kaltblut,7.0,47.0,54.0
+2019,4,Maultier-Maulesel,,,
+2019,4,Ponys und Kleinpferde,,19.0,19.0
+2019,4,Vollblut,,,
+2019,4,Warmblut,,42.0,42.0
+2019,4,Wildequiden,,,
+2019,5,Esel,,15.0,15.0
+2019,5,Hofische Rasse,,,
+2019,5,Iberer,,,
+2019,5,Kaltblut,7.0,29.0,36.0
+2019,5,Maultier-Maulesel,,,
+2019,5,Ponys und Kleinpferde,,20.0,20.0
+2019,5,Vollblut,,,
+2019,5,Warmblut,,35.0,35.0
+2019,5,Wildequiden,,,
+2019,6,Esel,,6.0,6.0
+2019,6,Hofische Rasse,,,
+2019,6,Iberer,,,
+2019,6,Kaltblut,,27.0,27.0
+2019,6,Maultier-Maulesel,,,
+2019,6,Ponys und Kleinpferde,,13.0,13.0
+2019,6,Vollblut,,,
+2019,6,Warmblut,,28.0,28.0
+2019,6,Wildequiden,,,
+2019,7,Esel,,,
+2019,7,Hofische Rasse,,,
+2019,7,Iberer,,,
+2019,7,Kaltblut,,28.0,28.0
+2019,7,Maultier-Maulesel,,,
+2019,7,Ponys und Kleinpferde,,14.0,14.0
+2019,7,Vollblut,,,
+2019,7,Warmblut,,32.0,32.0
+2019,7,Wildequiden,,,
+2019,8,Esel,,,
+2019,8,Hofische Rasse,,,
+2019,8,Iberer,,,
+2019,8,Kaltblut,6.0,32.0,38.0
+2019,8,Maultier-Maulesel,,,
+2019,8,Ponys und Kleinpferde,,8.0,8.0
+2019,8,Vollblut,,,
+2019,8,Warmblut,,34.0,34.0
+2019,8,Wildequiden,,,
+2019,9,Esel,,,
+2019,9,Hofische Rasse,,,
+2019,9,Iberer,,,
+2019,9,Kaltblut,15.0,38.0,53.0
+2019,9,Maultier-Maulesel,,,
+2019,9,Ponys und Kleinpferde,6.0,23.0,29.0
+2019,9,Vollblut,,,
+2019,9,Warmblut,,39.0,39.0
+2019,9,Wildequiden,,,
+2019,10,Esel,,15.0,15.0
+2019,10,Hofische Rasse,,,
+2019,10,Iberer,,,
+2019,10,Kaltblut,320.0,37.0,357.0
+2019,10,Maultier-Maulesel,,,
+2019,10,Ponys und Kleinpferde,21.0,16.0,37.0
+2019,10,Vollblut,,,
+2019,10,Warmblut,,37.0,37.0
+2019,10,Wildequiden,,,
+2019,11,Esel,7.0,8.0,15.0
+2019,11,Hofische Rasse,,,
+2019,11,Iberer,,,
+2019,11,Kaltblut,223.0,55.0,278.0
+2019,11,Maultier-Maulesel,,,
+2019,11,Ponys und Kleinpferde,22.0,22.0,44.0
+2019,11,Vollblut,,,
+2019,11,Warmblut,,51.0,51.0
+2019,11,Wildequiden,,,
+2019,12,Esel,,6.0,6.0
+2019,12,Hofische Rasse,,,
+2019,12,Iberer,,,
+2019,12,Kaltblut,68.0,30.0,98.0
+2019,12,Maultier-Maulesel,,,
+2019,12,Ponys und Kleinpferde,8.0,22.0,30.0
+2019,12,Vollblut,,,
+2019,12,Warmblut,,29.0,29.0
+2019,12,Wildequiden,,,
+2020,1,Esel,,17.0,17.0
+2020,1,Hofische Rasse,,,
+2020,1,Iberer,,,
+2020,1,Kaltblut,26.0,44.0,70.0
+2020,1,Maultier-Maulesel,,,
+2020,1,Ponys und Kleinpferde,,28.0,28.0
+2020,1,Vollblut,,,
+2020,1,Warmblut,,42.0,42.0
+2020,1,Wildequiden,,,
+2020,2,Esel,,11.0,11.0
+2020,2,Hofische Rasse,,,
+2020,2,Iberer,,,
+2020,2,Kaltblut,14.0,46.0,60.0
+2020,2,Maultier-Maulesel,,,
+2020,2,Ponys und Kleinpferde,,15.0,15.0
+2020,2,Vollblut,,,
+2020,2,Warmblut,,34.0,34.0
+2020,2,Wildequiden,,,
+2020,3,Esel,,15.0,15.0
+2020,3,Hofische Rasse,,,
+2020,3,Iberer,,,
+2020,3,Kaltblut,16.0,31.0,47.0
+2020,3,Maultier-Maulesel,,,
+2020,3,Ponys und Kleinpferde,,14.0,14.0
+2020,3,Vollblut,,,
+2020,3,Warmblut,,38.0,38.0
+2020,3,Wildequiden,,,
+2020,4,Esel,,10.0,10.0
+2020,4,Hofische Rasse,,,
+2020,4,Iberer,,,
+2020,4,Kaltblut,8.0,25.0,33.0
+2020,4,Maultier-Maulesel,,,
+2020,4,Ponys und Kleinpferde,7.0,13.0,20.0
+2020,4,Vollblut,,,
+2020,4,Warmblut,,24.0,24.0
+2020,4,Wildequiden,,,
+2020,5,Esel,,,
+2020,5,Hofische Rasse,,,
+2020,5,Iberer,,,
+2020,5,Kaltblut,9.0,23.0,32.0
+2020,5,Maultier-Maulesel,,,
+2020,5,Ponys und Kleinpferde,,13.0,13.0
+2020,5,Vollblut,,,
+2020,5,Warmblut,,30.0,30.0
+2020,5,Wildequiden,,,
+2020,6,Esel,,11.0,11.0
+2020,6,Hofische Rasse,,,
+2020,6,Iberer,,,
+2020,6,Kaltblut,7.0,28.0,35.0
+2020,6,Maultier-Maulesel,,,
+2020,6,Ponys und Kleinpferde,,16.0,16.0
+2020,6,Vollblut,,,
+2020,6,Warmblut,,24.0,24.0
+2020,6,Wildequiden,,,
+2020,7,Esel,,8.0,8.0
+2020,7,Hofische Rasse,,,
+2020,7,Iberer,,,
+2020,7,Kaltblut,,17.0,17.0
+2020,7,Maultier-Maulesel,,,
+2020,7,Ponys und Kleinpferde,,11.0,11.0
+2020,7,Vollblut,,,
+2020,7,Warmblut,,26.0,26.0
+2020,7,Wildequiden,,,
+2020,8,Esel,,6.0,6.0
+2020,8,Hofische Rasse,,,
+2020,8,Iberer,,,
+2020,8,Kaltblut,6.0,20.0,26.0
+2020,8,Maultier-Maulesel,,,
+2020,8,Ponys und Kleinpferde,,17.0,17.0
+2020,8,Vollblut,,,
+2020,8,Warmblut,,33.0,33.0
+2020,8,Wildequiden,,,
+2020,9,Esel,,,
+2020,9,Hofische Rasse,,,
+2020,9,Iberer,,,
+2020,9,Kaltblut,15.0,30.0,45.0
+2020,9,Maultier-Maulesel,,,
+2020,9,Ponys und Kleinpferde,,19.0,19.0
+2020,9,Vollblut,,,
+2020,9,Warmblut,,38.0,38.0
+2020,9,Wildequiden,,,
+2020,10,Esel,,7.0,7.0
+2020,10,Hofische Rasse,,,
+2020,10,Iberer,,,
+2020,10,Kaltblut,243.0,32.0,275.0
+2020,10,Maultier-Maulesel,,,
+2020,10,Ponys und Kleinpferde,11.0,18.0,29.0
+2020,10,Vollblut,,,
+2020,10,Warmblut,,39.0,39.0
+2020,10,Wildequiden,,,
+2020,11,Esel,,10.0,10.0
+2020,11,Hofische Rasse,,,
+2020,11,Iberer,,,
+2020,11,Kaltblut,172.0,52.0,224.0
+2020,11,Maultier-Maulesel,,,
+2020,11,Ponys und Kleinpferde,14.0,16.0,30.0
+2020,11,Vollblut,,,
+2020,11,Warmblut,,44.0,44.0
+2020,11,Wildequiden,,,
+2020,12,Esel,,,
+2020,12,Hofische Rasse,,,
+2020,12,Iberer,,,
+2020,12,Kaltblut,43.0,24.0,67.0
+2020,12,Maultier-Maulesel,,,
+2020,12,Ponys und Kleinpferde,7.0,6.0,13.0
+2020,12,Vollblut,,,
+2020,12,Warmblut,,26.0,26.0
+2020,12,Wildequiden,,,
+2021,1,Esel,,73.0,73.0
+2021,1,Hofische Rasse,,,
+2021,1,Iberer,,,
+2021,1,Kaltblut,13.0,32.0,45.0
+2021,1,Maultier-Maulesel,,,
+2021,1,Ponys und Kleinpferde,,8.0,8.0
+2021,1,Vollblut,,,
+2021,1,Warmblut,,29.0,29.0
+2021,1,Wildequiden,,,
+2021,2,Esel,,9.0,9.0
+2021,2,Hofische Rasse,,,
+2021,2,Iberer,,,
+2021,2,Kaltblut,16.0,22.0,38.0
+2021,2,Maultier-Maulesel,,,
+2021,2,Ponys und Kleinpferde,,15.0,15.0
+2021,2,Vollblut,,,
+2021,2,Warmblut,,25.0,25.0
+2021,2,Wildequiden,,,
+2021,3,Esel,,14.0,14.0
+2021,3,Hofische Rasse,,,
+2021,3,Iberer,,,
+2021,3,Kaltblut,10.0,23.0,33.0
+2021,3,Maultier-Maulesel,,,
+2021,3,Ponys und Kleinpferde,,16.0,16.0
+2021,3,Vollblut,,,
+2021,3,Warmblut,,28.0,28.0
+2021,3,Wildequiden,,,
+2021,4,Esel,,28.0,28.0
+2021,4,Hofische Rasse,,,
+2021,4,Iberer,,,
+2021,4,Kaltblut,11.0,25.0,36.0
+2021,4,Maultier-Maulesel,,,
+2021,4,Ponys und Kleinpferde,,11.0,11.0
+2021,4,Vollblut,,,
+2021,4,Warmblut,,39.0,39.0
+2021,4,Wildequiden,,,
+2021,5,Esel,,9.0,9.0
+2021,5,Hofische Rasse,,,
+2021,5,Iberer,,,
+2021,5,Kaltblut,,15.0,15.0
+2021,5,Maultier-Maulesel,,,
+2021,5,Ponys und Kleinpferde,,11.0,11.0
+2021,5,Vollblut,,,
+2021,5,Warmblut,,26.0,26.0
+2021,5,Wildequiden,,,
+2021,6,Esel,,10.0,10.0
+2021,6,Hofische Rasse,,,
+2021,6,Iberer,,,
+2021,6,Kaltblut,,22.0,22.0
+2021,6,Maultier-Maulesel,,,
+2021,6,Ponys und Kleinpferde,,15.0,15.0
+2021,6,Vollblut,,,
+2021,6,Warmblut,,24.0,24.0
+2021,6,Wildequiden,,,
+2021,7,Esel,,10.0,10.0
+2021,7,Hofische Rasse,,,
+2021,7,Iberer,,,
+2021,7,Kaltblut,,12.0,12.0
+2021,7,Maultier-Maulesel,,,
+2021,7,Ponys und Kleinpferde,,16.0,16.0
+2021,7,Vollblut,,,
+2021,7,Warmblut,,25.0,25.0
+2021,7,Wildequiden,,,
+2021,8,Esel,,,
+2021,8,Hofische Rasse,,,
+2021,8,Iberer,,,
+2021,8,Kaltblut,6.0,19.0,25.0
+2021,8,Maultier-Maulesel,,,
+2021,8,Ponys und Kleinpferde,,7.0,7.0
+2021,8,Vollblut,,,
+2021,8,Warmblut,,23.0,23.0
+2021,8,Wildequiden,,,
+2021,9,Esel,,,
+2021,9,Hofische Rasse,,,
+2021,9,Iberer,,,
+2021,9,Kaltblut,12.0,18.0,30.0
+2021,9,Maultier-Maulesel,,,
+2021,9,Ponys und Kleinpferde,,7.0,7.0
+2021,9,Vollblut,,,
+2021,9,Warmblut,,29.0,29.0
+2021,9,Wildequiden,,,
+2021,10,Esel,,,
+2021,10,Hofische Rasse,,,
+2021,10,Iberer,,,
+2021,10,Kaltblut,116.0,26.0,142.0
+2021,10,Maultier-Maulesel,,,
+2021,10,Ponys und Kleinpferde,7.0,10.0,17.0
+2021,10,Vollblut,,,
+2021,10,Warmblut,,41.0,41.0
+2021,10,Wildequiden,,,
+2021,11,Esel,,14.0,14.0
+2021,11,Hofische Rasse,,,
+2021,11,Iberer,,,
+2021,11,Kaltblut,134.0,40.0,174.0
+2021,11,Maultier-Maulesel,,,
+2021,11,Ponys und Kleinpferde,17.0,12.0,29.0
+2021,11,Vollblut,,,
+2021,11,Warmblut,,39.0,39.0
+2021,11,Wildequiden,,,
+2021,12,Esel,,8.0,8.0
+2021,12,Hofische Rasse,,,
+2021,12,Iberer,,,
+2021,12,Kaltblut,44.0,20.0,64.0
+2021,12,Maultier-Maulesel,,,
+2021,12,Ponys und Kleinpferde,,9.0,9.0
+2021,12,Vollblut,,,
+2021,12,Warmblut,,24.0,24.0
+2021,12,Wildequiden,,,
+2022,1,Esel,,9.0,9.0
+2022,1,Hofische Rasse,,,
+2022,1,Iberer,,,
+2022,1,Kaltblut,7.0,23.0,30.0
+2022,1,Maultier-Maulesel,,,
+2022,1,Ponys und Kleinpferde,,11.0,11.0
+2022,1,Vollblut,,,
+2022,1,Warmblut,,29.0,29.0
+2022,1,Wildequiden,,,
+2022,2,Esel,,12.0,12.0
+2022,2,Hofische Rasse,,,
+2022,2,Iberer,,,
+2022,2,Kaltblut,,18.0,18.0
+2022,2,Maultier-Maulesel,,,
+2022,2,Ponys und Kleinpferde,,10.0,10.0
+2022,2,Vollblut,,,
+2022,2,Warmblut,,21.0,21.0
+2022,2,Wildequiden,,,
+2022,3,Esel,,13.0,13.0
+2022,3,Hofische Rasse,,,
+2022,3,Iberer,,,
+2022,3,Kaltblut,6.0,12.0,18.0
+2022,3,Maultier-Maulesel,,,
+2022,3,Ponys und Kleinpferde,,9.0,9.0
+2022,3,Vollblut,,,
+2022,3,Warmblut,,30.0,30.0
+2022,3,Wildequiden,,,
+2022,4,Esel,,7.0,7.0
+2022,4,Hofische Rasse,,,
+2022,4,Iberer,,,
+2022,4,Kaltblut,,22.0,22.0
+2022,4,Maultier-Maulesel,,,
+2022,4,Ponys und Kleinpferde,,8.0,8.0
+2022,4,Vollblut,,,
+2022,4,Warmblut,,12.0,12.0
+2022,4,Wildequiden,,,
+2022,5,Esel,,,
+2022,5,Hofische Rasse,,,
+2022,5,Iberer,,,
+2022,5,Kaltblut,7.0,19.0,26.0
+2022,5,Maultier-Maulesel,,,
+2022,5,Ponys und Kleinpferde,,10.0,10.0
+2022,5,Vollblut,,,
+2022,5,Warmblut,,21.0,21.0
+2022,5,Wildequiden,,,
+2022,6,Esel,,6.0,6.0
+2022,6,Hofische Rasse,,,
+2022,6,Iberer,,,
+2022,6,Kaltblut,,15.0,15.0
+2022,6,Maultier-Maulesel,,,
+2022,6,Ponys und Kleinpferde,,9.0,9.0
+2022,6,Vollblut,,,
+2022,6,Warmblut,,16.0,16.0
+2022,6,Wildequiden,,,
+2022,7,Esel,,,
+2022,7,Hofische Rasse,,,
+2022,7,Iberer,,,
+2022,7,Kaltblut,,11.0,11.0
+2022,7,Maultier-Maulesel,,,
+2022,7,Ponys und Kleinpferde,,12.0,12.0
+2022,7,Vollblut,,,
+2022,7,Warmblut,,21.0,21.0
+2022,7,Wildequiden,,,
+2022,8,Esel,,6.0,6.0
+2022,8,Hofische Rasse,,,
+2022,8,Iberer,,,
+2022,8,Kaltblut,,19.0,19.0
+2022,8,Maultier-Maulesel,,,
+2022,8,Ponys und Kleinpferde,,10.0,10.0
+2022,8,Vollblut,,,
+2022,8,Warmblut,,25.0,25.0
+2022,8,Wildequiden,,,
+2022,9,Esel,,6.0,6.0
+2022,9,Hofische Rasse,,,
+2022,9,Iberer,,,
+2022,9,Kaltblut,14.0,22.0,36.0
+2022,9,Maultier-Maulesel,,,
+2022,9,Ponys und Kleinpferde,,7.0,7.0
+2022,9,Vollblut,,,
+2022,9,Warmblut,,25.0,25.0
+2022,9,Wildequiden,,,
+2022,10,Esel,7.0,16.0,23.0
+2022,10,Hofische Rasse,,,
+2022,10,Iberer,,,
+2022,10,Kaltblut,125.0,31.0,156.0
+2022,10,Maultier-Maulesel,,,
+2022,10,Ponys und Kleinpferde,6.0,17.0,23.0
+2022,10,Vollblut,,,
+2022,10,Warmblut,,40.0,40.0
+2022,10,Wildequiden,,,
+2022,11,Esel,7.0,13.0,20.0
+2022,11,Hofische Rasse,,,
+2022,11,Iberer,,,
+2022,11,Kaltblut,93.0,26.0,119.0
+2022,11,Maultier-Maulesel,,,
+2022,11,Ponys und Kleinpferde,16.0,9.0,25.0
+2022,11,Vollblut,,,
+2022,11,Warmblut,6.0,50.0,56.0
+2022,11,Wildequiden,,,
+2022,12,Esel,,11.0,11.0
+2022,12,Hofische Rasse,,,
+2022,12,Iberer,,,
+2022,12,Kaltblut,23.0,15.0,38.0
+2022,12,Maultier-Maulesel,,,
+2022,12,Ponys und Kleinpferde,,7.0,7.0
+2022,12,Vollblut,,,
+2022,12,Warmblut,,20.0,20.0
+2022,12,Wildequiden,,,
+2023,1,Esel,,20.0,20.0
+2023,1,Hofische Rasse,,,
+2023,1,Iberer,,,
+2023,1,Kaltblut,10.0,24.0,34.0
+2023,1,Maultier-Maulesel,,,
+2023,1,Ponys und Kleinpferde,,20.0,20.0
+2023,1,Vollblut,,,
+2023,1,Warmblut,,36.0,36.0
+2023,1,Wildequiden,,,
+2023,2,Esel,,,
+2023,2,Hofische Rasse,,,
+2023,2,Iberer,,,
+2023,2,Kaltblut,6.0,12.0,18.0
+2023,2,Maultier-Maulesel,,,
+2023,2,Ponys und Kleinpferde,,,
+2023,2,Vollblut,,,
+2023,2,Warmblut,,31.0,31.0
+2023,2,Wildequiden,,,
+2023,3,Esel,,6.0,6.0
+2023,3,Hofische Rasse,,,
+2023,3,Iberer,,,
+2023,3,Kaltblut,9.0,18.0,27.0
+2023,3,Maultier-Maulesel,,,
+2023,3,Ponys und Kleinpferde,,10.0,10.0
+2023,3,Vollblut,,,
+2023,3,Warmblut,,21.0,21.0
+2023,3,Wildequiden,,,
+2023,4,Esel,,15.0,15.0
+2023,4,Hofische Rasse,,,
+2023,4,Iberer,,,
+2023,4,Kaltblut,,14.0,14.0
+2023,4,Maultier-Maulesel,,,
+2023,4,Ponys und Kleinpferde,,,
+2023,4,Vollblut,,,
+2023,4,Warmblut,,12.0,12.0
+2023,4,Wildequiden,,,
+2023,5,Esel,,8.0,8.0
+2023,5,Hofische Rasse,,,
+2023,5,Iberer,,,
+2023,5,Kaltblut,,18.0,18.0
+2023,5,Maultier-Maulesel,,,
+2023,5,Ponys und Kleinpferde,,6.0,6.0
+2023,5,Vollblut,,,
+2023,5,Warmblut,,18.0,18.0
+2023,5,Wildequiden,,,
+2023,6,Esel,,,
+2023,6,Hofische Rasse,,,
+2023,6,Iberer,,,
+2023,6,Kaltblut,,16.0,16.0
+2023,6,Maultier-Maulesel,,,
+2023,6,Ponys und Kleinpferde,,,
+2023,6,Vollblut,,,
+2023,6,Warmblut,,21.0,21.0
+2023,6,Wildequiden,,,
+2023,7,Esel,,,
+2023,7,Hofische Rasse,,,
+2023,7,Iberer,,,
+2023,7,Kaltblut,,13.0,13.0
+2023,7,Maultier-Maulesel,,,
+2023,7,Ponys und Kleinpferde,,7.0,7.0
+2023,7,Vollblut,,,
+2023,7,Warmblut,,18.0,18.0
+2023,7,Wildequiden,,,

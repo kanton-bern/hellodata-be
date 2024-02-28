@@ -1,0 +1,28 @@
+canton,count,count_per_surfacekm2,count_per100_inhabitants,top5breeds,top5names
+Graubünden,5403,0.8,2.7,"Esel Rasse unbekannt  1351, Freiberger  814, Islandpferd  704, Europäisches Sportpferd Schweiz  252, Europäisches Sportpferd Deutschland  226","Luna  28, Stella  20, Lisa  19, Leo  12, Mia  12"
+Bern,20323,3.5,1.9,"Freiberger  4189, Europäisches Sportpferd Schweiz  3108, Shetland Pony  2069, Esel Rasse unbekannt  1557, Europäisches Sportpferd Deutschland  1225","Luna  75, Fiona  43, Lucky  32, Cindy  31, Max  29"
+Valais,4564,0.9,1.3,"Esel Rasse unbekannt  1321, Freiberger  573, Shetland Pony  435, Europäisches Sportpferd Schweiz  248, Pony Schweiz  207","Luna  26, Nina  14, Fanny  12, Caline  9, Lucky  9"
+Vaud,9763,3.5,1.2,"Europäisches Sportpferd Schweiz  1397, Freiberger  1331, Esel Rasse unbekannt  919, Pony Schweiz  671, Shetland Pony  607","Caline  16, Stella  14, Cheyenne  12, Luna  12, Plume  11"
+Ticino,3326,1.2,0.9,"Esel Rasse unbekannt  1217, Europäisches Sportpferd Schweiz  280, Freiberger  276, Europäisches Sportpferd Deutschland  157, Pony Schweiz  156","Luna  29, Stella  16, Nerina  14, Camilla  12, Fiona  12"
+St. Gallen,6520,3.3,1.3,"Freiberger  898, Europäisches Sportpferd Schweiz  791, Europäisches Sportpferd Deutschland  714, Esel Rasse unbekannt  606, Shetland Pony  554","Luna  28, Bella  11, Lisa  11, Max  11, Ronja  11"
+Zürich,12257,7.4,0.8,"Europäisches Sportpferd Deutschland  1608, Europäisches Sportpferd Schweiz  1443, Freiberger  1066, Islandpferd  1040, Shetland Pony  825","Luna  17, Stella  14, Lucky  12, Filou  11, Merlin  11"
+Fribourg,7022,4.4,2.2,"Freiberger  1735, Europäisches Sportpferd Schweiz  888, Shetland Pony  575, Esel Rasse unbekannt  503, Pony Schweiz  422","Luna  14, Nina  13, Etoile  11, Caline  10, Fiona  10"
+Luzern,5970,4.2,1.4,"Europäisches Sportpferd Schweiz  1090, Freiberger  875, Shetland Pony  698, Europäisches Sportpferd Deutschland  481, Esel Rasse unbekannt  418","Luna  30, Cindy  19, Lara  11, Lisa  10, Blacky  8"
+Aargau,8879,6.4,1.3,"Europäisches Sportpferd Schweiz  1168, Freiberger  1160, Europäisches Sportpferd Deutschland  849, Islandpferd  805, Shetland Pony  762","Luna  19, Lucky  13, Cindy  10, Fiona  10, Jimmy  10"
+Uri,216,0.2,0.6,"Esel Rasse unbekannt  44, Freiberger  36, Shetland Pony  21, Europäisches Sportpferd Schweiz  11, Pony Schweiz  11",
+Thurgau,5879,6.8,2.1,"Freiberger  734, Europäisches Sportpferd Deutschland  692, Europäisches Sportpferd Schweiz  666, Shetland Pony  492, Islandpferd  366","Luna  18, Stella  9, Fiona  8, Nino  8, Nora  8"
+Schwyz,1667,2.0,1.0,"Esel Rasse unbekannt  313, Europäisches Sportpferd Schweiz  215, Freiberger  183, Shetland Pony  154, Europäisches Sportpferd Deutschland  138","Luna  13, Ronja  6, Charly  5, Fanny  5, Fiona  5"
+Jura,5332,6.4,7.2,"Freiberger  3000, Europäisches Sportpferd Schweiz  786, Esel Rasse unbekannt  240, Shetland Pony  201, Pony Schweiz  145","Caline  10, Fanny  9, Noisette  9, Prunelle  9, Caramel  8"
+Neuchâtel,2482,3.5,1.4,"Freiberger  594, Europäisches Sportpferd Schweiz  482, Shetland Pony  158, Pony Schweiz  145, Esel Rasse unbekannt  137","Caline  9, Nikita  7, Eclair  5, Noisette  5, Princesse  5"
+Solothurn,4432,5.6,1.6,"Freiberger  814, Europäisches Sportpferd Schweiz  692, Europäisches Sportpferd Deutschland  403, Shetland Pony  387, Esel Rasse unbekannt  236","Luna  13, Sina  9, Charly  7, Diana  6, Fiona  6"
+Glarus,395,0.6,1.0,"Freiberger  57, Shetland Pony  53, Esel Rasse unbekannt  49, Europäisches Sportpferd Schweiz  32, Europäisches Sportpferd Deutschland  22",
+Basel-Landschaft,2877,5.6,1.0,"Freiberger  507, Europäisches Sportpferd Schweiz  367, Europäisches Sportpferd Deutschland  233, Shetland Pony  204, Esel Rasse unbekannt  159","Luna  11, Bella  8, Spirit  6, Bonita  5, Carina  5"
+Obwalden,505,1.1,1.3,"Esel Rasse unbekannt  87, Freiberger  83, Shetland Pony  79, Haflinger  30, Islandpferd  27",
+Nidwalden,220,0.9,0.5,"Freiberger  38, Shetland Pony  32, Esel Rasse unbekannt  28, Europäisches Sportpferd Schweiz  15, Pony Schweiz  15",
+Genève,2175,8.8,0.4,"Pony Schweiz  333, Europäisches Sportpferd Frankreich  319, Europäisches Sportpferd Schweiz  308, Esel Rasse unbekannt  128, Freiberger  108",Apache  5
+Schaffhausen,1195,4.0,1.4,"Europäisches Sportpferd Deutschland  162, Freiberger  144, Europäisches Sportpferd Schweiz  117, Islandpferd  101, Shetland Pony  86",
+Appenzell Ausserrhoden,731,3.0,1.3,"Freiberger  125, Esel Rasse unbekannt  102, Shetland Pony  82, Europäisches Sportpferd Schweiz  47, Europäisches Sportpferd Deutschland  44",Luna  7
+Zug,1124,5.4,0.9,"Europäisches Sportpferd Schweiz  144, Europäisches Sportpferd Deutschland  139, Freiberger  125, Esel Rasse unbekannt  97, Islandpferd  76",Luna  6
+Appenzell Innerrhoden,187,1.1,1.1,"Esel Rasse unbekannt  39, Freiberger  36, Europäisches Sportpferd Schweiz  26, Europäisches Sportpferd Deutschland  16, Shetland Pony  16",
+Basel-Stadt,86,2.3,0.0,"Esel Rasse unbekannt  17, Shetland Pony  17, Quarter Horse  6, Welsh Pony  6, Pony Schweiz  5",
+Liechtenstein,0,0.0,0.0,,

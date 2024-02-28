@@ -60,7 +60,7 @@ x-airflow-common:
     DB_PASS: postgres
 
   volumes:
-    - shared-data:/opt/airflow/data
+    - shared-data:/opt/airflow/dags
     - ./base/airflow/logs:/opt/airflow/logs
     - ./base/airflow/plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:0"
@@ -76,6 +76,22 @@ x-airflow-common:
 version: "3.7"
 
 services:
+
+  showcase-files:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-showcase
+    env_file: .env
+    environment:
+      DESTINATION_PATH: /storage/Default_Data_Domain
+      DD_KEY: Default_Data_Domain
+      SHOWCASE_DWH_HOST: postgres
+      SHOWCASE_DWH_PORT: 5432
+      SHOWCASE_DWH_U_MODELER: postgres
+      SHOWCASE_DWH_U_MODELER_PASSWORD: postgres
+      SHOWCASE_DWH_NAME: hellodata_product_development_default_data_domain_dwh
+    volumes:
+      - shared-data:/storage
+
   postgres:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-dc-postgres
