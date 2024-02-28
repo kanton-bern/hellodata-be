@@ -2,104 +2,105 @@
 <div class="card">
   <div *ngIf="(supersetInfos$ | async) as supersetInfos">
     <div *ngFor="let supersetInfo of supersetInfos | orderBy: 'businessContextInfo.subContext.name' ">
-      <h3>{{supersetInfo.businessContextInfo.subContext.name}}</h3>
-
       <div *ngIf="(dashboards$ | async) as dashboards">
-        <p-table [filterDelay]="0"
-                 [selection]="getSelectedDashboards(supersetInfo.businessContextInfo.subContext.key)"
-                 (selectionChange)="onSelectionChange($event, supersetInfo.businessContextInfo.subContext.key)"
-                 [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
-                 [paginator]="true"
-                 [rowHover]="true"
-                 [rows]="10"
-                 [selectionPageOnly]="true"
-                 [showCurrentPageReport]="true"
-                 [tableStyle]="{ 'min-width': '50rem' }"
-                 [value]="filterDashboardsByContext(dashboards, supersetInfo.businessContextInfo.subContext.key)"
-                 dataKey="id"
-                 selectionMode="single">
-          <ng-template pTemplate="caption">
-            <div class="flex ">
-              <button (click)="exportDashboards(supersetInfo.businessContextInfo.subContext.key)"
-                      [disabled]="getSelectedDashboards(supersetInfo.businessContextInfo.subContext.key).length === 0"
-                      [pTooltip]="'@Export dashboard' | transloco"
-                      class="p-button-rounded p-button-success mr-2"
-                      icon="fas fa-light fa-download"
-                      pButton
-                      pRipple></button>
-              <button (click)="showImport(supersetInfo.businessContextInfo.subContext.key)"
-                      [pTooltip]="'@Import dashboard' | transloco"
-                      class="p-button-rounded p-button-help mr-2"
-                      icon="fas fa-light fa-upload"
-                      pButton
-                      pRipple></button>
-            </div>
-            <div *ngIf="(authService.accessToken | async) as accessToken" class="mt-1">
-              <p-fileUpload name="uploadAvatar"
-                            *ngIf="uploadVisible(supersetInfo.businessContextInfo.subContext.key)"
-                            [customUpload]="true"
-                            (uploadHandler)="onFileUploadClicked($event, accessToken)"
-                            (onSelect)="onSelect($event)"
-                            [maxFileSize]="500000">
-              </p-fileUpload>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="header">
-            <tr>
-              <th style="width: 4rem">
-                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-              </th>
-              <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{'@Dashboard' | transloco}}
-                <p-sortIcon field="dashboardTitle"></p-sortIcon>
-              </th>
-              <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
-                <p-sortIcon field="contextName"></p-sortIcon>
-              </th>
-              <th id="businessProcessHeader" pSortableColumn="businessProcess">{{'@Business process' | transloco}}
-                <p-sortIcon field="businessProcess"></p-sortIcon>
-              </th>
-              <th id="departmentHeader" pSortableColumn="department">{{'@Department' | transloco}}
-                <p-sortIcon field="department"></p-sortIcon>
-              </th>
-              <th id="responsibilityHeader" pSortableColumn="responsibility">{{'@Professional responsibility' | transloco}}
-                <p-sortIcon field="responsibility"></p-sortIcon>
-              </th>
-              <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{'@Data analyst' | transloco}}
-                <p-sortIcon field="dataAnalyst"></p-sortIcon>
-              </th>
-            </tr>
-          </ng-template>
-          <ng-template let-dashboard pTemplate="body">
-            <tr>
-              <td>
-                <p-tableCheckbox [value]="dashboard"></p-tableCheckbox>
-              </td>
-              <td>
-                {{dashboard.dashboardTitle}}
-              </td>
-              <td>
-                {{dashboard.contextName}}
-              </td>
-              <td>
-                {{ dashboard.businessProcess }}
-              </td>
-              <td>
-                {{ dashboard.department }}
-              </td>
-              <td>
-                {{ dashboard.responsibility }}
-              </td>
-              <td>
-                {{ dashboard.dataAnalyst }}
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="9">No dashboards found.</td>
-            </tr>
-          </ng-template>
-        </p-table>
+        <div *ngIf="filterDashboardsByContext(dashboards, supersetInfo.businessContextInfo.subContext.key).length !== 0">
+          <h3>{{supersetInfo.businessContextInfo.subContext.name}}</h3>
+          <p-table [filterDelay]="0"
+                   [selection]="getSelectedDashboards(supersetInfo.businessContextInfo.subContext.key)"
+                   (selectionChange)="onSelectionChange($event, supersetInfo.businessContextInfo.subContext.key)"
+                   [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
+                   [paginator]="true"
+                   [rowHover]="true"
+                   [rows]="10"
+                   [selectionPageOnly]="true"
+                   [showCurrentPageReport]="true"
+                   [tableStyle]="{ 'min-width': '50rem' }"
+                   [value]="filterDashboardsByContext(dashboards, supersetInfo.businessContextInfo.subContext.key)"
+                   dataKey="id"
+                   selectionMode="single">
+            <ng-template pTemplate="caption">
+              <div class="flex ">
+                <button (click)="exportDashboards(supersetInfo.businessContextInfo.subContext.key)"
+                        [disabled]="getSelectedDashboards(supersetInfo.businessContextInfo.subContext.key).length === 0"
+                        [pTooltip]="'@Export dashboard' | transloco"
+                        class="p-button-rounded p-button-success mr-2"
+                        icon="fas fa-light fa-download"
+                        pButton
+                        pRipple></button>
+                <button (click)="showImport(supersetInfo.businessContextInfo.subContext.key)"
+                        [pTooltip]="'@Import dashboard' | transloco"
+                        class="p-button-rounded p-button-help mr-2"
+                        icon="fas fa-light fa-upload"
+                        pButton
+                        pRipple></button>
+              </div>
+              <div *ngIf="(authService.accessToken | async) as accessToken" class="mt-1">
+                <p-fileUpload name="uploadAvatar"
+                              *ngIf="uploadVisible(supersetInfo.businessContextInfo.subContext.key)"
+                              [customUpload]="true"
+                              (uploadHandler)="onFileUploadClicked($event, accessToken)"
+                              (onSelect)="onSelect($event)"
+                              [maxFileSize]="500000">
+                </p-fileUpload>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 4rem">
+                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{'@Dashboard' | transloco}}
+                  <p-sortIcon field="dashboardTitle"></p-sortIcon>
+                </th>
+                <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
+                  <p-sortIcon field="contextName"></p-sortIcon>
+                </th>
+                <th id="businessProcessHeader" pSortableColumn="businessProcess">{{'@Business process' | transloco}}
+                  <p-sortIcon field="businessProcess"></p-sortIcon>
+                </th>
+                <th id="departmentHeader" pSortableColumn="department">{{'@Department' | transloco}}
+                  <p-sortIcon field="department"></p-sortIcon>
+                </th>
+                <th id="responsibilityHeader" pSortableColumn="responsibility">{{'@Professional responsibility' | transloco}}
+                  <p-sortIcon field="responsibility"></p-sortIcon>
+                </th>
+                <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{'@Data analyst' | transloco}}
+                  <p-sortIcon field="dataAnalyst"></p-sortIcon>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template let-dashboard pTemplate="body">
+              <tr>
+                <td>
+                  <p-tableCheckbox [value]="dashboard"></p-tableCheckbox>
+                </td>
+                <td>
+                  {{dashboard.dashboardTitle}}
+                </td>
+                <td>
+                  {{dashboard.contextName}}
+                </td>
+                <td>
+                  {{ dashboard.businessProcess }}
+                </td>
+                <td>
+                  {{ dashboard.department }}
+                </td>
+                <td>
+                  {{ dashboard.responsibility }}
+                </td>
+                <td>
+                  {{ dashboard.dataAnalyst }}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="9">No dashboards found.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </div>
     </div>
   </div>

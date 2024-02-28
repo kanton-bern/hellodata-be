@@ -51,7 +51,6 @@ export class DashboardImportExportComponent extends BaseComponent {
   dashboards$: Observable<SupersetDashboard[]>;
   availableDataDomains$: Observable<any>;
 
-  selectedDashboards: SupersetDashboard[] = [];
   selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
   showUploadForContextMap = new Map<string, boolean>();
 
@@ -77,10 +76,6 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   filterDashboardsByContext(dashboards: SupersetDashboard[], contextKey: string): SupersetDashboard[] {
     return dashboards.filter(dashboard => dashboard.contextKey === contextKey);
-  }
-
-  importDashboard() {
-
   }
 
   onSelect($event: FileSelectEvent) {
