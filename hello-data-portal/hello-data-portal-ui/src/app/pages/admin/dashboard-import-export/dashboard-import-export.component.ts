@@ -39,6 +39,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {FileSelectEvent} from "primeng/fileupload";
 import {AuthService} from "../../../shared/services";
+import {loadMyDashboards} from "../../../store/my-dashboards/my-dashboards.action";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -49,6 +50,10 @@ export class DashboardImportExportComponent extends BaseComponent {
   supersetInfos$: Observable<MetaInfoResource[]>;
   dashboards$: Observable<SupersetDashboard[]>;
   availableDataDomains$: Observable<any>;
+
+  selectedDashboards: SupersetDashboard[] = [];
+  selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
+  showUploadForContextMap = new Map<string, boolean>();
 
   constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef, readonly authService: AuthService) {
     super();
@@ -65,17 +70,13 @@ export class DashboardImportExportComponent extends BaseComponent {
     }));
   }
 
-  filterDashboardsByContext(dashboards: SupersetDashboard[], contextKey: string): SupersetDashboard[] {
-    return dashboards.filter(dashboard => dashboard.contextKey === contextKey);
+  override ngOnInit(): void {
+    super.ngOnInit();
+    this.store.dispatch(loadMyDashboards());
   }
 
-  exportDashboard(dashboard: SupersetDashboard) {
-    console.log(dashboard.instanceUrl);
-
-    const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-    const instance = componentRef.instance;
-    instance.style = {"display": 'none'};
-    instance.url = `${dashboard.instanceUrl}/api/v1/dashboard/export?q=!(${dashboard.id})`;
+  filterDashboardsByContext(dashboards: SupersetDashboard[], contextKey: string): SupersetDashboard[] {
+    return dashboards.filter(dashboard => dashboard.contextKey === contextKey);
   }
 
   importDashboard() {
@@ -85,33 +86,6 @@ export class DashboardImportExportComponent extends BaseComponent {
   onSelect($event: FileSelectEvent) {
     console.log('on select', $event.files)
   }
-
-  // onFileUploadClicked($event: { files: Blob[] }) {
-  //   console.log('on upload clicked', $event.files)
-  //   const fileUpload: Blob = $event.files[0];
-  //   const formData = new FormData();
-  //   formData.append('formData', fileUpload);
-  //   // formData.append('overwrite', 'true'); // Set overwrite to true
-  //   formData.append('passwords', '{}'); // Set passwords (if required)
-  //
-  //   const uploadReq = new HttpRequest('POST', 'http://localhost:8089/api/v1/dashboard/import/', formData, {
-  //     reportProgress: true, // to track progress
-  //   });
-  //
-  //   this.http.request(uploadReq).subscribe(event => {
-  //     if (event.type === HttpEventType.UploadProgress) {
-  //       const eventTotal = event.total ? event.total : 1;
-  //       // This is an upload progress event. Compute and show the % done:
-  //       const percentDone = Math.round((100 * event.loaded) / eventTotal);
-  //       console.log(`File is ${percentDone}% uploaded.`);
-  //     } else if (event instanceof HttpResponse) {
-  //       console.log('File uploaded successfully!', event.body);
-  //       // Do something with the response if needed
-  //     }
-  //   }, error => {
-  //     console.error('Error occurred while uploading file:', error);
-  //   });
-  // }
 
   async onFileUploadClicked($event: { files: Blob[] }, accessToken: string) {
     console.log('on upload clicked', $event.files)
@@ -172,4 +146,52 @@ export class DashboardImportExportComponent extends BaseComponent {
     }
   }
 
+  onSelectionChange(dashboards: SupersetDashboard[], contextKey: string) {
+    console.log('on selection change - context key', contextKey);
+    console.log('on selection change - dashboards', dashboards);
+    this.selectedDashboardsMap.set(contextKey, dashboards);
+  }
+
+  getSelectedDashboards(contextKey: string): SupersetDashboard[] {
+    const dashboards = this.selectedDashboardsMap.get(contextKey);
+    if (dashboards) {
+      return dashboards;
+    }
+    return [];
+  }
+
+  exportDashboards(contextKey: string) {
+    console.log('Export dashboards', contextKey)
+    const dashboards = this.selectedDashboardsMap.get(contextKey);
+    if (dashboards) {
+      const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+      const instance = componentRef.instance;
+      instance.style = {"display": 'none'};
+      const idsString = dashboards.map(dashboard => dashboard.id).join(',');
+      console.log('ids?', idsString)
+      instance.url = `${dashboards[0].instanceUrl}/api/v1/dashboard/export?q=!(${idsString})`;
+    }
+  }
+
+  exportDashboard(dashboard: SupersetDashboard) {
+    console.log(dashboard.instanceUrl);
+
+    const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+    const instance = componentRef.instance;
+    instance.style = {"display": 'none'};
+    instance.url = `${dashboard.instanceUrl}/api/v1/dashboard/export?q=!(${dashboard.id})`;
+  }
+
+  showImport(contextKey: string) {
+    const visible = this.showUploadForContextMap.get(contextKey);
+    if (visible) {
+      this.showUploadForContextMap.set(contextKey, false);
+    } else {
+      this.showUploadForContextMap.set(contextKey, true);
+    }
+  }
+
+  uploadVisible(contextKey: string): boolean | undefined {
+    return this.showUploadForContextMap.get(contextKey);
+  }
 }
