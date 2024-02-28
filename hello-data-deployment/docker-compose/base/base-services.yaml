@@ -30,7 +30,7 @@ x-airflow-common:
   # In order to add custom dependencies or upgrade provider packages you can use your extended image.
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:slim-2.3.3-python3.10}
+  image: bedag/hello-data-dc-airflow
   env_file: .env
   extra_hosts:
     - "host.docker.internal:host-gateway"
@@ -43,10 +43,10 @@ x-airflow-common:
     KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL}
 
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@host.docker.internal:5432/airflow
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/airflow
     # For backward compatibility, with Airflow <2.3
-    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@host.docker.internal:5432/airflow
-    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://postgres:postgres@host.docker.internal:5432/airflow
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres:5432/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://postgres:postgres@postgres:5432/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
@@ -63,8 +63,6 @@ x-airflow-common:
     - shared-data:/opt/airflow/data
     - ./base/airflow/logs:/opt/airflow/logs
     - ./base/airflow/plugins:/opt/airflow/plugins
-    - ./base/airflow/conf/airflow.cfg:/opt/airflow/airflow.cfg
-    - ./base/airflow/conf/webserver_config.py:/opt/airflow/webserver_config.py
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -80,7 +78,7 @@ version: "3.7"
 services:
   postgres:
     platform: ${HD_PLATFORM}
-    image: postgres:14
+    image: bedag/hello-data-dc-postgres
     env_file: .env
     ports:
       - 5432:5432
@@ -89,7 +87,6 @@ services:
       POSTGRES_MAX_CONNECTIONS: 200
     volumes:
       - postgres-volume:/var/lib/postgresql/data
-      - ./base/postgres/init-scripts:/docker-entrypoint-initdb.d
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 5s
@@ -97,7 +94,7 @@ services:
     restart: always
 
   keycloak:
-    build: ./base/keycloak
+    image: bedag/hello-data-dc-keycloak
     env_file: .env
     ports:
       - 38080:8080
@@ -188,7 +185,7 @@ services:
     restart: always
 
   cloudbeaver:
-    build: ./base/cloudbeaver
+    image: bedag/hello-data-dc-cloudbeaver
     env_file: .env
     restart: always
     extra_hosts:
@@ -241,7 +238,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   filebrowser:
-    build: ./base/filebrowser
+    image: filebrowser/filebrowser
     restart: always
     ports:
       - 8090:80
@@ -512,11 +509,7 @@ services:
       - postgres
 
   hello-data-portal-ui:
-    build:
-      context: base/portal
-      dockerfile: Dockerfile
-      args:
-        HELLO_DATA_AUTH_SERVER_URL: ${HELLO_DATA_AUTH_SERVER_URL}
+    image: bedag/hello-data-dc-portal
     env_file: .env
     restart: on-failure
     extra_hosts:
