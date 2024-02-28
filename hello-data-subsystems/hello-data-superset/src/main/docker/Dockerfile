@@ -46,7 +46,7 @@ RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRI
     rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
 
 # Install requirements for superset
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && pip install --no-cache authlib==1.2.1 psycopg2-binary==2.9.9 redis==5.0.1 jmespath==1.0.1 gevent
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && pip install --no-cache authlib==1.2.1 psycopg2-binary==2.9.9 redis==4.5.4 jmespath==1.0.1 gevent
 
 # install additional drivers
 # Find which driver you need based on the analytics database you want to connect to here:
