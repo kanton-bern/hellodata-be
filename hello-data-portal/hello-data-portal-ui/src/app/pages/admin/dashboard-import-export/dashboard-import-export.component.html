@@ -34,15 +34,14 @@
                         pButton
                         pRipple></button>
               </div>
-              <div *ngIf="(authService.accessToken | async) as accessToken" class="mt-1">
-                <p-fileUpload name="uploadAvatar"
-                              *ngIf="uploadVisible(dataDomain.data.key)"
-                              [customUpload]="true"
-                              (uploadHandler)="onFileUploadClicked($event, accessToken)"
-                              (onSelect)="onSelect($event)"
-                              [maxFileSize]="500000">
-                </p-fileUpload>
-              </div>
+              <p-fileUpload name="uploadAvatar"
+                            *ngIf="uploadVisible(dataDomain.data.key)"
+                            [customUpload]="true"
+                            (uploadHandler)="onFileUploadClicked($event, dataDomain.data.key)"
+                            (onUpload)="onUploadCompleted($event, dataDomain.data.key)"
+                            (onSelect)="onSelect($event)"
+                            [maxFileSize]="5000000">
+              </p-fileUpload>
             </ng-template>
             <ng-template pTemplate="header">
               <tr>

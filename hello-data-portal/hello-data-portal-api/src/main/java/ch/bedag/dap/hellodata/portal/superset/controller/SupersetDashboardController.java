@@ -34,14 +34,20 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Log4j2
 @RestController
@@ -62,5 +68,13 @@ public class SupersetDashboardController {
     public void updateDashboard(@PathVariable String instanceName, @PathVariable int subsystemId,
                                 @NotNull @Valid @RequestBody UpdateSupersetDashboardMetadataDto updateSupersetDashboardMetadataDto) {
         dashboardService.updateDashboard(instanceName, subsystemId, updateSupersetDashboardMetadataDto);
+    }
+
+    @PostMapping(value = "/upload-dashboards", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void uploadFile(@RequestParam MultipartFile file, @Valid @RequestParam String contextKey) {
+        // TODO cut into chunks and send over NATS request/reply to the sidecar
+        System.out.println();
     }
 }

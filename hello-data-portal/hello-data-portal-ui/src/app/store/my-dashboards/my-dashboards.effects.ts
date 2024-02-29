@@ -27,11 +27,20 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {catchError, of, switchMap, tap} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {showError, showSuccess} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
-import {loadAvailableDataDomains, loadAvailableDataDomainsSuccess, loadMyDashboards, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
+import {
+  loadAvailableDataDomains,
+  loadAvailableDataDomainsSuccess,
+  loadMyDashboards,
+  loadMyDashboardsSuccess,
+  setSelectedDataDomain,
+  uploadDashboards,
+  uploadDashboardsSuccess
+} from "./my-dashboards.action";
+import {NotificationService} from "../../shared/services/notification.service";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -68,9 +77,20 @@ export class MyDashboardsEffects {
     )
   });
 
+  uploadDashboardsFile = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(uploadDashboards),
+      switchMap((payload) => this._myDashboardsService.uploadDashboardsFile(payload.formData)),
+      switchMap((payload) => of(uploadDashboardsSuccess())),
+      catchError(e => of(showError(e))),
+      tap((payload) => this._notificationService.success('@Dashboards uploaded successfully')),
+    )
+  });
+
   constructor(
     private _actions$: Actions,
     private _myDashboardsService: MyDashboardsService,
+    private _notificationService: NotificationService
   ) {
   }
 }

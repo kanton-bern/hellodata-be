@@ -37,9 +37,9 @@ import {selectAvailableDataDomainItems, selectMyDashboards} from "../../../store
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
-import {FileSelectEvent} from "primeng/fileupload";
+import {FileSelectEvent, FileUploadEvent} from "primeng/fileupload";
 import {AuthService} from "../../../shared/services";
-import {loadMyDashboards} from "../../../store/my-dashboards/my-dashboards.action";
+import {loadMyDashboards, uploadDashboards} from "../../../store/my-dashboards/my-dashboards.action";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -79,66 +79,17 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   onSelect($event: FileSelectEvent) {
-    console.log('on select', $event.files)
+    console.debug('on dashboard select', $event.files)
   }
 
-  async onFileUploadClicked($event: { files: Blob[] }, accessToken: string) {
-    console.log('on upload clicked', $event.files)
+  onFileUploadClicked($event: { files: Blob[] }, contextKey: string) {
+    console.debug('on upload clicked', $event.files)
 
-    const csrfToken = await this.getCsrfToken(accessToken);
-
-    if (!csrfToken) {
-      console.error('Failed to obtain CSRF token.');
-      return;
-    }
     const fileUpload: Blob = $event.files[0];
     const formData = new FormData();
-    formData.append('formData', fileUpload);
-    // formData.append('overwrite', 'true'); // Set overwrite to true
-    formData.append('passwords', '{}'); // Set passwords (if required)
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://localhost:8089/api/v1/dashboard/import/', true);
-    xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
-    xhr.setRequestHeader('X-Csrftoken', `${csrfToken}`);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Type', 'application/x-zip-compressed');
-    xhr.upload.addEventListener('progress', (event) => {
-      if (event.lengthComputable) {
-        const percentDone = Math.round((event.loaded / event.total) * 100);
-        console.log(`File is ${percentDone}% uploaded.`);
-      }
-    });
-
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 200) {
-          console.log('File uploaded successfully!', xhr.responseText);
-          // Do something with the response if needed
-        } else {
-          console.error('Error occurred while uploading file:', xhr.statusText);
-        }
-      }
-    };
-
-    xhr.send(formData);
-  }
-
-  async getCsrfToken(bearerToken: string): Promise<string | null> {
-    const headers = new Headers();
-    headers.append('Authorization', `Bearer ${bearerToken}`);
-    headers.append('Content-Type', 'application/json');
-    const response = await fetch('http://localhost:8089/api/v1/security/csrf_token/', {
-      method: 'GET',
-      headers: headers
-    });
-    if (response.ok) {
-      const data = await response.json();
-      return data.csrf_token;
-    } else {
-      console.error('Failed to fetch CSRF token:', response.statusText);
-      return null;
-    }
+    formData.append('file', fileUpload);
+    formData.append('contextKey', contextKey); // Set overwrite to true
+    this.store.dispatch(uploadDashboards({formData}));
   }
 
   onSelectionChange(dashboards: SupersetDashboard[], contextKey: string) {
@@ -170,15 +121,6 @@ export class DashboardImportExportComponent extends BaseComponent {
     }
   }
 
-  exportDashboard(dashboard: SupersetDashboard) {
-    console.log(dashboard.instanceUrl);
-
-    const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-    const instance = componentRef.instance;
-    instance.style = {"display": 'none'};
-    instance.url = `${dashboard.instanceUrl}/api/v1/dashboard/export?q=!(${dashboard.id})`;
-  }
-
   showImport(contextKey: string) {
     const visible = this.showUploadForContextMap.get(contextKey);
     if (visible) {
@@ -190,5 +132,10 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   uploadVisible(contextKey: string): boolean | undefined {
     return this.showUploadForContextMap.get(contextKey);
+  }
+
+  onUploadCompleted($event: FileUploadEvent, contextKey: string) {
+    console.log("upload completed", $event);
+    this.showImport(contextKey);
   }
 }
