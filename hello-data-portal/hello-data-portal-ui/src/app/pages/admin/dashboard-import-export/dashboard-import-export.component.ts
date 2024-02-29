@@ -162,9 +162,11 @@ export class DashboardImportExportComponent extends BaseComponent {
       const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
       const instance = componentRef.instance;
       instance.style = {"display": 'none'};
+      instance.delay = 600;
       const idsString = dashboards.map(dashboard => dashboard.id).join(',');
-      console.log('ids?', idsString)
-      instance.url = `${dashboards[0].instanceUrl}/api/v1/dashboard/export?q=!(${idsString})`;
+      console.debug('ids?', idsString)
+      const instanceUrl = dashboards[0].instanceUrl;
+      instance.url = `${instanceUrl}login/keycloak?next=${instanceUrl}api/v1/dashboard/export?q=!(${idsString})`;
     }
   }
 
