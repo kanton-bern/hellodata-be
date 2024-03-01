@@ -31,9 +31,11 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
+import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
@@ -44,8 +46,23 @@ import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadata
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.entity.DashboardMetadataEntity;
 import ch.bedag.dap.hellodata.portal.superset.repository.DashboardMetadataRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nats.client.Connection;
+import io.nats.client.Message;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -55,24 +72,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
+
+    private static final int ONE_MB = 1024 * 1024;
+
     private final MetaInfoResourceService metaInfoResourceService;
     private final DashboardMetadataRepository dashboardMetadataRepository;
     private final HdContextRepository contextRepository;
     private final ModelMapper modelMapper;
+    private final Connection connection;
+    private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
     public Set<SupersetDashboardDto> fetchMyDashboards() {
@@ -149,7 +161,7 @@ public class DashboardService {
             dashboardDto.setDatasource(dashboardMetadataEntity.getDatasource());
             LocalDateTime lastAccessDate = dashboardMetadataEntity.getModifiedDate() != null ? dashboardMetadataEntity.getModifiedDate() : dashboardMetadataEntity.getCreatedDate();
             ZonedDateTime zdt = ZonedDateTime.of(lastAccessDate, ZoneId.systemDefault());
-            long metadataModifiedBy =zdt.toInstant().toEpochMilli();
+            long metadataModifiedBy = zdt.toInstant().toEpochMilli();
             dashboardDto.setModified(Math.max(changedOnUtcInSuperset, metadataModifiedBy));
         }
     }
@@ -199,5 +211,50 @@ public class DashboardService {
             log.error("Current user {} doesn't exist in superset {}", currentUserEmail, instanceName);
             throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "User with specified email not found in subsystem");
         }
+    }
+
+    public void uploadDashboardsFile(String fileName, byte[] bytes, String contextKey) {
+        try {
+            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
+            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
+            String binaryFileId = UUID.randomUUID().toString();
+            int fullFileSize = bytes.length;
+            if (fullFileSize > ONE_MB) {
+                List<byte[]> chunks = breakIntoChunks(bytes, ONE_MB);
+                for (int i = 1; i <= chunks.size(); i++) {
+                    DashboardUpload dashboardUpload = new DashboardUpload(bytes, false, i, fileName, binaryFileId, i == chunks.size(), fullFileSize);
+                    sendToSidecar(dashboardUpload, subject);
+                }
+            } else {
+                DashboardUpload dashboardUpload = new DashboardUpload(bytes, false, 0, fileName, binaryFileId, false, fullFileSize);
+                sendToSidecar(dashboardUpload, subject);
+            }
+        } catch (InterruptedException | JsonProcessingException e) {
+            throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e);
+        }
+    }
+
+    private void sendToSidecar(DashboardUpload dashboardUpload, String subject) throws InterruptedException, JsonProcessingException {
+        log.info("[uploadDashboardsFile] Sending request to subject: {}, chunked? {}", subject, dashboardUpload.isChunked());
+        Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(20));
+        if (reply == null) {
+            log.warn("Reply is null, please verify superset sidecar or nats connection");
+        } else {
+            reply.ack();
+            log.info("[uploadDashboardsFile] Response received: " + new String(reply.getData()));
+        }
+    }
+
+    public List<byte[]> breakIntoChunks(byte[] byteArray, int chunkSize) {
+        List<byte[]> chunks = new ArrayList<>();
+        int offset = 0;
+        while (offset < byteArray.length) {
+            int length = Math.min(chunkSize, byteArray.length - offset);
+            byte[] chunk = new byte[length];
+            System.arraycopy(byteArray, offset, chunk, 0, length);
+            chunks.add(chunk);
+            offset += chunkSize;
+        }
+        return chunks;
     }
 }

@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetada
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -73,8 +74,9 @@ public class SupersetDashboardController {
     @PostMapping(value = "/upload-dashboards", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
     @ResponseStatus(HttpStatus.CREATED)
-    public void uploadFile(@RequestParam MultipartFile file, @Valid @RequestParam String contextKey) {
+    public void uploadFile(@RequestParam MultipartFile file, @Valid @RequestParam String contextKey) throws IOException {
         // TODO cut into chunks and send over NATS request/reply to the sidecar
+        dashboardService.uploadDashboardsFile(file.getName(), file.getBytes(), contextKey);
         System.out.println();
     }
 }
