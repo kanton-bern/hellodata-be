@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.sidecars.superset.client;
 
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardByIdResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermissionResponse;
@@ -37,6 +38,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserByIdResp
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.google.gson.JsonElement;
@@ -370,6 +372,23 @@ public class SupersetClient {
         csrf();
         HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password);
         executeRequest(request);
+    }
+
+    /**
+     * Updates dashboards published flag (publish/un-publish dashboard).
+     *
+     * @return an updated dashboard.
+     *
+     * @throws URISyntaxException If the Superset URL is invalid.
+     * @throws IOException        If there was an error communicating with the
+     *                            Superset server.
+     */
+    public SupersetDashboard updateDashboardsPublishedFlag(SupersetDashboardPublishedFlagUpdate supersetUserActiveUpdate, int dashboardId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateDashboardPublishedFlagRequest(host, port, authToken, supersetUserActiveUpdate, dashboardId);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("updateUsersActiveFlag({}) response json \n{}", dashboardId, new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetDashboard.class);
     }
 
     private void csrf() throws URISyntaxException, IOException {

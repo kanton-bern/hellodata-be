@@ -40,6 +40,7 @@
                             (uploadHandler)="onFileUploadClicked($event, dataDomain.data.key)"
                             (onUpload)="onUploadCompleted($event, dataDomain.data.key)"
                             (onSelect)="onSelect($event)"
+                            [styleClass]="'mt-2'"
                             [maxFileSize]="5000000">
               </p-fileUpload>
             </ng-template>

@@ -29,7 +29,7 @@ import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap, tap} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {showError, showSuccess} from "../app/app.action";
+import {navigate, showError, showSuccess} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
 import {
   loadAvailableDataDomains,
@@ -37,8 +37,7 @@ import {
   loadMyDashboards,
   loadMyDashboardsSuccess,
   setSelectedDataDomain,
-  uploadDashboards,
-  uploadDashboardsSuccess
+  uploadDashboards
 } from "./my-dashboards.action";
 import {NotificationService} from "../../shared/services/notification.service";
 
@@ -81,7 +80,7 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(uploadDashboards),
       switchMap((payload) => this._myDashboardsService.uploadDashboardsFile(payload.formData)),
-      switchMap((payload) => of(uploadDashboardsSuccess())),
+      switchMap((payload) => of(navigate({url: 'redirect/dashboard-import-export'}))),
       catchError(e => of(showError(e))),
       tap((payload) => this._notificationService.success('@Dashboards uploaded successfully')),
     )

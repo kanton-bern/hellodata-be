@@ -38,7 +38,6 @@ export enum MyDashboardsActionType {
   LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS = '[MYDASHBOARDS] Load available Data Domains SUCCESS',
 
   UPLOAD_DASHBOARDS_FILE = '[MYDASHBOARDS] Upload dashboards file',
-  UPLOAD_DASHBOARDS_FILE_SUCCESS = '[MYDASHBOARDS] Upload dashboards file SUCCESS',
 }
 
 export const loadMyDashboards = createAction(
@@ -67,8 +66,4 @@ export const loadAvailableDataDomainsSuccess = createAction(
 export const uploadDashboards = createAction(
   MyDashboardsActionType.UPLOAD_DASHBOARDS_FILE,
   props<{ formData: FormData }>()
-);
-
-export const uploadDashboardsSuccess = createAction(
-  MyDashboardsActionType.UPLOAD_DASHBOARDS_FILE_SUCCESS
 );
