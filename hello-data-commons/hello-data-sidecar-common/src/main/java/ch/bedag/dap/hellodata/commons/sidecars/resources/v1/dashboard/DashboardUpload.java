@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DashboardUpload implements Serializable {
     private byte[] content;
-    private boolean chunked;
     private int chunkNumber;
     private String filename;
     private String binaryFileId;

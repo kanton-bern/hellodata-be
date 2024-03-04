@@ -70,7 +70,6 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   override ngOnInit(): void {
-    console.log('on init!!!!!!!!!!!!!!!!')
     super.ngOnInit();
     this.store.dispatch(loadMyDashboards());
   }

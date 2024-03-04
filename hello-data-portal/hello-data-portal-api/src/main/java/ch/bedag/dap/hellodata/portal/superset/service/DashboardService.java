@@ -50,13 +50,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +71,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
@@ -77,7 +79,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class DashboardService {
 
-    private static final int ONE_MB = 1024 * 1024;
+    private static final int HALF_MB = 512 * 1024;
 
     private final MetaInfoResourceService metaInfoResourceService;
     private final DashboardMetadataRepository dashboardMetadataRepository;
@@ -213,51 +215,44 @@ public class DashboardService {
         }
     }
 
-    public void uploadDashboardsFile(String fileName, byte[] bytes, String contextKey) {
-        try {
+    public void uploadDashboardsFile(MultipartFile file, String contextKey) {
+        try (InputStream inputStream = file.getInputStream()) {
+            String fileName = file.getName();
+
             String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
             String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
             String binaryFileId = UUID.randomUUID().toString();
-            int fullFileSize = bytes.length;
-            if (fullFileSize > ONE_MB) {
-                List<byte[]> chunks = breakIntoChunks(bytes, ONE_MB);
-                for (int i = 1; i <= chunks.size(); i++) {
-                    DashboardUpload dashboardUpload = new DashboardUpload(bytes, false, i, fileName, binaryFileId, i == chunks.size(), fullFileSize);
-                    sendToSidecar(dashboardUpload, subject);
-                }
-            } else {
-                DashboardUpload dashboardUpload = new DashboardUpload(bytes, false, 0, fileName, binaryFileId, false, fullFileSize);
+
+            int chunkNumber = 0;
+            int bytesRead;
+            byte[] buffer = new byte[HALF_MB];
+            int bytesReadTotal = 0;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                bytesReadTotal += bytesRead;
+                boolean isLastChunk = bytesReadTotal == file.getSize();
+                log.info("Sending file to superset, bytes read total: {}, file size: {}", bytesReadTotal, file.getSize());
+                DashboardUpload dashboardUpload = new DashboardUpload(buffer, ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize());
                 sendToSidecar(dashboardUpload, subject);
             }
-        } catch (InterruptedException | JsonProcessingException e) {
+        } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e);
         }
     }
 
     private void sendToSidecar(DashboardUpload dashboardUpload, String subject) throws InterruptedException, JsonProcessingException {
-        log.info("[uploadDashboardsFile] Sending request to subject: {}, chunked? {}", subject, dashboardUpload.isChunked());
-        Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(20));
+        log.debug("[uploadDashboardsFile] Sending request to subject: {}", subject);
+        Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
         if (reply == null) {
             log.warn("Reply is null, please verify superset sidecar or nats connection");
-        } else if ("OK".equalsIgnoreCase(new String(reply.getData(), StandardCharsets.UTF_8))) {
+            return;
+        }
+        String responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
+        if ("OK".equalsIgnoreCase(responseContent)) {
             reply.ack();
-            log.info("[uploadDashboardsFile] Response received: " + new String(reply.getData()));
+            log.debug("[uploadDashboardsFile] Response received: " + new String(reply.getData()));
         } else {
-            log.warn("Reply is NOK, please verify the uploaded file");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, new String(reply.getData(), StandardCharsets.UTF_8));
+            log.warn("Reply is NOK, please verify the uploaded file: {}", responseContent);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, responseContent);
         }
-    }
-
-    public List<byte[]> breakIntoChunks(byte[] byteArray, int chunkSize) {
-        List<byte[]> chunks = new ArrayList<>();
-        int offset = 0;
-        while (offset < byteArray.length) {
-            int length = Math.min(chunkSize, byteArray.length - offset);
-            byte[] chunk = new byte[length];
-            System.arraycopy(byteArray, offset, chunk, 0, length);
-            chunks.add(chunk);
-            offset += chunkSize;
-        }
-        return chunks;
     }
 }

@@ -75,8 +75,6 @@ public class SupersetDashboardController {
     @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
     @ResponseStatus(HttpStatus.CREATED)
     public void uploadFile(@RequestParam MultipartFile file, @Valid @RequestParam String contextKey) throws IOException {
-        // TODO cut into chunks and send over NATS request/reply to the sidecar
-        dashboardService.uploadDashboardsFile(file.getName(), file.getBytes(), contextKey);
-        System.out.println();
+        dashboardService.uploadDashboardsFile(file, contextKey);
     }
 }

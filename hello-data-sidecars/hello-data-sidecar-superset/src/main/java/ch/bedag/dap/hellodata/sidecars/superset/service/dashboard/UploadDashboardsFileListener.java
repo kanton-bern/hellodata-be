@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonPrimitive;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import io.nats.client.Message;
 import jakarta.annotation.PostConstruct;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -29,7 +30,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -56,22 +56,22 @@ public class UploadDashboardsFileListener {
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 DashboardUpload dashboardUpload = objectMapper.readValue(msg.getData(), DashboardUpload.class);
+                saveChunk(dashboardUpload);
                 File contentFile;
-                if (dashboardUpload.isChunked()) {
-                    saveChunk(dashboardUpload);
-                    contentFile = assembleIfLastChunk(dashboardUpload);
-                    if (contentFile == null) {
-                        return;
-                    }
-                } else {
+                if (dashboardUpload.isLastChunk()) {
                     contentFile = File.createTempFile(dashboardUpload.getFilename(), "");
-                    Files.write(contentFile.toPath(), dashboardUpload.getContent());
+                    log.info("Created temp file for chunk {}", dashboardUpload.getFilename());
+                    buildChunks(dashboardUpload.getBinaryFileId(), dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(),
+                                contentFile.toPath());
+                } else {
+                    log.info("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
+                    ackMessage(msg);
+                    return;
                 }
                 supersetClient.importDashboard(contentFile, new JsonPrimitive("{}"), true);
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
-                natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));
-                msg.ack();
-            } catch (URISyntaxException | IOException e) {
+                ackMessage(msg);
+            } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error uploading dashboards", e);
                 natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
             }
@@ -79,18 +79,9 @@ public class UploadDashboardsFileListener {
         dispatcher.subscribe(supersetSidecarSubject);
     }
 
-    @Nullable
-    private File assembleIfLastChunk(DashboardUpload dashboardUpload) throws IOException {
-        File contentFile;
-        if (dashboardUpload.isLastChunk()) {
-            contentFile = File.createTempFile(dashboardUpload.getFilename(), "");
-            log.info("Created temp file for chunk {}", dashboardUpload.getFilename());
-            buildChunks(dashboardUpload.getBinaryFileId(), dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), contentFile.toPath());
-        } else {
-            log.info("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
-            return null;
-        }
-        return contentFile;
+    private void ackMessage(Message msg) {
+        natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));
+        msg.ack();
     }
 
     public void saveChunk(DashboardUpload chunk) throws IOException {
@@ -103,7 +94,7 @@ public class UploadDashboardsFileListener {
         Path uploadFolderPath = getUploadFolderPath(filename);
         if (!Files.exists(uploadFolderPath)) {
             File file = uploadFolderPath.toFile();
-            boolean created = file.mkdir();
+            boolean created = file.mkdirs();
             log.debug("File {} created: {}", file.toPath(), created);
         }
         return uploadFolderPath;
