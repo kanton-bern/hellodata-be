@@ -41,6 +41,7 @@
                             (onUpload)="onUploadCompleted($event, dataDomain.data.key)"
                             (onSelect)="onSelect($event)"
                             [styleClass]="'mt-2'"
+                            accept=".zip,.json"
                             [maxFileSize]="5000000">
               </p-fileUpload>
             </ng-template>

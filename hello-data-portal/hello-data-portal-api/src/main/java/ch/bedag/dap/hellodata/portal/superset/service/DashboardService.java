@@ -239,9 +239,12 @@ public class DashboardService {
         Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(20));
         if (reply == null) {
             log.warn("Reply is null, please verify superset sidecar or nats connection");
-        } else {
+        } else if ("OK".equalsIgnoreCase(new String(reply.getData(), StandardCharsets.UTF_8))) {
             reply.ack();
             log.info("[uploadDashboardsFile] Response received: " + new String(reply.getData()));
+        } else {
+            log.warn("Reply is NOK, please verify the uploaded file");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, new String(reply.getData(), StandardCharsets.UTF_8));
         }
     }
 

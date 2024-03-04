@@ -27,7 +27,7 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap, tap} from "rxjs";
+import {catchError, map, of, switchMap} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, showError, showSuccess} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
@@ -76,13 +76,17 @@ export class MyDashboardsEffects {
     )
   });
 
-  uploadDashboardsFile = createEffect(() => {
+  uploadDashboardsFile$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(uploadDashboards),
-      switchMap((payload) => this._myDashboardsService.uploadDashboardsFile(payload.formData)),
-      switchMap((payload) => of(navigate({url: 'redirect/dashboard-import-export'}))),
-      catchError(e => of(showError(e))),
-      tap((payload) => this._notificationService.success('@Dashboards uploaded successfully')),
+      switchMap((payload) => this._myDashboardsService.uploadDashboardsFile(payload.formData).pipe(
+        map(() => {
+          this._notificationService.success('@Dashboards uploaded successfully');
+          return navigate({url: 'redirect/dashboard-import-export'})
+        }),
+        catchError(e => of(showError(e), navigate({url: 'redirect/dashboard-import-export'}))),
+      )),
+      catchError(e => of(showError(e), navigate({url: 'redirect/dashboard-import-export'}))),
     )
   });
 

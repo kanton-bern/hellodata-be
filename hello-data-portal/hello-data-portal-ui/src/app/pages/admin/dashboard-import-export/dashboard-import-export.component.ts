@@ -70,6 +70,7 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   override ngOnInit(): void {
+    console.log('on init!!!!!!!!!!!!!!!!')
     super.ngOnInit();
     this.store.dispatch(loadMyDashboards());
   }
@@ -93,8 +94,8 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   onSelectionChange(dashboards: SupersetDashboard[], contextKey: string) {
-    console.log('on selection change - context key', contextKey);
-    console.log('on selection change - dashboards', dashboards);
+    console.debug('on selection change - context key', contextKey);
+    console.debug('on selection change - dashboards', dashboards);
     this.selectedDashboardsMap.set(contextKey, dashboards);
   }
 
@@ -107,7 +108,7 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   exportDashboards(contextKey: string) {
-    console.log('Export dashboards', contextKey)
+    console.debug('Export dashboards', contextKey)
     const dashboards = this.selectedDashboardsMap.get(contextKey);
     if (dashboards) {
       const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
@@ -135,7 +136,7 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   onUploadCompleted($event: FileUploadEvent, contextKey: string) {
-    console.log("upload completed", $event);
+    console.debug("upload completed", $event);
     this.showImport(contextKey);
   }
 }

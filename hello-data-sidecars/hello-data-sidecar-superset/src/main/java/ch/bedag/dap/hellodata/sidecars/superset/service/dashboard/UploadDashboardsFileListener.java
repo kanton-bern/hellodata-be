@@ -72,7 +72,8 @@ public class UploadDashboardsFileListener {
                 natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));
                 msg.ack();
             } catch (URISyntaxException | IOException e) {
-                throw new RuntimeException(e);
+                log.error("Error uploading dashboards", e);
+                natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);
