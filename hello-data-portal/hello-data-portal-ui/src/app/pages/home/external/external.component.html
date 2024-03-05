@@ -2,14 +2,25 @@
 <div *ngIf="(currentUserPermissions$ | async) as permissions">
   <div *ngIf="(externalDashboards$ | async) as externalDashboards">
     <p-table #dt [filterDelay]="0"
-             [globalFilterFields]="['title', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'scheduled', 'datasource']"
+             [globalFilterFields]="['contextName', 'url', 'title']"
              [paginator]="true"
              [rowHover]="true"
-             [rows]="5"
+             [rows]="10"
+             [rowsPerPageOptions]="[5,10, 25, 50, 100]"
              [showCurrentPageReport]="true"
              [tableStyle]="{ 'min-width': '20rem' }"
              [value]="externalDashboards"
+             stateStorage="session"
+             stateKey="home-external-dashboards-table"
              dataKey="id">
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <span class="p-input-icon-left ml-auto">
+            <i class="pi pi-search"></i>
+            <input pInputText #textInput [(ngModel)]="filterValue" (input)="dt.filterGlobal(filterValue, 'contains')" placeholder="{{'@Search' | transloco}}" type="text"/>
+          </span>
+        </div>
+      </ng-template>
       <ng-template pTemplate="header">
         <tr>
           <th id="icon"></th>
