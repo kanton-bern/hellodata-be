@@ -53,6 +53,7 @@ public class UploadDashboardsFileListener {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
         log.debug("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
         Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
+            String binaryFileId = null;
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 DashboardUpload dashboardUpload = objectMapper.readValue(msg.getData(), DashboardUpload.class);
@@ -61,8 +62,8 @@ public class UploadDashboardsFileListener {
                 if (dashboardUpload.isLastChunk()) {
                     contentFile = File.createTempFile(dashboardUpload.getFilename(), "");
                     log.debug("Created temp file for chunk {}", contentFile);
-                    buildChunks(dashboardUpload.getBinaryFileId(), dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(),
-                                contentFile.toPath());
+                    binaryFileId = dashboardUpload.getBinaryFileId();
+                    assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), contentFile.toPath());
                 } else {
                     log.debug("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
                     ackMessage(msg);
@@ -74,6 +75,10 @@ public class UploadDashboardsFileListener {
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error uploading dashboards", e);
                 natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
+            } finally {
+                if (binaryFileId != null) {
+                    deleteTempBinaryFileData(binaryFileId);
+                }
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);
@@ -108,7 +113,7 @@ public class UploadDashboardsFileListener {
         return Paths.get(System.getProperty("java.io.tmpdir"), "dashboards_upload", uploadFolder);
     }
 
-    private void buildChunks(String binaryFileId, String filename, long totalChunks, long fileSize, Path destinationPath) throws IOException {
+    private void assembleChunks(String binaryFileId, String filename, long totalChunks, long fileSize, Path destinationPath) throws IOException {
         Path chunksFolderPath = getUploadFolderPath(binaryFileId);
 
         if (!Files.exists(chunksFolderPath)) {
@@ -120,7 +125,6 @@ public class UploadDashboardsFileListener {
             throw new RuntimeException("The file is not supported. Upload canceled");
         }
         writeChunksToFile(destinationPath, chunks);
-        deleteTempBinaryFileData(binaryFileId);
     }
 
     private boolean validateChunkSize(long fileSize, List<File> chunks) {
