@@ -27,7 +27,7 @@
 
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs";
-import {HttpClient, HttpEvent, HttpEventType} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {DataDomain} from "./my-dashboards.model";
 import {environment} from "../../../environments/environment";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
@@ -50,27 +50,4 @@ export class MyDashboardsService {
     return this.httpClient.get<DataDomain[]>(`${environment.portalApi}/users/data-domains`);
   }
 
-  public uploadDashboardsFile(formData: FormData): Observable<any> {
-    return this.httpClient.post<any>(`${this.baseUrl}/upload-dashboards`, formData, {
-      reportProgress: true, // Enable progress tracking
-      observe: 'events' // Return HttpEvent<any> instead of just the response
-    });
-  }
-
-  private handleUploadEvent(event: HttpEvent<any>): any {
-    switch (event.type) {
-      case HttpEventType.Sent:
-        // The request was sent, start tracking progress here if needed
-        break;
-      case HttpEventType.UploadProgress:
-        const eventTotal = event.total ? event.total : 1;
-        const percentDone = Math.round((100 * event.loaded) / eventTotal);
-        // Here you can emit or log the progress percentage
-        console.log(`Progress: ${percentDone}%`);
-        break;
-      case HttpEventType.Response:
-        // Upload completed, you can handle response here if needed
-        break;
-    }
-  }
 }

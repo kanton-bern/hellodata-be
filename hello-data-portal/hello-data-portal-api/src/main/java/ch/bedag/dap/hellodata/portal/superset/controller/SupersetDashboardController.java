@@ -71,10 +71,10 @@ public class SupersetDashboardController {
         dashboardService.updateDashboard(instanceName, subsystemId, updateSupersetDashboardMetadataDto);
     }
 
-    @PostMapping(value = "/upload-dashboards", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(value = "/upload-dashboards/{contextKey}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
     @ResponseStatus(HttpStatus.CREATED)
-    public void uploadFile(@RequestParam MultipartFile file, @Valid @RequestParam String contextKey) throws IOException {
+    public void uploadFile(@RequestParam MultipartFile file, @PathVariable String contextKey) throws IOException {
         dashboardService.uploadDashboardsFile(file, contextKey);
     }
 }

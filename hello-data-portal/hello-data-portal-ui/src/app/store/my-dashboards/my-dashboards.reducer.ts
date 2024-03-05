@@ -28,7 +28,7 @@
 import {initialMyDashboardsState, MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {createReducer, on} from "@ngrx/store";
-import {loadAvailableDataDomainsSuccess, loadMyDashboardsSuccess, setSelectedDataDomain, updateUploadPercentage} from "./my-dashboards.action";
+import {loadAvailableDataDomainsSuccess, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
 
 export const myDashboardsReducer = createReducer(
   initialMyDashboardsState,
@@ -57,15 +57,6 @@ export const myDashboardsReducer = createReducer(
       ...state,
       selectedDataDomain: uniqueDataDomains[0],
       availableDataDomains: uniqueDataDomains,
-    }
-  }),
-  on(updateUploadPercentage, (state: MyDashboardsState, {contextKey, percentDone, originalEvent}): MyDashboardsState => {
-    return {
-      ...state,
-      uploadPercentages: {
-        ...state.uploadPercentages,
-        [contextKey]: {percentDone, originalEvent}
-      }
     }
   }),
 );

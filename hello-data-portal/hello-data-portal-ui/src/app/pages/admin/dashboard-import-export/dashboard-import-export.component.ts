@@ -33,14 +33,14 @@ import {AppState} from "../../../store/app/app.state";
 import {selectAppInfoByModuleType} from "../../../store/metainfo-resource/metainfo-resource.selector";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
-import {selectAvailableDataDomainItems, selectMyDashboards, selectUploadPercentage} from "../../../store/my-dashboards/my-dashboards.selector";
+import {selectAvailableDataDomainItems, selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
-import {FileSelectEvent, FileUpload, FileUploadEvent} from "primeng/fileupload";
+import {FileSelectEvent, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
 import {AuthService} from "../../../shared/services";
-import {loadMyDashboards, uploadDashboards} from "../../../store/my-dashboards/my-dashboards.action";
-import {HttpEvent} from "@angular/common/http";
+import {loadMyDashboards, uploadDashboardsError, uploadDashboardsSuccess} from "../../../store/my-dashboards/my-dashboards.action";
+import {environment} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -54,6 +54,8 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
   showUploadForContextMap = new Map<string, boolean>();
+
+  baseUrl = `${environment.portalApi}/superset/upload-dashboards/`;
 
   constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef, readonly authService: AuthService) {
     super();
@@ -81,20 +83,6 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   onSelect($event: FileSelectEvent) {
     console.debug('on dashboard select', $event.files)
-  }
-
-  onFileUploadClicked($event: { files: Blob[] }, contextKey: string, fu: FileUpload) {
-    console.debug('on upload clicked', $event.files, fu)
-
-    const fileUpload: Blob = $event.files[0];
-    const formData = new FormData();
-    formData.append('file', fileUpload);
-    formData.append('contextKey', contextKey);
-    this.store.dispatch(uploadDashboards({formData, contextKey}));
-    this.store.select(selectUploadPercentage(contextKey)).subscribe((result) => {
-      console.log('selectUploadPercentage sub', result)
-      fu.onProgress.emit({progress: result.percentDone, originalEvent: result.originalEvent as HttpEvent<any>});
-    });
   }
 
   onSelectionChange(dashboards: SupersetDashboard[], contextKey: string) {
@@ -126,7 +114,7 @@ export class DashboardImportExportComponent extends BaseComponent {
     }
   }
 
-  showImport(contextKey: string) {
+  toggleImportVisible(contextKey: string) {
     const visible = this.showUploadForContextMap.get(contextKey);
     if (visible) {
       this.showUploadForContextMap.set(contextKey, false);
@@ -141,10 +129,10 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   onUploadCompleted($event: FileUploadEvent, contextKey: string) {
     console.debug("upload completed", $event);
-    this.showImport(contextKey);
+    this.store.dispatch(uploadDashboardsSuccess());
   }
 
-  test(fileUpload: FileUpload) {
-    console.log('file upload?', fileUpload)
+  onError($event: FileUploadErrorEvent, contextKey: string) {
+    this.store.dispatch(uploadDashboardsError({error: $event.error}));
   }
 }

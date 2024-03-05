@@ -27,7 +27,7 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap} from "rxjs";
+import {catchError, of, switchMap} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, showError, showSuccess} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
@@ -37,11 +37,10 @@ import {
   loadMyDashboards,
   loadMyDashboardsSuccess,
   setSelectedDataDomain,
-  updateUploadPercentage,
-  uploadDashboards
+  uploadDashboardsError,
+  uploadDashboardsSuccess
 } from "./my-dashboards.action";
 import {NotificationService} from "../../shared/services/notification.service";
-import {HttpEvent, HttpEventType} from "@angular/common/http";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -78,28 +77,22 @@ export class MyDashboardsEffects {
     )
   });
 
-  uploadDashboardsFile$ = createEffect(() => {
+  uploadDashboardsFileSuccess$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType(uploadDashboards),
-      switchMap((payload) => this._myDashboardsService.uploadDashboardsFile(payload.formData).pipe(
-        // filter((event: HttpEvent<any>) => event.type === HttpEventType.Response),
-        map((event: HttpEvent<any>) => {
-          if (event.type === HttpEventType.UploadProgress) {
-            payload.contextKey
-            const eventTotal = event.total ? event.total : 1;
-            const percentDone = Math.round((100 * event.loaded) / eventTotal);
-            console.log('updateUploadPercentage', percentDone)
-            return updateUploadPercentage({percentDone, contextKey: payload.contextKey, originalEvent: event});
-          }
-          if (event.type === HttpEventType.Response) {
-            this._notificationService.success('@Dashboards uploaded successfully');
-            return navigate({url: 'redirect/dashboard-import-export'})
-          }
-          return navigate({url: 'dashboard-import-export'});
-        }),
-        catchError(e => of(showError(e), navigate({url: 'redirect/dashboard-import-export'}))),
-      )),
-      catchError(e => of(showError(e))),
+      ofType(uploadDashboardsSuccess),
+      switchMap(() => {
+        this._notificationService.success('@Dashboards uploaded successfully');
+        return of(navigate({url: 'redirect/dashboard-import-export'}))
+      })
+    )
+  });
+
+  uploadDashboardsFileError$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(uploadDashboardsError),
+      switchMap((payload) => {
+        return of(showError(payload.error), navigate({url: 'redirect/dashboard-import-export'}))
+      })
     )
   });
 
