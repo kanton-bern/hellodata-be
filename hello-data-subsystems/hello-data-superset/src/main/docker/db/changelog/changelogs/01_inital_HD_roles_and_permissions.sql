@@ -260,8 +260,10 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','DashboardFilterStateRestApi','BI_VIEWER_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','DashboardFilterStateRestApi','BI_VIEWER_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_log','Superset','BI_VIEWER_TEMP');
-
-
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','DashboardPermalinkRestApi','BI_VIEWER_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','ExplorePermalinkRestApi','BI_VIEWER_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_dashboard_permalink','Superset','BI_VIEWER_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','DashboardPermalinkRestApi','BI_VIEWER_TEMP');
 
 --
 -- Delete BI_ADMIN_TEMP, BI_EDITOR_TEMP, BI_VIEWER_TEMP permissions (might happen when script gets stuck)
