@@ -124,3 +124,9 @@ export const selectCurrentMyDashboardInfo = createSelector(
     }
   }
 );
+
+export const selectUploadPercentage = (contextKey: string) =>
+  createSelector(
+    myDashboardsState,
+    (state) => state.uploadPercentages[contextKey] || {percentDone: 0, originalEvent: null}
+  );

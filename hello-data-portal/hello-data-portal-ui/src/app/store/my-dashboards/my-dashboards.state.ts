@@ -27,15 +27,18 @@
 
 import {DataDomain} from "./my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
+import {HttpEvent} from "@angular/common/http";
 
 export interface MyDashboardsState {
   myDashboards: SupersetDashboardWithMetadata[],
   selectedDataDomain: DataDomain | null,
-  availableDataDomains: DataDomain[]
+  availableDataDomains: DataDomain[],
+  uploadPercentages: { [key: string]: { percentDone: number, originalEvent: HttpEvent<any> | null } };
 }
 
 export const initialMyDashboardsState: MyDashboardsState = {
   myDashboards: [],
   selectedDataDomain: null,
-  availableDataDomains: []
+  availableDataDomains: [],
+  uploadPercentages: {}
 }

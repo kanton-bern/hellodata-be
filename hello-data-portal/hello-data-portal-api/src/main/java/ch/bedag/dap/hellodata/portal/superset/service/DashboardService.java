@@ -225,7 +225,7 @@ public class DashboardService {
 
             int chunkNumber = 0;
             int bytesRead;
-            byte[] buffer = new byte[HALF_MB];
+            byte[] buffer = new byte[file.getSize() > HALF_MB ? HALF_MB : (int) file.getSize()];
             int bytesReadTotal = 0;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 bytesReadTotal += bytesRead;

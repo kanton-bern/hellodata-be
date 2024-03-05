@@ -28,6 +28,7 @@
 import {createAction, props} from "@ngrx/store";
 import {DataDomain} from "./my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
+import {HttpEvent} from "@angular/common/http";
 
 export enum MyDashboardsActionType {
   LOAD_MY_DASHBOARDS = '[MYDASHBOARDS] Load MYDASHBOARDS',
@@ -38,6 +39,7 @@ export enum MyDashboardsActionType {
   LOAD_AVAILABLE_DATA_DOMAINS_SUCCESS = '[MYDASHBOARDS] Load available Data Domains SUCCESS',
 
   UPLOAD_DASHBOARDS_FILE = '[MYDASHBOARDS] Upload dashboards file',
+  UPDATE_UPLOAD_PERCENTAGE = '[MYDASHBOARDS] Update upload dashboards file percentage',
 }
 
 export const loadMyDashboards = createAction(
@@ -65,5 +67,10 @@ export const loadAvailableDataDomainsSuccess = createAction(
 
 export const uploadDashboards = createAction(
   MyDashboardsActionType.UPLOAD_DASHBOARDS_FILE,
-  props<{ formData: FormData }>()
+  props<{ formData: FormData, contextKey: string }>()
+);
+
+export const updateUploadPercentage = createAction(
+  MyDashboardsActionType.UPDATE_UPLOAD_PERCENTAGE,
+  props<{ percentDone: number, contextKey: string, originalEvent: HttpEvent<any> }>()
 );

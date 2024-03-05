@@ -37,9 +37,11 @@ import {
   loadMyDashboards,
   loadMyDashboardsSuccess,
   setSelectedDataDomain,
+  updateUploadPercentage,
   uploadDashboards
 } from "./my-dashboards.action";
 import {NotificationService} from "../../shared/services/notification.service";
+import {HttpEvent, HttpEventType} from "@angular/common/http";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -80,13 +82,24 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(uploadDashboards),
       switchMap((payload) => this._myDashboardsService.uploadDashboardsFile(payload.formData).pipe(
-        map(() => {
-          this._notificationService.success('@Dashboards uploaded successfully');
-          return navigate({url: 'redirect/dashboard-import-export'})
+        // filter((event: HttpEvent<any>) => event.type === HttpEventType.Response),
+        map((event: HttpEvent<any>) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            payload.contextKey
+            const eventTotal = event.total ? event.total : 1;
+            const percentDone = Math.round((100 * event.loaded) / eventTotal);
+            console.log('updateUploadPercentage', percentDone)
+            return updateUploadPercentage({percentDone, contextKey: payload.contextKey, originalEvent: event});
+          }
+          if (event.type === HttpEventType.Response) {
+            this._notificationService.success('@Dashboards uploaded successfully');
+            return navigate({url: 'redirect/dashboard-import-export'})
+          }
+          return navigate({url: 'dashboard-import-export'});
         }),
         catchError(e => of(showError(e), navigate({url: 'redirect/dashboard-import-export'}))),
       )),
-      catchError(e => of(showError(e), navigate({url: 'redirect/dashboard-import-export'}))),
+      catchError(e => of(showError(e))),
     )
   });
 

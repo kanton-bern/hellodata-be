@@ -34,14 +34,15 @@
                         pButton
                         pRipple></button>
               </div>
-              <p-fileUpload name="uploadAvatar"
+              <p-fileUpload name="uploadAvatar" #fu
                             *ngIf="uploadVisible(dataDomain.data.key)"
                             [customUpload]="true"
-                            (uploadHandler)="onFileUploadClicked($event, dataDomain.data.key)"
+                            (uploadHandler)="onFileUploadClicked($event, dataDomain.data.key, fu)"
                             (onUpload)="onUploadCompleted($event, dataDomain.data.key)"
                             (onSelect)="onSelect($event)"
                             [styleClass]="'mt-2'"
                             accept=".zip,.json"
+                            (onProgress)="test(fu)"
                             [maxFileSize]="5000000000">
               </p-fileUpload>
             </ng-template>

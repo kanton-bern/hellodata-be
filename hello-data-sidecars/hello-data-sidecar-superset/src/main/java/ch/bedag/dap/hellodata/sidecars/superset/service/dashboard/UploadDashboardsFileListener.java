@@ -51,7 +51,7 @@ public class UploadDashboardsFileListener {
     @PostConstruct
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
-        log.info("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
+        log.debug("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
         Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -60,11 +60,11 @@ public class UploadDashboardsFileListener {
                 File contentFile;
                 if (dashboardUpload.isLastChunk()) {
                     contentFile = File.createTempFile(dashboardUpload.getFilename(), "");
-                    log.info("Created temp file for chunk {}", dashboardUpload.getFilename());
+                    log.debug("Created temp file for chunk {}", contentFile);
                     buildChunks(dashboardUpload.getBinaryFileId(), dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(),
                                 contentFile.toPath());
                 } else {
-                    log.info("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
+                    log.debug("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
                     ackMessage(msg);
                     return;
                 }
