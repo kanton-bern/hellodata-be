@@ -260,8 +260,6 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','DashboardFilterStateRestApi','BI_VIEWER_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','DashboardFilterStateRestApi','BI_VIEWER_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_log','Superset','BI_VIEWER_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','DashboardPermalinkRestApi','BI_VIEWER_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('dashboard_permalink','Superset','BI_VIEWER_TEMP');
 
 
 
