@@ -284,3 +284,18 @@ FAB_ADD_SECURITY_API = True
 SECURITY_MANAGER_CLASS = HdSecurityManager
 CUSTOM_SECURITY_MANAGER = HdSecurityManager
 SESSION_REFRESH_EACH_REQUEST = True
+
+TALISMAN_ENABLED = False
+TALISMAN_CONFIG = {
+    "content_security_policy": {
+        "default-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        "img-src": ["'self'", "data:", "blob:"],
+        "worker-src": ["'self'", "blob:"],
+        "connect-src": ["'self'", "wss:", "https://api.mapbox.com", "https://events.mapbox.com"],
+        "object-src": "'none'",
+        "frame_options": "ALLOW_FROM",
+        "frame_options_allow_from": "*"
+    },
+    "force_https": False,
+    "force_https_permanent": False,
+}

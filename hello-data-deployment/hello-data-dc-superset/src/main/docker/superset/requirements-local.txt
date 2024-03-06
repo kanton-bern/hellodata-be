@@ -6,3 +6,4 @@ psycopg2-binary==2.9.1
 redis==3.5.3
 jmespath==1.0.1
 pip==23.3.1
+flask-talisman==1.1.0
