@@ -31,11 +31,11 @@ import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 export interface MyDashboardsState {
   myDashboards: SupersetDashboardWithMetadata[],
   selectedDataDomain: DataDomain | null,
-  availableDataDomains: DataDomain[]
+  availableDataDomains: DataDomain[],
 }
 
 export const initialMyDashboardsState: MyDashboardsState = {
   myDashboards: [],
   selectedDataDomain: null,
-  availableDataDomains: []
+  availableDataDomains: [],
 }

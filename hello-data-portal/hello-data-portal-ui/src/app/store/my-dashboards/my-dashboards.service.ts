@@ -37,16 +37,17 @@ import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 })
 export class MyDashboardsService {
 
-  baseUrl = `${environment.portalApi}/superset/my-dashboards`;
+  baseUrl = `${environment.portalApi}/superset`;
 
   constructor(protected httpClient: HttpClient) {
   }
 
   public getMyDashboards(): Observable<SupersetDashboardWithMetadata[]> {
-    return this.httpClient.get<SupersetDashboardWithMetadata[]>(`${this.baseUrl}`);
+    return this.httpClient.get<SupersetDashboardWithMetadata[]>(`${this.baseUrl}/my-dashboards`);
   }
 
   public getAvailableDataDomains(): Observable<DataDomain[]> {
     return this.httpClient.get<DataDomain[]>(`${environment.portalApi}/users/data-domains`);
   }
+
 }

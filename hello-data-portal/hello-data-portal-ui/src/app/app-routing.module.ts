@@ -58,6 +58,7 @@ import {naviElements} from "./app-navi-elements";
 import {unsavedChangesGuard} from "./shared/guards/unsaved-changes.guard";
 import {RedirectComponent} from "./shared/components/redirect/redirect.component";
 import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
+import {DashboardImportExportComponent} from "./pages/admin/dashboard-import-export/dashboard-import-export.component";
 
 const routes: Routes = [
 
@@ -377,6 +378,23 @@ const routes: Routes = [
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DOCUMENTATION_MANAGEMENT'],
+        }
+      },
+    ]
+  },
+  {
+    path: naviElements.dashboardCopy.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARD_IMPORT_EXPORT'],
+    },
+    children: [
+      {
+        path: '',
+        component: DashboardImportExportComponent,
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['DASHBOARD_IMPORT_EXPORT'],
         }
       },
     ]

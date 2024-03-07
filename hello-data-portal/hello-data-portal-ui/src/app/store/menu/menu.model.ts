@@ -111,6 +111,12 @@ export const ALL_MENU_ITEMS: any[] = [
         routerLink: '/documentation-management',
         requiredPermissions: ['DOCUMENTATION_MANAGEMENT']
       },
+      {
+        id: 'dashboardImportExportMenu',
+        text: '@Dashboard import-export',
+        routerLink: '/dashboard-import-export',
+        requiredPermissions: ['DASHBOARD_IMPORT_EXPORT']
+      },
     ]
   },
   {

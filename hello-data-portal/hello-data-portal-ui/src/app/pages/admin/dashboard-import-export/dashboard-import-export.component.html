@@ -1,0 +1,109 @@
+<h2 class="content-block">{{'@Dashboard import-export' | transloco}}</h2>
+<div class="card">
+  <div *ngIf="(availableDataDomains$ | async) as dataDomains">
+    <div *ngFor="let dataDomain of dataDomains | orderBy: 'data.name' ">
+      <div *ngIf="(dashboards$ | async) as dashboards">
+        <div *ngIf="dataDomain.data">
+          <h3>{{dataDomain.data.name}}</h3>
+          <p-table [filterDelay]="0"
+                   [selection]="getSelectedDashboards(dataDomain.data.key)"
+                   (selectionChange)="onSelectionChange($event, dataDomain.data.key)"
+                   [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
+                   [paginator]="true"
+                   [rowHover]="true"
+                   [rows]="10"
+                   [selectionPageOnly]="true"
+                   [showCurrentPageReport]="true"
+                   [tableStyle]="{ 'min-width': '50rem' }"
+                   [value]="filterDashboardsByContext(dashboards, dataDomain.data.key)"
+                   dataKey="id"
+                   selectionMode="single">
+            <ng-template pTemplate="caption">
+              <div class="flex ">
+                <button (click)="exportDashboards(dataDomain.data.key)"
+                        [disabled]="getSelectedDashboards(dataDomain.data.key).length === 0"
+                        [pTooltip]="'@Export dashboard' | transloco"
+                        class="p-button-rounded p-button-success mr-2"
+                        icon="fas fa-light fa-download"
+                        pButton
+                        pRipple></button>
+                <button (click)="toggleImportVisible(dataDomain.data.key)"
+                        [pTooltip]="'@Import dashboard' | transloco"
+                        class="p-button-rounded p-button-help mr-2"
+                        icon="fas fa-light fa-upload"
+                        pButton
+                        pRipple></button>
+              </div>
+              <p-fileUpload name="file"
+                            url="{{baseUrl}}{{dataDomain.data.key}}"
+                            *ngIf="uploadVisible(dataDomain.data.key)"
+                            (onUpload)="onUploadCompleted($event, dataDomain.data.key)"
+                            (onError)="onError($event, dataDomain.data.key)"
+                            (onSelect)="onSelect($event)"
+                            [styleClass]="'mt-2'"
+                            accept=".zip,.json"
+                            [maxFileSize]="5000000000">
+              </p-fileUpload>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 4rem">
+                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{'@Dashboard' | transloco}}
+                  <p-sortIcon field="dashboardTitle"></p-sortIcon>
+                </th>
+                <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
+                  <p-sortIcon field="contextName"></p-sortIcon>
+                </th>
+                <th id="businessProcessHeader" pSortableColumn="businessProcess">{{'@Business process' | transloco}}
+                  <p-sortIcon field="businessProcess"></p-sortIcon>
+                </th>
+                <th id="departmentHeader" pSortableColumn="department">{{'@Department' | transloco}}
+                  <p-sortIcon field="department"></p-sortIcon>
+                </th>
+                <th id="responsibilityHeader" pSortableColumn="responsibility">{{'@Professional responsibility' | transloco}}
+                  <p-sortIcon field="responsibility"></p-sortIcon>
+                </th>
+                <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{'@Data analyst' | transloco}}
+                  <p-sortIcon field="dataAnalyst"></p-sortIcon>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template let-dashboard pTemplate="body">
+              <tr>
+                <td>
+                  <p-tableCheckbox [value]="dashboard"></p-tableCheckbox>
+                </td>
+                <td>
+                  {{dashboard.dashboardTitle}}
+                </td>
+                <td>
+                  {{dashboard.contextName}}
+                </td>
+                <td>
+                  {{ dashboard.businessProcess }}
+                </td>
+                <td>
+                  {{ dashboard.department }}
+                </td>
+                <td>
+                  {{ dashboard.responsibility }}
+                </td>
+                <td>
+                  {{ dashboard.dataAnalyst }}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="9">No dashboards found.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

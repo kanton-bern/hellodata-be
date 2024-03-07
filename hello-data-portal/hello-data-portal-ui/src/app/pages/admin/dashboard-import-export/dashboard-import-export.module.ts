@@ -25,25 +25,35 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {SafePipe} from "./shared/pipes/safe.pipe";
 import {NgModule} from "@angular/core";
-import {ContainsPipe} from "./shared/pipes/contains.pipe";
-import {TruncatePipe} from "./shared/pipes/truncate.pipe";
-
+import {CommonModule} from "@angular/common";
+import {TranslocoModule} from "@ngneat/transloco";
+import {DashboardImportExportComponent} from "./dashboard-import-export.component";
+import {ButtonModule} from "primeng/button";
+import {InputTextModule} from "primeng/inputtext";
+import {RippleModule} from "primeng/ripple";
+import {SharedModule} from "primeng/api";
+import {TableModule} from "primeng/table";
+import {TooltipModule} from "primeng/tooltip";
+import {NgArrayPipesModule} from "ngx-pipes";
+import {FileUploadModule} from "primeng/fileupload";
 
 @NgModule({
-  imports: [],
-  providers: [],
-  exports: [
-    SafePipe,
-    ContainsPipe,
-    TruncatePipe
-  ],
   declarations: [
-    SafePipe,
-    ContainsPipe,
-    TruncatePipe,
+    DashboardImportExportComponent
+  ],
+  imports: [
+    CommonModule,
+    TranslocoModule,
+    ButtonModule,
+    InputTextModule,
+    RippleModule,
+    SharedModule,
+    TableModule,
+    TooltipModule,
+    NgArrayPipesModule,
+    FileUploadModule
   ]
 })
-export class HdCommonModule {
+export class DashboardImportExportModule {
 }
