@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.monitoring.storage.service.storage;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
 import ch.bedag.dap.hellodata.monitoring.storage.config.HelloDataStorageConfigurationProperties;
 import ch.bedag.dap.hellodata.monitoring.storage.config.storage.StorageConfigurationProperty;
+import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,6 +45,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class StorageSizeService {
     private final HelloDataStorageConfigurationProperties helloDataStorageConfigurationProperties;
+
+    @PostConstruct
+    public void init() {
+        if (helloDataStorageConfigurationProperties.isCreateStorages()) {
+            List<StorageConfigurationProperty> storages = helloDataStorageConfigurationProperties.getStorages();
+            for (StorageConfigurationProperty storage : storages) {
+                String path = storage.getPath();
+                File folder = new File(path);
+                boolean created = folder.mkdirs();
+                if (created) {
+                    log.info("Created folder {}", folder);
+                }
+            }
+        }
+    }
 
     public List<StorageSize> checkStorageSize() {
         log.info("^^^Checking storages size:");
