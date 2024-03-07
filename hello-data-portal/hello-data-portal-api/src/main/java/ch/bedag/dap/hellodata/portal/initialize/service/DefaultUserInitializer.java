@@ -71,27 +71,48 @@ public class DefaultUserInitializer {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean initDefaultUsers() {
         boolean defaultUsersInitiated = false;
-        if (defaultAdminProperties.getEmail() == null) {
+        String username = defaultAdminProperties.getUsername();
+        String email = defaultAdminProperties.getEmail();
+        if (email == null) {
             log.warn("No default admin properties set, omitting");
             return defaultUsersInitiated;
         }
+        List<UserRepresentation> allUsersFromKeycloak = getAllUsersFromKeycloak();
+        Optional<UserRepresentation> userByEmail = allUsersFromKeycloak.stream().filter(user -> user.getEmail().equalsIgnoreCase(email)).findFirst();
+        Optional<UserRepresentation> userByUsername = allUsersFromKeycloak.stream().filter(user -> user.getUsername().equalsIgnoreCase(username)).findFirst();
+        boolean theSameUser = userByEmail.isPresent() && userByUsername.isPresent() && userByUsername.get().getId().equalsIgnoreCase(userByEmail.get().getId());
+
+        if (!theSameUser) {
+            log.info("Users fetched from the keycloak:");
+            allUsersFromKeycloak.forEach(
+                    userRepresentation -> log.info("Usr {}, username: {}, email: {}", userRepresentation.getId(), userRepresentation.getUsername(), userRepresentation.getEmail()));
+            throw new IllegalStateException(
+                    String.format("There are already two different users in the keycloak for the provided username: %s and the email: %s. Please change the configuration",
+                                  username, email));
+        }
+
         // Check if the default user exists in Keycloak
-        boolean userExistsInKeycloak = getAllUsersFromKeycloak().stream().anyMatch(user -> user.getEmail().equals(defaultAdminProperties.getEmail()));
+        boolean userExistsInKeycloak = allUsersFromKeycloak.stream().anyMatch(user -> user.getEmail().equals(email));
 
         // Check if the user has already been created in a previous run
-        boolean userMarkedAsDefault = !defaultUserRepository.findByEmail(defaultAdminProperties.getEmail()).isEmpty();
+        boolean userMarkedAsDefault = !defaultUserRepository.findByEmail(email).isEmpty();
 
-        if (!userExistsInKeycloak && !userMarkedAsDefault) {
-            defaultUsersInitiated = createDefaultAdmin();
+        //different email but duplicated username
+        if (!userByUsername.get().getEmail().equalsIgnoreCase(email)) {
+            defaultUsersInitiated = createDefaultAdmin(userByUsername.get().getUsername(), defaultAdminProperties.getFirstName(), defaultAdminProperties.getLastName(),
+                                                       userByUsername.get().getEmail());
+        } else if (!userExistsInKeycloak && !userMarkedAsDefault) {
+            defaultUsersInitiated = createDefaultAdmin(defaultAdminProperties.getUsername(), defaultAdminProperties.getFirstName(), defaultAdminProperties.getLastName(),
+                                                       defaultAdminProperties.getEmail());
         } else if (userExistsInKeycloak && !userMarkedAsDefault) {
-            defaultUsersInitiated = markAsDefaultUser();
+            defaultUsersInitiated = markAsDefaultUser(defaultAdminProperties.getEmail());
         }
         return defaultUsersInitiated;
     }
 
-    private boolean markAsDefaultUser() {
+    private boolean markAsDefaultUser(String email) {
         boolean defaultUsersInitiated;
-        Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(defaultAdminProperties.getEmail());
+        Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
         if (userEntityByEmail.isPresent()) {
             //set as superuser
             UserEntity user = userEntityByEmail.get();
@@ -106,9 +127,15 @@ public class DefaultUserInitializer {
         return defaultUsersInitiated;
     }
 
-    private boolean createDefaultAdmin() {
+    private boolean createDefaultAdmin(String username, String firstName, String lastName, String email) {
         boolean defaultUsersInitiated;
-        UserRepresentation user = generateDefaultAdmin();
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(username);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setEnabled(true);
+        user.setEmailVerified(true);
         setDefaultAdminPassword(user);
         String userId = createUserInKeycloak(user);
         UserEntity userEntity = saveUserToDatabase(userId);
@@ -196,23 +223,6 @@ public class DefaultUserInitializer {
         credential.setValue(password);
         credential.setTemporary(false);
         user.setCredentials(List.of(credential));
-    }
-
-    @NotNull
-    private UserRepresentation generateDefaultAdmin() {
-        return generateUser(defaultAdminProperties.getUsername(), defaultAdminProperties.getFirstName(), defaultAdminProperties.getLastName(), defaultAdminProperties.getEmail());
-    }
-
-    private UserRepresentation generateUser(String username, String firstName, String lastName, String email) {
-        // Create a new user
-        UserRepresentation user = new UserRepresentation();
-        user.setUsername(username);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setEnabled(true);
-        user.setEmailVerified(true);
-        return user;
     }
 
     private List<UserRepresentation> getAllUsersFromKeycloak() {
