@@ -31,11 +31,14 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.respon
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import java.util.List;
+import java.util.Optional;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
 
 @UtilityClass
 public class RoleUtil {
+
+    public static final String PUBLIC_ROLE_NAME = "Public";
 
     /**
      * superset api requires at list one element in an array
@@ -63,5 +66,12 @@ public class RoleUtil {
         List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SupersetRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles().stream().filter(supersetRoleId -> !roles.contains(supersetRoleId)).toList();
         supersetUserRolesUpdate.setRoles(userRoles);
+    }
+
+    public static void removePublicRoleIfAdded(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
+        Optional<Integer> publicRole = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).findFirst();
+        publicRole.ifPresent(publicRoleId -> {
+            supersetUserRolesUpdate.setRoles(supersetUserRolesUpdate.getRoles().stream().filter(roleId -> !publicRoleId.equals(roleId)).toList());
+        });
     }
 }

@@ -45,14 +45,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
+import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.PUBLIC_ROLE_NAME;
 
 @Log4j2
 @Service
 @SuppressWarnings("java:S3516")
 @RequiredArgsConstructor
 public class SuperserCreateUserConsumer {
-
-    private static final String PUBLIC_ROLE_NAME = "Public";
 
     private final UserResourceProviderService userResourceProviderService;
     private final SupersetClientProvider supersetClientProvider;
