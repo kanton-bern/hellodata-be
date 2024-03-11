@@ -88,6 +88,10 @@ export class EmbeddedLineageDocsComponent {
         },
         {
           label: dataDomain?.name,
+          routerLink: naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path,
+          queryParams: {
+            filteredBy: dataDomain?.contextKey
+          }
         },
         {
           label: this.projectId + ' Data Lineage',

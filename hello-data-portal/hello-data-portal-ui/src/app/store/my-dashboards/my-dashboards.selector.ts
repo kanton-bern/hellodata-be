@@ -64,7 +64,6 @@ export const selectMyDashboards = createSelector(
       return state.myDashboards;
     }
     const supersetDashboardWithMetadata = state.myDashboards.filter(dashboard => dashboard.contextId === selectedDataDomain.id);
-    console.log('my-dashboards filtered by ', filteredByParam)
     if (filteredByParam) {
       return supersetDashboardWithMetadata.filter(dashboard => dashboard.contextId === filteredByParam);
     }
