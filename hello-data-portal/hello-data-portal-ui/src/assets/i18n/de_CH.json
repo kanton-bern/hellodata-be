@@ -68,6 +68,7 @@
   "@Disable user": "Benutzer deaktivieren",
   "@Disable user question": "Benutzer {{user}} deaktivieren?",
   "@Dismiss": "Zurückweisen",
+  "@Doc": "Doc",
   "@Docs": "Docs",
   "@Documentation": "Dokumentation",
   "@Documentation management": "Dokumentationsmanagement",
