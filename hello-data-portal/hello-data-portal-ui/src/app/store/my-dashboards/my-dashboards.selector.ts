@@ -29,7 +29,7 @@ import {AppState} from "../app/app.state";
 import {createSelector} from "@ngrx/store";
 import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
-import {selectRouteParam, selectUrl} from "../router/router.selectors";
+import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
 import {selectProfile} from "../auth/auth.selector";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
@@ -37,6 +37,7 @@ const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
 
 export const selectDashboardId = selectRouteParam('id');
 export const selectInstanceName = selectRouteParam('instanceName');
+export const selectFilteredBy = selectQueryParam('filteredBy');
 
 export const selectSelectedDataDomain = createSelector(
   myDashboardsState,
@@ -57,11 +58,16 @@ export const selectAvailableDataDomains = createSelector(
 export const selectMyDashboards = createSelector(
   myDashboardsState,
   selectSelectedDataDomain,
-  (state: MyDashboardsState, selectedDataDomain) => {
+  selectFilteredBy,
+  (state: MyDashboardsState, selectedDataDomain, filteredByParam) => {
     if (selectedDataDomain === null || selectedDataDomain.id === '') {
       return state.myDashboards;
     }
-    return state.myDashboards.filter(dashboard => dashboard.contextId === selectedDataDomain.id);
+    const supersetDashboardWithMetadata = state.myDashboards.filter(dashboard => dashboard.contextId === selectedDataDomain.id);
+    if (filteredByParam) {
+      return supersetDashboardWithMetadata.filter(dashboard => dashboard.contextId === filteredByParam);
+    }
+    return supersetDashboardWithMetadata;
   }
 );
 
@@ -83,12 +89,6 @@ export const selectAvailableDataDomainItems = createSelector(
     }];
   }
 );
-
-export const selectDashboardByInstanceNameAndId = (instanceName: string, dashboardId: string) =>
-  createSelector(
-    myDashboardsState,
-    (state) => state.myDashboards.find(entry => entry.instanceName === instanceName && (entry.slug === dashboardId || `${entry.id}` === dashboardId))
-  );
 
 export const selectAvailableDataDomainsWithAllEntry = createSelector(
   selectAvailableDataDomainItems,

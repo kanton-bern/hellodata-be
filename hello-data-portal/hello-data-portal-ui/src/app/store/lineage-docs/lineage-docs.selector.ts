@@ -29,7 +29,7 @@ import {AppState} from "../app/app.state";
 import {createSelector} from "@ngrx/store";
 import {LineageDocsState} from "./lineageDocsState";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
-import {selectRouteParam} from "../router/router.selectors";
+import {selectQueryParam, selectRouteParam} from "../router/router.selectors";
 import {selectAllDataDomains} from "../users-management/users-management.selector";
 
 const myLineageDocsState = (state: AppState) => state.myLineageDocs;
@@ -37,16 +37,22 @@ const myLineageDocsState = (state: AppState) => state.myLineageDocs;
 export const selectProjectIdParam = selectRouteParam('id');
 export const selectContextParam = selectRouteParam('context');
 export const selectPathParam = selectRouteParam('path');
+export const selectFilteredBy = selectQueryParam('filteredBy');
 
 
 export const selectMyLineageDocs = createSelector(
   myLineageDocsState,
   selectSelectedDataDomain,
-  (state: LineageDocsState, selectedDataDomain) => {
-    if (selectedDataDomain === null || selectedDataDomain.id === '') {
-      return state.myLineageDocs;
+  selectFilteredBy,
+  (state: LineageDocsState, selectedDataDomain, filteredByParam) => {
+    let lineageDocs = state.myLineageDocs;
+    if (filteredByParam) {
+      lineageDocs = lineageDocs.filter(lineageDoc => lineageDoc.contextKey === filteredByParam);
     }
-    return state.myLineageDocs.filter(lineageDoc => lineageDoc.contextKey === selectedDataDomain?.key);
+    if (selectedDataDomain === null || selectedDataDomain.id === '') {
+      return lineageDocs;
+    }
+    return lineageDocs.filter(lineageDoc => lineageDoc.contextKey === selectedDataDomain?.key);
   }
 );
 
