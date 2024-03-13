@@ -50,7 +50,7 @@ export class MyDashboardsEffects {
       ofType(loadMyDashboards),
       switchMap(() => this._myDashboardsService.getMyDashboards()),
       switchMap(result => of(loadMyDashboardsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -73,7 +73,7 @@ export class MyDashboardsEffects {
       ofType(loadAvailableDataDomains),
       switchMap(() => this._myDashboardsService.getAvailableDataDomains()),
       switchMap(result => of(loadAvailableDataDomainsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -91,8 +91,9 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(uploadDashboardsError),
       switchMap((payload) => {
-        return of(showError(payload.error), navigate({url: 'redirect/dashboard-import-export'}))
-      })
+        return of(showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'}))
+      }),
+      catchError(e => of(showError({error: e})))
     )
   });
 

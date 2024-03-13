@@ -38,7 +38,6 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {FileSelectEvent, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
-import {AuthService} from "../../../shared/services";
 import {loadMyDashboards, uploadDashboardsError, uploadDashboardsSuccess} from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
 
@@ -57,7 +56,7 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   baseUrl = `${environment.portalApi}/superset/upload-dashboards/`;
 
-  constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef, readonly authService: AuthService) {
+  constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
     this.dashboards$ = this.store.select(selectMyDashboards);
@@ -127,12 +126,12 @@ export class DashboardImportExportComponent extends BaseComponent {
     return this.showUploadForContextMap.get(contextKey);
   }
 
-  onUploadCompleted($event: FileUploadEvent, contextKey: string) {
+  onUploadCompleted($event: FileUploadEvent) {
     console.debug("upload completed", $event);
     this.store.dispatch(uploadDashboardsSuccess());
   }
 
-  onError($event: FileUploadErrorEvent, contextKey: string) {
+  onError($event: FileUploadErrorEvent) {
     this.store.dispatch(uploadDashboardsError({error: $event.error}));
   }
 }

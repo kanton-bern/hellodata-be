@@ -159,6 +159,7 @@ server:
     include-stacktrace: never
   max-http-request-header-size: 32KB
   tomcat:
+    max-http-form-post-size: 5GB
     max-swallow-size: -1
 
 #nats

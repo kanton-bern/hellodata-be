@@ -243,8 +243,7 @@ public class DashboardService {
         log.debug("[uploadDashboardsFile] Sending request to subject: {}", subject);
         Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
         if (reply == null) {
-            log.warn("Reply is null, please verify superset sidecar or nats connection");
-            return;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not upload dashboard. The reply is null, please verify superset sidecar or nats connection");
         }
         String responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
         if ("OK".equalsIgnoreCase(responseContent)) {

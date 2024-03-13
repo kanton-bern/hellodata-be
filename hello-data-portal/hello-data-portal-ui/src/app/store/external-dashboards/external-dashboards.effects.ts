@@ -57,7 +57,7 @@ export class ExternalDashboardsEffects {
       ofType(loadExternalDashboards),
       switchMap(() => this._externalDashboardsService.getExternalDashboards()),
       switchMap(result => of(loadExternalDashboardsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -65,7 +65,7 @@ export class ExternalDashboardsEffects {
     return this._actions$.pipe(
       ofType(createExternalDashboard),
       switchMap(action => this._externalDashboardsService.createExternalDashboard(action.dashboard).pipe(map(() => createExternalDashboardSuccess({dashboard: action.dashboard})))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -77,7 +77,7 @@ export class ExternalDashboardsEffects {
           title: action.dashboard.title
         }
       }), navigate({url: 'external-dashboards'}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -85,7 +85,7 @@ export class ExternalDashboardsEffects {
     return this._actions$.pipe(
       ofType(updateExternalDashboard),
       switchMap(action => this._externalDashboardsService.updateExternalDashboard(action.dashboard).pipe(map(() => updateExternalDashboardSuccess({dashboard: action.dashboard})))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -96,7 +96,7 @@ export class ExternalDashboardsEffects {
         message: '@External dashboard updated',
         interpolateParams: {title: action.dashboard.title}
       }), navigate({url: 'external-dashboards'}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -104,7 +104,7 @@ export class ExternalDashboardsEffects {
     return this._actions$.pipe(
       ofType(deleteExternalDashboard),
       switchMap(action => this._externalDashboardsService.deleteExternalDashboard(action.dashboard).pipe(map(() => deleteExternalDashboardSuccess({dashboard: action.dashboard})))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -115,7 +115,7 @@ export class ExternalDashboardsEffects {
         message: '@External dashboard deleted',
         interpolateParams: {title: action.dashboard.title}
       }), navigate({url: 'external-dashboards'}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -130,7 +130,7 @@ export class ExternalDashboardsEffects {
         }
         return of(navigate({url: 'external-dashboards/create'}));
       }),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -141,7 +141,7 @@ export class ExternalDashboardsEffects {
       concatLatestFrom(() => this._store.select(selectParamExternalDashboardId)),
       switchMap(([action, externalDashboardId]) => this._externalDashboardsService.getExternalDashboardById(externalDashboardId as string)),
       switchMap(result => of(loadExternalDashboardByIdSuccess({dashboard: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
