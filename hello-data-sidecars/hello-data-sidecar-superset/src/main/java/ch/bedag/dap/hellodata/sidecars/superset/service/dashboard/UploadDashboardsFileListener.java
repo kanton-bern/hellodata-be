@@ -122,7 +122,10 @@ public class UploadDashboardsFileListener {
 
         List<File> chunks = listChunks(chunksFolderPath);
         if (chunks.isEmpty() || chunks.size() != totalChunks || validateChunkSize(fileSize, chunks)) {
-            throw new RuntimeException("The file is not supported. Upload canceled");
+            String errMsg =
+                    "Chunks list empty? - " + chunks.isEmpty() + " Chunk size different than total size? - " + (chunks.size() != totalChunks) + " Chunk size different? - " +
+                    validateChunkSize(fileSize, chunks);
+            throw new RuntimeException("Chunks validation failed. Upload canceled. " + errMsg);
         }
         writeChunksToFile(destinationPath, chunks);
     }

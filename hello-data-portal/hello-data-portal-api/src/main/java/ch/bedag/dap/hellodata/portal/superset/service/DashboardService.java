@@ -58,6 +58,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -231,7 +232,7 @@ public class DashboardService {
                 bytesReadTotal += bytesRead;
                 boolean isLastChunk = bytesReadTotal == file.getSize();
                 log.info("Sending file to superset, bytes read total: {}, file size: {}", bytesReadTotal, file.getSize());
-                DashboardUpload dashboardUpload = new DashboardUpload(buffer, ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize());
+                DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize());
                 sendToSidecar(dashboardUpload, subject);
             }
         } catch (InterruptedException | IOException e) {
