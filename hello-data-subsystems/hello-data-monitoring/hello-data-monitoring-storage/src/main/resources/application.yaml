@@ -28,6 +28,7 @@
 hellodata:
   monitoring-interval:
     cron-expression: "0 0 * * * *"
+  create-storages: true
   storages:
     - name: Management_Cockpit_Superset
       path: /storage/docs/projects/Management_Cockpit_Superset

@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.superset.client;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -213,20 +214,27 @@ public class SupersetApiRequestBuilder {
 
     public static HttpUriRequest getUpdateUserRolesRequest(String host, int port, String authToken, SupersetUserRolesUpdate supersetUserRolesUpdate, int userId) throws
             URISyntaxException, JsonProcessingException {
-        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
         String json = getObjectMapper().writeValueAsString(supersetUserRolesUpdate);
-        return RequestBuilder.put() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
-                             .build();
+        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
+        return createPutRequest(authToken, apiUri, json);
     }
 
     public static HttpUriRequest getUpdateUserActiveRequest(String host, int port, String authToken, SupersetUserActiveUpdate supersetUserActiveUpdate, int userId) throws
             URISyntaxException, JsonProcessingException {
-        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
         String json = getObjectMapper().writeValueAsString(supersetUserActiveUpdate);
+        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
+        return createPutRequest(authToken, apiUri, json);
+    }
+
+    public static HttpUriRequest getUpdateDashboardPublishedFlagRequest(String host, int port, String authToken,
+                                                                        SupersetDashboardPublishedFlagUpdate supersetDashboardPublishedFlagUpdate, int dashboardId) throws
+            URISyntaxException, JsonProcessingException {
+        String json = getObjectMapper().writeValueAsString(supersetDashboardPublishedFlagUpdate);
+        URI apiUri = buildUri(host, port, String.format(DASHBOARD_API_ENDPOINT, dashboardId), null);
+        return createPutRequest(authToken, apiUri, json);
+    }
+
+    private static HttpUriRequest createPutRequest(String authToken, URI apiUri, String json) {
         return RequestBuilder.put() //
                              .setUri(apiUri) //
                              .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //

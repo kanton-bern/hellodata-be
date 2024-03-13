@@ -59,16 +59,6 @@ export const selectSelectedAppInfoResource = createSelector(
   (state: MetaInfoResourceState) => state.selectedAppInfoResource
 );
 
-export const selectPermissions = createSelector(
-  metaInfoResourcesState,
-  (state: MetaInfoResourceState) => {
-    if (state.permissions.length > 0) {
-      return state.permissions.flatMap(permissionResource => permissionResource.data);
-    }
-    return [];
-  }
-);
-
 export const selectSelectedAppInfo = createSelector(
   metaInfoResourcesState,
   selectSelectedAppInfoResourcesParams,
