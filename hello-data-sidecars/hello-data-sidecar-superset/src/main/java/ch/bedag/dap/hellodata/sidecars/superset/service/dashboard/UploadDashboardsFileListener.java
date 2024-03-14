@@ -143,7 +143,7 @@ public class UploadDashboardsFileListener {
         BufferedReader bufferedReader = null;
         try {
             // Command to execute Python script
-            String[] cmd = { pythonExportCheckScriptLocation, "-i", destinationPath.toString() };
+            String[] cmd = { "python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString() };
             log.info("Python cmd {}", StringUtils.join(cmd, " "));
 
             // Create ProcessBuilder

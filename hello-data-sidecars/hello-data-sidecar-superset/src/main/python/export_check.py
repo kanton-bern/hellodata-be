@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 import getopt
 import os
 import shutil
@@ -104,18 +105,18 @@ def main(argv):
             elif opt in ("-i", "--ifile"):
                 zipfile_input = arg
 
-        print("zipfile_input: ", zipfile_input)
+        print("zipfile input: ", zipfile_input)
         export_path = '/tmp/unzip_export'
-        print("export_path: ", export_path)
+        print("export path: ", export_path)
         export_path_dashboard = export_path + '/' + zipfile_input.replace("/", "_")
-        print("export_path_dashboard: ", export_path_dashboard)
+        print("temporary export path dashboard: ", export_path_dashboard)
         unzip(zipfile_input, export_path_dashboard)
 
         folders_in_unzipped_dir = [name for name in os.listdir(export_path_dashboard) if os.path.isdir(os.path.join(export_path_dashboard, name))]
         if folders_in_unzipped_dir:
-            print('folders', folders_in_unzipped_dir)
+            print('subfolders', folders_in_unzipped_dir)
             export_path_dashboard = export_path_dashboard + '/' + folders_in_unzipped_dir[0]
-            print('export path dashboard ' + export_path_dashboard)
+            print('export path dashboard extended due to existing subfolder after unzip ' + export_path_dashboard)
 
         dict_files = get_dict_from_yaml(export_path_dashboard)
 
@@ -127,7 +128,7 @@ def main(argv):
             has_errors = True
 
         delete_unzip_folder(export_path_dashboard)
-        if len(has_errors) > 0:
+        if has_errors:
             sys.exit(1)
     except FileNotFoundError as e:
         print("No such file or directory ### use -i [Path_to_File] ", str(e))
