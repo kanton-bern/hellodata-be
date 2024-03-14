@@ -13,11 +13,13 @@ import io.nats.client.Message;
 import jakarta.annotation.PostConstruct;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +32,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +51,9 @@ public class UploadDashboardsFileListener {
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
+    @Value("${hello-data.dashboard-export-check-script-location}")
+    private String pythonExportCheckScriptLocation;
+
     @PostConstruct
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
@@ -58,18 +64,19 @@ public class UploadDashboardsFileListener {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 DashboardUpload dashboardUpload = objectMapper.readValue(msg.getData(), DashboardUpload.class);
                 saveChunk(dashboardUpload);
-                File contentFile;
+                File destinationFile;
                 if (dashboardUpload.isLastChunk()) {
-                    contentFile = File.createTempFile(dashboardUpload.getFilename(), "");
-                    log.debug("Created temp file for chunk {}", contentFile);
+                    destinationFile =
+                            File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), "");
+                    log.debug("Created temp file for chunk {}", destinationFile);
                     binaryFileId = dashboardUpload.getBinaryFileId();
-                    assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), contentFile.toPath());
+                    assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
                 } else {
                     log.debug("Saved chunk, waiting for another one {}", dashboardUpload.getChunkNumber());
                     ackMessage(msg);
                     return;
                 }
-                supersetClient.importDashboard(contentFile, new JsonPrimitive("{}"), true);
+                supersetClient.importDashboard(destinationFile, new JsonPrimitive("{}"), true);
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 ackMessage(msg);
             } catch (URISyntaxException | IOException | RuntimeException e) {
@@ -121,17 +128,65 @@ public class UploadDashboardsFileListener {
         }
 
         List<File> chunks = listChunks(chunksFolderPath);
-        if (chunks.isEmpty() || chunks.size() != totalChunks || validateChunkSize(fileSize, chunks)) {
+        if (chunks.isEmpty() || chunks.size() != totalChunks || validateChunkSizeWrong(fileSize, chunks)) {
             String errMsg =
                     "Chunks list empty? - " + chunks.isEmpty() + " Chunk size different than total size? - " + (chunks.size() != totalChunks) + " Chunk size different? - " +
-                    validateChunkSize(fileSize, chunks);
+                    validateChunkSizeWrong(fileSize, chunks);
             throw new RuntimeException("Chunks validation failed. Upload canceled. " + errMsg);
         }
         writeChunksToFile(destinationPath, chunks);
+        validateZipFile(destinationPath);
     }
 
-    private boolean validateChunkSize(long fileSize, List<File> chunks) {
-        return chunks.stream().mapToLong(File::length).sum() != fileSize;
+    private void validateZipFile(Path destinationPath) throws IOException {
+        InputStreamReader inputStreamReader = null;
+        BufferedReader bufferedReader = null;
+        try {
+            // Command to execute Python script
+            String[] cmd = { pythonExportCheckScriptLocation, "-i", destinationPath.toString() };
+            log.info("Python cmd {}", StringUtils.join(cmd, " "));
+
+            // Create ProcessBuilder
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+
+            // Start the process
+            Process process = pb.start();
+
+            // Read output from Python script
+            inputStreamReader = new InputStreamReader(process.getInputStream());
+            bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((line = bufferedReader.readLine()) != null) {
+                log.info(line);
+                stringBuilder.append(line).append("\n");
+            }
+
+            // Wait for the process to finish
+            int exitCode = process.waitFor();
+            log.info("Python script executed with exit code: " + exitCode);
+            if (exitCode != 0) {
+                throw new RuntimeException("Python file validation error: \n" + stringBuilder);
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Error validating file", e);
+        } finally {
+            if (inputStreamReader != null) {
+                inputStreamReader.close();
+            }
+            if (bufferedReader != null) {
+                bufferedReader.close();
+            }
+        }
+    }
+
+    private boolean validateChunkSizeWrong(long fileSize, List<File> chunks) {
+        long sum = chunks.stream().mapToLong(File::length).sum();
+        boolean isDifferent = sum != fileSize;
+        if (isDifferent) {
+            log.error("Chunks size problem, should have {} but is {}", fileSize, sum);
+        }
+        return isDifferent;
     }
 
     private void deleteTempBinaryFileData(String filename) {
@@ -171,6 +226,7 @@ public class UploadDashboardsFileListener {
     }
 
     private void writeChunksToFile(Path destinationPath, List<File> chunks) throws IOException {
+        log.info("Writing chunks to file {}", destinationPath);
         destinationPath.getParent().toFile().mkdirs();
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(destinationPath.toString()), FILE_BUFFER_SIZE)) {
             for (File file : chunks) {
