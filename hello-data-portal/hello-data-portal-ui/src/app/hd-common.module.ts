@@ -42,7 +42,7 @@ import {TruncatePipe} from "./shared/pipes/truncate.pipe";
   declarations: [
     SafePipe,
     ContainsPipe,
-    TruncatePipe
+    TruncatePipe,
   ]
 })
 export class HdCommonModule {

@@ -133,7 +133,7 @@ export class AuthEffects {
       ofType(fetchContextRoles),
       switchMap(() => this._usersManagementService.getCurrentContextRoles()),
       switchMap(result => of(fetchContextRolesSuccess({contextRoles: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 

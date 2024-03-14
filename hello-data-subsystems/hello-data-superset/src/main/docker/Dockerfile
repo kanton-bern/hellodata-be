@@ -64,6 +64,10 @@ RUN pip install flower
 # Monitoring service with https://github.com/SolarEdgeTech/pyctuator
 RUN pip install pyctuator
 
+# CSP https://superset.apache.org/docs/security/
+# https://pypi.org/project/flask-talisman/
+RUN pip install flask-talisman
+
 ##################### Add Liquibase to manage custom database scripts ######################
 # Make /liquibase directory and change owner to superset
 RUN mkdir /liquibase && chown superset /liquibase

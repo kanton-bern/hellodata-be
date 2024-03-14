@@ -54,7 +54,7 @@ export class LineageDocsEffects {
       switchMap(() => this._docsService.getProjectDocs()),
       combineLatestWith(this._store.select(selectAvailableDataDomains)),
       switchMap(([result, dataDomains]) => of(loadMyLineageDocsSuccess({payload: this._enhanceResult(result, dataDomains)}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 

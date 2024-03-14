@@ -38,8 +38,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
-import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
@@ -75,7 +73,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -296,7 +293,7 @@ public class UserService {
         UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
         for (MetaInfoResourceEntity dashboardWithContext : dashboardsWithContext) {
             if (dashboardWithContext.getMetainfo() instanceof DashboardResource dashboardResource) {
-                SubsystemUser subsystemUser = findUserInInstance(userEntity, dashboardResource.getInstanceName());
+                SubsystemUser subsystemUser = metaInfoResourceService.findUserInInstance(userEntity.getEmail(), dashboardResource.getInstanceName());
                 if (subsystemUser == null) {
                     log.warn("User {} not found in instance {}", userEntity.getEmail(), dashboardResource.getInstanceName());
                 }
@@ -416,7 +413,7 @@ public class UserService {
     private void synchronizeDashboardsForUser(UUID userId, Map<String, List<DashboardForUserDto>> selectedDashboardsForUser) {
         for (Map.Entry<String, List<DashboardForUserDto>> entry : selectedDashboardsForUser.entrySet()) {
             String contextKey = entry.getKey();
-            String supersetInstanceName = findSupersetInstanceNameByContextKey(contextKey);
+            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
             updateDashboardRoleForUser(userId, entry.getValue(), supersetInstanceName);
         }
     }
@@ -425,7 +422,7 @@ public class UserService {
         try {
             SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = new SupersetDashboardsForUserUpdate();
             UserEntity userEntity = getUserEntity(userId);
-            SubsystemUser userInInstance = findUserInInstance(userEntity, supersetInstanceName);
+            SubsystemUser userInInstance = metaInfoResourceService.findUserInInstance(userEntity.getEmail(), supersetInstanceName);
             if (userInInstance != null) {
                 supersetDashboardsForUserUpdate.setSupersetUserId(userInInstance.getId());
                 supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
@@ -489,28 +486,6 @@ public class UserService {
         dashboardForUserDto.setCompositeId(dashboardResource.getMetadata().instanceName() + "_" + supersetDashboard.getId());
         dashboardForUserDto.setContextKey(contextKey);
         return dashboardForUserDto;
-    }
-
-    private SubsystemUser findUserInInstance(UserEntity userEntity, String instanceName) {
-        return Optional.ofNullable(metaInfoResourceService.findByInstanceNameAndKind(instanceName, ModuleResourceKind.HELLO_DATA_USERS,
-                                                                                     ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource.class))
-                       .stream()
-                       .map(ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource::getData)
-                       .flatMap(Collection::stream)
-                       .filter(userResource -> userResource.getEmail().equalsIgnoreCase(userEntity.getEmail()))
-                       .findFirst()
-                       .orElse(null);
-    }
-
-    private String findSupersetInstanceNameByContextKey(String contextKey) {
-        return metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_APP_INFO,
-                                                                  ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource.class)
-                                      .stream()
-                                      .filter(appInfoResource -> appInfoResource.getBusinessContextInfo().getSubContext() != null)
-                                      .filter(appInfoResource -> appInfoResource.getBusinessContextInfo().getSubContext().getKey().equalsIgnoreCase(contextKey))
-                                      .findFirst()
-                                      .map(AppInfoResource::getInstanceName)
-                                      .orElse(null);
     }
 
     private void fetchAdditionalDataFromPortal(UserDto userDto) {

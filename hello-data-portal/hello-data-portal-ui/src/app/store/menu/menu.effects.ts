@@ -41,7 +41,7 @@ export class MenuEffects {
       switchMap((action) =>
         this._menuService.processNavigation(action.compactMode)),
       switchMap(result => of(processNavigationSuccess({navItems: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
