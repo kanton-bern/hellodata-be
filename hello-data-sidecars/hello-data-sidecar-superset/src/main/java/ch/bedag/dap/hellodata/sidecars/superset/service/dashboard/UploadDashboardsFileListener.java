@@ -166,7 +166,7 @@ public class UploadDashboardsFileListener {
             int exitCode = process.waitFor();
             log.info("Python script executed with exit code: " + exitCode);
             if (exitCode != 0) {
-                throw new RuntimeException("Python file validation error: \n" + stringBuilder);
+                throw new RuntimeException("Python script validation error: \n" + stringBuilder);
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Error validating file", e);
