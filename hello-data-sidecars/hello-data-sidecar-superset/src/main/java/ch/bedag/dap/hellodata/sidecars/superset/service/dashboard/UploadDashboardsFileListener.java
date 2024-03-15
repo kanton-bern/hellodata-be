@@ -6,7 +6,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardU
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Message;
@@ -28,7 +29,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
@@ -76,7 +80,9 @@ public class UploadDashboardsFileListener {
                     ackMessage(msg);
                     return;
                 }
-                supersetClient.importDashboard(destinationFile, new JsonPrimitive("{}"), true);
+                JsonObject passwordsObject = getPasswordsObject(destinationFile);
+                log.info("Passwords parameter send to API {}", new Gson().toJson(passwordsObject));
+                supersetClient.importDashboard(destinationFile, passwordsObject, true);
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 ackMessage(msg);
             } catch (URISyntaxException | IOException | RuntimeException e) {
@@ -89,6 +95,21 @@ public class UploadDashboardsFileListener {
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);
+    }
+
+    private JsonObject getPasswordsObject(File destinationFile) throws IOException {
+        JsonObject jsonElement = new JsonObject();
+        try (ZipFile zipFile = new ZipFile(destinationFile)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry zipEntry = entries.nextElement();
+                String name = zipEntry.getName();
+                if (name.contains("/databases/")) {
+                    jsonElement.addProperty(name.substring(name.indexOf("databases/")), "dummy");
+                }
+            }
+        }
+        return jsonElement;
     }
 
     private void ackMessage(Message msg) {

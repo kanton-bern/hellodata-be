@@ -33,6 +33,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRo
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -188,7 +189,7 @@ public class SupersetApiRequestBuilder {
     }
 
     public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride,
-                                                           JsonElement password) throws URISyntaxException, IOException {
+                                                           JsonElement passwords) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, IMPORT_DASHBOARD_API_ENDPOINT, null);
 
         try (FileInputStream fis = new FileInputStream(compressedDashboardFile)) {
@@ -200,7 +201,7 @@ public class SupersetApiRequestBuilder {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
-            builder.addTextBody("passwords", password.getAsString(), contentType);
+            builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 
             return RequestBuilder.post() //
                                  .setUri(apiUri) //
