@@ -46,7 +46,7 @@ export class UnsavedChangesEffects {
         }
         return of(clearUnsavedChanges());
       }),
-      catchError(e => of(showError(e), clearUnsavedChanges()))
+      catchError(e => of(showError({error: e}), clearUnsavedChanges()))
     )
   });
 

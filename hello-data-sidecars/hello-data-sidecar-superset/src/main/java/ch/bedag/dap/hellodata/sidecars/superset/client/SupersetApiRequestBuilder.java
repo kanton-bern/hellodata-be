@@ -27,11 +27,13 @@
 package ch.bedag.dap.hellodata.sidecars.superset.client;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -187,7 +189,7 @@ public class SupersetApiRequestBuilder {
     }
 
     public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride,
-                                                           JsonElement password) throws URISyntaxException, IOException {
+                                                           JsonElement passwords) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, IMPORT_DASHBOARD_API_ENDPOINT, null);
 
         try (FileInputStream fis = new FileInputStream(compressedDashboardFile)) {
@@ -199,7 +201,7 @@ public class SupersetApiRequestBuilder {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
-            builder.addTextBody("passwords", password.getAsString(), contentType);
+            builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 
             return RequestBuilder.post() //
                                  .setUri(apiUri) //
@@ -213,20 +215,27 @@ public class SupersetApiRequestBuilder {
 
     public static HttpUriRequest getUpdateUserRolesRequest(String host, int port, String authToken, SupersetUserRolesUpdate supersetUserRolesUpdate, int userId) throws
             URISyntaxException, JsonProcessingException {
-        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
         String json = getObjectMapper().writeValueAsString(supersetUserRolesUpdate);
-        return RequestBuilder.put() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
-                             .build();
+        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
+        return createPutRequest(authToken, apiUri, json);
     }
 
     public static HttpUriRequest getUpdateUserActiveRequest(String host, int port, String authToken, SupersetUserActiveUpdate supersetUserActiveUpdate, int userId) throws
             URISyntaxException, JsonProcessingException {
-        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
         String json = getObjectMapper().writeValueAsString(supersetUserActiveUpdate);
+        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
+        return createPutRequest(authToken, apiUri, json);
+    }
+
+    public static HttpUriRequest getUpdateDashboardPublishedFlagRequest(String host, int port, String authToken,
+                                                                        SupersetDashboardPublishedFlagUpdate supersetDashboardPublishedFlagUpdate, int dashboardId) throws
+            URISyntaxException, JsonProcessingException {
+        String json = getObjectMapper().writeValueAsString(supersetDashboardPublishedFlagUpdate);
+        URI apiUri = buildUri(host, port, String.format(DASHBOARD_API_ENDPOINT, dashboardId), null);
+        return createPutRequest(authToken, apiUri, json);
+    }
+
+    private static HttpUriRequest createPutRequest(String authToken, URI apiUri, String json) {
         return RequestBuilder.put() //
                              .setUri(apiUri) //
                              .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //

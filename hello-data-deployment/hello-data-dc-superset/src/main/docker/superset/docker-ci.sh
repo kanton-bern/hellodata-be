@@ -26,7 +26,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-/app/docker/docker-init1.sh
+/app/docker/docker-init.sh
 
 # TODO: copy config overrides from ENV vars
 

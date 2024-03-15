@@ -45,6 +45,7 @@ export class ExternalComponent implements OnInit {
   @ViewChild('dt') dt!: Table | undefined;
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
+  filterValue = '';
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>) {
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
@@ -53,6 +54,18 @@ export class ExternalComponent implements OnInit {
 
   ngOnInit(): void {
     this.store.dispatch(loadExternalDashboards());
+    this.restoreExternalDashboardSearchFilter();
+  }
+
+  private restoreExternalDashboardSearchFilter() {
+    const storageItem = sessionStorage.getItem("home-external-dashboards-table");
+    if (storageItem) {
+      const storageItemObject = JSON.parse(storageItem);
+      const filterValue = storageItemObject.filters?.global?.value;
+      if (filterValue) {
+        this.filterValue = filterValue;
+      }
+    }
   }
 
   createExternalUrl(url: string): string {

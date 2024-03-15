@@ -47,7 +47,6 @@ import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -55,6 +54,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeAllDashboardRoles;
+import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removePublicRoleIfAdded;
 
 @Log4j2
 @Service
@@ -99,7 +99,7 @@ public class UpdateDashboardUserRolesListener {
                 RoleUtil.leaveOnlyBiViewerRoleIfNoneAttached(allRoles, supersetUserRolesUpdate);
 
                 log.debug("Roles that user should now have: {}", supersetUserRolesUpdate.getRoles());
-                SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, user.getId());
+                SupersetUserUpdateResponse updatedUser = supersetClient.updateUserRoles(supersetUserRolesUpdate, user.getId());
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 natsConnection.publish(msg.getReplyTo(), objectMapper.writeValueAsBytes(updatedUser));
                 msg.ack();
@@ -122,12 +122,5 @@ public class UpdateDashboardUserRolesListener {
         supersetUserRolesUpdate.setRoles(userRolesPlusDashboardRoles);
         log.debug("\tsuperset update request roles: {}", supersetUserRolesUpdate.getRoles());
         removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
-    }
-
-    private void removePublicRoleIfAdded(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
-        Optional<Integer> publicRole = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).findFirst();
-        publicRole.ifPresent(publicRoleId -> {
-            supersetUserRolesUpdate.setRoles(supersetUserRolesUpdate.getRoles().stream().filter(roleId -> !publicRoleId.equals(roleId)).toList());
-        });
     }
 }
