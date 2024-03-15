@@ -83,9 +83,11 @@ public class DefaultUserInitializer {
         boolean theSameUser = userByEmail.isPresent() && userByUsername.isPresent() && userByUsername.get().getId().equalsIgnoreCase(userByEmail.get().getId());
 
         if (!theSameUser) {
-            log.info("Users fetched from the keycloak:");
-            allUsersFromKeycloak.forEach(
-                    userRepresentation -> log.info("Usr {}, username: {}, email: {}", userRepresentation.getId(), userRepresentation.getUsername(), userRepresentation.getEmail()));
+            log.info("Users fetched from the keycloak that apply to email {} or username {}:", email, username);
+            allUsersFromKeycloak.stream()
+                                .filter(user -> user.getEmail().equalsIgnoreCase(email) || user.getUsername().equalsIgnoreCase(username))
+                                .forEach(userRepresentation -> log.info("Usr {}, username: {}, email: {}", userRepresentation.getId(), userRepresentation.getUsername(),
+                                                                        userRepresentation.getEmail()));
             throw new IllegalStateException(
                     String.format("There are already two different users in the keycloak for the provided username: %s and the email: %s. Please change the configuration",
                                   username, email));
