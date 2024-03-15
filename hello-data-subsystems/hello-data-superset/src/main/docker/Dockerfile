@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hellodata-superset:2.1.0-HD2
+FROM bedag/hellodata-superset:3.1.0-HD1
 
 COPY ./assets/images/* /app/superset/static/assets/images/
 
@@ -36,19 +36,17 @@ USER root
 RUN apt-get update && \
     # deps for superset
     apt-get install --no-install-recommends -y firefox-esr wget && \
-    #Workaround from https://bugs.launchpad.net/ubuntu/+source/ca-certificates-java/+bug/2003822
-    apt-get install --no-install-recommends -y openjdk-11-jre-headless ca-certificates-java && apt remove -y openjdk-11-jre-headless && \
     # deps for liquibase
-    apt-get install --no-install-recommends -y openjdk-17-jre-headless gnupg unzip postgresql-client
+    apt-get install --no-install-recommends -y openjdk-17-jre-headless ca-certificates-java gnupg unzip postgresql-client
 
-ENV GECKODRIVER_VERSION=0.33.0
+ENV GECKODRIVER_VERSION=0.34.0
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
     tar -x geckodriver -zf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz -O > /usr/bin/geckodriver && \
     chmod 755 /usr/bin/geckodriver && \
     rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
 
 # Install requirements for superset
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && pip install --no-cache authlib==0.15.5 psycopg2-binary==2.9.1 redis==3.5.3 jmespath==1.0.1 gevent
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && pip install --no-cache authlib==1.2.1 psycopg2-binary==2.9.9 redis==4.5.4 jmespath==1.0.1 gevent
 
 # install additional drivers
 # Find which driver you need based on the analytics database you want to connect to here:
@@ -80,9 +78,9 @@ RUN ln -s /liquibase/liquibase /usr/local/bin/liquibase
 ENV LIQUIBASE_HOME=/liquibase
 
 # Latest Liquibase Release Version
-ARG LIQUIBASE_VERSION=4.21.1
+ARG LIQUIBASE_VERSION=4.25.1
 # Download, verify, extract liquibase
-ARG LB_SHA256=C04542865E5ECE8B7B1EE9BD6BEAEFC5315E350620288D6AC1A2D32C3B1F7D8B
+ARG LB_SHA256=8B2B7AA8EC755D4EE52FA0210CD2A244FD16ED695FC4A72245562950776D2A56
 RUN set -x &&  \
     wget -q -O liquibase-${LIQUIBASE_VERSION}.tar.gz "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz"
 RUN echo "$LB_SHA256 liquibase-${LIQUIBASE_VERSION}.tar.gz" | sha256sum -c -
