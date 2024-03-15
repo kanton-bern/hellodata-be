@@ -236,7 +236,7 @@ export class MenuService {
     const sortedByNameLineageDocs = [...lineageDoc];
     sortedByNameLineageDocs.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     return sortedByNameLineageDocs.map((lineageDoc: LineageDoc) => ({
-      text: `${this.dbMenuItemPrefix}${lineageDoc.name} ${this._translateService.translate('@Data Lineage')}`,
+      text: `${this._translateService.translate('@Doc')}`,
       routerLink: this.createLineageDocsLink(lineageDoc)
     }));
   }
@@ -254,7 +254,7 @@ export class MenuService {
 
   private createDataMartsSubNav(availableDataDomains: any[]) {
     const subMenuEntry: any[] = [];
-    if(availableDataDomains.length > 0){
+    if (availableDataDomains.length > 0) {
       subMenuEntry.push({
         id: 'dataMartsDetails',
         text: '@DM Viewer Link',

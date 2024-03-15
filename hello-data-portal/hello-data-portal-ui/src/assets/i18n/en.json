@@ -68,6 +68,7 @@
   "@Disable user": "Disable user",
   "@Disable user question": "Disable user {{user}}?",
   "@Dismiss": "Dismiss",
+  "@Doc": "Doc",
   "@Docs": "Docs",
   "@Documentation": "Documentation",
   "@Documentation management": "@Documentation management",
