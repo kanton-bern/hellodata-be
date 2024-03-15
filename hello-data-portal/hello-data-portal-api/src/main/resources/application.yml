@@ -100,10 +100,10 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: none
-    properties:
-      hibernate:
-        format_sql: true
-        generate_statistics: true
+  #    properties:
+  #      hibernate:
+  #        format_sql: true
+  #        generate_statistics: true
   security:
     oauth2:
       client:
@@ -139,9 +139,14 @@ spring:
     kubernetes:
       discovery:
         enabled: false
-logging:
-  level:
-    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: WARN # Auf INFO werden hier sehr viele Informationen gelogged.
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5GB
+      max-request-size: 5GB
+#  logging:
+#    level:
+#      org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: WARN # Auf INFO werden hier sehr viele Informationen gelogged.
 
 #server props
 server:
@@ -153,6 +158,10 @@ server:
     include-exception: false
     include-stacktrace: never
   max-http-request-header-size: 32KB
+  tomcat:
+    max-http-form-post-size: 5GB
+    max-swallow-size: -1
+
 #nats
 nats:
   spring:

@@ -58,7 +58,7 @@ export class FaqEffects {
       ofType(loadFaq),
       switchMap(() => this._faqService.getFaq()),
       switchMap(result => of(loadFaqSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -71,7 +71,7 @@ export class FaqEffects {
         }
         return of(navigate({url: 'faq-management/create'}));
       }),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -81,7 +81,7 @@ export class FaqEffects {
       concatLatestFrom(() => this._store.select(selectParamFaqId)),
       switchMap(([action, faqId]) => this._faqService.getFaqById(faqId as string)),
       switchMap(result => of(loadFaqByIdSuccess({faq: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -115,7 +115,7 @@ export class FaqEffects {
     return this._actions$.pipe(
       ofType(saveChangesToFaqSuccess),
       switchMap(action => of(clearUnsavedChanges(), navigate({url: 'faq-management'}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -125,7 +125,7 @@ export class FaqEffects {
       concatLatestFrom(() => this._store.select(selectSelectedFaqForDeletion)),
       switchMap(([action, faq]) => this._faqService.deleteFaqById((faq as Faq).id as string).pipe(
         map(() => deleteFaqSuccess({faq: faq as Faq})),
-        catchError(e => of(showError(e)))
+        catchError(e => of(showError({error: e})))
       )),
     )
   });
@@ -145,7 +145,7 @@ export class FaqEffects {
       switchMap(([action, faqToBeDeleted]) => {
           return this._faqService.deleteFaqById((faqToBeDeleted as Faq).id as string).pipe(
             map(() => deleteEditedFaqSuccess()),
-            catchError(e => of(showError(e)))
+            catchError(e => of(showError({error: e})))
           )
         }
       ),

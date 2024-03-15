@@ -28,13 +28,13 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {Observable} from "rxjs";
+import {combineLatest, map, Observable, tap} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
 import {Table} from "primeng/table";
 import {naviElements} from "../../app-navi-elements";
-import {selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
+import {selectFilteredBy, selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
@@ -56,15 +56,48 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>, private menuService: MenuService) {
     super();
-    this.dashboards$ = this.store.select(selectMyDashboards);
-    this.store.dispatch(createBreadcrumbs({
-      breadcrumbs: [
-        {
-          label: naviElements.myDashboards.label,
-          routerLink: naviElements.myDashboards.path
-        }
-      ]
-    }));
+    this.dashboards$ =
+      combineLatest([
+        this.store.select(selectMyDashboards),
+        this.store.select(selectFilteredBy),
+      ]).pipe(
+        tap(([myDashboards, filteredBy]) => {
+          this.createBreadcrumbs(filteredBy, myDashboards);
+        }),
+        map(([myDashboards, filteredBy]) => {
+          return myDashboards;
+        }),
+      )
+
+  }
+
+  private createBreadcrumbs(filteredBy: string | undefined, myDashboards: SupersetDashboardWithMetadata[]) {
+    if (filteredBy && myDashboards) {
+      this.store.dispatch(createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.myDashboards.label,
+            routerLink: naviElements.myDashboards.path
+          },
+          {
+            label: myDashboards.filter(dashboard => dashboard.contextId === filteredBy)[0].contextName,
+            routerLink: naviElements.myDashboards.path,
+            queryParams: {
+              filteredBy
+            }
+          },
+        ]
+      }));
+    } else {
+      this.store.dispatch(createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.myDashboards.label,
+            routerLink: naviElements.myDashboards.path
+          }
+        ]
+      }));
+    }
   }
 
   override ngOnInit(): void {

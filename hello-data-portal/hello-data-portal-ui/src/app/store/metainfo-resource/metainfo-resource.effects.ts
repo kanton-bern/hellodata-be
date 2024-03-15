@@ -52,7 +52,7 @@ export class MetaInfoResourceEffects {
       ofType(loadAppInfoResources),
       switchMap(() => this._metaInfoResourceService.getAppInfoResources()),
       switchMap(result => of(loadAppInfoResourcesSuccess({result: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -61,7 +61,7 @@ export class MetaInfoResourceEffects {
       ofType(loadRoleResources),
       switchMap(() => this._metaInfoResourceService.getRoleResources()),
       switchMap(result => of(loadRoleResourcesSuccess({result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -70,7 +70,7 @@ export class MetaInfoResourceEffects {
       ofType(loadPermissionResources),
       switchMap(() => this._metaInfoResourceService.getPermissionResources()),
       switchMap(result => of(loadPermissionResourcesSuccess({result: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -80,7 +80,7 @@ export class MetaInfoResourceEffects {
       concatLatestFrom(() => this._store.select(selectSelectedAppInfoResourcesParams)),
       switchMap(([action, params]) => this._metaInfoResourceService.getResourcesFilteredByAppInfo(params.apiVersion as string, params.instanceName as string, params.moduleType as string)),
       switchMap(result => of(loadSelectedAppInfoResourcesSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 

@@ -277,3 +277,4 @@ $RECYCLE.BIN/
 
 #Obsidian
 .obsidian/
+/hello-data-deployment/docker-compose/base/airflow/conf/

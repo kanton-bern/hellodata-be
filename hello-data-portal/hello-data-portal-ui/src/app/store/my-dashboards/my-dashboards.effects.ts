@@ -29,9 +29,18 @@ import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {showError, showSuccess} from "../app/app.action";
+import {navigate, showError, showSuccess} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
-import {loadAvailableDataDomains, loadAvailableDataDomainsSuccess, loadMyDashboards, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
+import {
+  loadAvailableDataDomains,
+  loadAvailableDataDomainsSuccess,
+  loadMyDashboards,
+  loadMyDashboardsSuccess,
+  setSelectedDataDomain,
+  uploadDashboardsError,
+  uploadDashboardsSuccess
+} from "./my-dashboards.action";
+import {NotificationService} from "../../shared/services/notification.service";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -41,7 +50,7 @@ export class MyDashboardsEffects {
       ofType(loadMyDashboards),
       switchMap(() => this._myDashboardsService.getMyDashboards()),
       switchMap(result => of(loadMyDashboardsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -64,13 +73,34 @@ export class MyDashboardsEffects {
       ofType(loadAvailableDataDomains),
       switchMap(() => this._myDashboardsService.getAvailableDataDomains()),
       switchMap(result => of(loadAvailableDataDomainsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  uploadDashboardsFileSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(uploadDashboardsSuccess),
+      switchMap(() => {
+        this._notificationService.success('@Dashboards uploaded successfully');
+        return of(navigate({url: 'redirect/dashboard-import-export'}))
+      })
+    )
+  });
+
+  uploadDashboardsFileError$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(uploadDashboardsError),
+      switchMap((payload) => {
+        return of(showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'}))
+      }),
+      catchError(e => of(showError({error: e})))
     )
   });
 
   constructor(
     private _actions$: Actions,
     private _myDashboardsService: MyDashboardsService,
+    private _notificationService: NotificationService
   ) {
   }
 }

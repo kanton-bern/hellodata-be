@@ -89,6 +89,10 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
         },
         {
           label: dataDomainName,
+          routerLink: naviElements.myDashboards.path,
+          queryParams: {
+            filteredBy: dashboard?.contextId
+          }
         },
         {
           label: dashboard?.dashboardTitle,

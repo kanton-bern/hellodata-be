@@ -42,7 +42,7 @@ export class StartPageEffects {
       ofType(updateDashboardMetadata),
       switchMap(action => this._startPageService.updateDashboardMetadata(action.dashboard)),
       switchMap(result => of(loadMyDashboards(), showSuccess({message: '@Dashboard metadata updated'}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -51,7 +51,7 @@ export class StartPageEffects {
       ofType(loadFaqStartPage),
       switchMap(() => this._faqService.getFaq()),
       switchMap(result => of(loadFaqStartPageSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 

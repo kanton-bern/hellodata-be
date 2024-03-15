@@ -141,6 +141,10 @@ export const naviElements: any = {
     path: 'documentation-management',
     label: '@Documentation management'
   },
+  dashboardCopy: {
+    path: 'dashboard-import-export',
+    label: '@Dashboard import-export'
+  },
   logout: {
     path: 'logout'
   },

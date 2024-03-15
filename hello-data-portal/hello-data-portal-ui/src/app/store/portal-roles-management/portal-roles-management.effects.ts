@@ -59,7 +59,7 @@ export class PortalRolesManagementEffects {
       ofType(loadPortalRoles),
       switchMap(action => this._portalRoleService.getPortalRoles()),
       switchMap(result => of(loadPortalRolesSuccess({roles: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -72,7 +72,7 @@ export class PortalRolesManagementEffects {
         }
         return of(navigate({url: 'roles-management/create'}));
       }),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -99,7 +99,7 @@ export class PortalRolesManagementEffects {
             map(() => saveChangesToPortalRoleSuccess({role: action.role}))
           )
       }),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -107,7 +107,7 @@ export class PortalRolesManagementEffects {
     return this._actions$.pipe(
       ofType(saveChangesToPortalRoleSuccess),
       switchMap(action => of(navigate({url: 'roles-management'}), clearUnsavedChanges())),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -117,7 +117,7 @@ export class PortalRolesManagementEffects {
       concatLatestFrom(() => this._store.select(selectSelectedPortalRoleForDeletion)),
       switchMap(([action, role]) => this._portalRoleService.deletePortalRoleById((role as PortalRole).id as string).pipe(
         map(() => deletePortalRoleSuccess({role: role as PortalRole})),
-        catchError(e => of(showError(e)))
+        catchError(e => of(showError({error: e})))
       )),
     )
   });
@@ -137,7 +137,7 @@ export class PortalRolesManagementEffects {
       switchMap(([action, roleToBeDeleted]) => {
           return this._portalRoleService.deletePortalRoleById((roleToBeDeleted as PortalRole).id as string).pipe(
             map(() => deleteEditedPortalRoleSuccess({name: roleToBeDeleted!.name as string})),
-            catchError(e => of(showError(e)))
+            catchError(e => of(showError({error: e})))
           )
         }
       ),
@@ -158,7 +158,7 @@ export class PortalRolesManagementEffects {
       concatLatestFrom(() => this._store.select(selectPortalParamRoleId)),
       switchMap(([action, roleId]) => this._portalRoleService.getPortalRoleById(roleId as string)),
       switchMap(result => of(loadPortalRoleByIdSuccess({role: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 

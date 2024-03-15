@@ -33,6 +33,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.HDVersions;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -122,5 +124,35 @@ public class MetaInfoResourceService {
             return (String) data.get(URL_KEY);
         }
         return null;
+    }
+
+    @Transactional(readOnly = true)
+    public String findSupersetInstanceNameByContextKey(String contextKey) {
+        return findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_APP_INFO,
+                                          ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource.class).stream()
+                                                                                                                             .filter(appInfoResource ->
+                                                                                                                                             appInfoResource.getBusinessContextInfo()
+                                                                                                                                                            .getSubContext() !=
+                                                                                                                                             null)
+                                                                                                                             .filter(appInfoResource -> appInfoResource.getBusinessContextInfo()
+                                                                                                                                                                       .getSubContext()
+                                                                                                                                                                       .getKey()
+                                                                                                                                                                       .equalsIgnoreCase(
+                                                                                                                                                                               contextKey))
+                                                                                                                             .findFirst()
+                                                                                                                             .map(AppInfoResource::getInstanceName)
+                                                                                                                             .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public SubsystemUser findUserInInstance(String email, String instanceName) {
+        return Optional.ofNullable(
+                               findByInstanceNameAndKind(instanceName, ModuleResourceKind.HELLO_DATA_USERS, ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource.class))
+                       .stream()
+                       .map(ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource::getData)
+                       .flatMap(Collection::stream)
+                       .filter(userResource -> userResource.getEmail().equalsIgnoreCase(email))
+                       .findFirst()
+                       .orElse(null);
     }
 }

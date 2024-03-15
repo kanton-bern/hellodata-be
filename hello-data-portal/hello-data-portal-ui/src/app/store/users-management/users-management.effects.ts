@@ -75,7 +75,7 @@ export class UsersManagementEffects {
       ofType(loadUsers),
       switchMap(() => this._usersManagementService.getUsers()),
       switchMap(result => of(loadUsersSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -89,17 +89,17 @@ export class UsersManagementEffects {
             case (UserAction.DISABLE):
               return this._usersManagementService.disableUser(userActionForPopup!.user).pipe(
                 map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
-                catchError(e => of(showError(e)))
+                catchError(e => of(showError({error: e})))
               );
             case (UserAction.ENABLE):
               return this._usersManagementService.enableUser(userActionForPopup!.user).pipe(
                 map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
-                catchError(e => of(showError(e)))
+                catchError(e => of(showError({error: e})))
               );
             default:
               return this._usersManagementService.deleteUser(userActionForPopup!.user).pipe(
                 map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
-                catchError(e => of(showError(e)))
+                catchError(e => of(showError({error: e})))
               );
           }
         }
@@ -136,7 +136,7 @@ export class UsersManagementEffects {
       switchMap(action => {
           return this._usersManagementService.createUser(action.createUserForm).pipe(
             map(response => createUserSuccess({email: action.createUserForm.user.email, userId: response.userId})),
-            catchError(e => of(showError(e)))
+            catchError(e => of(showError({error: e})))
           )
         }
       ))
@@ -164,7 +164,7 @@ export class UsersManagementEffects {
       tap(([action, userId]) => sessionStorage.setItem(CURRENT_EDITED_USER_ID, userId as string)),
       switchMap(([action, userId]) => this._usersManagementService.getUserById(userId as string)),
       switchMap(result => of(loadUserByIdSuccess({user: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -182,7 +182,7 @@ export class UsersManagementEffects {
         switchMap(([action, userId]) => {
             return this._usersManagementService.getDashboardsWithMarkedUser(userId as string).pipe(
               map((result) => loadDashboardsSuccess({dashboards: result.dashboards})),
-              catchError(e => of(showError(e)))
+              catchError(e => of(showError({error: e})))
             )
           }
         ))
@@ -195,7 +195,7 @@ export class UsersManagementEffects {
         switchMap(action => {
             return this._usersManagementService.syncUsers().pipe(
               map((result) => syncUsersSuccess()),
-              catchError(e => of(showError(e)))
+              catchError(e => of(showError({error: e})))
             )
           }
         ))
@@ -215,7 +215,7 @@ export class UsersManagementEffects {
       ofType(loadAvailableContextRoles),
       switchMap(() => this._contextRoleService.getRoles()),
       switchMap(result => of(loadAvailableContextRolesSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -224,7 +224,7 @@ export class UsersManagementEffects {
       ofType(loadAvailableContexts),
       switchMap(() => this._usersManagementService.getAvailableContexts()),
       switchMap(result => of(loadAvailableContextsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -234,7 +234,7 @@ export class UsersManagementEffects {
       concatLatestFrom(() => this._store.select(selectParamUserId)),
       switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
       switchMap(result => of(loadUserContextRolesSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -247,7 +247,7 @@ export class UsersManagementEffects {
       ),
       switchMap(([action, selectedRoles, selectedDashboards]) => this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards)),
       switchMap(() => of(updateUserRolesSuccess(), clearUnsavedChanges())),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -263,7 +263,7 @@ export class UsersManagementEffects {
       ofType(loadAdminEmails),
       switchMap(() => this._usersManagementService.getAdminEmails()),
       switchMap(result => of(loadAdminEmailsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 

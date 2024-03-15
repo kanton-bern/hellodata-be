@@ -58,7 +58,7 @@ export class RouterEffects {
         }
         return EMPTY;
       }),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -68,7 +68,7 @@ export class RouterEffects {
       switchMap(action => {
         return of(clearUnsavedChanges());
       }),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   })
 

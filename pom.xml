@@ -13,8 +13,8 @@
         <module>hello-data-commons</module>
         <module>hello-data-portal</module>
         <module>hello-data-sidecars</module>
-        <module>hello-data-deployment</module>
         <module>hello-data-subsystems</module>
+        <module>hello-data-deployment</module>
     </modules>
 
     <distributionManagement>

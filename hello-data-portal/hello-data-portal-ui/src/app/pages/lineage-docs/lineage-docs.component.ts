@@ -37,12 +37,11 @@ import {DropdownModule} from "primeng/dropdown";
 import {TooltipModule} from "primeng/tooltip";
 import {LineageDoc} from "../../store/lineage-docs/lineage-docs.model";
 import {AppState} from "../../store/app/app.state";
-import {LineageDocsService} from "../../store/lineage-docs/lineage-docs.service";
 import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {HdCommonModule} from "../../hd-common.module";
 import {naviElements} from "../../app-navi-elements";
-import {Observable} from "rxjs";
-import {selectMyLineageDocs} from "../../store/lineage-docs/lineage-docs.selector";
+import {combineLatest, map, Observable, tap} from "rxjs";
+import {selectFilteredBy, selectMyLineageDocs} from "../../store/lineage-docs/lineage-docs.selector";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
 import {BaseComponent} from "../../shared/components/base/base.component";
@@ -60,17 +59,19 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
 
   @ViewChild('availableProjectDocs') availableProjectDocs!: ElementRef;
 
-  constructor(private store: Store<AppState>, private docsService: LineageDocsService, private fb: FormBuilder) {
+  constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
-    this.store.dispatch(createBreadcrumbs({
-      breadcrumbs: [
-        {
-          label: naviElements.lineageDocsList.label,
-          routerLink: naviElements.lineageDocsList.path
-        }
-      ]
-    }));
-    this.docs$ = this.store.select(selectMyLineageDocs);
+    this.docs$ = combineLatest([
+      this.store.select(selectMyLineageDocs),
+      this.store.select(selectFilteredBy),
+    ]).pipe(
+      tap(([docs, filteredBy]) => {
+        this.createBreadcrumbs(docs, filteredBy);
+      }),
+      map(([myDashboards, filteredBy]) => {
+        return myDashboards;
+      }),
+    )
   }
 
   override ngOnInit(): void {
@@ -86,6 +87,35 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
     const urlEncodedProjectPath = encodeURIComponent(projectDoc.path);
     const docLink = `/${naviElements.lineageDocs.path}/detail/${contextKey}/${id}/${urlEncodedProjectPath}`;
     this.store.dispatch(navigate({url: docLink}));
+  }
+
+  private createBreadcrumbs(docs: LineageDoc[], filteredBy: string | undefined) {
+    if (filteredBy && docs) {
+      this.store.dispatch(createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.lineageDocsList.label,
+            routerLink: naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path
+          },
+          {
+            label: docs.filter(doc => doc.contextKey === filteredBy)[0].contextName as string,
+            routerLink: naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path,
+            queryParams: {
+              filteredBy
+            }
+          },
+        ]
+      }));
+    } else {
+      this.store.dispatch(createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.lineageDocsList.label,
+            routerLink: naviElements.lineageDocsList.path
+          }
+        ]
+      }));
+    }
   }
 }
 
