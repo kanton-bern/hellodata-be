@@ -89,24 +89,18 @@ public class DefaultUserInitializer {
                                 .forEach(userRepresentation -> log.info("Usr {}, username: {}, email: {}", userRepresentation.getId(), userRepresentation.getUsername(),
                                                                         userRepresentation.getEmail()));
             throw new IllegalStateException(
-                    String.format("There are already two different users in the keycloak for the provided username: %s and the email: %s. Please change the configuration",
-                                  username, email));
+                    String.format("There are already two different users in the keycloak for the provided username: %s and email: %s. Please change the configuration", username,
+                                  email));
         }
-
-        // Check if the default user exists in Keycloak
-        boolean userExistsInKeycloak = allUsersFromKeycloak.stream().anyMatch(user -> user.getEmail().equals(email));
 
         // Check if the user has already been created in a previous run
         boolean userMarkedAsDefault = !defaultUserRepository.findByEmail(email).isEmpty();
+        boolean userAlreadyCreated = userRepository.findUserEntityByEmailIgnoreCase(email).isPresent();
 
-        //different email but duplicated username
-        if (!userByUsername.get().getEmail().equalsIgnoreCase(email)) {
-            defaultUsersInitiated = createDefaultAdmin(userByUsername.get().getUsername(), defaultAdminProperties.getFirstName(), defaultAdminProperties.getLastName(),
-                                                       userByUsername.get().getEmail());
-        } else if (!userExistsInKeycloak && !userMarkedAsDefault) {
+        if (!userAlreadyCreated && !userMarkedAsDefault) {
             defaultUsersInitiated = createDefaultAdmin(defaultAdminProperties.getUsername(), defaultAdminProperties.getFirstName(), defaultAdminProperties.getLastName(),
                                                        defaultAdminProperties.getEmail());
-        } else if (userExistsInKeycloak && !userMarkedAsDefault) {
+        } else if (!userMarkedAsDefault) {
             defaultUsersInitiated = markAsDefaultUser(defaultAdminProperties.getEmail());
         }
         return defaultUsersInitiated;
