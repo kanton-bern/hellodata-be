@@ -35,38 +35,35 @@ import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portal.user.repository.DefaultUserRepository;
 import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.core.Response;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
 @Component
-@RequiredArgsConstructor
-public class DefaultUserInitializer {
+public class DefaultUserInitializer extends AbstractUserInitializer {
 
     private final DefaultAdminProperties defaultAdminProperties;
     private final DefaultUserRepository defaultUserRepository;
-    private final UserRepository userRepository;
-    private final Keycloak keycloak;
     private final RoleService roleService;
     private final HdContextRepository contextRepository;
 
-    @Value("${hello-data.auth-server.realm}")
-    private String realmName;
+    public DefaultUserInitializer(Keycloak keycloak, DefaultAdminProperties defaultAdminProperties, DefaultUserRepository defaultUserRepository, UserRepository userRepository,
+                                  RoleService roleService, HdContextRepository contextRepository) {
+        super(keycloak, userRepository);
+        this.defaultAdminProperties = defaultAdminProperties;
+        this.defaultUserRepository = defaultUserRepository;
+        this.roleService = roleService;
+        this.contextRepository = contextRepository;
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean initDefaultUsers() {
@@ -107,7 +104,6 @@ public class DefaultUserInitializer {
     }
 
     private boolean markAsDefaultUser(String email) {
-        boolean defaultUsersInitiated;
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
         if (userEntityByEmail.isPresent()) {
             //set as superuser
@@ -119,26 +115,17 @@ public class DefaultUserInitializer {
         } else {
             userNotFoundCreateUser();
         }
-        defaultUsersInitiated = true;
-        return defaultUsersInitiated;
+        return true;
     }
 
     private boolean createDefaultAdmin(String username, String firstName, String lastName, String email) {
-        boolean defaultUsersInitiated;
-        UserRepresentation user = new UserRepresentation();
-        user.setUsername(username);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setEnabled(true);
-        user.setEmailVerified(true);
+        UserRepresentation user = generateUser(username, firstName, lastName, email);
         setDefaultAdminPassword(user);
         String userId = createUserInKeycloak(user);
         UserEntity userEntity = saveUserToDatabase(userId);
         setAsHellodataAdmin(userEntity);
         updateDefaultUser(userEntity);
-        defaultUsersInitiated = true;
-        return defaultUsersInitiated;
+        return true;
     }
 
     private void userNotFoundCreateUser() {
@@ -163,49 +150,16 @@ public class DefaultUserInitializer {
         }
     }
 
-    private UserEntity updateDefaultUser(UserEntity userEntity) {
+    private void updateDefaultUser(UserEntity userEntity) {
         //update default_user
         DefaultUserEntity defaultUserEntity = new DefaultUserEntity();
         defaultUserEntity.setUser(userEntity);
         defaultUserRepository.saveAndFlush(defaultUserEntity);
-        return userRepository.getReferenceById(userEntity.getId());
     }
 
     @NotNull
     private UserEntity saveUserToDatabase(String userId) {
         return saveUserToDatabase(userId, defaultAdminProperties.getEmail());
-    }
-
-    private UserEntity saveUserToDatabase(String userId, String email) {
-        //update user
-        UserEntity userEntity;
-        Optional<UserEntity> resultSearch = userRepository.findById(UUID.fromString(userId));
-        if (resultSearch.isPresent()) {
-            userEntity = resultSearch.get();
-        } else {
-            userEntity = new UserEntity();
-            userEntity.setId(UUID.fromString(userId));
-            userEntity.setEmail(email);
-        }
-        userRepository.saveAndFlush(userEntity);
-        return userRepository.getReferenceById(userEntity.getId());
-    }
-
-    @NotNull
-    private String createUserInKeycloak(UserRepresentation user) {
-        // Save the user
-        Response response = keycloak.realm(realmName).users().create(user);
-        String userId;
-        try (response) {
-            HttpStatusCode status = HttpStatusCode.valueOf(response.getStatus());
-            if (!status.is2xxSuccessful()) {
-                throw new ResponseStatusException(status);
-            }
-            URI uri = response.getLocation();
-            String path = uri.getPath();
-            userId = path.substring(path.lastIndexOf('/') + 1);
-        }
-        return userId;
     }
 
     private void setDefaultAdminPassword(UserRepresentation user) {

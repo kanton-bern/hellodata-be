@@ -40,14 +40,10 @@ import ch.bedag.dap.hellodata.portal.user.conf.ExampleUsersProperties;
 import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.core.Response;
-import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.keycloak.admin.client.Keycloak;
@@ -56,32 +52,36 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
 @Component
-@RequiredArgsConstructor
 @CreateExampleUsersProfile
-public class ExampleUsersInitializer implements ApplicationListener<InitializationCompletedEvent> {
+public class ExampleUsersInitializer extends AbstractUserInitializer implements ApplicationListener<InitializationCompletedEvent> {
 
-    private final Keycloak keycloak;
     private final RoleService roleService;
     private final HelloDataContextConfig helloDataContextConfig;
     private final ExampleUsersProperties exampleUsersProperties;
     private final ExampleUsersCreatedRepository exampleUsersCreatedRepository;
-    private final UserRepository userRepository;
     private final UserService userService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    @Value("${hello-data.auth-server.realm}")
-    private String realmName;
-
     @Value("${hello-data.example-users.email-postfix}")
     private String emailPostfix;
+
+    public ExampleUsersInitializer(Keycloak keycloak, RoleService roleService, HelloDataContextConfig helloDataContextConfig, ExampleUsersProperties exampleUsersProperties,
+                                   ExampleUsersCreatedRepository exampleUsersCreatedRepository, UserRepository userRepository, UserService userService,
+                                   ApplicationEventPublisher applicationEventPublisher) {
+        super(keycloak, userRepository);
+        this.roleService = roleService;
+        this.helloDataContextConfig = helloDataContextConfig;
+        this.exampleUsersProperties = exampleUsersProperties;
+        this.exampleUsersCreatedRepository = exampleUsersCreatedRepository;
+        this.userService = userService;
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -156,7 +156,7 @@ public class ExampleUsersInitializer implements ApplicationListener<Initializati
 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddViewerEmail, true);
         String ddViewerId;
-        if (userRepresentations.size() > 0) {
+        if (!userRepresentations.isEmpty()) {
             log.info("DATA DOMAIN VIEWER {} already exists in keycloak", ddViewerEmail);
             ddViewerId = userRepresentations.get(0).getId();
         } else {
@@ -191,7 +191,7 @@ public class ExampleUsersInitializer implements ApplicationListener<Initializati
 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddEditorEmail, true);
         String ddEditorId;
-        if (userRepresentations.size() > 0) {
+        if (!userRepresentations.isEmpty()) {
             log.info("DATA DOMAIN EDITOR {} already exists in keycloak", ddEditorEmail);
             ddEditorId = userRepresentations.get(0).getId();
         } else {
@@ -226,7 +226,7 @@ public class ExampleUsersInitializer implements ApplicationListener<Initializati
 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddAdminEmail, true);
         String ddAdminId;
-        if (userRepresentations.size() > 0) {
+        if (!userRepresentations.isEmpty()) {
             log.info("DATA DOMAIN ADMIN {} already exists in keycloak", ddAdminEmail);
             ddAdminId = userRepresentations.get(0).getId();
         } else {
@@ -261,7 +261,7 @@ public class ExampleUsersInitializer implements ApplicationListener<Initializati
 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(email, true);
         String userId;
-        if (userRepresentations.size() > 0) {
+        if (!userRepresentations.isEmpty()) {
             log.info("BUSINESS DOMAIN ADMIN {} already exists in keycloak", email);
             userId = userRepresentations.get(0).getId();
         } else {
@@ -288,49 +288,5 @@ public class ExampleUsersInitializer implements ApplicationListener<Initializati
         credential.setValue(password);
         credential.setTemporary(false);
         user.setCredentials(List.of(credential));
-    }
-
-    private UserRepresentation generateUser(String username, String firstName, String lastName, String email) {
-        // Create a new user
-        UserRepresentation user = new UserRepresentation();
-        user.setUsername(username);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        user.setEnabled(true);
-        user.setEmailVerified(true);
-        return user;
-    }
-
-    @NotNull
-    private String createUserInKeycloak(UserRepresentation user) {
-        // Save the user
-        Response response = keycloak.realm(realmName).users().create(user);
-        String userId;
-        try (response) {
-            HttpStatusCode status = HttpStatusCode.valueOf(response.getStatus());
-            if (!status.is2xxSuccessful()) {
-                throw new ResponseStatusException(status);
-            }
-            URI uri = response.getLocation();
-            String path = uri.getPath();
-            userId = path.substring(path.lastIndexOf('/') + 1);
-        }
-        return userId;
-    }
-
-    private UserEntity saveUserToDatabase(String userId, String email) {
-        //update user
-        UserEntity userEntity;
-        Optional<UserEntity> resultSearch = userRepository.findById(UUID.fromString(userId));
-        if (resultSearch.isPresent()) {
-            userEntity = resultSearch.get();
-        } else {
-            userEntity = new UserEntity();
-            userEntity.setId(UUID.fromString(userId));
-            userEntity.setEmail(email);
-        }
-        userRepository.saveAndFlush(userEntity);
-        return userRepository.getReferenceById(userEntity.getId());
     }
 }
