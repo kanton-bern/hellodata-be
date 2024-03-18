@@ -72,7 +72,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   }
 
   private createBreadcrumbs(filteredBy: string | undefined, myDashboards: SupersetDashboardWithMetadata[]) {
-    if (filteredBy && myDashboards) {
+    if (filteredBy && myDashboards && myDashboards.length > 0) {
       this.store.dispatch(createBreadcrumbs({
         breadcrumbs: [
           {

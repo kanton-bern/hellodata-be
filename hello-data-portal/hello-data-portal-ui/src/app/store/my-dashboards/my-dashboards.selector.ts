@@ -60,14 +60,14 @@ export const selectMyDashboards = createSelector(
   selectSelectedDataDomain,
   selectFilteredBy,
   (state: MyDashboardsState, selectedDataDomain, filteredByParam) => {
-    if (selectedDataDomain === null || selectedDataDomain.id === '') {
-      return state.myDashboards;
-    }
-    const supersetDashboardWithMetadata = state.myDashboards.filter(dashboard => dashboard.contextId === selectedDataDomain.id);
+    let allDashboards = [...state.myDashboards]
     if (filteredByParam) {
-      return supersetDashboardWithMetadata.filter(dashboard => dashboard.contextId === filteredByParam);
+      allDashboards = allDashboards.filter(dashboard => dashboard.contextId === filteredByParam);
     }
-    return supersetDashboardWithMetadata;
+    if (selectedDataDomain === null || selectedDataDomain.id === '') {
+      return allDashboards;
+    }
+    return allDashboards.filter(dashboard => dashboard.contextId === selectedDataDomain.id);
   }
 );
 
