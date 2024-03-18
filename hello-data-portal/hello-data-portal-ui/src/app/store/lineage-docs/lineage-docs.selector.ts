@@ -45,7 +45,7 @@ export const selectMyLineageDocs = createSelector(
   selectSelectedDataDomain,
   selectFilteredBy,
   (state: LineageDocsState, selectedDataDomain, filteredByParam) => {
-    let lineageDocs = state.myLineageDocs;
+    let lineageDocs = [...state.myLineageDocs];
     if (filteredByParam) {
       lineageDocs = lineageDocs.filter(lineageDoc => lineageDoc.contextKey === filteredByParam);
     }
