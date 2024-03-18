@@ -77,9 +77,8 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
         List<UserRepresentation> allUsersFromKeycloak = getAllUsersFromKeycloak();
         Optional<UserRepresentation> userByEmail = allUsersFromKeycloak.stream().filter(user -> user.getEmail().equalsIgnoreCase(email)).findFirst();
         Optional<UserRepresentation> userByUsername = allUsersFromKeycloak.stream().filter(user -> user.getUsername().equalsIgnoreCase(username)).findFirst();
-        boolean theSameUser = userByEmail.isPresent() && userByUsername.isPresent() && userByUsername.get().getId().equalsIgnoreCase(userByEmail.get().getId());
 
-        if (!theSameUser) {
+        if (userByEmail.isPresent() && userByUsername.isPresent() && !userByUsername.get().getId().equalsIgnoreCase(userByEmail.get().getId())) {
             log.info("Users fetched from the keycloak that apply to email {} or username {}:", email, username);
             allUsersFromKeycloak.stream()
                                 .filter(user -> user.getEmail().equalsIgnoreCase(email) || user.getUsername().equalsIgnoreCase(username))
