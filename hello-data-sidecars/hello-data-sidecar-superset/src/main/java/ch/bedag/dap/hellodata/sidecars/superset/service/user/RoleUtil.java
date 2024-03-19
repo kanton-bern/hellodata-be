@@ -70,8 +70,6 @@ public class RoleUtil {
 
     public static void removePublicRoleIfAdded(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
         Optional<Integer> publicRole = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).findFirst();
-        publicRole.ifPresent(publicRoleId -> {
-            supersetUserRolesUpdate.setRoles(supersetUserRolesUpdate.getRoles().stream().filter(roleId -> !publicRoleId.equals(roleId)).toList());
-        });
+        publicRole.ifPresent(publicRoleId -> supersetUserRolesUpdate.setRoles(supersetUserRolesUpdate.getRoles().stream().filter(roleId -> !publicRoleId.equals(roleId)).toList()));
     }
 }
