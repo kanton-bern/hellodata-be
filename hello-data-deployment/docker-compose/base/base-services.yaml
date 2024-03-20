@@ -97,7 +97,7 @@ services:
     image: bedag/hello-data-dc-postgres
     env_file: .env
     ports:
-      - 5432:5432
+      - 35432:5432
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_MAX_CONNECTIONS: 200
@@ -136,7 +136,7 @@ services:
     image: redis:latest
     env_file: .env
     ports:
-      - "${SUPERSET_REDIS_PORT:-6379}:6379"
+      - "36379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -155,8 +155,8 @@ services:
       # 4222 is for clients.
       # 8222 is an HTTP management port for information reporting.
       # 6222 is a routing port for clustering.
-      - 4222:4222
-      - 8222:8222
+      - 34222:4222
+      - 38222:8222
 
   nats-box:
     platform: ${HD_PLATFORM}

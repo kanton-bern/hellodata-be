@@ -47,7 +47,7 @@ services:
     env_file: ./default_data_domain/.env
     user: "root"
     ports:
-      - "${SUPERSET_PORT:-38088}:8088"
+      - "38088:8088"
     depends_on:
       <<: *superset-depends-on
       superset-init-default-data-domain:
