@@ -44,7 +44,7 @@ export const selectMyLineageDocs = createSelector(
   myLineageDocsState,
   selectSelectedDataDomain,
   (state: LineageDocsState, selectedDataDomain) => {
-    let lineageDocs = [...state.myLineageDocs];
+    const lineageDocs = [...state.myLineageDocs];
     if (selectedDataDomain === null || selectedDataDomain.id === '') {
       return lineageDocs;
     }

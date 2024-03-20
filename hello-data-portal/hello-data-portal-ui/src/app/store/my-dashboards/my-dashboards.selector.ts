@@ -59,7 +59,7 @@ export const selectMyDashboards = createSelector(
   myDashboardsState,
   selectSelectedDataDomain,
   (state: MyDashboardsState, selectedDataDomain) => {
-    let allDashboards = [...state.myDashboards]
+    const allDashboards = [...state.myDashboards]
     if (selectedDataDomain === null || selectedDataDomain.id === '') {
       return allDashboards;
     }
