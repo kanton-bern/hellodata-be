@@ -95,9 +95,7 @@ export class AppEffects {
       withLatestFrom(this._store.select(selectSelectedDataDomain)),
       tap(([action, selectedDD]) => {
         const currentUrl = this._router.url;
-        console.log("current url", currentUrl)
         if (selectedDD && selectedDD.name !== ALL_DATA_DOMAINS && !decodeURIComponent(currentUrl).includes(selectedDD!.name) && !decodeURIComponent(currentUrl).includes(selectedDD!.key)) {
-          console.log('should redirect')
           if (currentUrl.includes(naviElements.myDashboards.path)) {
             this._router.navigate([naviElements.myDashboards.path]);
           }
