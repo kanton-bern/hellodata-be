@@ -95,12 +95,14 @@ export class AppEffects {
       withLatestFrom(this._store.select(selectSelectedDataDomain)),
       tap(([action, selectedDD]) => {
         const currentUrl = this._router.url;
-        if (selectedDD && selectedDD.name !== ALL_DATA_DOMAINS && !decodeURIComponent(currentUrl).includes(selectedDD!.name)) {
+        console.log("current url", currentUrl)
+        if (selectedDD && selectedDD.name !== ALL_DATA_DOMAINS && !decodeURIComponent(currentUrl).includes(selectedDD!.name) && !decodeURIComponent(currentUrl).includes(selectedDD!.key)) {
+          console.log('should redirect')
           if (currentUrl.includes(naviElements.myDashboards.path)) {
             this._router.navigate([naviElements.myDashboards.path]);
           }
-          if (currentUrl.includes(naviElements.lineageDocsList.path)) {
-            this._router.navigate([naviElements.lineageDocsList.path]);
+          if (currentUrl.includes(naviElements.lineageDocs.path)) {
+            this._router.navigate([naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path]);
           }
         }
       }),

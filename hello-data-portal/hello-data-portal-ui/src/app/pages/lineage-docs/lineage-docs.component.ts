@@ -41,7 +41,7 @@ import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/su
 import {HdCommonModule} from "../../hd-common.module";
 import {naviElements} from "../../app-navi-elements";
 import {combineLatest, map, Observable, tap} from "rxjs";
-import {selectFilteredBy, selectMyLineageDocs} from "../../store/lineage-docs/lineage-docs.selector";
+import {selectFilteredBy, selectMyLineageDocsFiltered} from "../../store/lineage-docs/lineage-docs.selector";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
 import {BaseComponent} from "../../shared/components/base/base.component";
@@ -62,7 +62,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
     this.docs$ = combineLatest([
-      this.store.select(selectMyLineageDocs),
+      this.store.select(selectMyLineageDocsFiltered),
       this.store.select(selectFilteredBy),
     ]).pipe(
       tap(([docs, filteredBy]) => {
@@ -90,7 +90,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
   }
 
   private createBreadcrumbs(docs: LineageDoc[], filteredBy: string | undefined) {
-    if (filteredBy && docs) {
+    if (filteredBy && docs && docs.filter(doc => doc.contextKey === filteredBy).length > 0) {
       this.store.dispatch(createBreadcrumbs({
         breadcrumbs: [
           {
