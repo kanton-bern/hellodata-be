@@ -9,22 +9,25 @@
           <p-accordionTab header="Data pipelines">
             <p-dataView [value]="(pipelines$ | async)!" emptyMessage="{{ '@No data found' | transloco }}">
               <ng-template let-pipeline pTemplate="listItem">
-                <div class="col-11">
+                <div class="col-8">
                   <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
-                  <!--                          label="{{ pipeline.id | truncate: 35}}" placeholder="Left"-->
+                  <!--                          label="{{ pipeline.id | truncate: 30}}" placeholder="Left"-->
                   <!--                          pButton tooltipPosition="left"-->
                   <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
                   <!--                          type="button">-->
                   <!--                  </button>-->
                   <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}" placeholder="Left" style="font-size: 0.9rem; font-weight: 400"
-                         tooltipPosition="left">{{ pipeline.id | truncate: 35}}</label>
+                         tooltipPosition="left">{{ pipeline.id | truncate: 30}}</label>
+                </div>
+                <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
+                  <span *ngIf="pipeline.lastInstance.endDate">{{pipeline.lastInstance.endDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss'}}</span>
                 </div>
                 <div [ngSwitch]="pipeline.lastInstance.state" class="col-1">
-                  <span *ngSwitchCase="'queued'" class="align-items-end pi pi-hourglass" style="color: gray"></span>
-                  <span *ngSwitchCase="'running'" class="align-items-end pi pi-spin pi-cog" style="color: green"></span>
-                  <span *ngSwitchCase="'success'" class="align-items-end pi pi-check-circle" style="color: green"></span>
-                  <span *ngSwitchCase="'failed'" class="align-items-end pi pi-exclamation-circle" style="color: red"></span>
-                  <span *ngSwitchDefault class="align-items-end pi pi-question-circle" style="color: gray"></span>
+                  <span *ngSwitchCase="'queued'" class="align-items-end pi pi-hourglass" style="color: gray" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchCase="'running'" class="align-items-end pi pi-spin pi-cog" style="color: green" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchCase="'success'" class="align-items-end pi pi-check-circle" style="color: green" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchCase="'failed'" class="align-items-end pi pi-exclamation-circle" style="color: red" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchDefault class="align-items-end pi pi-question-circle" style="color: gray" [pTooltip]="'unknown'"></span>
                 </div>
               </ng-template>
             </p-dataView>

@@ -28,7 +28,7 @@
 import {Component, EventEmitter, NgModule, Output} from '@angular/core';
 import {SidebarModule} from "primeng/sidebar";
 import {ScrollPanelModule} from "primeng/scrollpanel";
-import {AsyncPipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault} from "@angular/common";
+import {AsyncPipe, DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault} from "@angular/common";
 import {FieldsetModule} from "primeng/fieldset";
 import {AccordionModule} from "primeng/accordion";
 import {EditorModule} from "primeng/editor";
@@ -113,6 +113,7 @@ export class SummaryComponent {
     NgSwitchCase,
     NgSwitchDefault,
     JsonPipe,
+    DatePipe,
   ],
   declarations: [SummaryComponent, SubscriptionsComponent],
   exports: [SummaryComponent]
