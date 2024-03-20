@@ -58,6 +58,12 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 -- Add default permissions for BI_EDITOR_TEMP role in temp_permission_view_role
 --
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Access requests','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_add','AccessRequestsModelView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','AccessRequestsModelView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_edit','AccessRequestsModelView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_list','AccessRequestsModelView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_show','AccessRequestsModelView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('muldelete','AccessRequestsModelView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','AdvancedDataType','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Alerts & Report','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('all_database_access','all_database_access','BI_EDITOR_TEMP');
@@ -124,21 +130,41 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Home','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Import Dashboards','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_export','ImportExportRestApi','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_import_','ImportExportRestApi','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_import','ImportExportRestApi','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get_value','KV','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_store','KV','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_recent_activity','Log','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Manage','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','MenuApi','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','OpenApi','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','Permission','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_info','Permission','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','PermissionViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','PermissionViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_info','PermissionViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_post','PermissionViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_put','PermissionViewMenu','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Plugins','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','Profile','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','ReportSchedule','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','ReportSchedule','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_this_form_get','ResetMyPasswordView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_this_form_post','ResetMyPasswordView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_add_role_permissions','Role','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','Role','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','Role','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_info','Role','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_list_role_permissions','Role','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_post','Role','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_put','Role','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','RowLevelSecurity','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_list','SavedQuery','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','SecurityRestApi','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_estimate_query_cost','SQLLab','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_format_sql','SQLLab','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_add_slices','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_annotation_json','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_approve','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_available_domains','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_copy_dash','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_created_dashboards','Superset','BI_EDITOR_TEMP');
@@ -159,6 +185,7 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_filter','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_import_dashboards','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_log','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_override_role_permissions','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_profile','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_queries','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_recent_activity','Superset','BI_EDITOR_TEMP');
@@ -166,10 +193,15 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_results','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_save_dash','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_schemas_access_for_file_upload','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_search_queries','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_share_chart','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_share_dashboard','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_slice','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_slice_json','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_sql_json','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_sqllab_table_viz','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_sqllab_viz','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_stop_query','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_tables','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_testconn','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_user_slices','Superset','BI_EDITOR_TEMP');
@@ -178,36 +210,33 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','TableSchemaView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_expanded','TableSchemaView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_post','TableSchemaView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_bulk_create','Tag','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','Tag','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','Tag','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_add','Tags','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','Tags','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_download','Tags','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_edit','Tags','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_list','Tags','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_show','Tags','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Tags','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','TagView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','TagView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_post','TagView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_suggestions','TagView','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_tagged_objects','TagView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_userinfo','UserDBModelView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('resetmypassword','UserDBModelView','BI_EDITOR_TEMP');
--- SQL Lab permissions
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','Query','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Query Search','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','Saved Queries','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_export','SavedQuery','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','SavedQuery','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','SavedQuery','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','SQL Editor','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('menu_access','SQL Lab','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_execute_sql_query','SQLLab','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_export_csv','SQLLab','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get_results','SQLLab','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_my_queries','SqlLab','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_sqllab','Superset','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_sqllab_viz','Superset','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_sqllab_history','Superset','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_activate','TabStateView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','TabStateView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete_query','TabStateView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','TabStateView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_migrate_query','TabStateView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_post','TabStateView','BI_EDITOR_TEMP');
-INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_put','TabStateView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_tags','TagView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','User','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','User','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_info','User','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_post','User','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_put','User','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_userinfo','UserOAuthModelView','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_delete','ViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_get','ViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_info','ViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_post','ViewMenu','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_put','ViewMenu','BI_EDITOR_TEMP');
 
 
 --
@@ -231,7 +260,10 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','DashboardFilterStateRestApi','BI_VIEWER_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','DashboardFilterStateRestApi','BI_VIEWER_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_log','Superset','BI_VIEWER_TEMP');
-
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','DashboardPermalinkRestApi','BI_VIEWER_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_read','ExplorePermalinkRestApi','BI_VIEWER_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_dashboard_permalink','Superset','BI_VIEWER_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_write','DashboardPermalinkRestApi','BI_VIEWER_TEMP');
 
 --
 -- Delete BI_ADMIN_TEMP, BI_EDITOR_TEMP, BI_VIEWER_TEMP permissions (might happen when script gets stuck)
