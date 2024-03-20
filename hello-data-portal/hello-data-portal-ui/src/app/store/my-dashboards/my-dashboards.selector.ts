@@ -58,6 +58,18 @@ export const selectAvailableDataDomains = createSelector(
 export const selectMyDashboards = createSelector(
   myDashboardsState,
   selectSelectedDataDomain,
+  (state: MyDashboardsState, selectedDataDomain) => {
+    let allDashboards = [...state.myDashboards]
+    if (selectedDataDomain === null || selectedDataDomain.id === '') {
+      return allDashboards;
+    }
+    return allDashboards.filter(dashboard => dashboard.contextId === selectedDataDomain.id);
+  }
+);
+
+export const selectMyDashboardsFiltered = createSelector(
+  myDashboardsState,
+  selectSelectedDataDomain,
   selectFilteredBy,
   (state: MyDashboardsState, selectedDataDomain, filteredByParam) => {
     let allDashboards = [...state.myDashboards]

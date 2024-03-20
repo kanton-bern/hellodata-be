@@ -29,7 +29,7 @@ import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {navigate, showError, showSuccess} from "../app/app.action";
+import {navigate, navigateToList, showError, showSuccess} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
 import {
   loadAvailableDataDomains,
@@ -41,6 +41,7 @@ import {
   uploadDashboardsSuccess
 } from "./my-dashboards.action";
 import {NotificationService} from "../../shared/services/notification.service";
+import {TranslateService} from "../../shared/services/translate.service";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -64,7 +65,13 @@ export class MyDashboardsEffects {
   setSelectedDataDomain$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(setSelectedDataDomain),
-      switchMap((action) => of(showSuccess({message: '@Data domain changed', interpolateParams: {'dataDomainName': action.dataDomain.name}}))),
+      switchMap((action) => {
+          return of(
+            showSuccess({message: '@Data domain changed', interpolateParams: {'dataDomainName': this._translateService.translate(action.dataDomain.name)}}),
+            navigateToList()
+          )
+        }
+      ),
     )
   });
 
@@ -100,7 +107,8 @@ export class MyDashboardsEffects {
   constructor(
     private _actions$: Actions,
     private _myDashboardsService: MyDashboardsService,
-    private _notificationService: NotificationService
+    private _notificationService: NotificationService,
+    private _translateService: TranslateService
   ) {
   }
 }

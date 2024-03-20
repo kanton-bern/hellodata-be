@@ -34,7 +34,7 @@ import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.m
 import {MenuService} from "../../store/menu/menu.service";
 import {Table} from "primeng/table";
 import {naviElements} from "../../app-navi-elements";
-import {selectFilteredBy, selectMyDashboards} from "../../store/my-dashboards/my-dashboards.selector";
+import {selectFilteredBy, selectMyDashboardsFiltered} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
@@ -58,7 +58,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
     super();
     this.dashboards$ =
       combineLatest([
-        this.store.select(selectMyDashboards),
+        this.store.select(selectMyDashboardsFiltered),
         this.store.select(selectFilteredBy),
       ]).pipe(
         tap(([myDashboards, filteredBy]) => {
@@ -72,7 +72,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   }
 
   private createBreadcrumbs(filteredBy: string | undefined, myDashboards: SupersetDashboardWithMetadata[]) {
-    if (filteredBy && myDashboards && myDashboards.length > 0) {
+    if (filteredBy && myDashboards && myDashboards.length > 0 && myDashboards.filter(dashboard => dashboard.contextId === filteredBy).length > 0) {
       this.store.dispatch(createBreadcrumbs({
         breadcrumbs: [
           {

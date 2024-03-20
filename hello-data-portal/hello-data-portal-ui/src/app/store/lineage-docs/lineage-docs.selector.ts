@@ -43,6 +43,18 @@ export const selectFilteredBy = selectQueryParam('filteredBy');
 export const selectMyLineageDocs = createSelector(
   myLineageDocsState,
   selectSelectedDataDomain,
+  (state: LineageDocsState, selectedDataDomain) => {
+    let lineageDocs = [...state.myLineageDocs];
+    if (selectedDataDomain === null || selectedDataDomain.id === '') {
+      return lineageDocs;
+    }
+    return lineageDocs.filter(lineageDoc => lineageDoc.contextKey === selectedDataDomain?.key);
+  }
+);
+
+export const selectMyLineageDocsFiltered = createSelector(
+  myLineageDocsState,
+  selectSelectedDataDomain,
   selectFilteredBy,
   (state: LineageDocsState, selectedDataDomain, filteredByParam) => {
     let lineageDocs = [...state.myLineageDocs];

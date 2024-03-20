@@ -88,7 +88,7 @@ export class HeaderComponent {
       this.dataDomainSelectionItems = [];
       for (const availableDataDomain of availableDataDomains) {
         this.dataDomainSelectionItems.push({
-          label: availableDataDomain.name,
+          label: translateService.translate(availableDataDomain.name),
           command: (event: any) => {
             this.onDataDomainChanged(event);
           },
