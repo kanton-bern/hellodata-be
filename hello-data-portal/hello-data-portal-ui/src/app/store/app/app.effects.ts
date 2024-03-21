@@ -61,7 +61,7 @@ export class AppEffects {
         if (action.error.error.message) {
           this._notificationService.error(action.error.error.message);
         } else {
-          console.error(action.error.message);
+          console.error(action.error);
           this._notificationService.error('@Unexpected error occurred');
         }
       })
