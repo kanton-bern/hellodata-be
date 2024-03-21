@@ -33,7 +33,6 @@ import {selectCurrentBusinessDomain, selectIsAuthenticated} from "./store/auth/a
 import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
 import {checkAuth} from "./store/auth/auth.action";
-import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -53,7 +52,6 @@ export class AppComponent {
     }, 500);
 
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated).pipe(
-      take(1),
       tap(isAuthenticated => {
         console.debug('is authenticated', isAuthenticated)
         if (!isAuthenticated) {

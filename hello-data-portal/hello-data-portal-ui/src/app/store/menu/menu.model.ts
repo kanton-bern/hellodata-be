@@ -63,7 +63,7 @@ export const ALL_MENU_ITEMS: any[] = [
         id: 'dataEngViewerMenu',
         requiredPermissions: ['DATA_DWH'],
         text: '@DWH Viewer',
-        url: environment.authConfig.redirectUrl + 'data-warehouse-viewer',
+        url: environment.authConfig.redirectUrl + '?redirectTo=data-warehouse-viewer',
         target: '_blank'
       },
       {

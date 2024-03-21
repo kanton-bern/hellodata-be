@@ -42,6 +42,8 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectAdminEmails} from "../../store/users-management/users-management.selector";
 import {loadAdminEmails} from "../../store/users-management/users-management.action";
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
+import {selectQueryParam} from "../../store/router/router.selectors";
+import {navigate} from "../../store/app/app.action";
 
 @Component({
   templateUrl: 'home.component.html',
@@ -56,6 +58,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
   businessDomain$: Observable<string>;
   adminEmails$: Observable<string[]>;
   currentUserContextRolesNotNone$: Observable<any>;
+  redirectTo$: Observable<any>;
 
   @ViewChild('iframe') iframe!: ElementRef;
 
@@ -75,6 +78,11 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
     this.adminEmails$ = this.store.select(selectAdminEmails);
+    this.redirectTo$ = this.store.select(selectQueryParam('redirectTo')).pipe(tap(param => {
+      if (param) {
+        this.store.dispatch(navigate({url: param}))
+      }
+    }));
   }
 
   override ngOnInit(): void {
