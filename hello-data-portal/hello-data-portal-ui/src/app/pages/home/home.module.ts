@@ -54,12 +54,11 @@ import {DataViewModule} from "primeng/dataview";
 import {FieldsetModule} from "primeng/fieldset";
 import {ScrollPanelModule} from "primeng/scrollpanel";
 import {SidebarModule} from "primeng/sidebar";
-import { SilentLoginComponent } from './silent-login/silent-login.component';
 import {BadgeModule} from "primeng/badge";
 
 
 @NgModule({
-  declarations: [HomeComponent, DashboardsComponent, FaqComponent, LineageComponent, DmComponent, ExternalComponent, HomeDocumentationComponent, SilentLoginComponent],
+  declarations: [HomeComponent, DashboardsComponent, FaqComponent, LineageComponent, DmComponent, ExternalComponent, HomeDocumentationComponent],
   imports: [
     CommonModule,
     TranslocoModule,
