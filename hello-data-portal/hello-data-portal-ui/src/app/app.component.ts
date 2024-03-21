@@ -33,6 +33,7 @@ import {selectCurrentBusinessDomain, selectIsAuthenticated} from "./store/auth/a
 import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
 import {checkAuth} from "./store/auth/auth.action";
+import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-root',
@@ -51,14 +52,16 @@ export class AppComponent {
       this.checkAuth = true;
     }, 500);
 
-    this.isAuthenticated$ = this.store.select(selectIsAuthenticated).pipe(tap(isAuthenticated => {
-      console.debug('is authenticated', isAuthenticated)
-      if (!isAuthenticated) {
-        this.store.dispatch(checkAuth());
-      }
-    }))
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated).pipe(
+      take(1),
+      tap(isAuthenticated => {
+        console.debug('is authenticated', isAuthenticated)
+        if (!isAuthenticated) {
+          this.store.dispatch(checkAuth());
+        }
+      }))
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain).pipe(tap(businessDomainName => {
-      title.setTitle(`${appInfo.title} -- ${businessDomainName}`);
+      this.title.setTitle(`${appInfo.title} -- ${businessDomainName}`);
     }));
   }
 
