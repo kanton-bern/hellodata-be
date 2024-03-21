@@ -56,5 +56,6 @@ export class DataWarehouseViewerComponent extends BaseComponent {
   override ngOnInit() {
     super.ngOnInit();
     this.url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain;
+    console.debug("Data Warehouse Component initiated", this.url);
   }
 }
