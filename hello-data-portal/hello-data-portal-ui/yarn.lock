@@ -3768,10 +3768,10 @@ ajv@^6.12.4, ajv@^6.12.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-angular-auth-oidc-client@15.0.5:
-  version "15.0.5"
-  resolved "https://registry.npmjs.org/angular-auth-oidc-client/-/angular-auth-oidc-client-15.0.5.tgz#9178b1490bc72146b741fcf61de423ca63f152d0"
-  integrity sha512-7PXsKnV4USoysHN6Y4r/oNot6hXF0tlMo2wHAZXazAaj1W44KESA9pZ79+ZfdStGBx24768ipX2VWFzOo5AnTw==
+angular-auth-oidc-client@^17.0.0:
+  version "17.0.0"
+  resolved "https://registry.npmjs.org/angular-auth-oidc-client/-/angular-auth-oidc-client-17.0.0.tgz#ee4a05a5f6d237ffb885b895e6872f8e06d8409f"
+  integrity sha512-WjQDwMJ+XpoCTht5wn8XgR1MFW+IykDvEOZNQCbpxzNzR1312hv6nPSStYQA9Jtpj3T6fZFFQsn06jfFwDE7WQ==
   dependencies:
     rfc4648 "^1.5.0"
     tslib "^2.3.0"
