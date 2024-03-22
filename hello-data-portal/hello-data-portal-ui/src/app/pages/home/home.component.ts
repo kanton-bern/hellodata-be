@@ -26,7 +26,7 @@
 ///
 
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {Observable, of, tap} from "rxjs";
+import {debounceTime, Observable, of, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {
@@ -42,8 +42,6 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectAdminEmails} from "../../store/users-management/users-management.selector";
 import {loadAdminEmails} from "../../store/users-management/users-management.action";
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
-import {selectQueryParam} from "../../store/router/router.selectors";
-import {navigate} from "../../store/app/app.action";
 import {Router} from "@angular/router";
 
 @Component({
@@ -51,8 +49,6 @@ import {Router} from "@angular/router";
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent extends BaseComponent implements OnInit {
-
-  private static readonly REDIRECT_TO_PARAM = 'redirectTo';
 
   userData$: Observable<IUser | undefined>;
   isAuthenticated$: Observable<boolean>;
@@ -62,7 +58,6 @@ export class HomeComponent extends BaseComponent implements OnInit {
   businessDomain$: Observable<string>;
   adminEmails$: Observable<string[]>;
   currentUserContextRolesNotNone$: Observable<any>;
-  redirectTo$: Observable<any>;
 
   @ViewChild('iframe') iframe!: ElementRef;
 
@@ -75,34 +70,17 @@ export class HomeComponent extends BaseComponent implements OnInit {
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone);
     this.waitForPermissionsLoaded$ = this.currentUserContextRolesNotNone$.pipe(
-      // debounceTime(700),
+      debounceTime(700),
       tap(() => {
         this.loadedPermissions$ = of(true);
       }));
 
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
     this.adminEmails$ = this.store.select(selectAdminEmails);
-    this.redirectTo$ = this.store.select(selectQueryParam(HomeComponent.REDIRECT_TO_PARAM)).pipe(tap(param => {
-      // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
-      if (param) {
-        sessionStorage.setItem(HomeComponent.REDIRECT_TO_PARAM, param);
-        console.debug('saved redirect param to the session storage', param);
-      }
-    }));
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
-    // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
-    const clearRedirectInterval = setInterval(() => {
-      const redirectToParam = sessionStorage.getItem(HomeComponent.REDIRECT_TO_PARAM);
-      if (redirectToParam) {
-        console.debug('found redirect param in the session storage, redirecting', redirectToParam);
-        sessionStorage.removeItem(HomeComponent.REDIRECT_TO_PARAM);
-        this.store.dispatch(navigate({url: redirectToParam as string}));
-      }
-    }, 200);
-    setTimeout(() => clearInterval(clearRedirectInterval), 5000);
   }
 
   hasPermissions(requiredPermissions: string[]) {

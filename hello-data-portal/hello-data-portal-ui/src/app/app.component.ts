@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, HostBinding} from '@angular/core';
+import {Component, HostBinding, OnInit} from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
@@ -33,17 +33,25 @@ import {selectCurrentBusinessDomain, selectIsAuthenticated} from "./store/auth/a
 import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
 import {checkAuth} from "./store/auth/auth.action";
+import {selectQueryParam} from "./store/router/router.selectors";
+import setTimeout from "$GLOBAL$";
+import sessionStorage from "$GLOBAL$";
+import Object from "$GLOBAL$";
+import {navigate} from "./store/app/app.action";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+
+  private static readonly REDIRECT_TO_PARAM = 'redirectTo';
 
   isAuthenticated$: Observable<boolean>;
   businessDomain$: Observable<string>;
   checkAuth = false;
+  redirectTo$: Observable<any>;
 
   constructor(private store: Store<AppState>, private screen: ScreenService, public appInfo: AppInfoService,
               private title: Title) {
@@ -61,10 +69,32 @@ export class AppComponent {
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain).pipe(tap(businessDomainName => {
       this.title.setTitle(`${appInfo.title} -- ${businessDomainName}`);
     }));
+
+    this.redirectTo$ = this.store.select(selectQueryParam(AppComponent.REDIRECT_TO_PARAM)).pipe(tap(param => {
+      // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
+      console.debug('enabled redirect param?', param);
+      if (param) {
+        sessionStorage.setItem(AppComponent.REDIRECT_TO_PARAM, param);
+        console.debug('saved redirect param to the session storage', param);
+      }
+    }));
   }
 
   @HostBinding('class') get getClass() {
     return Object.keys(this.screen.sizes).filter(cl => this.screen.sizes[cl]).join(' ');
+  }
+
+  ngOnInit(): void {
+    // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
+    const clearRedirectInterval = setInterval(() => {
+      const redirectToParam = sessionStorage.getItem(AppComponent.REDIRECT_TO_PARAM);
+      if (redirectToParam) {
+        console.debug('found redirect param in the session storage, redirecting', redirectToParam);
+        sessionStorage.removeItem(AppComponent.REDIRECT_TO_PARAM);
+        this.store.dispatch(navigate({url: redirectToParam as string}));
+      }
+    }, 200);
+    setTimeout(() => clearInterval(clearRedirectInterval), 5000);
   }
 
 }

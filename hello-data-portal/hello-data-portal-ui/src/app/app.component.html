@@ -10,3 +10,4 @@
 <div *ngIf="checkAuth">
   <div *ngIf="(isAuthenticated$ | async)" style="display: none"></div>
 </div>
+<ng-container *ngIf="(redirectTo$ | async)"></ng-container>
