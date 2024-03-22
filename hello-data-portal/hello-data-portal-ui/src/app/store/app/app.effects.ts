@@ -58,10 +58,10 @@ export class AppEffects {
     return this._actions$.pipe(
       ofType(showError),
       tap(action => {
+        console.error(action.error);
         if (action.error.error.message) {
           this._notificationService.error(action.error.error.message);
         } else {
-          console.error(action.error);
           this._notificationService.error('@Unexpected error occurred');
         }
       })
