@@ -86,6 +86,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
       // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
       if (param) {
         sessionStorage.setItem(HomeComponent.REDIRECT_TO_PARAM, param);
+        console.debug('saved redirect param to the session storage', param);
       }
     }));
   }
@@ -96,10 +97,11 @@ export class HomeComponent extends BaseComponent implements OnInit {
     const clearRedirectInterval = setInterval(() => {
       const redirectToParam = sessionStorage.getItem(HomeComponent.REDIRECT_TO_PARAM);
       if (redirectToParam) {
+        console.debug('found redirect param in the session storage, redirecting', redirectToParam);
         sessionStorage.removeItem(HomeComponent.REDIRECT_TO_PARAM);
         this.store.dispatch(navigate({url: redirectToParam as string}));
       }
-    }, 500);
+    }, 200);
     setTimeout(() => clearInterval(clearRedirectInterval), 5000);
   }
 
