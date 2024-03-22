@@ -34,9 +34,6 @@ import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
 import {checkAuth} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
-import setTimeout from "$GLOBAL$";
-import sessionStorage from "$GLOBAL$";
-import Object from "$GLOBAL$";
 import {navigate} from "./store/app/app.action";
 
 @Component({
