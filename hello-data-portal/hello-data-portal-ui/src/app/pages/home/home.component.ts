@@ -26,7 +26,7 @@
 ///
 
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {debounceTime, Observable, of, tap} from "rxjs";
+import {Observable, of, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {
@@ -75,7 +75,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone);
     this.waitForPermissionsLoaded$ = this.currentUserContextRolesNotNone$.pipe(
-      debounceTime(700),
+      // debounceTime(700),
       tap(() => {
         this.loadedPermissions$ = of(true);
       }));
@@ -100,7 +100,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
         this.store.dispatch(navigate({url: redirectToParam as string}));
       }
     }, 500);
-    setTimeout(() => clearInterval(clearRedirectInterval), 2000);
+    setTimeout(() => clearInterval(clearRedirectInterval), 5000);
   }
 
   hasPermissions(requiredPermissions: string[]) {
