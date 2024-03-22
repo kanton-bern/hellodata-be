@@ -44,12 +44,16 @@ import {loadAdminEmails} from "../../store/users-management/users-management.act
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {selectQueryParam} from "../../store/router/router.selectors";
 import {navigate} from "../../store/app/app.action";
+import {Router} from "@angular/router";
 
 @Component({
   templateUrl: 'home.component.html',
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent extends BaseComponent implements OnInit {
+
+  private static readonly REDIRECT_TO_PARAM = 'redirectTo';
+
   userData$: Observable<IUser | undefined>;
   isAuthenticated$: Observable<boolean>;
   currentUserPermissions$: Observable<any>;
@@ -62,7 +66,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
   @ViewChild('iframe') iframe!: ElementRef;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private router: Router) {
     super();
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
@@ -78,15 +82,25 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
     this.adminEmails$ = this.store.select(selectAdminEmails);
-    this.redirectTo$ = this.store.select(selectQueryParam('redirectTo')).pipe(tap(param => {
+    this.redirectTo$ = this.store.select(selectQueryParam(HomeComponent.REDIRECT_TO_PARAM)).pipe(tap(param => {
+      // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
       if (param) {
-        this.store.dispatch(navigate({url: param}))
+        sessionStorage.setItem(HomeComponent.REDIRECT_TO_PARAM, param);
       }
     }));
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
+    // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
+    const clearRedirectInterval = setInterval(() => {
+      const redirectToParam = sessionStorage.getItem(HomeComponent.REDIRECT_TO_PARAM);
+      if (redirectToParam) {
+        sessionStorage.removeItem(HomeComponent.REDIRECT_TO_PARAM);
+        this.store.dispatch(navigate({url: redirectToParam as string}));
+      }
+    }, 500);
+    setTimeout(() => clearInterval(clearRedirectInterval), 2000);
   }
 
   hasPermissions(requiredPermissions: string[]) {
