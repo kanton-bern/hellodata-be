@@ -82,16 +82,18 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
-    const clearRedirectInterval = setInterval(() => {
-      const redirectToParam = sessionStorage.getItem(AppComponent.REDIRECT_TO_PARAM);
-      if (redirectToParam) {
-        console.debug('found redirect param in the session storage, redirecting', redirectToParam);
-        sessionStorage.removeItem(AppComponent.REDIRECT_TO_PARAM);
-        this.store.dispatch(navigate({url: redirectToParam as string}));
-      }
-    }, 200);
-    setTimeout(() => clearInterval(clearRedirectInterval), 5000);
+    setTimeout(() => {
+      // hack to omit /auth request done twice problem (sometimes) by lib which blocks new tab fullscreen DWH viewer
+      const clearRedirectInterval = setInterval(() => {
+        const redirectToParam = sessionStorage.getItem(AppComponent.REDIRECT_TO_PARAM);
+        if (redirectToParam) {
+          console.debug('found redirect param in the session storage, redirecting', redirectToParam);
+          sessionStorage.removeItem(AppComponent.REDIRECT_TO_PARAM);
+          this.store.dispatch(navigate({url: redirectToParam as string}));
+        }
+      }, 200);
+      setTimeout(() => clearInterval(clearRedirectInterval), 5000);
+    }, 1000);
   }
 
 }
