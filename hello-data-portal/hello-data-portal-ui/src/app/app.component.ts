@@ -93,7 +93,7 @@ export class AppComponent implements OnInit {
         }
       }, 200);
       setTimeout(() => clearInterval(clearRedirectInterval), 5000);
-    }, 1000);
+    }, 500);
   }
 
 }
