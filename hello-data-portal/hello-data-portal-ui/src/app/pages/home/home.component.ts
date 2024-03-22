@@ -42,7 +42,6 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectAdminEmails} from "../../store/users-management/users-management.selector";
 import {loadAdminEmails} from "../../store/users-management/users-management.action";
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
-import {Router} from "@angular/router";
 
 @Component({
   templateUrl: 'home.component.html',
@@ -61,7 +60,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
   @ViewChild('iframe') iframe!: ElementRef;
 
-  constructor(private store: Store<AppState>, private router: Router) {
+  constructor(private store: Store<AppState>) {
     super();
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
