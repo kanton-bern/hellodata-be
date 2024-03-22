@@ -68,7 +68,7 @@ export class AppComponent implements OnInit {
     }));
 
     this.redirectTo$ = this.store.select(selectQueryParam(AppComponent.REDIRECT_TO_PARAM)).pipe(tap(param => {
-      // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks new tab fullscreen DWH viewer
+      // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks the new tab fullscreen DWH viewer opening
       console.debug('enabled redirect param?', param);
       if (param) {
         sessionStorage.setItem(AppComponent.REDIRECT_TO_PARAM, param);
@@ -83,7 +83,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks new tab fullscreen DWH viewer
+      // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks the new tab fullscreen DWH viewer opening
       const clearRedirectInterval = setInterval(() => {
         const redirectToParam = sessionStorage.getItem(AppComponent.REDIRECT_TO_PARAM);
         if (redirectToParam) {
