@@ -28,17 +28,17 @@
 import {AfterViewInit, Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {selectPublishedAnnouncements} from "../../../../store/announcement/announcement.selector";
+import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
 import {Observable, tap} from "rxjs";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
+import {loadPublishedAnnouncementsFiltered, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
 import {DialogService, DynamicDialogRef} from "primeng/dynamicdialog";
 import {PublishedAnnouncementsPopupComponent} from "../published-announcements-popup/published-announcements-popup.component";
 import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-published-announcements.service";
 
 @Component({
   providers: [DialogService],
-  selector: 'app-published-announcements',
+  selector: 'app-published-announcements-wrapper',
   templateUrl: './published-announcements-wrapper.component.html',
   styleUrls: ['./published-announcements-wrapper.component.scss']
 })
@@ -48,7 +48,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
   ref: DynamicDialogRef | undefined;
 
   constructor(private store: Store<AppState>, public dialogService: DialogService, private hideAllCurrentAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
-    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements).pipe(
+    this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements).pipe(
       tap(announcements => {
         if (!this.ref && announcements && announcements.length > 0) {
           this.ref = this.dialogService.open(PublishedAnnouncementsPopupComponent, {
@@ -69,7 +69,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
           this.ref.close();
         }
       }));
-    store.dispatch(loadPublishedAnnouncements());
+    store.dispatch(loadPublishedAnnouncementsFiltered());
   }
 
   ngAfterViewInit(): void {

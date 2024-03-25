@@ -30,7 +30,7 @@ import {PublishedAnnouncementsWrapperComponent} from './published-announcements-
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
-import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
+import {loadPublishedAnnouncementsFiltered, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
 
 describe('PublishedAnnouncementComponent', () => {
   let fixture: ComponentFixture<PublishedAnnouncementsWrapperComponent>;
@@ -60,7 +60,7 @@ describe('PublishedAnnouncementComponent', () => {
 
   it('should dispatch LoadPublishedAnnouncements action on initialization', () => {
     fixture.detectChanges();
-    expect(mockStore.dispatch).toHaveBeenCalledWith(loadPublishedAnnouncements());
+    expect(mockStore.dispatch).toHaveBeenCalledWith(loadPublishedAnnouncementsFiltered());
   });
 
   it('should call hide() method and dispatch MarkAnnouncementAsRead action', () => {

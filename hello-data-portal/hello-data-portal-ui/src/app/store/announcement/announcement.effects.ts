@@ -41,8 +41,8 @@ import {
   loadAllAnnouncementsSuccess,
   loadAnnouncementById,
   loadAnnouncementByIdSuccess,
-  loadPublishedAnnouncements,
-  loadPublishedAnnouncementsSuccess,
+  loadPublishedAnnouncementsFiltered,
+  loadPublishedAnnouncementsFilteredSuccess,
   markAnnouncementAsRead,
   openAnnouncementEdition,
   saveChangesToAnnouncement,
@@ -68,7 +68,7 @@ export class AnnouncementEffects {
 
   loadPublishedAnnouncements$ = createEffect(() => {
       return this._actions$.pipe(
-        ofType(loadPublishedAnnouncements),
+        ofType(loadPublishedAnnouncementsFiltered),
         switchMap(() => this._announcementService.getHiddenAnnouncements()),
         switchMap((hiddenAnnouncements) => this._announcementService.getPublishedAnnouncements().pipe(
           tap(publishedAnnouncements => {
@@ -80,7 +80,7 @@ export class AnnouncementEffects {
             });
           })
         )),
-        switchMap((result) => of(loadPublishedAnnouncementsSuccess({payload: result}))),
+        switchMap((result) => of(loadPublishedAnnouncementsFilteredSuccess({payload: result}))),
       )
     }
   );
@@ -186,7 +186,7 @@ export class AnnouncementEffects {
       ofType(markAnnouncementAsRead),
       switchMap(action => {
         return this._announcementService.hideAnnouncement(action.announcement).pipe(
-          map(() => loadPublishedAnnouncements()),
+          map(() => loadPublishedAnnouncementsFiltered()),
           catchError(e => of(showError({error: e})))
         )
       })

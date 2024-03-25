@@ -99,7 +99,6 @@ export const selectEditedUserIsBusinessContextAdmin = createSelector(
 export const selectEditedUserIsAdminAndCurrentIsSuperuser = createSelector(
   usersManagementState,
   selectIsSuperuser,
-
   (state: UsersManagementState, isCurrentUserSuperuser) => {
     if (state.userContextRoles.length > 0) {
       return {

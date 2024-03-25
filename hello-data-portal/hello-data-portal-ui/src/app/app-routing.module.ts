@@ -59,6 +59,7 @@ import {unsavedChangesGuard} from "./shared/guards/unsaved-changes.guard";
 import {RedirectComponent} from "./shared/components/redirect/redirect.component";
 import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
 import {DashboardImportExportComponent} from "./pages/admin/dashboard-import-export/dashboard-import-export.component";
+import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
 
 const routes: Routes = [
 
@@ -71,6 +72,11 @@ const routes: Routes = [
   {
     path: naviElements.profile.path,
     component: ProfileComponent,
+    canActivate: [AutoLoginPartialRoutesGuard],
+  },
+  {
+    path: naviElements.publishedAnnouncements.path,
+    component: PublishedAnnouncementsComponent,
     canActivate: [AutoLoginPartialRoutesGuard],
   },
   {

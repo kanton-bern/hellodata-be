@@ -1,0 +1,15 @@
+<div *ngFor="let announcement of announcements$ | async" id="ghettobox" class="card">
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      <i class="fas fa-circle-info"></i>
+    </div>
+    <div class="p-toolbar-group-center" style="width: 65%">
+      <p-editor [(ngModel)]="announcement.message" [disabled]="true" [readonly]="true" [style]="{width: '100%'}">
+        <p-header hidden></p-header>
+      </p-editor>
+    </div>
+    <div class="p-toolbar-group-end">
+      <div class="published-date" *ngIf="announcement.publishedDate">[{{'@Published date' | transloco}} {{announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss'}}]</div>
+    </div>
+  </p-toolbar>
+</div>

@@ -75,5 +75,5 @@ import {CheckboxModule} from "primeng/checkbox";
     CheckboxModule,
   ]
 })
-export class PublishedAnnouncementModule {
+export class PublishedAnnouncementsModule {
 }

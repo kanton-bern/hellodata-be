@@ -41,7 +41,7 @@ import {DividerModule} from "primeng/divider";
 import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {selectPublishedAnnouncements} from "../../store/announcement/announcement.selector";
+import {selectPublishedAndFilteredAnnouncements} from "../../store/announcement/announcement.selector";
 import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
 
 @Component({
@@ -60,7 +60,7 @@ export class SideNavOuterToolbarComponent {
 
   constructor(private store: Store<AppState>) {
     this.navItems$ = this.store.select(selectNavItems);
-    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements).pipe(tap(value => {
+    this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements).pipe(tap(value => {
         this.height = 8 + (value.length * 4);
       }
     ));

@@ -32,7 +32,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
-import {PublishedAnnouncementModule} from "../published-announcement/published-announcement.module";
+import {PublishedAnnouncementsModule} from "../published-announcement/published-announcements.module";
 import {selectCurrentBusinessDomain, selectDisableLogout, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
 import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
@@ -106,14 +106,22 @@ export class HeaderComponent {
     this.translationsLoaded$ = combineLatest([
       this.translateService.selectTranslate('@Profile'),
       this.translateService.selectTranslate('@Logout'),
+      this.translateService.selectTranslate('@Announcements'),
       this.store.select(selectDisableLogout)
-    ]).pipe(tap(([profileTranslation, logoutTranslation, disableLogout]) => {
+    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, disableLogout]) => {
       this.userMenuItems = [
         {
           label: profileTranslation,
           icon: 'fas fa-light fa-user',
           command: () => {
             this.store.dispatch(navigate({url: '/profile'}));
+          }
+        },
+        {
+          label: announcementsTranslation,
+          icon: 'fas fa-light fa-bell',
+          command: () => {
+            this.store.dispatch(navigate({url: '/published-announcements'}));
           }
         },
       ];
@@ -139,7 +147,7 @@ export class HeaderComponent {
 @NgModule({
   imports: [
     CommonModule,
-    PublishedAnnouncementModule,
+    PublishedAnnouncementsModule,
     MenubarModule,
     MegaMenuModule,
     MenuModule,

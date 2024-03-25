@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ComponentRef, OnInit, Renderer2, RendererFacto
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {selectPublishedAnnouncements} from "../../../../store/announcement/announcement.selector";
+import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
 import {markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {DialogService} from "primeng/dynamicdialog";
@@ -37,7 +37,7 @@ export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewIn
   private headerComponentRef!: ComponentRef<PublishedAnnouncementsPopupHeader>;
 
   constructor(private store: Store<AppState>, private viewContainerRef: ViewContainerRef, private readonly rendererFactory: RendererFactory2) {
-    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements);
+    this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements);
     this.renderer = this.rendererFactory.createRenderer(null, null);
   }
 
