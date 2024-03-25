@@ -26,15 +26,15 @@
 ///
 
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {PublishedAnnouncementComponent} from './published-announcement.component';
+import {PublishedAnnouncementsWrapperComponent} from './published-announcements-wrapper.component';
 import {Store} from '@ngrx/store';
-import {AppState} from '../../../store/app/app.state';
+import {AppState} from '../../../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
-import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../store/announcement/announcement.action";
+import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
 
 describe('PublishedAnnouncementComponent', () => {
-  let fixture: ComponentFixture<PublishedAnnouncementComponent>;
-  let component: PublishedAnnouncementComponent;
+  let fixture: ComponentFixture<PublishedAnnouncementsWrapperComponent>;
+  let component: PublishedAnnouncementsWrapperComponent;
   let store: Store<AppState>;
 
   const mockStore = {
@@ -45,11 +45,11 @@ describe('PublishedAnnouncementComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PublishedAnnouncementComponent],
+      declarations: [PublishedAnnouncementsWrapperComponent],
       providers: [{provide: Store, useValue: mockStore}],
     });
 
-    fixture = TestBed.createComponent(PublishedAnnouncementComponent);
+    fixture = TestBed.createComponent(PublishedAnnouncementsWrapperComponent);
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
   });

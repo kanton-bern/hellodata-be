@@ -72,7 +72,7 @@ export class AnnouncementEffects {
         switchMap(() => this._announcementService.getHiddenAnnouncements()),
         switchMap((hiddenAnnouncements) => this._announcementService.getPublishedAnnouncements().pipe(
           tap(publishedAnnouncements => {
-            console.log("published announcements", publishedAnnouncements)
+            console.debug("published announcements", publishedAnnouncements)
           }),
           map(publishedAnnouncements => {
             return publishedAnnouncements.filter(publishedAnnouncement => {

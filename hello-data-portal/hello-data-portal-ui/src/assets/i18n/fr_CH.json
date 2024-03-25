@@ -75,6 +75,7 @@
   "@Documentation updated": "Mise à jour de la documentation",
   "@Domain": "Domain",
   "@Domain type": "Domain Type",
+  "@Don not show again": "Ne plus montrer",
   "@E-mail": "Email",
   "@Edit": "Edit",
   "@Email": "Email",
@@ -140,6 +141,7 @@
   "@My Dashboards": "Mes tableaux de bord",
   "@Name": "Prénom",
   "@Never": "Jamais",
+  "@No": "Non",
   "@No dashboards found": "Aucun tableau de bord trouvé.",
   "@No data found": "Aucune donnée trouvée",
   "@Not Allowed": "Non autorisé",
@@ -216,5 +218,6 @@
   "@Workspace": "Workspace",
   "@Workspace permissions updated": "Mise à jour des autorisations de l'espace de travail",
   "@Workspaces": "Workspaces",
+  "@Yes": "Oui",
   "@You are not allowed to access this page": "Vous n'êtes pas autorisé à accéder à cette page. Contactez votre administrateur."
 }

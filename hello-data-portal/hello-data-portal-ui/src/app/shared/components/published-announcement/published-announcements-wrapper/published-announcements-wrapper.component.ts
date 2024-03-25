@@ -27,23 +27,48 @@
 
 import {AfterViewInit, Component} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {AppState} from "../../../store/app/app.state";
-import {selectPublishedAnnouncements} from "../../../store/announcement/announcement.selector";
-import {Observable} from "rxjs";
-import {Announcement} from "../../../store/announcement/announcement.model";
-import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../store/announcement/announcement.action";
+import {AppState} from "../../../../store/app/app.state";
+import {selectPublishedAnnouncements} from "../../../../store/announcement/announcement.selector";
+import {Observable, tap} from "rxjs";
+import {Announcement} from "../../../../store/announcement/announcement.model";
+import {loadPublishedAnnouncements, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
+import {DialogService, DynamicDialogRef} from "primeng/dynamicdialog";
+import {PublishedAnnouncementsPopupComponent} from "../published-announcements-popup/published-announcements-popup.component";
+import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-published-announcements.service";
 
 @Component({
+  providers: [DialogService],
   selector: 'app-published-announcements',
-  templateUrl: './published-announcement.component.html',
-  styleUrls: ['./published-announcement.component.scss']
+  templateUrl: './published-announcements-wrapper.component.html',
+  styleUrls: ['./published-announcements-wrapper.component.scss']
 })
-export class PublishedAnnouncementComponent implements AfterViewInit {
+export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
 
   publishedAnnouncements$: Observable<any>;
+  ref: DynamicDialogRef | undefined;
 
-  constructor(private store: Store<AppState>) {
-    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements);
+  constructor(private store: Store<AppState>, public dialogService: DialogService, private hideAllCurrentAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
+    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements).pipe(
+      tap(announcements => {
+        if (!this.ref && announcements && announcements.length > 0) {
+          this.ref = this.dialogService.open(PublishedAnnouncementsPopupComponent, {
+            header: '',
+            width: '90vw',
+            contentStyle: {overflow: 'auto'},
+            height: 'auto',
+          });
+          this.ref.onClose.subscribe(() => {
+            if (hideAllCurrentAnnouncementsService.hide) {
+              for (const announcement of announcements) {
+                this.hide(announcement);
+              }
+              this.hideAllCurrentAnnouncementsService.hide = false;
+            }
+          });
+        } else if (this.ref && announcements && announcements.length === 0) {
+          this.ref.close();
+        }
+      }));
     store.dispatch(loadPublishedAnnouncements());
   }
 

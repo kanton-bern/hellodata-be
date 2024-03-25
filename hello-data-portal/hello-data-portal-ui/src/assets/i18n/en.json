@@ -75,6 +75,7 @@
   "@Documentation updated": "Documentation updated",
   "@Domain": "Domain",
   "@Domain type": "Domain Type",
+  "@Don not show again": "Don't show again",
   "@E-mail": "Email",
   "@Edit": "Edit",
   "@Email": "Email",
@@ -140,6 +141,7 @@
   "@My Dashboards": "My dashboards",
   "@Name": "Name",
   "@Never": "Never",
+  "@No": "No",
   "@No dashboards found": "No dashboards found.",
   "@No data found": "No data found",
   "@Not Allowed": "Not Allowed",
@@ -216,5 +218,6 @@
   "@Workspace": "Workspace",
   "@Workspace permissions updated": "Workspace permissions updated",
   "@Workspaces": "Workspaces",
+  "@Yes": "Yes",
   "@You are not allowed to access this page": "You are not allowed to access this page. Contact your administrator."
 }
