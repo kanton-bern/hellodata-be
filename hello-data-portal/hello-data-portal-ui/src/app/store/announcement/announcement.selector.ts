@@ -41,7 +41,7 @@ export const selectAllAnnouncements = createSelector(
 
 export const selectAllAnnouncementsByPublishedFlag = (published: boolean) => createSelector(
   announcementsState,
-  (state: AnnouncementState) => state.allAnnouncements.filter(announcement => announcement.published).sort((a1, a2) => {
+  (state: AnnouncementState) => [...state.allAnnouncements].filter(announcement => announcement.published === published).sort((a1, a2) => {
     const firstPublishedDate = a1.publishedDate ? a1.publishedDate : 0;
     const secondPublishedDate = a2.publishedDate ? a2.publishedDate : 0;
     return secondPublishedDate - firstPublishedDate;
@@ -50,7 +50,13 @@ export const selectAllAnnouncementsByPublishedFlag = (published: boolean) => cre
 
 export const selectPublishedAndFilteredAnnouncements = createSelector(
   announcementsState,
-  (state: AnnouncementState) => state.publishedAnnouncementsFiltered
+  (state: AnnouncementState) => {
+    return [...state.publishedAnnouncementsFiltered].sort((a1, a2) => {
+      const firstPublishedDate = a1.publishedDate ? a1.publishedDate : 0;
+      const secondPublishedDate = a2.publishedDate ? a2.publishedDate : 0;
+      return secondPublishedDate - firstPublishedDate;
+    })
+  }
 );
 
 export const selectEditedAnnouncement = createSelector(
