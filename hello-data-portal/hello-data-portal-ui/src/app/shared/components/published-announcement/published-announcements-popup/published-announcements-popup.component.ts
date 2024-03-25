@@ -6,7 +6,7 @@ import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announc
 import {markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {DialogService} from "primeng/dynamicdialog";
-import {PublishedAnnouncementsPopupHeader} from "./published-annoucements-popup-header/published-announcements-popup-header";
+import {PublishedAnnouncementsPopupHeaderComponent} from "./published-annoucements-popup-header/published-announcements-popup-header.component";
 
 @Component({
   providers: [DialogService],
@@ -34,7 +34,7 @@ export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewIn
 
   publishedAnnouncements$: Observable<any>;
   private renderer: Renderer2;
-  private headerComponentRef!: ComponentRef<PublishedAnnouncementsPopupHeader>;
+  private headerComponentRef!: ComponentRef<PublishedAnnouncementsPopupHeaderComponent>;
 
   constructor(private store: Store<AppState>, private viewContainerRef: ViewContainerRef, private readonly rendererFactory: RendererFactory2) {
     this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements);
@@ -50,7 +50,7 @@ export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewIn
   }
 
   ngOnInit(): void {
-    this.headerComponentRef = this.viewContainerRef.createComponent(PublishedAnnouncementsPopupHeader);
+    this.headerComponentRef = this.viewContainerRef.createComponent(PublishedAnnouncementsPopupHeaderComponent);
     const titleSpan = document.getElementsByClassName('p-dialog-title')[0];
     titleSpan.setAttribute('style', 'width: 100%');
     this.renderer.appendChild(titleSpan, this.headerComponentRef.location.nativeElement)

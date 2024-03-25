@@ -40,7 +40,7 @@ import {TooltipModule} from "primeng/tooltip";
 import {PublishedAnnouncementsPopupComponent} from "./published-announcements-popup/published-announcements-popup.component";
 import {DialogModule} from 'primeng/dialog';
 import {DynamicDialogModule} from 'primeng/dynamicdialog';
-import {PublishedAnnouncementsPopupHeader} from "./published-announcements-popup/published-annoucements-popup-header/published-announcements-popup-header";
+import {PublishedAnnouncementsPopupHeaderComponent} from "./published-announcements-popup/published-annoucements-popup-header/published-announcements-popup-header.component";
 import {ToggleButtonModule} from "primeng/togglebutton";
 import {TriStateCheckboxModule} from "primeng/tristatecheckbox";
 import {SelectButtonModule} from "primeng/selectbutton";
@@ -51,7 +51,7 @@ import {CheckboxModule} from "primeng/checkbox";
   declarations: [
     PublishedAnnouncementsWrapperComponent,
     PublishedAnnouncementsPopupComponent,
-    PublishedAnnouncementsPopupHeader
+    PublishedAnnouncementsPopupHeaderComponent
   ],
   exports: [
     PublishedAnnouncementsWrapperComponent

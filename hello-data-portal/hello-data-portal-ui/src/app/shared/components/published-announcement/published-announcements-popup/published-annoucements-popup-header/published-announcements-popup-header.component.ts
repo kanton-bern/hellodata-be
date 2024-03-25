@@ -14,7 +14,7 @@ import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-curren
     </div>
   `
 })
-export class PublishedAnnouncementsPopupHeader {
+export class PublishedAnnouncementsPopupHeaderComponent {
 
   constructor(private hideAllCurrentPublishedAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
   }
