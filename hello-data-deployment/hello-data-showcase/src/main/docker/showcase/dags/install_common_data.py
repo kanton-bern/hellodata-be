@@ -29,12 +29,4 @@ dim_time_lzn = PostgresOperator(
     autoCommit=True
 )
 
-dim_time_udm = PostgresOperator(
-    task_id='create_dim_time_udm',
-    postgres_conn_id='postgres_db',
-    sql='sql/common_data/udm/dim_time.sql',
-    dag=dag,
-    autoCommit=True
-)
-
-dim_time_lzn >> dim_time_udm
+dim_time_lzn
