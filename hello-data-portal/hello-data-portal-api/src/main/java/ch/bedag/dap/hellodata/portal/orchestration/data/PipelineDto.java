@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.orchestration.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.Pipeline;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstance;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,9 @@ public class PipelineDto {
     private PipelineInstanceDto lastInstance;
 
     public static PipelineDto fromPipeline(Pipeline pipeline, String contextKey) {
-        return new PipelineDto(pipeline.getId(), pipeline.getDescription(), contextKey, new PipelineInstanceDto(pipeline.getLastInstance().getState()));
+        PipelineInstance pipelineLastInstance = pipeline.getLastInstance();
+        PipelineInstanceDto pipelineLastInstanceDto =
+                new PipelineInstanceDto(pipelineLastInstance.getState(), pipelineLastInstance.getStartDate(), pipelineLastInstance.getEndDate());
+        return new PipelineDto(pipeline.getId(), pipeline.getDescription(), contextKey, pipelineLastInstanceDto);
     }
 }
