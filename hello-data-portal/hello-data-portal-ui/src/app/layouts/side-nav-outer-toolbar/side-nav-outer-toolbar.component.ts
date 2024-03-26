@@ -54,7 +54,6 @@ export class SideNavOuterToolbarComponent {
   title!: string;
   navItems$: Observable<any[]>;
   selectCurrentUserPermissionsLoaded$: Observable<boolean>
-  height = 6;
 
   constructor(private store: Store<AppState>) {
     this.navItems$ = this.store.select(selectNavItems);
