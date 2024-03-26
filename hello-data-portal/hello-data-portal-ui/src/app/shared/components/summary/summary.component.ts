@@ -47,6 +47,8 @@ import {DataViewModule} from "primeng/dataview";
 import {Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
+import {FooterModule} from "../footer/footer.component";
+import {AppInfoService} from "../../services";
 
 
 @Component({
@@ -64,7 +66,7 @@ export class SummaryComponent {
   documentation$: Observable<string>;
   storeSize$: Observable<StorageMonitoringResult | null>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, public appInfo: AppInfoService) {
     this.documentation$ = store.select(selectDocumentation);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.pipelines$ = this.store.select(selectPipelines);
@@ -114,6 +116,7 @@ export class SummaryComponent {
     NgSwitchDefault,
     JsonPipe,
     DatePipe,
+    FooterModule,
   ],
   declarations: [SummaryComponent, SubscriptionsComponent],
   exports: [SummaryComponent]

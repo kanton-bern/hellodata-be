@@ -1,5 +1,3 @@
-
-<div *ngIf="publishedAnnouncements$ | async"></div>
 <div class="sidebar close">
   <div class="logo-details" [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
     <img alt="logo" routerLink="/home" src="/assets/img/hd.png" style="cursor: pointer"/>
@@ -54,15 +52,9 @@
   </app-header>
   <div class="grid">
     <div [ngClass]="'col'">
-      <ng-container *ngIf="(publishedAnnouncements$ | async)"></ng-container>
       <p-scrollPanel [style]="{ width: 'calc(100vw - 8rem)', height: 'calc(100vh - ' + height + 'rem)' }">
         <ng-content></ng-content>
-
-        <div class="content-block">
-          <br/>
-          <ng-content select="app-footer"></ng-content>
-        </div>
-        <p-scrollTop [threshold]="100" icon="fas fa-arrow-up" target="parent"></p-scrollTop>
+        <p-scrollTop [threshold]="50" icon="fas fa-arrow-up" target="parent"></p-scrollTop>
       </p-scrollPanel>
     </div>
     <div [ngClass]="['col-fixed', 'right-panel-close']" *ngIf="selectCurrentUserPermissionsLoaded$"

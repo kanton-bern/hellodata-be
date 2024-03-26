@@ -33,7 +33,7 @@ import {RouterLink, RouterOutlet} from '@angular/router';
 import {ScrollPanelModule} from "primeng/scrollpanel";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {Observable, tap} from "rxjs";
+import {Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
 import {TranslocoModule} from "@ngneat/transloco";
 import {TooltipModule} from "primeng/tooltip";
@@ -41,7 +41,6 @@ import {DividerModule} from "primeng/divider";
 import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {selectPublishedAnnouncements} from "../../store/announcement/announcement.selector";
 import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
 
 @Component({
@@ -54,16 +53,11 @@ export class SideNavOuterToolbarComponent {
   @Input()
   title!: string;
   navItems$: Observable<any[]>;
-  publishedAnnouncements$: Observable<any>
   selectCurrentUserPermissionsLoaded$: Observable<boolean>
-  height = 8;
+  height = 6;
 
   constructor(private store: Store<AppState>) {
     this.navItems$ = this.store.select(selectNavItems);
-    this.publishedAnnouncements$ = this.store.select(selectPublishedAnnouncements).pipe(tap(value => {
-        this.height = 8 + (value.length * 4);
-      }
-    ));
     this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
   }
 
