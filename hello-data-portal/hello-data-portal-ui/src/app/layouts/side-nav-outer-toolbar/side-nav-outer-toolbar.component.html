@@ -51,11 +51,9 @@
     [title]="title">
   </app-header>
   <div class="grid">
-    <div [ngClass]="'col'">
-      <p-scrollPanel [style]="{ width: 'calc(100vw - 8rem)', height: 'calc(100vh - 6rem)' }">
-        <ng-content></ng-content>
-        <p-scrollTop [threshold]="10" icon="fas fa-arrow-up" target="parent"></p-scrollTop>
-      </p-scrollPanel>
+    <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 6rem)', 'overflow-y': 'scroll', 'scrollbar-width': 'none'}">
+      <ng-content></ng-content>
+      <p-scrollTop [threshold]="10" icon="fas fa-arrow-up" target="parent"></p-scrollTop>
     </div>
     <div [ngClass]="['col-fixed', 'right-panel-close']" *ngIf="selectCurrentUserPermissionsLoaded$"
          [ngStyle]="{'width': '30px'}" class="right-panel">
