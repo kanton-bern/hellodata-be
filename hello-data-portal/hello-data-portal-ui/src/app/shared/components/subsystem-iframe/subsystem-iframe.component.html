@@ -1,7 +1,6 @@
 <div *ngIf="frameUrl" [ngStyle]=style style="height:calc(100vh - 4rem)">
   <iframe #iframe id="subsystem-iframe"
           [src]="frameUrl | safe : 'resourceUrl'"
-          scrolling="yes"
-          style="border:none;overflow:hidden;height:100%;width: 100%;"
+          style="border:none;height:100%;width: 100%;"
           title="subsystem iframe"></iframe>
 </div>
