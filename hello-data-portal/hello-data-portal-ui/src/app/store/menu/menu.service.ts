@@ -227,7 +227,7 @@ export class MenuService {
   }
 
   private getContextName(pd: LineageDoc, availableDataDomains: any[]) {
-    const dataDomain = availableDataDomains.find(dataDomain => dataDomain.data.key === pd.contextKey);
+    const dataDomain = availableDataDomains.find(dataDomain => dataDomain.data.key && dataDomain.data.key === pd.contextKey);
     return dataDomain ? dataDomain.data.name : pd.contextKey;
   }
 

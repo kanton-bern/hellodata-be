@@ -79,7 +79,7 @@ export class LineageDocsEffects {
   }
 
   private _getContextName(ld: LineageDoc, dataDomains: DataDomain[]) {
-    const matchingDataDomain = dataDomains.find(dd => dd.key == ld.contextKey);
+    const matchingDataDomain = dataDomains.find(dd => dd.key && dd.key === ld.contextKey);
     return matchingDataDomain ? matchingDataDomain.name : ld.contextKey;
   }
 }
