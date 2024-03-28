@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {HdCommonModule} from "../../../hd-common.module";
 import {AuthService} from "../../services";
@@ -39,21 +39,23 @@ import {environment} from "../../../../environments/environment";
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
-  @ViewChild('iframe') iframe!: ElementRef;
   @Input() url!: string;
   @Input() accessTokenInQueryParam = false;
   @Input() delay = 0;
   @Input() style: { [p: string]: any } | null = null;
   @Output() iframeSetup = new EventEmitter<boolean>();
   frameUrl!: string;
+  @ViewChild('iframe') iframe!: ElementRef<HTMLIFrameElement>;
 
   accessTokenSub!: Subscription;
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private elementRef: ElementRef, private renderer: Renderer2) {
   }
 
   ngOnInit(): void {
-    console.debug('after view init', this.url, this.delay);
+    console.debug('on init', this.url, this.delay);
+
+
     this.accessTokenSub = this.authService.accessToken.subscribe({
       next: value => {
         console.debug('access token changed', value)
