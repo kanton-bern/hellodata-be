@@ -28,14 +28,14 @@
 import {Announcement} from "./announcement.model";
 
 export interface AnnouncementState {
-  publishedAnnouncements: Announcement[],
+  publishedAnnouncementsFiltered: Announcement[],
   allAnnouncements: Announcement[],
   announcementForDeletion: Announcement | null,
   editedAnnouncement: Announcement
 }
 
 export const initialAnnouncementState: AnnouncementState = {
-  publishedAnnouncements: [],
+  publishedAnnouncementsFiltered: [],
   allAnnouncements: [],
   announcementForDeletion: null,
   editedAnnouncement: {}

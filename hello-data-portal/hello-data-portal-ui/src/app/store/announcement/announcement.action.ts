@@ -29,12 +29,14 @@ import {createAction, props} from "@ngrx/store";
 import {Announcement} from "./announcement.model";
 
 export enum AnnouncementActionType {
-  //published announcements
-  LOAD_PUBLISHED_ANNOUNCEMENTS = '[ANNOUNCEMENTS] Load ACTIVE ANNOUNCEMENTS',
-  LOAD_PUBLISHED_ANNOUNCEMENTS_SUCCESS = '[ANNOUNCEMENTS] Load ACTIVE ANNOUNCEMENTS SUCCESS',
+  // published announcements
+  // load published and filter by disabled ones from local storage
+  LOAD_PUBLISHED_ANNOUNCEMENTS_FILTERED = '[ANNOUNCEMENTS] Load PUBLISHED AND FILTERED ANNOUNCEMENTS',
+  LOAD_PUBLISHED_ANNOUNCEMENTS_FILTERED_SUCCESS = '[ANNOUNCEMENTS] Load PUBLISHED AND FILTERED ANNOUNCEMENTS SUCCESS',
+
   MARK_ANNOUNCEMENT_AS_READ = '[ANNOUNCEMENTS] Mark the announcement as read',
 
-  //management
+  // management
   LOAD_ALL_ANNOUNCEMENTS = '[ANNOUNCEMENTS MANAGEMENT] Load all ANNOUNCEMENTS',
   LOAD_ALL_ANNOUNCEMENTS_SUCCESS = '[ANNOUNCEMENTS MANAGEMENT] Load ANNOUNCEMENTS SUCCESS',
   OPEN_ANNOUNCEMENT_EDITION = '[ANNOUNCEMENTS MANAGEMENT] Open ANNOUNCEMENT edition',
@@ -60,12 +62,13 @@ export const loadAllAnnouncementsSuccess = createAction(
   props<{ payload: Announcement[] }>()
 );
 
-export const loadPublishedAnnouncements = createAction(
-  AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS
+// load published and filter by disabled ones from local storage
+export const loadPublishedAnnouncementsFiltered = createAction(
+  AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS_FILTERED
 );
 
-export const loadPublishedAnnouncementsSuccess = createAction(
-  AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS_SUCCESS,
+export const loadPublishedAnnouncementsFilteredSuccess = createAction(
+  AnnouncementActionType.LOAD_PUBLISHED_ANNOUNCEMENTS_FILTERED_SUCCESS,
   props<{ payload: Announcement[] }>()
 );
 
