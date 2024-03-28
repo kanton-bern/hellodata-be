@@ -91,7 +91,7 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
 
         // Check if the user has already been created in a previous run
         boolean userMarkedAsDefault = !defaultUserRepository.findByEmail(email).isEmpty();
-        boolean userAlreadyCreated = userRepository.findUserEntityByEmailIgnoreCase(email).isPresent();
+        boolean userAlreadyCreated = userByUsername.isPresent();
 
         if (!userAlreadyCreated && !userMarkedAsDefault) {
             defaultUsersInitiated = createDefaultAdmin(defaultAdminProperties.getUsername(), defaultAdminProperties.getFirstName(), defaultAdminProperties.getLastName(),
