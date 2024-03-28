@@ -42,7 +42,7 @@ sources:
       - name: sheep_map_commune
       - name: admin_units_snapshots_wide
       - name: admin_units_geoshapes_wide
-      - name: dim_datum
+      - name: dim_time
   - name: tierstatistik_csv
     config:
       enabled: true
