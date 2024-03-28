@@ -46,3 +46,17 @@
   display: none;
 }
 
+#mainContentDiv > .ng-star-inserted:not(:has(.content-block)) {
+  display: grid;
+  width: 100%;
+  height: 100%;
+}
+
+#mainContentDiv > .ng-star-inserted > div.ng-star-inserted:has(#subsystem-iframe) {
+  height: 100%;
+}
+
+#mainContentDiv > .ng-star-inserted > div.ng-star-inserted:not(.card):not(.content-block) {
+  width: 100%;
+}
+

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {HdCommonModule} from "../../../hd-common.module";
 import {AuthService} from "../../services";
@@ -49,11 +49,13 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
   accessTokenSub!: Subscription;
 
-  constructor(private authService: AuthService, private elementRef: ElementRef) {
+  constructor(private authService: AuthService, private elementRef: ElementRef, private renderer: Renderer2) {
   }
 
   ngOnInit(): void {
     console.debug('on init', this.url, this.delay);
+
+
     this.accessTokenSub = this.authService.accessToken.subscribe({
       next: value => {
         console.debug('access token changed', value)
