@@ -9,7 +9,7 @@ import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-curren
         <h3><b>{{'@Announcements' | transloco}}</b></h3>
       </div>
       <div class="col">
-        <p-checkbox [binary]="true" inputId="dont-show-again" label="{{'@Don not show again' | transloco}}" (onChange)="onChange($event)"></p-checkbox>
+        <p-checkbox [binary]="true" inputId="dont-show-again" label="{{'@Do not show again' | transloco}}" (onChange)="onChange($event)"></p-checkbox>
       </div>
     </div>
   `
