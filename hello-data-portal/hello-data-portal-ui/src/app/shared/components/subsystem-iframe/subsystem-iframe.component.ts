@@ -64,6 +64,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
         setTimeout(() => {
           this.frameUrl = this.accessTokenInQueryParam ? this.url + '?auth.access_token=' + value : this.url;
           this.iframeSetup.emit(true);
+          document.getElementById('mainContentDiv')!.style.overflow = 'hidden';
         }, this.delay)
       }
     });
@@ -73,6 +74,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
     }
+    document.getElementById('mainContentDiv')!.style.overflow = 'auto';
   }
 
   ngOnChanges(changes: SimpleChanges): void {

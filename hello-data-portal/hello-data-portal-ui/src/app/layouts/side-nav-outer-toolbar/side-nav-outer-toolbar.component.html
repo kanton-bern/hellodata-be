@@ -51,7 +51,7 @@
     [title]="title">
   </app-header>
   <div class="grid">
-    <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 6rem)', 'overflow-y': 'scroll', 'scrollbar-width': 'none'}" id="mainContentDiv">
+    <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 6rem)', 'overflow-y': 'scroll'}" id="mainContentDiv">
       <ng-content ng-style="width: 100%"></ng-content>
       <p-scrollTop [threshold]="10" icon="fas fa-arrow-up" target="parent" [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}"></p-scrollTop>
     </div>
