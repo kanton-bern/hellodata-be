@@ -106,7 +106,7 @@ export class HeaderComponent {
     this.translationsLoaded$ = combineLatest([
       this.translateService.selectTranslate('@Profile'),
       this.translateService.selectTranslate('@Logout'),
-      this.translateService.selectTranslate('@Announcements'),
+      this.translateService.selectTranslate('@View announcements'),
       this.store.select(selectDisableLogout)
     ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, disableLogout]) => {
       this.userMenuItems = [
