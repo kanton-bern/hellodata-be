@@ -29,7 +29,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
-import {Observable, tap} from "rxjs";
+import {debounceTime, Observable, tap} from "rxjs";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {loadPublishedAnnouncementsFiltered, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
 import {DialogService, DynamicDialogRef} from "primeng/dynamicdialog";
@@ -49,6 +49,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
 
   constructor(private store: Store<AppState>, public dialogService: DialogService, private hideAllCurrentAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
     this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements).pipe(
+      debounceTime(700),
       tap(announcements => {
         if (!this.ref && announcements && announcements.length > 0) {
           this.ref = this.dialogService.open(PublishedAnnouncementsPopupComponent, {

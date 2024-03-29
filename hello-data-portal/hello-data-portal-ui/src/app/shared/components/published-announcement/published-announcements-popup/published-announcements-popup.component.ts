@@ -24,7 +24,6 @@ import {PublishedAnnouncementsPopupHeaderComponent} from "./published-annoucemen
         </div>
         <div class="p-toolbar-group-end">
           <div class="published-date" *ngIf="announcement.publishedDate">[{{'@Published date' | transloco}} {{announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss'}}]</div>
-          <button (click)="hide(announcement)" [pTooltip]="'@Delete' | transloco" icon="fas fa-circle-xmark" pButton pRipple type="button"></button>
         </div>
       </p-toolbar>
       <p-divider></p-divider>
