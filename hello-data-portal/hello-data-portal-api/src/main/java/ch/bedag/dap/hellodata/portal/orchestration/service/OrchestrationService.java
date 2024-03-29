@@ -70,10 +70,12 @@ public class OrchestrationService {
 
     private List<PipelineDto> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
         List<PipelineDto> result = pipelines.stream().flatMap((pipelineResource -> pipelineResource.getData().stream())).map(pipeline -> {
+            log.info("Checking pipeline {}", pipeline);
             String contextKeyForDag = contextKeysFromContextRoles.stream()
                                                                  .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
                                                                  .findFirst()
                                                                  .orElse(null);
+            log.info("Found context key for dag {}", contextKeyForDag);
             if (contextKeyForDag != null) {
                 return PipelineDto.fromPipeline(pipeline, contextKeyForDag);
             }
