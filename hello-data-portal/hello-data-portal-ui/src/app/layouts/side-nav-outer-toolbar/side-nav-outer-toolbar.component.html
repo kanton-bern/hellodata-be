@@ -53,7 +53,7 @@
   <div class="grid">
     <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 6rem)', 'overflow-y': 'scroll', 'scrollbar-width': 'none'}" id="mainContentDiv">
       <ng-content ng-style="width: 100%"></ng-content>
-      <p-scrollTop [threshold]="10" icon="fas fa-arrow-up" target="parent"></p-scrollTop>
+      <p-scrollTop [threshold]="10" icon="fas fa-arrow-up" target="parent" [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}"></p-scrollTop>
     </div>
     <div [ngClass]="['col-fixed', 'right-panel-close']" *ngIf="selectCurrentUserPermissionsLoaded$"
          [ngStyle]="{'width': '30px'}" class="right-panel">
