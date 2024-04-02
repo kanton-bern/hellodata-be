@@ -7,7 +7,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
     @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 1000))
     public User findOneWithPermissionsByEmail(String email) {
         try {
