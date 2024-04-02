@@ -58,7 +58,7 @@ public class SecurityConfig {
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**", "/swagger-ui/**", "/",
             // other public endpoints of your API may be appended to this array
-            "/announcements/published", "/actuator/**", };
+            "/actuator/**", };
 
     private static final List<String> CORS_ALLOWED_HEADERS =
             List.of("Access-Control-Allow-Methods", "Access-Control-Allow-Origin", "Authorization", "Access-Control-Allow-Headers", "Origin,Accept", "X-Requested-With",
