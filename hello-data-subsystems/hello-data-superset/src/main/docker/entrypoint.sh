@@ -26,9 +26,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Run wait and migrate on each start and then the entrypoint command for the airflow
-# https://airflow.apache.org/docs/docker-stack/entrypoint.html#entrypoint-commands
-
 echo "[ENTRYPOINT]: Run wait and migrate"
 # Execute wait-and-migrate.sh in background
 /db/wait-and-migrate.sh &
@@ -45,7 +42,7 @@ if [ $WAIT_AND_MIGRATE_EXIT_CODE -ne 0 ]; then
     echo "[ENTRYPOINT]: wait-and-migrate.sh failed with exit code $WAIT_AND_MIGRATE_EXIT_CODE"
     exit $WAIT_AND_MIGRATE_EXIT_CODE
 else
-    echo "[ENTRYPOINT]: wait-and-migrate.sh executed successfully"
+    echo "[ENTRYPOINT]: wait-and-migrate.sh executed successfully, start server"
     # Execute entrypoint only if wait-and-migrate.sh succeeded
-    exec /entrypoint "${@}"
+    exec /usr/bin/run-server.sh
 fi
