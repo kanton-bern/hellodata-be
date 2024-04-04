@@ -241,7 +241,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
       - NATS_SPRING_SERVER=nats://nats:4222
       - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
-      - HELLO_DATA_INSTANCE_URL=http://localhost:8089/cloudbeaver/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8087/cloudbeaver/
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
