@@ -1,0 +1,14 @@
+{
+  "HelloDATA Product Development-Default Data Domain-DataMarts": [
+    "DEFAULT_DATA_DOMAIN_READ_DM"
+  ],
+  "HelloDATA Product Development-Default Data Domain-DWH": [
+    "DEFAULT_DATA_DOMAIN_READ_DWH"
+  ],
+  "HelloDATA Product Development-Extra Data Domain-DataMarts": [
+    "EXTRA_DATA_DOMAIN_READ_DM"
+  ],
+  "HelloDATA Product Development-Extra Data Domain-DWH": [
+    "EXTRA_DATA_DOMAIN_READ_DWH"
+  ]
+}
