@@ -580,7 +580,7 @@ services:
     ports:
       - 8081:8081
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:8081/api/actuator/health" ]
+      test: [ "CMD", "curl", "http://hello-data-portal-api:8081/api/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 15
