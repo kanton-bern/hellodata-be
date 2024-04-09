@@ -34,7 +34,7 @@
 </div>
 
 
-<app-published-announcements-wrapper class="published-announcements-container"></app-published-announcements-wrapper>
+<app-published-announcements-wrapper class="published-announcements-container" *ngIf="isAuthenticated$ | async"></app-published-announcements-wrapper>
 <app-breadcrumb class="breadcrumb-container"></app-breadcrumb>
 <!--use p-menu here with reference above due to firefox issues with z-index-->
 <p-menu #menu [model]="userMenuItems" [popup]="true"></p-menu>
