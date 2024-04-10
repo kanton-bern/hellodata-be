@@ -1,15 +1,10 @@
-<ng-container *ngIf="(waitForPermissionsLoaded$ | async)"></ng-container>
-<ng-container *ngIf="(businessDomain$ | async)"></ng-container>
-<ng-container *ngIf="(adminEmails$ | async)"></ng-container>
-<ng-container *ngIf="(currentUserContextRolesNotNone$ | async)"></ng-container>
+<div *ngIf="loadedPermissions$ | async" class="home-view">
 
-<div *ngIf="(loadedPermissions$ | async)" class="home-view">
-
-  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ |async ).length === 0">
+  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ | async )?.length === 0">
     <p-fieldset class="col-12 lg:col-12">
       <ng-template pTemplate="header">
         <div class="flex align-items-center gap-2 text-primary">
-          <p-badge value="{{ '@Error' | transloco }}" size="large" severity="warning"></p-badge>
+          <p-badge value="{{ '@Welcome' | transloco }}" size="large" severity="success"></p-badge>
         </div>
       </ng-template>
       <div class="h-full permission-error" *ngIf="businessDomain$ | async as businessDomain">
@@ -23,7 +18,7 @@
     </p-fieldset>
   </div>
 
-  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ |async ).length > 0">
+  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
     <p-fieldset class="col-12 lg:col-6">
       <ng-template pTemplate="header">
         <div class="flex align-items-center text-primary">

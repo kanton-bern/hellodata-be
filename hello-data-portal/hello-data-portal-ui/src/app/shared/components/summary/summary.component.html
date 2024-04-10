@@ -4,7 +4,7 @@
       <div class="font-semibold" id="summaryHeader"> {{'@Summary header' | transloco}}</div>
     </ng-template>
     <ng-template pTemplate="content">
-      <p-fieldset id="statusHeader" legend="Status">
+      <p-fieldset id="statusHeader" legend="Status" *ngIf="permissions.length !== 0">
         <p-accordion>
           <p-accordionTab header="Data pipelines">
             <p-dataView [value]="(pipelines$ | async)!" emptyMessage="{{ '@No data found' | transloco }}">
@@ -34,7 +34,7 @@
           </p-accordionTab>
         </p-accordion>
       </p-fieldset>
-      <br/>
+
       <p-fieldset *ngIf="(documentation$ | async) as documentation">
         <ng-template pTemplate="header">
           <div>
@@ -49,8 +49,8 @@
           <p-header hidden></p-header>
         </p-editor>
       </p-fieldset>
-      <br/>
-      <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}">
+
+      <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}" *ngIf="permissions.length !== 0">
         <app-subscriptions></app-subscriptions>
       </p-fieldset>
 
@@ -75,8 +75,6 @@
           </ul>
         </div>
       </p-fieldset>
-
-      <br>
 
       <app-footer [appInfo]="appInfo"></app-footer>
 
