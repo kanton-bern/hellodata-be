@@ -38,4 +38,4 @@ models:
       +schema: rdv
     udm:
       +materialized: table
-      #+schema: udm this will create 'udm_udm' schema
+      #+schema: udm #<- this will create 'udm_udm' schema
