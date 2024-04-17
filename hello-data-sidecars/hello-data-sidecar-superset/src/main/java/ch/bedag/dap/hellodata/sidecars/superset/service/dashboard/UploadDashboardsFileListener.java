@@ -190,6 +190,9 @@ public class UploadDashboardsFileListener {
                 throw new RuntimeException("Python script validation error: \n" + stringBuilder);
             }
         } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new RuntimeException("Error validating file", e);
         } finally {
             if (inputStreamReader != null) {

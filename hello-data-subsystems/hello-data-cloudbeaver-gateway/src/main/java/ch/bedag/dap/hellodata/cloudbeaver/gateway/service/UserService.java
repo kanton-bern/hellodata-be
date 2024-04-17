@@ -19,6 +19,9 @@ public class UserService {
         try {
             return userRepository.findOneWithPermissionsByEmail(email).toFuture().get();
         } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new RuntimeException("Could not fetch user from the DB", e);
         }
     }

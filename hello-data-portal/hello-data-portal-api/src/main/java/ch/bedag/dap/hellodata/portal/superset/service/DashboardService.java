@@ -236,6 +236,9 @@ public class DashboardService {
                 sendToSidecar(dashboardUpload, subject);
             }
         } catch (InterruptedException | IOException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e);
         }
     }
