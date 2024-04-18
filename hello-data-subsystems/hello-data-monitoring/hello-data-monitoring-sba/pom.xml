@@ -23,7 +23,7 @@
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <start-class>ch.bedag.dap.hellodata.monitoring.sba.SBAdminApplication</start-class>
         <spring-version>3.2.4</spring-version>
-        <spring-cloud-starter-kubernetes-client-all-version>3.1.0</spring-cloud-starter-kubernetes-client-all-version>
+        <spring-cloud-starter-kubernetes-client-all-version>3.1.3</spring-cloud-starter-kubernetes-client-all-version>
         <spring-boot-admin-version>3.2.3</spring-boot-admin-version>
         <docker.namespace>bedag</docker.namespace>
     </properties>
