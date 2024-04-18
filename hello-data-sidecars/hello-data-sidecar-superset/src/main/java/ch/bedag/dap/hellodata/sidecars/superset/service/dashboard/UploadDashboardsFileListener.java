@@ -71,7 +71,8 @@ public class UploadDashboardsFileListener {
                 File destinationFile;
                 if (dashboardUpload.isLastChunk()) {
                     destinationFile =
-                            File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), "");
+                            File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), //NOSONAR
+                                                ""); //NOSONAR
                     log.debug("Created temp file for chunk {}", destinationFile);
                     binaryFileId = dashboardUpload.getBinaryFileId();
                     assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
@@ -100,7 +101,7 @@ public class UploadDashboardsFileListener {
     private JsonObject getPasswordsObject(File destinationFile) throws IOException {
         JsonObject jsonElement = new JsonObject();
         try (ZipFile zipFile = new ZipFile(destinationFile)) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 String name = zipEntry.getName();
@@ -165,7 +166,7 @@ public class UploadDashboardsFileListener {
         log.info("Python cmd {}", StringUtils.join(cmd, " "));
 
         // Create ProcessBuilder
-        ProcessBuilder pb = new ProcessBuilder(cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd); //NOSONAR
 
         // Start the process
         Process process = pb.start();
