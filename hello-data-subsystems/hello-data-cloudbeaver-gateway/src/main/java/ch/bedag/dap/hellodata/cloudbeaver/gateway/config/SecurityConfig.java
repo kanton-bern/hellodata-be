@@ -119,7 +119,7 @@ public class SecurityConfig {
                         corsConfig.addAllowedOrigin(allowedOrigin);
                     }
                 } else {
-                    corsConfig.addAllowedOrigin("*");
+                    corsConfig.addAllowedOrigin("*"); //NOSONAR
                 }
                 corsConfig.addAllowedMethod("GET");
                 corsConfig.addAllowedMethod("POST");

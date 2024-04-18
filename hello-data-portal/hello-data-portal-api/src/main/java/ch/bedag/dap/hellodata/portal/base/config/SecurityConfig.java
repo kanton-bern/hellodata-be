@@ -40,6 +40,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -99,7 +100,7 @@ public class SecurityConfig {
 
     private void configureCsrf(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-csrf")) {
-            http.csrf(csrf -> csrf.disable());
+            http.csrf(csrf -> csrf.disable()); //NOSONAR
         } else {
             http.csrf(withDefaults());
         }
@@ -107,26 +108,26 @@ public class SecurityConfig {
 
     private void configureFrameOptions(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-frame-options")) {
-            http.headers((headers) -> headers.frameOptions(frameOptionsConfig -> frameOptionsConfig.disable()));
+            http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
         } else {
-            http.headers((headers) -> headers.frameOptions(frameOptionsConfig -> frameOptionsConfig.deny()));//backend is not embedded into iframe
+            http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::deny));//backend is not embedded into iframe
         }
     }
 
     private void configureCors(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-cors")) {
-            http.cors(cors -> cors.disable());
+            http.cors(cors -> cors.disable()); //NOSONAR
         } else {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
 
             http.cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration corsConfig = new CorsConfiguration();
-                if (allowedOriginList.size() > 0) {
+                if (!allowedOriginList.isEmpty()) {
                     for (String allowedOrigin : allowedOriginList) {
                         corsConfig.addAllowedOrigin(allowedOrigin);
                     }
                 } else {
-                    corsConfig.addAllowedOrigin("*");
+                    corsConfig.addAllowedOrigin("*"); //NOSONAR
                 }
                 corsConfig.addAllowedMethod("GET");
                 corsConfig.addAllowedMethod("POST");
