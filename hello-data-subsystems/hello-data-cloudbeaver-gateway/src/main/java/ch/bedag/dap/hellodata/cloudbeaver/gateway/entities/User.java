@@ -82,7 +82,8 @@ public class User implements Persistable<UUID> {
     @Transient
     private Set<String> authorities = new HashSet<>();
 
-    public User() {
+    public User() { //NOSONAR
+        // empty
     }
 
     @Override
