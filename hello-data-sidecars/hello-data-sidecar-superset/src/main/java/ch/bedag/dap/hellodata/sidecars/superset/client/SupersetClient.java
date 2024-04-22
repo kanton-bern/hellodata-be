@@ -52,6 +52,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -394,6 +395,7 @@ public class SupersetClient {
     private void csrf() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getCsrfTokenRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
+        log.info("csrf response ==> {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.csrfToken = respBody.getAsJsonObject().get("result").getAsString();
     }
@@ -409,7 +411,7 @@ public class SupersetClient {
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }
-            return new ApiResponse(code, bodyAsString);
+            return new ApiResponse(code, bodyAsString, request.getAllHeaders());
         }
     }
 
@@ -435,5 +437,6 @@ public class SupersetClient {
     public static class ApiResponse {
         private int code;
         private String body;
+        private Header[] headers;
     }
 }
