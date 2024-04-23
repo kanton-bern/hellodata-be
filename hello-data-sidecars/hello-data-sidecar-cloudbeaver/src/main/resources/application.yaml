@@ -32,8 +32,6 @@ hello-data:
     client-id: frontend-client
     #    code: 'type | key | name'
   business-context: 'Business Domain | HelloDATA_Product_Development | HelloDATA Product Development'
-  contexts:
-    - 'Data Domain | Default_Data_Domain | Default Data Domain'
 
   instance:
     name: "Cloudbeaver Local"
