@@ -26,13 +26,13 @@
  */
 package ch.bedag.dap.hellodata.portal.external_dashboard.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.CreateExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.ExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.UpdateExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.entity.ExternalDashboardEntity;
 import ch.bedag.dap.hellodata.portal.external_dashboard.repository.ExternalDashboardRepository;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import java.util.Collections;

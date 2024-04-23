@@ -56,12 +56,12 @@
         </dependency>
         <dependency>
             <groupId>ch.bedag.dap.hellodata</groupId>
-            <artifactId>hello-data-metainfo-model</artifactId>
+            <artifactId>hello-data-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.bedag.dap.hellodata</groupId>
-            <artifactId>hello-data-common</artifactId>
+            <artifactId>hello-data-base-model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

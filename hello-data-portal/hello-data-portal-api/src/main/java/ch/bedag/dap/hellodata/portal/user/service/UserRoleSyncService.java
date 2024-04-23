@@ -1,9 +1,9 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;

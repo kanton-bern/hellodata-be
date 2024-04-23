@@ -24,14 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.portal.metainfo.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.ResourceRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.ResourceRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.AllArgsConstructor;

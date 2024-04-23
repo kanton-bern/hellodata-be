@@ -24,10 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.metainfomodel.repositories;
+package ch.bedag.dap.hellodata.portal.metainfo.repository;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,15 +37,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface HdContextRepository extends JpaRepository<HdContextEntity, UUID> {
-    Optional<HdContextEntity> getByTypeAndName(HdContextType type, String name);
+public interface ResourceRepository extends JpaRepository<MetaInfoResourceEntity, UUID> {
+    Optional<MetaInfoResourceEntity> findByApiVersionAndModuleTypeAndKindAndInstanceName(String apiVersion, ModuleType moduleType, String kind, String instanceName);
 
-    Optional<HdContextEntity> getByContextKey(String contextKey);
+    List<MetaInfoResourceEntity> findAllByModuleType(ModuleType moduleType);
 
-    @Query("SELECT c from context c where c.type = :type and c.name = :name and c.contextKey = :contextKey")
-    Optional<HdContextEntity> getByTypeAndNameAndKey(@Param("type") HdContextType type, @Param("name") String name, @Param("contextKey") String contextKey);
+    List<MetaInfoResourceEntity> findAllByModuleTypeAndKind(ModuleType moduleType, String kind);
 
-    List<HdContextEntity> findAllByTypeIn(List<HdContextType> types);
+    List<MetaInfoResourceEntity> findAllByKind(String kind);
 
-    boolean existsByContextKeyAndType(String contextKey, HdContextType type);
+    MetaInfoResourceEntity getByInstanceNameAndKind(String instanceName, String kind);
+
+    MetaInfoResourceEntity getByModuleTypeAndInstanceNameAndKind(ModuleType moduleType, String instanceName, String kind);
+
+    @Query("SELECT r from resource r where r.apiVersion = :apiVersion and r.instanceName = :instanceName and r.moduleType = :moduleType and r.kind != ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO order by r.kind")
+    List<MetaInfoResourceEntity> findAllFilteredByAppInfo(@Param("apiVersion") String apiVersion, @Param("instanceName") String instanceName,
+                                                          @Param("moduleType") ModuleType moduleType);
 }

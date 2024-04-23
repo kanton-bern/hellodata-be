@@ -26,14 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portal.faq.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqCreateDto;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqDto;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
 import ch.bedag.dap.hellodata.portal.faq.repository.FaqRepository;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import jakarta.validation.constraints.NotNull;

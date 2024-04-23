@@ -27,9 +27,6 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
@@ -48,6 +45,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContex
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;

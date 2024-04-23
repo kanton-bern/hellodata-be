@@ -26,11 +26,11 @@
  */
 package ch.bedag.dap.hellodata.portal.role.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;

@@ -24,29 +24,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.portal.metainfo.repository;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
-import java.util.concurrent.CompletableFuture;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROLE_RESOURCES;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-@Log4j2
-@Service
-@AllArgsConstructor
-public class PublishedRoleResourcesConsumer {
-    private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
+@Repository
+public interface HdContextRepository extends JpaRepository<HdContextEntity, UUID> {
+    Optional<HdContextEntity> getByTypeAndName(HdContextType type, String name);
 
-    @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = PUBLISH_ROLE_RESOURCES)
-    public CompletableFuture<Void> subscribe(RoleResource roleResource) {
-        log.info("------- Received role resource {}", roleResource);
-        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(roleResource);
-        genericPublishedResourceConsumer.attachContext(roleResource, resource);
-        return null;
-    }
+    Optional<HdContextEntity> getByContextKey(String contextKey);
+
+    @Query("SELECT c from context c where c.type = :type and c.name = :name and c.contextKey = :contextKey")
+    Optional<HdContextEntity> getByTypeAndNameAndKey(@Param("type") HdContextType type, @Param("name") String name, @Param("contextKey") String contextKey);
+
+    List<HdContextEntity> findAllByTypeIn(List<HdContextType> types);
+
+    boolean existsByContextKeyAndType(String contextKey, HdContextType type);
 }

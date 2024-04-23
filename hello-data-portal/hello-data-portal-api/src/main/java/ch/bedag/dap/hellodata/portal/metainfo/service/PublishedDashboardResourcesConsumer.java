@@ -24,20 +24,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.config;
+package ch.bedag.dap.hellodata.portal.metainfo.service;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
+import java.util.concurrent.CompletableFuture;
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
 
-@Configuration
-public class SecurityConfig {
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher(EndpointRequest.toAnyEndpoint());
-        http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
-        return http.build();
+@Log4j2
+@Service
+@AllArgsConstructor
+public class PublishedDashboardResourcesConsumer {
+    private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
+
+    @SuppressWarnings("unused")
+    @JetStreamSubscribe(event = PUBLISH_DASHBOARD_RESOURCES)
+    public CompletableFuture<Void> subscribe(DashboardResource dashboardResource) {
+        log.info("------- Received dashboard resource {}", dashboardResource);
+        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(dashboardResource);
+        genericPublishedResourceConsumer.attachContext(dashboardResource, resource);
+        return null;
     }
 }

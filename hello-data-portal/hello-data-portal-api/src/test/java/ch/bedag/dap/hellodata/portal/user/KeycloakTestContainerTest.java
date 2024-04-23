@@ -29,6 +29,12 @@ package ch.bedag.dap.hellodata.portal.user;
 import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedAppInfoResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedDashboardResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedPermissionResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedPipelineResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedRoleResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedUserResourcesConsumer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.service.UpdateUserContextRoleConsumer;
@@ -78,6 +84,18 @@ public abstract class KeycloakTestContainerTest {
     private StorageSizeService storageSizeService;
     @MockBean
     private NatsHealthIndicator natsHealthIndicator;
+    @MockBean
+    private PublishedAppInfoResourcesConsumer publishedAppInfoResourcesConsumer;
+    @MockBean
+    private PublishedDashboardResourcesConsumer publishedDashboardResourcesConsumer;
+    @MockBean
+    private PublishedPermissionResourcesConsumer publishedPermissionResourcesConsumer;
+    @MockBean
+    private PublishedPipelineResourcesConsumer publishedPipelineResourcesConsumer;
+    @MockBean
+    private PublishedRoleResourcesConsumer publishedRoleResourcesConsumer;
+    @MockBean
+    private PublishedUserResourcesConsumer publishedUserResourcesConsumer;
 
     @DynamicPropertySource
     static void registerResourceServerIssuerProperty(DynamicPropertyRegistry registry) {

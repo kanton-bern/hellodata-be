@@ -24,33 +24,55 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.portal.metainfo.entity;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.hibernate.validator.constraints.Length;
 
-import java.util.concurrent.CompletableFuture;
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Entity(name = "resource")
+public class MetaInfoResourceEntity extends BaseEntity {
+    @NotBlank
+    @Length(max = 55)
+    private String apiVersion;
 
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PIPELINE_RESOURCES;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "module_type", columnDefinition = "VARCHAR")
+    private ModuleType moduleType;
 
-@Log4j2
-@Service
-@AllArgsConstructor
-public class PublishedPipelineResourcesConsumer {
-    private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
+    @NotBlank
+    @Length(max = 55)
+    private String kind;
 
-    @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = PUBLISH_PIPELINE_RESOURCES)
-    public CompletableFuture<Void> subscribe(PipelineResource pipelineResource) {
-        log.info("------- Received pipeline resource {}", pipelineResource);
-        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(pipelineResource);
-        genericPublishedResourceConsumer.attachContext(pipelineResource, resource);
-        return null;
-    }
+    @NotBlank
+    @Length(max = 255)
+    private String instanceName;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Basic(fetch = FetchType.EAGER)
+    @Column(columnDefinition = "json", name = "metainfo")
+    private HdResource metainfo;
+
+    /**
+     * mapping to context entity
+     */
+    private String contextKey;
 }

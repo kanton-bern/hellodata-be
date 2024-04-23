@@ -19,7 +19,6 @@
         <module>hello-data-common</module>
         <module>hello-data-base-model</module>
         <module>hello-data-sidecar-common</module>
-        <module>hello-data-metainfo-model</module>
         <module>hello-data-nats-spring</module>
     </modules>
 

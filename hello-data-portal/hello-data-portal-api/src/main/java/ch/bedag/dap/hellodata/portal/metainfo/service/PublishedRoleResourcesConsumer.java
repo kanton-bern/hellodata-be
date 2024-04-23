@@ -24,42 +24,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.metainfomodel.entities;
+package ch.bedag.dap.hellodata.portal.metainfo.service;
 
-import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.NaturalId;
+import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
+import java.util.concurrent.CompletableFuture;
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROLE_RESOURCES;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Entity(name = "context")
-public class HdContextEntity extends BaseEntity {
+@Log4j2
+@Service
+@AllArgsConstructor
+public class PublishedRoleResourcesConsumer {
+    private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
 
-    private String name;
-
-    @NaturalId
-    @Column(unique = true, name = "context_key")
-    private String contextKey;
-
-    @Column(unique = true, name = "parent_key")
-    private String parentContextKey;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", columnDefinition = "VARCHAR")
-    private HdContextType type;
-
-    /**
-     * used mostly for extra Data Domain
-     */
-    private boolean extra;
+    @SuppressWarnings("unused")
+    @JetStreamSubscribe(event = PUBLISH_ROLE_RESOURCES)
+    public CompletableFuture<Void> subscribe(RoleResource roleResource) {
+        log.info("------- Received role resource {}", roleResource);
+        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(roleResource);
+        genericPublishedResourceConsumer.attachContext(roleResource, resource);
+        return null;
+    }
 }

@@ -26,8 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal.initialize.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.conf.DefaultAdminProperties;
 import ch.bedag.dap.hellodata.portal.user.entity.DefaultUserEntity;

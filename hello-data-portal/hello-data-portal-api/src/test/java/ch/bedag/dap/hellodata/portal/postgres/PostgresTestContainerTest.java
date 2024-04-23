@@ -26,13 +26,19 @@
  */
 package ch.bedag.dap.hellodata.portal.postgres;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.ResourceRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.portal.base.config.PersistenceConfig;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.ResourceRepository;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedAppInfoResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedDashboardResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedPermissionResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedPipelineResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedRoleResourcesConsumer;
+import ch.bedag.dap.hellodata.portal.metainfo.service.PublishedUserResourcesConsumer;
 import io.nats.client.Connection;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -62,6 +68,18 @@ public class PostgresTestContainerTest {
     private SecurityFilterChain securityFilterChain;
     @MockBean
     private Connection connection;
+    @MockBean
+    private PublishedAppInfoResourcesConsumer publishedAppInfoResourcesConsumer;
+    @MockBean
+    private PublishedDashboardResourcesConsumer publishedDashboardResourcesConsumer;
+    @MockBean
+    private PublishedPermissionResourcesConsumer publishedPermissionResourcesConsumer;
+    @MockBean
+    private PublishedPipelineResourcesConsumer publishedPipelineResourcesConsumer;
+    @MockBean
+    private PublishedRoleResourcesConsumer publishedRoleResourcesConsumer;
+    @MockBean
+    private PublishedUserResourcesConsumer publishedUserResourcesConsumer;
 
     @Test
     void should_save_metainfo_to_metainfo_DB() {

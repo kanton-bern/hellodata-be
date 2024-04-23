@@ -26,14 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portal.metainfo.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.ResourceRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.HDVersions;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.portal.metainfo.repository.ResourceRepository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

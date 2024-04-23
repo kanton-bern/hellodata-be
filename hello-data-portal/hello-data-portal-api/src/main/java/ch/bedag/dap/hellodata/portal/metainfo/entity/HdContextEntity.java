@@ -24,29 +24,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.portal.metainfo.entity;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
-import java.util.concurrent.CompletableFuture;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.NaturalId;
 
-@Log4j2
-@Service
-@AllArgsConstructor
-public class PublishedDashboardResourcesConsumer {
-    private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Entity(name = "context")
+public class HdContextEntity extends BaseEntity {
 
-    @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = PUBLISH_DASHBOARD_RESOURCES)
-    public CompletableFuture<Void> subscribe(DashboardResource dashboardResource) {
-        log.info("------- Received dashboard resource {}", dashboardResource);
-        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(dashboardResource);
-        genericPublishedResourceConsumer.attachContext(dashboardResource, resource);
-        return null;
-    }
+    private String name;
+
+    @NaturalId
+    @Column(unique = true, name = "context_key")
+    private String contextKey;
+
+    @Column(unique = true, name = "parent_key")
+    private String parentContextKey;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", columnDefinition = "VARCHAR")
+    private HdContextType type;
+
+    /**
+     * used mostly for extra Data Domain
+     */
+    private boolean extra;
 }
