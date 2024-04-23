@@ -25,7 +25,7 @@ sys.path.append("/opt/airflow/dags/" + "DD_KEY" + "/git/*/")
 
 
 @dag(
-    dag_id="hd_showcase",
+    dag_id="hd_showcase_" + "DD_KEY",
     description="Showcase DAG",
     schedule_interval=cron_expression,
     start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
@@ -94,7 +94,7 @@ def hdShowCase():
 
     @task
     def create_tables():
-        postgres_hook = PostgresHook(postgres_conn_id="postgres_db")
+        postgres_hook = PostgresHook(postgres_conn_id="CONNECTION_ID")
         conn = postgres_hook.get_conn()
         cur = conn.cursor()
 
@@ -118,7 +118,7 @@ def hdShowCase():
 
     @task
     def insert_data():
-        postgres_hook = PostgresHook(postgres_conn_id="postgres_db")
+        postgres_hook = PostgresHook(postgres_conn_id="CONNECTION_ID")
         conn = postgres_hook.get_conn()
         cur = conn.cursor()
 

@@ -77,7 +77,7 @@ version: "3.7"
 
 services:
 
-  showcase-files:
+  showcase-files-default-data-domain:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-showcase
     env_file: .env
@@ -89,6 +89,23 @@ services:
       SHOWCASE_DWH_U_MODELER: postgres
       SHOWCASE_DWH_U_MODELER_PASSWORD: postgres
       SHOWCASE_DWH_NAME: hellodata_product_development_default_data_domain_dwh
+      CONNECTION_ID: postgres_db
+    volumes:
+      - shared-data:/storage
+
+  showcase-files-extra-data-domain:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-showcase
+    env_file: .env
+    environment:
+      DESTINATION_PATH: /storage/Extra_Data_Domain
+      DD_KEY: Extra_Data_Domain
+      SHOWCASE_DWH_HOST: postgres
+      SHOWCASE_DWH_PORT: 5432
+      SHOWCASE_DWH_U_MODELER: postgres
+      SHOWCASE_DWH_U_MODELER_PASSWORD: postgres
+      SHOWCASE_DWH_NAME: hellodata_product_development_extra_data_domain_dwh
+      CONNECTION_ID: postgres_db_extra_dd
     volumes:
       - shared-data:/storage
 

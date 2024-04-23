@@ -29,3 +29,15 @@ FROM bedag/hello-data-airflow
 
 ADD conf/airflow.cfg /opt/airflow/airflow.cfg
 ADD conf/webserver_config.py /opt/airflow/webserver_config.py
+
+ADD db/02_01_add_extra_dd_connection.sql /db/changelog/changelogs/02_01_add_extra_dd_connection.sql
+RUN sed -i '/<\/databaseChangeLog>/d' /db/changelog/airflow-changelog.xml
+
+# Append custom dc changeset to the file
+RUN echo '<changeSet id="0002_01" author="hellodata" runOnChange="true">' >> /db/changelog/airflow-changelog.xml \
+    && echo '    <sqlFile path="changelogs/02_01_add_extra_dd_connection.sql" relativeToChangelogFile="true" splitStatements="false" />' >> /db/changelog/airflow-changelog.xml \
+    && echo '</changeSet>' >> /db/changelog/airflow-changelog.xml \
+    && echo '</databaseChangeLog>' >> /db/changelog/airflow-changelog.xml
+
+RUN ls -la /db/changelog/changelogs
+RUN cat /db/changelog/airflow-changelog.xml

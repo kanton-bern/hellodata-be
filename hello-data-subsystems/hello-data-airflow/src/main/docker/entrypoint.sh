@@ -46,6 +46,7 @@ if [ $WAIT_AND_MIGRATE_EXIT_CODE -ne 0 ]; then
     exit $WAIT_AND_MIGRATE_EXIT_CODE
 else
     echo "[ENTRYPOINT]: wait-and-migrate.sh executed successfully"
+    airflow db upgrade
     # Execute entrypoint only if wait-and-migrate.sh succeeded
     exec /entrypoint "${@}"
 fi
