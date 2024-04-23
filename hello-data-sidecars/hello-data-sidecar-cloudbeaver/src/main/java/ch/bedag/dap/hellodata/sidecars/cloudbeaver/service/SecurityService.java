@@ -27,18 +27,17 @@
 package ch.bedag.dap.hellodata.sidecars.cloudbeaver.service;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.PrivilegeRepository;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.RoleRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Role;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.PrivilegeRepository;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.RoleRepository;
+import java.util.Collection;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.compress.utils.Sets;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collection;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @Log4j2
@@ -70,8 +69,7 @@ public class SecurityService {
         createRoleIfNotFound(roleKey, roleName, Sets.newHashSet(privilege));
     }
 
-    @Transactional
-    public void createRoleIfNotFound(String key, String name, Collection<Privilege> privileges) {
+    private void createRoleIfNotFound(String key, String name, Collection<Privilege> privileges) {
         Role role = roleRepository.findByKeyIgnoreCase(key);
         if (role == null) {
             log.info("Create role {} with key {}", name, key);
@@ -88,8 +86,7 @@ public class SecurityService {
         }
     }
 
-    @Transactional
-    public Privilege createPrivilegeIfNotFound(String name) {
+    private Privilege createPrivilegeIfNotFound(String name) {
         Privilege privilege = privilegeRepository.findByName(name);
         if (privilege == null) {
             privilege = new Privilege(name);
