@@ -33,7 +33,7 @@ import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
 import {PublishedAnnouncementsModule} from "../published-announcement/published-announcements.module";
-import {selectCurrentBusinessDomain, selectDisableLogout, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
+import {selectCurrentBusinessDomain, selectCurrentContextRolesFilterOffNone, selectDisableLogout, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
 import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
 import {MenuModule} from "primeng/menu";
@@ -79,6 +79,7 @@ export class HeaderComponent {
 
   dataDomainSelectionItems: any = [];
   selectedDataDomain$: Observable<DataDomain | null>;
+  currentUserContextRolesNotNone$: Observable<any>;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
@@ -102,7 +103,7 @@ export class HeaderComponent {
       showEnvironment: environment.deploymentEnvironment.showEnvironment != undefined ? environment.deploymentEnvironment.showEnvironment : true,
       color: environment.deploymentEnvironment.headerColor ? environment.deploymentEnvironment.headerColor : ''
     };
-
+    this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone)
     this.translationsLoaded$ = combineLatest([
       this.translateService.selectTranslate('@Profile'),
       this.translateService.selectTranslate('@Logout'),
