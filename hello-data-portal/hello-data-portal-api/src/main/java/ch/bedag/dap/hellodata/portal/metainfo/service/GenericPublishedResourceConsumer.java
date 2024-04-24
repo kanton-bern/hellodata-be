@@ -66,7 +66,7 @@ public class GenericPublishedResourceConsumer {
             resource.setKind(hdResource.getKind());
             resource.setInstanceName(hdResource.getMetadata().instanceName());
         }
-        log.info("Resource saved: {}", resource);
+        log.debug("Resource saved: {}", resource);
         return saveEntity(resource);
     }
 

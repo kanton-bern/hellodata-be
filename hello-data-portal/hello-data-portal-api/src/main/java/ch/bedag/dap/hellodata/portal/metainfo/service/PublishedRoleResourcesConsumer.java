@@ -44,7 +44,7 @@ public class PublishedRoleResourcesConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_ROLE_RESOURCES)
     public CompletableFuture<Void> subscribe(RoleResource roleResource) {
-        log.info("------- Received role resource {}", roleResource);
+        log.debug("------- Received role resource {}", roleResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(roleResource);
         genericPublishedResourceConsumer.attachContext(roleResource, resource);
         return null;

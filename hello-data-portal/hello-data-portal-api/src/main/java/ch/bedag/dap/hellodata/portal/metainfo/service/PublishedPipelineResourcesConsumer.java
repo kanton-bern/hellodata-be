@@ -44,7 +44,7 @@ public class PublishedPipelineResourcesConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_PIPELINE_RESOURCES)
     public CompletableFuture<Void> subscribe(PipelineResource pipelineResource) {
-        log.info("------- Received pipeline resource {}", pipelineResource);
+        log.debug("------- Received pipeline resource {}", pipelineResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(pipelineResource);
         genericPublishedResourceConsumer.attachContext(pipelineResource, resource);
         return null;

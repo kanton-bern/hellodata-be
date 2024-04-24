@@ -53,7 +53,7 @@ public class PublishedAppInfoResourcesConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_APP_INFO_RESOURCES)
     public CompletableFuture<Void> subscribe(AppInfoResource appInfoResource) {
-        log.info("------- Received appInfo resource {}, for the following context config {}", appInfoResource, appInfoResource.getBusinessContextInfo());
+        log.debug("------- Received appInfo resource {}, for the following context config {}", appInfoResource, appInfoResource.getBusinessContextInfo());
         HdBusinessContextInfo businessContextInfo = appInfoResource.getBusinessContextInfo();
         HdContextEntity contextForResource = hdContextService.saveBusinessContext(businessContextInfo);
         MetaInfoResourceEntity savedResource = genericPublishedResourceConsumer.persistResource(appInfoResource);

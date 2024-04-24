@@ -44,7 +44,7 @@ public class PublishedPermissionResourcesConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_PERMISSION_RESOURCES)
     public CompletableFuture<Void> subscribe(PermissionResource permissionResource) {
-        log.info("------- Received permission resource {}", permissionResource);
+        log.debug("------- Received permission resource {}", permissionResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(permissionResource);
         genericPublishedResourceConsumer.attachContext(permissionResource, resource);
         return null;

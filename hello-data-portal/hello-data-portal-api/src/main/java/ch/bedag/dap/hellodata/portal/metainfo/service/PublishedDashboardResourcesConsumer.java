@@ -44,7 +44,7 @@ public class PublishedDashboardResourcesConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_DASHBOARD_RESOURCES)
     public CompletableFuture<Void> subscribe(DashboardResource dashboardResource) {
-        log.info("------- Received dashboard resource {}", dashboardResource);
+        log.debug("------- Received dashboard resource {}", dashboardResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(dashboardResource);
         genericPublishedResourceConsumer.attachContext(dashboardResource, resource);
         return null;

@@ -58,7 +58,7 @@ public class HdContextService {
 
         HdContextEntity businessContextEntity;
         Optional<HdContextEntity> businessContextEntityFound = contextRepository.getByTypeAndNameAndKey(type, name, key);
-        log.info("Business Context found: {} [by type {}, name {}, key {}]", businessContextEntityFound.isPresent(), type, name, key);
+        log.debug("Business Context found: {} [by type {}, name {}, key {}]", businessContextEntityFound.isPresent(), type, name, key);
         if (businessContextEntityFound.isEmpty()) {
             HdContextEntity businessContext = new HdContextEntity();
             businessContext.setType(type);
@@ -88,7 +88,7 @@ public class HdContextService {
                 subContextEntity.setParentContextKey(businessContextEntity.getContextKey());
             }
             subContextEntity.setExtra(subContext.isExtra());
-            log.info("Saving {} context, the name: {}, is extra? {}", subContextEntity.getType(), subContextEntity.getName(), subContextEntity.isExtra());
+            log.debug("Saving {} context, the name: {}, is extra? {}", subContextEntity.getType(), subContextEntity.getName(), subContextEntity.isExtra());
             contextRepository.save(subContextEntity);
             contextForResource = subContextEntity;
         }
