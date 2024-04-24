@@ -29,11 +29,13 @@ package ch.bedag.dap.hellodata.portal.metainfo.service;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
+import ch.bedag.dap.hellodata.portal.initialize.event.InitializationCompletedEvent;
 import ch.bedag.dap.hellodata.portal.metainfo.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.portal.metainfo.entity.MetaInfoResourceEntity;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_APP_INFO_RESOURCES;
@@ -46,6 +48,7 @@ public class PublishedAppInfoResourcesConsumer {
 
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
     private final HdContextService hdContextService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_APP_INFO_RESOURCES)
@@ -56,6 +59,7 @@ public class PublishedAppInfoResourcesConsumer {
         MetaInfoResourceEntity savedResource = genericPublishedResourceConsumer.persistResource(appInfoResource);
         savedResource.setContextKey(contextForResource.getContextKey());
         genericPublishedResourceConsumer.saveEntity(savedResource);
+        applicationEventPublisher.publishEvent(new InitializationCompletedEvent());
         return null;
     }
 }

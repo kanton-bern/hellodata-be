@@ -252,7 +252,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   hello-data-sidecar-cloudbeaver:
-    image: bedag/hello-data-sidecar-cloudbeaver
+    image: bedag/hello-data-sidecar-cloudbeaver:HELLODATA-788_add_more_app_info_subs-SNAPSHOT
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
@@ -559,7 +559,7 @@ services:
 
   hello-data-portal-api:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-portal-api
+    image: bedag/hello-data-portal-api:HELLODATA-788_add_more_app_info_subs-SNAPSHOT
     env_file: .env
     restart: on-failure
     extra_hosts:
@@ -570,8 +570,6 @@ services:
       - SPRING_MAIL_PORT=25
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
       - HELLO_DATA_AUTH_SERVER_REDIRECT_URL=http://localhost:8080
-      - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
-      - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
     links:
       - nats
       - redis
@@ -601,25 +599,3 @@ services:
       interval: 10s
       timeout: 5s
       retries: 15
-
-  hello-data-portal-sidecar:
-    platform: ${HD_PLATFORM}
-    image: bedag/hello-data-sidecar-portal
-    env_file: .env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
-      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
-    links:
-      - nats
-      - redis
-      - postgres
-      - keycloak
-      - hello-data-portal-api
-    depends_on:
-      - postgres
-      - keycloak
-      - redis
-      - nats
-      - hello-data-portal-api
