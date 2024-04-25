@@ -252,7 +252,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   hello-data-sidecar-cloudbeaver:
-    image: bedag/hello-data-sidecar-cloudbeaver:HELLODATA-788_add_more_app_info_subs-SNAPSHOT
+    image: bedag/hello-data-sidecar-cloudbeaver
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
@@ -559,7 +559,7 @@ services:
 
   hello-data-portal-api:
     platform: ${HD_PLATFORM}
-    image: bedag/hello-data-portal-api:HELLODATA-788_add_more_app_info_subs-SNAPSHOT
+    image: bedag/hello-data-portal-api
     env_file: .env
     restart: on-failure
     extra_hosts:
