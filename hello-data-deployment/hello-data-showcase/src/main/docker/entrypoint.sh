@@ -17,6 +17,7 @@ chown -R "${AIRFLOW_UID}:0" "$DESTINATION_PATH"
 
 dags_path="$DESTINATION_PATH/dags/*"
 for file in $dags_path; do
+    echo "Processing $file"
     sed -i "s/DD_KEY/$DD_KEY/g" "$file"
 done
 sed -i "s/SHOWCASE_DWH_HOST/$SHOWCASE_DWH_HOST/g" "$DESTINATION_PATH/dbt/profiles.yml"
