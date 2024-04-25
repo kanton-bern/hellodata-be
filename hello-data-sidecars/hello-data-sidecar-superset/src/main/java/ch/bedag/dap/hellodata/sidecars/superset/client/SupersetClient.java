@@ -412,7 +412,7 @@ public class SupersetClient {
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }
-            return new ApiResponse(code, bodyAsString, request.getAllHeaders());
+            return new ApiResponse(code, bodyAsString, response.getAllHeaders());
         }
     }
 
