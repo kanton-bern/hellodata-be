@@ -202,11 +202,13 @@ public class SupersetApiRequestBuilder {
             builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
             builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
+            builder.addTextBody("csrf_token", csrfToken, contentType);
 
             return RequestBuilder.post() //
                                  .setUri(apiUri) //
                                  .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
                                  .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                                 .setHeader("X-CSRFToken", csrfToken) //
                                  .setEntity(builder.build()) //
                                  .build();
         }
