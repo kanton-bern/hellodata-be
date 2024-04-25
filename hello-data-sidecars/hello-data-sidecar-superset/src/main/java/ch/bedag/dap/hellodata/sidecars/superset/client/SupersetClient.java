@@ -48,6 +48,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -77,6 +79,7 @@ public class SupersetClient {
     private final String authToken;
     private final CloseableHttpClient client;
     private String csrfToken;
+    private String sessionCookie;
 
     /**
      * Creates a new Superset API client with the given credentials.
@@ -372,7 +375,7 @@ public class SupersetClient {
      */
     public void importDashboard(File dashboardFile, JsonElement password, boolean override) throws ClientProtocolException, URISyntaxException, IOException {
         csrf();
-        HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password);
+        HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password, sessionCookie);
         executeRequest(request);
     }
 
@@ -396,6 +399,8 @@ public class SupersetClient {
     private void csrf() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getCsrfTokenRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
+        Optional<Header> setCookieHeader = Arrays.stream(resp.getHeaders()).filter(header -> header.getName().equalsIgnoreCase("set-cookie")).findFirst();
+        setCookieHeader.ifPresent(header -> this.sessionCookie = header.getValue());
         log.info("csrf response ==> {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.csrfToken = respBody.getAsJsonObject().get("result").getAsString();
