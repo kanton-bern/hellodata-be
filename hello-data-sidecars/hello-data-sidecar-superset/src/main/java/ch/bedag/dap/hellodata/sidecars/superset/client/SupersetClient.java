@@ -109,6 +109,7 @@ public class SupersetClient {
         }
         HttpUriRequest request = SupersetApiRequestBuilder.getAuthTokenRequest(host, port, username, password);
         ApiResponse resp = executeRequest(request);
+        log.info("Auth token request executed {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.authToken = respBody.getAsJsonObject().get("access_token").getAsString();
         this.host = host;
