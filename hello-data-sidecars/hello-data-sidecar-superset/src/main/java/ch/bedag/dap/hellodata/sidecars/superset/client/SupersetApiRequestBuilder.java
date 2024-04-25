@@ -191,7 +191,8 @@ public class SupersetApiRequestBuilder {
     public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride,
                                                            JsonElement passwords) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, IMPORT_DASHBOARD_API_ENDPOINT, null);
-
+        log.info("create import dashboard request, auth token {}", authToken);
+        log.info("create import dashboard request, csrf token {}", csrfToken);
         try (FileInputStream fis = new FileInputStream(compressedDashboardFile)) {
             byte[] arr = new byte[(int) compressedDashboardFile.length()];
             int read = fis.read(arr);
@@ -202,7 +203,6 @@ public class SupersetApiRequestBuilder {
             builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
             builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
-            builder.addTextBody("csrf_token", csrfToken, contentType);
 
             return RequestBuilder.post() //
                                  .setUri(apiUri) //
