@@ -202,6 +202,7 @@ public class SupersetApiRequestBuilder {
             builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
             builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
+            builder.addTextBody("csrf_token", csrfToken, contentType);
 
             return RequestBuilder.post() //
                                  .setUri(apiUri) //
