@@ -401,7 +401,7 @@ public class SupersetClient {
         ApiResponse resp = executeRequest(request);
         Optional<Header> setCookieHeader = Arrays.stream(resp.getHeaders()).filter(header -> header.getName().equalsIgnoreCase("set-cookie")).findFirst();
         setCookieHeader.ifPresent(header -> this.sessionCookie = header.getValue());
-        log.info("csrf response ==> {}", resp);
+        log.debug("csrf response ==> {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.csrfToken = respBody.getAsJsonObject().get("result").getAsString();
     }
