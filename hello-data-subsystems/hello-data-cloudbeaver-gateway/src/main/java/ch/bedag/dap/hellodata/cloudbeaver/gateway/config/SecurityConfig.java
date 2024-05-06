@@ -76,7 +76,7 @@ public class SecurityConfig {
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
     private static final List<String> CORS_ALLOWED_HEADERS =
-            List.of("Access-Control-Allow-Methods", "Access-Control-Allow-Origin", "Authorization", "Access-Control-Allow-Headers", "Origin,Accept", "X-Requested-With",
+            List.of("Access-Control-Allow-Methods", "Access-Control-Allow-Origin", AUTHORIZATION_HEADER_NAME, "Access-Control-Allow-Headers", "Origin,Accept", "X-Requested-With",
                     "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers");
 
     private final Environment env;
@@ -91,10 +91,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, CbJwtAuthenticationConverter cbJwtAuthenticationConverter) throws Exception {
-        http.authorizeExchange(exchanges -> {
-            exchanges.anyExchange().permitAll();
-        });
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, CbJwtAuthenticationConverter cbJwtAuthenticationConverter) {
+        http.authorizeExchange(exchanges -> exchanges.anyExchange().permitAll());
         http.addFilterBefore(webFluxLogFilter(), SecurityWebFiltersOrder.FIRST);
         http.addFilterBefore(new TokenAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
         http.addFilterAfter(new AuthWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
@@ -109,7 +107,7 @@ public class SecurityConfig {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable); //cloudbeaver has it's own
     }
 
-    private void configureCors(ServerHttpSecurity http) throws Exception {
+    private void configureCors(ServerHttpSecurity http) {
         if (env.matchesProfiles("disable-cors")) {
             http.cors(ServerHttpSecurity.CorsSpec::disable);
         } else {
@@ -121,7 +119,7 @@ public class SecurityConfig {
                         corsConfig.addAllowedOrigin(allowedOrigin);
                     }
                 } else {
-                    corsConfig.addAllowedOrigin("*");
+                    corsConfig.addAllowedOrigin("*"); //NOSONAR
                 }
                 corsConfig.addAllowedMethod("GET");
                 corsConfig.addAllowedMethod("POST");
@@ -154,24 +152,23 @@ public class SecurityConfig {
     public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(UserRepository userRepository) {
         final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
 
-        return userRequest -> {
-            // Delegate to the default implementation for loading a user
-            return delegate.loadUser(userRequest).flatMap(oidcUser -> {
-                log.debug("Loading user {}", oidcUser == null ? "unknown" : oidcUser.getEmail());
-                assert oidcUser != null;
-                return userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail());
-            }).flatMap(dbUser -> {
-                log.debug("--> Loaded roles ... {}", dbUser.getAuthorities());
-                return Mono.just(dbUser.getAuthorities());
-            }).flatMap(rolesForUser -> {
-                Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-                log.debug("--> mapping authorities... {}", rolesForUser);
-                for (String role : rolesForUser) {
-                    mappedAuthorities.add(new SimpleGrantedAuthority(role.toUpperCase(Locale.ENGLISH)));
-                }
-                return Mono.just(new DefaultOidcUser(mappedAuthorities, userRequest.getIdToken()));
-            });
-        };
+        return userRequest ->
+                // Delegate to the default implementation for loading a user
+                delegate.loadUser(userRequest).flatMap(oidcUser -> {
+                    log.debug("Loading user {}", oidcUser == null ? "unknown" : oidcUser.getEmail());
+                    assert oidcUser != null;
+                    return userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail());
+                }).flatMap(dbUser -> {
+                    log.debug("--> Loaded roles ... {}", dbUser.getAuthorities());
+                    return Mono.just(dbUser.getAuthorities());
+                }).flatMap(rolesForUser -> {
+                    Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+                    log.debug("--> mapping authorities... {}", rolesForUser);
+                    for (String role : rolesForUser) {
+                        mappedAuthorities.add(new SimpleGrantedAuthority(role.toUpperCase(Locale.ENGLISH)));
+                    }
+                    return Mono.just(new DefaultOidcUser(mappedAuthorities, userRequest.getIdToken()));
+                });
     }
 
     @Bean

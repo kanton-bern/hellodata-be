@@ -77,7 +77,7 @@ version: "3.7"
 
 services:
 
-  showcase-files:
+  showcase-files-default-data-domain:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-showcase
     env_file: .env
@@ -89,6 +89,23 @@ services:
       SHOWCASE_DWH_U_MODELER: postgres
       SHOWCASE_DWH_U_MODELER_PASSWORD: postgres
       SHOWCASE_DWH_NAME: hellodata_product_development_default_data_domain_dwh
+      CONNECTION_ID: postgres_db
+    volumes:
+      - shared-data:/storage
+
+  showcase-files-extra-data-domain:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-showcase
+    env_file: .env
+    environment:
+      DESTINATION_PATH: /storage/Extra_Data_Domain
+      DD_KEY: Extra_Data_Domain
+      SHOWCASE_DWH_HOST: postgres
+      SHOWCASE_DWH_PORT: 5432
+      SHOWCASE_DWH_U_MODELER: postgres
+      SHOWCASE_DWH_U_MODELER_PASSWORD: postgres
+      SHOWCASE_DWH_NAME: hellodata_product_development_extra_data_domain_dwh
+      CONNECTION_ID: postgres_db_extra_dd
     volumes:
       - shared-data:/storage
 
@@ -241,7 +258,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
       - NATS_SPRING_SERVER=nats://nats:4222
       - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
-      - HELLO_DATA_INSTANCE_URL=http://localhost:8089/cloudbeaver/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8087/cloudbeaver/
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
@@ -580,7 +597,7 @@ services:
     ports:
       - 8081:8081
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:8081/api/actuator/health" ]
+      test: [ "CMD", "curl", "http://hello-data-portal-api:8081/api/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 15

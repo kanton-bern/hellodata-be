@@ -25,8 +25,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM dbeaver/cloudbeaver:23.3.4
+FROM bedag/hello-data-cloudbeaver
 
 ADD conf/cloudbeaver.conf /opt/cloudbeaver/conf/cloudbeaver.conf
 ADD conf/initial-data.conf /opt/cloudbeaver/conf/initial-data.conf
 ADD conf/initial-data-sources.conf /opt/cloudbeaver/conf/initial-data-sources.conf
+ADD conf/data-sources-permissions.json /opt/cloudbeaver/workspace/GlobalConfiguration/.dbeaver/data-sources-permissions.json

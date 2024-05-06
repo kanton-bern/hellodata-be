@@ -34,6 +34,10 @@ export const naviElements: any = {
     path: 'profile',
     label: '@Profile'
   },
+  publishedAnnouncements: {
+    path: 'published-announcements',
+    label: '@Announcements'
+  },
   lineageDocs: {
     path: 'lineage-docs',
     label: '@Docs'

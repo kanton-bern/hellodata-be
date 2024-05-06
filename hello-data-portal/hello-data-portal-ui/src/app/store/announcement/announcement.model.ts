@@ -33,6 +33,7 @@ export interface Announcement {
   createdBy?: string;
   modifiedDate?: Date;
   modifiedBy?: string;
+  publishedDate?: number
 }
 
 export interface AnnouncementCreate {

@@ -47,6 +47,7 @@ import {TableModule} from "primeng/table";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {ScrollTopModule} from "primeng/scrolltop";
 
 @Component({
   selector: 'app-docs',
@@ -132,7 +133,8 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
     ReactiveFormsModule,
     TooltipModule,
     RouterLink,
-    TableModule
+    TableModule,
+    ScrollTopModule
   ],
   declarations: [LineageDocsComponent, EmbeddedLineageDocsComponent],
   exports: [LineageDocsComponent]

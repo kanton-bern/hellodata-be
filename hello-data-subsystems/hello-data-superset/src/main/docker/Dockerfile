@@ -90,6 +90,7 @@ RUN tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz
 # add liquibase migrations
 COPY --chown=superset ./db/changelog /db/changelog
 COPY --chown=superset ./wait-and-migrate.sh /db/wait-and-migrate.sh
+COPY --chown=superset ./entrypoint.sh /db/entrypoint.sh
 #RUN set -xe \
 #    && chmod +x /db/wait-and-migrate.sh \
 #    && chown -R superset:superset /db
@@ -99,3 +100,5 @@ RUN chmod a+x /db/*.sh
 # Switching back to using the `superset` user
 USER superset
 WORKDIR /app
+
+CMD ["/bin/sh", "-c", "/db/entrypoint.sh"]

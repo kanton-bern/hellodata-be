@@ -50,7 +50,8 @@ public class LoggingFilter implements GlobalFilter, Ordered {
         String originalUri = (uris.isEmpty()) ? "Unknown" : uris.iterator().next().toString();
         Route route = exchange.getAttribute(GATEWAY_ROUTE_ATTR);
         URI routeUri = exchange.getAttribute(GATEWAY_REQUEST_URL_ATTR);
-        log.warn("Incoming request " + originalUri + " is routed to id: " + route.getId() + ", uri:" + routeUri);
+        String routeId = route != null ? route.getId() : "UNKNOWN_ROUTE";
+        log.warn("Incoming request " + originalUri + " is routed to id: " + routeId + ", uri:" + routeUri);
         return chain.filter(exchange);
     }
 

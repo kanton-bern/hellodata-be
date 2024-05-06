@@ -54,12 +54,12 @@ public class CbCreateUserConsumer {
         User user = userRepository.findByUserNameOrEmail(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
         if (user != null) {
             log.info("User {} already exists in instance, omitting creation. Email: {}", subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
-            return null;//NOSONAR
+        } else {
+            log.info("Going to create new cloudbeaver user with email: {}", subsystemUserUpdate.getEmail());
+            User dbtDocUser = toCbUser(subsystemUserUpdate);
+            userRepository.save(dbtDocUser);
+            userResourceProviderService.publishUsers();
         }
-        log.info("Going to create new cloudbeaver user with email: {}", subsystemUserUpdate.getEmail());
-        User dbtDocUser = toCbUser(subsystemUserUpdate);
-        userRepository.save(dbtDocUser);
-        userResourceProviderService.publishUsers();
         return null;//NOSONAR
     }
 

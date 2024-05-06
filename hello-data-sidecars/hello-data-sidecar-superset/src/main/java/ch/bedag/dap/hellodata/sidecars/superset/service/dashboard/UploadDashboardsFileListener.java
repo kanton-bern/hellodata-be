@@ -27,8 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -47,7 +47,7 @@ public class UploadDashboardsFileListener {
 
     private static final String CHUNK_SUFFIX = ".tmp";
     private static final int FILE_BUFFER_SIZE = 1024 * 1024;
-    private static final String FOLDER_NAMES_REGEX_PATTERN = "[^A-Za-z0-9\\-\\_]";
+    private static final String FOLDER_NAMES_REGEX_PATTERN = "[^A-Za-z0-9\\-_]";
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
     private final ObjectMapper objectMapper;
@@ -62,7 +62,7 @@ public class UploadDashboardsFileListener {
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
         log.debug("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
-        Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
+        Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
             String binaryFileId = null;
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -71,7 +71,8 @@ public class UploadDashboardsFileListener {
                 File destinationFile;
                 if (dashboardUpload.isLastChunk()) {
                     destinationFile =
-                            File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), "");
+                            File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), //NOSONAR
+                                                ""); //NOSONAR
                     log.debug("Created temp file for chunk {}", destinationFile);
                     binaryFileId = dashboardUpload.getBinaryFileId();
                     assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
@@ -100,7 +101,7 @@ public class UploadDashboardsFileListener {
     private JsonObject getPasswordsObject(File destinationFile) throws IOException {
         JsonObject jsonElement = new JsonObject();
         try (ZipFile zipFile = new ZipFile(destinationFile)) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 String name = zipEntry.getName();
@@ -145,7 +146,7 @@ public class UploadDashboardsFileListener {
         Path chunksFolderPath = getUploadFolderPath(binaryFileId);
 
         if (!Files.exists(chunksFolderPath)) {
-            throw new RuntimeException("No chunks were found for filename : " + filename);
+            throw new UploadDashboardsFileException("No chunks were found for filename : " + filename);
         }
 
         List<File> chunks = listChunks(chunksFolderPath);
@@ -153,29 +154,23 @@ public class UploadDashboardsFileListener {
             String errMsg =
                     "Chunks list empty? - " + chunks.isEmpty() + " Chunk size different than total size? - " + (chunks.size() != totalChunks) + " Chunk size different? - " +
                     validateChunkSizeWrong(fileSize, chunks);
-            throw new RuntimeException("Chunks validation failed. Upload canceled. " + errMsg);
+            throw new UploadDashboardsFileException("Chunks validation failed. Upload canceled. " + errMsg);
         }
         writeChunksToFile(destinationPath, chunks);
         validateZipFile(destinationPath);
     }
 
     private void validateZipFile(Path destinationPath) throws IOException {
-        InputStreamReader inputStreamReader = null;
-        BufferedReader bufferedReader = null;
-        try {
-            // Command to execute Python script
-            String[] cmd = { "python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString() };
-            log.info("Python cmd {}", StringUtils.join(cmd, " "));
+        // Command to execute Python script
+        String[] cmd = { "python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString() };
+        log.info("Python cmd {}", StringUtils.join(cmd, " "));
 
-            // Create ProcessBuilder
-            ProcessBuilder pb = new ProcessBuilder(cmd);
+        // Create ProcessBuilder
+        ProcessBuilder pb = new ProcessBuilder(cmd); //NOSONAR
 
-            // Start the process
-            Process process = pb.start();
-
-            // Read output from Python script
-            inputStreamReader = new InputStreamReader(process.getInputStream());
-            bufferedReader = new BufferedReader(inputStreamReader);
+        // Start the process
+        Process process = pb.start();
+        try (InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream()); BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
             String line;
             StringBuilder stringBuilder = new StringBuilder();
             while ((line = bufferedReader.readLine()) != null) {
@@ -187,17 +182,13 @@ public class UploadDashboardsFileListener {
             int exitCode = process.waitFor();
             log.info("Python script executed with exit code: " + exitCode);
             if (exitCode != 0) {
-                throw new RuntimeException("Python script validation error: \n" + stringBuilder);
+                throw new UploadDashboardsFileException("Python script validation error: \n" + stringBuilder);
             }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Error validating file", e);
-        } finally {
-            if (inputStreamReader != null) {
-                inputStreamReader.close();
-            }
-            if (bufferedReader != null) {
-                bufferedReader.close();
-            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new UploadDashboardsFileException("Error validating file", e);
+        } catch (IOException e) {
+            throw new UploadDashboardsFileException("Error validating file", e);
         }
     }
 
@@ -216,7 +207,7 @@ public class UploadDashboardsFileListener {
             List<File> chunks = listChunks(chunksFolderPath);
             int nrFilesDeleted = 0;
             for (File file : listChunks(chunksFolderPath)) {
-                if (file.delete()) {
+                if (file.delete()) { //NOSONAR
                     nrFilesDeleted++;
                 }
             }
@@ -234,8 +225,8 @@ public class UploadDashboardsFileListener {
     private List<File> listChunks(Path chunksFolderPath) {
         File folderFile = new File(chunksFolderPath.toString());
         File[] fileArray = folderFile.listFiles();
-        List<File> files = Arrays.asList(fileArray);
-        Collections.sort(files, (File o1, File o2) -> {
+        List<File> files = new ArrayList<>(fileArray != null ? Arrays.asList(fileArray) : List.of());
+        files.sort((File o1, File o2) -> {
             //remove extension
             String chunkName1 = o1.getName().split("\\.")[0];
             String chunkName2 = o2.getName().split("\\.")[0];

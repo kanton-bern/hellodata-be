@@ -1,4 +1,3 @@
-
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
@@ -12,15 +11,15 @@ profile: 'showcase_tierstatistik'
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
-model-paths: ["models"]
-analysis-paths: ["analyses"]
-test-paths: ["tests"]
-seed-paths: ["seeds"]
-macro-paths: ["macros"]
-snapshot-paths: ["snapshots"]
+model-paths: [ "models" ]
+analysis-paths: [ "analyses" ]
+test-paths: [ "tests" ]
+seed-paths: [ "seeds" ]
+macro-paths: [ "macros" ]
+snapshot-paths: [ "snapshots" ]
 
 target-path: "target"  # directory which will store compiled SQL files
-clean-targets:         # directories to be removed by `dbt clean`
+clean-targets: # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
@@ -39,4 +38,4 @@ models:
     #  +schema: rdv
     udm:
       +materialized: table
-      #+schema: udm
+      #+schema: udm #<- this will create 'udm_udm' schema

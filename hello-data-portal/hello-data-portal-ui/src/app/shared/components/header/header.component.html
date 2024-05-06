@@ -1,5 +1,5 @@
-<div *ngIf="availableDataDomains$ | async"></div>
-<div *ngIf="translationsLoaded$ | async"></div>
+<ng-container *ngIf="availableDataDomains$ | async"></ng-container>
+<ng-container *ngIf="translationsLoaded$ | async"></ng-container>
 <div [ngStyle]="environment.color && { 'background-color': environment.color} || null" class="layout-topbar">
   <div class="card-container topbar-container overflow-hidden">
     <div class="flex">
@@ -9,7 +9,7 @@
       <div *ngIf="(businessDomain$ | async) as businessDomain" class="flex align-items-center justify-content-center m-1 px-1 py-1 font-medium text-xl">
         <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item" tooltipPosition="bottom">{{ businessDomain }}</p>
       </div>
-      <div class="flex-auto flex align-items-center m-1 px-1 py-1">
+      <div class="flex-auto flex align-items-center m-1 px-1 py-1" *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
         <section [pTooltip]="'@Selected Data Domain' | transloco" class="top-menu-item" tooltipPosition="bottom">
            <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
               <a (click)="selectedDataDomainMenu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
@@ -34,7 +34,7 @@
 </div>
 
 
-<app-published-announcements class="published-announcements-container"></app-published-announcements>
+<app-published-announcements-wrapper class="published-announcements-container" *ngIf="isAuthenticated$ | async"></app-published-announcements-wrapper>
 <app-breadcrumb class="breadcrumb-container"></app-breadcrumb>
 <!--use p-menu here with reference above due to firefox issues with z-index-->
 <p-menu #menu [model]="userMenuItems" [popup]="true"></p-menu>

@@ -109,15 +109,28 @@ export class AuthEffects {
   fetchPermissionSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(fetchPermissionSuccess),
-      switchMap(() => of(
-        loadAvailableDataDomains(),
-        loadAppInfoResources(),
-        loadMyDashboards(),
-        loadDocumentation(),
-        loadMyLineageDocs(),
-        fetchContextRoles(),
-        loadPipelines(),
-        loadStorageSize())),
+      switchMap((action) => {
+        const permissions = action.currentUserAuthData.permissions;
+        if (!permissions || permissions.length === 0 || !permissions.includes('DASHBOARDS')) {
+          return of(
+            loadAvailableDataDomains(),
+            loadAppInfoResources(),
+            loadDocumentation(),
+            loadMyLineageDocs(),
+            fetchContextRoles(),
+            loadPipelines(),
+            loadStorageSize());
+        }
+        return of(
+          loadAvailableDataDomains(),
+          loadAppInfoResources(),
+          loadMyDashboards(),
+          loadDocumentation(),
+          loadMyLineageDocs(),
+          fetchContextRoles(),
+          loadPipelines(),
+          loadStorageSize());
+      }),
     )
   });
 

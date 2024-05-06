@@ -102,3 +102,4 @@ If you open a kubernetes Monitoring tool such as [Lens](https://k8slens.dev/) or
 ![](../images/workspaces-error-pull-image.png)
 
 
+Another cause, in case you haven't created the local PersistentVolume, you'd see something like "my-pvc" does not exist. Then you'd need to [create](https://kanton-bern.github.io/hellodata-be/concepts/workspaces/#volumes-pvc) the pvc first.

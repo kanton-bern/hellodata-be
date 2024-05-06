@@ -48,10 +48,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -76,6 +79,7 @@ public class SupersetClient {
     private final String authToken;
     private final CloseableHttpClient client;
     private String csrfToken;
+    private String sessionCookie;
 
     /**
      * Creates a new Superset API client with the given credentials.
@@ -108,6 +112,7 @@ public class SupersetClient {
         }
         HttpUriRequest request = SupersetApiRequestBuilder.getAuthTokenRequest(host, port, username, password);
         ApiResponse resp = executeRequest(request);
+        log.info("Auth token request executed {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.authToken = respBody.getAsJsonObject().get("access_token").getAsString();
         this.host = host;
@@ -370,7 +375,7 @@ public class SupersetClient {
      */
     public void importDashboard(File dashboardFile, JsonElement password, boolean override) throws ClientProtocolException, URISyntaxException, IOException {
         csrf();
-        HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password);
+        HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password, sessionCookie);
         executeRequest(request);
     }
 
@@ -394,6 +399,9 @@ public class SupersetClient {
     private void csrf() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getCsrfTokenRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
+        Optional<Header> setCookieHeader = Arrays.stream(resp.getHeaders()).filter(header -> header.getName().equalsIgnoreCase("set-cookie")).findFirst();
+        setCookieHeader.ifPresent(header -> this.sessionCookie = header.getValue());
+        log.debug("csrf response ==> {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.csrfToken = respBody.getAsJsonObject().get("result").getAsString();
     }
@@ -409,7 +417,7 @@ public class SupersetClient {
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }
-            return new ApiResponse(code, bodyAsString);
+            return new ApiResponse(code, bodyAsString, response.getAllHeaders());
         }
     }
 
@@ -435,5 +443,6 @@ public class SupersetClient {
     public static class ApiResponse {
         private int code;
         private String body;
+        private Header[] headers;
     }
 }

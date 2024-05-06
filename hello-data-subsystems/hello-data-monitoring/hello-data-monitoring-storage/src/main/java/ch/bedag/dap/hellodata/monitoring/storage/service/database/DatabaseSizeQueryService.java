@@ -29,9 +29,9 @@ package ch.bedag.dap.hellodata.monitoring.storage.service.database;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.database.DatabaseSize;
 import ch.bedag.dap.hellodata.monitoring.storage.config.database.DynamicDataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -51,17 +51,18 @@ public class DatabaseSizeQueryService {
         List<DatabaseSize> result = new LinkedList<>();
         for (String key : dynamicDataSource.getDataSources().keySet()) {
             DataSource dataSource = dynamicDataSource.getDataSource(key);
-            try (Connection connection = dataSource.getConnection()) {
-                Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery("SELECT pg_database_size('" + connection.getCatalog() + "')");
-                if (resultSet.next()) {
-                    String used = resultSet.getString(1);
-                    log.info("Database: " + key + ", Used: " + used);
-                    DatabaseSize databaseSize = new DatabaseSize();
-                    databaseSize.setUsedBytes(used);
-                    databaseSize.setName(key);
-                    databaseSize.setTotalAvailableBytes(dynamicDataSource.getTotalAvailableBytes(key));
-                    result.add(databaseSize);
+            try (Connection connection = dataSource.getConnection(); PreparedStatement statement = connection.prepareStatement("SELECT pg_database_size(?)")) {
+                statement.setString(1, connection.getCatalog());
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        String used = resultSet.getString(1);
+                        log.info("Database: " + key + ", Used: " + used);
+                        DatabaseSize databaseSize = new DatabaseSize();
+                        databaseSize.setUsedBytes(used);
+                        databaseSize.setName(key);
+                        databaseSize.setTotalAvailableBytes(dynamicDataSource.getTotalAvailableBytes(key));
+                        result.add(databaseSize);
+                    }
                 }
             } catch (SQLException e) {
                 log.error("", e);

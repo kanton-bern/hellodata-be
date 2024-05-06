@@ -33,11 +33,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rest-assured.version>5.2.0</rest-assured.version>
         <spring-boot-starter-kubernetes.version>3.1.0</spring-boot-starter-kubernetes.version>
-        <spring-boot.version>3.2.1</spring-boot.version>
-        <spring-boot-admin-dependencies.version>3.2.0</spring-boot-admin-dependencies.version>
+        <spring-boot.version>3.2.4</spring-boot.version>
+        <spring-boot-admin-dependencies.version>3.2.3</spring-boot-admin-dependencies.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <spring-ws-test.version>4.0.2</spring-ws-test.version>
-        <springdoc.version>2.1.0</springdoc.version>
+        <springdoc.version>2.5.0</springdoc.version>
         <testcontainers-keycloak.version>2.4.0</testcontainers-keycloak.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>

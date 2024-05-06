@@ -68,6 +68,7 @@
   "@Disable user": "Désactiver l'utilisateur",
   "@Disable user question": "Désactiver l'utilisateur {{user}}?",
   "@Dismiss": "Rejeter",
+  "@Do not show again": "Ne plus montrer",
   "@Doc": "Doc",
   "@Docs": "Docs",
   "@Documentation": "Documentation",
@@ -140,6 +141,7 @@
   "@My Dashboards": "Mes tableaux de bord",
   "@Name": "Prénom",
   "@Never": "Jamais",
+  "@No": "Non",
   "@No dashboards found": "Aucun tableau de bord trouvé.",
   "@No data found": "Aucune donnée trouvée",
   "@Not Allowed": "Non autorisé",
@@ -213,8 +215,11 @@
   "@Users management": "Gestion des utilisateurs",
   "@Version": "Version",
   "@Version Control": "Version Control",
+  "@View announcements": "Afficher les annonces",
+  "@Welcome": "Bienvenue",
   "@Workspace": "Workspace",
   "@Workspace permissions updated": "Mise à jour des autorisations de l'espace de travail",
   "@Workspaces": "Workspaces",
+  "@Yes": "Oui",
   "@You are not allowed to access this page": "Vous n'êtes pas autorisé à accéder à cette page. Contactez votre administrateur."
 }

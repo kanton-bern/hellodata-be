@@ -68,6 +68,7 @@
   "@Disable user": "Disable user",
   "@Disable user question": "Disable user {{user}}?",
   "@Dismiss": "Dismiss",
+  "@Do not show again": "Don't show again",
   "@Doc": "Doc",
   "@Docs": "Docs",
   "@Documentation": "Documentation",
@@ -140,6 +141,7 @@
   "@My Dashboards": "My dashboards",
   "@Name": "Name",
   "@Never": "Never",
+  "@No": "No",
   "@No dashboards found": "No dashboards found.",
   "@No data found": "No data found",
   "@Not Allowed": "Not Allowed",
@@ -213,8 +215,11 @@
   "@Users management": "Users management",
   "@Version": "Version",
   "@Version Control": "Version Control",
+  "@View announcements": "View announcements",
+  "@Welcome": "Welcome",
   "@Workspace": "Workspace",
   "@Workspace permissions updated": "Workspace permissions updated",
   "@Workspaces": "Workspaces",
+  "@Yes": "Yes",
   "@You are not allowed to access this page": "You are not allowed to access this page. Contact your administrator."
 }

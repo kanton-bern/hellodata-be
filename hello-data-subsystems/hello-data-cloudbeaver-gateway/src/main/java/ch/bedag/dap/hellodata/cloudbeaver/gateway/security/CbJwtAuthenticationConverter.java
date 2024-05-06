@@ -26,12 +26,11 @@
  */
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.security;
 
-import ch.bedag.dap.hellodata.cloudbeaver.gateway.repository.UserRepository;
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.entities.User;
+import ch.bedag.dap.hellodata.cloudbeaver.gateway.service.UserService;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -46,20 +45,14 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class CbJwtAuthenticationConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-    private final UserRepository userRepository;
+    private final UserService usreService;
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt source) {
         String email = (String) source.getClaims().get("email");
         log.info("--> converting jwt to authorities for user {} ...", email);
         if (email != null) {
-            User u = null;
-            try {
-                u = userRepository.findOneWithPermissionsByEmail(email).toFuture().get();
-            } catch (InterruptedException | ExecutionException e) {
-                Thread.currentThread().interrupt(); // Re-interrupt the thread
-                throw new RuntimeException(e);
-            }
+            User u = usreService.findOneWithPermissionsByEmail(email);
             if (u != null) {
                 Set<GrantedAuthority> authorities = u.getAuthorities().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
                 log.info("\tloaded authorities {}", authorities);

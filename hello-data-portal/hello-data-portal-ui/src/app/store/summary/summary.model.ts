@@ -31,6 +31,8 @@ export interface Documentation {
 
 export interface PipelineInstance {
   state: "queued" | "running" | "success" | "failed";
+  startDate: number;
+  endDate: number;
 }
 
 export interface Pipeline {

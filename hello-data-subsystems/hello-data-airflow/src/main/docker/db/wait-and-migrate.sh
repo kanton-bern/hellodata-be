@@ -29,7 +29,7 @@
 echo "Start wait-and-migrate script"
 
 function require {
-  if [ -z "${!1}" ]; then >&2 echo "Missing env parameter '$1'"; exit 1; fi
+  if [ -z "${!1}" ]; then >&2 echo "ERROR: Missing env parameter '$1'"; exit 1; fi
 }
 
 require "DB_HOST"

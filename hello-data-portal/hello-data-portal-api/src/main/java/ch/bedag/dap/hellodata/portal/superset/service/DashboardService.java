@@ -121,6 +121,7 @@ public class DashboardService {
         }
     }
 
+    @SuppressWarnings("java:S107")
     private void findDashboardsWithGivenRolesForCurrentUser(Set<SupersetDashboardDto> dashboardsWithAccess, MetaInfoResourceEntity metaInfoResource,
                                                             DashboardResource dashboardResource, List<SupersetDashboard> dashboards, Set<String> rolesOfCurrentUser,
                                                             boolean isAdmin, boolean isEditor, String instanceUrl) {
@@ -128,19 +129,25 @@ public class DashboardService {
             Set<String> dashboardRoles = dashboard.getRoles().stream().map(SupersetRole::getName).collect(Collectors.toSet());
             log.debug(String.format("Instance: '%s', Dashboard: '%s', requires any of following roles: %s", dashboardResource.getInstanceName(), dashboard.getDashboardTitle(),
                                     dashboardRoles));
-            for (String dashboardRole : dashboardRoles) {
-                boolean isViewer = rolesOfCurrentUser.contains(dashboardRole);
-                if (isAdmin || isEditor || isViewer) { // ensure only RBAC roles are allowed (starting with D_ ...)
-                    HdContextEntity context = contextRepository.getByContextKey(metaInfoResource.getContextKey()).orElse(null);
-                    String contextName = context != null ? context.getName() : null;
-                    UUID contextId = context != null ? context.getId() : null;
-                    String contextKey = context != null ? context.getContextKey() : null;
-                    SupersetDashboardWithMetadataDto dashboardDto =
-                            new SupersetDashboardWithMetadataDto(dashboard, dashboardResource.getInstanceName(), instanceUrl, isAdmin, isEditor, isViewer, contextName, contextId,
-                                                                 contextKey);
-                    fetchMetadata(dashboardResource.getInstanceName(), dashboard, dashboardDto);
-                    dashboardsWithAccess.add(dashboardDto);
-                }
+            checkRBACRoles(dashboardsWithAccess, metaInfoResource, dashboardResource, rolesOfCurrentUser, isAdmin, isEditor, instanceUrl, dashboard, dashboardRoles);
+        }
+    }
+
+    @SuppressWarnings("java:S107")
+    private void checkRBACRoles(Set<SupersetDashboardDto> dashboardsWithAccess, MetaInfoResourceEntity metaInfoResource, DashboardResource dashboardResource,
+                                Set<String> rolesOfCurrentUser, boolean isAdmin, boolean isEditor, String instanceUrl, SupersetDashboard dashboard, Set<String> dashboardRoles) {
+        for (String dashboardRole : dashboardRoles) {
+            boolean isViewer = rolesOfCurrentUser.contains(dashboardRole);
+            if (isAdmin || isEditor || isViewer) { // ensure only RBAC roles are allowed (starting with D_ ...)
+                HdContextEntity context = contextRepository.getByContextKey(metaInfoResource.getContextKey()).orElse(null);
+                String contextName = context != null ? context.getName() : null;
+                UUID contextId = context != null ? context.getId() : null;
+                String contextKey = context != null ? context.getContextKey() : null;
+                SupersetDashboardWithMetadataDto dashboardDto =
+                        new SupersetDashboardWithMetadataDto(dashboard, dashboardResource.getInstanceName(), instanceUrl, isAdmin, isEditor, isViewer, contextName, contextId,
+                                                             contextKey);
+                fetchMetadata(dashboardResource.getInstanceName(), dashboard, dashboardDto);
+                dashboardsWithAccess.add(dashboardDto);
             }
         }
     }
@@ -235,8 +242,11 @@ public class DashboardService {
                 DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize());
                 sendToSidecar(dashboardUpload, subject);
             }
-        } catch (InterruptedException | IOException e) {
-            throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e); //NOSONAR
+        } catch (IOException e) {
+            throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e); //NOSONAR
         }
     }
 
