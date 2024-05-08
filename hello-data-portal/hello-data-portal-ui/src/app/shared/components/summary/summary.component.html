@@ -1,69 +1,40 @@
-
 <div *ngIf="(currentUserPermissions$ | async) as permissions" id="summaryComponent">
   <p-sidebar [(visible)]="overlaySidebarVisible" position="right" styleClass="w-30rem">
     <ng-template pTemplate="header">
       <div class="font-semibold" id="summaryHeader"> {{'@Summary header' | transloco}}</div>
     </ng-template>
     <ng-template pTemplate="content">
-      <p-fieldset id="statusHeader" legend="Status">
+      <p-fieldset id="statusHeader" legend="Status" *ngIf="permissions.length !== 0">
         <p-accordion>
           <p-accordionTab header="Data pipelines">
             <p-dataView [value]="(pipelines$ | async)!" emptyMessage="{{ '@No data found' | transloco }}">
               <ng-template let-pipeline pTemplate="listItem">
-                <div class="col-11">
+                <div class="col-8">
                   <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
-                  <!--                          label="{{ pipeline.id | truncate: 35}}" placeholder="Left"-->
+                  <!--                          label="{{ pipeline.id | truncate: 30}}" placeholder="Left"-->
                   <!--                          pButton tooltipPosition="left"-->
                   <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
                   <!--                          type="button">-->
                   <!--                  </button>-->
                   <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}" placeholder="Left" style="font-size: 0.9rem; font-weight: 400"
-                         tooltipPosition="left">{{ pipeline.id | truncate: 35}}</label>
+                         tooltipPosition="left">{{ pipeline.id | truncate: 30}}</label>
+                </div>
+                <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
+                  <span *ngIf="pipeline.lastInstance.startDate">{{pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss'}}</span>
                 </div>
                 <div [ngSwitch]="pipeline.lastInstance.state" class="col-1">
-                  <span *ngSwitchCase="'queued'" class="align-items-end pi pi-hourglass" style="color: gray"></span>
-                  <span *ngSwitchCase="'running'" class="align-items-end pi pi-spin pi-cog" style="color: green"></span>
-                  <span *ngSwitchCase="'success'" class="align-items-end pi pi-check-circle" style="color: green"></span>
-                  <span *ngSwitchCase="'failed'" class="align-items-end pi pi-exclamation-circle" style="color: red"></span>
-                  <span *ngSwitchDefault class="align-items-end pi pi-question-circle" style="color: gray"></span>
+                  <span *ngSwitchCase="'queued'" class="align-items-end pi pi-hourglass" style="color: gray" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchCase="'running'" class="align-items-end pi pi-spin pi-cog" style="color: green" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchCase="'success'" class="align-items-end pi pi-check-circle" style="color: green" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchCase="'failed'" class="align-items-end pi pi-exclamation-circle" style="color: red" [pTooltip]="pipeline.lastInstance.state"></span>
+                  <span *ngSwitchDefault class="align-items-end pi pi-question-circle" style="color: gray" [pTooltip]="'unknown'"></span>
                 </div>
               </ng-template>
             </p-dataView>
           </p-accordionTab>
-          <!--          <p-accordionTab header="Containers">-->
-          <!--            <p>-->
-          <!--              Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam-->
-          <!--              rem-->
-          <!--              aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt-->
-          <!--              explicabo.-->
-          <!--              Nemo enim-->
-          <!--              ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos-->
-          <!--              qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi.-->
-          <!--            </p>-->
-          <!--          </p-accordionTab>-->
-          <!--          <p-accordionTab header="Performance">-->
-          <!--            <p>-->
-          <!--              At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti-->
-          <!--              atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique-->
-          <!--              sunt in culpa-->
-          <!--              qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et-->
-          <!--              expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo-->
-          <!--              minus.-->
-          <!--            </p>-->
-          <!--          </p-accordionTab>-->
-          <!--          <p-accordionTab header="Security">-->
-          <!--            <p>-->
-          <!--              At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti-->
-          <!--              atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique-->
-          <!--              sunt in culpa-->
-          <!--              qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et-->
-          <!--              expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo-->
-          <!--              minus.-->
-          <!--            </p>-->
-          <!--          </p-accordionTab>-->
         </p-accordion>
       </p-fieldset>
-      <br/>
+
       <p-fieldset *ngIf="(documentation$ | async) as documentation">
         <ng-template pTemplate="header">
           <div>
@@ -78,8 +49,8 @@
           <p-header hidden></p-header>
         </p-editor>
       </p-fieldset>
-      <br/>
-      <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}">
+
+      <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}" *ngIf="permissions.length !== 0">
         <app-subscriptions></app-subscriptions>
       </p-fieldset>
 
@@ -88,7 +59,7 @@
           <ul *ngFor="let storageSize of storeSize.storageSizes">
             <li>
               {{storageSize.name + ' '}}
-              <b>{{storageSize.size + ' ' + ('@Of' | transloco) + ' ' + storageSize.freeSpace}}</b>
+              <b>{{storageSize.usedSize}}</b>
             </li>
           </ul>
         </div>
@@ -99,11 +70,14 @@
           <ul *ngFor="let databaseSize of storeSize.databaseSizes">
             <li>
               {{ databaseSize.name + ' '}}
-              <b>{{databaseSize.size}}</b>
+              <b>{{databaseSize.usedSize}}</b>
             </li>
           </ul>
         </div>
       </p-fieldset>
+
+      <app-footer [appInfo]="appInfo"></app-footer>
+
 
     </ng-template>
   </p-sidebar>

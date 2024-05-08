@@ -43,6 +43,12 @@ import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.repository.DashboardMetadataRepository;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,18 +62,12 @@ import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -94,8 +94,7 @@ public class DashboardServiceTest {
 
     @BeforeEach
     public void initSecurityContext() {
-        HellodataAuthenticationToken hellodataAuthenticationToken = new HellodataAuthenticationToken(UUID.randomUUID(),
-            "admin", "user", email, true, Collections.emptySet());
+        HellodataAuthenticationToken hellodataAuthenticationToken = new HellodataAuthenticationToken(UUID.randomUUID(), "admin", "user", email, true, Collections.emptySet());
         SecurityContextHolder.getContext().setAuthentication(hellodataAuthenticationToken);
     }
 
@@ -112,8 +111,11 @@ public class DashboardServiceTest {
         configureBaseMocks(userResources, createDashboardResource());
         given(dashboardMetadataRepository.findBySubsystemIdAndInstanceName(subsystemId, instanceName)).willReturn(Optional.empty());
 
-        //When / Then
+        //When
         dashboardService.updateDashboard(instanceName, subsystemId, new UpdateSupersetDashboardMetadataDto());
+
+        //Then
+        verify(dashboardMetadataRepository, times(1)).findBySubsystemIdAndInstanceName(subsystemId, instanceName);
     }
 
     @Test
@@ -124,8 +126,8 @@ public class DashboardServiceTest {
         configureBaseMocks(userResources, createDashboardResource());
 
         //When
-        Throwable exception = assertThrows(ResponseStatusException.class,
-            () -> dashboardService.updateDashboard(instanceName, subsystemId, new UpdateSupersetDashboardMetadataDto()));
+        Throwable exception =
+                assertThrows(ResponseStatusException.class, () -> dashboardService.updateDashboard(instanceName, subsystemId, new UpdateSupersetDashboardMetadataDto()));
 
         //Then
         assertTrue(exception.getMessage().contains("User is not allowed to update dashboard metadata"));
@@ -141,6 +143,8 @@ public class DashboardServiceTest {
 
         //When
         dashboardService.updateDashboard(instanceName, subsystemId, new UpdateSupersetDashboardMetadataDto());
+        //Then
+        verify(dashboardMetadataRepository, times(1)).findBySubsystemIdAndInstanceName(subsystemId, instanceName);
     }
 
     @Test
@@ -161,8 +165,8 @@ public class DashboardServiceTest {
 
         //Then
         assertThat(supersetDashboardDtos).hasSize(dashboardResource.getData().size());
-        assertThat(supersetDashboardDtos.stream().allMatch(d -> d instanceof SupersetDashboardWithMetadataDto
-            && ((SupersetDashboardWithMetadataDto) d).isCurrentUserEditor())).isTrue();
+        assertThat(supersetDashboardDtos.stream()
+                                        .allMatch(d -> d instanceof SupersetDashboardWithMetadataDto && ((SupersetDashboardWithMetadataDto) d).isCurrentUserEditor())).isTrue();
     }
 
     @Test
@@ -183,8 +187,8 @@ public class DashboardServiceTest {
 
         //Then
         assertThat(supersetDashboardDtos).hasSize(1);
-        assertThat(supersetDashboardDtos.stream().allMatch(d -> d instanceof SupersetDashboardWithMetadataDto
-            && ((SupersetDashboardWithMetadataDto) d).isCurrentUserViewer())).isTrue();
+        assertThat(supersetDashboardDtos.stream()
+                                        .allMatch(d -> d instanceof SupersetDashboardWithMetadataDto && ((SupersetDashboardWithMetadataDto) d).isCurrentUserViewer())).isTrue();
     }
 
     @Test
@@ -208,10 +212,10 @@ public class DashboardServiceTest {
     }
 
     private void configureBaseMocks(UserResource userResources, DashboardResource dashboardResource) {
-        given(metaInfoResourceService.findByModuleTypeInstanceNameAndKind(ModuleType.SUPERSET, instanceName, ModuleResourceKind.HELLO_DATA_USERS, UserResource.class))
-            .willReturn(userResources);
-        given(metaInfoResourceService.findByModuleTypeInstanceNameAndKind(ModuleType.SUPERSET, instanceName, ModuleResourceKind.HELLO_DATA_DASHBOARDS, DashboardResource.class))
-            .willReturn(dashboardResource);
+        given(metaInfoResourceService.findByModuleTypeInstanceNameAndKind(ModuleType.SUPERSET, instanceName, ModuleResourceKind.HELLO_DATA_USERS, UserResource.class)).willReturn(
+                userResources);
+        given(metaInfoResourceService.findByModuleTypeInstanceNameAndKind(ModuleType.SUPERSET, instanceName, ModuleResourceKind.HELLO_DATA_DASHBOARDS,
+                                                                          DashboardResource.class)).willReturn(dashboardResource);
     }
 
     @NotNull

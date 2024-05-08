@@ -36,6 +36,7 @@ import {Context} from "../../../store/users-management/context-role.model";
 import {selectLineageInfo} from "../../../store/lineage-docs/lineage-docs.selector";
 import {navigate} from "../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 @Component({
   templateUrl: 'embedded-lineage-docs.component.html',
@@ -50,7 +51,7 @@ export class EmbeddedLineageDocsComponent {
   @ViewChild('container') container!: ElementRef;
   @ViewChild('doc') docIframe!: ElementRef;
 
-  constructor(private store: Store<AppState>, private docsService: LineageDocsService) {
+  constructor(private store: Store<AppState>, private docsService: LineageDocsService, private translateService: TranslateService) {
     this.store.dispatch(loadAvailableContexts());
     this.lineageInfo$ = this.store.select(selectLineageInfo).pipe(tap((lineageInfo) => {
       if (lineageInfo) {
@@ -88,9 +89,13 @@ export class EmbeddedLineageDocsComponent {
         },
         {
           label: dataDomain?.name,
+          routerLink: naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path,
+          queryParams: {
+            filteredBy: dataDomain?.contextKey
+          }
         },
         {
-          label: this.projectId + ' Data Lineage',
+          label: `${this.translateService.translate('@Doc')}`,
         }
       ]
     }));

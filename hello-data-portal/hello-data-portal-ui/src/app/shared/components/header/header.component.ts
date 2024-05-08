@@ -32,8 +32,8 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
-import {PublishedAnnouncementModule} from "../published-announcement/published-announcement.module";
-import {selectCurrentBusinessDomain, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
+import {PublishedAnnouncementsModule} from "../published-announcement/published-announcements.module";
+import {selectCurrentBusinessDomain, selectCurrentContextRolesFilterOffNone, selectDisableLogout, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
 import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
 import {MenuModule} from "primeng/menu";
@@ -79,6 +79,7 @@ export class HeaderComponent {
 
   dataDomainSelectionItems: any = [];
   selectedDataDomain$: Observable<DataDomain | null>;
+  currentUserContextRolesNotNone$: Observable<any>;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
@@ -88,7 +89,7 @@ export class HeaderComponent {
       this.dataDomainSelectionItems = [];
       for (const availableDataDomain of availableDataDomains) {
         this.dataDomainSelectionItems.push({
-          label: availableDataDomain.name,
+          label: translateService.translate(availableDataDomain.name),
           command: (event: any) => {
             this.onDataDomainChanged(event);
           },
@@ -102,11 +103,13 @@ export class HeaderComponent {
       showEnvironment: environment.deploymentEnvironment.showEnvironment != undefined ? environment.deploymentEnvironment.showEnvironment : true,
       color: environment.deploymentEnvironment.headerColor ? environment.deploymentEnvironment.headerColor : ''
     };
-
+    this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone)
     this.translationsLoaded$ = combineLatest([
       this.translateService.selectTranslate('@Profile'),
-      this.translateService.selectTranslate('@Logout')
-    ]).pipe(tap(([profileTranslation, logoutTranslation]) => {
+      this.translateService.selectTranslate('@Logout'),
+      this.translateService.selectTranslate('@View announcements'),
+      this.store.select(selectDisableLogout)
+    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, disableLogout]) => {
       this.userMenuItems = [
         {
           label: profileTranslation,
@@ -116,13 +119,22 @@ export class HeaderComponent {
           }
         },
         {
+          label: announcementsTranslation,
+          icon: 'fas fa-light fa-bell',
+          command: () => {
+            this.store.dispatch(navigate({url: '/published-announcements'}));
+          }
+        },
+      ];
+      if (!disableLogout) {
+        this.userMenuItems.push({
           label: logoutTranslation,
           icon: 'fas fa-light fa-power-off',
           command: () => {
             this.store.dispatch(navigate({url: '/logout'}));
           }
-        }
-      ];
+        })
+      }
     }));
 
   }
@@ -136,7 +148,7 @@ export class HeaderComponent {
 @NgModule({
   imports: [
     CommonModule,
-    PublishedAnnouncementModule,
+    PublishedAnnouncementsModule,
     MenubarModule,
     MegaMenuModule,
     MenuModule,

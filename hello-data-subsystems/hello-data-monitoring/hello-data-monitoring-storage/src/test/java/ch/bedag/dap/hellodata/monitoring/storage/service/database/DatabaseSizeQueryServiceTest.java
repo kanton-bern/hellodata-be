@@ -29,9 +29,9 @@ package ch.bedag.dap.hellodata.monitoring.storage.service.database;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.database.DatabaseSize;
 import ch.bedag.dap.hellodata.monitoring.storage.config.database.DynamicDataSource;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,18 +64,19 @@ class DatabaseSizeQueryServiceTest {
     void testExecuteDatabaseQueries() throws SQLException {
         // given
         Connection mockedConnection = mock(Connection.class);
-        Statement mockedStatement = mock(Statement.class);
+        PreparedStatement mockedStatement = mock(PreparedStatement.class);
         ResultSet mockedResultSet = mock(ResultSet.class);
         DataSource mockedDataSource = mock(DataSource.class);
+        String totalAvailableBytes = "3000000";
 
-        Map<String, DataSource> dataSources = new HashMap<>();
-        dataSources.put("testDB1", mockedDataSource);
+        Map<String, DynamicDataSource.DataSourceWrapper> dataSources = new HashMap<>();
+        dataSources.put("testDB1", new DynamicDataSource.DataSourceWrapper(mockedDataSource, totalAvailableBytes));
         when(dynamicDataSource.getDataSources()).thenReturn(dataSources);
         when(dynamicDataSource.getDataSource("testDB1")).thenReturn(mockedDataSource);
 
         when(mockedDataSource.getConnection()).thenReturn(mockedConnection);
-        when(mockedConnection.createStatement()).thenReturn(mockedStatement);
-        when(mockedStatement.executeQuery(anyString())).thenReturn(mockedResultSet);
+        when(mockedConnection.prepareStatement(anyString())).thenReturn(mockedStatement);
+        when(mockedStatement.executeQuery()).thenReturn(mockedResultSet);
         when(mockedResultSet.next()).thenReturn(true, false); // Simulate result set behavior
         when(mockedResultSet.getString(1)).thenReturn("100 MB"); // Mock database sizes
 
@@ -87,13 +88,13 @@ class DatabaseSizeQueryServiceTest {
 
         DatabaseSize databaseSize1 = result.get(0);
         assertEquals("testDB1", databaseSize1.getName());
-        assertEquals("100 MB", databaseSize1.getSize());
+        assertEquals("100 MB", databaseSize1.getUsedBytes());
 
         verify(dynamicDataSource, times(1)).getDataSources();
         verify(dynamicDataSource, times(1)).getDataSource(anyString());
         verify(mockedDataSource, times(1)).getConnection();
-        verify(mockedConnection, times(1)).createStatement();
-        verify(mockedStatement, times(1)).executeQuery(anyString());
+        verify(mockedConnection, times(1)).prepareStatement(anyString());
+        verify(mockedStatement, times(1)).executeQuery();
         verify(mockedResultSet, times(1)).next();
         verify(mockedResultSet, times(1)).getString(1);
     }

@@ -34,6 +34,10 @@ export const naviElements: any = {
     path: 'profile',
     label: '@Profile'
   },
+  publishedAnnouncements: {
+    path: 'published-announcements',
+    label: '@Announcements'
+  },
   lineageDocs: {
     path: 'lineage-docs',
     label: '@Docs'
@@ -140,6 +144,10 @@ export const naviElements: any = {
   documentationManagement: {
     path: 'documentation-management',
     label: '@Documentation management'
+  },
+  dashboardCopy: {
+    path: 'dashboard-import-export',
+    label: '@Dashboard import-export'
   },
   logout: {
     path: 'logout'

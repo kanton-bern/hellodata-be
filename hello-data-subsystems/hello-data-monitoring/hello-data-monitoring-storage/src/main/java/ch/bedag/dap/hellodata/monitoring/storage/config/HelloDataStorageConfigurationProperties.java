@@ -28,13 +28,19 @@ package ch.bedag.dap.hellodata.monitoring.storage.config;
 
 import ch.bedag.dap.hellodata.monitoring.storage.config.database.DataSourceConfigurationProperty;
 import ch.bedag.dap.hellodata.monitoring.storage.config.storage.StorageConfigurationProperty;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @Data
+@Validated
 @ConfigurationProperties("hello-data")
 public class HelloDataStorageConfigurationProperties {
+    @Valid
     private List<DataSourceConfigurationProperty> datasources;
+    @Valid
     private List<StorageConfigurationProperty> storages;
+    private boolean createStorages;
 }

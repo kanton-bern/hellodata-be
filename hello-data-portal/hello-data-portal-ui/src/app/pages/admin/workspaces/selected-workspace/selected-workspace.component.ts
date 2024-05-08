@@ -69,7 +69,7 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
   }
 
   navigateToSelectedResource(selectedResource: any) {
-    this.store.dispatch(loadSelectedAppInfoResource(selectedResource));
+    this.store.dispatch(loadSelectedAppInfoResource({selectedResource}));
   }
 
   cancel() {

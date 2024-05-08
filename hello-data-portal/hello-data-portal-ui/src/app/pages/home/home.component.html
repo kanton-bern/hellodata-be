@@ -1,98 +1,89 @@
+<div *ngIf="loadedPermissions$ | async" class="home-view">
 
-<ng-container *ngIf="(waitForPermissionsLoaded$ | async)"></ng-container>
-<ng-container *ngIf="(businessDomain$ | async)"></ng-container>
-<ng-container *ngIf="(adminEmails$ | async)"></ng-container>
-<ng-container *ngIf="(currentUserContextRolesNotNone$ | async)"></ng-container>
-
-<div *ngIf="(loadedPermissions$ | async)" class="home-view">
-
-    <div class="grid" *ngIf="(currentUserContextRolesNotNone$ |async ).length === 0">
-        <p-fieldset class="col-12 lg:col-12" >
-          <ng-template pTemplate="header">
-            <div class="flex align-items-center gap-2 text-primary">
-              <p-badge value="{{ '@Error' | transloco }}" size="large" severity="warning"></p-badge>
-            </div>
-          </ng-template>
-          <div class="h-full permission-error" *ngIf="businessDomain$ | async as businessDomain">
-            {{ '@Permission missing' | transloco: { businessdomain: businessDomain } }}
-            <ng-container *ngIf="adminEmails$ |async as adminEmails">
-              <ul *ngFor="let email of adminEmails" class="email-list">
-                <li>{{ email }}</li>
-              </ul>
-            </ng-container>
-          </div>
-        </p-fieldset>
-    </div>
-
-    <div class="grid" *ngIf="(currentUserContextRolesNotNone$ |async ).length > 0">
-      <p-fieldset class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="dashboardsHeader">{{'@Dashboards' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-dashboards></app-dashboards>
+  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ | async )?.length === 0">
+    <p-fieldset class="col-12 lg:col-12">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2 text-primary">
+          <p-badge value="{{ '@Welcome' | transloco }}" size="large" severity="success"></p-badge>
         </div>
-      </p-fieldset>
+      </ng-template>
+      <div class="h-full permission-error" *ngIf="businessDomain$ | async as businessDomain">
+        {{ '@Permission missing' | transloco: {businessdomain: businessDomain} }}
+        <ng-container *ngIf="adminEmails$ |async as adminEmails">
+          <ul *ngFor="let email of adminEmails" class="email-list">
+            <li>{{ email }}</li>
+          </ul>
+        </ng-container>
+      </div>
+    </p-fieldset>
+  </div>
 
-      <p-fieldset *ngIf="hasPermissions(['DATA_LINEAGE']) |async" class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="lineageHeader">{{'@Lineage' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-lineage></app-lineage>
+  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
+    <p-fieldset class="col-12 lg:col-6">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center text-primary">
+          <h5 class="m-0" id="dashboardsHeader">{{'@Dashboards' | transloco}}</h5>
         </div>
-      </p-fieldset>
+      </ng-template>
+      <div class="h-full">
+        <app-dashboards></app-dashboards>
+      </div>
+    </p-fieldset>
 
-      <p-fieldset class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="faqHeader">{{'@Faq' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-faq></app-faq>
+    <p-fieldset class="col-12 lg:col-6">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center text-primary">
+          <h5 class="m-0" id="externalDashboardsHeader">{{'@External dashboards' | transloco}}</h5>
         </div>
-      </p-fieldset>
+      </ng-template>
+      <div class="h-full">
+        <app-external></app-external>
+      </div>
+    </p-fieldset>
 
-      <p-fieldset *ngIf="hasPermissions(['DATA_MARTS']) |async" class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="dataMartsHeader">{{'@Data Marts' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-dm></app-dm>
+    <p-fieldset *ngIf="hasPermissions(['DATA_MARTS']) |async" class="col-12 lg:col-6">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center text-primary">
+          <h5 class="m-0" id="dataMartsHeader">{{'@Data Marts' | transloco}}</h5>
         </div>
-      </p-fieldset>
+      </ng-template>
+      <div class="h-full">
+        <app-dm></app-dm>
+      </div>
+    </p-fieldset>
 
-      <p-fieldset class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="externalDashboardsHeader">{{'@External dashboards' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-external></app-external>
+    <p-fieldset *ngIf="hasPermissions(['DATA_LINEAGE']) |async" class="col-12 lg:col-6">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center text-primary">
+          <h5 class="m-0" id="lineageHeader">{{'@Lineage' | transloco}}</h5>
         </div>
-      </p-fieldset>
+      </ng-template>
+      <div class="h-full">
+        <app-lineage></app-lineage>
+      </div>
+    </p-fieldset>
 
-      <p-fieldset class="col-12 lg:col-6">
-        <ng-template pTemplate="header">
-          <div class="flex align-items-center text-primary">
-            <h5 class="m-0" id="documentationHeader">{{'@Documentation' | transloco}}</h5>
-          </div>
-        </ng-template>
-        <div class="h-full">
-          <app-home-documentation></app-home-documentation>
+    <p-fieldset class="col-12 lg:col-6">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center text-primary">
+          <h5 class="m-0" id="faqHeader">{{'@Faq' | transloco}}</h5>
         </div>
-      </p-fieldset>
+      </ng-template>
+      <div class="h-full">
+        <app-faq></app-faq>
+      </div>
+    </p-fieldset>
 
-    </div>
-    <div style="display: none">
-      <app-silent-login></app-silent-login>
-    </div>
+    <p-fieldset class="col-12 lg:col-6">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center text-primary">
+          <h5 class="m-0" id="documentationHeader">{{'@Documentation' | transloco}}</h5>
+        </div>
+      </ng-template>
+      <div class="h-full">
+        <app-home-documentation></app-home-documentation>
+      </div>
+    </p-fieldset>
+
+  </div>
 </div>

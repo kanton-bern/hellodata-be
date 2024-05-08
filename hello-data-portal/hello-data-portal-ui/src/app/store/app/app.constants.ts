@@ -25,4 +25,4 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-export const ALL_DATA_DOMAINS = 'All Data Domains';
+export const ALL_DATA_DOMAINS = '@All Data Domains';

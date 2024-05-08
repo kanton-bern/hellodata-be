@@ -26,13 +26,14 @@
 ///
 
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {debounceTime, Observable, of, tap} from "rxjs";
+import {debounceTime, Observable, of} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {
   selectCurrentBusinessDomain,
   selectCurrentContextRolesFilterOffNone,
   selectCurrentUserPermissions,
+  selectCurrentUserPermissionsLoaded,
   selectIsAuthenticated,
   selectProfile
 } from "../../store/auth/auth.selector";
@@ -48,11 +49,11 @@ import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent extends BaseComponent implements OnInit {
+
   userData$: Observable<IUser | undefined>;
   isAuthenticated$: Observable<boolean>;
   currentUserPermissions$: Observable<any>;
-  waitForPermissionsLoaded$: Observable<any>;
-  loadedPermissions$ = of(false);
+  loadedPermissions$: Observable<boolean>;
   businessDomain$: Observable<string>;
   adminEmails$: Observable<string[]>;
   currentUserContextRolesNotNone$: Observable<any>;
@@ -66,13 +67,8 @@ export class HomeComponent extends BaseComponent implements OnInit {
     this.store.dispatch(resetBreadcrumb());
     this.store.dispatch(loadAdminEmails());
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
-    this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone);
-    this.waitForPermissionsLoaded$ = this.currentUserContextRolesNotNone$.pipe(
-      debounceTime(700),
-      tap(() => {
-        this.loadedPermissions$ = of(true);
-      }));
-
+    this.loadedPermissions$ = this.store.select(selectCurrentUserPermissionsLoaded);
+    this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone).pipe(debounceTime(100));
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
     this.adminEmails$ = this.store.select(selectAdminEmails);
   }

@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.sidecars.superset.client;
 
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardByIdResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermissionResponse;
@@ -37,6 +38,8 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserByIdResp
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -45,10 +48,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -72,6 +79,7 @@ public class SupersetClient {
     private final String authToken;
     private final CloseableHttpClient client;
     private String csrfToken;
+    private String sessionCookie;
 
     /**
      * Creates a new Superset API client with the given credentials.
@@ -104,6 +112,7 @@ public class SupersetClient {
         }
         HttpUriRequest request = SupersetApiRequestBuilder.getAuthTokenRequest(host, port, username, password);
         ApiResponse resp = executeRequest(request);
+        log.info("Auth token request executed {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.authToken = respBody.getAsJsonObject().get("access_token").getAsString();
         this.host = host;
@@ -125,7 +134,7 @@ public class SupersetClient {
     }
 
     /**
-     * Updates a user.
+     * Updates user roles.
      *
      * @return an updated user.
      *
@@ -135,11 +144,31 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetUserUpdateResponse updateUser(SupersetUserRolesUpdate supersetUserRoleUpdate, int userId) throws URISyntaxException, ClientProtocolException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserRequest(host, port, authToken, supersetUserRoleUpdate, userId);
+    public SupersetUserUpdateResponse updateUserRoles(SupersetUserRolesUpdate supersetUserRoleUpdate, int userId) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserRolesRequest(host, port, authToken, supersetUserRoleUpdate, userId);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("updateUser({}) response json \n{}", userId, new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetUserUpdateResponse.class);
+    }
+
+    /**
+     * Updates user active flag (enable/disable user).
+     *
+     * @return an updated user.
+     *
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public SupersetUserUpdateResponse updateUsersActiveFlag(SupersetUserActiveUpdate supersetUserActiveUpdate, int userId) throws URISyntaxException, ClientProtocolException,
+            IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserActiveRequest(host, port, authToken, supersetUserActiveUpdate, userId);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("updateUsersActiveFlag({}) response json \n{}", userId, new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetUserUpdateResponse.class);
     }
 
@@ -154,12 +183,32 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public IdResponse createUser(SubsystemUserUpdate userCreate) throws URISyntaxException, ClientProtocolException, IOException {
-        HttpUriRequest request = SupersetApiRequestBuilder.getCreateUserRequest(host, port, authToken, userCreate);
+    public IdResponse createUser(SubsystemUserUpdate userUpdate) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getCreateUserRequest(host, port, authToken, userUpdate);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("createUser({}) response json \n{}", userCreate.getEmail(), new String(bytes));
+        log.debug("createUser({}) response json \n{}", userUpdate.getEmail(), new String(bytes));
         return getObjectMapper().readValue(bytes, IdResponse.class);
+    }
+
+    /**
+     * Deletes a user.
+     *
+     * @return 200 if successfully deleted the user.
+     *
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public void deleteUser(int userId) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getDeleteUserRequest(host, port, authToken, userId);
+        ApiResponse resp = executeRequest(request);
+        if (resp.getBody() != null) {
+            byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+            log.debug("deleteUser({}) response json \n{}", userId, new String(bytes));
+        }
     }
 
     /**
@@ -326,13 +375,33 @@ public class SupersetClient {
      */
     public void importDashboard(File dashboardFile, JsonElement password, boolean override) throws ClientProtocolException, URISyntaxException, IOException {
         csrf();
-        HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password);
+        HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password, sessionCookie);
         executeRequest(request);
+    }
+
+    /**
+     * Updates dashboards published flag (publish/un-publish dashboard).
+     *
+     * @return an updated dashboard.
+     *
+     * @throws URISyntaxException If the Superset URL is invalid.
+     * @throws IOException        If there was an error communicating with the
+     *                            Superset server.
+     */
+    public SupersetDashboard updateDashboardsPublishedFlag(SupersetDashboardPublishedFlagUpdate supersetUserActiveUpdate, int dashboardId) throws URISyntaxException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUpdateDashboardPublishedFlagRequest(host, port, authToken, supersetUserActiveUpdate, dashboardId);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("updateUsersActiveFlag({}) response json \n{}", dashboardId, new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetDashboard.class);
     }
 
     private void csrf() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getCsrfTokenRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
+        Optional<Header> setCookieHeader = Arrays.stream(resp.getHeaders()).filter(header -> header.getName().equalsIgnoreCase("set-cookie")).findFirst();
+        setCookieHeader.ifPresent(header -> this.sessionCookie = header.getValue());
+        log.debug("csrf response ==> {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.csrfToken = respBody.getAsJsonObject().get("result").getAsString();
     }
@@ -340,11 +409,15 @@ public class SupersetClient {
     private ApiResponse executeRequest(HttpUriRequest request) throws IOException {
         try (CloseableHttpResponse response = client.execute(request)) {
             int code = response.getStatusLine().getStatusCode();
-            String bodyAsString = EntityUtils.toString(response.getEntity());
+            HttpEntity entity = response.getEntity();
+            String bodyAsString = null;
+            if (entity != null) {
+                bodyAsString = EntityUtils.toString(entity);
+            }
             if (code >= 300 || code < 200) {
                 throw new UnexpectedResponseException(request.getURI().toString(), code, bodyAsString);
             }
-            return new ApiResponse(code, bodyAsString);
+            return new ApiResponse(code, bodyAsString, response.getAllHeaders());
         }
     }
 
@@ -370,5 +443,6 @@ public class SupersetClient {
     public static class ApiResponse {
         private int code;
         private String body;
+        private Header[] headers;
     }
 }

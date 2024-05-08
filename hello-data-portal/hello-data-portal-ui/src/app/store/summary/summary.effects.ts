@@ -48,7 +48,7 @@ export class SummaryEffects {
       ofType(loadDocumentation),
       switchMap(() => this._summaryService.getDocumentation()),
       switchMap(result => of(loadDocumentationSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -57,7 +57,7 @@ export class SummaryEffects {
       ofType(createOrUpdateDocumentation),
       switchMap(action => this._summaryService.createOrUpdateDocumentation(action.documentation)),
       switchMap(result => of(clearUnsavedChanges(), loadDocumentation(), showSuccess({message: '@Documentation updated'}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -66,7 +66,7 @@ export class SummaryEffects {
       ofType(loadPipelines),
       switchMap(() => this._summaryService.getPipelines()),
       switchMap(result => of(loadPipelinesSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -75,7 +75,7 @@ export class SummaryEffects {
       ofType(loadStorageSize),
       switchMap(() => this._summaryService.getStorageSize()),
       switchMap(result => of(loadStorageSizeSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 

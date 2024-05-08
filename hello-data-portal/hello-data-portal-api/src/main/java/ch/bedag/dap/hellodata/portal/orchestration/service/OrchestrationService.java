@@ -60,20 +60,28 @@ public class OrchestrationService {
                                                                  .filter(contextRole -> contextRole.getRole().getName() != HdRoleName.NONE)
                                                                  .map(UserContextRoleEntity::getContextKey)
                                                                  .toList();
-
+            log.info("Found {} context keys for user {}", contextKeysFromContextRoles, userEntity.getEmail());
             List<PipelineResource> pipelines =
                     metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class);
-            return pipelines.stream().flatMap((pipelineResource -> pipelineResource.getData().stream())).map(pipeline -> {
-                String contextKeyForDag = contextKeysFromContextRoles.stream()
-                                                                     .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
-                                                                     .findFirst()
-                                                                     .orElse(null);
-                if (contextKeyForDag != null) {
-                    return PipelineDto.fromPipeline(pipeline, contextKeyForDag);
-                }
-                return null;
-            }).filter(Objects::nonNull).toList();
+            return filterByPath(pipelines, contextKeysFromContextRoles);
         }
         return Collections.emptyList();
+    }
+
+    private List<PipelineDto> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
+        List<PipelineDto> result = pipelines.stream().flatMap((pipelineResource -> pipelineResource.getData().stream())).map(pipeline -> {
+            log.info("Checking pipeline {}", pipeline);
+            String contextKeyForDag = contextKeysFromContextRoles.stream()
+                                                                 .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
+                                                                 .findFirst()
+                                                                 .orElse(null);
+            log.info("Found context key for dag {}", contextKeyForDag);
+            if (contextKeyForDag != null) {
+                return PipelineDto.fromPipeline(pipeline, contextKeyForDag);
+            }
+            return null;
+        }).filter(Objects::nonNull).toList();
+        log.info("Filtered pipelines {}", result);
+        return result;
     }
 }

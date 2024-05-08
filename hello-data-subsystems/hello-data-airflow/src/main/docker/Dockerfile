@@ -25,9 +25,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM apache/airflow:slim-2.6.1-python3.10
+FROM apache/airflow:slim-2.8.1-python3.10
 
-ENV AIRFLOW_VERSION=2.6.1
+ENV AIRFLOW_VERSION=2.8.1
 ENV PYTHON_VERSION=3.10
 
 ## Change container image to root user to allow for global
@@ -97,8 +97,10 @@ RUN tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz
 # add liquibase migrations
 COPY --chown=airflow:root ./db/changelog /db/changelog
 COPY --chown=airflow:root ./db/wait-and-migrate.sh /db/wait-and-migrate.sh
+COPY --chown=airflow:root ./entrypoint.sh /app/entrypoint.sh
 
 RUN chmod a+x /db/*.sh
+RUN chmod a+x /app/*.sh
 
 #Change line-endings for liquibase-file from Windows to Unix and cleanup
 RUN dos2unix /db/wait-and-migrate.sh && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt/lists/*
@@ -106,3 +108,4 @@ RUN dos2unix /db/wait-and-migrate.sh && apt-get --purge remove -y dos2unix && rm
 # Switching back to using the `airflow` user
 USER airflow
 WORKDIR /app
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]

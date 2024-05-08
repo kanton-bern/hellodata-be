@@ -36,9 +36,7 @@ import org.springframework.data.r2dbc.convert.R2dbcConverter;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.r2dbc.core.DatabaseClient;
-import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -54,7 +52,6 @@ public interface UserRepository extends R2dbcRepository<User, String>, UserRepos
 
 interface UserRepositoryInternal {
 
-    @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 1000))
     Mono<User> findOneWithPermissionsByEmail(String email);
 
     @Recover

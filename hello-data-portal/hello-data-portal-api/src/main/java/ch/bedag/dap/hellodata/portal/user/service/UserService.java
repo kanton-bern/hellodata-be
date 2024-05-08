@@ -38,12 +38,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
-import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
@@ -219,6 +218,9 @@ public class UserService {
     public void deleteUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
+        if (SecurityUtils.getCurrentUserId() == null || userId.equals(SecurityUtils.getCurrentUserId().toString())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
+        }
         UserResource userResource = getUserResource(userId);
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
         userEntityResult.ifPresentOrElse(userRepository::delete, () -> {
@@ -227,7 +229,12 @@ public class UserService {
         if (userResource == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
         }
+        SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+        subsystemUserDelete.setEmail(userRepresentation.getEmail());
+        subsystemUserDelete.setUsername(userRepresentation.getUsername());
         userResource.remove();
+        natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }
 
     @Transactional(readOnly = true)
@@ -240,22 +247,8 @@ public class UserService {
 
     @Transactional
     public void updateLastAccess(String userId) {
-        Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(UUID.fromString(userId)));
-        UserEntity userEntity;
-        if (userEntityResult.isEmpty()) {
-            UserRepresentation representation = getUserRepresentation(userId);
-            userEntity = new UserEntity();
-            userEntity.setId(UUID.fromString(userId));
-            userEntity.setEmail(representation.getId());
-            userEntity.setLastAccess(LocalDateTime.now());
-            if (userEntity.getContextRoles().isEmpty()) {
-                roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
-                roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);
-            }
-        } else {
-            userEntity = userEntityResult.get();
-            userEntity.setLastAccess(LocalDateTime.now());
-        }
+        UserEntity userEntity = getUserEntity(UUID.fromString(userId));
+        userEntity.setLastAccess(LocalDateTime.now());
         userRepository.save(userEntity);
     }
 
@@ -300,7 +293,7 @@ public class UserService {
         UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
         for (MetaInfoResourceEntity dashboardWithContext : dashboardsWithContext) {
             if (dashboardWithContext.getMetainfo() instanceof DashboardResource dashboardResource) {
-                SubsystemUser subsystemUser = findUserInInstance(userEntity, dashboardResource.getInstanceName());
+                SubsystemUser subsystemUser = metaInfoResourceService.findUserInInstance(userEntity.getEmail(), dashboardResource.getInstanceName());
                 if (subsystemUser == null) {
                     log.warn("User {} not found in instance {}", userEntity.getEmail(), dashboardResource.getInstanceName());
                 }
@@ -326,7 +319,8 @@ public class UserService {
     public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
-        synchronizeContextRolesWithSubsystems(userId);
+        UserEntity userEntity = userRepository.getByIdOrAuthId(userId.toString());
+        synchronizeContextRolesWithSubsystems(userEntity);
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 
@@ -340,17 +334,16 @@ public class UserService {
 
         if (!updateContextRolesForUserDto.getBusinessDomainRole().getName().equalsIgnoreCase(HdRoleName.NONE.name())) {
             roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.DATA_DOMAIN_ADMIN);
-            //setRoleToAllRemainingDataDomains(updateContextRolesForUserDto, userEntity, HdRoleName.DATA_DOMAIN_ADMIN);
         } else if (!CollectionUtils.isEmpty(updateContextRolesForUserDto.getDataDomainRoles())) {
             for (UserContextRoleDto dataDomainRoleForContextDto : updateContextRolesForUserDto.getDataDomainRoles()) {
                 roleService.updateDomainRoleForUser(userEntity, dataDomainRoleForContextDto.getRole(), dataDomainRoleForContextDto.getContext().getContextKey());
             }
-            setRoleToAllRemainingDataDomains(updateContextRolesForUserDto, userEntity, HdRoleName.NONE);
+            setRoleForAllRemainingDataDomainsToNone(updateContextRolesForUserDto, userEntity);
         }
         userRepository.save(userEntity);
     }
 
-    private void setRoleToAllRemainingDataDomains(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity, HdRoleName roleNameToSet) {
+    private void setRoleForAllRemainingDataDomainsToNone(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity) {
         List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         List<HdContextEntity> ddDomainsWithoutRoleForUser = allDataDomains.stream()
                                                                           .filter(availableDD -> updateContextRolesForUserDto.getDataDomainRoles()
@@ -361,7 +354,7 @@ public class UserService {
                                                                                                                                                                 availableDD.getContextKey())))
                                                                           .toList();
         if (!ddDomainsWithoutRoleForUser.isEmpty()) {
-            Optional<RoleDto> first = roleService.getAll().stream().filter(roleDto -> roleNameToSet.name().equalsIgnoreCase(roleDto.getName())).findFirst();
+            Optional<RoleDto> first = roleService.getAll().stream().filter(roleDto -> HdRoleName.NONE.name().equalsIgnoreCase(roleDto.getName())).findFirst();
             if (first.isPresent()) {
                 RoleDto noneRole = first.get();
                 for (HdContextEntity dataDomain : ddDomainsWithoutRoleForUser) {
@@ -420,7 +413,7 @@ public class UserService {
     private void synchronizeDashboardsForUser(UUID userId, Map<String, List<DashboardForUserDto>> selectedDashboardsForUser) {
         for (Map.Entry<String, List<DashboardForUserDto>> entry : selectedDashboardsForUser.entrySet()) {
             String contextKey = entry.getKey();
-            String supersetInstanceName = findSupersetInstanceNameByContextKey(contextKey);
+            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
             updateDashboardRoleForUser(userId, entry.getValue(), supersetInstanceName);
         }
     }
@@ -429,7 +422,7 @@ public class UserService {
         try {
             SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = new SupersetDashboardsForUserUpdate();
             UserEntity userEntity = getUserEntity(userId);
-            SubsystemUser userInInstance = findUserInInstance(userEntity, supersetInstanceName);
+            SubsystemUser userInInstance = metaInfoResourceService.findUserInInstance(userEntity.getEmail(), supersetInstanceName);
             if (userInInstance != null) {
                 supersetDashboardsForUserUpdate.setSupersetUserId(userInInstance.getId());
                 supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
@@ -473,11 +466,6 @@ public class UserService {
         natsSenderService.publishMessageToJetStream(HDEvent.UPDATE_USER_CONTEXT_ROLE, userContextRoleUpdate);
     }
 
-    private void synchronizeContextRolesWithSubsystems(UUID userId) {
-        UserEntity userEntity = userRepository.getByIdOrAuthId(userId.toString());
-        synchronizeContextRolesWithSubsystems(userEntity);
-    }
-
     private DashboardForUserDto createDashboardDto(DashboardResource dashboardResource, SubsystemUser subsystemUser, SupersetDashboard supersetDashboard, String contextKey) {
         String dashboardTitle = supersetDashboard.getDashboardTitle();
         SupersetRole supersetRole = supersetDashboard.getRoles().stream().filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
@@ -500,31 +488,9 @@ public class UserService {
         return dashboardForUserDto;
     }
 
-    private SubsystemUser findUserInInstance(UserEntity userEntity, String instanceName) {
-        return Optional.ofNullable(metaInfoResourceService.findByInstanceNameAndKind(instanceName, ModuleResourceKind.HELLO_DATA_USERS,
-                                                                                     ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource.class))
-                       .stream()
-                       .map(result -> result.getData())
-                       .flatMap(subsystemUsers -> subsystemUsers.stream())
-                       .filter(userResource -> userResource.getEmail().equalsIgnoreCase(userEntity.getEmail()))
-                       .findFirst()
-                       .orElse(null);
-    }
-
-    private String findSupersetInstanceNameByContextKey(String contextKey) {
-        return metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_APP_INFO,
-                                                                  ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource.class)
-                                      .stream()
-                                      .filter(appInfoResource -> appInfoResource.getBusinessContextInfo().getSubContext() != null)
-                                      .filter(appInfoResource -> appInfoResource.getBusinessContextInfo().getSubContext().getKey().equalsIgnoreCase(contextKey))
-                                      .findFirst()
-                                      .map(AppInfoResource::getInstanceName)
-                                      .orElse(null);
-    }
-
-    private UserDto fetchAdditionalDataFromPortal(UserDto userDto) {
+    private void fetchAdditionalDataFromPortal(UserDto userDto) {
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(UUID.fromString(userDto.getId())));
-        return fetchAdditionalDataFromPortal(userDto, userEntityResult);
+        fetchAdditionalDataFromPortal(userDto, userEntityResult);
     }
 
     private UserDto fetchAdditionalDataFromPortal(UserDto userDto, Optional<UserEntity> userEntityResult) {
@@ -565,20 +531,16 @@ public class UserService {
     }
 
     public Set<String> getUserPortalPermissions(UUID userId) {
-        Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(userId));
-        if (userEntityResult.isPresent()) {
-            UserEntity userEntity = userEntityResult.get();
-            if (BooleanUtils.isTrue(userEntity.getSuperuser())) {
-                return SecurityUtils.getCurrentUserPermissions();
-            } else {
-                List<String> portalPermissions = userEntity.getPermissionsFromAllRoles();
-                if (portalPermissions == null) {
-                    return new HashSet<>();
-                }
-                return new HashSet<>(portalPermissions);
+        UserEntity userEntity = getUserEntity(userId);
+        if (BooleanUtils.isTrue(userEntity.getSuperuser())) {
+            return SecurityUtils.getCurrentUserPermissions();
+        } else {
+            List<String> portalPermissions = userEntity.getPermissionsFromAllRoles();
+            if (portalPermissions == null) {
+                return new HashSet<>();
             }
+            return new HashSet<>(portalPermissions);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found");//NOSONAR
     }
 
     @Transactional(readOnly = true)
@@ -618,7 +580,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<DataDomainDto> getAvailableDataDomains() {
         UUID userId = SecurityUtils.getCurrentUserId();
-        if(userId == null){
+        if (userId == null) {
             return Collections.emptyList();
         }
         UserEntity userEntity = getUserEntity(userId);

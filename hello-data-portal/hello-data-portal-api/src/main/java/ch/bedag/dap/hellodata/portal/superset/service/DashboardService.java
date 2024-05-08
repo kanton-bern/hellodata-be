@@ -31,9 +31,11 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
+import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
@@ -44,8 +46,25 @@ import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadata
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.entity.DashboardMetadataEntity;
 import ch.bedag.dap.hellodata.portal.superset.repository.DashboardMetadataRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nats.client.Connection;
+import io.nats.client.Message;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,26 +72,22 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class DashboardService {
+
+    private static final int HALF_MB = 512 * 1024;
+
     private final MetaInfoResourceService metaInfoResourceService;
     private final DashboardMetadataRepository dashboardMetadataRepository;
     private final HdContextRepository contextRepository;
     private final ModelMapper modelMapper;
+    private final Connection connection;
+    private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
     public Set<SupersetDashboardDto> fetchMyDashboards() {
@@ -106,6 +121,7 @@ public class DashboardService {
         }
     }
 
+    @SuppressWarnings("java:S107")
     private void findDashboardsWithGivenRolesForCurrentUser(Set<SupersetDashboardDto> dashboardsWithAccess, MetaInfoResourceEntity metaInfoResource,
                                                             DashboardResource dashboardResource, List<SupersetDashboard> dashboards, Set<String> rolesOfCurrentUser,
                                                             boolean isAdmin, boolean isEditor, String instanceUrl) {
@@ -113,19 +129,25 @@ public class DashboardService {
             Set<String> dashboardRoles = dashboard.getRoles().stream().map(SupersetRole::getName).collect(Collectors.toSet());
             log.debug(String.format("Instance: '%s', Dashboard: '%s', requires any of following roles: %s", dashboardResource.getInstanceName(), dashboard.getDashboardTitle(),
                                     dashboardRoles));
-            for (String dashboardRole : dashboardRoles) {
-                boolean isViewer = rolesOfCurrentUser.contains(dashboardRole);
-                if (isAdmin || isEditor || isViewer) { // ensure only RBAC roles are allowed (starting with D_ ...)
-                    HdContextEntity context = contextRepository.getByContextKey(metaInfoResource.getContextKey()).orElse(null);
-                    String contextName = context != null ? context.getName() : null;
-                    UUID contextId = context != null ? context.getId() : null;
-                    String contextKey = context != null ? context.getContextKey() : null;
-                    SupersetDashboardWithMetadataDto dashboardDto =
-                            new SupersetDashboardWithMetadataDto(dashboard, dashboardResource.getInstanceName(), instanceUrl, isAdmin, isEditor, isViewer, contextName, contextId,
-                                                                 contextKey);
-                    fetchMetadata(dashboardResource.getInstanceName(), dashboard, dashboardDto);
-                    dashboardsWithAccess.add(dashboardDto);
-                }
+            checkRBACRoles(dashboardsWithAccess, metaInfoResource, dashboardResource, rolesOfCurrentUser, isAdmin, isEditor, instanceUrl, dashboard, dashboardRoles);
+        }
+    }
+
+    @SuppressWarnings("java:S107")
+    private void checkRBACRoles(Set<SupersetDashboardDto> dashboardsWithAccess, MetaInfoResourceEntity metaInfoResource, DashboardResource dashboardResource,
+                                Set<String> rolesOfCurrentUser, boolean isAdmin, boolean isEditor, String instanceUrl, SupersetDashboard dashboard, Set<String> dashboardRoles) {
+        for (String dashboardRole : dashboardRoles) {
+            boolean isViewer = rolesOfCurrentUser.contains(dashboardRole);
+            if (isAdmin || isEditor || isViewer) { // ensure only RBAC roles are allowed (starting with D_ ...)
+                HdContextEntity context = contextRepository.getByContextKey(metaInfoResource.getContextKey()).orElse(null);
+                String contextName = context != null ? context.getName() : null;
+                UUID contextId = context != null ? context.getId() : null;
+                String contextKey = context != null ? context.getContextKey() : null;
+                SupersetDashboardWithMetadataDto dashboardDto =
+                        new SupersetDashboardWithMetadataDto(dashboard, dashboardResource.getInstanceName(), instanceUrl, isAdmin, isEditor, isViewer, contextName, contextId,
+                                                             contextKey);
+                fetchMetadata(dashboardResource.getInstanceName(), dashboard, dashboardDto);
+                dashboardsWithAccess.add(dashboardDto);
             }
         }
     }
@@ -149,7 +171,7 @@ public class DashboardService {
             dashboardDto.setDatasource(dashboardMetadataEntity.getDatasource());
             LocalDateTime lastAccessDate = dashboardMetadataEntity.getModifiedDate() != null ? dashboardMetadataEntity.getModifiedDate() : dashboardMetadataEntity.getCreatedDate();
             ZonedDateTime zdt = ZonedDateTime.of(lastAccessDate, ZoneId.systemDefault());
-            long metadataModifiedBy =zdt.toInstant().toEpochMilli();
+            long metadataModifiedBy = zdt.toInstant().toEpochMilli();
             dashboardDto.setModified(Math.max(changedOnUtcInSuperset, metadataModifiedBy));
         }
     }
@@ -198,6 +220,49 @@ public class DashboardService {
         } else {
             log.error("Current user {} doesn't exist in superset {}", currentUserEmail, instanceName);
             throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "User with specified email not found in subsystem");
+        }
+    }
+
+    public void uploadDashboardsFile(MultipartFile file, String contextKey) {
+        try (InputStream inputStream = file.getInputStream()) {
+            String fileName = file.getName();
+
+            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
+            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
+            String binaryFileId = UUID.randomUUID().toString();
+
+            int chunkNumber = 0;
+            int bytesRead;
+            byte[] buffer = new byte[file.getSize() > HALF_MB ? HALF_MB : (int) file.getSize()];
+            int bytesReadTotal = 0;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                bytesReadTotal += bytesRead;
+                boolean isLastChunk = bytesReadTotal == file.getSize();
+                log.info("Sending file to superset, bytes read total: {}, file size: {}", bytesReadTotal, file.getSize());
+                DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize());
+                sendToSidecar(dashboardUpload, subject);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e); //NOSONAR
+        } catch (IOException e) {
+            throw new RuntimeException("Error sending bytes to the superset instance " + contextKey, e); //NOSONAR
+        }
+    }
+
+    private void sendToSidecar(DashboardUpload dashboardUpload, String subject) throws InterruptedException, JsonProcessingException {
+        log.debug("[uploadDashboardsFile] Sending request to subject: {}", subject);
+        Message reply = connection.request(subject, objectMapper.writeValueAsString(dashboardUpload).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
+        if (reply == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not upload dashboard. The reply is null, please verify superset sidecar or nats connection");
+        }
+        String responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
+        if ("OK".equalsIgnoreCase(responseContent)) {
+            reply.ack();
+            log.debug("[uploadDashboardsFile] Response received: " + new String(reply.getData()));
+        } else {
+            log.warn("Reply is NOK, please verify the uploaded file: {}", responseContent);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, responseContent);
         }
     }
 }

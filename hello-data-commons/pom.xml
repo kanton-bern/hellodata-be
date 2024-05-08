@@ -5,11 +5,11 @@
     <parent>
         <groupId>ch.bedag.dap.hellodata</groupId>
         <artifactId>hello-data</artifactId>
-        <version>main-SNAPSHOT</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
 
     <artifactId>hello-data-commons</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-commons</name>
@@ -29,11 +29,6 @@
             <name>GitHub kanton-bern Maven Packages</name>
             <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
         </repository>
-        <snapshotRepository>
-            <id>github-snapshots</id>
-            <name>GitHub kanton-bern Maven Snapshots</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <properties>

@@ -26,12 +26,14 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage;
 
+import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class StorageSize {
+public class StorageSize implements Serializable {
     private String name;
     private String path;
-    private String size;
-    private String freeSpace;
+    private String usedBytes;
+    private String freeSpaceBytes;
+    private String totalAvailableBytes;
 }

@@ -48,6 +48,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.MultiValueMap;
@@ -117,11 +118,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, DocsAuthorizationManager authorizationManager, DbtDocsJwtAuthenticationConverter authenticationConverter) throws
             Exception {
-        http.headers(headerSpec -> headerSpec.frameOptions(frameOptionsSpec -> frameOptionsSpec.disable())); // disabled to allow embedding into "portal"
+        http.headers(headerSpec -> headerSpec.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)); // disabled to allow embedding into "portal"
         configureCors(http);
         configureCsrf(http);
         http.authorizeHttpRequests(auth -> {
-            //auth.anyRequest().authenticated();
             AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length];
             for (int i = 0; i < AUTH_WHITELIST.length; i++) {
                 matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]);
@@ -137,7 +137,7 @@ public class SecurityConfig {
             httpSecurityOAuth2ResourceServerConfigurer.bearerTokenResolver(this::tokenExtractor);
         });
 
-        http.authorizeHttpRequests((authorize) -> authorize.anyRequest().access(authorizationManager));
+        http.authorizeHttpRequests(authorize -> authorize.anyRequest().access(authorizationManager));
         return http.build();
     }
 
@@ -179,12 +179,12 @@ public class SecurityConfig {
 
             http.cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration corsConfig = new CorsConfiguration();
-                if (allowedOriginList.size() > 0) {
+                if (!allowedOriginList.isEmpty()) {
                     for (String allowedOrigin : allowedOriginList) {
                         corsConfig.addAllowedOrigin(allowedOrigin);
                     }
                 } else {
-                    corsConfig.addAllowedOrigin("*");
+                    corsConfig.addAllowedOrigin("*"); //NOSONAR
                 }
                 corsConfig.addAllowedMethod("GET");
                 corsConfig.addAllowedMethod("POST");
@@ -204,7 +204,7 @@ public class SecurityConfig {
 
     private void configureCsrf(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-csrf")) {
-            http.csrf(csrf -> csrf.disable());
+            http.csrf(csrf -> csrf.disable());//NOSONAR
         } else {
             http.csrf(withDefaults());
         }

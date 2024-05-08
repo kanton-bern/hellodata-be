@@ -1,4 +1,3 @@
-
 <h3 class="content-block">{{'@Dashboards' | transloco}}</h3>
 <div *ngIf="(dashboards$ | async) as dashboards" class="card">
   <p-table #dt (onRowSelect)="onRowSelect($event)"
@@ -95,7 +94,7 @@
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="9">No dashboards found.</td>
+        <td colspan="9">{{'@No dashboards found' | transloco}}</td>
       </tr>
     </ng-template>
   </p-table>

@@ -29,7 +29,7 @@ import {
   hideDeleteAnnouncementPopup,
   loadAllAnnouncementsSuccess,
   loadAnnouncementByIdSuccess,
-  loadPublishedAnnouncementsSuccess,
+  loadPublishedAnnouncementsFilteredSuccess,
   showDeleteAnnouncementPopup
 } from "./announcement.action";
 import {AnnouncementState, initialAnnouncementState} from "./announcement.state";
@@ -38,10 +38,10 @@ import {createReducer, on} from "@ngrx/store";
 
 export const announcementReducer = createReducer(
   initialAnnouncementState,
-  on(loadPublishedAnnouncementsSuccess, (state: AnnouncementState, {payload}): AnnouncementState => {
+  on(loadPublishedAnnouncementsFilteredSuccess, (state: AnnouncementState, {payload}): AnnouncementState => {
     return {
       ...state,
-      publishedAnnouncements: payload
+      publishedAnnouncementsFiltered: payload
     };
   }),
   on(loadAllAnnouncementsSuccess, (state: AnnouncementState, {payload}): AnnouncementState => {

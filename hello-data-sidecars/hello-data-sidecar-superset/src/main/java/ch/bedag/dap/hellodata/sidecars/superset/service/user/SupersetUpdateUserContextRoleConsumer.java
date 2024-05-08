@@ -50,6 +50,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
 import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeAllDashboardRoles;
+import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removePublicRoleIfAdded;
 import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeRoleFromUser;
 
 @Log4j2
@@ -95,16 +96,15 @@ public class SupersetUpdateUserContextRoleConsumer {
                     assignRoleToUser(SlugifyUtil.BI_EDITOR_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SQL_LAB_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
-                case DATA_DOMAIN_VIEWER -> {
-                    assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
-                }
+                case DATA_DOMAIN_VIEWER -> assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 case NONE -> {
                     removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
                 default -> log.debug("Irrelevant role name? {}", contextRole.getRoleName());
             }
-            SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUser(supersetUserRolesUpdate, subsystemUser.getId());
+            removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
+            SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, subsystemUser.getId());
             log.info("-=-=-=-= UPDATED USER ROLES: user: {}, role ids: {}", userContextRoleUpdate.getEmail(), updatedUser.getResult().getRoles());
             userResourceProviderService.publishUsers();
         }

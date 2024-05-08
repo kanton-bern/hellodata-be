@@ -63,7 +63,7 @@ export const ALL_MENU_ITEMS: any[] = [
         id: 'dataEngViewerMenu',
         requiredPermissions: ['DATA_DWH'],
         text: '@DWH Viewer',
-        url: environment.authConfig.redirectUrl + 'data-warehouse-viewer',
+        url: environment.authConfig.redirectUrl + '?redirectTo=data-warehouse-viewer',
         target: '_blank'
       },
       {
@@ -110,6 +110,12 @@ export const ALL_MENU_ITEMS: any[] = [
         text: '@Documentation management',
         routerLink: '/documentation-management',
         requiredPermissions: ['DOCUMENTATION_MANAGEMENT']
+      },
+      {
+        id: 'dashboardImportExportMenu',
+        text: '@Dashboard import-export',
+        routerLink: '/dashboard-import-export',
+        requiredPermissions: ['DASHBOARD_IMPORT_EXPORT']
       },
     ]
   },

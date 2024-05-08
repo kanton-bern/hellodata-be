@@ -28,7 +28,7 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
-import {catchError, combineLatestWith, of, switchMap} from "rxjs";
+import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectAvailableDataDomains} from "../my-dashboards/my-dashboards.selector";
@@ -52,9 +52,9 @@ export class LineageDocsEffects {
     return this._actions$.pipe(
       ofType(loadMyLineageDocs),
       switchMap(() => this._docsService.getProjectDocs()),
-      combineLatestWith(this._store.select(selectAvailableDataDomains)),
+      withLatestFrom(this._store.select(selectAvailableDataDomains)),
       switchMap(([result, dataDomains]) => of(loadMyLineageDocsSuccess({payload: this._enhanceResult(result, dataDomains)}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -79,7 +79,7 @@ export class LineageDocsEffects {
   }
 
   private _getContextName(ld: LineageDoc, dataDomains: DataDomain[]) {
-    const matchingDataDomain = dataDomains.find(dd => dd.key == ld.contextKey);
+    const matchingDataDomain = dataDomains.find(dd => dd.key && dd.key === ld.contextKey);
     return matchingDataDomain ? matchingDataDomain.name : ld.contextKey;
   }
 }

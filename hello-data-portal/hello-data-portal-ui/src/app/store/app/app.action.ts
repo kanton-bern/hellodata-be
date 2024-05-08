@@ -32,6 +32,7 @@ export enum AppActionType {
   APP_SHOW_SUCCESS = '[APP] Show success',
   APP_SHOW_ERROR = '[APP] Show error',
   NAVIGATE = '[APP] Navigate',
+  NAVIGATE_TO_LIST = '[APP] Navigate to list',
 }
 
 export const showError = createAction(
@@ -52,4 +53,8 @@ export const showSuccess = createAction(
 export const navigate = createAction(
   AppActionType.NAVIGATE,
   props<{ url: string, extras?: any }>()
+);
+
+export const navigateToList = createAction(
+  AppActionType.NAVIGATE_TO_LIST,
 );

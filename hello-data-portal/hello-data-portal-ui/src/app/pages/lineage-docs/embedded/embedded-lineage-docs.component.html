@@ -1,8 +1,3 @@
-
-<h2 class="content-block">{{'@Dbt Docs for project' | transloco}} {{ projectId }}</h2>
-<div *ngIf="lineageInfo$ | async" class="card">
-  <app-subsystem-iframe [delay]="500" [url]="url"></app-subsystem-iframe>
-  <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
-</div>
+<app-subsystem-iframe [delay]="500" [url]="url" *ngIf="lineageInfo$ | async"></app-subsystem-iframe>
 
 

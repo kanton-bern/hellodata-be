@@ -27,29 +27,36 @@
 
 hellodata:
   monitoring-interval:
-    cron-expression: "0 0 12 * * *"
+    cron-expression: "0 0 * * * *"
+  create-storages: true
   storages:
     - name: Management_Cockpit_Superset
       path: /storage/docs/projects/Management_Cockpit_Superset
+      total-available-bytes: 3000000
     - name: Management_Cockpit_1
       path: /storage/docs/projects/Management_Cockpit_1
+      total-available-bytes: 3000000
   datasources:
-    - name: hd_metainfo
+    - name: hd_metainfo # if name not present the db name will be taken from the jdbc-url property
       jdbc-url: jdbc:postgresql://localhost:5432/hd_metainfo
       username: postgres
       password: postgres
+      total-available-bytes: 3000000
     - name: superset
       jdbc-url: jdbc:postgresql://localhost:5432/superset
       username: postgres
       password: postgres
+      total-available-bytes: 3000000
     - name: airflow
       jdbc-url: jdbc:postgresql://localhost:5432/airflow
       username: postgres
       password: postgres
+      total-available-bytes: 3000000
     - name: hd_dbt_docs
       jdbc-url: jdbc:postgresql://localhost:5432/hd_dbt_docs
       username: postgres
       password: postgres
+      total-available-bytes: 3000000
 
 server:
   port: 8092
@@ -76,11 +83,11 @@ spring:
         api-path: instances
         username: "user"       #These two are needed so that the client
         password: "password"   #can register at the protected server api
-        instance:
-          metadata:
-            user:
-              name: "user"         #These two are needed so that the server
-              password: "password" #can access the protected client endpoints
+  #        instance:
+  #          metadata:
+  #            user:
+  #              name: "user"         #These two are needed so that the server
+  #              password: "password" #can access the protected client endpoints
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration

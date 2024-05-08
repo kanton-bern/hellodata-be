@@ -27,10 +27,13 @@
 package ch.bedag.dap.hellodata.sidecars.superset.client;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
+import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -70,6 +73,7 @@ public class SupersetApiRequestBuilder {
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
+    private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "%d";
 
     public static HttpUriRequest getAuthTokenRequest(String host, int port, String username, String password) throws URISyntaxException, UnsupportedEncodingException {
         URI apiUri = buildUri(host, port, LOGIN_API_ENDPOINT, null);
@@ -107,6 +111,15 @@ public class SupersetApiRequestBuilder {
                              .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
                              .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
                              .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                             .build();
+    }
+
+    public static HttpUriRequest getDeleteUserRequest(String host, int port, String authToken, int supersetUserId) throws URISyntaxException, IOException {
+        URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, supersetUserId), null);
+        return RequestBuilder.delete() //
+                             .setUri(apiUri) //
+                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
                              .build();
     }
 
@@ -176,9 +189,11 @@ public class SupersetApiRequestBuilder {
     }
 
     public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride,
-                                                           JsonElement password) throws URISyntaxException, IOException {
+                                                           JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, IMPORT_DASHBOARD_API_ENDPOINT, null);
-
+        log.debug("create import dashboard request, auth token {}", authToken);
+        log.debug("create import dashboard request, csrf token {}", csrfToken);
+        log.debug("create import dashboard request, cookie {}", sessionCookie);
         try (FileInputStream fis = new FileInputStream(compressedDashboardFile)) {
             byte[] arr = new byte[(int) compressedDashboardFile.length()];
             int read = fis.read(arr);
@@ -188,22 +203,42 @@ public class SupersetApiRequestBuilder {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addBinaryBody("formData", arr, ContentType.DEFAULT_BINARY, "dashboard.zip");
             builder.addTextBody("overwrite", String.valueOf(isOverride), contentType);
-            builder.addTextBody("passwords", password.getAsString(), contentType);
+            builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 
             return RequestBuilder.post() //
                                  .setUri(apiUri) //
                                  .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
                                  .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                                 .setHeader("X-CSRF-Token", csrfToken) //
+                                 .setHeader("X-CSRFToken", csrfToken) //
+                                 .setHeader("Cookie", sessionCookie) //
                                  .setEntity(builder.build()) //
                                  .build();
         }
     }
 
-    public static HttpUriRequest getUpdateUserRequest(String host, int port, String authToken, SupersetUserRolesUpdate supersetUser, int userId) throws URISyntaxException,
-            JsonProcessingException {
+    public static HttpUriRequest getUpdateUserRolesRequest(String host, int port, String authToken, SupersetUserRolesUpdate supersetUserRolesUpdate, int userId) throws
+            URISyntaxException, JsonProcessingException {
+        String json = getObjectMapper().writeValueAsString(supersetUserRolesUpdate);
         URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
-        String json = getObjectMapper().writeValueAsString(supersetUser);
+        return createPutRequest(authToken, apiUri, json);
+    }
+
+    public static HttpUriRequest getUpdateUserActiveRequest(String host, int port, String authToken, SupersetUserActiveUpdate supersetUserActiveUpdate, int userId) throws
+            URISyntaxException, JsonProcessingException {
+        String json = getObjectMapper().writeValueAsString(supersetUserActiveUpdate);
+        URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userId), null);
+        return createPutRequest(authToken, apiUri, json);
+    }
+
+    public static HttpUriRequest getUpdateDashboardPublishedFlagRequest(String host, int port, String authToken,
+                                                                        SupersetDashboardPublishedFlagUpdate supersetDashboardPublishedFlagUpdate, int dashboardId) throws
+            URISyntaxException, JsonProcessingException {
+        String json = getObjectMapper().writeValueAsString(supersetDashboardPublishedFlagUpdate);
+        URI apiUri = buildUri(host, port, String.format(DASHBOARD_API_ENDPOINT, dashboardId), null);
+        return createPutRequest(authToken, apiUri, json);
+    }
+
+    private static HttpUriRequest createPutRequest(String authToken, URI apiUri, String json) {
         return RequestBuilder.put() //
                              .setUri(apiUri) //
                              .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //

@@ -1,0 +1,28 @@
+canton,count,count_per_surfacekm2,count_per100_inhabitants,top5breeds,top5names
+Graubünden,61733,8.7,30.9,"Weisses_Alpenschaf  16973, Kreuzung  6916, Spiegelschaf  3308, Engadinerschaf  1943, Lacaune  1708","Luna  44, Bianca  43, Lina  42, Bella  38, Mia  38"
+Bern,70630,12.1,6.8,"Schwarzbraunes_Bergschaf  9991, Kreuzung  8261, Braunkoepfiges_Fleischschaf  7587, Weisses_Alpenschaf  4923, Texel  2083","Luna  111, Lisa  101, Sina  101, Anna  92, Susi  88"
+Valais,49347,9.5,14.2,"Walliser_Schwarznasenschaf  13504, Weisses_Alpenschaf  7487, Kreuzung  4015, Suffolk  2236, Schwarzbraunes_Bergschaf  1960","Perrin  199, Barri  43, Bella  42, Pit  37, Susi  36"
+Vaud,20540,7.3,2.5,"Kreuzung  2460, Lacaune  1979, Schwarzbraunes_Bergschaf  1842, Charollais_Suisse  1502, Weisses_Alpenschaf  1470","Neige  12, Fleur  11, Capucine  10, Surprise  10, Blanche  9"
+Ticino,14208,5.2,4.0,"Weisses_Alpenschaf  3586, Kreuzung  1241, Lacaune  471, Schwarzbraunes_Bergschaf  332, Spiegelschaf  297","Bronco  20, Bianca  18, Bella  13, Stella  12, Luna  11"
+St. Gallen,41387,21.2,8.0,"Kreuzung  6760, Weisses_Alpenschaf  5145, Lacaune  3083, Schwarzbraunes_Bergschaf  2895, Spiegelschaf  1295","Bella  39, Luna  36, Sina  27, Nora  26, Emma  25"
+Zürich,18000,10.8,1.2,"Kreuzung  2329, Schwarzbraunes_Bergschaf  1733, Weisses_Alpenschaf  969, Engadinerschaf  875, Lacaune  800","Schwarz  52, Weiss  44, Anna  27, Lisa  27, Bella  26"
+Fribourg,21966,13.8,6.7,"Schwarzbraunes_Bergschaf  3784, Kreuzung  3490, Lacaune  1758, Weisses_Alpenschaf  1059, Charollais_Suisse  779","Agneau  15, Luna  15, Bella  14, Noisette  12, Rita  11"
+Luzern,24246,17.0,5.8,"Lacaune  3192, Kreuzung  3184, Schwarzbraunes_Bergschaf  2404, Weisses_Alpenschaf  1727, Braunkoepfiges_Fleischschaf  1168","Peter  38, Luna  31, Mia  30, Sina  30, Anna  29"
+Aargau,17496,12.5,2.5,"Kreuzung  1734, Schwarzbraunes_Bergschaf  1584, Weisses_Alpenschaf  1281, Braunkoepfiges_Fleischschaf  1258, Texel  1189","Nina  26, Luna  19, Bella  17, Lara  17, Lea  17"
+Uri,17901,16.9,48.6,"Weisses_Alpenschaf  4737, Kreuzung  2347, Schwarzbraunes_Bergschaf  1269, Engadinerschaf  845, Suffolk  340","Mario  66, Peter  43, Markus  23, Tina  23, Lena  18"
+Thurgau,17222,20.0,6.1,"Kreuzung  2865, Lacaune  1545, Weisses_Alpenschaf  1315, Schwarzbraunes_Bergschaf  852, Spiegelschaf  793","Marti  16, Anna  15, Lara  15, Ella  11, Flora  11"
+Schwyz,22889,26.9,14.1,"Weisses_Alpenschaf  6113, Kreuzung  3183, Lacaune  1059, Schwarzbraunes_Bergschaf  1015, Engadinerschaf  690","Fiona  20, Franz  17, Lisa  16, Luna  16, Flora  15"
+Jura,6333,7.6,8.6,"Schwarzbraunes_Bergschaf  2392, Kreuzung  963, Charollais_Suisse  481, Lacaune  250, Suffolk  178","Brebis  14, Prune  8, Agneau  6, Caline  6, Cerise  6"
+Neuchâtel,1890,2.6,1.1,"Kreuzung  393, Weisses_Alpenschaf  269, Schwarzbraunes_Bergschaf  252, Suffolk  113, Walliser_Schwarznasenschaf  110","Brunette  6, Neige  5"
+Solothurn,7787,9.9,2.8,"Schwarzbraunes_Bergschaf  1255, Kreuzung  835, Braunkoepfiges_Fleischschaf  612, Weisses_Alpenschaf  508, Texel  390","Luna  13, Max  13, Emma  9, Lea  9, Moritz  9"
+Glarus,5913,8.7,14.5,"Weisses_Alpenschaf  1098, Kreuzung  646, Schwarzbraunes_Bergschaf  342, Lacaune  319, Spiegelschaf  289","Weiss  14, Bella  7, Flurin  7, Mia  7, Heidi  6"
+Basel-Landschaft,5845,11.3,2.0,"Kreuzung  516, Schwarzbraunes_Bergschaf  414, Braunkoepfiges_Fleischschaf  407, Weisses_Alpenschaf  357, Walliser_Landschaf  300","Polda  18, Luna  15, Gilberta  10, Lea  9, Münggi  9"
+Obwalden,3376,7.0,8.9,"Weisses_Alpenschaf  693, Kreuzung  556, Schwarzbraunes_Bergschaf  552, Skudde  192, Braunkoepfiges_Fleischschaf  191","Susi  12, Sina  9, Fiona  8, Luna  8, Bella  7"
+Nidwalden,3579,14.8,8.2,"Kreuzung  510, Weisses_Alpenschaf  427, Schwarzbraunes_Bergschaf  352, Braunkoepfiges_Fleischschaf  184, Engadinerschaf  172","Mona  6, Linda  5, Luna  5, Mia  5, Nina  5"
+Genève,1270,5.2,0.3,"Kreuzung  377, Rouge_de_lOuest  102, Shropshire  88, Schwarzbraunes_Bergschaf  73, Charollais_Suisse  70",
+Schaffhausen,2308,7.7,2.8,"Weisses_Alpenschaf  360, Schwarzbraunes_Bergschaf  250, Kreuzung  176, Kamerunschaf  139, Braunkoepfiges_Fleischschaf  124",
+Appenzell Ausserrhoden,6899,28.4,12.5,"Kreuzung  1279, Weisses_Alpenschaf  1211, Spiegelschaf  300, Engadinerschaf  269, Schwarzbraunes_Bergschaf  268","Max  6, Jana  5, Lara  5, Lisa  5, Nora  5"
+Zug,5316,25.7,4.1,"Kreuzung  963, Weisses_Alpenschaf  477, Schwarzbraunes_Bergschaf  341, Shropshire  238, Rouge_de_lOuest  180","Lisa  7, Bella  5, Lara  5, Mona  5"
+Appenzell Innerrhoden,3699,21.4,22.7,"Weisses_Alpenschaf  879, Kreuzung  714, Schwarzbraunes_Bergschaf  392, Braunkoepfiges_Fleischschaf  132, Spiegelschaf  111",Emma  5
+Basel-Stadt,103,2.8,0.1,"Weisses_Alpenschaf  18, Heidschnucke  13, Schwarzbraunes_Bergschaf  13, Walliser_Landschaf  12, Walliser_Schwarznasenschaf  12",
+Liechtenstein,1533,9.6,3.9,"Kreuzung  524, Weisses_Alpenschaf  293, Braunkoepfiges_Fleischschaf  56, Walliser_Schwarznasenschaf  53, Shropshire  49",

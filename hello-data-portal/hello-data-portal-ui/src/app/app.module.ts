@@ -80,6 +80,8 @@ import {UnsavedChangesModule} from "./shared/components/unsaved-changes-dialog/u
 import {RedirectModule} from "./shared/components/redirect/redirect.component";
 import {DataWarehouseModule} from "./pages/data-warehouse/data-warehouse.module";
 import {BaseComponent} from "./shared/components/base/base.component";
+import {DashboardImportExportModule} from "./pages/admin/dashboard-import-export/dashboard-import-export.module";
+import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
 
 registerLocaleData(localeDECH);
 
@@ -88,6 +90,7 @@ registerLocaleData(localeDECH);
     AppComponent,
     CallbackComponent,
     ProfileComponent,
+    PublishedAnnouncementsComponent,
     BaseComponent
   ],
   imports: [
@@ -137,7 +140,8 @@ registerLocaleData(localeDECH);
     NgPipesModule,
     TooltipModule,
     UnsavedChangesModule,
-    RedirectModule
+    RedirectModule,
+    DashboardImportExportModule,
   ],
   providers: [
     ScreenService,

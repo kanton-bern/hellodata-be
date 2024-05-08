@@ -30,9 +30,9 @@ import {FunctionalEffect} from "@ngrx/effects/src/models";
 import {MetaInfoResourceEffects} from "../metainfo-resource/metainfo-resource.effects";
 import {UsersManagementEffects} from "../users-management/users-management.effects";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {tap} from "rxjs";
+import {tap, withLatestFrom} from "rxjs";
 import {NotificationService} from "../../shared/services/notification.service";
-import {navigate, showError, showInfo, showSuccess} from "./app.action";
+import {navigate, navigateToList, showError, showInfo, showSuccess} from "./app.action";
 import {AuthEffects} from "../auth/auth.effects";
 import {Router} from "@angular/router";
 import {PortalRolesManagementEffects} from "../portal-roles-management/portal-roles-management.effects";
@@ -46,37 +46,71 @@ import {SummaryEffects} from "../summary/summary.effects";
 import {ExternalDashboardsEffects} from "../external-dashboards/external-dashboards.effects";
 import {LineageDocsEffects} from "../lineage-docs/lineage-docs-effects.service";
 import {UnsavedChangesEffects} from "../unsaved-changes/unsaved-changes.effects";
+import {naviElements} from "../../app-navi-elements";
+import {Store} from "@ngrx/store";
+import {AppState} from "./app.state";
+import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
+import {ALL_DATA_DOMAINS} from "./app.constants";
 
 @Injectable()
 export class AppEffects {
-  showError$ = createEffect(() => { return this._actions$.pipe(
-    ofType(showError),
-    tap(action => {
-      if (action.error.error.message) {
-        this._notificationService.error(action.error.error.message);
-      } else {
-        console.error(action.error.message);
-        this._notificationService.error('@Unexpected error occurred');
-      }
-    })
-  ) }, {dispatch: false});
+  showError$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(showError),
+      tap(action => {
+        console.error(action);
+        if (action.error.message) {
+          this._notificationService.error(action.error.message);
+        } else if (action.error.error.message) {
+          this._notificationService.error(action.error.error.message);
+        } else {
+          this._notificationService.error('@Unexpected error occurred');
+        }
+      })
+    )
+  }, {dispatch: false});
 
-  showInfo$ = createEffect(() => { return this._actions$.pipe(
-    ofType(showInfo),
-    tap(action => this._notificationService.info(action.message, action.interpolateParams))
-  ) }, {dispatch: false});
+  showInfo$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(showInfo),
+      tap(action => this._notificationService.info(action.message, action.interpolateParams))
+    )
+  }, {dispatch: false});
 
-  showSuccess$ = createEffect(() => { return this._actions$.pipe(
-    ofType(showSuccess),
-    tap(action => this._notificationService.success(action.message, action.interpolateParams))
-  ) }, {dispatch: false});
+  showSuccess$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(showSuccess),
+      tap(action => this._notificationService.success(action.message, action.interpolateParams))
+    )
+  }, {dispatch: false});
 
-  navigate$ = createEffect(() => { return this._actions$.pipe(
-    ofType(navigate),
-    tap((action) => this._router.navigate([action.url], action.extras)),
-  ) }, {dispatch: false});
+  navigate$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(navigate),
+      tap((action) => this._router.navigate([action.url], action.extras)),
+    )
+  }, {dispatch: false});
+
+  navigateToList$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(navigateToList),
+      withLatestFrom(this._store.select(selectSelectedDataDomain)),
+      tap(([action, selectedDD]) => {
+        const currentUrl = this._router.url;
+        if (selectedDD && selectedDD.name !== ALL_DATA_DOMAINS && !decodeURIComponent(currentUrl).includes(selectedDD!.name) && !decodeURIComponent(currentUrl).includes(selectedDD!.key)) {
+          if (currentUrl.includes(naviElements.myDashboards.path)) {
+            this._router.navigate([naviElements.myDashboards.path]);
+          }
+          if (currentUrl.includes(naviElements.lineageDocs.path)) {
+            this._router.navigate([naviElements.lineageDocs.path + '/' + naviElements.lineageDocsList.path]);
+          }
+        }
+      }),
+    )
+  }, {dispatch: false});
 
   constructor(
+    private _store: Store<AppState>,
     private _router: Router,
     private _actions$: Actions,
     private _notificationService: NotificationService

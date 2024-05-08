@@ -32,7 +32,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectCurrentContextRoles, selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../auth/auth.selector";
 import {filter, take} from "rxjs/operators";
-import {selectAvailableDataDomainItems, selectAvailableDataDomains, selectMyDashboards} from "../my-dashboards/my-dashboards.selector";
+import {selectAvailableDataDomainItems, selectMyDashboards} from "../my-dashboards/my-dashboards.selector";
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
 import {TranslateService} from "../../shared/services/translate.service";
@@ -90,12 +90,11 @@ export class MenuService {
     return combineLatest([
       this._store.select(selectMyDashboards),
       this._store.select(selectMyLineageDocs),
-      this._store.select(selectAvailableDataDomains),
       this._store.select(selectAppInfos),
       this._store.select(selectCurrentContextRoles),
       this._store.select(selectAvailableDataDomainItems)
     ]).pipe(
-      map(([myDashboards, myDocs, availableDataDomains,
+      map(([myDashboards, myDocs,
              appInfos, contextRoles, availableDomainItems]) => {
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
@@ -110,7 +109,7 @@ export class MenuService {
           }
           // inject the users lineage docs into the menu
           if (menuItem.text === '@Lineage') {
-            menuItem.items = this.createLineageDocsSubNav(myDocs, availableDataDomains);
+            menuItem.items = this.createLineageDocsSubNav(myDocs, availableDomainItems);
           }
           if (menuItem.text === '@Data Marts') {
             menuItem.items = this.createDataMartsSubNav(availableDomainItems);
@@ -202,13 +201,13 @@ export class MenuService {
     return false;
   }
 
-  private createLineageDocsSubNav(projectDocs: LineageDoc[], availableDataDomains: DataDomain[]) {
+  private createLineageDocsSubNav(projectDocs: LineageDoc[], availableDataDomains: any[]) {
     const subMenuEntry: any[] = [];
     subMenuEntry.push({id: 'lineageDocsList', text: '@List', routerLink: 'lineage-docs/list', requiredPermissions: ['DATA_LINEAGE']})
     const docsGroupedByContext = this.getLineageDocsGroupedByDataDomainContext(projectDocs, availableDataDomains);
-    for (const [dataDomainContextKey, lineageDocsInDomain] of docsGroupedByContext) {
+    for (const [dataDomainContextName, lineageDocsInDomain] of docsGroupedByContext) {
       const lineageDocsMenuEntries = this.getLineageDocsSubMenuItemsForDataDomain(lineageDocsInDomain);
-      subMenuEntry.push({id: 'lineageDocsEntries', text: dataDomainContextKey, items: lineageDocsMenuEntries});
+      subMenuEntry.push({id: 'lineageDocsEntries', text: dataDomainContextName, items: lineageDocsMenuEntries});
     }
     return subMenuEntry;
   }
@@ -227,16 +226,22 @@ export class MenuService {
     return docsGroupedByContext;
   }
 
-  private getContextName(pd: LineageDoc, availableDataDomains: DataDomain[]) {
-    const dataDomain = availableDataDomains.find(dataDomain => dataDomain.key === pd.contextKey);
-    return dataDomain ? dataDomain.name : pd.contextKey;
+  private getContextName(pd: LineageDoc, availableDataDomains: any[]) {
+    console.debug('get context name - availableDataDomains', availableDataDomains);
+    const dataDomain = availableDataDomains.find(dataDomain => {
+      if (dataDomain.data && dataDomain.data.key) {
+        return dataDomain.data.key === pd.contextKey;
+      }
+      return false;
+    });
+    return dataDomain ? dataDomain.data.name : pd.contextKey;
   }
 
   private getLineageDocsSubMenuItemsForDataDomain(lineageDoc: LineageDoc[]) {
     const sortedByNameLineageDocs = [...lineageDoc];
     sortedByNameLineageDocs.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     return sortedByNameLineageDocs.map((lineageDoc: LineageDoc) => ({
-      text: `${this.dbMenuItemPrefix}${lineageDoc.name} ${this._translateService.translate('@Data Lineage')}`,
+      text: `${this._translateService.translate('@Doc')}`,
       routerLink: this.createLineageDocsLink(lineageDoc)
     }));
   }
@@ -254,7 +259,7 @@ export class MenuService {
 
   private createDataMartsSubNav(availableDataDomains: any[]) {
     const subMenuEntry: any[] = [];
-    if(availableDataDomains.length > 0){
+    if (availableDataDomains.length > 0) {
       subMenuEntry.push({
         id: 'dataMartsDetails',
         text: '@DM Viewer Link',

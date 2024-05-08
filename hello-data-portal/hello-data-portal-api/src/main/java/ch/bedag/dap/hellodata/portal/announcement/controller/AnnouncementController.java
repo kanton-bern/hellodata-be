@@ -50,16 +50,10 @@ public class AnnouncementController {
     private final AnnouncementService announcementService;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ANNOUNCEMENT_MANAGEMENT')")
     public List<AnnouncementDto> getAllAnnouncements() {
         return announcementService.getAllAnnouncements();
     }
 
-    /**
-     * this one is open for not logged-in users as well
-     *
-     * @return current announcements
-     */
     @GetMapping("/published")
     public List<AnnouncementDto> getPublishedAnnouncements() {
         return announcementService.getPublishedAnnouncements();

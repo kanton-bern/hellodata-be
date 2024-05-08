@@ -29,14 +29,14 @@ package ch.bedag.dap.hellodata.monitoring.storage.service.storage;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
 import ch.bedag.dap.hellodata.monitoring.storage.config.HelloDataStorageConfigurationProperties;
 import ch.bedag.dap.hellodata.monitoring.storage.config.storage.StorageConfigurationProperty;
+import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
@@ -44,8 +44,22 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class StorageSizeService {
-    private static final String[] SIZE_UNITS = new String[] { "B", "kB", "MB", "GB", "TB" };
     private final HelloDataStorageConfigurationProperties helloDataStorageConfigurationProperties;
+
+    @PostConstruct
+    public void init() {
+        if (helloDataStorageConfigurationProperties.isCreateStorages()) {
+            List<StorageConfigurationProperty> storages = helloDataStorageConfigurationProperties.getStorages();
+            for (StorageConfigurationProperty storage : storages) {
+                String path = storage.getPath();
+                File folder = new File(path);
+                boolean created = folder.mkdirs();
+                if (created) {
+                    log.info("Created folder {}", folder);
+                }
+            }
+        }
+    }
 
     public List<StorageSize> checkStorageSize() {
         log.info("^^^Checking storages size:");
@@ -55,15 +69,15 @@ public class StorageSizeService {
             for (StorageConfigurationProperty storage : storages) {
                 String path = storage.getPath();
                 File folder = new File(path);
-                long directorySize = FileUtils.sizeOfDirectory(folder);
-                String readableSize = toReadableFormat(directorySize);
-                String freeSpace = toReadableFormat(FileSystemUtils.freeSpaceKb(path) * 1024);
-                log.info("Readable folder {} [path: {}] size: {}, free space: {}", storage.getName(), path, readableSize, freeSpace);
+                String directorySize = "" + FileUtils.sizeOfDirectory(folder);
+                String freeSpace = "" + Files.getFileStore(folder.toPath()).getUsableSpace();
+                log.info("Readable folder {} [path: {}] size: {}, free space: {}", storage.getName(), path, directorySize, freeSpace);
                 StorageSize storageSize = new StorageSize();
                 storageSize.setName(storage.getName());
                 storageSize.setPath(path);
-                storageSize.setSize(readableSize);
-                storageSize.setFreeSpace(freeSpace);
+                storageSize.setUsedBytes(directorySize);
+                storageSize.setFreeSpaceBytes(freeSpace);
+                storageSize.setTotalAvailableBytes(storage.getTotalAvailableBytes());
                 result.add(storageSize);
             }
         } catch (IOException e) {
@@ -71,14 +85,5 @@ public class StorageSizeService {
         }
         log.info("^^^Finished storages size check\n");
         return result;
-    }
-
-    private String toReadableFormat(long size) {
-        if (size == 0) {
-            return "0";
-        }
-        int unitIndex = (int) (Math.log10(size) / 3);
-        double unitValue = 1 << (unitIndex * 10);
-        return new DecimalFormat("#,##0.#").format(size / unitValue) + " " + SIZE_UNITS[unitIndex];
     }
 }

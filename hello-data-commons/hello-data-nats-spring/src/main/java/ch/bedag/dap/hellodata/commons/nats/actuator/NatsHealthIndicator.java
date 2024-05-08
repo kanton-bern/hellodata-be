@@ -91,6 +91,7 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
 
     /**
      * Utilize the connection to be sure if request/reply pattern works (even tho the connection is up)
+     *
      * @param builder
      * @return builder status
      */
@@ -101,6 +102,9 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
         try {
             reply = natsConnection.request(subjectBase64, subject.getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
         } catch (Exception exception) {
+            if (exception instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             log.error("[NATS connection check] Could not connect to NATS", exception);
             return builder.down();
         }

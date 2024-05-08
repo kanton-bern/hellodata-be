@@ -86,3 +86,7 @@ databaseChangeLog:
       file: db/changelog/changelogs/28_create_monitoring_storage_table.xml
   - include:
       file: db/changelog/changelogs/29_update_portal_role_names.xml
+  - include:
+      file: db/changelog/changelogs/30_clear_storage_sizes.xml
+  - include:
+      file: db/changelog/changelogs/31_extend_instance_name_size.xml

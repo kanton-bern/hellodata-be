@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -40,12 +40,28 @@ import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.sel
   templateUrl: './dashboards.component.html',
   styleUrls: ['./dashboards.component.scss']
 })
-export class DashboardsComponent {
+export class DashboardsComponent implements OnInit{
   dashboards$: Observable<SupersetDashboard[]>;
   dashboard!: SupersetDashboardWithMetadata;
+  filterValue = '';
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>, private menuService: MenuService) {
     this.dashboards$ = this.store.select(selectMyDashboards);
+  }
+
+  ngOnInit(): void {
+    this.restoreDashboardSearchFilter();
+  }
+
+  private restoreDashboardSearchFilter() {
+    const storageItem = sessionStorage.getItem("home-dashboards-table");
+    if (storageItem) {
+      const storageItemObject = JSON.parse(storageItem);
+      const filterValue = storageItemObject.filters?.global?.value;
+      if (filterValue) {
+        this.filterValue = filterValue;
+      }
+    }
   }
 
   createLink(dashboard: SupersetDashboardWithMetadata): string {

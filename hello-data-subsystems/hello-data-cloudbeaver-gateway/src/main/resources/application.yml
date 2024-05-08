@@ -63,10 +63,10 @@ spring:
         url: http://localhost:9090
         username: "user"       #These two are needed so that the client
         password: "password"   #can register at the protected server api
-        instance:
-          metadata:
-            user.name: "user"         #These two are needed so that the server
-            user.password: "password" #can access the protected client endpoints
+  #        instance:
+  #          metadata:
+  #            user.name: "user"         #These two are needed so that the server
+  #            user.password: "password" #can access the protected client endpoints
   cloud:
     discovery:
       enabled: false
@@ -86,6 +86,12 @@ spring:
             allowedOrigins: "*"
             allowedMethods: "*"
       routes:
+        - id: actuator_route
+          uri: http://localhost:8082
+          predicates:
+            - Path=/actuator/**
+          filters:
+            - RemoveRequestCookie
         - id: cloudbeaver_route
           uri: http://${hello-data.cloudbeaver.service-name}
           predicates:
@@ -107,6 +113,7 @@ server:
     include-exception: false
     include-stacktrace: never
   max-http-request-header-size: 32KB
+
 management:
   endpoint:
     health:

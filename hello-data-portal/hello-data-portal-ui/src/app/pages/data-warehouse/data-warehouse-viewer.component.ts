@@ -31,16 +31,18 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {BaseComponent} from "../../shared/components/base/base.component";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
   styleUrls: ['./data-warehouse-viewer.component.scss']
 })
-export class DataWarehouseViewerComponent {
+export class DataWarehouseViewerComponent extends BaseComponent {
 
-  url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain
+  url!: string;
 
   constructor(private store: Store<AppState>) {
+    super();
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -50,4 +52,10 @@ export class DataWarehouseViewerComponent {
     }));
   }
 
+
+  override ngOnInit() {
+    super.ngOnInit();
+    this.url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain;
+    console.debug("Data Warehouse Component initiated", this.url);
+  }
 }

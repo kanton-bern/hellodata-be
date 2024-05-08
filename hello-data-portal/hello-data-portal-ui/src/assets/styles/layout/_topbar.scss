@@ -54,13 +54,6 @@ app-header {
   position: inherit;
 }
 
-app-published-announcements, #ghettobox {
-  position: relative;
-  width: 100%;
-  z-index: -1;
-  box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
-}
-
 app-published-announcements p-toolbar .p-toolbar-group-start i {
   font-size: 30px;
 }

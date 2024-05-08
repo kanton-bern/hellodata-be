@@ -1,4 +1,3 @@
-
 <h2 class="content-block">{{'@Announcements management' | transloco}}</h2>
 <div class="card">
   <p-toolbar styleClass="mb-4 gap-2">
@@ -20,11 +19,11 @@
     >
       <ng-template pTemplate="header">
         <tr>
-          <th>&nbsp;</th>
-          <th>
+          <th id="publishedHeader">&nbsp;</th>
+          <th id="createdDateHeader">
             {{'@Created date' | transloco}}
           </th>
-          <th>
+          <th id="publishedDateHeader">
             {{'@Published date' | transloco}}
           </th>
           <th id="msgEditor" style="min-width:30rem">

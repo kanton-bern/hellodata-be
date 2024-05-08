@@ -38,7 +38,6 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
   templateUrl: 'profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-
 export class ProfileComponent {
   userDetails$: Observable<any>;
   userContextRoles$: Observable<any[]>;

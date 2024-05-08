@@ -25,7 +25,7 @@
 -- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 
-CREATE TABLE public.log (
+CREATE TABLE airflow.log (
                             id serial4 NOT NULL,
                             dttm timestamptz NULL,
                             dag_id varchar(250) NULL,

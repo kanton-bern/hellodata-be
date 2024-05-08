@@ -41,8 +41,8 @@ import {
   loadAllAnnouncementsSuccess,
   loadAnnouncementById,
   loadAnnouncementByIdSuccess,
-  loadPublishedAnnouncements,
-  loadPublishedAnnouncementsSuccess,
+  loadPublishedAnnouncementsFiltered,
+  loadPublishedAnnouncementsFilteredSuccess,
   markAnnouncementAsRead,
   openAnnouncementEdition,
   saveChangesToAnnouncement,
@@ -62,17 +62,17 @@ export class AnnouncementEffects {
       ofType(loadAllAnnouncements),
       switchMap(() => this._announcementService.getAllAnnouncements()),
       switchMap(result => of(loadAllAnnouncementsSuccess({payload: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
   loadPublishedAnnouncements$ = createEffect(() => {
       return this._actions$.pipe(
-        ofType(loadPublishedAnnouncements),
+        ofType(loadPublishedAnnouncementsFiltered),
         switchMap(() => this._announcementService.getHiddenAnnouncements()),
         switchMap((hiddenAnnouncements) => this._announcementService.getPublishedAnnouncements().pipe(
           tap(publishedAnnouncements => {
-            console.log("published announcements", publishedAnnouncements)
+            console.debug("published announcements", publishedAnnouncements)
           }),
           map(publishedAnnouncements => {
             return publishedAnnouncements.filter(publishedAnnouncement => {
@@ -80,7 +80,7 @@ export class AnnouncementEffects {
             });
           })
         )),
-        switchMap((result) => of(loadPublishedAnnouncementsSuccess({payload: result}))),
+        switchMap((result) => of(loadPublishedAnnouncementsFilteredSuccess({payload: result}))),
       )
     }
   );
@@ -94,7 +94,7 @@ export class AnnouncementEffects {
         }
         return of(navigate({url: 'announcements-management/create'}));
       }),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -104,7 +104,7 @@ export class AnnouncementEffects {
       concatLatestFrom(() => this._store.select(selectParamAnnouncementId)),
       switchMap(([action, announcementId]) => this._announcementService.getAnnouncementById(announcementId as string)),
       switchMap(result => of(loadAnnouncementByIdSuccess({announcement: result}))),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -136,7 +136,7 @@ export class AnnouncementEffects {
     return this._actions$.pipe(
       ofType(saveChangesToAnnouncementSuccess),
       switchMap(action => of(navigate({url: 'announcements-management'}), clearUnsavedChanges())),
-      catchError(e => of(showError(e)))
+      catchError(e => of(showError({error: e})))
     )
   });
 
@@ -146,7 +146,7 @@ export class AnnouncementEffects {
       concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
       switchMap(([action, announcement]) => this._announcementService.deleteAnnouncementById((announcement as Announcement).id as string).pipe(
         map(() => deleteAnnouncementSuccess({announcement: announcement as Announcement})),
-        catchError(e => of(showError(e)))
+        catchError(e => of(showError({error: e})))
       )),
     )
   });
@@ -166,7 +166,7 @@ export class AnnouncementEffects {
       switchMap(([action, announcementToBeDeleted]) => {
           return this._announcementService.deleteAnnouncementById((announcementToBeDeleted as Announcement).id as string).pipe(
             map(() => deleteEditedAnnouncementSuccess()),
-            catchError(e => of(showError(e)))
+            catchError(e => of(showError({error: e})))
           )
         }
       ),
@@ -186,8 +186,8 @@ export class AnnouncementEffects {
       ofType(markAnnouncementAsRead),
       switchMap(action => {
         return this._announcementService.hideAnnouncement(action.announcement).pipe(
-          map(() => loadPublishedAnnouncements()),
-          catchError(e => of(showError(e)))
+          map(() => loadPublishedAnnouncementsFiltered()),
+          catchError(e => of(showError({error: e})))
         )
       })
     )

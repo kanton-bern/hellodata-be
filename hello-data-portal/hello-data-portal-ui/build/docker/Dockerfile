@@ -30,6 +30,7 @@ FROM nginx:1.25.3
 LABEL MAINTAINER="HelloDATA Team"
 
 COPY hello-data-portal-ui /app
+COPY 500.html /app/500.html
 RUN rm -rf /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY csp.conf /etc/nginx/conf.d/csp.conf.template

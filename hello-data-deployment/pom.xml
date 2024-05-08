@@ -4,10 +4,20 @@
 
     <groupId>ch.bedag.dap.hellodata</groupId>
     <artifactId>hello-data-deployment</artifactId>
-    <version>main-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>hello-data-deployment</name>
+
+    <modules>
+        <module>hello-data-dc-cloudbeaver</module>
+        <module>hello-data-dc-keycloak</module>
+        <module>hello-data-dc-portal</module>
+        <module>hello-data-dc-postgres</module>
+        <module>hello-data-dc-airflow</module>
+        <module>hello-data-dc-superset</module>
+        <module>hello-data-showcase</module>
+    </modules>
 
     <distributionManagement>
         <repository>
@@ -15,11 +25,6 @@
             <name>GitHub kanton-bern Maven Packages</name>
             <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
         </repository>
-        <snapshotRepository>
-            <id>github-snapshots</id>
-            <name>GitHub kanton-bern Maven Snapshots</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <properties>

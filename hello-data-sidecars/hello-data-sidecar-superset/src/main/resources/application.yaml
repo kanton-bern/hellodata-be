@@ -35,7 +35,7 @@ hello-data:
   instance:
     name: "Default superset instance"
     url: superset.local
-
+  dashboard-export-check-script-location: '/app/export_check.py'
   auth-server:
     url: http://localhost:38080
     realm: hellodata
