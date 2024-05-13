@@ -52,7 +52,7 @@ if [ -n "$DB_HOST" ] && [ -n "$DB_NAME" ] && [ -n "$DB_PORT" ] && [ -n "$DB_USER
         exec /entrypoint "${@}"
     fi
 else
-    echo "[ENTRYPOINT]: DB_HOST environment variable not found. Skipping wait-and-migrate.sh."
+    echo "[ENTRYPOINT]: Missing one or more required environment variables (DB_HOST, DB_NAME, DB_PORT, DB_USER, DB_PASS). Skipping wait-and-migrate.sh."
     # Execute entrypoint directly
     exec /entrypoint "${@}"
 fi
