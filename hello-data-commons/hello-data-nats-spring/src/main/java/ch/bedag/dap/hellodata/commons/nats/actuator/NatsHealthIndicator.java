@@ -92,8 +92,7 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
     /**
      * Utilize the connection to be sure if request/reply pattern works (even though the connection is up)
      *
-     * @param builder
-     * @return builder status
+     * @param builder health builder to set status
      */
     private void checkRequestReplyConnection(Health.Builder builder) {
         log.debug("[NATS connection check] Sending request to subjectBase: {}", subject);
