@@ -29,24 +29,30 @@
 # Run wait and migrate on each start and then the entrypoint command for the airflow
 # https://airflow.apache.org/docs/docker-stack/entrypoint.html#entrypoint-commands
 
-echo "[ENTRYPOINT]: Run wait and migrate"
-# Execute wait-and-migrate.sh in background
-/db/wait-and-migrate.sh &
+# Check if environment variables are available
+if [ -n "$DB_HOST" ] && [ -n "$DB_NAME" ] && [ -n "$DB_PORT" ] && [ -n "$DB_USER" ] && [ -n "$DB_PASS" ]; then
+    # Execute wait-and-migrate.sh in background
+    /db/wait-and-migrate.sh &
 
-# Capture the process ID of wait-and-migrate.sh
-WAIT_AND_MIGRATE_PID=$!
+    # Capture the process ID of wait-and-migrate.sh
+    WAIT_AND_MIGRATE_PID=$!
 
-# Wait for wait-and-migrate.sh to finish and capture its exit code
-wait $WAIT_AND_MIGRATE_PID
-WAIT_AND_MIGRATE_EXIT_CODE=$?
+    # Wait for wait-and-migrate.sh to finish and capture its exit code
+    wait $WAIT_AND_MIGRATE_PID
+    WAIT_AND_MIGRATE_EXIT_CODE=$?
 
-# Check if wait-and-migrate.sh failed
-if [ $WAIT_AND_MIGRATE_EXIT_CODE -ne 0 ]; then
-    echo "[ENTRYPOINT]: wait-and-migrate.sh failed with exit code $WAIT_AND_MIGRATE_EXIT_CODE"
-    exit $WAIT_AND_MIGRATE_EXIT_CODE
+    # Check if wait-and-migrate.sh failed
+    if [ $WAIT_AND_MIGRATE_EXIT_CODE -ne 0 ]; then
+        echo "[ENTRYPOINT]: wait-and-migrate.sh failed with exit code $WAIT_AND_MIGRATE_EXIT_CODE"
+        exit $WAIT_AND_MIGRATE_EXIT_CODE
+    else
+        echo "[ENTRYPOINT]: wait-and-migrate.sh executed successfully"
+        airflow db upgrade
+        # Execute entrypoint only if wait-and-migrate.sh succeeded
+        exec /entrypoint "${@}"
+    fi
 else
-    echo "[ENTRYPOINT]: wait-and-migrate.sh executed successfully"
-    airflow db upgrade
-    # Execute entrypoint only if wait-and-migrate.sh succeeded
+    echo "[ENTRYPOINT]: Missing one or more required environment variables (DB_HOST, DB_NAME, DB_PORT, DB_USER, DB_PASS). Skipping wait-and-migrate.sh."
+    # Execute entrypoint directly
     exec /entrypoint "${@}"
 fi
