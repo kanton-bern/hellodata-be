@@ -62,7 +62,7 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
         log.debug("[NATS connection check] Listening for messages on subject {}", subject);
         Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
             String message = new String(msg.getData());
-            log.debug("[NATS connection check] Received request for NATS connection check", message);
+            log.debug("[NATS connection check] Received request for NATS connection check {}", message);
             natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));
             msg.ack();
         });
@@ -90,30 +90,31 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
     }
 
     /**
-     * Utilize the connection to be sure if request/reply pattern works (even tho the connection is up)
+     * Utilize the connection to be sure if request/reply pattern works (even though the connection is up)
      *
-     * @param builder
-     * @return builder status
+     * @param builder health builder to set status
      */
-    private Health.Builder checkRequestReplyConnection(Health.Builder builder) {
-        String subjectBase64 = new String(Base64.getEncoder().encode(subject.getBytes(StandardCharsets.UTF_8)));
+    private void checkRequestReplyConnection(Health.Builder builder) {
         log.debug("[NATS connection check] Sending request to subjectBase: {}", subject);
         Message reply = null;
         try {
             reply = natsConnection.request(subjectBase64, subject.getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
         } catch (Exception exception) {
             if (exception instanceof InterruptedException) {
+                log.error("[NATS connection check] Could not connect to NATS", exception);
                 Thread.currentThread().interrupt();
             }
             log.error("[NATS connection check] Could not connect to NATS", exception);
-            return builder.down();
+            builder.down();
+            return;
         }
         if (reply == null) {
             log.warn("[NATS connection check] Reply is null, please verify NATS connection");
-            return builder.down();
+            builder.down();
+            return;
         }
         reply.ack();
         log.debug("[NATS connection check] Reply received: " + new String(reply.getData()));
-        return builder.up();
+        builder.up();
     }
 }
