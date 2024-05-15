@@ -62,7 +62,7 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
         log.debug("[NATS connection check] Listening for messages on subject {}", subject);
         Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
             String message = new String(msg.getData());
-            log.debug("[NATS connection check] Received request for NATS connection check", message);
+            log.debug("[NATS connection check] Received request for NATS connection check {}", message);
             natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));
             msg.ack();
         });
