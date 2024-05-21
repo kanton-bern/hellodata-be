@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Observable, Subscription, tap} from "rxjs";
+import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -41,6 +41,7 @@ import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
+import {TranslateService} from "../../../../shared/services/translate.service";
 
 @Component({
   selector: 'app-faq-edit',
@@ -53,9 +54,20 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   availableDataDomains$: Observable<any>;
   formValueChangedSub!: Subscription;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
     super();
-    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainsWithAllEntry);
+    this.availableDataDomains$ = combineLatest([
+      this.store.select(selectAvailableDataDomainsWithAllEntry),
+      this.translateService.selectTranslate(ALL_DATA_DOMAINS)
+    ]).pipe(map(([dataDomains, msg]) => {
+      const dataDomainsCopy = [...dataDomains];
+      dataDomainsCopy.forEach(dataDomain => {
+        if (dataDomain.key === ALL_DATA_DOMAINS) {
+          dataDomain.label = msg;
+        }
+      })
+      return dataDomainsCopy;
+    }));
     this.editedFaq$ = this.store.select(selectEditedFaq).pipe(
       tap(faq => {
         this.faqForm = this.fb.group({
