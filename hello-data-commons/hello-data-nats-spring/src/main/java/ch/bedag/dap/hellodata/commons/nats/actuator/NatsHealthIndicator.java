@@ -96,7 +96,7 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
      */
     private void checkRequestReplyConnection(Health.Builder builder) {
         log.debug("[NATS connection check] Sending request to subjectBase: {}", subject);
-        Message reply = null;
+        Message reply;
         try {
             reply = natsConnection.request(subjectBase64, subject.getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
         } catch (Exception exception) {
