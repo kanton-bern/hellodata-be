@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
@@ -78,25 +79,7 @@ public class UpdateUserContextRoleConsumer {
         for (UserContextRoleUpdate.ContextRole contextRole : domainContextRoles) {
             HdRoleName roleName = contextRole.getRoleName();
             String contextKey = contextRole.getContextKey();
-            SystemDefaultPortalRoleName portalRoleName;
-            switch (roleName) {
-                case HELLODATA_ADMIN -> {
-                    portalRoleName = SystemDefaultPortalRoleName.HELLODATA_ADMIN;
-                }
-                case BUSINESS_DOMAIN_ADMIN -> {
-                    portalRoleName = SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN;
-                }
-                case DATA_DOMAIN_ADMIN -> {
-                    portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
-                }
-                case DATA_DOMAIN_EDITOR -> {
-                    portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
-                }
-                case DATA_DOMAIN_VIEWER -> {
-                    portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
-                }
-                default -> portalRoleName = null;
-            }
+            SystemDefaultPortalRoleName portalRoleName = getSystemDefaultPortalRoleName(roleName);
             if (portalRoleName != null) {
                 Optional<PortalRoleEntity> role = portalRoleRepository.findByName(portalRoleName.name());
                 if (role.isPresent()) {
@@ -106,9 +89,25 @@ public class UpdateUserContextRoleConsumer {
                     userPortalRoleEntity.setContextKey(contextKey);
                     userPortalRoleEntity.setContextType(roleName.getContextType());
                     userPortalRoleRepository.saveAndFlush(userPortalRoleEntity);
+                } else {
+                    log.warn("Couldn't find a portal role with name {}", portalRoleName);
                 }
             }
         }
+    }
+
+    @Nullable
+    private static SystemDefaultPortalRoleName getSystemDefaultPortalRoleName(HdRoleName roleName) {
+        SystemDefaultPortalRoleName portalRoleName;
+        switch (roleName) {
+            case HELLODATA_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.HELLODATA_ADMIN;
+            case BUSINESS_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN;
+            case DATA_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
+            case DATA_DOMAIN_EDITOR -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
+            case DATA_DOMAIN_VIEWER -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
+            default -> portalRoleName = null;
+        }
+        return portalRoleName;
     }
 
     private void deleteExistingUserPortalRoles(UserEntity userEntity, Set<UserPortalRoleEntity> userPortalRoleEntities) {
