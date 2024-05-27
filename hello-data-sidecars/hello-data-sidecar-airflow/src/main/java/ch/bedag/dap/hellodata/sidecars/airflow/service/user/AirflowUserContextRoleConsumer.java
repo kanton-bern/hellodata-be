@@ -57,6 +57,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER
 public class AirflowUserContextRoleConsumer {
     private static final String DATA_DOMAIN_ROLE_PREFIX = "DD_";
     private static final String PUBLIC_ROLE_NAME = "Public";
+    private static final String VIEWER_ROLE_NAME = "Viewer";
     private static final String ADMIN_ROLE_NAME = "Admin";
     private static final String AF_OPERATOR_ROLE_NAME = "AF_OPERATOR";
     private final AirflowClientProvider airflowClientProvider;
@@ -132,6 +133,7 @@ public class AirflowUserContextRoleConsumer {
                 removeRoleFromUser(airflowUser, PUBLIC_ROLE_NAME, allAirflowRoles);
             }
         }
+        removeRoleFromUser(airflowUser, VIEWER_ROLE_NAME, allAirflowRoles);
         leavePublicRoleIfNoneOthersSet(airflowUser, allAirflowRoles);
         updateUser(airflowUser, airflowClient);
     }
