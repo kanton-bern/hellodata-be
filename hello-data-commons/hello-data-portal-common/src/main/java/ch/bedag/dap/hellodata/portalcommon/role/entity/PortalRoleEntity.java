@@ -24,10 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.role.entity;
+package ch.bedag.dap.hellodata.portalcommon.role.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.portal.user.entity.Permissions;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.Permissions;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

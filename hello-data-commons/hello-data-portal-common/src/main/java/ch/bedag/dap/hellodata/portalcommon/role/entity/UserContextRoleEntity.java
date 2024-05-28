@@ -24,15 +24,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.role.repository;
+package ch.bedag.dap.hellodata.portalcommon.role.entity;
 
-import ch.bedag.dap.hellodata.portal.role.entity.PortalRoleEntity;
-import java.util.Optional;
-import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-@Repository
-public interface PortalRoleRepository extends JpaRepository<PortalRoleEntity, UUID> {
-    Optional<PortalRoleEntity> findByName(String roleName);
+@Getter
+@Setter
+@RequiredArgsConstructor
+@Entity(name = "user_context_role")
+public class UserContextRoleEntity extends BaseEntity {
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private RoleEntity role;
+
+    private String contextKey;
 }

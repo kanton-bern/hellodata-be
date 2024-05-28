@@ -26,11 +26,22 @@
  */
 package ch.bedag.dap.hellodata.portal.user.entity;
 
-import java.io.Serializable;
-import java.util.List;
-import lombok.Data;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-@Data
-public class Permissions implements Serializable {
-    private List<String> portalPermissions;
+@Getter
+@Setter
+@RequiredArgsConstructor
+@Entity(name = "default_user")
+public class DefaultUserEntity extends BaseEntity {
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 }

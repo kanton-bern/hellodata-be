@@ -24,12 +24,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.user.entity;
+package ch.bedag.dap.hellodata.portalcommon.user.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.portal.role.entity.SystemDefaultPortalRoleName;
-import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
-import ch.bedag.dap.hellodata.portal.role.entity.UserPortalRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.UserPortalRoleEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

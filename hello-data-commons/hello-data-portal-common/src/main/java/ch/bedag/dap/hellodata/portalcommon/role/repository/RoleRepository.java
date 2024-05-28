@@ -24,30 +24,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.monitoring.entity;
+package ch.bedag.dap.hellodata.portalcommon.role.repository;
 
-import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.StorageMonitoringResult;
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Entity(name = "storage_size")
-public class StorageSizeEntity extends BaseEntity {
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Basic(fetch = FetchType.EAGER)
-    @Column(columnDefinition = "json", name = "size_info")
-    private StorageMonitoringResult sizeInfo;
+/**
+ * Repository for roles in contexts
+ */
+@Repository
+public interface RoleRepository extends JpaRepository<RoleEntity, UUID> {
+    Optional<RoleEntity> findByName(HdRoleName role);
 }

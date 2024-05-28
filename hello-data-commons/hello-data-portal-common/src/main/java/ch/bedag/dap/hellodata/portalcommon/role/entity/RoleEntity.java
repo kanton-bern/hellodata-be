@@ -24,19 +24,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.user.repository;
+package ch.bedag.dap.hellodata.portalcommon.role.entity;
 
-import ch.bedag.dap.hellodata.portal.user.entity.DefaultUserEntity;
-import java.util.List;
-import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
-@Repository
-public interface DefaultUserRepository extends JpaRepository<DefaultUserEntity, UUID> {
+/**
+ * Role used in contexts
+ */
+@Getter
+@Setter
+@RequiredArgsConstructor
+@Entity(name = "role")
+public class RoleEntity extends BaseEntity {
 
-    @Query("SELECT du FROM default_user du JOIN FETCH du.user u WHERE u.email = :email")
-    List<DefaultUserEntity> findByEmail(@Param("email") String email);
+    @NaturalId
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, name = "name", columnDefinition = "VARCHAR")
+    private HdRoleName name;
+
+    /**
+     * for what context type this role is made for
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "context_type", columnDefinition = "VARCHAR")
+    private HdContextType contextType;
 }

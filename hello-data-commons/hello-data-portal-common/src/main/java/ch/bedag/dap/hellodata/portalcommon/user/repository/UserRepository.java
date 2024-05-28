@@ -24,19 +24,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.monitoring.repository;
+package ch.bedag.dap.hellodata.portalcommon.user.repository;
 
-import ch.bedag.dap.hellodata.portal.monitoring.entity.StorageSizeEntity;
-import java.time.LocalDateTime;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StorageSizeRepository extends JpaRepository<StorageSizeEntity, UUID> {
+public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
-    void deleteAllByCreatedDateBefore(LocalDateTime dateTime);
+    Optional<UserEntity> findUserEntityByEmailIgnoreCase(String email);
 
-    Optional<StorageSizeEntity> findFirstByOrderByCreatedDateDesc();
+    /**
+     * There is a possibility to remove user directly from keycloak and add it again.
+     * Thus, we don't delete one in portal but re-set it's auth_id to have portal <-> keycloak connection
+     * That's why search goes
+     *
+     * @param authId - either id or auth_id kolumn
+     * @return
+     */
+    @Query(nativeQuery = true, value = "SELECT u.* FROM user_ u WHERE u.id = CAST(:param AS uuid) OR u.auth_Id = :param")
+    UserEntity getByIdOrAuthId(@Param("param") String authId);
+
+    boolean existsByIdOrAuthId(UUID id, String authId);
+
+    @Query(nativeQuery = true,
+           value = "select u.* from user_ u join user_context_role r " + "on u.id = r.user_id and r.id in (" + "select ucr.id from user_context_role ucr " + "join role r " +
+                   "on ucr.role_id = r.id " + "where name = :#{#roleName?.name()})")
+    List<UserEntity> findUsersByHdRoleName(@Param("roleName") HdRoleName roleName);
 }

@@ -24,13 +24,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.role.repository;
+package ch.bedag.dap.hellodata.portalcommon.role.entity;
 
-import ch.bedag.dap.hellodata.portal.role.entity.UserPortalRoleEntity;
-import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-@Repository
-public interface UserPortalRoleRepository extends JpaRepository<UserPortalRoleEntity, UUID> {
+@Getter
+@Setter
+@RequiredArgsConstructor
+@Entity(name = "user_portal_role")
+public class UserPortalRoleEntity extends BaseEntity {
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "portal_role_id")
+    private PortalRoleEntity role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "context_type", columnDefinition = "VARCHAR")
+    private HdContextType contextType;
+
+    @NotBlank
+    private String contextKey;
 }

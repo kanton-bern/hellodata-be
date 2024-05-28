@@ -24,40 +24,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.role.entity;
+package ch.bedag.dap.hellodata.portalcommon.role.entity;
 
-import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
-import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
+import ch.bedag.dap.hellodata.commons.security.Permission;
+import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @RequiredArgsConstructor
-@Entity(name = "user_portal_role")
-public class UserPortalRoleEntity extends BaseEntity {
+public enum SystemDefaultPortalRoleName {
+    HELLODATA_ADMIN(Arrays.asList(Permission.values())), BUSINESS_DOMAIN_ADMIN(
+            List.of(Permission.USER_MANAGEMENT, Permission.FAQ_MANAGEMENT, Permission.EXTERNAL_DASHBOARDS_MANAGEMENT, Permission.DOCUMENTATION_MANAGEMENT,
+                    Permission.ANNOUNCEMENT_MANAGEMENT, Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG)),
+    DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG)),
+    DATA_DOMAIN_EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS)), DATA_DOMAIN_VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE));
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
-
-    @ManyToOne
-    @JoinColumn(name = "portal_role_id")
-    private PortalRoleEntity role;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "context_type", columnDefinition = "VARCHAR")
-    private HdContextType contextType;
-
-    @NotBlank
-    private String contextKey;
+    private final List<Permission> permissions;
 }

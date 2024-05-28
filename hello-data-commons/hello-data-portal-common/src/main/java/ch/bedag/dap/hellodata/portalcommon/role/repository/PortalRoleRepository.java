@@ -24,22 +24,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.role.entity;
+package ch.bedag.dap.hellodata.portalcommon.role.repository;
 
-import ch.bedag.dap.hellodata.commons.security.Permission;
-import java.util.Arrays;
-import java.util.List;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Getter
-@RequiredArgsConstructor
-public enum SystemDefaultPortalRoleName {
-    HELLODATA_ADMIN(Arrays.asList(Permission.values())), BUSINESS_DOMAIN_ADMIN(
-            List.of(Permission.USER_MANAGEMENT, Permission.FAQ_MANAGEMENT, Permission.EXTERNAL_DASHBOARDS_MANAGEMENT, Permission.DOCUMENTATION_MANAGEMENT,
-                    Permission.ANNOUNCEMENT_MANAGEMENT, Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG)),
-    DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG)),
-    DATA_DOMAIN_EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS)), DATA_DOMAIN_VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE));
-
-    private final List<Permission> permissions;
+@Repository
+public interface PortalRoleRepository extends JpaRepository<PortalRoleEntity, UUID> {
+    Optional<PortalRoleEntity> findByName(String roleName);
 }

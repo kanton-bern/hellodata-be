@@ -24,38 +24,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.role.entity;
+package ch.bedag.dap.hellodata.portalcommon.user.entity;
 
-import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
-import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.NaturalId;
+import java.io.Serializable;
+import java.util.List;
+import lombok.Data;
 
-/**
- * Role used in contexts
- */
-@Getter
-@Setter
-@RequiredArgsConstructor
-@Entity(name = "role")
-public class RoleEntity extends BaseEntity {
-
-    @NaturalId
-    @Enumerated(EnumType.STRING)
-    @Column(unique = true, name = "name", columnDefinition = "VARCHAR")
-    private HdRoleName name;
-
-    /**
-     * for what context type this role is made for
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(name = "context_type", columnDefinition = "VARCHAR")
-    private HdContextType contextType;
+@Data
+public class Permissions implements Serializable {
+    private List<String> portalPermissions;
 }

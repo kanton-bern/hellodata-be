@@ -24,19 +24,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.role.repository;
+package ch.bedag.dap.hellodata.portalcommon.role.repository;
 
-import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import ch.bedag.dap.hellodata.portal.role.entity.RoleEntity;
-import java.util.Optional;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-/**
- * Repository for roles in contexts
- */
 @Repository
-public interface RoleRepository extends JpaRepository<RoleEntity, UUID> {
-    Optional<RoleEntity> findByName(HdRoleName role);
+public interface UserContextRoleRepository extends JpaRepository<UserContextRoleEntity, UUID> {
+
+    @Modifying
+    @Query("UPDATE user_context_role u SET u.role = :role WHERE u.id = :id AND u.contextKey = :contextKey")
+    void updateRoleInUserContextRole(@Param("role") RoleEntity role, @Param("id") UUID id, @Param("contextKey") String contextKey);
+
+    List<UserContextRoleEntity> findAllByUser(UserEntity user);
 }
