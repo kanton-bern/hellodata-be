@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.sidecars.portal.service.context;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;

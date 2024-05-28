@@ -24,38 +24,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.sidecars.portal.service.resource.pipeline;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
+import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_APP_INFO_RESOURCES;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PIPELINE_RESOURCES;
 
 @Log4j2
 @Service
-@Transactional
 @AllArgsConstructor
-public class PublishedAppInfoResourcesConsumer {
-
+public class PublishedPipelineResourcesConsumer {
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
-    private final HdContextService hdContextService;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = PUBLISH_APP_INFO_RESOURCES)
-    public CompletableFuture<Void> subscribe(AppInfoResource appInfoResource) {
-        log.info("------- Received appInfo resource {}, for the following context config {}", appInfoResource, appInfoResource.getBusinessContextInfo());
-        HdBusinessContextInfo businessContextInfo = appInfoResource.getBusinessContextInfo();
-        HdContextEntity contextForResource = hdContextService.saveBusinessContext(businessContextInfo);
-        MetaInfoResourceEntity savedResource = genericPublishedResourceConsumer.persistResource(appInfoResource);
-        savedResource.setContextKey(contextForResource.getContextKey());
-        genericPublishedResourceConsumer.saveEntity(savedResource);
+    @JetStreamSubscribe(event = PUBLISH_PIPELINE_RESOURCES)
+    public CompletableFuture<Void> subscribe(PipelineResource pipelineResource) {
+        log.info("------- Received pipeline resource {}", pipelineResource);
+        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(pipelineResource);
+        genericPublishedResourceConsumer.attachContext(pipelineResource, resource);
         return null;
     }
 }

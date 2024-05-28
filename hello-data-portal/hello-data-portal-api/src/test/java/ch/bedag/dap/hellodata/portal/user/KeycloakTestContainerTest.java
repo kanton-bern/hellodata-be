@@ -31,7 +31,6 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
-import ch.bedag.dap.hellodata.portal.user.service.UpdateUserContextRoleConsumer;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.nats.client.Connection;
 import io.restassured.RestAssured;
@@ -68,8 +67,6 @@ public abstract class KeycloakTestContainerTest {
     private Connection connection;
     @MockBean
     private NatsSenderService natsSenderService;
-    @MockBean
-    private UpdateUserContextRoleConsumer updateUserContextRoleConsumer;
     @MockBean
     private RolesInitializer rolesInitializer;
     @MockBean

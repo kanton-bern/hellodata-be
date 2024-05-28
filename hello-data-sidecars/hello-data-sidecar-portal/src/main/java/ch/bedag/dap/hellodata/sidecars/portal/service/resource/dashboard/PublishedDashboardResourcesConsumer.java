@@ -24,29 +24,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.sidecars.portal.service.resource.dashboard;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROLE_RESOURCES;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
 
 @Log4j2
 @Service
 @AllArgsConstructor
-public class PublishedRoleResourcesConsumer {
+public class PublishedDashboardResourcesConsumer {
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = PUBLISH_ROLE_RESOURCES)
-    public CompletableFuture<Void> subscribe(RoleResource roleResource) {
-        log.info("------- Received role resource {}", roleResource);
-        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(roleResource);
-        genericPublishedResourceConsumer.attachContext(roleResource, resource);
+    @JetStreamSubscribe(event = PUBLISH_DASHBOARD_RESOURCES)
+    public CompletableFuture<Void> subscribe(DashboardResource dashboardResource) {
+        log.info("------- Received dashboard resource {}", dashboardResource);
+        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(dashboardResource);
+        genericPublishedResourceConsumer.attachContext(dashboardResource, resource);
         return null;
     }
 }

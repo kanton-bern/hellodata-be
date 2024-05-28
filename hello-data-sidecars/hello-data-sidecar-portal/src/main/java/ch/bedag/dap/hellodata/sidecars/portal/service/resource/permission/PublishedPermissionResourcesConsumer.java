@@ -24,33 +24,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.sidecars.portal.service;
+package ch.bedag.dap.hellodata.sidecars.portal.service.resource.permission;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.ResourceRepository;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
+import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
+import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.CompletableFuture;
-
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PIPELINE_RESOURCES;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PERMISSION_RESOURCES;
 
 @Log4j2
 @Service
 @AllArgsConstructor
-public class PublishedPipelineResourcesConsumer {
+public class PublishedPermissionResourcesConsumer {
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
+    private final ResourceRepository resourceRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = PUBLISH_PIPELINE_RESOURCES)
-    public CompletableFuture<Void> subscribe(PipelineResource pipelineResource) {
-        log.info("------- Received pipeline resource {}", pipelineResource);
-        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(pipelineResource);
-        genericPublishedResourceConsumer.attachContext(pipelineResource, resource);
+    @JetStreamSubscribe(event = PUBLISH_PERMISSION_RESOURCES)
+    public CompletableFuture<Void> subscribe(PermissionResource permissionResource) {
+        log.info("------- Received permission resource {}", permissionResource);
+        MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(permissionResource);
+        genericPublishedResourceConsumer.attachContext(permissionResource, resource);
         return null;
     }
 }
