@@ -178,6 +178,11 @@ BEGIN
         INSERT INTO dashboard_user
         SELECT nextval('dashboard_user_id_seq'), new.user_id, dashboards.id from dashboards;
 
+        --- Handle ownership of charts
+        DELETE FROM slice_user WHERE user_id = new.user_id;
+        INSERT INTO slice_user
+        SELECT nextval('slice_user_id_seq'), new.user_id, slices.id from slices;
+
         --- Handle ownership of datasets
         DELETE FROM sqlatable_user WHERE user_id = new.user_id;
         INSERT INTO sqlatable_user
@@ -295,6 +300,10 @@ BEGIN
     IF old.role_id = BI_EDITOR_role_id THEN
         --- Delete ownership of dashboards
         DELETE FROM dashboard_user WHERE user_id = old.user_id;
+
+        --- Delete ownership of charts
+        DELETE FROM slice_user WHERE user_id = old.user_id;
+
         --- Delete ownership of datasets
         DELETE FROM sqlatable_user WHERE user_id = old.user_id;
     END IF;
@@ -351,3 +360,42 @@ CREATE TRIGGER insert_owners_on_new_dataset
     AFTER INSERT ON tables
     FOR EACH ROW
 EXECUTE FUNCTION insert_owners_on_new_dataset();
+
+
+
+--
+-- Trigger function for inserts on slices table that sets all BI_EDITOR users as owner of the corresponding chart
+--
+-- DROP FUNCTION insert_owners_on_new_slice;
+CREATE OR REPLACE FUNCTION insert_owners_on_new_slice() RETURNS TRIGGER AS
+$$
+BEGIN
+
+    INSERT INTO slice_user(id, user_id, slice_id)
+
+    SELECT
+        nextval('slice_user_id_seq'),
+        ab_user.id,
+        new.id
+    FROM
+        ab_user
+            LEFT JOIN ab_user_role ON ab_user.id = ab_user_role.user_id
+            LEFT JOIN ab_role ON ab_role.id = ab_user_role.role_id
+    WHERE
+        ab_role.name = 'BI_EDITOR'
+        AND ab_user.id <> new.created_by_fk;
+
+    RETURN new;
+END;
+$$
+    LANGUAGE plpgsql;
+
+
+--
+-- After insert Trigger on slices that sets all BI_EDITOR users as owner of the corresponding chart
+--
+DROP TRIGGER IF EXISTS insert_owners_on_new_slice on slices;
+CREATE TRIGGER insert_owners_on_new_dataset
+    AFTER INSERT ON slices
+    FOR EACH ROW
+EXECUTE FUNCTION insert_owners_on_new_slice();
