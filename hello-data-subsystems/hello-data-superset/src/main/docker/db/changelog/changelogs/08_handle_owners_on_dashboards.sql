@@ -30,6 +30,8 @@
 -- Deletes potential duplicate entries in the dashboard_user table.
 -- This script is repeatable.
 --
+TRUNCATE dashboard_user RESTART IDENTITY;
+
 WITH
     editor_user_ids AS(
         SELECT
@@ -43,5 +45,3 @@ WITH
     )
 
 INSERT INTO dashboard_user (id, user_id, dashboard_id) SELECT nextval('dashboard_user_id_seq'), editor_user_ids.user_id, dashboards.id FROM dashboards, editor_user_ids;
-
-DELETE FROM dashboard_user WHERE id NOT IN (SELECT min(id) FROM dashboard_user GROUP BY user_id, dashboard_id);

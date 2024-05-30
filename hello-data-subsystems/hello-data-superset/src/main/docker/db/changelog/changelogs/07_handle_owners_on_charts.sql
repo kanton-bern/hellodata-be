@@ -30,6 +30,8 @@
 -- Deletes potential duplicate entries in the slice_user table.
 -- This script is repeatable.
 --
+TRUNCATE slice_user RESTART IDENTITY;
+
 WITH
     editor_user_ids AS(
         SELECT
@@ -43,5 +45,3 @@ WITH
     )
 
 INSERT INTO slice_user (id, user_id, slice_id) SELECT nextval('slice_user_id_seq'), editor_user_ids.user_id, slices.id FROM slices, editor_user_ids;
-
-DELETE FROM slice_user WHERE id NOT IN (SELECT min(id) FROM slice_user GROUP BY user_id, slice_id);

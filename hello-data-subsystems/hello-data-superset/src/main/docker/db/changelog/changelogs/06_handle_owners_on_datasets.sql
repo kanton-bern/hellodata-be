@@ -30,6 +30,8 @@
 -- Deletes potential duplicate entries in the sqlatable_user table.
 -- This script is repeatable.
 --
+TRUNCATE sqlatable_user RESTART IDENTITY;
+
 WITH
     editor_user_ids AS(
         SELECT
@@ -43,5 +45,3 @@ WITH
     )
 
 INSERT INTO sqlatable_user (id, user_id, table_id) SELECT nextval('sqlatable_user_id_seq'), editor_user_ids.user_id, tables.id FROM tables, editor_user_ids;
-
-DELETE FROM sqlatable_user WHERE id NOT IN (SELECT min(id) FROM sqlatable_user GROUP BY user_id, table_id);
