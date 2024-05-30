@@ -26,11 +26,11 @@
 --
 
 --
--- Adds all current BI_EDITORs as owners of all datasets.
--- Deletes potential duplicate entries in the sqlatable_user table.
+-- Adds all current BI_EDITORs as owners of all charts.
+-- Deletes potential duplicate entries in the slice_user table.
 -- This script is repeatable.
 --
-TRUNCATE sqlatable_user RESTART IDENTITY;
+TRUNCATE slice_user RESTART IDENTITY;
 
 WITH
     editor_user_ids AS(
@@ -44,4 +44,4 @@ WITH
                 role_id = (SELECT id FROM ab_role WHERE name = 'BI_EDITOR')
     )
 
-INSERT INTO sqlatable_user (id, user_id, table_id) SELECT nextval('sqlatable_user_id_seq'), editor_user_ids.user_id, tables.id FROM tables, editor_user_ids;
+INSERT INTO slice_user (id, user_id, slice_id) SELECT nextval('slice_user_id_seq'), editor_user_ids.user_id, slices.id FROM slices, editor_user_ids;

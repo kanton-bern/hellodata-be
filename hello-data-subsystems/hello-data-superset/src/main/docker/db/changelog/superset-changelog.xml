@@ -51,11 +51,16 @@
     <changeSet id="0004" author="hellodata" runOnChange="true">
         <sqlFile path="changelogs/04_triggers.sql" relativeToChangelogFile="true" splitStatements="false" />
     </changeSet>
-    <changeSet id="0005" author="hellodata" runAlways="true">
+    <changeSet id="0005" author="hellodata">
         <sqlFile path="changelogs/05_delete_duplicate_owners.sql" relativeToChangelogFile="true" splitStatements="false" />
     </changeSet>
     <changeSet id="0006" author="hellodata" runAlways="true">
         <sqlFile path="changelogs/06_handle_owners_on_datasets.sql" relativeToChangelogFile="true" splitStatements="false" />
     </changeSet>
-
+    <changeSet id="0007" author="hellodata" runAlways="true">
+        <sqlFile path="changelogs/07_handle_owners_on_charts.sql" relativeToChangelogFile="true" splitStatements="false" />
+    </changeSet>
+    <changeSet id="0008" author="hellodata" runAlways="true">
+        <sqlFile path="changelogs/08_handle_owners_on_dashboards.sql" relativeToChangelogFile="true" splitStatements="false" />
+    </changeSet>
 </databaseChangeLog>
