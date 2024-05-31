@@ -1,0 +1,1240 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../concepts/workspaces/">
+      
+      
+        <link rel="next" href="../role-authorization-concept/">
+      
+      <link rel="icon" href="../../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>User Manual - HelloDATA BE Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#user-manual" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HelloDATA BE Docs" class="md-header__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HelloDATA BE Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              User Manual
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../vision/vision-and-goal/" class="md-tabs__link">
+        Vision
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/data-stack/" class="md-tabs__link">
+        Architecture
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../concepts/showcase/" class="md-tabs__link">
+        Concepts
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        Manuals
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../more/faq/" class="md-tabs__link">
+        More
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HelloDATA BE Docs" class="md-nav__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    HelloDATA BE Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="false">
+          Vision
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Vision" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Vision
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/vision-and-goal/" class="md-nav__link">
+        Vision
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/roadmap/" class="md-nav__link">
+        Roadmap
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" tabindex="0" aria-expanded="false">
+          Architecture
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Architecture
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data-stack/" class="md-nav__link">
+        Data Stack
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/architecture/" class="md-nav__link">
+        Components & Architecture
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/infrastructure/" class="md-nav__link">
+        Infrastructure
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" tabindex="0" aria-expanded="false">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Concepts" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/showcase/" class="md-nav__link">
+        Showcase
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/workspaces/" class="md-nav__link">
+        Workspaces
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" tabindex="0" aria-expanded="true">
+          Manuals
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Manuals" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Manuals
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          User Manual
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        User Manual
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    Goal
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#navigation" class="md-nav__link">
+    Navigation
+  </a>
+  
+    <nav class="md-nav" aria-label="Navigation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#portal" class="md-nav__link">
+    Portal
+  </a>
+  
+    <nav class="md-nav" aria-label="Portal">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#business-data-domain" class="md-nav__link">
+    Business &amp; Data Domain
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboards" class="md-nav__link">
+    Dashboards
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-lineage" class="md-nav__link">
+    Data-Lineage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-marts-viewer" class="md-nav__link">
+    Data Marts Viewer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-engineering" class="md-nav__link">
+    Data Engineering
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Engineering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dwh-viewer" class="md-nav__link">
+    DWH Viewer
+  </a>
+  
+    <nav class="md-nav" aria-label="DWH Viewer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create-new-sql-query" class="md-nav__link">
+    Create new SQL Query
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choose-connection-and-stored-queries" class="md-nav__link">
+    Choose Connection and stored queries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings-and-powerful-features" class="md-nav__link">
+    Settings and Powerful features
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#orchestration" class="md-nav__link">
+    Orchestration
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#administration" class="md-nav__link">
+    Administration
+  </a>
+  
+    <nav class="md-nav" aria-label="Administration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benutzerverwaltung-user-management" class="md-nav__link">
+    Benutzerverwaltung / User Management
+  </a>
+  
+    <nav class="md-nav" aria-label="Benutzerverwaltung / User Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-user" class="md-nav__link">
+    Adding user
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changing-permissions" class="md-nav__link">
+    Changing Permissions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#portal-rollenverwaltung-portal-role-management" class="md-nav__link">
+    Portal Rollenverwaltung / Portal Role Management
+  </a>
+  
+    <nav class="md-nav" aria-label="Portal Rollenverwaltung / Portal Role Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-a-new-role" class="md-nav__link">
+    Creating a new role
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ankundigung-announcement" class="md-nav__link">
+    Ankündigung / Announcement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    FAQ
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dokumentationsmanagement-documentation-management" class="md-nav__link">
+    Dokumentationsmanagement / Documentation Management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring" class="md-nav__link">
+    Monitoring
+  </a>
+  
+    <nav class="md-nav" aria-label="Monitoring">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    Status
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-domains" class="md-nav__link">
+    Data Domains
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#devtools" class="md-nav__link">
+    DevTools
+  </a>
+  
+    <nav class="md-nav" aria-label="DevTools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mailbox" class="md-nav__link">
+    Mailbox
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filebrowser" class="md-nav__link">
+    FileBrowser
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-know-how" class="md-nav__link">
+    More: Know-How
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../role-authorization-concept/" class="md-nav__link">
+        Roles & Authorization
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          More
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="More" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          More
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/glossary/" class="md-nav__link">
+        Glossary
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="user-manual">User Manual</h1>
+<h2 id="goal">Goal</h2>
+<p>This use manual should enable you to use the HelloDATA platform and illustrate the features of the product and how to use them.</p>
+<p>→ More about the Platform and its architecture you can find on <a href="/architecture/architecture/">Architecture &amp; Concepts</a>.</p>
+<h2 id="navigation">Navigation</h2>
+<h3 id="portal">Portal</h3>
+<p>The entry page of HelloDATA is the <a href="/architecture/data-stack/#control-pane-portal">Web Portal</a>.</p>
+<ol>
+<li>Navigation to jump to the different capabilities of HelloDATA</li>
+<li>Extended status information about<ol>
+<li>data pipelines, containers, performance and security</li>
+<li>documentation and subscriptions</li>
+</ol>
+</li>
+<li>User and profile information of logged-in user. </li>
+<li>Overview of your dashboards</li>
+</ol>
+<p><img alt="" src="../../images/1068204566.png" /></p>
+<h4 id="business-data-domain">Business &amp; Data Domain</h4>
+<p>As explained in <a href="../../architecture/architecture/#Domain%20View">Domain View</a>, a key feature is to create business domains with n-data domains. If you have access to more than one data domain, you can switch between them by clicking the <code>drop-down</code> at the top and switch between them.</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130145958.png" /></p>
+<h3 id="dashboards">Dashboards</h3>
+<p>The most important navigation button is the dashboard links. If you hover over it, you'll see three options to choose from. </p>
+<p>You can either click the dashboard list in the hover menu (2) to see the list of dashboards with thumbnails, or directly choose your dashboard (3).</p>
+<p><img alt="" src="../../images/1068204575.png" /></p>
+<h3 id="data-lineage">Data-Lineage</h3>
+<p>To see the data lineage (dependencies of your data tables), you have the second menu option. Again, you chose the list or directly on "data lineage" (2).</p>
+<p>Button 2 will bring you to the project site, where you choose your project and load the lineage.
+<img alt="" src="../../images/1068204578.png" /></p>
+<p>Once loaded, you see all sources (1) and dbt Projects (2). On the detail page, you can see all the beautiful and helpful documentation such as:</p>
+<ul>
+<li>table name (3)</li>
+<li>columns and data types (4)</li>
+<li>which table and model this selected object depends on (5)</li>
+<li>the SQL code (6)<ul>
+<li>as a template or complied</li>
+</ul>
+</li>
+<li>and dependency graph (7)<ul>
+<li>which you can expand to full view (8) after clicking (7)</li>
+<li>interactive data lineage view (9)</li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../images/1068204586.png" />
+<img alt="" src="../../images/1068204588.png" />
+<img alt="" src="../../images/1068204591.png" /></p>
+<h3 id="data-marts-viewer">Data Marts Viewer</h3>
+<p>This view let's you access the universaal data mart (udm) layer:</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130155512.png" /></p>
+<p>These are cleaned and modeled data mart tables. Data marts are the tables that have been joined and cleaned from the source tables. This is effectively the latest layer of HelloDATA BE, which the Dashboards are accessing. Dashboards should not access any layer before (landing zone, data storage, or data processing).</p>
+<p>We use CloudBeaver for this, same as the DWH Viewer later.
+<img alt="" src="../../images/Pasted%20image%2020231130155752.png" /></p>
+<h3 id="data-engineering">Data Engineering</h3>
+<h4 id="dwh-viewer">DWH Viewer</h4>
+<p>This is essentially a database access layer where you see all your tables, and you can write SQL queries based on your access roles with a provided tool (<a href="https://github.com/dbeaver/cloudbeaver">CloudBeaver</a>).</p>
+<h5 id="create-new-sql-query">Create new SQL Query</h5>
+<p><img alt="" src="../../images/Pasted%20image%2020231130154714.png" />o</p>
+<h5 id="choose-connection-and-stored-queries">Choose Connection and stored queries</h5>
+<p>You can chose pre-defined connections and query your data warehouse. Also you can store queries that other user can see and use as well. Run your queries with (1).</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130154943.png" /></p>
+<h5 id="settings-and-powerful-features">Settings and Powerful features</h5>
+<p>You can set many settings, such as user status, and many more.</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130154849.png" />
+Please find all setting and features in the <a href="https://dbeaver.com/docs/cloudbeaver/">CloudBeaver Documentation</a>.</p>
+<h4 id="orchestration">Orchestration</h4>
+<p>The orchestrator is your task manager. You tell <a href="https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&amp;Concepts-TaskOrchestration-Airflow">Airflow</a>, our orchestrator, in which order the task will run. This is usually done ahead of time, and in the portal, you can see the latest runs and their status (successful, failed, etc.). </p>
+<ul>
+<li>You can navigate to DAGs (2) and see all the details (3) with the DAG name, owner, runs, schedules, next run and recent.</li>
+<li>You can also dive deeper into Datasets, Security, Admin or similar (4)</li>
+<li>Airflow offers lots of different visualization modes, e.g. the Graph view (6), that allows you to see each step of this task.<ul>
+<li>As you can see, you can choose calendar, task duration, Gantt, etc.</li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../images/1068204596.png" />
+<img alt="" src="../../images/1068204607.png" /></p>
+<h3 id="administration">Administration</h3>
+<p>Here you manage the portal configurations such as user, roles, announcements, FAQs, and documentation management.</p>
+<p><img alt="" src="../../images/1068204613.png" /></p>
+<h4 id="benutzerverwaltung-user-management">Benutzerverwaltung / User Management</h4>
+<h5 id="adding-user">Adding user</h5>
+<p>First type your email and hit enter. Then choose the drop down and click on it.
+<img alt="" src="../../images/Pasted%20image%2020231130151446.png" /></p>
+<p>Now type the Name and hit <code>Berechtigungen setzen</code> to add the user:
+<img alt="" src="../../images/Pasted%20image%2020231130151542.png" /></p>
+<p>You should see something like this:</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130151610.png" /></p>
+<h5 id="changing-permissions">Changing Permissions</h5>
+<ol>
+<li>Search the user you want to give or change permission</li>
+<li>Scroll to the right</li>
+<li>Click the green edit icon</li>
+</ol>
+<p><img alt="" src="../../images/Pasted%20image%2020231130151712.png" /></p>
+<p>Now choose the <code>role</code> you want to give:</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130151757.png" /></p>
+<p>And or give access to specific data domains:</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130151816.png" /></p>
+<p>See more in <a href="../role-authorization-concept/">role-authorization-concept</a>.</p>
+<h4 id="portal-rollenverwaltung-portal-role-management">Portal Rollenverwaltung / Portal Role Management</h4>
+<p>In this portal role management, you can see all the roles that exist.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Creating new roles are not supported, despite the fact "Rolle erstellen" button exists. All roles are defined and hard coded.</p>
+</div>
+<p><img alt="" src="../../images/Pasted%20image%2020231130152628.png" /></p>
+<h5 id="creating-a-new-role">Creating a new role</h5>
+<p>See how to create a new role below:
+<img alt="" src="../../images/Pasted%20image%2020231130152819.png" /></p>
+<h4 id="ankundigung-announcement">Ankündigung / Announcement</h4>
+<p>You can simply create an announcement that goes to all users by <code>Ankündigung erstellen</code>:
+<img alt="" src="../../images/Pasted%20image%2020231130153025.png" /></p>
+<p>Then you fill in your message. Save it.</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130153054.png" />
+You'll see a success if everything went well:
+<img alt="" src="../../images/Pasted%20image%2020231130153156.png" /></p>
+<p>And this is how it looks to the users — It will appear until the user clicks the cross to close it.
+<img alt="" src="../../images/Pasted%20image%2020231130153220.png" /></p>
+<h4 id="faq">FAQ</h4>
+<p>The FAQ works the same as the announcements above. They are shown on the starting dashboard, but you can set the granularity of a data domain:</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130153427.png" /></p>
+<p>And this is how it looks:
+<img alt="" src="../../images/Pasted%20image%2020231130153507.png" /></p>
+<h4 id="dokumentationsmanagement-documentation-management">Dokumentationsmanagement / Documentation Management</h4>
+<p>Lastly, you can document the system with documentation management. Here you have one document that you can document everything in detail, and everyone can write to it. It will appear on the dashboard as well:</p>
+<p><img alt="" src="../../images/Pasted%20image%2020231130153801.png" /></p>
+<h3 id="monitoring">Monitoring</h3>
+<p>We provide two different ways of monitoring: </p>
+<ul>
+<li>Status: </li>
+<li>Workspaces</li>
+</ul>
+<p><img alt="" src="../../images/1068204614.png" /></p>
+<h4 id="status">Status</h4>
+<p>It will show you details information on instances of HelloDATA, how is the situation for the Portal, is the monitoring running, etc.
+<img alt="" src="../../images/1068204616.png" /></p>
+<h4 id="data-domains">Data Domains</h4>
+<p>In Monitoring your data domains you see each system and the link to the native application. You can easily and quickly observer permission, roles and users by different subsystems (1). Click the one you want, and you can choose different levels (2) for each, and see its permissions (3).</p>
+<p><img alt="" src="../../images/1068204622.png" /></p>
+<p><img alt="" src="../../images/1068204620.png" /></p>
+<p>By clicking on the blue underlined <code>DBT Docs</code>, you will be navigated to the native dbt docs. Same is true if you click on a Airflow or Superset instance.</p>
+<h3 id="devtools">DevTools</h3>
+<p>DevTools are additional tools HelloDATA provides out of the box to e.g. send Mail (Mailbox) or browse files (FileBrowser).</p>
+<p><img alt="" src="../../images/1068204623.png" /></p>
+<h4 id="mailbox">Mailbox</h4>
+<p>You can check in Mailbox (we use <a href="https://github.com/mailhog/MailHog">MailHog</a>) what emails have been sending or what accounts are updated.|</p>
+<p><img alt="" src="../../images/1068204627.png" /></p>
+<h4 id="filebrowser">FileBrowser</h4>
+<p>Here you can browse all the documentation or code from the git repos as file browser. We use <a href="https://github.com/filebrowser/filebrowser">FileBrowser</a> here. Please use with care, as some of the folder are system relevant.</p>
+<div class="admonition note">
+<p class="admonition-title">Log in</p>
+<p>Make sure you have the login credentials to log in. Your administrator should be able to provide these to you.</p>
+</div>
+<p><img alt="" src="../../images/1068204628.png" /></p>
+<h2 id="more-know-how">More: Know-How</h2>
+<ul>
+<li>More help for Superset<ul>
+<li><a href="https://superset.apache.org/docs/intro/">Superset Documentation</a></li>
+</ul>
+</li>
+<li>More help for dbt:<ul>
+<li><a href="https://docs.getdbt.com/docs/collaborate/documentation">dbt Documentation</a></li>
+<li><a href="https://docs.getdbt.com/">dbt Developer Hub</a></li>
+</ul>
+</li>
+<li>More about Airflow<ul>
+<li><a href="https://airflow.apache.org/docs/">Airflow Documentation</a></li>
+</ul>
+</li>
+</ul>
+<p>Find further important references, know-how, and best practices on <a href="https://confluence.bedag.ch/x/4wHXE">HelloDATA Know-How</a>.</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2024 Designed and Developed by <a href="https://www.bedag.ch/" target="blank" rel="noopener">Bedag Solutions AG</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/kanton-bern/hellodata-be/" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/kanton_bern" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/company/kaio/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>

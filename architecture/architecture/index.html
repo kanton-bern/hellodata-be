@@ -1,0 +1,1096 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../data-stack/">
+      
+      
+        <link rel="next" href="../infrastructure/">
+      
+      <link rel="icon" href="../../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Components & Architecture - HelloDATA BE Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HelloDATA BE Docs" class="md-header__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HelloDATA BE Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Components & Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../vision/vision-and-goal/" class="md-tabs__link">
+        Vision
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../data-stack/" class="md-tabs__link md-tabs__link--active">
+        Architecture
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../concepts/showcase/" class="md-tabs__link">
+        Concepts
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../manuals/user-manual/" class="md-tabs__link">
+        Manuals
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../more/faq/" class="md-tabs__link">
+        More
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HelloDATA BE Docs" class="md-nav__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    HelloDATA BE Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="false">
+          Vision
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Vision" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Vision
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/vision-and-goal/" class="md-nav__link">
+        Vision
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/roadmap/" class="md-nav__link">
+        Roadmap
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" tabindex="0" aria-expanded="true">
+          Architecture
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Architecture
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-stack/" class="md-nav__link">
+        Data Stack
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Components & Architecture
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Components & Architecture
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    Components
+  </a>
+  
+    <nav class="md-nav" aria-label="Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#domain-view" class="md-nav__link">
+    Domain View
+  </a>
+  
+    <nav class="md-nav" aria-label="Domain View">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#business-vs-data-domain" class="md-nav__link">
+    Business vs. Data Domain
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-domain" class="md-nav__link">
+    Data Domain
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Domain">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#landingstaging-area" class="md-nav__link">
+    Landing/Staging Area
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-storage-cleansing-area" class="md-nav__link">
+    Data Storage (Cleansing Area)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-processing-core" class="md-nav__link">
+    Data Processing (Core)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-mart" class="md-nav__link">
+    Data Mart
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-multiple-superset-dashboards-within-a-data-domain" class="md-nav__link">
+    Example: Multiple Superset Dashboards within a Data Domain
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#portalui-view" class="md-nav__link">
+    Portal/UI View
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#module-view-and-communication" class="md-nav__link">
+    Module View and Communication
+  </a>
+  
+    <nav class="md-nav" aria-label="Module View and Communication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modules" class="md-nav__link">
+    Modules
+  </a>
+  
+    <nav class="md-nav" aria-label="Modules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-keycloak-and-how-does-it-work" class="md-nav__link">
+    What is Keycloak and how does it work?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-nats-and-how-does-it-work" class="md-nav__link">
+    What is NATS and how does it work?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#subsystem-communication" class="md-nav__link">
+    Subsystem communication
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#messaging-component-workers" class="md-nav__link">
+    Messaging component workers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flow-chart" class="md-nav__link">
+    Flow Chart
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-block-view" class="md-nav__link">
+    Building Block View
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../infrastructure/" class="md-nav__link">
+        Infrastructure
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" tabindex="0" aria-expanded="false">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Concepts" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/showcase/" class="md-nav__link">
+        Showcase
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/workspaces/" class="md-nav__link">
+        Workspaces
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" tabindex="0" aria-expanded="false">
+          Manuals
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Manuals" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Manuals
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manuals/user-manual/" class="md-nav__link">
+        User Manual
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manuals/role-authorization-concept/" class="md-nav__link">
+        Roles & Authorization
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          More
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="More" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          More
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/glossary/" class="md-nav__link">
+        Glossary
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="architecture">Architecture</h1>
+<h2 id="components">Components</h2>
+<p>This chapter will explain the core architectural component, its context views, and how HelloDATA works under the hood.</p>
+<h3 id="domain-view">Domain View</h3>
+<p>We separate between two main domains, "Business and Data Domain.</p>
+<h4 id="business-vs-data-domain">Business vs. Data Domain</h4>
+<ul>
+<li><strong>"Business" domain</strong>: This domain holds one customer or company with general services (portal, orchestration, docs, monitoring, logging). Every business domain represents a business tenant. HelloDATA is running on a Kubernetes cluster. A business domain is treated as a dedicated namespace within that cluster; thus, multi-tenancy is set up by various namespaces in the Kubernetes cluster.</li>
+<li><strong>Data Domain</strong>: This is where actual data is stored (db-schema). We combine it with a superset instance (related dashboards) and the documentation about these data. Currently, a business domain relates 1 - n to its Data Domains. Within an existing Business Domain a Data Domain can be spawned using Kubernetes deployment features and scripts to set up the database objects.</li>
+</ul>
+<p>Resources encapsulated inside a <strong>Data Domain</strong> can be:</p>
+<ul>
+<li>Schema of the Data Domain</li>
+<li>Data mart tables of the Data Domain</li>
+<li>The entire DWH environment of the Data Domain</li>
+<li>Data lineage documents of the DBT projects of the Data Domain.
+    Dashboards, charts, and datasets within the superset instance of a Data Domain.</li>
+<li>Airflow DAGs of the Data Domain.</li>
+</ul>
+<p>On top, you can add <strong>subsystems</strong>. This can be seen as extensions that make HelloDATA pluggable with additional tools. We now support <a href="https://github.com/dbeaver/cloudbeaver">CloudBeaver</a> for viewing your Postgres databases, RtD, and Gitea. You can imagine adding almost infinite tools with capabilities you'd like to have (data catalog, semantic layer, specific BI tool, Jupyter Notebooks, etc.).</p>
+<p>Read more about Business and Data Domain access rights in <a href="/manuals/role-authorization-concept/">Roles / Authorization Concept</a>.</p>
+<p><img alt="" src="../../images/1040683243%201.png" /></p>
+<h4 id="data-domain">Data Domain</h4>
+<p>Zooming into several Data Domains that can exist within a Business domain, we see an example of Data Domain A-C. Each Data Domain has a persistent storage, in our case, Postgres (see more details in the <a href="https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&amp;Concepts-Storage(DataDomain)">Infrastructure Storage</a> chapter below).</p>
+<p>Each data domain might import different source systems; some might even be used in several data domains, as illustrated. Each Data Domain is meant to have its data model with straightforward to, in the best case, layered data models as shown on the image with:</p>
+<h5 id="landingstaging-area">Landing/Staging Area</h5>
+<p>Data from various source systems is first loaded into the Landing/Staging Area.</p>
+<ul>
+<li>In this first area, the data is stored as it is delivered; therefore, the stage tables' structure corresponds to the interface to the source system.</li>
+<li>No relationships exist between the individual tables.</li>
+<li>Each table contains the data from the final delivery, which will be deleted before the next delivery.</li>
+<li>For example, in a grocery store, the Staging Area corresponds to the loading dock where suppliers (source systems) deliver their goods (data). Only the latest deliveries are stored there before being transferred to the next area.</li>
+</ul>
+<h5 id="data-storage-cleansing-area">Data Storage (Cleansing Area)</h5>
+<p>It must be cleaned before the delivered data is loaded into the Data Processing (Core). Most of these cleaning steps are performed in this area.</p>
+<ul>
+<li>Faulty data must be filtered, corrected, or complemented with singleton (default) values.</li>
+<li>Data from different source systems must be transformed and integrated into a unified form.</li>
+<li>This layer also contains only the data from the final delivery.</li>
+<li>For example, In a grocery store, the Cleansing Area can be compared to the area where the goods are commissioned for sale. The goods are unpacked, vegetables and salad are washed, the meat is portioned, possibly combined with multiple products, and everything is labeled with price tags. The quality control of the delivered goods also belongs in this area.</li>
+</ul>
+<h5 id="data-processing-core">Data Processing (Core)</h5>
+<p>The data from the different source systems are brought together in a central area, the Data Processing (Core), through the Landing and Data Storage and stored there for extended periods, often several years. </p>
+<ul>
+<li>A primary task of this layer is to integrate the data from different sources and store it in a thematically structured way rather than separated by origin.</li>
+<li>Often, thematic sub-areas in the Core are called "Subject Areas."</li>
+<li>The data is stored in the Core so that historical data can be determined at any later point in time. </li>
+<li>The Core should be the only data source for the Data Marts.</li>
+<li>Direct access to the Core by users should be avoided as much as possible.</li>
+</ul>
+<h5 id="data-mart">Data Mart</h5>
+<p>Subsets of the data from the Core are stored in a form suitable for user queries. </p>
+<ul>
+<li>Each Data Mart should only contain the data relevant to each application or a unique view of the data. This means several Data Marts are typically defined for different user groups and BI applications.</li>
+<li>This reduces the complexity of the queries, increasing the acceptance of the DWH system among users.</li>
+<li>For example, The Data Marts are the grocery store's market stalls or sales points. Each market stand offers a specific selection of goods, such as vegetables, meat, or cheese. The goods are presented so that they are accepted, i.e., purchased, by the respective customer group.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Between the layers, we have lots of <strong>Metadata</strong></p>
+<p>Different types of metadata are needed for the smooth operation of the Data Warehouse. Business metadata contains business descriptions of all attributes, drill paths, and aggregation rules for the front-end applications and code designations. Technical metadata describes, for example, data structures, mapping rules, and parameters for ETL control. Operational metadata contains all log tables, error messages, logging of ETL processes, and much more. The metadata forms the infrastructure of a DWH system and is described as "data about data".</p>
+</div>
+<p><img alt="" src="../../images/1014792293.png" /></p>
+<h5 id="example-multiple-superset-dashboards-within-a-data-domain">Example: Multiple Superset Dashboards within a Data Domain</h5>
+<p>Within a Data Domain, several users build up different dashboards. Think of a dashboard as a specific use case e.g., Covid, Sales, etc., that solves a particular purpose. Each of these dashboards consists of individual charts and data sources in superset. Ultimately, what you see in the HelloDATA portal are the dashboards that combine all of the sub-components of what Superset provides.</p>
+<p><img alt="" src="../../images/1063555338.png" /></p>
+<h3 id="portalui-view">Portal/UI View</h3>
+<p>As described in the intro. The portal is the heart of the HelloDATA application, with access to all critical applications.</p>
+<p><strong>Entry page of helloDATA</strong>: When you enter the portal for the first time, you land on the dashboard where you have</p>
+<ol>
+<li>Navigation to jump to the different capabilities of helloDATA</li>
+<li>Extended status information about<ol>
+<li>data pipelines, containers, performance, and security</li>
+<li>documentation and subscriptions</li>
+</ol>
+</li>
+<li>User and profile information of logged-in users. </li>
+<li>Choosing the data domain you want to work within your business domain</li>
+<li>Overview of your dashboards</li>
+<li>dbt linage docs</li>
+<li>Data marts of your Postgres database</li>
+<li>Answers to freuqently asked questions</li>
+</ol>
+<p>More technical details are in the "Module deployment view" chapter below.</p>
+<p><img alt="" src="../../images/helloDATA-portal-entry.jpg" /></p>
+<h3 id="module-view-and-communication">Module View and Communication</h3>
+<h4 id="modules">Modules</h4>
+<p>Going one level deeper, we see that we use different modules to make the portal and helloDATA work. </p>
+<p>We have the following modules:</p>
+<ul>
+<li><a href="https://www.keycloak.org/">Keycloak</a>: Open-source identity and access management. This handles everything related to user permissions and roles in a central place that we integrate into helloDATA.</li>
+<li><a href="https://redis.io/">Redis</a>: open-source, in-memory data store that we use for persisting technical values for the portal to work. </li>
+<li><a href="https://nats.io/">NATS</a>: Open-source connective technology for the cloud. It handles communication with the different tools we use.</li>
+<li><strong>Data Stack</strong>: We use the open-source data stack with dbt, Airflow, and Superset. See more information in the intro chapters above. Subsystems can be added on demand as extensible plugins.</li>
+</ul>
+<p><img alt="" src="../../images/1046873417.png" /></p>
+<h5 id="what-is-keycloak-and-how-does-it-work">What is Keycloak and how does it work?</h5>
+<p>At the center are two components, NATS and Keycloak. <strong>Keycloak</strong>, together with the HelloDATA portal, handles the authentication, authorization, and permission management of HelloDATA components. Keycloak is a powerful open-source identity and access management system. Its primary benefits include:</p>
+<ol>
+<li><strong>Ease of Use</strong>: Keycloak is easy to set up and use and can be deployed on-premise or in the cloud.</li>
+<li><strong>Integration</strong>: It integrates seamlessly with existing applications and systems, providing a secure way of authenticating users and allowing them to access various resources and services with a single set of credentials.</li>
+<li><strong>Single Sign-On</strong>: Keycloak takes care of user authentication, freeing applications from having to handle login forms, user authentication, and user storage. Users can log in once and access all applications linked to Keycloak without needing to re-authenticate. This extends to logging out, with Keycloak offering single sign-out across all linked applications.</li>
+<li><strong>Identity Brokering and Social Login</strong>: Keycloak can authenticate users with existing OpenID Connect or SAML 2.0 Identity Providers and easily enable social network logins without requiring changes to your application's code.</li>
+<li><strong>User Federation</strong>: Keycloak has the capacity to connect to existing LDAP or Active Directory servers and can support custom providers for users stored in other databases.</li>
+<li><strong>Admin Console</strong>: Through the admin console, administrators can manage all aspects of the Keycloak server, including features, identity brokering, user federation, applications, services, authorization policies, user permissions, and sessions.</li>
+<li><strong>Account Management Console</strong>: Users can manage their own accounts, update profiles, change passwords, setup two-factor authentication, manage sessions, view account history, and link accounts with additional identity providers if social login or identity brokering has been enabled.</li>
+<li><strong>Standard Protocols</strong>: Keycloak is built on standard protocols, offering support for OpenID Connect, OAuth 2.0, and SAML.</li>
+<li><strong>Fine-Grained Authorization Services</strong>: Beyond role-based authorization, Keycloak provides fine-grained authorization services, enabling the management of permissions for all services from the Keycloak admin console. This allows for the creation of specific policies to meet unique needs. Within HelloDATA, the HelloDATA portal manages authorization, yet if required by upcoming subsystems, this KeyCloak feature can be utilized in tandem.</li>
+<li><strong>Two-Factor Authentication (2FA)</strong>: This optional feature of KeyCloak enhances security by requiring users to provide two forms of authentication before gaining access, adding an extra layer of protection to the authentication process.</li>
+</ol>
+<h5 id="what-is-nats-and-how-does-it-work">What is NATS and how does it work?</h5>
+<p>On the other hand, <strong>NATS</strong> is central for handling communication between the different modules. Its power comes from integrating modern distributed systems. It is the glue between microservices, making and processing statements, or stream processing.</p>
+<p>NATS focuses on hyper-connected moving parts and additional data each module generates. It supports location independence and mobility, whether the backend process is streaming or otherwise, and securely handles all of it.</p>
+<p>NATs let you connect mobile frontend or microservice to connect flexibly. There is no need for static 1:1 communication with a hostname, IP, or port. On the other hand, NATS lets you m:n connectivity based on subject instead. Still, you can use 1:1, but on top, you have things like load balancers, logs, system and network security models, proxies, and, most essential for us, <strong><a href="https://www.nginx.com/resources/glossary/sidecar/">sidecars</a></strong>. We use sidecars heavily in connection with NATS.</p>
+<p>NATS can be <strong>deployed</strong> nearly anywhere: on bare metal, in a VM, as a container, inside K8S, on a device, or in whichever environment you choose. And all fully secure.</p>
+<h4 id="subsystem-communication">Subsystem communication</h4>
+<p>Here is an example of subsystem communication. NATS, obviously at the center, handles these communications between the HelloDATA platform and the subsystems with its workers, as seen in the image below.</p>
+<p>The HelloDATA portal has workers. These workers are deployed as extra containers with sidecars, called "Sidecar Containers". Each module needing communicating needs a sidecar with these workers deployed to communicate with NATS. Therefore, the subsystem itself has its workers to share with NATS as well.</p>
+<p><img alt="" src="../../images/1046873407.png" /></p>
+<h4 id="messaging-component-workers">Messaging component workers</h4>
+<p>Everything starts with a <strong>web browser</strong> session. The HelloDATA user accesses the <strong>HelloDATA Portal</strong> through HTTP. Before you see any of your modules or components, you must authorize yourself again, Keycloak. Once logged in, you have a Single Sign-on Token that will give access to different business domains or data domains depending on your role.</p>
+<p>The HelloDATA portal sends an event to the EventWorkers via JDBC to the Portal database. The <strong>portal database</strong> persists settings from the portal and necessary configurations.</p>
+<p>The <strong>EventWorkers</strong>, on the other side communicate with the different <strong>HelloDATA Modules</strong> discussed above (Keycloak, NATS, Data Stack with dbt, Airflow, and Superset) where needed. Each module is part of the domain view, which persists their data within their datastore.</p>
+<p><img alt="" src="../../images/1046873182.png" /></p>
+<h4 id="flow-chart">Flow Chart</h4>
+<p>In this flow chart, you see again what we discussed above in a different way. Here, we <strong>assign a new user role</strong>. Again, everything starts with the HelloDATA Portal and an existing session from Keycloak. With that, the portal worker will publish a JSON message via UserRoleEvent to NATS. As the communication hub for HelloDATA, NATS knows what to do with each message and sends it to the respective subsystem worker.</p>
+<p>Subsystem workers will execute that instruction and create and populate roles on, e.g., Superset and Airflow, and once done, inform the spawned subsystem worker that it's done. The worker will push it back to NATS, telling the portal worker, and at the end, will populate a message on the HelloDATA portal.</p>
+<p><img alt="" src="../../images/1046873411.png" /></p>
+<h4 id="building-block-view">Building Block View</h4>
+<p><img alt="" src="../../images/1110083764.png" /></p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2024 Designed and Developed by <a href="https://www.bedag.ch/" target="blank" rel="noopener">Bedag Solutions AG</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/kanton-bern/hellodata-be/" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/kanton_bern" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/company/kaio/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>

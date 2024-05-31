@@ -1,0 +1,1356 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../user-manual/">
+      
+      
+        <link rel="next" href="../../more/faq/">
+      
+      <link rel="icon" href="../../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Roles & Authorization - HelloDATA BE Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#roles-and-authorization-concept" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HelloDATA BE Docs" class="md-header__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HelloDATA BE Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Roles & Authorization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../vision/vision-and-goal/" class="md-tabs__link">
+        Vision
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../architecture/data-stack/" class="md-tabs__link">
+        Architecture
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../concepts/showcase/" class="md-tabs__link">
+        Concepts
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../user-manual/" class="md-tabs__link md-tabs__link--active">
+        Manuals
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../more/faq/" class="md-tabs__link">
+        More
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HelloDATA BE Docs" class="md-nav__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    HelloDATA BE Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="false">
+          Vision
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Vision" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Vision
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/vision-and-goal/" class="md-nav__link">
+        Vision
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/roadmap/" class="md-nav__link">
+        Roadmap
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" tabindex="0" aria-expanded="false">
+          Architecture
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Architecture
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data-stack/" class="md-nav__link">
+        Data Stack
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/architecture/" class="md-nav__link">
+        Components & Architecture
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/infrastructure/" class="md-nav__link">
+        Infrastructure
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" tabindex="0" aria-expanded="false">
+          Concepts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Concepts" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Concepts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/showcase/" class="md-nav__link">
+        Showcase
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/workspaces/" class="md-nav__link">
+        Workspaces
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" tabindex="0" aria-expanded="true">
+          Manuals
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Manuals" data-md-level="1">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Manuals
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-manual/" class="md-nav__link">
+        User Manual
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Roles & Authorization
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Roles & Authorization
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#platform-authentication-authorization" class="md-nav__link">
+    Platform Authentication Authorization
+  </a>
+  
+    <nav class="md-nav" aria-label="Platform Authentication Authorization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#business-domain" class="md-nav__link">
+    Business Domain
+  </a>
+  
+    <nav class="md-nav" aria-label="Business Domain">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hellodata_admin" class="md-nav__link">
+    HELLODATA_ADMIN
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business_domain_admin" class="md-nav__link">
+    BUSINESS_DOMAIN_ADMIN
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-domain" class="md-nav__link">
+    Data Domain
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Domain">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data_domain_viewer" class="md-nav__link">
+    DATA_DOMAIN_VIEWER
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data_domain_editor" class="md-nav__link">
+    DATA_DOMAIN_EDITOR
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data_domain_admin" class="md-nav__link">
+    DATA_DOMAIN_ADMIN
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extra-data-domain" class="md-nav__link">
+    Extra Data Domain
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-role-to-portal-role-mapping" class="md-nav__link">
+    System Role to Portal Role Mapping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-role-to-superset-role-mapping" class="md-nav__link">
+    System Role to Superset Role Mapping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-role-to-airflow-role-mapping" class="md-nav__link">
+    System Role to Airflow Role Mapping
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" tabindex="0" aria-expanded="false">
+          More
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="More" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          More
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/faq/" class="md-nav__link">
+        FAQ
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/glossary/" class="md-nav__link">
+        Glossary
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/changelog/" class="md-nav__link">
+        Changelog
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="roles-and-authorization-concept">Roles and authorization concept</h1>
+<h2 id="platform-authentication-authorization">Platform Authentication Authorization</h2>
+<p>Authentication and authorizations within the various logical contexts or domains of the HelloDATA system are handled as follows. <br />
+Authentication is handled via the OAuth 2 standard. In the case of the Canton of Bern, this is done via the central KeyCloak server. Authorizations to the various elements within a subject or Data Domain are handled via authorization within the HelloDATA portal.<br />
+To keep administration simple, a role concept is applied. Instead of defining the authorizations for each user, roles receive the authorizations and the users are then assigned to the roles. The roles available in the portal have fixed defined permissions.</p>
+<h3 id="business-domain">Business Domain</h3>
+<p>In order for a user to gain access to a Business Domain, the user must be authenticated for the Business Domain.<br />
+Users without authentication who try to access a Business Domain will receive an error message.<br />
+The following two logical roles are available within a Business Domain:</p>
+<ul>
+<li>HELLODATA_ADMIN</li>
+<li>BUSINESS_DOMAIN_ADMIN</li>
+</ul>
+<h4 id="hellodata_admin">HELLODATA_ADMIN</h4>
+<ul>
+<li>Can act fully in the system.</li>
+</ul>
+<h4 id="business_domain_admin">BUSINESS_DOMAIN_ADMIN</h4>
+<ul>
+<li>Can manage users and assign roles (except HELLODATA_ADMIN).</li>
+<li>Can manage dashboard metadata.</li>
+<li>Can manage announcements.</li>
+<li>Can manage the FAQ.</li>
+<li>Can manage the external documentation links.</li>
+</ul>
+<p>BUSINESS_DOMAIN_ADMIN is automatically DATA_DOMAIN_ADMIN in all Data Domains within the Business Domain (see Data Domain Context).</p>
+<h3 id="data-domain">Data Domain</h3>
+<p>A Data Domain encapsulates all data elements and tools that are of interest for a specific issue.<br />
+HalloDATA supports 1 - n Data Domains within a Business Domain.</p>
+<p>The resources to be protected within a Data Domain are:</p>
+<ul>
+<li>Schema of the Data Domain.</li>
+<li>Data mart tables of the Data Domain.</li>
+<li>The entire DWH environment of the Data Domain.</li>
+<li>Data lineage documents of the DBT projects of the Data Domain.</li>
+<li>Dashboards, charts, datasets within the superset instance of a Data Domain.</li>
+<li>Airflow DAGs of the Data Domain.</li>
+</ul>
+<p>The following three logical roles are available within a Data Domain:</p>
+<ul>
+<li>DATA_DOMAIN_VIEWER    </li>
+<li>DATA_DOMAIN_EDITOR</li>
+<li>DATA_DOMAIN_ADMIN</li>
+</ul>
+<p>Depending on the role assigned, users are given different permissions to act in the Data Domain.<br />
+A user who has not been assigned a role in a Data Domain will generally not be granted access to any resources of that Data Domain.</p>
+<h4 id="data_domain_viewer">DATA_DOMAIN_VIEWER</h4>
+<ul>
+<li>The DATA_DOMAIN_VIEWER role is granted potential read access to dashboards of a Data Domain.</li>
+<li>Which dashboards of the Data Domain a DATA_DOMAIN_VIEWER user is allowed to see is administered within the user management of the HelloDATA portal.</li>
+<li>Only assigned dashboards are visible to a DATA_DOMAIN_VIEWER.</li>
+<li>Only dashboards in "Published" status are visible to a DATA_DOMAIN_VIEWER. A DATA_DOMAIN_VIEWER can view all data lineage documents of the Data Domain.</li>
+<li>A DATA_DOMAIN_VIEWER can access the links to external dashboards associated with its Data Domain. It is not checked whether the user has access in the systems outside the HelloDATA system boundary.</li>
+</ul>
+<h4 id="data_domain_editor">DATA_DOMAIN_EDITOR</h4>
+<p>Same as DATA_DOMAIN_VIEWER plus:</p>
+<ul>
+<li>The DATA_DOMAIN_EDITOR role is granted read and write access to the dashboards of a Data Domain. All dashboards are visible and editable for a DATA_DOMAIN_EDITOR. All charts used in the dashboards are visible and editable for a DATA_DOMAIN_EDITOR. All data sets used in the dashboards are visible and editable for a DATA_DOMAIN_EDITOR.</li>
+<li>A DATA_DOMAIN_EDITOR can create new dashboards.</li>
+<li>A DATA_DOMAIN_EDITOR can view the data marts of the Data Domain.</li>
+<li>A DATA_DOMAIN_EDITOR has access to the SQL lab in the superset.</li>
+</ul>
+<h4 id="data_domain_admin">DATA_DOMAIN_ADMIN</h4>
+<p>Same as DATA_DOMAIN_EDITOR plus:</p>
+<p>The DATA_DOMAIN_ADMIN role can view the airflow DAGs of the Data Domain.<br />
+A DATA_DOMAIN_ADMIN can view all database objects in the DWH of the Data Domain.</p>
+<h3 id="extra-data-domain">Extra Data Domain</h3>
+<p>Beside the standard Data Domains there are also extra Data Domains<br />
+An Extra Data Domain provides additional permissions, functions and database connections such as :</p>
+<ul>
+<li>CSV uploads to the Data Domain.</li>
+<li>Read permissions from one Data Domain to additional other Data Domain(s).</li>
+<li>Database connections to Data Domains of other databases.</li>
+<li>Database connections via AD group permissions.</li>
+<li>etc.</li>
+</ul>
+<p>These additional permissions, functions or database connections are a matter of negotiation per extra Data Domain.<br />
+The additional permissions, if any, are then added to the standard roles mentioned above for the extra Data Domain.</p>
+<p>Row Level Security settings on Superset level can be used to additionally restrict the data that is displayed in a dashboard (e.g. only data of the own domain is displayed).</p>
+<h3 id="system-role-to-portal-role-mapping">System Role to Portal Role Mapping</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System Role</strong></td>
+<td><strong>Portal Role</strong></td>
+<td><strong>Portal Permission</strong></td>
+<td><strong>Menu / Submenu / Page in Portal</strong></td>
+<td><strong>Info</strong></td>
+</tr>
+<tr>
+<td>HELLODATA_ADMIN</td>
+<td>SUPERUSER</td>
+<td>ROLE_MANAGEMENT</td>
+<td>Administration / Portal Rollenverwaltung</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>MONITORING</td>
+<td>Monitoring</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DEVTOOLS</td>
+<td>Dev Tools</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>USER_MANAGEMENT</td>
+<td>Administration / Benutzerverwaltung</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>FAQ_MANAGEMENT</td>
+<td>Administration / FAQ Verwaltung</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>EXTERNAL_DASHBOARDS_MANAGEMENT</td>
+<td>Unter External Dashboards</td>
+<td>Kann neue Einträge erstellen und verwalten bei Seite External Dashboards</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DOCUMENTATION_MANAGEMENT</td>
+<td>Administration / Dokumentationsmanagement</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>ANNOUNCEMENT_MANAGEMENT</td>
+<td>Administration/ Ankündigungen</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DASHBOARDS</td>
+<td>Dashboards</td>
+<td>Sieht im Menu Liste, dann je einen Link auf alle Data Domains auf die er Zugriff hat mit deren Dashboards auf die er Zugriff hat plus Externe Dashboards</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_LINEAGE</td>
+<td>Data Lineage</td>
+<td>Sieht im Menu je einen Lineage Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_MARTS</td>
+<td>Data Marts</td>
+<td>Sieht im Menu je einen Data Mart Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_DWH</td>
+<td>Data Eng, / DWH Viewer</td>
+<td>Sieht im Menu Data Eng. das Submenu DWH Viewer</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_ENG</td>
+<td>Data Eng. / Orchestration</td>
+<td>Sieht im Menu Data Eng. das Submenu Orchestration</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>BUSINESS_DOMAIN_ADMIN</td>
+<td>BUSINESS_DOMAIN_ADMIN</td>
+<td>USER_MANAGEMENT</td>
+<td>Administration / Portal Rollenverwaltung</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>FAQ_MANAGEMENT</td>
+<td>Dev Tools</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>EXTERNAL_DASHBOARDS_MANAGEMENT</td>
+<td>Administration / Benutzerverwaltung</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DOCUMENTATION_MANAGEMENT</td>
+<td>Administration / FAQ Verwaltung</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>ANNOUNCEMENT_MANAGEMENT</td>
+<td>Unter External Dashboards</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DASHBOARDS</td>
+<td>Administration / Dokumentationsmanagement</td>
+<td>Sieht im Menu Liste, dann je einen Link auf alle Data Domains auf die er Zugriff hat mit deren Dashboards auf die er Zugriff hat plus Externe Dashboards</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_LINEAGE</td>
+<td>Administration/ Ankündigungen</td>
+<td>Sieht im Menu je einen Lineage Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_MARTS</td>
+<td>Data Marts</td>
+<td>Sieht im Menu je einen Data Mart Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_DWH</td>
+<td>Data Eng, / DWH Viewer</td>
+<td>Sieht im Menu Data Eng. das Submenu DWH Viewer</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_ENG</td>
+<td>Data Eng. / Orchestration</td>
+<td>Sieht im Menu Data Eng. das Submenu Orchestration</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_ADMIN</td>
+<td>DATA_DOMAIN_ADMIN</td>
+<td>DASHBOARDS</td>
+<td>Dashboards</td>
+<td>Sieht im Menu Liste, dann je einen Link auf alle Data Domains auf die er Zugriff hat mit deren Dashboards auf die er Zugriff hat plus Externe Dashboards</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_LINEAGE</td>
+<td>Data Lineage</td>
+<td>Sieht im Menu je einen Lineage Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_MARTS</td>
+<td>Data Marts</td>
+<td>Sieht im Menu je einen Data Mart Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_DWH</td>
+<td>Data Eng, / DWH Viewer</td>
+<td>Sieht im Menu Data Eng. das Submenu DWH Viewer</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_ENG</td>
+<td>Data Eng. / Orchestration</td>
+<td>Sieht im Menu Data Eng. das Submenu Orchestration</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_EDITOR</td>
+<td>EDITOR</td>
+<td>DASHBOARDS</td>
+<td>Dashboards</td>
+<td>Sieht im Menu Liste, dann je einen Link auf alle Data Domains auf die er Zugriff hat mit deren Dashboards auf die er Zugriff hat plus Externe Dashboards</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_LINEAGE</td>
+<td>Data Lineage</td>
+<td>Sieht im Menu je einen Lineage Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_MARTS</td>
+<td>Data Marts</td>
+<td>Sieht im Menu je einen Data Mart Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_VIEWER</td>
+<td>VIEWER</td>
+<td>DASHBOARDS</td>
+<td>Dashboards</td>
+<td>Sieht im Menu Liste, dann je einen Link auf alle Data Domains auf die er Zugriff hat mit deren Dashboards auf die er Zugriff hat plus Externe Dashboards</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>DATA_LINEAGE</td>
+<td>Data Lineage</td>
+<td>Sieht im Menu je einen Lineage Link für alle Data Domains auf die er Zugriff hat</td>
+</tr>
+</tbody>
+</table>
+<h3 id="system-role-to-superset-role-mapping">System Role to Superset Role Mapping</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System Role</strong></td>
+<td><strong>Superset Role</strong></td>
+<td><strong>Info</strong></td>
+</tr>
+<tr>
+<td>No Data Domain role</td>
+<td>Public</td>
+<td>User should not get access to Superset functions so he gets a role with no permissions.</td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_VIEWER</td>
+<td>BI_VIEWER plus roles forDashboards he was granted access to i. e. the slugified dashboard names with prefix "D_"</td>
+<td>Example: User is "DATA_DOMAIN_VIEWER" in a Data Domain. We grant the user acces to the "Hello World" dashboard. Then user gets the role "BI_VIEWER" plus the role "D_hello_world" in Superset.</td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_EDITOR</td>
+<td>BI_EDITOR</td>
+<td>Has access to all Dashboards as he is owner of the dashboards  plus he gets SQL Lab permissions.</td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_ADMIN</td>
+<td>BI_EDITOR plus BI_ADMIN</td>
+<td>Has access to all Dashboards as he is owner of the dashboards  plus he gets SQL Lab permissions.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="system-role-to-airflow-role-mapping">System Role to Airflow Role Mapping</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System Role</strong></td>
+<td><strong>Airflow Role</strong></td>
+<td><strong>Info</strong></td>
+</tr>
+<tr>
+<td>HELLO_DATA_ADMIN</td>
+<td>Admin</td>
+<td>User gets DATA_DOMAIN_ADMIN role for all exisitng Data Domains and thus gets his permissions by that roles.<br><br>User additionally gets the Admin role.</td>
+</tr>
+<tr>
+<td>BUSINESS_DOMAIN_ADMIN</td>
+<td></td>
+<td>User gets DATA_DOMAIN_ADMIN role for all exisitng Data Domains and thus gets his permissions by that roles.</td>
+</tr>
+<tr>
+<td>No Data Domain role</td>
+<td>Public</td>
+<td>User should not get access to Airflow functions so he gets a role with no permissions.</td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_VIEWER</td>
+<td>Public</td>
+<td>User should not get access to Airflow functions so he gets a role with no permissions.</td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_EDITOR</td>
+<td>Public</td>
+<td>User should not get access to Airflow functions so he gets a role with no permissions.</td>
+</tr>
+<tr>
+<td>DATA_DOMAIN_ADMIN</td>
+<td>AF_OPERATOR plus role corresponding to his Data Domain Key with prefix "DD_"</td>
+<td>Example: User is "DATA_DOMAIN_ADMIN" in a Data Domain with the key "data_domain_one". Then user gets the role "AF_OPERATOR" plus the role "DD_data_domain_one" in Airflow.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2024 Designed and Developed by <a href="https://www.bedag.ch/" target="blank" rel="noopener">Bedag Solutions AG</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/kanton-bern/hellodata-be/" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/kanton_bern" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/company/kaio/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+    
+  </body>
+</html>
