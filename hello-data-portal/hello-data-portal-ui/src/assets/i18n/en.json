@@ -149,6 +149,7 @@
   "@Open": "Open",
   "@Orchestration": "Orchestration",
   "@Owners": "Owners",
+  "@Path": "Path",
   "@Permission missing": "You do not yet have authorization to a data domain at {{businessdomain}}. \n Please contact your administrator to give you the appropriate permissions.",
   "@Permissions": "Permissions",
   "@PgAdmin": "pgAdmin",

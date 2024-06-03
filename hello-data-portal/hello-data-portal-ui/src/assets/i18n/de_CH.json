@@ -149,6 +149,7 @@
   "@Open": "Öffnen",
   "@Orchestration": "Orchestration",
   "@Owners": "Owners",
+  "@Path": "Path",
   "@Permission missing": "Sie haben noch keine Berechtigung für eine Datendomäne unter {{businessdomain}}. \n Bitte wenden Sie sich an Ihren Administrator, damit er Ihnen die entsprechenden Berechtigungen erteilt.",
   "@Permissions": "Berechtigungen",
   "@PgAdmin": "pgAdmin",
