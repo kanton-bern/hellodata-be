@@ -35,7 +35,8 @@ import {
   selectAvailableRolesForBusinessDomain,
   selectAvailableRolesForDataDomain,
   selectEditedUser,
-  selectUserContextRoles
+  selectUserContextRoles,
+  selectUserSaveButtonDisabled
 } from "../../../../store/users-management/users-management.selector";
 import {DashboardForUser, DATA_DOMAIN_VIEWER_ROLE, NONE_ROLE, User, UserAction} from "../../../../store/users-management/users-management.model";
 import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
@@ -76,6 +77,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
    */
   dashboardTableVisibility = new Map<string, boolean>();
   userForm!: FormGroup;
+  userSaveButtonDisabled = false
 
   private userContextRoles$: Observable<any>;
   private userContextRolesSub!: Subscription;
@@ -98,9 +100,11 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.availableDataDomainRoles$ = this.store.select(selectAvailableRolesForDataDomain);
     this.userContextRoles$ = combineLatest([
       this.store.select(selectUserContextRoles),
-      this.store.select(selectIsSuperuser)
-    ]).pipe(tap(([userContextRoles, isCurrentSuperuser]) => {
+      this.store.select(selectIsSuperuser),
+      this.store.select(selectUserSaveButtonDisabled)
+    ]).pipe(tap(([userContextRoles, isCurrentSuperuser, userSaveButtonDisabled]) => {
       this.generateForm(userContextRoles, isCurrentSuperuser);
+      this.userSaveButtonDisabled = userSaveButtonDisabled;
     }));
   }
 

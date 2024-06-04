@@ -39,7 +39,9 @@ import {
   selectBusinessDomainRoleForEditedUser,
   selectDataDomainRoleForEditedUser,
   setSelectedDashboardForUser,
-  showUserActionPopup
+  showUserActionPopup,
+  updateUserRoles,
+  updateUserRolesSuccess
 } from "./users-management.action";
 import {BUSINESS_DOMAIN_CONTEXT_TYPE, DATA_DOMAIN_CONTEXT_TYPE} from "./users-management.model";
 import {copy} from "../start-page/start-page.selector";
@@ -178,6 +180,18 @@ export const usersManagementReducer = createReducer(
     return {
       ...state,
       adminEmails: payload
+    };
+  }),
+  on(updateUserRoles, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      userSaveButtonDisabled: true
+    };
+  }),
+  on(updateUserRolesSuccess, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      userSaveButtonDisabled: false
     };
   }),
 );

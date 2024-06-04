@@ -167,3 +167,10 @@ export const selectAdminEmails = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.adminEmails
 );
+
+export const selectUserSaveButtonDisabled = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.userSaveButtonDisabled
+);
+
+
