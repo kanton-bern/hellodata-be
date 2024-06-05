@@ -52,6 +52,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,12 +82,14 @@ public class UserController {
             String email = createUserRequestDto.getUser().getEmail();
             String firstName = createUserRequestDto.getUser().getFirstName();
             String lastName = createUserRequestDto.getUser().getLastName();
-
             String userId = userService.createUser(email, firstName, lastName);
             return CreateUserResponseDto.builder().userId(userId).build();
         } catch (ClientErrorException e) {
             log.error("Error on user creation", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
+        } catch (Exception e) {
+            log.error("", e);
+            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, e.getMessage());
         }
     }
 

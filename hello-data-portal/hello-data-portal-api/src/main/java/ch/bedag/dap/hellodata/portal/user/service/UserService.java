@@ -65,6 +65,7 @@ import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
+import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -120,7 +121,7 @@ public class UserService {
     @Transactional
     public String createUser(String email, String firstName, String lastName) {
         log.info("Creating user. Email: {}, first name: {}, last name {}", email, firstName, lastName);
-        validateEmail(email);
+        validateEmailAlreadyExists(email);
         String keycloakUserId;
         UserRepresentation userFoundInKeycloak = keycloakService.getUserRepresentationByEmail(email);
         if (userFoundInKeycloak == null) {
@@ -134,7 +135,7 @@ public class UserService {
             user.setRequiredActions(REQUIRED_ACTIONS);
             keycloakUserId = keycloakService.createUser(user);
         } else {
-            log.info("User {} already exists in the keycloak, creating only in portal", userFoundInKeycloak);
+            log.info("User {} already exists in the keycloak, creating only in portal", userFoundInKeycloak.getId());
             keycloakUserId = userFoundInKeycloak.getId();
         }
         UserEntity userEntity = new UserEntity();
@@ -147,10 +148,10 @@ public class UserService {
         return keycloakUserId;
     }
 
-    private void validateEmail(String email) {
+    public void validateEmailAlreadyExists(String email) {
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
         if (userEntityByEmail.isPresent()) {
-            throw new RuntimeException("@User email already exists");
+            throw new EntityExistsException("@User email already exists");
         }
     }
 
