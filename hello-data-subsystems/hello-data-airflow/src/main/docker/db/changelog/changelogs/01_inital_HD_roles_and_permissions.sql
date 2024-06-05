@@ -98,7 +98,6 @@ INSERT INTO temp_permission_view_role VALUES ('can_read','XComs','AF_OPERATOR_TE
 INSERT INTO temp_permission_view_role VALUES ('can_delete','XComs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','XComs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','DAG Dependencies','AF_OPERATOR_TEMP');
-INSERT INTO temp_permission_view_role VALUES ('menu_access','DAGs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','Datasets','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','Documentation','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','Docs','AF_OPERATOR_TEMP');
@@ -192,14 +191,3 @@ DELETE FROM ab_role WHERE name IN ('AF_OPERATOR');
 -- Update name of temporary AF_OPERATOR_TEMP role to AF_OPERATOR
 --
 UPDATE ab_role SET name = 'AF_OPERATOR' WHERE name = 'AF_OPERATOR_TEMP';
-
---
--- Removes 'menu_access on DAGs' from AF_OPERATOR
---
-DELETE
-FROM ab_permission_view_role
-WHERE role_id = (SELECT id FROM ab_role WHERE name = 'AF_OPERATOR')
-  AND permission_view_id = (SELECT id
-                            FROM ab_permission_view
-                            WHERE permission_id = (SELECT id FROM ab_permission WHERE name = 'menu_access')
-                              AND view_menu_id = (SELECT id FROM ab_view_menu WHERE name = 'DAGs'));
