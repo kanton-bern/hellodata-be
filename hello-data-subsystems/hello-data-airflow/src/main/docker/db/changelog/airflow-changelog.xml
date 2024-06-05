@@ -44,8 +44,4 @@
         <sqlFile path="changelogs/02_triggers.sql" relativeToChangelogFile="true" splitStatements="false"/>
     </changeSet>
 
-    <changeSet id="0003" author="hellodata" runOnChange="true">
-        <sqlFile path="changelogs/03_remove_menu_access_on_DAGs.sql" relativeToChangelogFile="true" splitStatements="false"/>
-    </changeSet>
-
 </databaseChangeLog>
