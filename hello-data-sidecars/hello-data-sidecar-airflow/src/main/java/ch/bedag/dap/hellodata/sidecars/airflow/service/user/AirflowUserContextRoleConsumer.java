@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,8 +73,7 @@ public class AirflowUserContextRoleConsumer {
             List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
             List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles =
                     userContextRoleUpdate.getContextRoles().stream().filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN).toList();
-            AirflowUserResponse airflowUser =
-                    airflowClient.users().getUsers().stream().filter(user -> userContextRoleUpdate.getEmail().equalsIgnoreCase(user.getEmail())).findFirst().orElse(null);
+            AirflowUserResponse airflowUser = getAirflowUser(userContextRoleUpdate, airflowClient);
             if (!dataDomainContextRoles.isEmpty()) {
                 allAirflowRoles = createContextRolesIfNotExist(dataDomainContextRoles, allAirflowRoles, airflowClient);
                 if (airflowUser != null) {
@@ -95,6 +95,25 @@ public class AirflowUserContextRoleConsumer {
         }
 
         return null;
+    }
+
+    private AirflowUserResponse getAirflowUser(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient) throws URISyntaxException, IOException {
+        List<AirflowUserResponse> usersByEmail =
+                airflowClient.users().getUsers().stream().filter(user -> userContextRoleUpdate.getEmail().equalsIgnoreCase(user.getEmail())).toList();
+        if (CollectionUtils.isNotEmpty(usersByEmail) && usersByEmail.size() > 1) {
+            log.warn("[Found more than one user by an email] --- {} has usernames: [{}]", userContextRoleUpdate.getEmail(),
+                     usersByEmail.stream().map(AirflowUser::getUsername).collect(Collectors.joining(",")));
+            for (AirflowUserResponse airflowUserResponse : usersByEmail) {
+                if (!airflowUserResponse.getEmail().equalsIgnoreCase(airflowUserResponse.getUsername())) {
+                    log.warn("[Found more than one user by an email] --- returning user with username != email");
+                    return airflowUserResponse;
+                }
+            }
+        }
+        if (CollectionUtils.isEmpty(usersByEmail)) {
+            return null;
+        }
+        return usersByEmail.get(0);
     }
 
     private void addOrRemoveAdminRole(UserContextRoleUpdate userContextRoleUpdate, List<AirflowRole> allAirflowRoles, AirflowUserResponse airflowUser) {
