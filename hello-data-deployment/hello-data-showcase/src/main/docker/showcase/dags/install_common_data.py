@@ -25,8 +25,7 @@ dim_time_lzn = PostgresOperator(
     task_id='create_dim_time_lzn',
     postgres_conn_id='postgres_db',
     sql='sql/common_data/lzn/dim_time.sql',
-    dag=dag,
-    autoCommit=True
+    dag=dag
 )
 
 dim_time_lzn
