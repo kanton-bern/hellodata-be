@@ -42,6 +42,7 @@ export interface UsersManagementState {
   selectedDataDomainRolesForEditedUser: any[],
   selectedDashboardsForUser: ContextDashboardsForUser[],
   adminEmails: string[];
+  userSaveButtonDisabled: boolean;
 }
 
 export const initialUsersManagementState: UsersManagementState = {
@@ -57,5 +58,6 @@ export const initialUsersManagementState: UsersManagementState = {
   selectedBusinessContextRoleForEditedUser: null,
   selectedDataDomainRolesForEditedUser: [],
   selectedDashboardsForUser: [],
-  adminEmails: []
+  adminEmails: [],
+  userSaveButtonDisabled: false
 }
