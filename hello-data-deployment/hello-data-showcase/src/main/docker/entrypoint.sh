@@ -6,6 +6,16 @@ if [ -z "$DESTINATION_PATH" ]; then
     exit 1
 fi
 
+if [ -z "$AIRFLOW_UID" ]; then
+    echo "Error: AIRFLOW_UID is not set."
+    exit 1
+fi
+
+if [ -z "$CONNECTION_ID" ]; then
+    echo "Error: CONNECTION_ID is not set."
+    exit 1
+fi
+
 mkdir -p "$DESTINATION_PATH/files"
 mkdir -p "$DESTINATION_PATH/dbt-docs"
 
@@ -26,6 +36,9 @@ sed -i "s/SHOWCASE_DWH_U_MODELER_PASSWORD/$SHOWCASE_DWH_U_MODELER_PASSWORD/g" "$
 sed -i "s/SHOWCASE_DWH_U_MODELER/$SHOWCASE_DWH_U_MODELER/g" "$DESTINATION_PATH/dbt/profiles.yml"
 sed -i "s/SHOWCASE_DWH_NAME/$SHOWCASE_DWH_NAME/g" "$DESTINATION_PATH/dbt/profiles.yml"
 sed -i "s/CONNECTION_ID/$CONNECTION_ID/g" "$DESTINATION_PATH/dags/tierstatistik_elt_dag.py"
+sed -i "s/CONNECTION_ID/$CONNECTION_ID/g" "$DESTINATION_PATH/dags/install_common_data.py"
+
+
 
 # Run an infinite loop to keep the container running
 while true; do
