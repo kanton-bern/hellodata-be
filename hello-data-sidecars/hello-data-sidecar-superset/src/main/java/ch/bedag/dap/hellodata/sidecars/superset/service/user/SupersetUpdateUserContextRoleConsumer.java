@@ -44,9 +44,11 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
 import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeAllDashboardRoles;
@@ -71,17 +73,15 @@ public class SupersetUpdateUserContextRoleConsumer {
         log.info("-=-=-=-= RECEIVED USER CONTEXT ROLES UPDATE: payload: {}", userContextRoleUpdate);
         String dataDomainKey = helloDataContextConfig.getContext().getKey();
         SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-        Optional<SubsystemUser> supersetUserResult =
-                supersetClient.users().getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(userContextRoleUpdate.getEmail())).findFirst();
+        SubsystemUser supersetUser = getSubsystemUser(userContextRoleUpdate, supersetClient);
         Optional<UserContextRoleUpdate.ContextRole> dataDomainContextRole =
                 userContextRoleUpdate.getContextRoles().stream().filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(dataDomainKey)).findFirst();
-        if (supersetUserResult.isPresent() && dataDomainContextRole.isPresent()) {
+        if (supersetUser != null && dataDomainContextRole.isPresent()) {
             SupersetRolesResponse allRoles = supersetClient.roles();
             UserContextRoleUpdate.ContextRole contextRole = dataDomainContextRole.get();
-            SubsystemUser subsystemUser = supersetUserResult.get();
-            List<SupersetRole> supersetUserRoles = subsystemUser.getRoles();
+            List<SupersetRole> supersetUserRoles = supersetUser.getRoles();
             SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
-            supersetUserRolesUpdate.setRoles(subsystemUser.getRoles().stream().map(SupersetRole::getId).toList());
+            supersetUserRolesUpdate.setRoles(supersetUser.getRoles().stream().map(SupersetRole::getId).toList());
             removeBiRoles(allRoles, supersetUserRolesUpdate);
             assignAdminRoleIfSuperuser(userContextRoleUpdate, allRoles, supersetUserRolesUpdate);
             switch (contextRole.getRoleName()) {
@@ -104,11 +104,30 @@ public class SupersetUpdateUserContextRoleConsumer {
                 default -> log.debug("Irrelevant role name? {}", contextRole.getRoleName());
             }
             removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
-            SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, subsystemUser.getId());
+            SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, supersetUser.getId());
             log.info("-=-=-=-= UPDATED USER ROLES: user: {}, role ids: {}", userContextRoleUpdate.getEmail(), updatedUser.getResult().getRoles());
             userResourceProviderService.publishUsers();
         }
         return null;
+    }
+
+    private SubsystemUser getSubsystemUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient) throws URISyntaxException, IOException {
+        List<SubsystemUser> supersetUserResult =
+                supersetClient.users().getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(userContextRoleUpdate.getEmail())).toList();
+        if (CollectionUtils.isNotEmpty(supersetUserResult) && supersetUserResult.size() > 1) {
+            log.warn("[Found more than one user by an email] --- {} has usernames: [{}]", userContextRoleUpdate.getEmail(),
+                     supersetUserResult.stream().map(SubsystemUser::getUsername).collect(Collectors.joining(",")));
+            for (SubsystemUser subsystemUser : supersetUserResult) {
+                if (!subsystemUser.getEmail().equalsIgnoreCase(subsystemUser.getUsername())) {
+                    log.warn("[Found more than one user by an email] --- returning user with username != email");
+                    return subsystemUser;
+                }
+            }
+        }
+        if (CollectionUtils.isEmpty(supersetUserResult)) {
+            return null;
+        }
+        return supersetUserResult.get(0);
     }
 
     private void removeBiRoles(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
