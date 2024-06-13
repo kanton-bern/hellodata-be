@@ -1,7 +1,7 @@
 package ch.bedag.dap.hellodata.portal.initialize.service;
 
-import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
-import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;

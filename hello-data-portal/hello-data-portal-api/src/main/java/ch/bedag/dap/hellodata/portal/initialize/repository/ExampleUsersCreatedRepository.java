@@ -35,5 +35,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ExampleUsersCreatedRepository extends JpaRepository<ExampleUsersCreatedEntity, UUID> {
 
-    List<ExampleUsersCreatedEntity> findAllByOrderByCreatedAsc();
+    List<ExampleUsersCreatedEntity> findAllByOrderByCreatedDateAsc();
 }

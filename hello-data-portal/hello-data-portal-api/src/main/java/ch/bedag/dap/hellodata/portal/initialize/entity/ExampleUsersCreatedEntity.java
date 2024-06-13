@@ -37,5 +37,5 @@ import lombok.Setter;
 @RequiredArgsConstructor
 @Entity(name = "example_users_created")
 public class ExampleUsersCreatedEntity extends BaseEntity {
-    private boolean created;
+    private String dataDomainList;
 }

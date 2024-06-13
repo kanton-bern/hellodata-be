@@ -6,8 +6,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage
 import ch.bedag.dap.hellodata.portal.monitoring.data.DatabaseSizeDto;
 import ch.bedag.dap.hellodata.portal.monitoring.data.StorageMonitoringResultDto;
 import ch.bedag.dap.hellodata.portal.monitoring.data.StorageSizeDto;
-import ch.bedag.dap.hellodata.portal.monitoring.entity.StorageSizeEntity;
-import ch.bedag.dap.hellodata.portal.monitoring.repository.StorageSizeRepository;
+import ch.bedag.dap.hellodata.portalcommon.monitoring.entity.StorageSizeEntity;
+import ch.bedag.dap.hellodata.portalcommon.monitoring.repository.StorageSizeRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

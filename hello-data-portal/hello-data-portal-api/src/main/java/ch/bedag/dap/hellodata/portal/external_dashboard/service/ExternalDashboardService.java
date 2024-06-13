@@ -33,8 +33,8 @@ import ch.bedag.dap.hellodata.portal.external_dashboard.data.ExternalDashboardDt
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.UpdateExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.entity.ExternalDashboardEntity;
 import ch.bedag.dap.hellodata.portal.external_dashboard.repository.ExternalDashboardRepository;
-import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

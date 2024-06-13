@@ -21,6 +21,7 @@
         <module>hello-data-sidecar-common</module>
         <module>hello-data-metainfo-model</module>
         <module>hello-data-nats-spring</module>
+        <module>hello-data-portal-common</module>
     </modules>
 
     <distributionManagement>
