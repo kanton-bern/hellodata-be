@@ -41,7 +41,7 @@ def hdShowCase():
     @task.virtualenv(
         use_dill=True,
         system_site_packages=False,
-        requirements=["rdfpandas"],
+        requirements=["rdfpandas", "numpy==1.26.4"],
     )
     def data_download():
 
