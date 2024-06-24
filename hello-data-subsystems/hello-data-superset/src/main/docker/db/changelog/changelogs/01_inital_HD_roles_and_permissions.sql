@@ -431,3 +431,23 @@ UPDATE ab_role SET name = 'BI_EDITOR' WHERE name = 'BI_EDITOR_TEMP';
 -- Update name of temporary BI_VIEWER_TEMP role to BI_VIEWER
 --
 UPDATE ab_role SET name = 'BI_VIEWER' WHERE name = 'BI_VIEWER_TEMP';
+
+
+--
+-- Create Role Level Security (RLS) roles if not existing yet
+--
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_01' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_01');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_02' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_02');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_03' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_03');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_04' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_04');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_05' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_05');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_06' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_06');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_07' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_07');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_08' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_08');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_09' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_09');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_10' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_10');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_11' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_11');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_12' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_12');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_13' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_13');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_14' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_14');
+INSERT INTO ab_role (id, name) SELECT nextval('ab_role_id_seq'), 'RLS_15' WHERE NOT EXISTS (SELECT 1 FROM ab_role WHERE name = 'RLS_15');
