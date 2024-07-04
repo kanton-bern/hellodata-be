@@ -37,10 +37,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineIns
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
-import ch.bedag.dap.hellodata.portal.role.entity.RoleEntity;
-import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
-import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
-import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
