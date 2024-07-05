@@ -20,6 +20,7 @@
         <module>hello-data-dbt-docs</module>
         <module>hello-data-monitoring</module>
         <module>hello-data-cleanup-logs</module>
+        <module>hello-data-jupyterhub-gateway</module>
     </modules>
 
     <properties>

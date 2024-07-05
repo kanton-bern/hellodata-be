@@ -1,0 +1,6 @@
+GlobalConfiguration
+GlobalConfiguration/**
+.work-data
+.metadata
+.metadata/**
+.data
