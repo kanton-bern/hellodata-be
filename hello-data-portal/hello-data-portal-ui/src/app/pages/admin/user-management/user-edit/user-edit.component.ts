@@ -28,7 +28,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {combineLatest, Observable, Subscription, tap} from "rxjs";
+import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import {
   selectAllBusinessDomains,
   selectAllDataDomains,
@@ -77,8 +77,8 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
    */
   dashboardTableVisibility = new Map<string, boolean>();
   userForm!: FormGroup;
-  userSaveButtonDisabled = false
 
+  userSaveButtonDisabled$: Observable<boolean>;
   private userContextRoles$: Observable<any>;
   private userContextRolesSub!: Subscription;
   private editedUserSuperuser = false;
@@ -98,13 +98,14 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.dataDomains$ = this.store.select(selectAllDataDomains);
     this.availableBusinessDomainRoles$ = this.store.select(selectAvailableRolesForBusinessDomain);
     this.availableDataDomainRoles$ = this.store.select(selectAvailableRolesForDataDomain);
+    this.userSaveButtonDisabled$ = this.store.select(selectUserSaveButtonDisabled).pipe(map(userSaveButtonDisabled => {
+      return userSaveButtonDisabled;
+    }));
     this.userContextRoles$ = combineLatest([
       this.store.select(selectUserContextRoles),
       this.store.select(selectIsSuperuser),
-      this.store.select(selectUserSaveButtonDisabled)
-    ]).pipe(tap(([userContextRoles, isCurrentSuperuser, userSaveButtonDisabled]) => {
+    ]).pipe(tap(([userContextRoles, isCurrentSuperuser]) => {
       this.generateForm(userContextRoles, isCurrentSuperuser);
-      this.userSaveButtonDisabled = userSaveButtonDisabled;
     }));
   }
 
