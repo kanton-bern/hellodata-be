@@ -41,6 +41,7 @@ import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
+import {OpenedSupersetsService} from "../../shared/services/opened-supersets.service";
 
 @Injectable({
   providedIn: 'root'
@@ -52,7 +53,8 @@ export class MenuService {
 
   constructor(
     private _store: Store<AppState>,
-    private _translateService: TranslateService
+    private _translateService: TranslateService,
+    private _openedSupersetsService: OpenedSupersetsService
   ) {
   }
 
@@ -254,7 +256,11 @@ export class MenuService {
   private getSupersetInstanceLink(instanceName: string, appInfos: MetaInfoResource[]) {
     const metaInfoResource = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET')
       .find(appInfo => appInfo.businessContextInfo.subContext?.name === instanceName);
-    return metaInfoResource ? metaInfoResource.data.url : "#";
+    if (metaInfoResource) {
+      this._openedSupersetsService.rememberOpenedSuperset(metaInfoResource.data.url);
+      return metaInfoResource.data.url;
+    }
+    return "#";
   }
 
   private createDataMartsSubNav(availableDataDomains: any[]) {

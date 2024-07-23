@@ -34,6 +34,7 @@ import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../app-navi-elements";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {OpenedSupersetsService} from "../../shared/services/opened-supersets.service";
 
 export const VISITED_SUPERSETS_SESSION_STORAGE_KEY = 'visited_supersets';
 export const LOGGED_IN_SUPERSET_USER = 'logged_in_superset_user';
@@ -46,7 +47,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private openedSupersetsService: OpenedSupersetsService) {
     super();
     this.currentMyDashboardInfo$ = this.store.select(selectCurrentMyDashboardInfo).pipe(tap((dashboardInfo) => {
       if (dashboardInfo) {
@@ -73,7 +74,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
         this.url = supersetUrl + dashboardPath;
       }
 
-      this.rememberOpenedSuperset(supersetUrl);
+      this.openedSupersetsService.rememberOpenedSuperset(supersetUrl);
       sessionStorage.setItem(sessionStorageKey, dashboardInfo.profile.email);
       const dataDomainName = dashboardInfo.appinfo?.businessContextInfo.subContext.name;
       this.createBreadcrumbs(dataDomainName, dashboardInfo.dashboard, dashboardInfo.currentUrl);
@@ -100,24 +101,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
         }
       ]
     }));
-  }
-
-  private rememberOpenedSuperset(supersetUrl: string) {
-    const openedSupersets = sessionStorage.getItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY);
-    if (openedSupersets) {
-      const storedSetArray: string[] = JSON.parse(openedSupersets || '[]');
-      storedSetArray.push(supersetUrl);
-      // Convert the array back into a set to have unique urls
-      const storedSet: Set<string> = new Set<string>(storedSetArray);
-      const setArray: string[] = Array.from(storedSet);
-      const setString: string = JSON.stringify(setArray);
-      sessionStorage.setItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY, setString);
-    } else {
-      const mySet: Set<string> = new Set<string>([supersetUrl]);
-      const setArray: string[] = Array.from(mySet);
-      const setString: string = JSON.stringify(setArray);
-      sessionStorage.setItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY, setString);
-    }
   }
 
 }
