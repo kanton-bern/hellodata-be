@@ -258,7 +258,10 @@ export class MenuService {
       .find(appInfo => appInfo.businessContextInfo.subContext?.name === instanceName);
     if (metaInfoResource) {
       this._openedSupersetsService.rememberOpenedSuperset(metaInfoResource.data.url);
-      return metaInfoResource.data.url;
+      const supersetUrl = metaInfoResource.data.url;
+      const supersetLogoutUrl = supersetUrl + 'logout';
+      const supersetLoginUrl = supersetUrl + `login/keycloak?next=${supersetUrl}`;
+      return supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
     }
     return "#";
   }
