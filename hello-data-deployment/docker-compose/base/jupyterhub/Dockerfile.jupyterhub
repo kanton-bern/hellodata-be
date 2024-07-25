@@ -1,0 +1,18 @@
+ARG JUPYTERHUB_VERSION
+FROM quay.io/jupyterhub/jupyterhub:$JUPYTERHUB_VERSION
+
+# Install additional packages
+RUN apt-get update && \
+    apt-get install -y \
+    jq \
+    curl \
+    wget \
+    zip
+
+# Install dockerspawner, oauthenticator
+# hadolint ignore=DL3013
+RUN python3 -m pip install --no-cache-dir \
+    dockerspawner \
+    oauthenticator
+
+CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py"]

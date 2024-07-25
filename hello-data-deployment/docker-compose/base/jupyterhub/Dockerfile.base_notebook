@@ -1,0 +1,14 @@
+FROM quay.io/jupyter/base-notebook:latest
+
+# Copy the script into the lib directory
+COPY hello_data_scripts.py /opt/conda/lib/python3.1/site-packages/
+
+# Copy info how to use the script
+COPY HOW_TO_CONNECT.md /home/jovyan/work/
+
+ENV API_URL="http://host.docker.internal:8089/create-temporary-user"
+ENV API_USERNAME="user"
+ENV API_PASSWORD="password"
+
+RUN python3 -m pip install --no-cache-dir \
+    psycopg2-binary

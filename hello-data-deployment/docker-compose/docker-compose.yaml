@@ -41,3 +41,11 @@ volumes:
       type: none
       device: ./base/shared
       o: bind
+  jupyterhub-data:
+  shared_scripts:
+    driver: local
+
+
+networks:
+  hello-data-network:
+    name: hello-data-network
