@@ -1,0 +1,79 @@
+hellodata:
+  jupyterhub:
+    temp-user-password-valid-in-days: 1
+    dwh-admin-username: postgres
+    dwh-admin-password: postgres
+    dwh-url: jdbc:postgresql://localhost:5432/postgres
+    dwh-driver-class-name: org.postgresql.Driver
+spring:
+  application:
+    name: HelloDATA Sidecar for Jupyterhub
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/hd_metainfo
+    password: postgres
+    username: postgres
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+        username: "user"       #These two are needed so that the client
+        password: "password"   #can register at the protected server api
+  #        instance:
+  #          metadata:
+  #            user.name: "user"         #These two are needed so that the server
+  #            user.password: "password" #can access the protected client endpoints
+
+server:
+  port: 8089
+  error:
+    include-message: always
+    include-exception: false
+    include-stacktrace: never
+  max-http-request-header-size: 32KB
+
+management:
+  endpoint:
+    health:
+      enabled: true
+    #      show-details: always #if we need some details
+    info:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+  health:
+    nats:
+      enabled: false
+    mail:
+      enabled: false
+    kubernetes:
+      enabled: false
+    ldap:
+      enabled: false # Disable this when not using ldap connection
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    kubernetes:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        spring.data.repository.invocations: true
+        http.server.requests: true
+  server:
+    port: 8082
+
+# Basicauth configuration for rest endpoints
+security:
+  user:
+    username: user
+    password: password
+  api:
+    username: apikey
+    password: password
