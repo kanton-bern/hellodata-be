@@ -626,7 +626,7 @@ services:
 
   jupyterhub:
     build:
-      context: ./jupyterhub
+      context: ./base/jupyterhub
       dockerfile: Dockerfile.jupyterhub
       args:
         JUPYTERHUB_VERSION: latest
@@ -685,7 +685,7 @@ services:
   # just to build an image
   jupyterhub-notebook:
     build:
-      context: ./jupyterhub
+      context: ./base/jupyterhub
       dockerfile: Dockerfile.base_notebook
     image: hello-data-base-notebook
     environment:
@@ -694,3 +694,4 @@ services:
       - hello-data-network
     depends_on:
       - jupyterhub
+    command: echo "This service is only for building our custom image which will be spawned by jupyterhub"
