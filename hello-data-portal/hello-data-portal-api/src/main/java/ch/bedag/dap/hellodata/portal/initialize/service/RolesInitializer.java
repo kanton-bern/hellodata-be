@@ -71,19 +71,17 @@ public class RolesInitializer {
     public void initSystemDefaultPortalRoles() {
         for (SystemDefaultPortalRoleName systemDefaultPortalRoleName : SystemDefaultPortalRoleName.values()) {
             Optional<PortalRoleEntity> byName = portalRoleRepository.findByName(systemDefaultPortalRoleName.name());
-            if (byName.isEmpty()) {
-                PortalRoleEntity portalRoleEntity = new PortalRoleEntity();
-                portalRoleEntity.setSystemDefault(true);
-                portalRoleEntity.setDescription("SYSTEM ROLE");
-                portalRoleEntity.setName(systemDefaultPortalRoleName.name());
-                Permissions permissions = new Permissions();
-                permissions.setPortalPermissions(new ArrayList<>(systemDefaultPortalRoleName.getPermissions().stream().map(Enum::name).toList()));
-                if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.HELLODATA_ADMIN) {
-                    permissions.getPortalPermissions().add(WORKSPACES_PERMISSION);
-                }
-                portalRoleEntity.setPermissions(permissions);
-                portalRoleRepository.save(portalRoleEntity);
+            PortalRoleEntity portalRoleEntity = byName.orElseGet(PortalRoleEntity::new);
+            portalRoleEntity.setSystemDefault(true);
+            portalRoleEntity.setDescription("SYSTEM ROLE");
+            portalRoleEntity.setName(systemDefaultPortalRoleName.name());
+            Permissions permissions = new Permissions();
+            permissions.setPortalPermissions(new ArrayList<>(systemDefaultPortalRoleName.getPermissions().stream().map(Enum::name).toList()));
+            if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.HELLODATA_ADMIN) {
+                permissions.getPortalPermissions().add(WORKSPACES_PERMISSION);
             }
+            portalRoleEntity.setPermissions(permissions);
+            portalRoleRepository.save(portalRoleEntity);
         }
     }
 
