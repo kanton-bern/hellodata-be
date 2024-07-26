@@ -36,7 +36,8 @@ c.DockerSpawner.remove = True
 c.DockerSpawner.debug = True
 
 # User containers will access hub by container name on the Docker network
-c.JupyterHub.hub_ip = "jupyterhub"
+# c.JupyterHub.hub_ip = "jupyterhub"
+c.JupyterHub.hub_ip = os.environ.get("HUB_IP", "jupyterhub")
 c.JupyterHub.hub_port = 8080
 
 # Persist hub data on volume mounted inside container
@@ -44,7 +45,7 @@ c.JupyterHub.cookie_secret_file = "/data/jupyterhub_cookie_secret"
 c.JupyterHub.db_url = "sqlite:////data/jupyterhub.sqlite"
 
 # Authenticate users with Native Authenticator
-#c.JupyterHub.authenticator_class = "nativeauthenticator.NativeAuthenticator"
+# c.JupyterHub.authenticator_class = "nativeauthenticator.NativeAuthenticator"
 
 # Allow anyone to sign-up without approval
 c.NativeAuthenticator.open_signup = True
