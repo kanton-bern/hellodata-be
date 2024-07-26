@@ -1,17 +1,16 @@
-package ch.bedag.dap.hellodata.jupyterhub.sidecar.service;
+package ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user;
 
 import ch.bedag.dap.hellodata.jupyterhub.sidecar.config.props.HellodataJupyterhubProperties;
-import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.dto.TemporaryUserResponseDto;
+import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.dto.TemporaryUserResponseDto;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
@@ -29,10 +28,7 @@ public class TemporaryUserService {
         LocalDateTime expiryDate = LocalDateTime.now().plusDays(hellodataProperties.getTempUserPasswordValidInDays());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        String createUserSql = String.format(
-                "CREATE USER %s WITH PASSWORD '%s' VALID UNTIL '%s'",
-                username, password, expiryDate.format(formatter)
-                                            );
+        String createUserSql = String.format("CREATE USER %s WITH PASSWORD '%s' VALID UNTIL '%s'", username, password, expiryDate.format(formatter));
 
         dwhJdbcTemplate.execute(createUserSql);
         TemporaryUserResponseDto responseDto = createResponseDto(hellodataProperties.getDwhUrl());

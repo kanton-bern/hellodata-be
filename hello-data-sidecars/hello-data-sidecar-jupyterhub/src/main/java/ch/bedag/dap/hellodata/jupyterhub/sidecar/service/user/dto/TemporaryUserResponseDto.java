@@ -1,4 +1,4 @@
-package ch.bedag.dap.hellodata.jupyterhub.sidecar.service.dto;
+package ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.dto;
 
 import lombok.Data;
 

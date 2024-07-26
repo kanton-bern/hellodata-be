@@ -35,7 +35,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <start-class>ch.bedag.dap.hellodata.jupyterhub.sidecar.JupyterhubSidecarApplication</start-class>
+        <start-class>ch.bedag.dap.hellodata.jupyterhub.sidecar.HDSidecarJupyterhub</start-class>
         <testcontainers-version>1.19.1</testcontainers-version>
         <docker.namespace>registry.mgmtbi.ch/se_gf_sie</docker.namespace>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
@@ -51,8 +51,20 @@
             <artifactId>spring-boot-starter-data-jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <groupId>ch.bedag.dap.hellodata</groupId>
+            <artifactId>hello-data-sidecar-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.bedag.dap.hellodata</groupId>
+            <artifactId>hello-data-nats-spring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.bedag.dap.hellodata</groupId>
+            <artifactId>hello-data-common</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -85,7 +97,6 @@
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-client</artifactId>
-            <version>3.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -110,17 +121,14 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>${springdoc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
-            <version>${springdoc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-common</artifactId>
-            <version>${springdoc.version}</version>
         </dependency>
 
         <dependency>
@@ -372,7 +380,7 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-jupyterhub-sidecar:${docker.tag.name}</name>
+                                    <name>${docker.namespace}/hello-data-sidecar-jupyterhub:${docker.tag.name}</name>
                                     <build>
                                         <dockerFile>Dockerfile</dockerFile>
                                         <dockerFileDir>${project.basedir}</dockerFileDir>

@@ -24,17 +24,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.modules;
+package ch.bedag.dap.hellodata.jupyterhub.sidecar.service.cloud;
 
-import lombok.Getter;
+import io.kubernetes.client.openapi.models.V1Pod;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.kubernetes.commons.PodUtils;
+import org.springframework.stereotype.Component;
 
-@Getter
-public enum ModuleType {
-    SUPERSET("superset"), AIRFLOW("airflow"), DBT_DOCS("dbt_docs"), CLOUDBEAVER("cloudbeaver"), JUPYTERHUB("jupyterhub");
+@Component
+@RequiredArgsConstructor
+public class PodUtilsProvider {
+    private final ObjectProvider<DiscoveryClient> discoveryClientObjectProvider;
+    private final ObjectProvider<PodUtils<V1Pod>> podUtilsObjectProvider;
 
-    private final String moduleName;
-
-    ModuleType(String moduleName) {
-        this.moduleName = moduleName;
+    public PodUtils<V1Pod> getIfAvailable() {
+        DiscoveryClient discoveryClient = this.discoveryClientObjectProvider.getIfAvailable();
+        if (discoveryClient != null) {
+            discoveryClient.description();
+            discoveryClient.getServices();
+        }
+        return podUtilsObjectProvider.getIfAvailable();
     }
 }

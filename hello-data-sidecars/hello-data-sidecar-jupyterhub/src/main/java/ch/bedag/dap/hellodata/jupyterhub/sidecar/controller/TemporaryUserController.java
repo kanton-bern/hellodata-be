@@ -1,10 +1,8 @@
 package ch.bedag.dap.hellodata.jupyterhub.sidecar.controller;
 
-
-import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.TemporaryUserService;
-import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.dto.TemporaryUserResponseDto;
+import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.TemporaryUserService;
+import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.dto.TemporaryUserResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
