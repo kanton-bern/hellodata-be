@@ -199,7 +199,7 @@ services:
     image: bedag/hello-data-jupyterhub-gateway:HELLODATA-1292_advanced_analytics-SNAPSHOT
     env_file: .env
     environment:
-      - JUPYTERHUB_SERVICE_NAME=jupyterhub:8000
+      - JUPYTERHUB_SERVICE_NAME=jupyterhub-default-data-domain:8000
     ports:
       - "8088:8088"
       - "8083:8082"
@@ -210,6 +210,8 @@ services:
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - hello-data-network
 
   hello-data-sidecar-jupyterhub-default-data-domain:
     #TODO change to bedag/hello-data-sidecar-jupyterhub
@@ -229,5 +231,7 @@ services:
       - keycloak
       - jupyterhub-default-data-domain
     restart: always
+    ports:
+      - "8091:8089"
     extra_hosts:
       - "host.docker.internal:host-gateway"

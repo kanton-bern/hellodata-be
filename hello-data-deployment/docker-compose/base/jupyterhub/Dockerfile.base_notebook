@@ -6,7 +6,7 @@ COPY hello_data_scripts.py /opt/conda/lib/python3.1/site-packages/
 # Copy info how to use the script
 COPY HOW_TO_CONNECT.md /home/jovyan/work/
 
-ENV API_URL="http://host.docker.internal:8089/create-temporary-user"
+ENV API_URL="http://host.docker.internal:8091/create-temporary-user"
 ENV API_USERNAME="user"
 ENV API_PASSWORD="password"
 

@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.jupyterhub.gateway.filters;
 
+import ch.bedag.dap.hellodata.jupyterhub.gateway.config.SecurityConfig;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
@@ -57,17 +58,13 @@ public class AddJupyterhubAuthGatewayFilterFactory extends AbstractGatewayFilter
     public static ServerWebExchange addJupyterhubAuthHeaders(ServerWebExchange exchange, JwtAuthenticationToken authenticationToken) {
         return exchange.mutate().request((r) -> {
             r.headers((httpHeaders) -> {
-                log.warn("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
+                log.warn("\n\nRequested URI Path: {}", exchange.getRequest().getURI().getPath());
                 log.warn("\taddJupyterhubAuthHeaders for user {}", authenticationToken);
                 log.warn("\temail: {}", authenticationToken.getToken().getClaims().get("email"));
                 log.warn("\tgiven_name: {}", authenticationToken.getToken().getClaims().get("given_name"));
                 log.warn("\tfamily_name: {}", authenticationToken.getToken().getClaims().get("family_name"));
-                log.warn("\tauthorities: {}", toJupyterhubRolesHeader(authenticationToken.getAuthorities()));
-
-                httpHeaders.add("X-User", (String) authenticationToken.getToken().getClaims().get("email"));
-                httpHeaders.add("X-Role", toJupyterhubRolesHeader(authenticationToken.getAuthorities()));
-                httpHeaders.add("X-First-name", (String) authenticationToken.getToken().getClaims().get("given_name"));
-                httpHeaders.add("X-Last-name", (String) authenticationToken.getToken().getClaims().get("family_name"));
+                //log.warn("\tauthorities: {}\n\n", toJupyterhubRolesHeader(authenticationToken.getAuthorities()));
+                httpHeaders.add(SecurityConfig.AUTHORIZATION_HEADER_NAME, "Bearer " + authenticationToken.getToken().getTokenValue());
             });
         }).build();
     }
