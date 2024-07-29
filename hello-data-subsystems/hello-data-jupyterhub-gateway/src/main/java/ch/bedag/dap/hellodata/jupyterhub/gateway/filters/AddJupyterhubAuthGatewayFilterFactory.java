@@ -56,6 +56,8 @@ public class AddJupyterhubAuthGatewayFilterFactory extends AbstractGatewayFilter
     }
 
     public static ServerWebExchange addJupyterhubAuthHeaders(ServerWebExchange exchange, JwtAuthenticationToken authenticationToken) {
+        log.info("\n\n");
+        log.info(" =====----- Adding auth headers -----===== ");
         return exchange.mutate().request((r) -> {
             r.headers((httpHeaders) -> {
                 log.warn("\n\nRequested URI Path: {}", exchange.getRequest().getURI().getPath());
@@ -64,6 +66,8 @@ public class AddJupyterhubAuthGatewayFilterFactory extends AbstractGatewayFilter
                 log.warn("\tgiven_name: {}", authenticationToken.getToken().getClaims().get("given_name"));
                 log.warn("\tfamily_name: {}", authenticationToken.getToken().getClaims().get("family_name"));
                 //log.warn("\tauthorities: {}\n\n", toJupyterhubRolesHeader(authenticationToken.getAuthorities()));
+                log.info("\t Existing headers {}", httpHeaders.toSingleValueMap());
+                log.info("\t Adding authorization header with value {}", authenticationToken.getToken().getTokenValue());
                 httpHeaders.add(SecurityConfig.AUTHORIZATION_HEADER_NAME, "Bearer " + authenticationToken.getToken().getTokenValue());
             });
         }).build();

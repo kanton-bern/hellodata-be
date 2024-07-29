@@ -99,7 +99,7 @@ export const naviElements: any = {
   },
   advancedAnalyticsViewer: {
     path: 'advanced-analytics-viewer',
-    label: '@Advanced analytics viewer'
+    label: '@Advanced Analytics Viewer'
   },
   myDashboards: {
     path: 'my-dashboards',

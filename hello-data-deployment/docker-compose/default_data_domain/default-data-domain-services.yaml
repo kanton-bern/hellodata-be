@@ -127,7 +127,6 @@ services:
       dockerfile: Dockerfile.jupyterhub
       args:
         JUPYTERHUB_VERSION: latest
-        DOCKER_NETWORK_NAME: hello-data-network
     restart: always
     image: jupyterhub
     container_name: jupyterhub-default-data-domain
@@ -199,7 +198,7 @@ services:
     image: bedag/hello-data-jupyterhub-gateway:HELLODATA-1292_advanced_analytics-SNAPSHOT
     env_file: .env
     environment:
-      - JUPYTERHUB_SERVICE_NAME=jupyterhub-default-data-domain:8000
+      - JUPYTERHUB_SERVICE_NAME=host.docker.internal:8000
     ports:
       - "8088:8088"
       - "8083:8082"
@@ -223,7 +222,6 @@ services:
       - NATS_SPRING_SERVER=nats://nats:4222
       - HELLO_DATA_INSTANCE_URL=http://localhost:8088/
       - HELLO_DATA_INSTANCE_NAME=Jupyterhub Default Data Domain
-      - HELLO_DATA_SUPERSET_HOST=jupyterhub-default-data-domain
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
     depends_on:
