@@ -25,57 +25,37 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {LogLevel} from "angular-auth-oidc-client/lib/logging/log-level";
+import {Component} from '@angular/core';
+import {environment} from "../../../environments/environment";
+import {Store} from "@ngrx/store";
+import {AppState} from "../../store/app/app.state";
+import {naviElements} from "../../app-navi-elements";
+import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {BaseComponent} from "../../shared/components/base/base.component";
 
-export interface Environment {
-  appTitle?: string;
-  production: boolean;
-  portalApi: string;
-  docsApi: string;
-  debugInfoEnabled: boolean;
-  authConfig: AuthConfig,
-  deploymentEnvironment: DeploymentConfig;
-  domainNamespace: string,
-  baseDomain: string,
-  subSystemsConfig: SubSystemsConfig;
-  locale: string;
-  footerConfig: FooterConfig;
-}
+@Component({
+  templateUrl: 'advanced-analytics-viewer.component.html',
+  styleUrls: ['./advanced-analytics-viewer.component.scss']
+})
+export class AdvancedAnalyticsViewerComponent extends BaseComponent {
 
-export interface FooterConfig {
-  openSourceDataPlatformUrl: string,
-  licenseUrl: string,
-  githubUrl: string,
-  versionLink: string
-}
+  url!: string;
 
-export interface AuthConfig {
-  logLevel: LogLevel;
-  authority: string;
-  clientId: string;
-  redirectUrl: string;
-  postLogoutRedirectUri: string;
-}
+  constructor(private store: Store<AppState>) {
+    super();
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.advancedAnalyticsViewer.label,
+        }
+      ]
+    }));
+  }
 
-export interface DeploymentConfig {
-  name: 'DEV' | 'TEST' | 'PROD';
-  showEnvironment?: boolean;
-  headerColor?: string; // color in rgb or rgba color format, e.g. 'rgb(60, 179, 113)' or hex ('#3cb371')
-}
 
-export interface SubSystemsConfig {
-  airflow: SubSystemHost;
-  dbtDocs: SubSystemHost;
-  dmViewer: SubSystemHost;
-  dwhViewer: SubSystemHost;
-  advancedAnalyticsViewer: SubSystemHost;
-  monitoringStatus: SubSystemHost;
-  devToolsMailbox: SubSystemHost;
-  devToolsFileBrowser: SubSystemHost;
-}
-
-export interface SubSystemHost {
-  protocol: 'https://' | 'http://'; // the protocol
-  host: string; // the host name
-  domain: string; // the domain name
+  override ngOnInit() {
+    super.ngOnInit();
+    this.url = environment.subSystemsConfig.advancedAnalyticsViewer.protocol + environment.subSystemsConfig.advancedAnalyticsViewer.host + environment.subSystemsConfig.advancedAnalyticsViewer.domain;
+    console.debug("Data Warehouse Component initiated", this.url);
+  }
 }

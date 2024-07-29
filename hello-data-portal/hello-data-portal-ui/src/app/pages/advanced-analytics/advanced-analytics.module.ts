@@ -25,57 +25,52 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {LogLevel} from "angular-auth-oidc-client/lib/logging/log-level";
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HdCommonModule} from "../../hd-common.module";
+import {TranslocoModule} from "@ngneat/transloco";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
+import {ButtonModule} from "primeng/button";
+import {RippleModule} from "primeng/ripple";
+import {RouterLink} from "@angular/router";
+import {SharedModule} from "primeng/api";
+import {TableModule} from "primeng/table";
+import {TagModule} from "primeng/tag";
+import {DialogModule} from "primeng/dialog";
+import {InputTextModule} from "primeng/inputtext";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {ToolbarModule} from "primeng/toolbar";
+import {MenuModule} from "primeng/menu";
+import {AnimateModule} from "primeng/animate";
+import {DropdownModule} from "primeng/dropdown";
+import {AdvancedAnalyticsViewerComponent} from "./advanced-analytics-viewer.component";
 
-export interface Environment {
-  appTitle?: string;
-  production: boolean;
-  portalApi: string;
-  docsApi: string;
-  debugInfoEnabled: boolean;
-  authConfig: AuthConfig,
-  deploymentEnvironment: DeploymentConfig;
-  domainNamespace: string,
-  baseDomain: string,
-  subSystemsConfig: SubSystemsConfig;
-  locale: string;
-  footerConfig: FooterConfig;
-}
-
-export interface FooterConfig {
-  openSourceDataPlatformUrl: string,
-  licenseUrl: string,
-  githubUrl: string,
-  versionLink: string
-}
-
-export interface AuthConfig {
-  logLevel: LogLevel;
-  authority: string;
-  clientId: string;
-  redirectUrl: string;
-  postLogoutRedirectUri: string;
-}
-
-export interface DeploymentConfig {
-  name: 'DEV' | 'TEST' | 'PROD';
-  showEnvironment?: boolean;
-  headerColor?: string; // color in rgb or rgba color format, e.g. 'rgb(60, 179, 113)' or hex ('#3cb371')
-}
-
-export interface SubSystemsConfig {
-  airflow: SubSystemHost;
-  dbtDocs: SubSystemHost;
-  dmViewer: SubSystemHost;
-  dwhViewer: SubSystemHost;
-  advancedAnalyticsViewer: SubSystemHost;
-  monitoringStatus: SubSystemHost;
-  devToolsMailbox: SubSystemHost;
-  devToolsFileBrowser: SubSystemHost;
-}
-
-export interface SubSystemHost {
-  protocol: 'https://' | 'http://'; // the protocol
-  host: string; // the host name
-  domain: string; // the domain name
+@NgModule({
+  declarations: [
+    AdvancedAnalyticsViewerComponent
+  ],
+  imports: [
+    CommonModule,
+    HdCommonModule,
+    TranslocoModule,
+    ReactiveFormsModule,
+    SubsystemIframeModule,
+    ButtonModule,
+    RippleModule,
+    RouterLink,
+    SharedModule,
+    TableModule,
+    TagModule,
+    DialogModule,
+    InputTextModule,
+    FormsModule,
+    ConfirmDialogModule,
+    ToolbarModule,
+    MenuModule,
+    AnimateModule,
+    DropdownModule
+  ]
+})
+export class AdvancedAnalyticsModule {
 }

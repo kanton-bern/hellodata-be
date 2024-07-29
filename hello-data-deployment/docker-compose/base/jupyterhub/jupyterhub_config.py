@@ -73,3 +73,15 @@ c.GenericOAuthenticator.username_key = 'preferred_username'
 c.GenericOAuthenticator.userdata_params = {'state': 'state'}
 c.GenericOAuthenticator.allow_all = True
 c.JupyterHub.admin_access = True
+
+c.NotebookApp.tornado_settings = {
+    'headers': {
+        'Content-Security-Policy': "frame-ancestors localhost:8080"
+    }
+}
+
+c.JupyterHub.tornado_settings = {
+    'headers': {
+        'Content-Security-Policy': "frame-ancestors localhost:8080",
+    }
+}

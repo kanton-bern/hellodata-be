@@ -71,6 +71,13 @@ export const ALL_MENU_ITEMS: any[] = [
         text: '@Orchestration',
         routerLink: '/embedded-orchestration',
         requiredPermissions: ['DATA_ENG']
+      },
+      {
+        id: 'advancedAnalyticsViewerMenu',
+        requiredPermissions: ['DATA_JUPYTER'],
+        text: '@Advanced Analytics Viewer',
+        url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer',
+        target: '_blank'
       }
     ]
   },
