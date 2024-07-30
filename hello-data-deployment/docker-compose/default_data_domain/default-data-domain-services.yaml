@@ -128,7 +128,7 @@ services:
       args:
         JUPYTERHUB_VERSION: latest
     restart: always
-    image: jupyterhub
+    image: hello-data-jupyterhub
     container_name: jupyterhub-default-data-domain
     networks:
       - hello-data-network
@@ -156,6 +156,7 @@ services:
       JUPYTERHUB_LOG_LEVEL: DEBUG
       OAUTH2_CLIENT_ID: frontend-client
       OAUTH2_CLIENT_SECRET: not-required
+      OAUTH2_ISSUER_URL: http://host.docker.internal:38080/realms/hellodata
       OAUTH2_AUTHORIZE_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/auth
       OAUTH2_TOKEN_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/token
       OAUTH2_USERDATA_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/userinfo
@@ -166,6 +167,7 @@ services:
       OAUTH2_USERDATA_PARAMS: state:state
       OAUTH2_ALLOW_ALL: true
       HUB_IP: jupyterhub-default-data-domain
+      JUPYTERHUB_CRYPT_KEY: GTxQ9tNJ3v5TA3ZrmFs4ZtW0yF3a2nLn+f6Pd8c+Z5E=
 
   jupyterhub-proxy-default-data-domain:
     image: jupyterhub/configurable-http-proxy:latest

@@ -13,6 +13,8 @@ RUN apt-get update && \
 # hadolint ignore=DL3013
 RUN python3 -m pip install --no-cache-dir \
     dockerspawner \
-    oauthenticator
+    oauthenticator \
+    pyjwt \
+    cryptography
 
 CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py"]
