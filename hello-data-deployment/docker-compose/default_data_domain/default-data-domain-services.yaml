@@ -219,7 +219,7 @@ services:
     image: registry.mgmtbi.ch/se_gf_sie/hello-data-sidecar-jupyterhub:HELLODATA-1292_advanced_analytics-SNAPSHOT
     env_file: .env
     environment:
-      - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://postgres:5432/hellodata_product_development_default_data_domain_dwh
+      - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal:35432/hellodata_product_development_default_data_domain_dwh
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
       - HELLO_DATA_INSTANCE_URL=http://localhost:8088/
