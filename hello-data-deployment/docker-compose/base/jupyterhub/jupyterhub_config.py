@@ -231,6 +231,4 @@ c.JupyterHub.tornado_settings = {
     }
 }
 
-# c.Spawner.args = [
-#     "–NotebookApp.tornado_settings={ ‘headers’:{ ‘Content-Security-Policy’: “script-src ‘self’ ‘unsafe-eval’ ‘unsafe-inline’; object-src ‘self’;style-src ‘self’ ‘unsafe-inline’;”}"
-# ]
+c.Spawner.args = ['--NotebookApp.allow_origin=*']

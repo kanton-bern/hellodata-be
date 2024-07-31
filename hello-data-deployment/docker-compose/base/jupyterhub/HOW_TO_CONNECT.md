@@ -8,6 +8,7 @@ connection = connect() # use function, it fetches the temp user creds and establ
 ### Example:
 
 ```
+import sys
 import psycopg2
 from hello_data_scripts import connect  
 
