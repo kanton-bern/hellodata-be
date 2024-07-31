@@ -160,6 +160,14 @@ class AutoLoginHandler(BaseHandler):
                     self.redirect(self.get_next_url(user))
                 else:
                     raise web.HTTPError(401, "Unauthorized")
+            authorization_header = self.request.headers.get("Authorization")
+            if authorization_header and authorization_header.startswith("Bearer "):
+                token = authorization_header.split(" ", 1)[1]
+                user = await self.login_user(token)
+                if user:
+                    self.redirect(self.get_next_url(user))
+                else:
+                    raise web.HTTPError(401, "Unauthorized")
             else:
                 raise web.HTTPError(401, "Authorization cookie missing")
 
@@ -217,14 +225,12 @@ if __name__ == "__main__":
     CustomJupyterHub.launch_instance()
 
 # CSP config
-c.NotebookApp.tornado_settings = {
-    'headers': {
-        'Content-Security-Policy': "frame-ancestors localhost:8080"
-    }
-}
-
 c.JupyterHub.tornado_settings = {
     'headers': {
         'Content-Security-Policy': "frame-ancestors localhost:8080",
     }
 }
+
+# c.Spawner.args = [
+#     "–NotebookApp.tornado_settings={ ‘headers’:{ ‘Content-Security-Policy’: “script-src ‘self’ ‘unsafe-eval’ ‘unsafe-inline’; object-src ‘self’;style-src ‘self’ ‘unsafe-inline’;”}"
+# ]
