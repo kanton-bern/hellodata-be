@@ -32,7 +32,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectCurrentContextRoles, selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../auth/auth.selector";
 import {filter, take} from "rxjs/operators";
-import {selectAvailableDataDomainItems, selectMyDashboards} from "../my-dashboards/my-dashboards.selector";
+import {selectAvailableDataDomainItems, selectMyDashboards, selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
 import {TranslateService} from "../../shared/services/translate.service";
@@ -95,10 +95,11 @@ export class MenuService {
       this._store.select(selectMyLineageDocs),
       this._store.select(selectAppInfos),
       this._store.select(selectCurrentContextRoles),
-      this._store.select(selectAvailableDataDomainItems)
+      this._store.select(selectAvailableDataDomainItems),
+      this._store.select(selectSelectedDataDomain)
     ]).pipe(
       map(([myDashboards, myDocs,
-             appInfos, contextRoles, availableDomainItems]) => {
+             appInfos, contextRoles, availableDomainItems, selectedDataDomain]) => {
 
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
@@ -119,7 +120,7 @@ export class MenuService {
             menuItem.items = this.createDataMartsSubNav(availableDomainItems);
           }
           if (menuItem.id === 'dataEngMenu') {
-            const jupyterhubSubNavs = this.createJupyterhubSubNav(appInfos, contextRoles);
+            const jupyterhubSubNavs = this.createJupyterhubSubNav(appInfos, contextRoles, selectedDataDomain);
             for (const jupyterhubSubNav of jupyterhubSubNavs) {
               menuItem.items.push(jupyterhubSubNav);
             }
@@ -288,10 +289,14 @@ export class MenuService {
     return subMenuEntry;
   }
 
-  private createJupyterhubSubNav(appInfos: MetaInfoResource[], contextRoles: any[]) {
+  private createJupyterhubSubNav(appInfos: MetaInfoResource[], contextRoles: any[], selectedDataDomain: any) {
+    console.log('selected data domain', selectedDataDomain)
     const jupyterhubs = appInfos.filter(appInfo => appInfo.moduleType === "JUPYTERHUB");
     const subMenuEntry: any[] = [];
-    const filteredContexts = contextRoles.filter(contextRole => contextRole.context.type === 'DATA_DOMAIN' && contextRole.role.name === 'DATA_DOMAIN_ADMIN').map(contextRole => contextRole.context);
+    let filteredContexts = contextRoles.filter(contextRole => contextRole.context.type === 'DATA_DOMAIN' && contextRole.role.name === 'DATA_DOMAIN_ADMIN').map(contextRole => contextRole.context);
+    if (selectedDataDomain?.id !== '') {
+      filteredContexts = filteredContexts.filter(context => context.contextKey === selectedDataDomain.key);
+    }
     for (const filteredContext of filteredContexts) {
       if (jupyterhubs.filter(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey).length > 0) {
         subMenuEntry.push({
