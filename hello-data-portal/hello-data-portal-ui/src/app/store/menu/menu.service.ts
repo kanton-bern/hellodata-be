@@ -290,7 +290,6 @@ export class MenuService {
   }
 
   private createJupyterhubSubNav(appInfos: MetaInfoResource[], contextRoles: any[], selectedDataDomain: any) {
-    console.log('selected data domain', selectedDataDomain)
     const jupyterhubs = appInfos.filter(appInfo => appInfo.moduleType === "JUPYTERHUB");
     const subMenuEntry: any[] = [];
     let filteredContexts = contextRoles.filter(contextRole => contextRole.context.type === 'DATA_DOMAIN' && contextRole.role.name === 'DATA_DOMAIN_ADMIN').map(contextRole => contextRole.context);
