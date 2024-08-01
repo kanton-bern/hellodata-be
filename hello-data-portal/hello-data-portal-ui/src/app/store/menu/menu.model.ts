@@ -57,7 +57,7 @@ export const ALL_MENU_ITEMS: any[] = [
     text: '@Data Eng',
     icon: 'fas fa-light fa-dice-d6',
     requiresAuthentication: true,
-    requiredPermissions: ['DATA_DWH', 'DATA_ENG'],
+    requiredPermissions: ['DATA_DWH', 'DATA_ENG', 'DATA_JUPYTER'],
     items: [
       {
         id: 'dataEngViewerMenu',
@@ -72,13 +72,6 @@ export const ALL_MENU_ITEMS: any[] = [
         routerLink: '/embedded-orchestration',
         requiredPermissions: ['DATA_ENG']
       },
-      {
-        id: 'advancedAnalyticsViewerMenu',
-        requiredPermissions: ['DATA_JUPYTER'],
-        text: '@Advanced Analytics Viewer',
-        url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer',
-        target: '_blank'
-      }
     ]
   },
   {

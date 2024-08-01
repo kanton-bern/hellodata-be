@@ -42,6 +42,7 @@ import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {OpenedSupersetsService} from "../../shared/services/opened-supersets.service";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -98,6 +99,7 @@ export class MenuService {
     ]).pipe(
       map(([myDashboards, myDocs,
              appInfos, contextRoles, availableDomainItems]) => {
+
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
           if (item.routerLink && !(/^\//.test(item.routerLink))) {
@@ -116,6 +118,12 @@ export class MenuService {
           if (menuItem.text === '@Data Marts') {
             menuItem.items = this.createDataMartsSubNav(availableDomainItems);
           }
+          if (menuItem.id === 'dataEngMenu') {
+            const jupyterhubSubNavs = this.createJupyterhubSubNav(appInfos, contextRoles);
+            for (const jupyterhubSubNav of jupyterhubSubNavs) {
+              menuItem.items.push(jupyterhubSubNav);
+            }
+          }
           return menuItem;
         });
       })
@@ -126,19 +134,21 @@ export class MenuService {
     const filteredNavigationElements: any[] = [];
     navigationElements.forEach((item) => {
       //if the menu item has required permissions, check them
-      if (item.requiredPermissions) {
-        const hasPermissionToView = item.requiredPermissions.some((requiredPermission: string) =>
+      const itemCopy = {...item};
+      if (itemCopy.requiredPermissions) {
+        const hasPermissionToView = itemCopy.requiredPermissions.some((requiredPermission: string) =>
           currentUserPermissions.includes(requiredPermission)
         );
         if (hasPermissionToView) {
-          filteredNavigationElements.push(item);
+          filteredNavigationElements.push(itemCopy);
         }
       } else {
         // the menu item doesn't have required permissions - it's public
-        filteredNavigationElements.push(item);
+        filteredNavigationElements.push(itemCopy);
       }
-      if (item.items) {
-        item.items = this.filterNavigationByPermissions(item.items, currentUserPermissions);
+      if (itemCopy.items) {
+        console.log('item items', itemCopy.items)
+        itemCopy.items = this.filterNavigationByPermissions(itemCopy.items, currentUserPermissions);
       }
     });
     return filteredNavigationElements;
@@ -277,5 +287,24 @@ export class MenuService {
       })
     }
     return subMenuEntry;
+  }
+
+  private createJupyterhubSubNav(appInfos: MetaInfoResource[], contextRoles: any[]) {
+    const jupyterhubs = appInfos.filter(appInfo => appInfo.moduleType === "JUPYTERHUB");
+    const subMenuEntry: any[] = [];
+    const filteredContexts = contextRoles.filter(contextRole => contextRole.context.type === 'DATA_DOMAIN' && contextRole.role.name === 'DATA_DOMAIN_ADMIN').map(contextRole => contextRole.context);
+    for (const filteredContext of filteredContexts) {
+      if (jupyterhubs.filter(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey).length > 0) {
+        subMenuEntry.push({
+          id: 'jupyterhub' + filteredContext.contextKey,
+          text: 'Advanced Analytics ' + filteredContext.name,
+          url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer',
+          requiredPermissions: ['DATA_JUPYTER'],
+          target: '_blank'
+        });
+      }
+    }
+    return subMenuEntry;
+
   }
 }
