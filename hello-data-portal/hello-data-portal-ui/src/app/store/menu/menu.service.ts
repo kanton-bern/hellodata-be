@@ -147,7 +147,6 @@ export class MenuService {
         filteredNavigationElements.push(itemCopy);
       }
       if (itemCopy.items) {
-        console.log('item items', itemCopy.items)
         itemCopy.items = this.filterNavigationByPermissions(itemCopy.items, currentUserPermissions);
       }
     });
@@ -298,7 +297,7 @@ export class MenuService {
         subMenuEntry.push({
           id: 'jupyterhub' + filteredContext.contextKey,
           text: 'Advanced Analytics ' + filteredContext.name,
-          url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer',
+          url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer/' + filteredContext.contextKey,
           requiredPermissions: ['DATA_JUPYTER'],
           target: '_blank'
         });

@@ -25,21 +25,23 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
-import {environment} from "../../../environments/environment";
+import {Component, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {selectCurrentJupyterhubLink} from "../../store/start-page/start-page.selector";
+import {Observable, tap} from "rxjs";
 
 @Component({
   templateUrl: 'advanced-analytics-viewer.component.html',
   styleUrls: ['./advanced-analytics-viewer.component.scss']
 })
-export class AdvancedAnalyticsViewerComponent extends BaseComponent {
+export class AdvancedAnalyticsViewerComponent extends BaseComponent implements OnInit {
 
   url!: string;
+  currentJupyterhubLink$!: Observable<string>;
 
   constructor(private store: Store<AppState>) {
     super();
@@ -50,12 +52,17 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent {
         }
       ]
     }));
+    this.currentJupyterhubLink$ = this.store.select(selectCurrentJupyterhubLink).pipe(tap(url => {
+      if (url) {
+        this.url = url;
+      }
+    }));
   }
 
 
   override ngOnInit() {
     super.ngOnInit();
-    this.url = environment.subSystemsConfig.advancedAnalyticsViewer.protocol + environment.subSystemsConfig.advancedAnalyticsViewer.host + environment.subSystemsConfig.advancedAnalyticsViewer.domain;
+    // this.url = environment.subSystemsConfig.advancedAnalyticsViewer.protocol + environment.subSystemsConfig.advancedAnalyticsViewer.host + environment.subSystemsConfig.advancedAnalyticsViewer.domain;
     console.debug("Data Warehouse Component initiated", this.url);
   }
 }
