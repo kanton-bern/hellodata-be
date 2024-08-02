@@ -54,7 +54,7 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent implements O
     }));
     this.currentJupyterhubLink$ = this.store.select(selectCurrentJupyterhubLink).pipe(tap(url => {
       if (url) {
-        this.url = url;
+        this.url = url + '/hub/custom/login';
       }
     }));
   }
@@ -62,7 +62,6 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent implements O
 
   override ngOnInit() {
     super.ngOnInit();
-    // this.url = environment.subSystemsConfig.advancedAnalyticsViewer.protocol + environment.subSystemsConfig.advancedAnalyticsViewer.host + environment.subSystemsConfig.advancedAnalyticsViewer.domain;
     console.debug("Data Warehouse Component initiated", this.url);
   }
 }

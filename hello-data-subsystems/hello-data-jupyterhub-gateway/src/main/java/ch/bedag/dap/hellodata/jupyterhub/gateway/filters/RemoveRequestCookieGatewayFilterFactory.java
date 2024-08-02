@@ -26,13 +26,13 @@
  */
 package ch.bedag.dap.hellodata.jupyterhub.gateway.filters;
 
+import ch.bedag.dap.hellodata.jupyterhub.gateway.config.SecurityConfig;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
-@Deprecated(forRemoval = true)
 @Log4j2
 @Component
 public class RemoveRequestCookieGatewayFilterFactory extends AbstractGatewayFilterFactory<RemoveRequestCookieGatewayFilterFactory.Config> {
@@ -49,9 +49,9 @@ public class RemoveRequestCookieGatewayFilterFactory extends AbstractGatewayFilt
             String cookieHeader = headers.getFirst(HttpHeaders.COOKIE);
             if (cookieHeader != null) {
                 // Remove the specific cookie
-                //String updatedCookies = removeCookie(cookieHeader, SecurityConfig.ACCESS_TOKEN_COOKIE_NAME);
+                String updatedCookies = removeCookie(cookieHeader, SecurityConfig.ACCESS_TOKEN_COOKIE_NAME);
                 // Set the modified cookies back to the headers
-                //exchange.getRequest().mutate().header(HttpHeaders.COOKIE, updatedCookies);
+                exchange.getRequest().mutate().header(HttpHeaders.COOKIE, updatedCookies);
                 // Continue the filter chain
                 return chain.filter(exchange);
             }

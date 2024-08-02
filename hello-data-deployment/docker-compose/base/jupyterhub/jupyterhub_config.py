@@ -5,9 +5,11 @@ import os
 import requests
 from base64 import b64decode
 from cryptography.hazmat.primitives import serialization
+from jupyterhub.app import JupyterHub
 from jupyterhub.handlers import BaseHandler
 from oauthenticator.generic import GenericOAuthenticator
 from tornado import web
+from traitlets import default
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -68,9 +70,6 @@ if admin:
 c.Authenticator.allow_all = True
 
 # OAuth configuration
-# c.JupyterHub.authenticator_class = "oauthenticator.generic.GenericOAuthenticator"
-# c.JupyterHub.authenticator_class = "oauthenticator.GenericOAuthenticator"
-
 c.GenericOAuthenticator.client_id = os.environ['OAUTH2_CLIENT_ID']
 c.GenericOAuthenticator.client_secret = os.environ['OAUTH2_CLIENT_SECRET']
 c.GenericOAuthenticator.oauth_callback_url = os.environ['OAUTH2_CALLBACK_URL']
@@ -89,16 +88,12 @@ req = requests.get(OIDC_ISSUER)
 key_der_base64 = req.json()["public_key"]
 key_der = b64decode(key_der_base64.encode())
 public_key = serialization.load_der_public_key(key_der)
-print('->->->->->->->->->->before BearerTokenAuthenticator')
-logging.info(' started')
 
 
 class BearerTokenAuthenticator(GenericOAuthenticator):
-    print('->->->->->->->->->->loading BearerTokenAuthenticator')
 
     async def authenticate(self, handler, data=None):
         logging.info('===> Authorization process started')
-        print("===> Authorization")
         authorization_header = handler.request.headers.get("Authorization")
         if not authorization_header:
             raise web.HTTPError(401, "===> Authorization header missing")
@@ -107,12 +102,10 @@ class BearerTokenAuthenticator(GenericOAuthenticator):
             raise web.HTTPError(403, "===> Invalid token type")
 
         token = authorization_header.split(" ", 1)[1]
-        print("===> Authorization, token" + token)
 
         try:
             # Decode the token
             decoded_token = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience='account')
-            print("===> Authorization, decoded token" + decoded_token)
         except jwt.exceptions.ExpiredSignatureError:
             raise web.HTTPError(401, "Token has expired")
         except jwt.exceptions.InvalidTokenError:
@@ -127,7 +120,6 @@ class BearerTokenAuthenticator(GenericOAuthenticator):
     def user_info_from_token_payload(self, payload):
         # Extract the username and any other necessary information from the token payload
         # Customize this method according to your token structure
-        print(f'\n/*-/*-/*-/*- user_info_from_token_payload {payload}')
         username = payload.get("preferred_username")
         if not username:
             return None
@@ -145,7 +137,6 @@ c.JupyterHub.authenticator_class = BearerTokenAuthenticator
 
 
 # autologin handler
-
 class AutoLoginHandler(BaseHandler):
     async def get(self):
         user = await self.get_current_user()
@@ -153,7 +144,6 @@ class AutoLoginHandler(BaseHandler):
             self.redirect(self.get_next_url(user))
         else:
             token = self.get_cookie("auth.access_token")
-            print(f"\n????? ===> Authorization, cookie token {token}")
             if token:
                 user = await self.login_user(token)
                 if user:
@@ -172,12 +162,9 @@ class AutoLoginHandler(BaseHandler):
                 raise web.HTTPError(401, "Authorization cookie missing")
 
     async def login_user(self, token):
-        print("\n????? ===> login_user " + token)
         try:
             decoded_token = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience='account')
-            print(f"\n????? ===> decoded_token {decoded_token}")
             user_info = self.authenticator.user_info_from_token_payload(decoded_token)
-            print(f"\n????? ===> user_info {user_info}")
             user = await self.auth_to_user(user_info)
             self.set_login_cookie(user)
             return user
@@ -206,11 +193,8 @@ c.JupyterHub.extra_handlers = [
     (r'/custom/login', AutoLoginHandler),
 ]
 
+
 # Add an event hook to patch handlers after JupyterHub initializes
-from traitlets import default
-from jupyterhub.app import JupyterHub
-
-
 class CustomJupyterHub(JupyterHub):
     @default('config_file')
     def _default_config_file(self):
