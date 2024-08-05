@@ -30,6 +30,8 @@ import ch.bedag.dap.hellodata.jupyterhub.gateway.config.SecurityConfig;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
@@ -52,13 +54,21 @@ public class TokenAuthenticationFilter implements WebFilter {
                  exchange.getRequest().getCookies().entrySet().stream().map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n").toList());
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
+        HttpHeaders headers = exchange.getRequest().getHeaders();
+        boolean hasAuthHeader = headers.containsKey(SecurityConfig.AUTHORIZATION_HEADER_NAME);
+        List<HttpCookie> cookie = cookies.get(SecurityConfig.ACCESS_TOKEN_COOKIE_NAME);
+        boolean hasAuthCookie = cookie != null && !cookie.isEmpty();
+
+        if (!hasAuthHeader && !hasAuthCookie) {
+            log.info("\t--->No Authorization header or auth.access_token cookie found. Access denied.");
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            return exchange.getResponse().setComplete();
+        }
+
         ServerHttpRequest request = exchange.getRequest().mutate().headers(httpHeaders -> {
-            if (!cookies.isEmpty()) {
-                List<HttpCookie> cookie = cookies.get(SecurityConfig.ACCESS_TOKEN_COOKIE_NAME);
-                if (cookie != null && cookie.size() == 1) {
-                    String token = cookie.get(0).getValue();
-                    httpHeaders.add(SecurityConfig.AUTHORIZATION_HEADER_NAME, "Bearer " + token);
-                }
+            if (hasAuthCookie) {
+                String token = cookie.get(0).getValue();
+                httpHeaders.add(SecurityConfig.AUTHORIZATION_HEADER_NAME, "Bearer " + token);
             }
         }).build();
         log.info("\t--->Added headers: {}", exchange.getRequest().getHeaders().entrySet().stream().map(entry -> "\n\t" + entry.getKey() + ": " + entry.getValue() + "\n").toList());
