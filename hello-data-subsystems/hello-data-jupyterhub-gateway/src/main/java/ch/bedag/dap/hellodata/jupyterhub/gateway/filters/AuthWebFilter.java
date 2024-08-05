@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.jupyterhub.gateway.filters;
 
-import java.util.logging.Level;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -37,25 +38,23 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class AuthWebFilter implements WebFilter {
 
+    private static final String DATA_JUPYTER_AUTHORITY = "DATA_JUPYTER";
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        return exchange.getPrincipal()
-                       .log("auth-web-filter", Level.INFO)
-                       .filter((principal) -> principal instanceof JwtAuthenticationToken)
-                       .cast(JwtAuthenticationToken.class)
-                       .map((token) -> addJupyterhubAuthHeaders(exchange, token))
-                       .defaultIfEmpty(exchange)
-                       .flatMap(chain::filter);
-    }
+        return exchange.getPrincipal().filter(principal -> principal instanceof JwtAuthenticationToken).cast(JwtAuthenticationToken.class).flatMap(token -> {
+            boolean hasDataJupyterAuthority = token.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(auth -> auth.equals(DATA_JUPYTER_AUTHORITY));
 
-    public ServerWebExchange addJupyterhubAuthHeaders(ServerWebExchange exchange, JwtAuthenticationToken authenticationToken) {
-        return exchange.mutate().request((r) -> {
-            r.headers((httpHeaders) -> {
-                // add extra stuff here if needed
-                log.warn("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
-                log.warn("authorities: {}", authenticationToken);
-                log.warn("Headers {}", httpHeaders.toSingleValueMap());
-            });
-        }).build();
+            if (!hasDataJupyterAuthority) {
+                log.info("\t--->User does not have DATA_JUPYTER authority. Access denied.");
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                return exchange.getResponse().setComplete();
+            }
+
+            return chain.filter(exchange);
+        }).switchIfEmpty(chain.filter(exchange)).doOnSubscribe(subscription -> {
+            // Optional logging or actions before the actual filter chain execution
+            log.info("AuthWebFilter applied to URI: {}", exchange.getRequest().getURI().getPath());
+        });
     }
 }

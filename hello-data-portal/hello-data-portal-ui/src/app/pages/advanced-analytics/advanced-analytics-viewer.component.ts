@@ -33,6 +33,7 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectCurrentJupyterhubLink} from "../../store/start-page/start-page.selector";
 import {Observable, tap} from "rxjs";
+import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 
 @Component({
   templateUrl: 'advanced-analytics-viewer.component.html',
@@ -43,7 +44,7 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent implements O
   url!: string;
   currentJupyterhubLink$!: Observable<string>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private openedSubsystemsService: OpenedSubsystemsService) {
     super();
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -55,6 +56,7 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent implements O
     this.currentJupyterhubLink$ = this.store.select(selectCurrentJupyterhubLink).pipe(tap(url => {
       if (url) {
         this.url = url + '/hub/custom/login';
+        this.openedSubsystemsService.rememberOpenedSubsystem(url + '/hub/logout')
       }
     }));
   }

@@ -41,7 +41,7 @@ import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
-import {OpenedSupersetsService} from "../../shared/services/opened-supersets.service";
+import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 import {environment} from "../../../environments/environment";
 
 @Injectable({
@@ -55,7 +55,7 @@ export class MenuService {
   constructor(
     private _store: Store<AppState>,
     private _translateService: TranslateService,
-    private _openedSupersetsService: OpenedSupersetsService
+    private _openedSubsystemsService: OpenedSubsystemsService
   ) {
   }
 
@@ -267,7 +267,7 @@ export class MenuService {
     const metaInfoResource = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET')
       .find(appInfo => appInfo.businessContextInfo.subContext?.name === instanceName);
     if (metaInfoResource) {
-      this._openedSupersetsService.rememberOpenedSuperset(metaInfoResource.data.url);
+      this._openedSubsystemsService.rememberOpenedSubsystem(metaInfoResource.data.url + 'logout');
       const supersetUrl = metaInfoResource.data.url;
       const supersetLogoutUrl = supersetUrl + 'logout';
       const supersetLoginUrl = supersetUrl + `login/keycloak?next=${supersetUrl}`;

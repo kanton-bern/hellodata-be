@@ -26,27 +26,27 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {VISITED_SUPERSETS_SESSION_STORAGE_KEY} from "../../pages/my-dashboards/embed-my-dashboard.component";
+import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../../pages/my-dashboards/embed-my-dashboard.component";
 
 @Injectable({
   providedIn: 'root'
 })
-export class OpenedSupersetsService {
-  public rememberOpenedSuperset(supersetUrl: string) {
-    const openedSupersets = sessionStorage.getItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY);
+export class OpenedSubsystemsService {
+  public rememberOpenedSubsystem(url: string) {
+    const openedSupersets = sessionStorage.getItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY);
     if (openedSupersets) {
       const storedSetArray: string[] = JSON.parse(openedSupersets || '[]');
-      storedSetArray.push(supersetUrl);
+      storedSetArray.push(url);
       // Convert the array back into a set to have unique urls
       const storedSet: Set<string> = new Set<string>(storedSetArray);
       const setArray: string[] = Array.from(storedSet);
       const setString: string = JSON.stringify(setArray);
-      sessionStorage.setItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY, setString);
+      sessionStorage.setItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY, setString);
     } else {
-      const mySet: Set<string> = new Set<string>([supersetUrl]);
+      const mySet: Set<string> = new Set<string>([url]);
       const setArray: string[] = Array.from(mySet);
       const setString: string = JSON.stringify(setArray);
-      sessionStorage.setItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY, setString);
+      sessionStorage.setItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY, setString);
     }
   }
 }
