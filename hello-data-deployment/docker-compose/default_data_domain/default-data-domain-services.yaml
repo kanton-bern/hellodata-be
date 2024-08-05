@@ -201,6 +201,10 @@ services:
     env_file: .env
     environment:
       - JUPYTERHUB_SERVICE_NAME=host.docker.internal:8000
+      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/hd_metainfo
+      - SPRING_R2DBC_USERNAME=postgres
+      - SPRING_R2DBC_PASSWORD=postgres
+      - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
     ports:
       - "8088:8088"
       - "8083:8082"

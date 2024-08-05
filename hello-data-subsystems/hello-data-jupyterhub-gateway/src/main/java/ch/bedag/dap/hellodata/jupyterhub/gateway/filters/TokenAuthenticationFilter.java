@@ -61,7 +61,7 @@ public class TokenAuthenticationFilter implements WebFilter {
                 }
             }
         }).build();
-        log.info("\t--->Added headers: {}", exchange.getRequest().getHeaders().entrySet().stream().map(entry -> "\n\t" + entry.getValue() + "\n").toList());
+        log.info("\t--->Added headers: {}", exchange.getRequest().getHeaders().entrySet().stream().map(entry -> "\n\t" + entry.getKey() + ": " + entry.getValue() + "\n").toList());
         return chain.filter(exchange.mutate().request(request).build());
     }
 }

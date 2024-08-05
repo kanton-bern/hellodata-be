@@ -26,6 +26,11 @@
 #
 
 hello-data:
+  #    code: 'type | key | name'
+  business-context: 'Business Domain | HelloDATA_Product_Development | HelloDATA Product Development'
+  #    code: 'type | key | name | extra(optional, default == false)'
+  contexts:
+    - 'Data Domain | Management_Cockpit_Superset | Management Cockpit Superset'
   auth-server:
     url: http://localhost:38080
     realm: hellodata
@@ -55,6 +60,19 @@ spring:
             redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
             scope:
               - openid
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hd_metainfo
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+  #    properties:
+  #      hibernate:
+  #        format_sql: true
+  #        generate_statistics: true
   boot:
     admin:
       client:
@@ -95,14 +113,12 @@ spring:
           predicates:
             - Path=/**
           filters:
-            - AddJupyterhubAuth
             - RemoveRequestCookie
         - id: jupyterhub_websocket_route
           uri: ws://${hello-data.jupyterhub.service-name}
           predicates:
             - Path=/**
           filters:
-            - AddJupyterhubAuth
             - RemoveRequestCookie
 server:
   port: 8088

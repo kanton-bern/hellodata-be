@@ -43,8 +43,19 @@ public class AuthWebFilter implements WebFilter {
                        .log("auth-web-filter", Level.INFO)
                        .filter((principal) -> principal instanceof JwtAuthenticationToken)
                        .cast(JwtAuthenticationToken.class)
-                       .map((token) -> AddJupyterhubAuthGatewayFilterFactory.addJupyterhubAuthHeaders(exchange, token))
+                       .map((token) -> addJupyterhubAuthHeaders(exchange, token))
                        .defaultIfEmpty(exchange)
                        .flatMap(chain::filter);
+    }
+
+    public ServerWebExchange addJupyterhubAuthHeaders(ServerWebExchange exchange, JwtAuthenticationToken authenticationToken) {
+        return exchange.mutate().request((r) -> {
+            r.headers((httpHeaders) -> {
+                // add extra stuff here if needed
+                log.warn("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
+                log.warn("authorities: {}", authenticationToken);
+                log.warn("Headers {}", httpHeaders.toSingleValueMap());
+            });
+        }).build();
     }
 }

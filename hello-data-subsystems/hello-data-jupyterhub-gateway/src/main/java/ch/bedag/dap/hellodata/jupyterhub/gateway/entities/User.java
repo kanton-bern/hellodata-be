@@ -24,41 +24,53 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.jupyterhub.gateway.security;
+package ch.bedag.dap.hellodata.jupyterhub.gateway.entities;
 
-import ch.bedag.dap.hellodata.jupyterhub.gateway.entities.User;
-import ch.bedag.dap.hellodata.jupyterhub.gateway.service.UserService;
-import java.util.Collection;
-import java.util.Collections;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Component;
+import java.util.UUID;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Log4j2
-@Component
-@AllArgsConstructor
-public class JupyterhubJwtAuthenticationConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+@Table(name = "user_")
+@Getter
+@Setter
+@RequiredArgsConstructor
+@EqualsAndHashCode
+public class User implements Persistable<UUID> {
 
-    private final UserService userService;
+    @Id
+    private UUID id;
+    private LocalDateTime createdDate;
+    private String createdBy;
+    private LocalDateTime modifiedDate;
+    private String modifiedBy;
+
+    @Column
+    @NotNull
+    @Size(min = 1, max = 255)
+    private String email;
+
+    @JsonIgnore
+    @Transient
+    private Set<String> portalPermissions;
+
+    public User() { //NOSONAR
+        // empty
+    }
 
     @Override
-    public Collection<GrantedAuthority> convert(Jwt source) {
-        String email = (String) source.getClaims().get("email");
-        log.info("--> converting jwt to authorities for user {} ...", email);
-        if (email != null) {
-            User u = userService.findOneWithPermissionsByEmail(email);
-            if (u != null) {
-                Set<GrantedAuthority> authorities = u.getPortalPermissions().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
-                log.info("\tloaded authorities {}", authorities);
-                return authorities;
-            }
-        }
-        return Collections.emptyList();
+    public boolean isNew() {
+        return null == this.getId();
     }
 }

@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.jupyterhub.gateway;
 
+import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -36,7 +37,7 @@ import static org.springframework.boot.SpringApplication.run;
 @EnableDiscoveryClient
 @EnableScheduling
 @ConfigurationPropertiesScan
-@EnableConfigurationProperties
+@EnableConfigurationProperties({ HelloDataContextConfig.class })
 @SpringBootApplication(scanBasePackageClasses = HdJupyterhubGateway.class)
 public class HdJupyterhubGateway {
 

@@ -26,14 +26,20 @@
  */
 package ch.bedag.dap.hellodata.jupyterhub.gateway.config;
 
+import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
+import ch.bedag.dap.hellodata.jupyterhub.gateway.entities.User;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.filters.AuthWebFilter;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.filters.LoggingFilter;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.filters.TokenAuthenticationFilter;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.filters.WebFluxLogFilter;
+import ch.bedag.dap.hellodata.jupyterhub.gateway.repository.UserRepository;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.security.JupyterhubJwtAuthenticationConverter;
 import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +53,13 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
@@ -70,6 +82,7 @@ public class SecurityConfig {
                     "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers");
 
     private final Environment env;
+    private final HelloDataContextConfig hellodataContextConfig;
 
     @Value("${hello-data.cors.allowed-origins}")
     private String allowedOrigins;
@@ -91,6 +104,13 @@ public class SecurityConfig {
         configureCors(http);
         http.headers(headerSpec -> headerSpec.frameOptions(ServerHttpSecurity.HeaderSpec.FrameOptionsSpec::disable)); // disabled to allow embedding into "portal"
         return http.build();
+    }
+
+    private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter(
+            JupyterhubJwtAuthenticationConverter jupyterhubJwtAuthenticationConverter) {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jupyterhubJwtAuthenticationConverter);
+        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
     }
 
     private void configureCsrf(ServerHttpSecurity http) {
@@ -127,41 +147,41 @@ public class SecurityConfig {
         }
     }
 
-    private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter(
-            JupyterhubJwtAuthenticationConverter jupyterhubJwtAuthenticationConverter) {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jupyterhubJwtAuthenticationConverter);
-        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
-    }
-
     /**
      * Map authorities (which are synced into the database) with the currently logged in user.
      *
      * @return a {@link ReactiveOAuth2UserService} that has the groups from the IdP.
      */
-    //@Bean
-    //public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(/*UserRepository userRepository*/) {
-    //    final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
-    //
-    //    return userRequest ->
-    //            // Delegate to the default implementation for loading a user
-    //            delegate.loadUser(userRequest).flatMap(oidcUser -> {
-    //                log.debug("Loading user {}", oidcUser == null ? "unknown" : oidcUser.getEmail());
-    //                assert oidcUser != null;
-    //                //return userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail());
-    //                return Mono.just(null);
-    //            }).flatMap(dbUser -> {
-    //                log.debug("--> Loaded roles ... {}", dbUser.getAuthorities());
-    //                return Mono.just(dbUser.getAuthorities());
-    //            }).flatMap(rolesForUser -> {
-    //                Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-    //                log.debug("--> mapping authorities... {}", rolesForUser);
-    //                for (String role : rolesForUser) {
-    //                    mappedAuthorities.add(new SimpleGrantedAuthority(role.toUpperCase(Locale.ENGLISH)));
-    //                }
-    //                return Mono.just(new DefaultOidcUser(mappedAuthorities, userRequest.getIdToken()));
-    //            });
-    //}
+    @Bean
+    public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(UserRepository userRepository) {
+        final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
+
+        return userRequest -> {
+            log.info("Received OidcUserRequest: {}", userRequest);
+            return delegate.loadUser(userRequest).flatMap(oidcUser -> {
+                log.info("Loading user {}", oidcUser == null ? "unknown" : oidcUser.getEmail());
+                assert oidcUser != null;
+                Mono<User> oneWithPermissionsByEmail = userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail(), hellodataContextConfig.getContext().getKey());
+                try {
+                    oneWithPermissionsByEmail = userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail(), hellodataContextConfig.getContext().getKey());
+                } catch (Exception e) {
+                    log.error("error", e);
+                }
+                return oneWithPermissionsByEmail;
+            }).flatMap(dbUser -> {
+                log.info("--> Loaded roles ... {}", dbUser.getPortalPermissions());
+                return Mono.just(dbUser.getPortalPermissions());
+            }).flatMap(rolesForUser -> {
+                Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+                log.info("--> mapping authorities... {}", rolesForUser);
+                for (String role : rolesForUser) {
+                    mappedAuthorities.add(new SimpleGrantedAuthority(role.toUpperCase(Locale.ENGLISH)));
+                }
+                log.info("--> Mapped authorities: {}", mappedAuthorities);
+                return Mono.just(new DefaultOidcUser(mappedAuthorities, userRequest.getIdToken()));
+            });
+        };
+    }
 
     @Bean
     public WebFilter webFluxLogFilter() {
