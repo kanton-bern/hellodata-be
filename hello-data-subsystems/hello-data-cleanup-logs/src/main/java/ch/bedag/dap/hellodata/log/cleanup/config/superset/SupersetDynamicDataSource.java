@@ -24,31 +24,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.log.cleanup.model.superset;
+package ch.bedag.dap.hellodata.log.cleanup.config.superset;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import lombok.Getter;
+import java.util.HashMap;
+import java.util.Map;
+import javax.sql.DataSource;
+import lombok.Data;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import java.util.Set;
+@Data
+public class SupersetDynamicDataSource {
 
-@Getter
-@Entity(name = "ab_user")
-public class SupersetUser {
+    private final Map<String, DataSource> dataSources = new HashMap<>();
 
-    @Id
-    private Long id;
+    public void addDataSource(String jdbcUrl, String username, String password) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setUrl(jdbcUrl);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        dataSources.put(jdbcUrl, dataSource);
+    }
 
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
-
-    private String username;
-
-    @OneToMany(mappedBy = "user")
-    private Set<SupersetLogEntity> logs;
+    public DataSource getDataSource(String name) {
+        return dataSources.get(name);
+    }
 }

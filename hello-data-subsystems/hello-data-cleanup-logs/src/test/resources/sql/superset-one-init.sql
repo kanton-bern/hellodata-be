@@ -26,7 +26,7 @@
 --
 
 
-CREATE TABLE superset.ab_user (
+CREATE TABLE superset_one.ab_user (
                                 id int4 NOT NULL,
                                 first_name varchar(64) NOT NULL,
                                 last_name varchar(64) NOT NULL,
@@ -44,12 +44,12 @@ CREATE TABLE superset.ab_user (
                                 CONSTRAINT ab_user_email_key UNIQUE (email),
                                 CONSTRAINT ab_user_pkey PRIMARY KEY (id),
                                 CONSTRAINT ab_user_username_key UNIQUE (username),
-                                CONSTRAINT ab_user_changed_by_fk_fkey FOREIGN KEY (changed_by_fk) REFERENCES superset.ab_user(id),
-                                CONSTRAINT ab_user_created_by_fk_fkey FOREIGN KEY (created_by_fk) REFERENCES superset.ab_user(id)
+                                CONSTRAINT ab_user_changed_by_fk_fkey FOREIGN KEY (changed_by_fk) REFERENCES superset_one.ab_user(id),
+                                CONSTRAINT ab_user_created_by_fk_fkey FOREIGN KEY (created_by_fk) REFERENCES superset_one.ab_user(id)
 );
 
 
-CREATE TABLE superset.logs (
+CREATE TABLE superset_one.logs (
                              id serial4 NOT NULL,
                              "action" varchar(512) NULL,
                              user_id int4 NULL,

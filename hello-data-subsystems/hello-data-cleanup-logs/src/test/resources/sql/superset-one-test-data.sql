@@ -25,75 +25,75 @@
 -- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --
 
-INSERT INTO superset.ab_user
+INSERT INTO superset_one.ab_user
 (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk, changed_by_fk)
 VALUES (1, 'HelloDATA', 'TechAdmin', 'techadmin', 'pbkdf2:sha256:260000$CFm4xtufJg2tMyd3$94f01035576749747fa591a326e762c40fff73738c1cd80df0026beaf1305913', true,
         'techadmin@hellodata.ch', '2023-11-13 13:11:13.338', 6893, 0, '2023-11-08 11:15:05.828', '2023-11-08 11:15:05.828', NULL, NULL);
-INSERT INTO superset.ab_user
+INSERT INTO superset_one.ab_user
 (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk, changed_by_fk)
 VALUES (2, 'HelloDATA', 'Admin', 'admin', 'pbkdf2:sha256:260000$vgh8C2p2EksQKaXa$3c1957154c26896337c1c55ba9df7eee7bbb91138ac1b17e467300d6ab7ee9c6', true, 'admin@hellodata.ch',
         '2023-11-08 12:31:18.948', 5, 0, '2023-11-08 11:34:24.064', '2023-11-08 11:34:24.064', NULL, NULL);
 
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (3, 'Stertzfan', 'Fuasfdasdfrrer', 'sd5fkj', 'pbkdf2:sha256:260000$hOmwxRzntkYOXg4l$4e6c035c2e2375af8fe19a0a151631a54825a2eaa938d310cabdc871935cf943', true,
         'stefan.furrer@be.ch', NULL, NULL, NULL, '2023-11-08 11:35:11.826516', '2023-11-08 12:42:22.869951', 1, 1),
        (12, 'Matrtrco', 'Raasdfasfmseier', 'm5878a', 'pbkdf2:sha256:260000$aPS4ObygzgUxBroF$850bcc990d53c0a3092af5e988677bc29cb69c3aedbda743677fe29f34e2df43', true,
         'marco.ramseier@be.ch', NULL, NULL, NULL, '2023-11-08 11:35:23.792022', '2023-11-08 12:42:36.821288', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (13, 'Pirtterre Alain', 'Scasdfasdfhnegg', '06m5q6', 'pbkdf2:sha256:260000$gtk2knoSKv2yMRrk$4d310953208364b62279a554ecb465b7e155748f631cc3c56087846f2f1b915e', true,
         'pierre-alain.schnegg@be.ch', NULL, NULL, NULL, '2023-11-08 11:35:25.325451', '2023-11-08 12:42:38.426936', 1, 1),
        (23, 'Setzreverin', 'Thasdfasomi', '6m8ag5', 'pbkdf2:sha256:260000$ssXqmhGqpBwWrcGn$943293050f74eff21a49de54c05710cb03f2760f98a1d589d1684902e8995952', true,
         'severin.thomi@be.ch', NULL, NULL, NULL, '2023-11-08 11:35:37.697249', '2023-11-08 12:42:55.135681', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (24, 'Mdf4tichelle', 'Gasasdfassmann', '9mb98am', 'pbkdf2:sha256:260000$9u2ghYGQ6Bq1rlvS$804ae0265fa550a2a7d9540b8c25b263b315b88f629cd8f351e8bb5eee1b6358', true,
         'michelle.gassmann@be.ch', NULL, NULL, NULL, '2023-11-08 11:35:39.165106', '2023-11-08 12:42:57.07899', 1, 1),
        (33, 'Brerteitta', 'Remasdfejious', 'me8433q', 'pbkdf2:sha256:260000$WAH0qdXgkZBOgU3x$2eb2027486e852a08dba143ee29cdc99bdfcc512a052fbdb48fc727c4bd45c81', true,
         'britta.remejious@be.ch', NULL, NULL, NULL, '2023-11-08 11:35:50.34855', '2023-11-08 12:43:13.89915', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (34, 'Awertline', 'Froiasdfadevaux', 'mev53l', 'pbkdf2:sha256:260000$dnlu2Xr4Wkh72vRV$fb5194e3cd4b756c38ec9ef89c9f3ccc044d62ee9f0fa1f41e618b94d1ba74ca', true,
         'aline.froidevaux@be.ch', NULL, NULL, NULL, '2023-11-08 11:35:51.697751', '2023-11-08 12:43:15.53063', 1, 1),
        (60, 'Rémsdfgy', 'Obrasdfasdist', 'm653n1k', 'pbkdf2:sha256:260000$7nztsXYmjWRHv23s$344b2b2ee18710338b1aeb9aa72d01b28d8ab0592650c6b42bd7e5a23eb0e600', true,
         'remy.obrist@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:20.865936', '2023-11-08 12:45:13.51289', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (55, 'Sarsdfgah', 'Zeadsfmp', 'mlc647', 'pbkdf2:sha256:260000$GrQpjqE5NGd4SHIK$ad240a695967f4a323c58cfe39d19436aea69cc2f38a315d8a0ec0f1929b4bca', true, 'sarah.zemp@be.ch',
         NULL, NULL, NULL, '2023-11-08 11:36:16.262619', '2023-11-08 12:45:06.719757', 1, 1),
        (49, 'Nisdfgna Luisa', 'Leudfadfenberger', 'mj6673b', 'pbkdf2:sha256:260000$Qkz5H69SbD8Hrjwe$56ee106e99203c2c87585f0d8ce7b2f2e1cbf537d045727c680ae6945b2ac951', true,
         'ninaluisa.leuenberger@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:10.73046', '2023-11-08 12:44:59.292695', 1, 1),
        (65, 'sdfgdsfg', 'Fudfghx', 'm5nw7b', 'pbkdf2:sha256:260000$ys4cr3bWjbL895WC$011a02d49f2469d181c839feb376e7f3589ff108a0acf7eae9566ab0475d29c9', true, 'deny.fux@be.ch', NULL,
         NULL, NULL, '2023-11-08 11:36:25.495949', '2023-11-08 12:45:19.598309', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (70, 'Andfdsgrea', 'Buasdfess', '2mr5zq', 'pbkdf2:sha256:260000$huSPa3hwzIhKVVOw$e105def3df0b5aa531adf4e2bedf7268af48c304aee743a3850c8a514b910fde', true,
         'andrea.buess@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:30.180283', '2023-11-08 12:45:25.91431', 1, 1),
        (61, 'Masdfgdnuel', 'Micasdfel', 'mtn8p', 'pbkdf2:sha256:260000$E9zEgmDdoKRZ6Qlp$15554a6e9045ec95c92107ef8cf6968de0ae8b8c9ea2bbfe57701ccd709a8eff', true,
         'manuel.michel@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:21.797117', '2023-11-08 12:45:14.733749', 1, 1),
        (67, 'Losdfgsdrenz', 'Fuasdfnk', 'm3p7b', 'pbkdf2:sha256:260000$doA9ovl17EXClM7Q$201a92e531bb10d129605db8488ccad23f610a05509f88b2dffc9f553ddd9e92', true,
         'lorenz.funk@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:27.357164', '2023-11-08 12:45:21.952963', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (42, 'Marsdfgc', 'Scasdfhefer', 'm23h5et', 'pbkdf2:sha256:260000$uVwRhEuX3o66gPp9$2150dfb61953fcbc1743caeed56c0febeb587c63120a61fafc780cb02f76cf3b', true,
         'marc.schefer@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:02.876682', '2023-11-08 12:43:27.506786', 1, 1),
        (100, 'Tsdfghomas', 'Amasdflang Thomas', 'r64d2lb', 'pbkdf2:sha256:260000$X9YCuYDTqakjR9Tk$aac8b513c939b2aea19b5bb29d1c79179fd7251059903964a6ecd2b652cf9e83', true,
         'thomas.amlang@bedag.ch', '2023-11-13 09:50:24.788574', 10, 0, '2023-11-08 11:36:58.821562', '2023-11-08 12:46:50.852848', 1, 1),
        (66, 'Domisdfgsdnic', 'Däasdfhler', '5m87out', 'pbkdf2:sha256:260000$0nB4hKJo6QdBeGpD$fa85d0fdd342480603c17ebfc29f07a78efeadba08601dc85af22753c6982732', true,
         'dominic.daehler@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:26.388963', '2023-11-08 12:45:20.771712', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (73, 'Petsdfgdser', 'Herrasdfmann', '84mu0y', 'pbkdf2:sha256:260000$JBP5UZVicaqZrziG$567ab9b595e32c5d6c493e61645432bdb622c7449bf7c640f69be3b56b97912f', true,
         'peter.herrmann@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:33.039902', '2023-11-08 12:46:18.631533', 1, 1),
        (82, 'Nikolina', 'Pavic', 'gef-be-ch\mw6n', 'pbkdf2:sha256:260000$4R5u9PNsBBw4HEV7$f072837edb89984d499a27d3371e395dcea860e5706d09710bca74881b252dc2', true,
         'nikolina.pavic@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:41.435803', '2023-11-08 12:46:29.282937', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (96, 'Rasdfgphsdgfael', 'Ben Neasdfasfscher', 'madszyg', 'pbkdf2:sha256:260000$LDlQWLnH2OzezxVv$d348f8e7c606afd62ef9189e19ad7d3d3c3bbe01785b360f6861dea45603dfc6', true,
         'raphael.bennescher@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:52.223392', '2023-11-08 12:46:42.526984', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (94, 'Rasdfgjib', 'M4765regfitra', '63rcsd9', 'pbkdf2:sha256:260000$5NqYbYAhoGJGjvJ2$74b1c1154c64646a86636f4349dde4bd2e791355cac0c5154d0262534197b2b9', true,
         'rajib.mitra@bedag.ch', NULL, NULL, NULL, '2023-11-08 11:36:53.161534', '2023-11-08 12:46:43.679142', 1, 1),
        (95, 'Darsdfgsdgio', 'Basdfsaagatto', 'rdada9u', 'pbkdf2:sha256:260000$ZUWcIMHIAgL2rzeu$bd608d0495b1bb2ffa3a774d00c78a3d39aa40ef1f55373ba60ec13dd4b800b3', true,
@@ -106,8 +106,8 @@ VALUES (94, 'Rasdfgjib', 'M4765regfitra', '63rcsd9', 'pbkdf2:sha256:260000$5NqYb
         'lorin.reber@bedag.ch', NULL, NULL, NULL, '2023-11-08 11:36:57.910127', '2023-11-08 12:46:49.680921', 1, 1),
        (72, 'Toasdfasgbias', 'Pasdfasfagani', 'madtcc', 'pbkdf2:sha256:260000$ow6yupwrhpMlfhcb$7f66e536763ab2513ec8cca5b9b02a00743ebc279e7ad0ba058eb130d59bb5a0', true,
         'tobias.pagani@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:32.117927', '2023-11-08 12:46:17.441049', 1, 1);
-INSERT INTO superset.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
-                              changed_by_fk)
+INSERT INTO superset_one.ab_user (id, first_name, last_name, username, "password", active, email, last_login, login_count, fail_login_count, created_on, changed_on, created_by_fk,
+                                  changed_by_fk)
 VALUES (62, 'Manfasdfuel', 'Haasdfas', '657mn9y', 'pbkdf2:sha256:260000$TXfTzHNPhwS0Gn0k$5fc439adf4c9480949b610d4482e18c1ecd87ebd5c34d480b38fd9e756a0a272', true,
         'manuel.haas@be.ch', NULL, NULL, NULL, '2023-11-08 11:36:22.713256', '2023-11-08 12:45:15.947889', 1, 1),
        (20, 'Danasdfasfiel', 'Stetasdfasdftler', '890ma9rh', 'pbkdf2:sha256:260000$bid5kB4sAWx4fcui$ce6935338a0a08018110b105208d711dcaab5655a84905664008fc32a72b20d3', true,
@@ -115,7 +115,7 @@ VALUES (62, 'Manfasdfuel', 'Haasdfas', '657mn9y', 'pbkdf2:sha256:260000$TXfTzHNP
 
 
 
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 11:19:13.372479', NULL, 0, 78, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -142,7 +142,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
        ('DatabaseRestApi.get_list', 2,
         '{"path": "/api/v1/database/", "q": "(filters:!((col:allow_file_upload,opr:upload_is_enabled,value:!t)))", "rison": {"filters": [{"col": "allow_file_upload", "opr": "upload_is_enabled", "value": true}]}}',
         '2023-11-08 11:34:50.606221', NULL, 0, 51, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DatabaseRestApi.get_list', 2,
         '{"path": "/api/v1/database/", "q": "(filters:!((col:database_name,opr:neq,value:examples)))", "rison": {"filters": [{"col": "database_name", "opr": "neq", "value": "examples"}]}}',
         '2023-11-08 11:34:50.702752', NULL, 0, 27, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
@@ -168,7 +168,7 @@ VALUES ('DatabaseRestApi.get_list', 2,
         '2023-11-08 11:59:22.503775', NULL, 0, 35, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 12:04:23.597226', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 12:09:24.913857', NULL, 0, 67, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -191,7 +191,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '{"path": "/api/v1/dashboard/", "q": "(order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:25)", "rison": {"order_column": "changed_on_delta_humanized", "order_direction": "desc", "page": 0, "page_size": 25}}',
         '2023-11-08 12:30:16.165985', NULL, 0, 52,
         'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 12:34:30.296795', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -208,7 +208,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 10:35:19.862085', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 10:40:20.878878', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 11:20:29.616828', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -229,7 +229,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 04:39:17.657498', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 04:59:22.028913', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 05:04:23.129597', NULL, 0, 22, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -248,7 +248,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 10:55:42.842723', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 11:00:43.969563', NULL, 0, 31, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('log', 2,
         '{"impression_id": "Dtx1gLQxP", "version": "v2", "ts": 1699446614970, "event_name": "spa_navigation", "path": "/dashboard/list/", "event_type": "user", "event_id": "EhWEHJWKn_", "visibility": "visible"}',
         '2023-11-08 12:30:16.387088', NULL, 0, 0,
@@ -276,7 +276,7 @@ VALUES ('log', 2,
         '2023-11-12 10:30:18.827891', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 10:45:21.925338', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 10:55:24.096081', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -297,7 +297,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 13:30:57.596756', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 13:40:59.702128', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 04:44:18.772046', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -323,7 +323,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 09:25:22.119641', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 09:55:28.986546', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DatabaseRestApi.get_list', 2,
         '{"path": "/api/v1/database/", "q": "(filters:!((col:allow_file_upload,opr:upload_is_enabled,value:!t)))", "rison": {"filters": [{"col": "allow_file_upload", "opr": "upload_is_enabled", "value": true}]}}',
         '2023-11-08 12:31:21.250502', NULL, 0, 26, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
@@ -352,7 +352,7 @@ VALUES ('DatabaseRestApi.get_list', 2,
         '2023-11-12 11:30:31.972025', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 11:50:36.208312', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 11:55:37.248933', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -373,7 +373,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 05:44:32.144403', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 05:49:33.222218', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 06:04:36.625268', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -395,7 +395,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
        ('DashboardRestApi.get_list', 96,
         '{"path": "/api/v1/dashboard/", "q": "(filters:!((col:owners,opr:rel_m_m,value:''96'')),order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:5)", "rison": {"filters": [{"col": "owners", "opr": "rel_m_m", "value": "96"}], "order_column": "changed_on_delta_humanized", "order_direction": "desc", "page": 0, "page_size": 5}}',
         '2023-11-13 07:43:43.575337', NULL, 0, 70, 'https://superset-vg.jus.hellodata.apps.be.ch/superset/welcome/');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 08:00:02.509284', NULL, 0, 32, NULL),
        ('DatabaseRestApi.get_list', 2,
@@ -417,7 +417,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 13:00:51.180838', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 13:10:53.371751', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 04:54:20.987753', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -440,7 +440,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '{"path": "/api/v1/database/", "q": "(order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:25)", "rison": {"order_column": "changed_on_delta_humanized", "order_direction": "desc", "page": 0, "page_size": 25}}',
         '2023-11-13 07:43:39.161899', NULL, 0, 61,
         'https://superset-vg.jus.hellodata.apps.be.ch/databaseview/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('log', 96,
         '{"impression_id": "MLoPrzK6w", "version": "v2", "ts": 1699861418748, "event_name": "spa_navigation", "path": "/databaseview/list/", "event_type": "user", "event_id": "zCvxpsrRT5", "visibility": "visible"}',
         '2023-11-13 07:43:39.795155', NULL, 0, 0,
@@ -467,7 +467,7 @@ VALUES ('log', 96,
         '2023-11-12 14:31:10.191725', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 14:56:15.508384', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 15:21:20.697504', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -488,7 +488,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 17:41:50.505904', NULL, 0, 22, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 17:51:52.537723', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 18:06:56.180793', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -511,7 +511,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 07:43:43.780484', NULL, 0, 221, 'https://superset-vg.jus.hellodata.apps.be.ch/superset/welcome/'),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 09:00:16.621269', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 09:10:18.818165', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -533,7 +533,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 15:01:16.600901', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 15:06:17.551541', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 15:16:19.607378', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -554,7 +554,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 17:36:49.438908', NULL, 0, 22, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 17:46:51.532137', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 18:01:55.023155', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -575,7 +575,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 19:17:11.050738', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 19:22:12.176649', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 19:27:13.242424', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -599,7 +599,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 14:06:04.869589', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 14:11:05.942101', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 14:26:09.109326', NULL, 0, 37, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -620,7 +620,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 18:57:06.808228', NULL, 0, 38, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 19:12:09.981182', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 19:47:18.031843', NULL, 0, 27, NULL),
        ('log', 96,
@@ -646,7 +646,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 13:04:37.334624', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 13:09:38.575198', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 13:14:40.047335', NULL, 0, 38, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -667,7 +667,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 13:54:49.127306', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 13:59:50.219261', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 14:04:51.387752', NULL, 0, 33, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -688,7 +688,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 14:45:00.353878', NULL, 0, 47, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 14:50:01.415102', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 14:55:02.568902', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -713,7 +713,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 15:10:05.770189', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 15:30:10.374622', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 15:40:12.594893', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -734,7 +734,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 16:06:30.234359', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 16:11:31.25474', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 16:26:34.390496', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -760,7 +760,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table'),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 15:50:15.12435', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 19:52:19.269716', NULL, 0, 79, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -783,7 +783,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 15:35:11.715768', NULL, 0, 47, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 20:02:21.72129', NULL, 0, 64, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 20:07:22.788323', NULL, 0, 40, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -805,7 +805,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 15:55:16.243314', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 16:00:17.408857', NULL, 0, 94, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 16:05:18.581659', NULL, 0, 72, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -826,7 +826,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 16:45:27.785318', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 16:50:28.845181', NULL, 0, 36, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 16:55:30.228311', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -847,7 +847,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 17:35:40.002843', NULL, 0, 32, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 17:40:41.136662', NULL, 0, 32, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 17:45:42.305331', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -868,7 +868,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 18:25:51.293099', NULL, 0, 33, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 18:30:52.335206', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 18:35:53.499159', NULL, 0, 32, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -889,7 +889,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 19:51:09.975115', NULL, 0, 34, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 20:31:18.611447', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 20:36:19.667899', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -910,7 +910,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 23:33:09.879916', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 23:43:12.304357', NULL, 0, 43, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 23:53:14.711808', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -931,7 +931,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 03:08:57.668258', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 03:44:05.635103', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 03:49:06.730934', NULL, 0, 22, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -955,7 +955,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 10:45:40.675145', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 19:11:01.1065', NULL, 0, 33, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 19:16:02.24978', NULL, 0, 32, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -976,7 +976,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 20:51:22.823119', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 20:56:23.953577', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 21:21:29.438347', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -997,7 +997,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 00:03:16.994468', NULL, 0, 36, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 01:28:35.791159', NULL, 0, 50, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 01:53:41.299895', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1018,7 +1018,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 19:36:06.674443', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 19:41:07.774556', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 20:01:12.244676', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1039,7 +1039,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 22:06:39.108461', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 22:11:40.193363', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 20:32:28.604691', NULL, 0, 77, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1060,7 +1060,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 23:38:11.071455', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 00:08:18.037127', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 01:58:42.383976', NULL, 0, 52, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1081,7 +1081,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 20:16:15.395923', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 20:26:17.569225', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 21:01:25.113663', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1102,7 +1102,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 22:31:44.328382', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 22:36:45.422686', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 22:41:46.409995', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1123,7 +1123,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-08 23:21:55.335697', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 23:26:56.457212', NULL, 0, 35, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-08 23:31:57.446668', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1144,7 +1144,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 00:12:06.105742', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 00:17:07.2543', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 00:22:08.369508', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1165,7 +1165,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 01:22:21.548909', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 01:47:27.023193', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 02:32:36.819412', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1186,7 +1186,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 23:08:04.411137', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 23:58:15.775702', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 00:18:20.265542', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1207,7 +1207,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 02:33:50.237454', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 02:43:52.385473', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 02:53:54.441255', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1229,7 +1229,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 01:02:16.859211', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 01:32:23.766877', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 01:37:24.844343', NULL, 0, 35, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1250,7 +1250,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 21:27:41.229515', NULL, 0, 34, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 21:37:43.664926', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 21:47:46.200054', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1271,7 +1271,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 01:08:31.304063', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 01:13:32.402554', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 01:33:36.901167', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1294,7 +1294,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 09:50:27.972433', NULL, 0, 22, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 10:15:33.570588', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 11:10:46.714242', NULL, 0, 32, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1315,7 +1315,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 02:42:38.971185', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 02:52:41.2518', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 03:07:44.565019', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1336,7 +1336,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 00:33:23.601907', NULL, 0, 35, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 01:23:34.585725', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 02:38:51.309982', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1359,7 +1359,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 01:12:19.06279', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 01:17:20.156522', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 01:42:25.901207', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1380,7 +1380,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 03:57:55.233128', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 04:02:56.305222', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 04:07:57.437681', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1401,7 +1401,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 04:48:06.089286', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 04:53:07.163329', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 04:58:08.209739', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1422,7 +1422,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 05:38:16.687342', NULL, 0, 52, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 05:43:17.675895', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 05:48:18.829774', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1443,7 +1443,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 06:58:33.835261', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 07:08:36.016834', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 07:58:47.002771', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1465,7 +1465,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 07:33:41.557855', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 08:13:50.28664', NULL, 0, 31, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 08:23:52.649116', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1487,7 +1487,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 11:25:50.248137', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 11:55:56.556203', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 06:28:27.431915', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1516,7 +1516,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table'),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 10:10:32.447256', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-13 11:30:51.443132', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1538,7 +1538,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 07:48:23.417582', NULL, 0, 47, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
        ('DashboardRestApi.info', 96, '{"path": "/api/v1/dashboard/_info", "q": "(keys:!(permissions))", "rison": {"keys": ["permissions"]}}', '2023-11-09 07:48:23.525255', NULL, 0,
         25, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DatabaseRestApi.get_list', 96,
         '{"path": "/api/v1/database/", "q": "(filters:!((col:allow_file_upload,opr:upload_is_enabled,value:!t)))", "rison": {"filters": [{"col": "allow_file_upload", "opr": "upload_is_enabled", "value": true}]}}',
         '2023-11-09 07:49:39.998886', NULL, 0, 44, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
@@ -1564,7 +1564,7 @@ VALUES ('DatabaseRestApi.get_list', 96,
         '2023-11-09 08:43:57.107431', NULL, 0, 32, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 08:53:59.248128', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 08:59:00.385819', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1585,7 +1585,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 09:54:12.584818', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 09:59:13.636884', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 10:04:14.808333', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1607,7 +1607,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 13:43:01.571623', NULL, 0, 38, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
        ('DashboardRestApi.info', 100, '{"path": "/api/v1/dashboard/_info", "q": "(keys:!(permissions))", "rison": {"keys": ["permissions"]}}', '2023-11-09 13:43:01.749002', NULL,
         0, 18, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 13:50:04.46473', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1628,7 +1628,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 11:35:52.40752', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 10:29:20.188463', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 10:34:21.393491', NULL, 0, 34, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1649,7 +1649,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 11:54:38.997127', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 12:04:41.188997', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 12:09:42.409016', NULL, 0, 43, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1670,7 +1670,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 13:40:02.018681', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 13:55:05.513958', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 14:05:07.873472', NULL, 0, 34, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1693,7 +1693,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 10:54:25.969536', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 10:59:26.94853', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 11:09:29.266174', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1714,7 +1714,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 12:39:48.692645', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 12:54:52.135971', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 13:09:55.674787', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1740,7 +1740,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 14:00:06.77878', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 14:15:10.250472', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 14:25:12.460876', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1761,7 +1761,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 15:40:28.919601', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 15:50:31.039378', NULL, 0, 22, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 15:55:32.136449', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1782,7 +1782,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 16:50:45.395246', NULL, 0, 36, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 17:00:47.810107', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 17:05:49.089463', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1803,7 +1803,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 18:01:01.584246', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 18:06:02.835611', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 18:11:03.850633', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1824,7 +1824,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 19:16:17.74864', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 19:26:19.908951', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 19:31:21.189232', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1845,7 +1845,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 21:16:44.026053', NULL, 0, 35, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 21:21:45.025908', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 21:41:49.534808', NULL, 0, 34, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1866,7 +1866,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 18:16:04.966434', NULL, 0, 66, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 18:46:11.240682', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 18:51:12.313758', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1887,7 +1887,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 20:11:29.654486', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 20:16:30.721178', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 20:21:31.788202', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1908,7 +1908,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 21:31:47.1745', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 21:36:48.47765', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 21:56:52.847731', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1931,7 +1931,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 21:46:50.661622', NULL, 0, 40, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 21:51:51.654062', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 22:11:56.487467', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1952,7 +1952,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 22:21:58.55416', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 22:42:03.083501', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 22:47:04.138156', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1973,7 +1973,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-09 23:47:17.052238', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 23:52:18.132055', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-09 23:57:19.154488', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -1994,7 +1994,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 00:37:28.712193', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 00:42:29.676181', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 00:47:30.739059', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2015,7 +2015,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 01:27:39.832082', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 01:32:40.881552', NULL, 0, 34, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 01:37:41.976769', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2036,7 +2036,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 03:18:03.757967', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 03:48:10.240522', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 04:13:15.635995', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2057,7 +2057,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 05:43:35.092358', NULL, 0, 32, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 05:48:36.144214', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 06:08:40.636948', NULL, 0, 27, NULL),
        ('DatabaseRestApi.get_list', 100,
@@ -2079,7 +2079,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 03:28:05.865142', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 03:53:11.25244', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 03:58:12.234241', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2100,7 +2100,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 12:05:58.789841', NULL, 0, 51, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 02:17:50.915324', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 03:43:09.162956', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2121,7 +2121,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-13 12:10:59.821811', NULL, 0, 38, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 02:22:51.984849', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 02:37:55.107217', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2142,7 +2142,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 03:33:06.907997', NULL, 0, 22, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 03:38:07.983324', NULL, 0, 34, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 04:08:14.531588', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2163,7 +2163,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 06:38:47.572314', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 06:43:48.666224', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 06:48:49.675875', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2191,7 +2191,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 07:17:36.795923', NULL, 0, 42, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
        ('DashboardRestApi.info', 100, '{"path": "/api/v1/dashboard/_info", "q": "(keys:!(permissions))", "rison": {"keys": ["permissions"]}}', '2023-11-10 07:17:36.896623', NULL,
         0, 13, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 100,
         '{"path": "/api/v1/dashboard/", "q": "(order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:25)", "rison": {"order_column": "changed_on_delta_humanized", "order_direction": "desc", "page": 0, "page_size": 25}}',
         '2023-11-10 07:17:36.897875', NULL, 0, 26,
@@ -2226,7 +2226,7 @@ VALUES ('DashboardRestApi.get_list', 100,
         'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table'),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 07:23:57.117877', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 07:28:58.193573', NULL, 0, 38, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2254,7 +2254,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 07:54:03.918446', NULL, 0, 37, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 07:59:04.954951', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 08:04:06.041784', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2276,7 +2276,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 07:21:52.410324', NULL, 0, 21, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
        ('DashboardRestApi.info', 100, '{"path": "/api/v1/dashboard/_info", "q": "(keys:!(permissions))", "rison": {"keys": ["permissions"]}}', '2023-11-10 07:21:52.50909', NULL, 0,
         16, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DatabaseRestApi.get_list', 100,
         '{"path": "/api/v1/database/", "q": "(filters:!((col:database_name,opr:neq,value:examples)))", "rison": {"filters": [{"col": "database_name", "opr": "neq", "value": "examples"}]}}',
         '2023-11-10 07:22:27.993381', NULL, 0, 61, 'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/'),
@@ -2298,7 +2298,7 @@ VALUES ('DatabaseRestApi.get_list', 100,
         '2023-11-10 09:14:20.832958', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 09:29:24.24567', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 09:39:26.613902', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2323,7 +2323,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '{"path": "/api/v1/dashboard/", "q": "(order_column:changed_on_delta_humanized,order_direction:desc,page:0,page_size:25)", "rison": {"order_column": "changed_on_delta_humanized", "order_direction": "desc", "page": 0, "page_size": 25}}',
         '2023-11-10 10:25:50.444542', NULL, 0, 54,
         'https://superset-vg.jus.hellodata.apps.be.ch/dashboard/list/?pageIndex=0&sortColumn=changed_on_delta_humanized&sortOrder=desc&viewMode=table');
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('log', 100,
         '{"impression_id": "2ulZaSIKk", "version": "v2", "ts": 1699611949326, "event_name": "spa_navigation", "path": "/dashboard/list/", "event_type": "user", "event_id": "BAyXRFEKCY", "visibility": "visible"}',
         '2023-11-10 10:25:50.73642', NULL, 0, 0,
@@ -2346,7 +2346,7 @@ VALUES ('log', 100,
         '2023-11-10 12:09:59.89294', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 09:04:18.790426', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 09:24:23.182281', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2367,7 +2367,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 11:14:48.094855', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 11:19:49.283268', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 11:24:50.342706', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2388,7 +2388,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 09:09:19.815103', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 09:19:22.145706', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 09:34:25.353462', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2409,7 +2409,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 12:20:02.156347', NULL, 0, 36, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 12:30:04.346156', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 13:00:11.334207', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2430,7 +2430,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 12:55:10.28573', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 13:10:13.480587', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 13:20:15.829078', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2451,7 +2451,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 14:20:28.987355', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 14:25:30.086363', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 14:30:31.100439', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2472,7 +2472,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 15:10:40.124427', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 15:15:41.274186', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 15:20:42.359391', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2493,7 +2493,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 16:00:51.176277', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 16:05:52.232632', NULL, 0, 33, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 16:10:53.270618', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2514,7 +2514,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 16:51:01.599644', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 16:56:02.629597', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 17:01:03.796342', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2535,7 +2535,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 18:26:22.08793', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:31:23.131029', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:36:24.236578', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2556,7 +2556,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 22:47:19.911135', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 22:57:22.390368', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 23:02:23.485817', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2577,7 +2577,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 17:31:10.390693', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:01:16.674663', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:41:25.353077', NULL, 0, 37, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2598,7 +2598,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 21:22:01.116172', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 21:32:03.181081', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 21:42:05.273436', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2619,7 +2619,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 17:46:13.479708', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:06:17.829082', NULL, 0, 61, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:56:28.53624', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2640,7 +2640,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 20:36:51.18764', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 20:46:53.306202', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 20:56:55.54277', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2661,7 +2661,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 23:57:36.41319', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:11:18.921541', NULL, 0, 24, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 18:21:21.07631', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2682,7 +2682,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-10 21:37:04.179764', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 21:47:06.40526', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-10 21:52:07.617483', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2703,7 +2703,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 00:22:42.066195', NULL, 0, 32, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 00:27:43.278146', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 00:32:44.556699', NULL, 0, 35, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2724,7 +2724,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 01:12:54.488614', NULL, 0, 36, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 01:17:55.576293', NULL, 0, 41, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 01:22:56.833504', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2745,7 +2745,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 02:03:06.248259', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 02:28:11.701923', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 03:03:19.335751', NULL, 0, 38, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2766,7 +2766,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 06:19:02.869383', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 06:24:04.033765', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 06:29:05.418147', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2787,7 +2787,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 09:29:46.318657', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 09:59:53.186364', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 10:24:58.711805', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2808,7 +2808,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 02:58:18.305372', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 03:28:25.137989', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 03:43:28.371761', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2829,7 +2829,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 07:34:20.096683', NULL, 0, 51, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 07:39:21.398689', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 08:59:39.524178', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2850,7 +2850,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 03:08:20.749216', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 03:18:23.034174', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 03:38:27.242946', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2871,7 +2871,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 05:58:58.583539', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 06:03:59.720198', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 07:49:23.758251', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2892,7 +2892,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 10:09:55.566478', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 11:05:07.777837', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 02:43:14.981055', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2913,7 +2913,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 05:28:52.074428', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 05:33:53.180095', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 05:43:55.353684', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2934,7 +2934,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 07:29:18.910353', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 07:44:22.706315', NULL, 0, 31, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 07:54:24.957367', NULL, 0, 33, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2955,7 +2955,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 09:14:43.004329', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 09:24:45.319467', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 09:44:49.739083', NULL, 0, 22, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2976,7 +2976,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 11:10:08.97766', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 11:20:11.262131', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 11:25:12.319589', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -2997,7 +2997,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 12:05:20.690026', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 12:10:21.791578', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 12:15:22.884113', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3018,7 +3018,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 12:55:31.806987', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 13:00:33.234903', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 13:05:34.22958', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3039,7 +3039,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 13:45:43.085772', NULL, 0, 33, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 13:50:44.415731', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 13:55:45.519107', NULL, 0, 44, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3060,7 +3060,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 14:40:55.493984', NULL, 0, 31, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 15:26:05.930121', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 15:46:10.287134', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3081,7 +3081,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 19:21:58.319873', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 19:26:59.491573', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 20:37:15.561717', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3102,7 +3102,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 16:16:17.229362', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 16:46:23.887777', NULL, 0, 28, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 16:56:25.950962', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3123,7 +3123,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 18:41:49.564784', NULL, 0, 28, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 19:01:54.04331', NULL, 0, 26, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 19:16:57.289245', NULL, 0, 42, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3144,7 +3144,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 22:02:34.148202', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 22:07:35.187801', NULL, 0, 30, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 22:12:36.551291', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3165,7 +3165,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 15:00:59.922186', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 15:06:01.001405', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 15:11:02.048703', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3186,7 +3186,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 16:51:24.85632', NULL, 0, 35, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 17:11:29.311592', NULL, 0, 31, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 17:26:32.756025', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3207,7 +3207,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 19:32:00.660903', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 19:47:03.910252', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 20:12:10.028973', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3228,7 +3228,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 21:37:28.686682', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 21:52:31.991154', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 22:37:42.041908', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3249,7 +3249,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 16:31:20.49703', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 17:01:27.117004', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 17:31:34.079723', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3270,7 +3270,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 21:42:29.751466', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 22:27:39.777777', NULL, 0, 33, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 22:32:40.976125', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3291,7 +3291,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-11 23:47:57.22013', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 23:52:58.202012', NULL, 0, 40, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-11 23:57:59.327016', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3312,7 +3312,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 00:38:08.454882', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 00:43:09.465361', NULL, 0, 22, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 00:48:10.634974', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3333,7 +3333,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 01:28:19.632634', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 01:33:20.860448', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 01:38:21.843954', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3354,7 +3354,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 02:18:30.721269', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 02:23:32.108179', NULL, 0, 25, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 02:28:33.113372', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3375,7 +3375,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 03:53:51.448514', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 03:58:52.450312', NULL, 0, 22, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 04:03:53.558301', NULL, 0, 36, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3396,7 +3396,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 06:34:26.36011', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 06:39:27.747484', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 07:14:35.670336', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3417,7 +3417,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 03:03:40.781487', NULL, 0, 30, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 03:28:46.181638', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 03:48:50.439722', NULL, 0, 29, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3438,7 +3438,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 06:24:24.193517', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 07:04:33.449814', NULL, 0, 27, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 07:09:34.540283', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3459,7 +3459,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 08:39:54.681597', NULL, 0, 24, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 08:44:55.737838', NULL, 0, 22, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 08:59:58.873435', NULL, 0, 25, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3480,7 +3480,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 04:18:56.978149', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 04:44:02.188375', NULL, 0, 23, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 05:19:09.553312', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3501,7 +3501,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 08:14:49.01573', NULL, 0, 23, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 09:10:01.174028', NULL, 0, 31, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 02:58:39.807087', NULL, 0, 26, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
@@ -3522,7 +3522,7 @@ VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\
         '2023-11-12 06:04:19.718506', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 06:19:23.092275', NULL, 0, 29, NULL);
-INSERT INTO superset.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
+INSERT INTO superset_one.logs ("action", user_id, json, dttm, dashboard_id, slice_id, duration_ms, referrer)
 VALUES ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
         '2023-11-12 06:29:25.269559', NULL, 0, 27, NULL),
        ('DashboardRestApi.get_list', 1, '{"path": "/api/v1/dashboard/", "q": "{\"page\":0,\"page_size\":2147483647}", "rison": {"page": 0, "page_size": 2147483647}}',
