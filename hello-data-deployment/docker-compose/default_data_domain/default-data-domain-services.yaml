@@ -197,7 +197,7 @@ services:
     command: echo "This service is only for building our custom image which will be spawned by jupyterhub"
 
   hello-data-jupyterhub-gateway-default-data-domain:
-    image: bedag/hello-data-jupyterhub-gateway:HELLODATA-1292_advanced_analytics-SNAPSHOT
+    image: bedag/hello-data-jupyterhub-gateway
     env_file: .env
     environment:
       - JUPYTERHUB_SERVICE_NAME=host.docker.internal:8000
@@ -219,8 +219,7 @@ services:
       - hello-data-network
 
   hello-data-sidecar-jupyterhub-default-data-domain:
-    #TODO change to bedag/hello-data-sidecar-jupyterhub
-    image: registry.mgmtbi.ch/se_gf_sie/hello-data-sidecar-jupyterhub:HELLODATA-1292_advanced_analytics-SNAPSHOT
+    image: bedag/hello-data-sidecar-jupyterhub
     env_file: .env
     environment:
       - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal:35432/hellodata_product_development_default_data_domain_dwh
