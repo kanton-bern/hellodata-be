@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -37,7 +38,6 @@
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <start-class>ch.bedag.dap.hellodata.jupyterhub.sidecar.HDSidecarJupyterhub</start-class>
         <testcontainers-version>1.19.1</testcontainers-version>
-        <docker.namespace>registry.mgmtbi.ch/se_gf_sie</docker.namespace>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <springdoc.version>2.1.0</springdoc.version>
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
