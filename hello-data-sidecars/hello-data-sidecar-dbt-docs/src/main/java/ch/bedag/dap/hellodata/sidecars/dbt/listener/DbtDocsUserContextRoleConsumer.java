@@ -69,7 +69,7 @@ public class DbtDocsUserContextRoleConsumer {
     public CompletableFuture<Void> subscribe(UserContextRoleUpdate userContextRoleUpdate) {
         Set<String> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
-            User user = userRepository.findByEmail(userContextRoleUpdate.getEmail());
+            User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
             if (user == null) {
                 throw new RuntimeException("Cannot update roles! User not found: " + userContextRoleUpdate.getEmail());
             }

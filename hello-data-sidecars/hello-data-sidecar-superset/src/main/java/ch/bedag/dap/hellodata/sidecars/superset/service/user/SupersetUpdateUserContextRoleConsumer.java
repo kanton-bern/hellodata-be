@@ -113,7 +113,8 @@ public class SupersetUpdateUserContextRoleConsumer {
 
     private SubsystemUser getSubsystemUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient) throws URISyntaxException, IOException {
         List<SubsystemUser> supersetUserResult =
-                supersetClient.users().getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(userContextRoleUpdate.getEmail())).toList();
+                supersetClient.users().getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(userContextRoleUpdate.getEmail()) && user.getUsername().equalsIgnoreCase(
+                        userContextRoleUpdate.getUsername())).toList();
         if (CollectionUtils.isNotEmpty(supersetUserResult) && supersetUserResult.size() > 1) {
             log.warn("[Found more than one user by an email] --- {} has usernames: [{}]", userContextRoleUpdate.getEmail(),
                      supersetUserResult.stream().map(SubsystemUser::getUsername).collect(Collectors.joining(",")));
@@ -125,6 +126,7 @@ public class SupersetUpdateUserContextRoleConsumer {
             }
         }
         if (CollectionUtils.isEmpty(supersetUserResult)) {
+            log.warn("[Couldn't find user by email: {} and username: {}]", userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername());
             return null;
         }
         return supersetUserResult.get(0);

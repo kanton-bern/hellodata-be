@@ -141,6 +141,7 @@ public class UserService {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(UUID.fromString(keycloakUserId));
         userEntity.setEmail(email);
+        userEntity.setUsername(userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername());
         userRepository.saveAndFlush(userEntity);
         roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
         roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);

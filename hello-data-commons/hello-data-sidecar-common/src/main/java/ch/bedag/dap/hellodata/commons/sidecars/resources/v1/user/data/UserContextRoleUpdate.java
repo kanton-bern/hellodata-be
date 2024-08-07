@@ -37,6 +37,7 @@ import lombok.ToString;
 @Data
 public class UserContextRoleUpdate implements Serializable {
     private String email;
+    private String username;
     private List<ContextRole> contextRoles;
 
     @ToString

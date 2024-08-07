@@ -100,7 +100,7 @@ public class AirflowUserContextRoleConsumer {
 
     private AirflowUserResponse getAirflowUser(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient) throws URISyntaxException, IOException {
         List<AirflowUserResponse> usersByEmail =
-                airflowClient.users().getUsers().stream().filter(user -> userContextRoleUpdate.getEmail().equalsIgnoreCase(user.getEmail())).toList();
+                airflowClient.users().getUsers().stream().filter(user -> userContextRoleUpdate.getEmail().equalsIgnoreCase(user.getEmail()) && userContextRoleUpdate.getUsername().equalsIgnoreCase(user.getUsername())).toList();
         if (CollectionUtils.isNotEmpty(usersByEmail) && usersByEmail.size() > 1) {
             log.warn("[Found more than one user by an email] --- {} has usernames: [{}]", userContextRoleUpdate.getEmail(),
                      usersByEmail.stream().map(AirflowUser::getUsername).collect(Collectors.joining(",")));

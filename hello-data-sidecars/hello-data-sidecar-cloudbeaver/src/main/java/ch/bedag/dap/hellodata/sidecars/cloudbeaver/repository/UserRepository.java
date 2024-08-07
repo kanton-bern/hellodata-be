@@ -36,6 +36,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     User findByEmail(String email);
 
     User findByUserNameOrEmail(String userName, String email);
+    User findByUserNameAndEmail(String userName, String email);
 
     @Override
     void delete(User entity);

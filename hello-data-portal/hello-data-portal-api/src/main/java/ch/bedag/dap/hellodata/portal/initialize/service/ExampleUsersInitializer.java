@@ -87,7 +87,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer {
         this.hdContextRepository = hdContextRepository;
     }
 
-    @Scheduled(fixedDelay = 3, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void checkAndCreateExampleUsers() {
         initExampleUsers();

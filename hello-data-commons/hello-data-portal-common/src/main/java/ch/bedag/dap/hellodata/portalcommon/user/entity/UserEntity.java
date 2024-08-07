@@ -56,6 +56,8 @@ public class UserEntity extends BaseEntity {
     @NotBlank
     @Length(max = 255)
     private String email;
+    @Length(max = 255)
+    private String username;
     private LocalDateTime lastAccess;
     //how many invitation emails has been sent
     private int invitationsCount;
