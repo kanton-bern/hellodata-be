@@ -1,7 +1,7 @@
 <div class="sidebar close">
   <div class="logo-details" [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
     <img alt="logo" routerLink="/home" src="/assets/img/hd.png" style="cursor: pointer"/>
-    <span class="logo_name">HelloDATA</span>
+    <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
   </div>
   <ul *ngIf="(navItems$ | async) as navItems" class="nav-links">
     <ng-template [ngForOf]="navItems" let-i="index" let-item ngFor>
