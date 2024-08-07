@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.initialize.entity.ExampleUsersCreatedEntity;
+import ch.bedag.dap.hellodata.portal.initialize.event.InitializationCompletedEvent;
 import ch.bedag.dap.hellodata.portal.initialize.event.SyncAllUsersEvent;
 import ch.bedag.dap.hellodata.portal.initialize.repository.ExampleUsersCreatedRepository;
 import ch.bedag.dap.hellodata.portal.profiles.CreateExampleUsersProfile;
@@ -53,6 +54,7 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -61,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 @Component
 @CreateExampleUsersProfile
-public class ExampleUsersInitializer extends AbstractUserInitializer {
+public class ExampleUsersInitializer extends AbstractUserInitializer implements ApplicationListener<InitializationCompletedEvent> {
 
     private final RoleService roleService;
     private final HelloDataContextConfig helloDataContextConfig;
@@ -85,12 +87,6 @@ public class ExampleUsersInitializer extends AbstractUserInitializer {
         this.userService = userService;
         this.applicationEventPublisher = applicationEventPublisher;
         this.hdContextRepository = hdContextRepository;
-    }
-
-    @Scheduled(fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void checkAndCreateExampleUsers() {
-        initExampleUsers();
     }
 
     private void initExampleUsers() {
@@ -294,5 +290,10 @@ public class ExampleUsersInitializer extends AbstractUserInitializer {
         credential.setValue(password);
         credential.setTemporary(false);
         user.setCredentials(List.of(credential));
+    }
+
+    @Override
+    public void onApplicationEvent(InitializationCompletedEvent event) {
+        initExampleUsers();
     }
 }
