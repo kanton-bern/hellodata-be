@@ -293,6 +293,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
     }
 
     @Override
+    @Transactional
     public void onApplicationEvent(InitializationCompletedEvent event) {
         initExampleUsers();
     }
