@@ -130,7 +130,7 @@
         <!--keycloak-->
         <dependency>
             <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-admin-client-jakarta</artifactId>
+            <artifactId>keycloak-admin-client</artifactId>
         </dependency>
         <!-- Transitive dependency for HdHtmlSanitizer in hello-data-common -->
         <dependency>
