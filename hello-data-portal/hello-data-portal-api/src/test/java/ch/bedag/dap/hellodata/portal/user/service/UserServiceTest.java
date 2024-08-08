@@ -122,6 +122,7 @@ public class UserServiceTest {
         when(keycloakService.getUserRepresentationById(any())).thenReturn(userRepresentation);
         when(keycloakService.createUser(any())).thenReturn(createdUserId);
         when(userRepository.saveAndFlush(any(UserEntity.class))).thenReturn(new UserEntity());
+        when(userRepresentation.getEmail()).thenReturn("some_email@example.com");
 
         // when
         String result = userService.createUser(email, firstName, lastName);
@@ -168,10 +169,14 @@ public class UserServiceTest {
         String userId = uuid.toString();
         UserResource userResourceMock = mock(UserResource.class, Mockito.RETURNS_DEEP_STUBS);
         UserEntity userEntity = new UserEntity();
+        userEntity.setEmail("some_email@example.com");
         userEntity.setId(uuid);
+        UserRepresentation userRepresentation = new UserRepresentation();
+        userRepresentation.setEmail(userEntity.getEmail());
 
         when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);
         when(keycloakService.getUserResourceById(any())).thenReturn(userResourceMock);
+        when(userResourceMock.toRepresentation()).thenReturn(userRepresentation);
 
         // when
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
