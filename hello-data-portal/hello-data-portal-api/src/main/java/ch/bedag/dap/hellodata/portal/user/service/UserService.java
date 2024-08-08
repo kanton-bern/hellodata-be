@@ -77,6 +77,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -120,6 +121,7 @@ public class UserService {
 
     @Transactional
     public String createUser(String email, String firstName, String lastName) {
+        email = email.toLowerCase(Locale.ROOT);
         log.info("Creating user. Email: {}, first name: {}, last name {}", email, firstName, lastName);
         validateEmailAlreadyExists(email);
         String keycloakUserId;
@@ -233,7 +235,7 @@ public class UserService {
         }
         SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
         UserRepresentation userRepresentation = userResource.toRepresentation();
-        subsystemUserDelete.setEmail(userRepresentation.getEmail());
+        subsystemUserDelete.setEmail(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
         subsystemUserDelete.setUsername(userRepresentation.getUsername());
         userResource.remove();
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
@@ -260,7 +262,7 @@ public class UserService {
         createUser.setFirstName(representation.getFirstName());
         createUser.setLastName(representation.getLastName());
         createUser.setUsername(representation.getUsername());
-        createUser.setEmail(representation.getEmail());
+        createUser.setEmail(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setActive(representation.isEnabled());
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
