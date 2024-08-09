@@ -456,6 +456,7 @@ public class UserService {
     public void synchronizeContextRolesWithSubsystems(UserEntity userEntity) {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
         userContextRoleUpdate.setEmail(userEntity.getEmail());
+        userContextRoleUpdate.setUsername(userEntity.getUsername());
         List<UserContextRoleEntity> allContextRolesForUser = roleService.getAllContextRolesForUser(userEntity);
         List<UserContextRoleUpdate.ContextRole> contextRoles = new ArrayList<>();
         allContextRolesForUser.forEach(contextRoleForUser -> {
