@@ -201,7 +201,7 @@ services:
     env_file: .env
     environment:
       - JUPYTERHUB_SERVICE_NAME=host.docker.internal:8000
-      - SPRING_R2DBC_URL=r2dbc:postgresql://postgres:5432/hd_metainfo
+      - SPRING_R2DBC_URL=r2dbc:postgresql://host.docker.internal:35432/hd_metainfo
       - SPRING_R2DBC_USERNAME=postgres
       - SPRING_R2DBC_PASSWORD=postgres
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
@@ -223,7 +223,7 @@ services:
     env_file: .env
     environment:
       - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal:35432/hellodata_product_development_default_data_domain_dwh
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:35432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
       - HELLO_DATA_INSTANCE_URL=http://localhost:8088/
       - HELLO_DATA_INSTANCE_NAME=Jupyterhub Default Data Domain
