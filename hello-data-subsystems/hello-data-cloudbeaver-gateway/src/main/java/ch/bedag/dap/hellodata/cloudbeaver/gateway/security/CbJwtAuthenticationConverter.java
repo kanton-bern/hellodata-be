@@ -45,14 +45,14 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class CbJwtAuthenticationConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-    private final UserService usreService;
+    private final UserService userService;
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt source) {
         String email = (String) source.getClaims().get("email");
         log.info("--> converting jwt to authorities for user {} ...", email);
         if (email != null) {
-            User u = usreService.findOneWithPermissionsByEmail(email);
+            User u = userService.findOneWithPermissionsByEmail(email);
             if (u != null) {
                 Set<GrantedAuthority> authorities = u.getAuthorities().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
                 log.info("\tloaded authorities {}", authorities);

@@ -25,40 +25,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.python_operator import PythonOperator
+FROM eclipse-temurin:17.0.9_9-jre
+LABEL MAINTAINER="HelloData Team"
 
+# add 'app' user with uid 3012 and corresponding group
+RUN useradd -d /app -m -s /bin/bash -u 3012 app -U
+USER app
+WORKDIR app
 
-
-default_args = {
-    'owner': 'your_name',
-    'depends_on_past': False,
-    'start_date': datetime(2023, 8, 25),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
-}
-
-dag = DAG(
-    'test',
-    default_args=default_args,
-    schedule_interval=timedelta(days=1),
-    catchup=False,
-)
-
-start_task = DummyOperator(task_id='start_task', dag=dag)
-
-def my_python_function():
-    # Your Python code here
-    pass
-
-python_task = PythonOperator(
-    task_id='python_task',
-    python_callable=my_python_function,
-    dag=dag,
-)
-
-end_task = DummyOperator(task_id='end_task', dag=dag)
-
-start_task >> python_task >> end_task
+COPY target/*.jar /app/app.jar
+CMD ["java", "-jar", "/app/app.jar"]

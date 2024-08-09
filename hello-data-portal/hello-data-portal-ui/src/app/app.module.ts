@@ -82,6 +82,7 @@ import {DataWarehouseModule} from "./pages/data-warehouse/data-warehouse.module"
 import {BaseComponent} from "./shared/components/base/base.component";
 import {DashboardImportExportModule} from "./pages/admin/dashboard-import-export/dashboard-import-export.module";
 import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
+import {AdvancedAnalyticsModule} from "./pages/advanced-analytics/advanced-analytics.module";
 
 registerLocaleData(localeDECH);
 
@@ -125,6 +126,7 @@ registerLocaleData(localeDECH);
     OrchestrationModule,
     DataMartModule,
     DataWarehouseModule,
+    AdvancedAnalyticsModule,
     LogoutModule,
     ToastModule,
     AnimateModule,

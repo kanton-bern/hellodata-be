@@ -59,6 +59,7 @@ export const environment: Environment = window.environment != undefined ? window
     dbtDocs: {protocol: 'https://', host: 'dbt-docs', domain: ''},
     dmViewer: {protocol: 'https://', host: 'dm-db', domain: ''},
     dwhViewer: {protocol: 'https://', host: 'dwh-db', domain: ''},
+    advancedAnalyticsViewer: {protocol: 'https://', host: 'jupyterhub', domain: ''},
     monitoringStatus: {protocol: 'https://', host: 'status', domain: ''},
     devToolsMailbox: {protocol: 'https://', host: 'mb', domain: ''},
     devToolsFileBrowser: {protocol: 'https://', host: 'fs', domain: ''}

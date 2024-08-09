@@ -25,28 +25,52 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
-import {VISITED_SUPERSETS_SESSION_STORAGE_KEY} from "../../pages/my-dashboards/embed-my-dashboard.component";
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HdCommonModule} from "../../hd-common.module";
+import {TranslocoModule} from "@ngneat/transloco";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
+import {ButtonModule} from "primeng/button";
+import {RippleModule} from "primeng/ripple";
+import {RouterLink} from "@angular/router";
+import {SharedModule} from "primeng/api";
+import {TableModule} from "primeng/table";
+import {TagModule} from "primeng/tag";
+import {DialogModule} from "primeng/dialog";
+import {InputTextModule} from "primeng/inputtext";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {ToolbarModule} from "primeng/toolbar";
+import {MenuModule} from "primeng/menu";
+import {AnimateModule} from "primeng/animate";
+import {DropdownModule} from "primeng/dropdown";
+import {AdvancedAnalyticsViewerComponent} from "./advanced-analytics-viewer.component";
 
-@Injectable({
-  providedIn: 'root'
+@NgModule({
+  declarations: [
+    AdvancedAnalyticsViewerComponent
+  ],
+  imports: [
+    CommonModule,
+    HdCommonModule,
+    TranslocoModule,
+    ReactiveFormsModule,
+    SubsystemIframeModule,
+    ButtonModule,
+    RippleModule,
+    RouterLink,
+    SharedModule,
+    TableModule,
+    TagModule,
+    DialogModule,
+    InputTextModule,
+    FormsModule,
+    ConfirmDialogModule,
+    ToolbarModule,
+    MenuModule,
+    AnimateModule,
+    DropdownModule
+  ]
 })
-export class OpenedSupersetsService {
-  public rememberOpenedSuperset(supersetUrl: string) {
-    const openedSupersets = sessionStorage.getItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY);
-    if (openedSupersets) {
-      const storedSetArray: string[] = JSON.parse(openedSupersets || '[]');
-      storedSetArray.push(supersetUrl);
-      // Convert the array back into a set to have unique urls
-      const storedSet: Set<string> = new Set<string>(storedSetArray);
-      const setArray: string[] = Array.from(storedSet);
-      const setString: string = JSON.stringify(setArray);
-      sessionStorage.setItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY, setString);
-    } else {
-      const mySet: Set<string> = new Set<string>([supersetUrl]);
-      const setArray: string[] = Array.from(mySet);
-      const setString: string = JSON.stringify(setArray);
-      sessionStorage.setItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY, setString);
-    }
-  }
+export class AdvancedAnalyticsModule {
 }

@@ -192,7 +192,7 @@ services:
     restart: always
     ports:
       # port the web interface should be accessible on
-      - '8001:80'
+      - '8002:80'
       # port the SMTP server should be accessible on
       - '25025:25'
       # port the IMAP server should be accessible on

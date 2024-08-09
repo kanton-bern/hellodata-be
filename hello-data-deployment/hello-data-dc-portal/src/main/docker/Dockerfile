@@ -57,6 +57,7 @@ RUN echo "window.environment = { \
               dbtDocs: {protocol: 'http://', host: 'localhost', domain: ':8086/dbt-docs'}, \
               dmViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
               dwhViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
+              advancedAnalyticsViewer: {protocol: 'http://', host: 'localhost', domain: ':8088'}, \
               monitoringStatus: {protocol: 'http://', host: 'localhost', domain: ':5099'}, \
               devToolsMailbox: {protocol: 'http://', host: 'localhost', domain: ':8001'}, \
               devToolsFileBrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'} \

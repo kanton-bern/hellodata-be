@@ -34,9 +34,9 @@ import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../app-navi-elements";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {OpenedSupersetsService} from "../../shared/services/opened-supersets.service";
+import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 
-export const VISITED_SUPERSETS_SESSION_STORAGE_KEY = 'visited_supersets';
+export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 export const LOGGED_IN_SUPERSET_USER = 'logged_in_superset_user';
 
 @Component({
@@ -47,7 +47,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
 
-  constructor(private store: Store<AppState>, private openedSupersetsService: OpenedSupersetsService) {
+  constructor(private store: Store<AppState>, private openedSupersetsService: OpenedSubsystemsService) {
     super();
     this.currentMyDashboardInfo$ = this.store.select(selectCurrentMyDashboardInfo).pipe(tap((dashboardInfo) => {
       if (dashboardInfo) {
@@ -74,7 +74,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
         this.url = supersetUrl + dashboardPath;
       }
 
-      this.openedSupersetsService.rememberOpenedSuperset(supersetUrl);
+      this.openedSupersetsService.rememberOpenedSubsystem(supersetUrl + 'logout');
       sessionStorage.setItem(sessionStorageKey, dashboardInfo.profile.email);
       const dataDomainName = dashboardInfo.appinfo?.businessContextInfo.subContext.name;
       this.createBreadcrumbs(dataDomainName, dashboardInfo.dashboard, dashboardInfo.currentUrl);
