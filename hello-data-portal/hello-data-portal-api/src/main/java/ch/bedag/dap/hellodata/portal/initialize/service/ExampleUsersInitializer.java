@@ -143,7 +143,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         }
         ExampleUsersCreatedEntity exampleUsersCreatedEntity = all.get(0);
         for (HdContextEntity dataDomain : dataDomains) {
-            if (!exampleUsersCreatedEntity.getDataDomainList().contains(dataDomain.getContextKey())) {
+            if (exampleUsersCreatedEntity.getDataDomainList() == null || !exampleUsersCreatedEntity.getDataDomainList().contains(dataDomain.getContextKey())) {
                 return false;
             }
         }
