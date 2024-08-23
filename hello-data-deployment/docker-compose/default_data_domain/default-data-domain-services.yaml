@@ -223,6 +223,7 @@ services:
     env_file: .env
     environment:
       - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:35432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
       - HELLO_DATA_INSTANCE_URL=http://localhost:8088/
       - HELLO_DATA_INSTANCE_NAME=Jupyterhub Default Data Domain
