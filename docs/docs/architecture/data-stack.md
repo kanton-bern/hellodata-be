@@ -87,6 +87,15 @@ It shows you the dependencies of your business's various tasks, ensuring that th
 *([see live in action](https://superset.datatest.ch/chart/add))*
 
 ![](../images/1062338827.png)
+
+
+## IDE - Juypter Hub
+
+Jupyter Notebooks and Jupyter Hub is an interactive IDE where you can code in Python or R (mainly) and implement your data science models, wrangling and cleaning your data, or visualize the data with charts. You are free to use what the Python or R libraries offer. It's a great tool to work with data interactively and share your results with others.
+
+#TODO: Add image here
+
+
 ## Storage Layer - Postgres
 
 Let's start with the storage layer. We use Postgres, the currently [most used and loved database](https://survey.stackoverflow.co/2023/#section-most-popular-technologies-databases). Postgres is versatile and simple to use. It's a **relational database** that can be customized and scaled extensively.

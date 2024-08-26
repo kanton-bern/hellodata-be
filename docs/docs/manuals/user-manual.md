@@ -101,6 +101,10 @@ The orchestrator is your task manager. You tell [Airflow](https://wiki.bedag.ch
 ![](../images/1068204596.png)
 ![](../images/1068204607.png)
 
+#### Jupyter Notebooks (Jupyter Hub)
+
+
+
 ### Administration
 
 Here you manage the portal configurations such as user, roles, announcements, FAQs, and documentation management.

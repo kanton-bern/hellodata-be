@@ -20,6 +20,7 @@ Resources encapsulated inside a **Data Domain** can be:
 - Data lineage documents of the DBT projects of the Data Domain.
     Dashboards, charts, and datasets within the superset instance of a Data Domain.
 - Airflow DAGs of the Data Domain.
+- JupyterHub
 
 On top, you can add **subsystems**. This can be seen as extensions that make HelloDATA pluggable with additional tools. We now support [CloudBeaver](https://github.com/dbeaver/cloudbeaver) for viewing your Postgres databases, RtD, and Gitea. You can imagine adding almost infinite tools with capabilities you'd like to have (data catalog, semantic layer, specific BI tool, Jupyter Notebooks, etc.).
 
