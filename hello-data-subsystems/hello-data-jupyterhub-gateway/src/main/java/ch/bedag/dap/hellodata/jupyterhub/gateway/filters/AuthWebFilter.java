@@ -46,7 +46,7 @@ public class AuthWebFilter implements WebFilter {
             boolean hasDataJupyterAuthority = token.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(auth -> auth.equals(DATA_JUPYTER_AUTHORITY));
 
             if (!hasDataJupyterAuthority) {
-                log.info("\t--->User does not have DATA_JUPYTER authority. Access denied.");
+                log.warn("\t--->User does not have DATA_JUPYTER authority. Access denied.");
                 exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
                 return exchange.getResponse().setComplete();
             }
