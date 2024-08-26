@@ -48,10 +48,20 @@ public class TokenAuthenticationFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        String path = exchange.getRequest().getURI().getPath();
+
+        // Exclude /actuator and /metrics paths from filtering
+        if (path.startsWith("/actuator") || path.startsWith("/metrics")) {
+            log.info("\n\n-->TokenAuthenticationFilter skipped for path: {}", path);
+            return chain.filter(exchange);
+        }
+
         log.info("\n\n-->TokenAuthenticationFilter");
-        log.info("\t--->Requested URI Path: \n\t{}", exchange.getRequest().getURI().getPath());
+        log.info("\t--->Requested URI Path: \n\t{}", path);
         log.info("\t--->existing cookies: \n\t{}",
-                 exchange.getRequest().getCookies().entrySet().stream().map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n").toList());
+                exchange.getRequest().getCookies().entrySet().stream()
+                        .map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n")
+                        .toList());
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         HttpHeaders headers = exchange.getRequest().getHeaders();
@@ -71,7 +81,11 @@ public class TokenAuthenticationFilter implements WebFilter {
                 httpHeaders.add(SecurityConfig.AUTHORIZATION_HEADER_NAME, "Bearer " + token);
             }
         }).build();
-        log.info("\t--->Added headers: {}", exchange.getRequest().getHeaders().entrySet().stream().map(entry -> "\n\t" + entry.getKey() + ": " + entry.getValue() + "\n").toList());
+
+        log.info("\t--->Added headers: {}", request.getHeaders().entrySet().stream()
+                .map(entry -> "\n\t" + entry.getKey() + ": " + entry.getValue() + "\n")
+                .toList());
+
         return chain.filter(exchange.mutate().request(request).build());
     }
 }
