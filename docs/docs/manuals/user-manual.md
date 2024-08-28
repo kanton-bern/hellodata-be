@@ -103,7 +103,26 @@ The orchestrator is your task manager. You tell [Airflow](https://wiki.bedag.ch
 
 #### Jupyter Notebooks (Jupyter Hub)
 
+If you have one of the roles of `HELLODATA_ADMIN`, `BUSINESS_DOMAIN_ADMIN`, or `DATA_DOMAIN_ADMIN`, you can access Jupyter Hub and its notebooks with:
 
+![](../images/Pasted%20image%2020240828153754.png)
+
+
+That opens up Jupyter Hub where you choose the base image you want to start with. E.g. you choose Data Science to do ML workloads, or R if you solely want to work with R. This could look like this:
+
+![](../images/Pasted%20image%2020240828153902.png)
+
+
+After you can start creating notebooks with `File -> New -> Notebook`:
+
+![](../images/Pasted%20image%2020240828155058.png)
+After you choose the language (e.g. Python for Python notebooks, or R).
+
+After you can start running commands like you do in Jupyter Notebooks.
+
+![JupyterNotebook](https://docs.jupyter.org/en/latest/_images/jupyterlab.png)
+
+See the [official documentation](https://docs.jupyter.org/) for help or functions.
 
 ### Administration
 
