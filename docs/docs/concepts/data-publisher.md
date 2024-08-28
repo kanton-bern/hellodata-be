@@ -9,8 +9,8 @@ The Data Publisher can be used to create greater transparency and make public da
 
 The architecture of the Data Publisher is structured as follows: 
 
-![](../images/Pasted%20image%2020240828142609.png)
- 
+![](../images/Pasted%20image%2020240828160506.png)
+
 - **Synchroniser**: The Synchroniser reads the data from the Datamart and converts it into a structured format (CSV, XLM, JSON). In a further step, this is stored on a filestorage.  
 - **Filestorage**:  The filestorage serves as storage for various structured file formats. The filestorage is created within a Kubernetes cluster.  
 - **Web server**:  The web server accesses the data stored on the filestorage. It also ensures that the data can be accessed via the https format and displayed/downloaded via a browser.  
@@ -19,7 +19,7 @@ The architecture of the Data Publisher is structured as follows:
 
 The end-to-end process of the Data Publisher is as follows: 
 
-![](../images/Pasted%20image%2020240828142731.png)
+![](../images/Pasted%20image%2020240828160627.png)
  
 
 The blue boxes represent the current process that is already provided by HelloData BE with the help of DAGs. The orange boxes represent the tasks that are performed by the Data Publisher. 
@@ -36,7 +36,7 @@ The blue boxes represent the current process that is already provided by HelloDa
 To configure the data publisher, the data owner must define the required tables and columns to be made available as OGD data. Once these have been defined, the data engineer or data analyst must configure the DAG so that the defined OGD data is written to a separate schema (usually the UDM layer). Once this has been set up, the Synchroniser can be configured as to which schema the tables should be exported from. This process with the corresponding responsibilities is shown in the illustration:  
 
 
-![](../images/Pasted%20image%2020240828143526.png)
+![](../images/Pasted%20image%2020240828160346.png)
 
 ## Technical process
 
@@ -46,7 +46,7 @@ The Data Publisher process runs in parallel and is executed automatically at def
 
 Using a web server, the data can then be made available on the file repository via HTTPS. This allows the end user to be provided with a URL via which they can download the data. 
 
+![](../images/Pasted%20image%2020240828160429.png)
 
-![](../images/Pasted%20image%2020240828144917.png)
 
  
