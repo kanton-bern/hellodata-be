@@ -89,11 +89,31 @@ It shows you the dependencies of your business's various tasks, ensuring that th
 ![](../images/1062338827.png)
 
 
-## IDE - Juypter Hub
+## IDE - Juypter Notebooks with Jupyter Hub
 
 Jupyter Notebooks and Jupyter Hub is an interactive IDE where you can code in Python or R (mainly) and implement your data science models, wrangling and cleaning your data, or visualize the data with charts. You are free to use what the Python or R libraries offer. It's a great tool to work with data interactively and share your results with others.
 
-#TODO: Add image here
+Jupyter Hub is a multi-user Hub that spawns, manages, and proxies multiple instances of the single-user Jupyter notebook server. If you haven't heard of Jupyter Hub, you most certanily have seen or heard of [Jupyter Notebooks](https://jupyter.org/), which turns your web browser into a interactive IDE.
+
+Jupyter Hub is encapsulating Jupyter Notebooks into a multi-user enviroment with lots of additonal features. In this part, we mostly focus on the feature of Jupyter Notebooks, as these are the once you and users will interact.
+
+![Jupyter Notebook](https://jupyter.org/assets/homepage/jupyterpreview.webp)]
+
+### Features
+
+To name a few of [Jupyter Notebooks](https://jupyter.org/) features:
+
+- **Language of Choice**: Jupyter Notebooks support over 40 programming languages, including Python, R, Julia, and Scala.
+- **Interactive Data Science**: Jupyter Notebooks are a great tool for interactive data science. You can write code, visualize data, and share your results in a single document. It allows with most prominent libraries like Pandas, NumPy, Matplotlib, Apache Spark and many more.
+- **Share notebooks**: In notebooks you can document your code along side with visualizations. When done, you can share your Jupyter Notebooks with others via link or by exporting them to HTML, PDF, or slideshows.
+
+What [Jupyter Hub](https://jupyter.org/hub) adds on top:
+
+- **Customizable**: JupyterHub can be used to serve a variety of environments. It supports dozens of kernels with the Jupyter server, and can be used to serve a variety of user interfaces including the Jupyter Notebook, Jupyter Lab, RStudio, nteract, and more.
+- **Flexible**: JupyterHub can be configured with authentication in order to provide access to a subset of users. Authentication is pluggable, supporting a number of authentication protocols (such as OAuth and GitHub).
+- **Scalable**: JupyterHub is container-friendly, and can be deployed with modern-day container technology. It also runs on Kubernetes, and can run with up to tens of thousands of users.
+- **Portable**: JupyterHub is entirely open-source and designed to be run on a variety of infrastructure. This includes commercial cloud providers, virtual machines, or even your own laptop hardware.
+
 
 
 ## Storage Layer - Postgres

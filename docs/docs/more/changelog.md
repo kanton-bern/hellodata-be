@@ -1,4 +1,9 @@
-# Changelog
+# Changelog: HD-BE Documentation
+
+## 2024-08-28 Added new features
+- Added *Jupyter Hub* on the data stack page.
+- Added *Data Publisher* to the concept page.
+- Updated user manual related to the new features.
 
 ## 2023-11-22 Concepts
 - Added *workspaces* on the concepts page.
