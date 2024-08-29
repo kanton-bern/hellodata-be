@@ -54,14 +54,17 @@ public class WebFluxLogFilter implements WebFilter, Ordered {
                 log.info("Ip: {}", exchange.getRequest().getRemoteAddress());
                 log.info("Method: {}", exchange.getRequest().getMethod());
                 log.info("Path: {}", exchange.getRequest().getURI());
-                log.info("Headers: {}", exchange.getRequest()
+                log.info("Request Headers: {}", exchange.getRequest()
                         .getHeaders()
                         .entrySet()
                         .stream()
-                        .filter(stringListEntry -> !stringListEntry.getKey()
-                                .equals(SecurityConfig.AUTHORIZATION_HEADER_NAME))
                         .toList());
                 log.info("Response: {}", exchange.getResponse().getStatusCode());
+                log.info("Response Headers: {}", exchange.getResponse()
+                        .getHeaders()
+                        .entrySet()
+                        .stream()
+                        .toList());
                 log.info("\n:: End Request Log ::");
             }
         });
