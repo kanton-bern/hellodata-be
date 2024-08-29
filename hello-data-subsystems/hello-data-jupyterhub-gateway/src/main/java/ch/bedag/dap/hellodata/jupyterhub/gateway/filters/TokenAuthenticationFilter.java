@@ -51,8 +51,8 @@ public class TokenAuthenticationFilter implements WebFilter {
         String path = exchange.getRequest().getURI().getPath();
 
         // Exclude /actuator and /metrics paths from filtering
-        if (path.startsWith("/actuator") || path.startsWith("/metrics")) {
-            log.info("\n\n-->TokenAuthenticationFilter skipped for path: {}", path);
+        if (path.startsWith("/actuator") || path.startsWith("/metrics") || path.startsWith("/hub/metrics")) {
+            log.debug("\n\n-->TokenAuthenticationFilter skipped for path: {}", path);
             return chain.filter(exchange);
         }
 
@@ -70,7 +70,7 @@ public class TokenAuthenticationFilter implements WebFilter {
         boolean hasAuthCookie = cookie != null && !cookie.isEmpty();
 
         if (!hasAuthHeader && !hasAuthCookie) {
-            log.info("\t--->No Authorization header or auth.access_token cookie found. Access denied.");
+            log.warn("\t--->No Authorization header or auth.access_token cookie found. Access denied.");
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
         }
