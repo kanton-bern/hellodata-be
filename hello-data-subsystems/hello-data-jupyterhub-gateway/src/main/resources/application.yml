@@ -114,12 +114,16 @@ spring:
             - Path=/**
           filters:
             - RemoveRequestCookie
+            - RemoveResponseHeader=Content-Security-Policy
+            - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
         - id: jupyterhub_websocket_route
           uri: ws://${hello-data.jupyterhub.service-name}
           predicates:
             - Path=/**
           filters:
             - RemoveRequestCookie
+            - RemoveResponseHeader=Content-Security-Policy
+            - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
 server:
   port: 8088
   error:
