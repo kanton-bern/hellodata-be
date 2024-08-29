@@ -70,4 +70,4 @@ Horizontal scaling of the infrastructure can be done within the given resources 
 
 ## Platform Authentication Authorization
 
-See at [Roles and authorization concept](/manuals/role-authorization-concept/).
+See at [Roles and authorization concept](../manuals/role-authorization-concept.md).
