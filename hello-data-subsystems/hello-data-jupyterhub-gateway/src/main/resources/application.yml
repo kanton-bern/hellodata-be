@@ -115,6 +115,8 @@ spring:
           filters:
             - RemoveRequestCookie
             - RemoveResponseHeader=Content-Security-Policy
+            - AddRequestHeader=sec-fetch-dest, document
+            - AddRequestHeader=Origin, ${CSP_FRAME_ANCESTORS}
             - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
         - id: jupyterhub_websocket_route
           uri: ws://${hello-data.jupyterhub.service-name}
@@ -123,6 +125,8 @@ spring:
           filters:
             - RemoveRequestCookie
             - RemoveResponseHeader=Content-Security-Policy
+            - AddRequestHeader=sec-fetch-dest, document
+            - AddRequestHeader=Origin, ${CSP_FRAME_ANCESTORS}
             - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
 server:
   port: 8088
