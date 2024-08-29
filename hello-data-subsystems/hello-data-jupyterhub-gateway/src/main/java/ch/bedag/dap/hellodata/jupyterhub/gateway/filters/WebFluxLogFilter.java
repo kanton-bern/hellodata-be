@@ -49,15 +49,20 @@ public class WebFluxLogFilter implements WebFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return chain.filter(exchange).doOnEach(signal -> {
             if (signal.isOnComplete() || signal.isOnError()) {
-                log.debug("\n\nlog :: \n\trequestId: {}, \n\tip: {}, \n\tmethod: {}, \n\tpath :{}, \n\theaders: {}, \n\tresponse :{}", exchange.getRequest().getId(),
-                          exchange.getRequest().getRemoteAddress(), exchange.getRequest().getMethod(), exchange.getRequest().getURI(), exchange.getRequest()
-                                                                                                                                               .getHeaders()
-                                                                                                                                               .entrySet()
-                                                                                                                                               .stream()
-                                                                                                                                               .filter(stringListEntry -> !stringListEntry.getKey()
-                                                                                                                                                                                          .equals(SecurityConfig.AUTHORIZATION_HEADER_NAME))
-                                                                                                                                               .toList(),
-                          exchange.getResponse().getStatusCode());
+                log.info("\n:: Request Log ::");
+                log.info("Request id: {}", exchange.getRequest().getId());
+                log.info("Ip: {}", exchange.getRequest().getRemoteAddress());
+                log.info("Method: {}", exchange.getRequest().getMethod());
+                log.info("Path: {}", exchange.getRequest().getURI());
+                log.info("Headers: {}", exchange.getRequest()
+                        .getHeaders()
+                        .entrySet()
+                        .stream()
+                        .filter(stringListEntry -> !stringListEntry.getKey()
+                                .equals(SecurityConfig.AUTHORIZATION_HEADER_NAME))
+                        .toList());
+                log.info("Response: {}", exchange.getResponse().getStatusCode());
+                log.info("\n:: End Request Log ::");
             }
         });
     }
