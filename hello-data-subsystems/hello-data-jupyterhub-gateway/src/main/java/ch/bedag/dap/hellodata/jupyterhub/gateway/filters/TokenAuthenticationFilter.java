@@ -51,7 +51,7 @@ public class TokenAuthenticationFilter implements WebFilter {
         String path = exchange.getRequest().getURI().getPath();
 
         // Exclude /actuator and /metrics paths from filtering
-        if (path.startsWith("/actuator") || path.startsWith("/metrics") || path.startsWith("/hub/metrics")) {
+        if (path.startsWith("/actuator") || path.startsWith("/metrics") || path.startsWith("/hub/metrics") || path.endsWith("/metrics")) {
             log.debug("\n\n-->TokenAuthenticationFilter skipped for path: {}", path);
             return chain.filter(exchange);
         }
