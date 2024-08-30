@@ -114,20 +114,20 @@ spring:
             - Path=/**
           filters:
             - RemoveRequestCookie
-            - RemoveResponseHeader=Content-Security-Policy
-            - AddRequestHeader=sec-fetch-dest, document
-            - AddRequestHeader=Origin, ${ORIGIN_HEADER_VALUE}
-            - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
+#            - RemoveResponseHeader=Content-Security-Policy
+#            - AddRequestHeader=sec-fetch-dest, document
+#            - AddRequestHeader=Origin, ${ORIGIN_HEADER_VALUE}
+#            - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
         - id: jupyterhub_websocket_route
           uri: ws://${hello-data.jupyterhub.service-name}
           predicates:
             - Path=/**
           filters:
             - RemoveRequestCookie
-            - RemoveResponseHeader=Content-Security-Policy
-            - AddRequestHeader=sec-fetch-dest, document
-            - AddRequestHeader=Origin, ${ORIGIN_HEADER_VALUE}
-            - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
+#            - RemoveResponseHeader=Content-Security-Policy
+#            - AddRequestHeader=sec-fetch-dest, document
+#            - AddRequestHeader=Origin, ${ORIGIN_HEADER_VALUE}
+#            - AddResponseHeader=Content-Security-Policy, "frame-ancestors 'self' ${CSP_FRAME_ANCESTORS}"
 server:
   port: 8088
   error:
