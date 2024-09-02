@@ -276,5 +276,6 @@ $RECYCLE.BIN/
 /hello-data-deployment/etls/
 
 #Obsidian
-.obsidian/
+# .obsidian/
+
 /hello-data-deployment/docker-compose/base/airflow/conf/

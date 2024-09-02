@@ -108,11 +108,12 @@ nav:
   - Concepts:
       - Showcase: concepts/showcase.md
       - Workspaces: concepts/workspaces.md
+      - Data Publisher: concepts/data-publisher.md
   - Manuals:
       - User Manual: manuals/user-manual.md
       - Roles & Authorization: manuals/role-authorization-concept.md
   - More:
-      - FAQ: more/faq.md
-      - Glossary: more/glossary.md
       - Changelog: more/changelog.md
+      - Glossary: more/glossary.md
+      - FAQ: more/faq.md
     # - Features Examples: test/examples.md
