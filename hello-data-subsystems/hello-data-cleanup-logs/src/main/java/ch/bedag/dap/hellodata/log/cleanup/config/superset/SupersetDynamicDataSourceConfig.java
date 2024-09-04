@@ -24,36 +24,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.log.cleanup.model.superset;
+package ch.bedag.dap.hellodata.log.cleanup.config.superset;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.time.LocalDateTime;
+@RequiredArgsConstructor
+@Configuration
+public class SupersetDynamicDataSourceConfig {
+    private final SupersetDatasourceConfigurationProperties supersetDatasourceConfigurationProperties;
 
-@Getter
-@Entity(name = "logs")
-public class SupersetLogEntity {
-    @Id
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private SupersetUser user;
-
-    private String action;
-    private String referrer;
-    private String json;
-    private LocalDateTime dttm;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
+    @Bean
+    public SupersetDynamicDataSource supersetDynamicDataSource() {
+        SupersetDynamicDataSource dynamicDataSource = new SupersetDynamicDataSource();
+        for (SupersetDataSourceConfigurationProperty supersetDataSourceConfigurationProperty : supersetDatasourceConfigurationProperties.getSupersets()) {
+            String username = supersetDataSourceConfigurationProperty.getUsername();
+            String password = supersetDataSourceConfigurationProperty.getPassword();
+            String jdbcUrl = supersetDataSourceConfigurationProperty.getJdbcUrl();
+            dynamicDataSource.addDataSource(jdbcUrl, username, password);
+        }
+        return dynamicDataSource;
     }
 }

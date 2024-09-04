@@ -26,28 +26,23 @@
  */
 package ch.bedag.dap.hellodata.log.cleanup.service;
 
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class LogCleanupService {
 
     private final List<CleanupService> cleanupServices;
     @Value("${hello-data.log-cleanup.olderThanInDays:365}")
     private int deleteEntriesOlderThanDays;
-
-    @Autowired
-    public LogCleanupService(List<CleanupService> cleanupServices) {
-        this.cleanupServices = cleanupServices;
-    }
 
     @PostConstruct
     public void logConfiguration() {
