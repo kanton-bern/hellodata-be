@@ -124,6 +124,55 @@ After you can start running commands like you do in Jupyter Notebooks.
 
 See the [official documentation](https://docs.jupyter.org/) for help or functions.
 
+##### Connect to HD Postgres DB
+By default, a connection to your own Postgres DB can be made.
+
+The default session time is 24h as of now and can be changed with ENV `HELLODATA_JUPYTERHUB_TEMP_USER_PASSWORD_VALID_IN_DAYS`.
+###### How to connect to the database
+
+This is how to get a db-connection:
+
+```
+from hello_data_scripts import connect # import the function
+connection = connect() # use function, it fetches the temp user creds and establishes the connection
+```
+
+`connection` can be used to read from postgres.
+###### Example
+
+This is a more extensive example of querying the Postgres database. Imagine `SELECT version();` as your custom query or logic you want to do.
+
+```
+import sys
+import psycopg2
+from hello_data_scripts import connect  
+
+# Get the database connection
+connection = connect()
+
+if connection is None:
+    print("Failed to connect to the database.")
+    sys.exit(1)
+
+try:
+    # Create a cursor object
+    cursor = connection.cursor()
+    
+    # Example query to check the connection
+    cursor.execute("SELECT version();")
+    db_version = cursor.fetchone()
+    print(f"Connected to database. PostgreSQL version: {db_version}")
+    
+except psycopg2.Error as e:
+    print(f"An error occurred while performing database operations: {e}")
+    
+finally:
+    # Close the cursor and connection
+    cursor.close()
+    connection.close()
+    print("Database connection closed.")
+```
+
 ### Administration
 
 Here you manage the portal configurations such as user, roles, announcements, FAQs, and documentation management.
