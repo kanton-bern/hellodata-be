@@ -128,7 +128,7 @@ services:
       args:
         JUPYTERHUB_VERSION: latest
     restart: always
-    image: hello-data-jupyterhub
+    image: hellodata-jupyterhub-notebook-default-data-domain
     container_name: jupyterhub-default-data-domain
     networks:
       - hello-data-network
@@ -149,7 +149,6 @@ services:
       # All containers will join this network
       DOCKER_NETWORK_NAME: hello-data-network
       # JupyterHub will spawn this Notebook image for users
-      #DOCKER_NOTEBOOK_IMAGE: quay.io/jupyter/base-notebook:latest
       DOCKER_NOTEBOOK_IMAGE: hello-data-base-notebook:latest
       # Notebook directory inside user image
       DOCKER_NOTEBOOK_DIR: /home/jovyan/work
@@ -187,7 +186,6 @@ services:
     build:
       context: ./base/jupyterhub
       dockerfile: Dockerfile.base_notebook
-    image: hello-data-base-notebook
     environment:
       - JUPYTER_ENABLE_LAB=yes
     networks:
