@@ -9,7 +9,7 @@ connection = connect() # use function, it fetches the temp user creds and establ
 
 ```
 import sys
-import psycopg2
+#import psycopg2 -> this is imported through the below hello_data_scripts import
 from hello_data_scripts import connect  
 
 # Get the database connection

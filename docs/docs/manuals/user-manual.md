@@ -144,7 +144,7 @@ This is a more extensive example of querying the Postgres database. Imagine `SEL
 
 ```python
 import sys
-import psycopg2
+#import psycopg2 -> this is imported through the below hello_data_scripts import
 from hello_data_scripts import connect  
 
 # Get the database connection
