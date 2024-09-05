@@ -31,13 +31,11 @@ import ch.bedag.dap.hellodata.log.cleanup.model.cloudbeaver.CloudbeaverAuthAttem
 import ch.bedag.dap.hellodata.log.cleanup.model.cloudbeaver.CloudbeaverAuthAttemptInfoEntity;
 import ch.bedag.dap.hellodata.log.cleanup.model.cloudbeaver.CloudbeaverAuthTokenEntity;
 import ch.bedag.dap.hellodata.log.cleanup.model.cloudbeaver.CloudbeaverSessionEntity;
-import ch.bedag.dap.hellodata.log.cleanup.model.superset.SupersetLogEntity;
 import ch.bedag.dap.hellodata.log.cleanup.repo.airflow.AirflowLogRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthAttemptInfoTokenRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthAttemptRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthTokenRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverSessionRepository;
-import ch.bedag.dap.hellodata.log.cleanup.repo.superset.SupersetLogRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,9 +61,6 @@ class LogCleanupServiceTest {
 
     @Autowired
     private AirflowLogRepository airflowLogRepository;
-
-    @Autowired
-    private SupersetLogRepository supersetLogRepository;
 
     @Autowired
     private CloudBeaverSessionRepository cloudBeaverSessionRepository;
@@ -98,10 +93,15 @@ class LogCleanupServiceTest {
         registry.add("spring.datasource.username", postgresContainer::getUsername);
         registry.add("spring.datasource.password", postgresContainer::getPassword);
 
-        registry.add("spring.superset.jdbc-url",
-                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
-        registry.add("spring.superset.username", postgresContainer::getUsername);
-        registry.add("spring.superset.password", postgresContainer::getPassword);
+        registry.add("spring.supersets[0].jdbc-url",
+                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset_one", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+        registry.add("spring.supersets[0].username", postgresContainer::getUsername);
+        registry.add("spring.supersets[0].password", postgresContainer::getPassword);
+
+        registry.add("spring.supersets[1].jdbc-url",
+                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset_two", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+        registry.add("spring.supersets[1].username", postgresContainer::getUsername);
+        registry.add("spring.supersets[1].password", postgresContainer::getPassword);
 
         registry.add("spring.cloudbeaver.jdbc-url",
                      () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=cloudbeaver", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
@@ -113,8 +113,10 @@ class LogCleanupServiceTest {
     public void setup() {
         ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/airflow-init.sql");
         ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/airflow-test-data.sql");
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-init.sql");
-        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-test-data.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-one-init.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-one-test-data.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-two-init.sql");
+        ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/superset-two-test-data.sql");
         ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/cloudbeaver-init.sql");
         ScriptUtils.runInitScript(new JdbcDatabaseDelegate(postgresContainer, ""), "sql/cloudbeaver-test-data.sql");
     }
@@ -128,9 +130,6 @@ class LogCleanupServiceTest {
         //Pre-Check that data is available
         List<AirflowLogEntity> all = airflowLogRepository.findAllWithCreationDateTimeBefore(creationDateTime);
         assertThat(all).isNotEmpty();
-
-        List<SupersetLogEntity> supersetLogEntites = supersetLogRepository.findAllWithCreationDateTimeBefore(creationDateTime);
-        assertThat(supersetLogEntites).isNotEmpty();
 
         List<CloudbeaverSessionEntity> cloudbeaverSessionEntities = cloudBeaverSessionRepository.findAllWithCreationDateTimeBefore(creationDateTime);
         assertThat(cloudbeaverSessionEntities).isNotEmpty();
@@ -150,9 +149,6 @@ class LogCleanupServiceTest {
         //Then
         List<AirflowLogEntity> airflowLogEntries = airflowLogRepository.findAllWithCreationDateTimeBefore(creationDateTime);
         assertThat(airflowLogEntries).isEmpty();
-
-        supersetLogEntites = supersetLogRepository.findAllWithCreationDateTimeBefore(creationDateTime);
-        assertThat(supersetLogEntites).isEmpty();
 
         cloudbeaverSessionEntities = cloudBeaverSessionRepository.findAllWithCreationDateTimeBefore(creationDateTime);
         assertThat(cloudbeaverSessionEntities).isEmpty();

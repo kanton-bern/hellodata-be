@@ -26,33 +26,57 @@
  */
 package ch.bedag.dap.hellodata.log.cleanup.service.superset;
 
-import ch.bedag.dap.hellodata.log.cleanup.model.superset.SupersetLogEntity;
-import ch.bedag.dap.hellodata.log.cleanup.repo.superset.SupersetLogRepository;
+import ch.bedag.dap.hellodata.log.cleanup.config.superset.SupersetDynamicDataSource;
 import ch.bedag.dap.hellodata.log.cleanup.service.CleanupService;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class SupersetCleanupService implements CleanupService {
 
-    private final SupersetLogRepository supersetLogRepository;
+    private static final String FIND_LOGS_BEFORE_SQL = "SELECT count(a) FROM logs a WHERE a.dttm <= ?";
+    private static final String DELETE_LOGS_BEFORE_SQL = "DELETE FROM logs a WHERE a.dttm <= ?";
+    private final SupersetDynamicDataSource supersetDynamicDataSource;
 
-    public SupersetCleanupService(SupersetLogRepository supersetLogRepository) {
-        this.supersetLogRepository = supersetLogRepository;
+    public void cleanup(LocalDateTime creationDateTime) {
+        for (String key : supersetDynamicDataSource.getDataSources().keySet()) {
+            DataSource dataSource = supersetDynamicDataSource.getDataSource(key);
+            try (Connection connection = dataSource.getConnection()) {
+                findAllWithCreationDateTimeBefore(creationDateTime, connection);
+                deleteAllWithCreationDateTimeBefore(creationDateTime, connection);
+            } catch (SQLException e) {
+                log.error("", e);
+            }
+        }
     }
 
-    @Override
-    @Transactional("supersetTransactionManager")
-    public void cleanup(LocalDateTime creationDateTime) {
-        List<SupersetLogEntity> supersetLogs = supersetLogRepository.findAllWithCreationDateTimeBefore(creationDateTime);
-        log.info("Found {} superset log entries", supersetLogs.size());
+    private static void deleteAllWithCreationDateTimeBefore(LocalDateTime creationDateTime, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(DELETE_LOGS_BEFORE_SQL)) {
+            statement.setDate(1, Date.valueOf(creationDateTime.toLocalDate()));
+            int deletedRows = statement.executeUpdate();
+            log.info("Deleted {} superset log entries for {}, schema {}", deletedRows, connection.getCatalog(), connection.getSchema());
+        }
+    }
 
-        int deletedCount = supersetLogRepository.deleteAllWithCreationDateTimeBefore(creationDateTime);
-        log.info("Deleted {} superset log entries", deletedCount);
+    private static void findAllWithCreationDateTimeBefore(LocalDateTime creationDateTime, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(FIND_LOGS_BEFORE_SQL)) {
+            statement.setDate(1, Date.valueOf(creationDateTime.toLocalDate()));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String found = resultSet.getString(1);
+                    log.info("Found {} superset log entries for {}, schema {}", found, connection.getCatalog(), connection.getSchema());
+                }
+            }
+        }
     }
 }

@@ -24,24 +24,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.log.cleanup.repo.superset;
+package ch.bedag.dap.hellodata.log.cleanup.config.superset;
 
-import ch.bedag.dap.hellodata.log.cleanup.model.superset.SupersetLogEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-
-public interface SupersetLogRepository extends JpaRepository<SupersetLogEntity, Long> {
-
-    @Query("select a from logs a where a.dttm <= :creationDateTime")
-    List<SupersetLogEntity> findAllWithCreationDateTimeBefore(@Param("creationDateTime") LocalDateTime creationDateTime);
-
-    @Query("delete from logs a where a.dttm <= :creationDateTime")
-    @Modifying
-    int deleteAllWithCreationDateTimeBefore(@Param("creationDateTime") LocalDateTime creationDateTime);
+@Data
+@Validated
+public class SupersetDataSourceConfigurationProperty {
+    private String driverClassName;
+    @NotBlank
+    private String jdbcUrl;
+    @NotBlank
+    private String username;
+    @NotBlank
+    private String password;
 }

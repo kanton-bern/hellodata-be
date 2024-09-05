@@ -39,11 +39,11 @@ spring:
     jdbc-url: jdbc:postgresql://airflow-db:25436/airflow
     password: airflow
     username: airflow
-  superset:
-    driver-class-name: org.postgresql.Driver
-    jdbc-url: jdbc:postgresql://superset-db:25438/superset
-    password: superset
-    username: superset
+  supersets:
+    - driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://superset-db:25438/superset
+      password: superset
+      username: superset
 
 hello-data:
   log-cleanup:
