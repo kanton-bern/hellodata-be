@@ -132,7 +132,7 @@ The default session time is 24h as of now and can be changed with ENV `HELLODATA
 
 This is how to get a db-connection:
 
-```
+```python
 from hello_data_scripts import connect # import the function
 connection = connect() # use function, it fetches the temp user creds and establishes the connection
 ```
@@ -142,7 +142,7 @@ connection = connect() # use function, it fetches the temp user creds and establ
 
 This is a more extensive example of querying the Postgres database. Imagine `SELECT version();` as your custom query or logic you want to do.
 
-```
+```python
 import sys
 import psycopg2
 from hello_data_scripts import connect  
