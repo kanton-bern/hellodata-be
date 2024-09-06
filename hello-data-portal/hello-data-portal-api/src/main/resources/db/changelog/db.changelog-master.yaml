@@ -90,3 +90,7 @@ databaseChangeLog:
       file: db/changelog/changelogs/30_clear_storage_sizes.xml
   - include:
       file: db/changelog/changelogs/31_extend_instance_name_size.xml
+  - include:
+      file: db/changelog/changelogs/32_change_example_users_created_table.xml
+  - include:
+      file: db/changelog/changelogs/33_add_username_to_portal.xml

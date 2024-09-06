@@ -1,5 +1,4 @@
-select (
-        id,
+select  id,
         date_actual,
         epoch,
         day_suffix_en,
@@ -37,5 +36,4 @@ select (
         mm_yyyy,
         dd_mm_yyyy,
         qq_yyyy
-           )
 from {{ source('lzn', 'dim_time') }}

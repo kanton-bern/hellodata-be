@@ -394,8 +394,9 @@ $$
 --
 -- After insert Trigger on slices that sets all BI_EDITOR users as owner of the corresponding chart
 --
+DROP TRIGGER IF EXISTS insert_owners_on_new_dataset on slices;
 DROP TRIGGER IF EXISTS insert_owners_on_new_slice on slices;
-CREATE TRIGGER insert_owners_on_new_dataset
+CREATE TRIGGER insert_owners_on_new_slice
     AFTER INSERT ON slices
     FOR EACH ROW
 EXECUTE FUNCTION insert_owners_on_new_slice();

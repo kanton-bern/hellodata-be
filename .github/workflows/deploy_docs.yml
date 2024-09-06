@@ -3,8 +3,8 @@ name: Publish docs via GitHub Pages
 on:
   push:
     branches:
-      # only push released versions to doc
-      - main
+      # Update docs based on develop to be able to quickly update docs
+      - develop
 
 jobs:
   build:

@@ -50,7 +50,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.Superse
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
@@ -60,11 +59,13 @@ import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
-import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
-import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
+import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -76,6 +77,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -119,8 +121,9 @@ public class UserService {
 
     @Transactional
     public String createUser(String email, String firstName, String lastName) {
+        email = email.toLowerCase(Locale.ROOT);
         log.info("Creating user. Email: {}, first name: {}, last name {}", email, firstName, lastName);
-        validateEmail(email);
+        validateEmailAlreadyExists(email);
         String keycloakUserId;
         UserRepresentation userFoundInKeycloak = keycloakService.getUserRepresentationByEmail(email);
         if (userFoundInKeycloak == null) {
@@ -134,12 +137,13 @@ public class UserService {
             user.setRequiredActions(REQUIRED_ACTIONS);
             keycloakUserId = keycloakService.createUser(user);
         } else {
-            log.info("User {} already exists in the keycloak, creating only in portal", userFoundInKeycloak);
+            log.info("User {} already exists in the keycloak, creating only in portal", userFoundInKeycloak.getId());
             keycloakUserId = userFoundInKeycloak.getId();
         }
         UserEntity userEntity = new UserEntity();
         userEntity.setId(UUID.fromString(keycloakUserId));
         userEntity.setEmail(email);
+        userEntity.setUsername(userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername());
         userRepository.saveAndFlush(userEntity);
         roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
         roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);
@@ -147,10 +151,10 @@ public class UserService {
         return keycloakUserId;
     }
 
-    private void validateEmail(String email) {
+    public void validateEmailAlreadyExists(String email) {
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
         if (userEntityByEmail.isPresent()) {
-            throw new RuntimeException("@User email already exists");
+            throw new EntityExistsException("@User email already exists");
         }
     }
 
@@ -231,7 +235,7 @@ public class UserService {
         }
         SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
         UserRepresentation userRepresentation = userResource.toRepresentation();
-        subsystemUserDelete.setEmail(userRepresentation.getEmail());
+        subsystemUserDelete.setEmail(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
         subsystemUserDelete.setUsername(userRepresentation.getUsername());
         userResource.remove();
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
@@ -258,7 +262,7 @@ public class UserService {
         createUser.setFirstName(representation.getFirstName());
         createUser.setLastName(representation.getLastName());
         createUser.setUsername(representation.getUsername());
-        createUser.setEmail(representation.getEmail());
+        createUser.setEmail(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setActive(representation.isEnabled());
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
@@ -452,6 +456,7 @@ public class UserService {
     public void synchronizeContextRolesWithSubsystems(UserEntity userEntity) {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
         userContextRoleUpdate.setEmail(userEntity.getEmail());
+        userContextRoleUpdate.setUsername(userEntity.getUsername());
         List<UserContextRoleEntity> allContextRolesForUser = roleService.getAllContextRolesForUser(userEntity);
         List<UserContextRoleUpdate.ContextRole> contextRoles = new ArrayList<>();
         allContextRolesForUser.forEach(contextRoleForUser -> {

@@ -1,0 +1,9 @@
+{
+  "attachmentFolderPath": "images/",
+  "useMarkdownLinks": true,
+  "newLinkFormat": "relative",
+  "alwaysUpdateLinks": true,
+  "vimMode": false,
+  "showInlineTitle": false,
+  "promptDelete": false
+}

@@ -39,8 +39,8 @@ import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
-import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.ClientErrorException;
@@ -52,6 +52,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,12 +82,14 @@ public class UserController {
             String email = createUserRequestDto.getUser().getEmail();
             String firstName = createUserRequestDto.getUser().getFirstName();
             String lastName = createUserRequestDto.getUser().getLastName();
-
             String userId = userService.createUser(email, firstName, lastName);
             return CreateUserResponseDto.builder().userId(userId).build();
         } catch (ClientErrorException e) {
             log.error("Error on user creation", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
+        } catch (Exception e) {
+            log.error("", e);
+            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, e.getMessage());
         }
     }
 

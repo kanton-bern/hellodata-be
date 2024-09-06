@@ -32,7 +32,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectCurrentContextRoles, selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../auth/auth.selector";
 import {filter, take} from "rxjs/operators";
-import {selectAvailableDataDomainItems, selectMyDashboards} from "../my-dashboards/my-dashboards.selector";
+import {selectAvailableDataDomainItems, selectMyDashboards, selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
 import {TranslateService} from "../../shared/services/translate.service";
@@ -41,6 +41,8 @@ import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
+import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -52,7 +54,8 @@ export class MenuService {
 
   constructor(
     private _store: Store<AppState>,
-    private _translateService: TranslateService
+    private _translateService: TranslateService,
+    private _openedSubsystemsService: OpenedSubsystemsService
   ) {
   }
 
@@ -92,10 +95,12 @@ export class MenuService {
       this._store.select(selectMyLineageDocs),
       this._store.select(selectAppInfos),
       this._store.select(selectCurrentContextRoles),
-      this._store.select(selectAvailableDataDomainItems)
+      this._store.select(selectAvailableDataDomainItems),
+      this._store.select(selectSelectedDataDomain)
     ]).pipe(
       map(([myDashboards, myDocs,
-             appInfos, contextRoles, availableDomainItems]) => {
+             appInfos, contextRoles, availableDomainItems, selectedDataDomain]) => {
+
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
           if (item.routerLink && !(/^\//.test(item.routerLink))) {
@@ -114,6 +119,12 @@ export class MenuService {
           if (menuItem.text === '@Data Marts') {
             menuItem.items = this.createDataMartsSubNav(availableDomainItems);
           }
+          if (menuItem.id === 'dataEngMenu') {
+            const jupyterhubSubNavs = this.createJupyterhubSubNav(appInfos, contextRoles, selectedDataDomain);
+            for (const jupyterhubSubNav of jupyterhubSubNavs) {
+              menuItem.items.push(jupyterhubSubNav);
+            }
+          }
           return menuItem;
         });
       })
@@ -124,19 +135,20 @@ export class MenuService {
     const filteredNavigationElements: any[] = [];
     navigationElements.forEach((item) => {
       //if the menu item has required permissions, check them
-      if (item.requiredPermissions) {
-        const hasPermissionToView = item.requiredPermissions.some((requiredPermission: string) =>
+      const itemCopy = {...item};
+      if (itemCopy.requiredPermissions) {
+        const hasPermissionToView = itemCopy.requiredPermissions.some((requiredPermission: string) =>
           currentUserPermissions.includes(requiredPermission)
         );
         if (hasPermissionToView) {
-          filteredNavigationElements.push(item);
+          filteredNavigationElements.push(itemCopy);
         }
       } else {
         // the menu item doesn't have required permissions - it's public
-        filteredNavigationElements.push(item);
+        filteredNavigationElements.push(itemCopy);
       }
-      if (item.items) {
-        item.items = this.filterNavigationByPermissions(item.items, currentUserPermissions);
+      if (itemCopy.items) {
+        itemCopy.items = this.filterNavigationByPermissions(itemCopy.items, currentUserPermissions);
       }
     });
     return filteredNavigationElements;
@@ -254,7 +266,14 @@ export class MenuService {
   private getSupersetInstanceLink(instanceName: string, appInfos: MetaInfoResource[]) {
     const metaInfoResource = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET')
       .find(appInfo => appInfo.businessContextInfo.subContext?.name === instanceName);
-    return metaInfoResource ? metaInfoResource.data.url : "#";
+    if (metaInfoResource) {
+      this._openedSubsystemsService.rememberOpenedSubsystem(metaInfoResource.data.url + 'logout');
+      const supersetUrl = metaInfoResource.data.url;
+      const supersetLogoutUrl = supersetUrl + 'logout';
+      const supersetLoginUrl = supersetUrl + `login/keycloak?next=${supersetUrl}`;
+      return supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
+    }
+    return "#";
   }
 
   private createDataMartsSubNav(availableDataDomains: any[]) {
@@ -268,5 +287,27 @@ export class MenuService {
       })
     }
     return subMenuEntry;
+  }
+
+  private createJupyterhubSubNav(appInfos: MetaInfoResource[], contextRoles: any[], selectedDataDomain: any) {
+    const jupyterhubs = appInfos.filter(appInfo => appInfo.moduleType === "JUPYTERHUB");
+    const subMenuEntry: any[] = [];
+    let filteredContexts = contextRoles.filter(contextRole => contextRole.context.type === 'DATA_DOMAIN' && contextRole.role.name === 'DATA_DOMAIN_ADMIN').map(contextRole => contextRole.context);
+    if (selectedDataDomain?.id !== '') {
+      filteredContexts = filteredContexts.filter(context => context.contextKey === selectedDataDomain.key);
+    }
+    for (const filteredContext of filteredContexts) {
+      if (jupyterhubs.filter(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey).length > 0) {
+        subMenuEntry.push({
+          id: 'jupyterhub' + filteredContext.contextKey,
+          text: 'Advanced Analytics ' + filteredContext.name,
+          url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer/' + filteredContext.contextKey,
+          requiredPermissions: ['DATA_JUPYTER'],
+          target: '_blank'
+        });
+      }
+    }
+    return subMenuEntry;
+
   }
 }

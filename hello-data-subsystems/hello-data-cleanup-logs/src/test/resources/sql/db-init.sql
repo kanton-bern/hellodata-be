@@ -26,5 +26,6 @@
 --
 
 CREATE schema airflow;
-CREATE schema superset;
+CREATE schema superset_one;
+CREATE schema superset_two;
 CREATE schema cloudbeaver;

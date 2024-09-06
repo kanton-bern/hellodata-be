@@ -28,8 +28,7 @@
 import {AfterViewInit, Component, ViewContainerRef} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {VISITED_SUPERSETS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-dashboard.component";
-import {HttpClient} from "@angular/common/http";
+import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-dashboard.component";
 import {SubsystemIframeComponent} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {environment} from "../../../environments/environment";
 import {logout} from "../../store/auth/auth.action";
@@ -40,15 +39,15 @@ import {logout} from "../../store/auth/auth.action";
   styleUrls: ['./logout.component.scss']
 })
 export class LogoutComponent implements AfterViewInit {
-  constructor(private store: Store<AppState>, private httpClient: HttpClient, private dynamicComponentContainer: ViewContainerRef) {
+  constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
     // check if superset was opened in an iframe, if so call for logout there as well
-    const openedSupersets = sessionStorage.getItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY);
-    if (openedSupersets) {
-      const storedSetArray: string[] = JSON.parse(openedSupersets || '[]');
-      storedSetArray.forEach(supersetUrl => {
+    const openedSubsystems = sessionStorage.getItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY);
+    if (openedSubsystems) {
+      const storedSetArray: string[] = JSON.parse(openedSubsystems || '[]');
+      storedSetArray.forEach(url => {
         const componentRefSupersetIframe = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         const instanceSuperset = componentRefSupersetIframe.instance;
-        instanceSuperset.url = supersetUrl + 'logout';
+        instanceSuperset.url = url;
       })
     }
 
@@ -64,7 +63,7 @@ export class LogoutComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      sessionStorage.removeItem(VISITED_SUPERSETS_SESSION_STORAGE_KEY);
+      sessionStorage.removeItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY);
       const cookieName = 'auth.access_token';
       document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       this.store.dispatch(logout());

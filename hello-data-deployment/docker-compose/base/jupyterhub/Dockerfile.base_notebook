@@ -1,0 +1,31 @@
+FROM quay.io/jupyter/base-notebook:latest
+
+USER root
+
+# Install additional packages
+RUN apt-get update && \
+    apt-get install -y \
+    curl \
+    wget \
+    nano
+
+USER jovyan
+
+# Copy the script into the lib directory
+COPY hello_data_scripts.py /opt/conda/lib/python3.1/site-packages/
+
+# Copy info how to use the script
+COPY HOW_TO_CONNECT.md /home/jovyan/work/
+
+# Copy the configuration file to the container
+COPY append_csp.py /tmp/append_csp.py
+
+# Append the content of the configuration file to jupyter_server_config.py
+RUN cat /tmp/append_csp.py >> /home/jovyan/.jupyter/jupyter_server_config.py
+
+ENV API_URL="http://host.docker.internal:8091/create-temporary-user"
+ENV API_USERNAME="user"
+ENV API_PASSWORD="password"
+
+RUN python3 -m pip install --no-cache-dir \
+    psycopg2-binary

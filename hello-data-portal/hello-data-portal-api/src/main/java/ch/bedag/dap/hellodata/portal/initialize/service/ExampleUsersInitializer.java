@@ -26,6 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal.initialize.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
@@ -37,21 +39,23 @@ import ch.bedag.dap.hellodata.portal.profiles.CreateExampleUsersProfile;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.conf.ExampleUsersProperties;
-import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
-import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,13 +71,14 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
     private final ExampleUsersCreatedRepository exampleUsersCreatedRepository;
     private final UserService userService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final HdContextRepository hdContextRepository;
 
     @Value("${hello-data.example-users.email-postfix}")
     private String emailPostfix;
 
     public ExampleUsersInitializer(Keycloak keycloak, RoleService roleService, HelloDataContextConfig helloDataContextConfig, ExampleUsersProperties exampleUsersProperties,
                                    ExampleUsersCreatedRepository exampleUsersCreatedRepository, UserRepository userRepository, UserService userService,
-                                   ApplicationEventPublisher applicationEventPublisher) {
+                                   ApplicationEventPublisher applicationEventPublisher, HdContextRepository hdContextRepository) {
         super(keycloak, userRepository);
         this.roleService = roleService;
         this.helloDataContextConfig = helloDataContextConfig;
@@ -81,46 +86,37 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         this.exampleUsersCreatedRepository = exampleUsersCreatedRepository;
         this.userService = userService;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.hdContextRepository = hdContextRepository;
     }
 
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void onApplicationEvent(InitializationCompletedEvent event) {
-        initExampleUsers();
-    }
-
-    public void initExampleUsers() {
-        log.info("Creating example users for all data domains setting is ON.");
-        if (CollectionUtils.isEmpty(helloDataContextConfig.getContexts())) {
-            log.info("No contexts set - skipping example users creation. Portal api requires list of DD settings.");
-            return;
-        }
-        boolean exampleUsersCreated = areExampleUsersCreated();
-        if (exampleUsersCreated) {
-            log.info("Example users already created, omitting...");
-            return;
-        }
+    private void initExampleUsers() {
+        log.debug("Creating example users for all data domains setting is ON.");
         List<RoleDto> allRoles = roleService.getAll();
         String businessDomainName = helloDataContextConfig.getBusinessContext().getName();
-
-        for (HelloDataContextConfig.Context context : helloDataContextConfig.getContexts()) {
-            createBusinessDomainAdmin(businessDomainName);
-            if (context.getType().equalsIgnoreCase(HdContextType.DATA_DOMAIN.getTypeName())) {
-                String dataDomainName = context.getName();
-                String dataDomainPrefixEmail = dataDomainName.trim().replace(' ', '-') + "-";
-                createDataDomainAdmin(context, dataDomainPrefixEmail, dataDomainName, allRoles);
-                createDataDomainEditor(context, dataDomainPrefixEmail, dataDomainName, allRoles);
-                createDataDomainViewer(context, dataDomainPrefixEmail, dataDomainName, allRoles);
-                exampleUsersCreated = true;
-            }
+        createBusinessDomainAdmin(businessDomainName);
+        List<HdContextEntity> dataDomains = hdContextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
+        boolean exampleUsersCreated = areExampleUsersCreated(dataDomains);
+        if (exampleUsersCreated) {
+            log.debug("Example users already created, omitting...");
+            return;
+        }
+        for (HdContextEntity dataDomain : dataDomains) {
+            log.debug("Creating example users for DD {}, context key: {}", dataDomain.getName(), dataDomain.getContextKey());
+            String dataDomainName = dataDomain.getName();
+            String dataDomainPrefixEmail = dataDomainName.trim().replace(' ', '-') + "-";
+            createDataDomainAdmin(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles);
+            createDataDomainEditor(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles);
+            createDataDomainViewer(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles);
+            exampleUsersCreated = true;
         }
         if (exampleUsersCreated) {
-            markExampleUsersCreated();
+            String commaSeparatedContextKeys = dataDomains.stream().map(HdContextEntity::getContextKey).collect(Collectors.joining(","));
+            markExampleUsersCreated(commaSeparatedContextKeys);
             applicationEventPublisher.publishEvent(new SyncAllUsersEvent());
         }
     }
 
-    private void markExampleUsersCreated() {
+    private void markExampleUsersCreated(String commaSeparatedContextKeys) {
         List<ExampleUsersCreatedEntity> all = exampleUsersCreatedRepository.findAll();
         ExampleUsersCreatedEntity exampleUsersCreatedEntity;
         if (all.isEmpty()) {
@@ -128,12 +124,12 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         } else {
             exampleUsersCreatedEntity = all.get(0);
         }
-        exampleUsersCreatedEntity.setCreated(true);
+        exampleUsersCreatedEntity.setDataDomainList(commaSeparatedContextKeys);
         exampleUsersCreatedRepository.save(exampleUsersCreatedEntity);
     }
 
-    private boolean areExampleUsersCreated() {
-        List<ExampleUsersCreatedEntity> all = exampleUsersCreatedRepository.findAllByOrderByCreatedAsc();
+    private boolean areExampleUsersCreated(List<HdContextEntity> dataDomains) {
+        List<ExampleUsersCreatedEntity> all = exampleUsersCreatedRepository.findAllByOrderByCreatedDateAsc();
         if (all.isEmpty()) {
             return false;
         }
@@ -145,10 +141,16 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
                 all.remove(entity);
             }
         }
-        return all.get(0).isCreated();
+        ExampleUsersCreatedEntity exampleUsersCreatedEntity = all.get(0);
+        for (HdContextEntity dataDomain : dataDomains) {
+            if (exampleUsersCreatedEntity.getDataDomainList() == null || !exampleUsersCreatedEntity.getDataDomainList().contains(dataDomain.getContextKey())) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    private void createDataDomainViewer(HelloDataContextConfig.Context context, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
+    private void createDataDomainViewer(String contextKey, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
         String ddViewerUsername = dataDomainPrefixEmail + "viewer";
         String ddViewerEmail = (ddViewerUsername + "@" + emailPostfix).toLowerCase(Locale.ROOT);
         String ddViewerFirstName = HdContextType.DATA_DOMAIN.getTypeName() + " " + dataDomainName;
@@ -157,7 +159,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddViewerEmail, true);
         String ddViewerId;
         if (!userRepresentations.isEmpty()) {
-            log.info("DATA DOMAIN VIEWER {} already exists in keycloak", ddViewerEmail);
+            log.debug("DATA DOMAIN VIEWER {} already exists in keycloak", ddViewerEmail);
             ddViewerId = userRepresentations.get(0).getId();
         } else {
             UserRepresentation ddViewer = generateUser(ddViewerUsername, ddViewerFirstName, ddViewerLastName, ddViewerEmail);
@@ -174,16 +176,16 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
                                                            .findFirst();
             if (ddViewerRoleResult.isPresent()) {
                 RoleDto ddViewerRole = ddViewerRoleResult.get();
-                roleService.updateDomainRoleForUser(ddViewerEntity, ddViewerRole, context.getKey());
+                roleService.updateDomainRoleForUser(ddViewerEntity, ddViewerRole, contextKey);
             }
             userService.createUserInSubsystems(ddViewerId);
-            log.info("CREATED DATA DOMAIN VIEWER EXAMPLE USER, email: {}, username: {}", ddViewerEmail, ddViewerUsername);
+            log.debug("CREATED DATA DOMAIN VIEWER EXAMPLE USER, email: {}, username: {}", ddViewerEmail, ddViewerUsername);
         } else {
-            log.info("DATA DOMAIN VIEWER {} already exists in portal DB", ddViewerEmail);
+            log.debug("DATA DOMAIN VIEWER {} already exists in portal DB", ddViewerEmail);
         }
     }
 
-    private void createDataDomainEditor(HelloDataContextConfig.Context context, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
+    private void createDataDomainEditor(String contextKey, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
         String ddEditorUsername = dataDomainPrefixEmail + "editor";
         String ddEditorEmail = (ddEditorUsername + "@" + emailPostfix).toLowerCase(Locale.ROOT);
         String ddEditorFirstName = HdContextType.DATA_DOMAIN.getTypeName() + " " + dataDomainName;
@@ -192,7 +194,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddEditorEmail, true);
         String ddEditorId;
         if (!userRepresentations.isEmpty()) {
-            log.info("DATA DOMAIN EDITOR {} already exists in keycloak", ddEditorEmail);
+            log.debug("DATA DOMAIN EDITOR {} already exists in keycloak", ddEditorEmail);
             ddEditorId = userRepresentations.get(0).getId();
         } else {
             UserRepresentation ddEditor = generateUser(ddEditorUsername, ddEditorFirstName, ddEditorLastName, ddEditorEmail);
@@ -209,16 +211,16 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
                                                            .findFirst();
             if (ddEditorRoleResult.isPresent()) {
                 RoleDto ddEditorRole = ddEditorRoleResult.get();
-                roleService.updateDomainRoleForUser(ddEditorEntity, ddEditorRole, context.getKey());
+                roleService.updateDomainRoleForUser(ddEditorEntity, ddEditorRole, contextKey);
             }
             userService.createUserInSubsystems(ddEditorId);
-            log.info("CREATED DATA DOMAIN EDITOR EXAMPLE USER, email: {}, username: {}", ddEditorEmail, ddEditorUsername);
+            log.debug("CREATED DATA DOMAIN EDITOR EXAMPLE USER, email: {}, username: {}", ddEditorEmail, ddEditorUsername);
         } else {
-            log.info("DATA DOMAIN EDITOR {} already exists in portal DB", ddEditorEmail);
+            log.debug("DATA DOMAIN EDITOR {} already exists in portal DB", ddEditorEmail);
         }
     }
 
-    private void createDataDomainAdmin(HelloDataContextConfig.Context context, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
+    private void createDataDomainAdmin(String contextKey, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
         String dataDomainAdminUsername = dataDomainPrefixEmail + "admin";
         String ddAdminEmail = (dataDomainAdminUsername + "@" + emailPostfix).toLowerCase(Locale.ROOT);
         String ddAdminFirstName = HdContextType.DATA_DOMAIN.getTypeName() + " " + dataDomainName;
@@ -227,7 +229,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddAdminEmail, true);
         String ddAdminId;
         if (!userRepresentations.isEmpty()) {
-            log.info("DATA DOMAIN ADMIN {} already exists in keycloak", ddAdminEmail);
+            log.debug("DATA DOMAIN ADMIN {} already exists in keycloak", ddAdminEmail);
             ddAdminId = userRepresentations.get(0).getId();
         } else {
             UserRepresentation ddAdmin = generateUser(dataDomainAdminUsername, ddAdminFirstName, ddAdminLastName, ddAdminEmail);
@@ -244,12 +246,12 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
                                                           .findFirst();
             if (ddAdminRoleResult.isPresent()) {
                 RoleDto ddAdminRole = ddAdminRoleResult.get();
-                roleService.updateDomainRoleForUser(ddAdminEntity, ddAdminRole, context.getKey());
+                roleService.updateDomainRoleForUser(ddAdminEntity, ddAdminRole, contextKey);
             }
             userService.createUserInSubsystems(ddAdminId);
-            log.info("CREATED DATA DOMAIN ADMIN EXAMPLE USER, email: {}, username: {}", ddAdminEmail, dataDomainAdminUsername);
+            log.debug("CREATED DATA DOMAIN ADMIN EXAMPLE USER, email: {}, username: {}", ddAdminEmail, dataDomainAdminUsername);
         } else {
-            log.info("DATA DOMAIN ADMIN {} already exists in portal DB", ddAdminEmail);
+            log.debug("DATA DOMAIN ADMIN {} already exists in portal DB", ddAdminEmail);
         }
     }
 
@@ -262,7 +264,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(email, true);
         String userId;
         if (!userRepresentations.isEmpty()) {
-            log.info("BUSINESS DOMAIN ADMIN {} already exists in keycloak", email);
+            log.debug("BUSINESS DOMAIN ADMIN {} already exists in keycloak", email);
             userId = userRepresentations.get(0).getId();
         } else {
             UserRepresentation user = generateUser(adminUsername, firstName, lastName, email);
@@ -275,9 +277,9 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             bdAdminEntity = userRepository.getReferenceById(bdAdminEntity.getId());
             roleService.setAllDataDomainRolesForUser(bdAdminEntity, HdRoleName.DATA_DOMAIN_ADMIN);
             userService.createUserInSubsystems(userId);
-            log.info("CREATED BUSINESS DOMAIN ADMIN EXAMPLE USER, email: {}, username: {}", email, adminUsername);
+            log.debug("CREATED BUSINESS DOMAIN ADMIN EXAMPLE USER, email: {}, username: {}", email, adminUsername);
         } else {
-            log.info("BUSINESS DOMAIN ADMIN {} already exists in portal DB", email);
+            log.debug("BUSINESS DOMAIN ADMIN {} already exists in portal DB", email);
         }
     }
 
@@ -288,5 +290,11 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         credential.setValue(password);
         credential.setTemporary(false);
         user.setCredentials(List.of(credential));
+    }
+
+    @Override
+    @Transactional
+    public void onApplicationEvent(InitializationCompletedEvent event) {
+        initExampleUsers();
     }
 }

@@ -98,7 +98,6 @@ INSERT INTO temp_permission_view_role VALUES ('can_read','XComs','AF_OPERATOR_TE
 INSERT INTO temp_permission_view_role VALUES ('can_delete','XComs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','XComs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','DAG Dependencies','AF_OPERATOR_TEMP');
-INSERT INTO temp_permission_view_role VALUES ('menu_access','DAGs','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','Datasets','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','Documentation','AF_OPERATOR_TEMP');
 INSERT INTO temp_permission_view_role VALUES ('menu_access','Docs','AF_OPERATOR_TEMP');

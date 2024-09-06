@@ -29,9 +29,12 @@ import {AppState} from "../app/app.state";
 import {createSelector} from "@ngrx/store";
 import {StartPageState} from "./start-page.state";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
+import {selectRouteParam} from "../router/router.selectors";
 
 const startPageState = (state: AppState) => state.startPage;
+const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
 
+export const selectDataDomainKeyParam = selectRouteParam('dataDomainKey');
 export const selectFaq = createSelector(
   startPageState,
   selectSelectedDataDomain,
@@ -55,3 +58,17 @@ export function copy(array: any[]): any[] {
   }
   return result;
 }
+
+export const selectCurrentJupyterhubLink = createSelector(
+  startPageState,
+  metaInfoResourcesState,
+  selectDataDomainKeyParam,
+  (state: StartPageState, metainfoResourcesState, dataDomainKeyParam) => {
+    console.log('inside selector', metainfoResourcesState, dataDomainKeyParam)
+    const currentDataDomainJupyterhub = metainfoResourcesState.appInfos.filter(appinfo => appinfo.moduleType === 'JUPYTERHUB' && appinfo.businessContextInfo?.subContext.key === dataDomainKeyParam)[0];
+    if (currentDataDomainJupyterhub) {
+      return currentDataDomainJupyterhub.data.url;
+    }
+    console.error('Error: Cannot find jupyterhub for selected data domain: dataDomainKeyParam ', dataDomainKeyParam);
+  }
+);

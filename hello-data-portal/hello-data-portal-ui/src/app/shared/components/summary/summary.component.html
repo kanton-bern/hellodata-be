@@ -17,7 +17,7 @@
                   <!--                          type="button">-->
                   <!--                  </button>-->
                   <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}" placeholder="Left" style="font-size: 0.9rem; font-weight: 400"
-                         tooltipPosition="left">{{ pipeline.id | truncate: 30}}</label>
+                         tooltipPosition="left">{{ pipeline.id | truncate: 20}}</label>
                 </div>
                 <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
                   <span *ngIf="pipeline.lastInstance.startDate">{{pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss'}}</span>

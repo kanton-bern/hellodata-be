@@ -95,7 +95,7 @@ public class CbUserContextRoleConsumer {
         }
         Set<UserContextRoleUpdate.ContextRole> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
-            User user = userRepository.findByEmail(userContextRoleUpdate.getEmail());
+            User user = userRepository.findByUserNameAndEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
             if (user == null) {
                 throw new RuntimeException("Cannot update roles! User not found: " + userContextRoleUpdate.getEmail());
             }

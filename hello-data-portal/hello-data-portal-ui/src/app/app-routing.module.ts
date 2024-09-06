@@ -57,9 +57,10 @@ import {LineageDocsComponent} from "./pages/lineage-docs/lineage-docs.component"
 import {naviElements} from "./app-navi-elements";
 import {unsavedChangesGuard} from "./shared/guards/unsaved-changes.guard";
 import {RedirectComponent} from "./shared/components/redirect/redirect.component";
-import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
 import {DashboardImportExportComponent} from "./pages/admin/dashboard-import-export/dashboard-import-export.component";
 import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
+import {AdvancedAnalyticsViewerComponent} from "./pages/advanced-analytics/advanced-analytics-viewer.component";
+import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
 
 const routes: Routes = [
 
@@ -244,6 +245,23 @@ const routes: Routes = [
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DATA_ENG'],
+        }
+      }
+    ]
+  },
+  {
+    path: naviElements.advancedAnalyticsViewer.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DATA_JUPYTER'],
+    },
+    children: [
+      {
+        path: '',
+        component: AdvancedAnalyticsViewerComponent,
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['DATA_JUPYTER'],
         }
       }
     ]

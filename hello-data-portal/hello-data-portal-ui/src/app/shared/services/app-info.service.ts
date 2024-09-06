@@ -63,7 +63,7 @@ export class AppInfoService implements OnDestroy {
   }
 
   public get title() {
-    return environment.appTitle ? environment.appTitle : 'HelloDATA | Portal';
+    return environment.appTitle ? environment.appTitle : 'HelloDATA BE | Portal';
   }
 
   public get currentYear() {

@@ -30,22 +30,18 @@
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
-    http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
-    http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd ">
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="0000" author="hellodata" runOnChange="true">
-        <sqlFile path="changelogs/00_enable_extensions.sql" relativeToChangelogFile="true" />
+        <sqlFile path="changelogs/00_enable_extensions.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
     <changeSet id="0001" author="hellodata" runOnChange="true">
-        <sqlFile path="changelogs/01_inital_HD_roles_and_permissions.sql" relativeToChangelogFile="true" />
+        <sqlFile path="changelogs/01_inital_HD_roles_and_permissions.sql" relativeToChangelogFile="true"/>
     </changeSet>
 
     <changeSet id="0002" author="hellodata" runOnChange="true">
-        <sqlFile path="changelogs/02_triggers.sql" relativeToChangelogFile="true" splitStatements="false" />
+        <sqlFile path="changelogs/02_triggers.sql" relativeToChangelogFile="true" splitStatements="false"/>
     </changeSet>
 
 </databaseChangeLog>

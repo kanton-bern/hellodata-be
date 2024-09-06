@@ -44,6 +44,7 @@ public class Initializer implements CommandLineRunner {
     private final RolesInitializer rolesInitializer;
     private final DefaultUserInitializer defaultUserInitializer;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final UsernameInitializer usernameInitializer;
 
     @Override
     public void run(String... args) throws Exception {
@@ -66,6 +67,7 @@ public class Initializer implements CommandLineRunner {
             }
             areContextRolesFetched = true;
         } while (!areContextRolesFetched);
+        usernameInitializer.initUsernames();
         applicationEventPublisher.publishEvent(new InitializationCompletedEvent());
     }
 }

@@ -28,14 +28,15 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {combineLatest, Observable, Subscription, tap} from "rxjs";
+import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import {
   selectAllBusinessDomains,
   selectAllDataDomains,
   selectAvailableRolesForBusinessDomain,
   selectAvailableRolesForDataDomain,
   selectEditedUser,
-  selectUserContextRoles
+  selectUserContextRoles,
+  selectUserSaveButtonDisabled
 } from "../../../../store/users-management/users-management.selector";
 import {DashboardForUser, DATA_DOMAIN_VIEWER_ROLE, NONE_ROLE, User, UserAction} from "../../../../store/users-management/users-management.model";
 import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
@@ -77,6 +78,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   dashboardTableVisibility = new Map<string, boolean>();
   userForm!: FormGroup;
 
+  userSaveButtonDisabled$: Observable<boolean>;
   private userContextRoles$: Observable<any>;
   private userContextRolesSub!: Subscription;
   private editedUserSuperuser = false;
@@ -96,9 +98,12 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.dataDomains$ = this.store.select(selectAllDataDomains);
     this.availableBusinessDomainRoles$ = this.store.select(selectAvailableRolesForBusinessDomain);
     this.availableDataDomainRoles$ = this.store.select(selectAvailableRolesForDataDomain);
+    this.userSaveButtonDisabled$ = this.store.select(selectUserSaveButtonDisabled).pipe(map(userSaveButtonDisabled => {
+      return userSaveButtonDisabled;
+    }));
     this.userContextRoles$ = combineLatest([
       this.store.select(selectUserContextRoles),
-      this.store.select(selectIsSuperuser)
+      this.store.select(selectIsSuperuser),
     ]).pipe(tap(([userContextRoles, isCurrentSuperuser]) => {
       this.generateForm(userContextRoles, isCurrentSuperuser);
     }));

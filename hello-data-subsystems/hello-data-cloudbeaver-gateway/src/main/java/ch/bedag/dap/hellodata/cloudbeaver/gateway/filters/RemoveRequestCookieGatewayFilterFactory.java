@@ -49,7 +49,6 @@ public class RemoveRequestCookieGatewayFilterFactory extends AbstractGatewayFilt
             String cookieHeader = headers.getFirst(HttpHeaders.COOKIE);
             if (cookieHeader != null) {
                 // Remove the specific cookie
-                //String updatedCookies = removeCookie(cookieHeader, config.cookieName);
                 String updatedCookies = removeCookie(cookieHeader, SecurityConfig.ACCESS_TOKEN_COOKIE_NAME);
                 // Set the modified cookies back to the headers
                 exchange.getRequest().mutate().header(HttpHeaders.COOKIE, updatedCookies);

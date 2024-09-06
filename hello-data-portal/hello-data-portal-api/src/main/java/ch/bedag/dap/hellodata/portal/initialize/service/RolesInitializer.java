@@ -30,19 +30,19 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextReposi
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import ch.bedag.dap.hellodata.portal.role.entity.PortalRoleEntity;
-import ch.bedag.dap.hellodata.portal.role.entity.RoleEntity;
-import ch.bedag.dap.hellodata.portal.role.entity.SystemDefaultPortalRoleName;
-import ch.bedag.dap.hellodata.portal.role.entity.UserPortalRoleEntity;
-import ch.bedag.dap.hellodata.portal.role.repository.PortalRoleRepository;
-import ch.bedag.dap.hellodata.portal.role.repository.RoleRepository;
-import ch.bedag.dap.hellodata.portal.role.repository.UserPortalRoleRepository;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.ContextsNotFetchedYetException;
 import ch.bedag.dap.hellodata.portal.user.conf.DefaultAdminProperties;
-import ch.bedag.dap.hellodata.portal.user.entity.Permissions;
-import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
-import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.UserPortalRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.repository.PortalRoleRepository;
+import ch.bedag.dap.hellodata.portalcommon.role.repository.RoleRepository;
+import ch.bedag.dap.hellodata.portalcommon.role.repository.UserPortalRoleRepository;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.Permissions;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,19 +71,17 @@ public class RolesInitializer {
     public void initSystemDefaultPortalRoles() {
         for (SystemDefaultPortalRoleName systemDefaultPortalRoleName : SystemDefaultPortalRoleName.values()) {
             Optional<PortalRoleEntity> byName = portalRoleRepository.findByName(systemDefaultPortalRoleName.name());
-            if (byName.isEmpty()) {
-                PortalRoleEntity portalRoleEntity = new PortalRoleEntity();
-                portalRoleEntity.setSystemDefault(true);
-                portalRoleEntity.setDescription("SYSTEM ROLE");
-                portalRoleEntity.setName(systemDefaultPortalRoleName.name());
-                Permissions permissions = new Permissions();
-                permissions.setPortalPermissions(new ArrayList<>(systemDefaultPortalRoleName.getPermissions().stream().map(Enum::name).toList()));
-                if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.HELLODATA_ADMIN) {
-                    permissions.getPortalPermissions().add(WORKSPACES_PERMISSION);
-                }
-                portalRoleEntity.setPermissions(permissions);
-                portalRoleRepository.save(portalRoleEntity);
+            PortalRoleEntity portalRoleEntity = byName.orElseGet(PortalRoleEntity::new);
+            portalRoleEntity.setSystemDefault(true);
+            portalRoleEntity.setDescription("SYSTEM ROLE");
+            portalRoleEntity.setName(systemDefaultPortalRoleName.name());
+            Permissions permissions = new Permissions();
+            permissions.setPortalPermissions(new ArrayList<>(systemDefaultPortalRoleName.getPermissions().stream().map(Enum::name).toList()));
+            if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.HELLODATA_ADMIN) {
+                permissions.getPortalPermissions().add(WORKSPACES_PERMISSION);
             }
+            portalRoleEntity.setPermissions(permissions);
+            portalRoleRepository.save(portalRoleEntity);
         }
     }
 

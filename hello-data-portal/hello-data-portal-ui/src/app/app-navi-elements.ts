@@ -97,6 +97,10 @@ export const naviElements: any = {
     path: 'details/:id',
     label: '@Detail'
   },
+  advancedAnalyticsViewer: {
+    path: 'advanced-analytics-viewer/:dataDomainKey',
+    label: '@Advanced Analytics Viewer'
+  },
   myDashboards: {
     path: 'my-dashboards',
     label: '@Dashboards'
