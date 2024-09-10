@@ -294,7 +294,7 @@ export class MenuService {
     const subMenuEntry: any[] = [];
     let filteredContexts = contextRoles.filter(contextRole => contextRole.context.type === 'DATA_DOMAIN' && contextRole.role.name === 'DATA_DOMAIN_ADMIN').map(contextRole => contextRole.context);
     if (selectedDataDomain?.id !== '') {
-      filteredContexts = filteredContexts.filter(context => context.contextKey === selectedDataDomain.key);
+      filteredContexts = filteredContexts.filter(context => context.contextKey === selectedDataDomain?.key);
     }
     for (const filteredContext of filteredContexts) {
       if (jupyterhubs.filter(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey).length > 0) {
