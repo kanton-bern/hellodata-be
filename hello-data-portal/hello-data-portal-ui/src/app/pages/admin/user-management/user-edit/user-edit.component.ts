@@ -91,7 +91,6 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.store.dispatch(loadUserContextRoles());
     this.store.dispatch(loadUserById());
     this.editedUser$ = this.store.select(selectEditedUser).pipe(tap(editedUser => {
-      this.editedUserSuperuser = editedUser ? editedUser.superuser : false;
       this.createBreadcrumbs(editedUser);
     }));
     this.businessDomains$ = this.store.select(selectAllBusinessDomains);
@@ -104,8 +103,9 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.userContextRoles$ = combineLatest([
       this.store.select(selectUserContextRoles),
       this.store.select(selectIsSuperuser),
-    ]).pipe(tap(([userContextRoles, isCurrentSuperuser]) => {
-      this.generateForm(userContextRoles, isCurrentSuperuser);
+      this.store.select(selectEditedUser)
+    ]).pipe(tap(([userContextRoles, isCurrentSuperuser, editedUser]) => {
+      this.generateForm(userContextRoles, isCurrentSuperuser, editedUser ? editedUser.superuser : false);
     }));
   }
 
@@ -179,16 +179,17 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     }));
   }
 
-  private generateForm(userContextRoles: any[], isCurrentSuperuser: boolean) {
+  private generateForm(userContextRoles: any[], isCurrentSuperuser: boolean, editedUserSuperuser: boolean) {
     if (userContextRoles.length > 0) {
       this.userForm = this.fb.group({});
       userContextRoles.forEach(userContextRole => {
         if (userContextRole.role.name === DATA_DOMAIN_VIEWER_ROLE) {
           this.dashboardTableVisibility.set(userContextRole.context.contextKey as string, true);
         }
+        const disabled = editedUserSuperuser && !isCurrentSuperuser;
         const control = new FormControl({
           value: userContextRole.role,
-          disabled: this.editedUserSuperuser && isCurrentSuperuser
+          disabled
         });
         this.userForm.addControl(userContextRole.context.contextKey, control);
       });
