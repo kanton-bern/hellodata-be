@@ -3,6 +3,7 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
@@ -30,23 +31,23 @@ public class SupersetDisableUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DISABLE_USER)
-    public CompletableFuture<Void> disableUser(SubsystemUserDelete subsystemUserDelete) {
+    public CompletableFuture<Void> disableUser(SubsystemUserUpdate subsystemUserUpdate) {
         try {
-            log.info("------- Received superset user deletion request {}", subsystemUserDelete);
+            log.info("------- Received superset user disable request {}", subsystemUserUpdate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserDelete.getEmail())).findFirst();
+            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserUpdate.getEmail())).findFirst();
             if (supersetUserResult.isEmpty()) {
-                log.info("User {} doesn't exist in instance, omitting deletion", subsystemUserDelete.getEmail());
+                log.info("User {} doesn't exist in instance, omitting disable action", subsystemUserUpdate.getEmail());
                 return null;//NOSONAR
             }
-            log.info("Going to delete user with email: {}", subsystemUserDelete.getEmail());
             SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
             supersetUserActiveUpdate.setActive(false);
             supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, supersetUserResult.get().getId());
             userResourceProviderService.publishUsers();
+            log.info("User with email: {} disabled", subsystemUserUpdate.getEmail());
         } catch (URISyntaxException | IOException e) {
-            log.error("Could not delete user {}", subsystemUserDelete.getEmail(), e);
+            log.error("Could not disable user {}", subsystemUserUpdate.getEmail(), e);
         }
         return null;//NOSONAR
     }
