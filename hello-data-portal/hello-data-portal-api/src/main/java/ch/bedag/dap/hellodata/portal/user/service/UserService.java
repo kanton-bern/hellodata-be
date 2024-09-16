@@ -185,11 +185,11 @@ public class UserService {
             }
         }
         return userRepresentationList.stream()
-                                     .filter(userRepresentation -> userRepresentation.getEmail() != null)
-                                     .map(userRepresentation -> modelMapper.map(userRepresentation, UserDto.class))
-                                     .map(userDto -> fetchAdditionalDataFromPortal(userDto,
-                                                                                   allPortalUsers.stream().filter(userEntity -> idEquals(userDto, userEntity)).findFirst()))
-                                     .toList();
+                .filter(userRepresentation -> userRepresentation.getEmail() != null)
+                .map(userRepresentation -> modelMapper.map(userRepresentation, UserDto.class))
+                .map(userDto -> fetchAdditionalDataFromPortal(userDto,
+                        allPortalUsers.stream().filter(userEntity -> idEquals(userDto, userEntity)).findFirst()))
+                .toList();
     }
 
     @Nullable
@@ -246,8 +246,7 @@ public class UserService {
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
 
-    private SubsystemUserUpdate getSubsystemUserUpdate(String userId) {
-        UserRepresentation representation = getUserRepresentation(userId);
+    private SubsystemUserUpdate getSubsystemUserUpdate(UserRepresentation representation) {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
         createUser.setFirstName(representation.getFirstName());
         createUser.setLastName(representation.getLastName());
@@ -255,6 +254,11 @@ public class UserService {
         createUser.setEmail(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setActive(representation.isEnabled());
         return createUser;
+    }
+
+    private SubsystemUserUpdate getSubsystemUserUpdate(String userId) {
+        UserRepresentation representation = getUserRepresentation(userId);
+        return getSubsystemUserUpdate(representation);
     }
 
     @Transactional
@@ -266,7 +270,7 @@ public class UserService {
         representation.setEnabled(false);
         userResource.update(representation);
         userResource.logout();
-        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userId);
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
         emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail());
@@ -280,7 +284,7 @@ public class UserService {
         UserRepresentation representation = userResource.toRepresentation();
         representation.setEnabled(true);
         userResource.update(representation);
-        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userId);
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
         subsystemUserUpdate.setActive(true);
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
         UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
@@ -349,13 +353,13 @@ public class UserService {
     private void setRoleForAllRemainingDataDomainsToNone(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity) {
         List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         List<HdContextEntity> ddDomainsWithoutRoleForUser = allDataDomains.stream()
-                                                                          .filter(availableDD -> updateContextRolesForUserDto.getDataDomainRoles()
-                                                                                                                             .stream()
-                                                                                                                             .noneMatch(ddRole -> ddRole.getContext()
-                                                                                                                                                        .getContextKey()
-                                                                                                                                                        .equalsIgnoreCase(
-                                                                                                                                                                availableDD.getContextKey())))
-                                                                          .toList();
+                .filter(availableDD -> updateContextRolesForUserDto.getDataDomainRoles()
+                        .stream()
+                        .noneMatch(ddRole -> ddRole.getContext()
+                                .getContextKey()
+                                .equalsIgnoreCase(
+                                        availableDD.getContextKey())))
+                .toList();
         if (!ddDomainsWithoutRoleForUser.isEmpty()) {
             Optional<RoleDto> first = roleService.getAll().stream().filter(roleDto -> HdRoleName.NONE.name().equalsIgnoreCase(roleDto.getName())).findFirst();
             if (first.isPresent()) {
@@ -557,10 +561,10 @@ public class UserService {
         }
         Optional<UserEntity> userEntity = Optional.of(getUserEntity(currentUserId));
         return userEntity.map(user -> user.getContextRoles()
-                                          .stream()
-                                          .filter(userContextRoleEntity -> HdContextType.DATA_DOMAIN.equals(userContextRoleEntity.getRole().getContextType()))
-                                          .filter(userContextRoleEntity -> !HdRoleName.NONE.equals(userContextRoleEntity.getRole().getName()))
-                                          .collect(Collectors.toSet())).orElse(Collections.emptySet());
+                .stream()
+                .filter(userContextRoleEntity -> HdContextType.DATA_DOMAIN.equals(userContextRoleEntity.getRole().getContextType()))
+                .filter(userContextRoleEntity -> !HdRoleName.NONE.equals(userContextRoleEntity.getRole().getName()))
+                .collect(Collectors.toSet())).orElse(Collections.emptySet());
     }
 
     @Transactional(readOnly = true)
