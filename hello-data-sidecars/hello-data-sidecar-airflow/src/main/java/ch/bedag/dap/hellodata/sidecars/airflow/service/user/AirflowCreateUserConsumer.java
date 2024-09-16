@@ -44,6 +44,7 @@ import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
+import static ch.bedag.dap.hellodata.sidecars.airflow.service.user.AirflowUserUtil.toAirflowUser;
 
 @Log4j2
 @Service
@@ -54,17 +55,7 @@ public class AirflowCreateUserConsumer {
     private final AirflowUserResourceProviderService userResourceProviderService;
     private final AirflowClientProvider airflowClientProvider;
 
-    @NotNull
-    private static AirflowUser toAirflowUser(SubsystemUserUpdate supersetUserCreate) {
-        AirflowUser airflowUser = new AirflowUser();
-        airflowUser.setEmail(supersetUserCreate.getEmail());
-        airflowUser.setRoles(new ArrayList<>()); // Default User-Roles are defined in Airflow-Config
-        airflowUser.setUsername(supersetUserCreate.getUsername());
-        airflowUser.setFirstName(supersetUserCreate.getFirstName());
-        airflowUser.setLastName(supersetUserCreate.getLastName());
-        airflowUser.setPassword(supersetUserCreate.getUsername()); // Login will be handled by Keycloak
-        return airflowUser;
-    }
+
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = CREATE_USER)

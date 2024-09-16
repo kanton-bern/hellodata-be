@@ -41,32 +41,24 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import jakarta.ws.rs.NotFoundException;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Log4j2
 @SuppressWarnings("unused")
@@ -150,6 +142,7 @@ public class UserServiceTest {
         when(userRepresentation.getFirstName()).thenReturn(firstName);
         when(userRepresentation.getLastName()).thenReturn(lastName);
         when(userRepresentation.getId()).thenReturn(createdUserId);
+        when(userRepresentation.isEnabled()).thenReturn(true);
         when(keycloakService.getUserRepresentationById(any())).thenReturn(userRepresentation);
         when(userRepository.existsByIdOrAuthId(any(UUID.class), any(String.class))).thenReturn(false);
         when(userRepository.findAll()).thenReturn(List.of(userEntity));
@@ -220,6 +213,7 @@ public class UserServiceTest {
         UserResource userResourceMock = mock(UserResource.class, Mockito.RETURNS_DEEP_STUBS);
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setEnabled(true);
+        userRepresentation.setEmail("some_email@example.com");
         UserEntity userEntity = new UserEntity();
         userEntity.setId(uuid);
 
@@ -260,6 +254,7 @@ public class UserServiceTest {
         UserResource userResourceMock = mock(UserResource.class, Mockito.RETURNS_DEEP_STUBS);
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setEnabled(false);
+        userRepresentation.setEmail("some_email@example.com");
         UserEntity userEntity = new UserEntity();
         userEntity.setId(uuid);
         when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);

@@ -51,14 +51,7 @@ import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
-import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
-import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
-import ch.bedag.dap.hellodata.portal.user.data.DashboardsDto;
-import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
-import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
-import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -67,24 +60,6 @@ import io.nats.client.Connection;
 import io.nats.client.Message;
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
@@ -99,6 +74,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 import static ch.bedag.dap.hellodata.commons.SlugifyUtil.DASHBOARD_ROLE_PREFIX;
 
 @Log4j2
@@ -160,7 +145,7 @@ public class UserService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void syncAllUsers() {
-        List<UserDto> allUsers = getAllUsers();
+        List<UserDto> allUsers = getAllUsers().stream().filter(UserDto::getEnabled).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
         allUsers.forEach(u -> {
@@ -200,11 +185,11 @@ public class UserService {
             }
         }
         return userRepresentationList.stream()
-                                     .filter(userRepresentation -> userRepresentation.getEmail() != null)
-                                     .map(userRepresentation -> modelMapper.map(userRepresentation, UserDto.class))
-                                     .map(userDto -> fetchAdditionalDataFromPortal(userDto,
-                                                                                   allPortalUsers.stream().filter(userEntity -> idEquals(userDto, userEntity)).findFirst()))
-                                     .toList();
+                .filter(userRepresentation -> userRepresentation.getEmail() != null)
+                .map(userRepresentation -> modelMapper.map(userRepresentation, UserDto.class))
+                .map(userDto -> fetchAdditionalDataFromPortal(userDto,
+                        allPortalUsers.stream().filter(userEntity -> idEquals(userDto, userEntity)).findFirst()))
+                .toList();
     }
 
     @Nullable
@@ -257,14 +242,23 @@ public class UserService {
     }
 
     public void createUserInSubsystems(String userId) {
-        UserRepresentation representation = getUserRepresentation(userId);
+        SubsystemUserUpdate createUser = getSubsystemUserUpdate(userId);
+        natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
+    }
+
+    private SubsystemUserUpdate getSubsystemUserUpdate(UserRepresentation representation) {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
         createUser.setFirstName(representation.getFirstName());
         createUser.setLastName(representation.getLastName());
         createUser.setUsername(representation.getUsername());
         createUser.setEmail(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setActive(representation.isEnabled());
-        natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
+        return createUser;
+    }
+
+    private SubsystemUserUpdate getSubsystemUserUpdate(String userId) {
+        UserRepresentation representation = getUserRepresentation(userId);
+        return getSubsystemUserUpdate(representation);
     }
 
     @Transactional
@@ -275,6 +269,10 @@ public class UserService {
         UserRepresentation representation = userResource.toRepresentation();
         representation.setEnabled(false);
         userResource.update(representation);
+        userResource.logout();
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
+        subsystemUserUpdate.setActive(false);
+        natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
         emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail());
     }
 
@@ -286,6 +284,11 @@ public class UserService {
         UserRepresentation representation = userResource.toRepresentation();
         representation.setEnabled(true);
         userResource.update(representation);
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
+        subsystemUserUpdate.setActive(true);
+        natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
+        UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
+        synchronizeContextRolesWithSubsystems(userEntity);
         emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail());
     }
 
@@ -350,13 +353,13 @@ public class UserService {
     private void setRoleForAllRemainingDataDomainsToNone(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity) {
         List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         List<HdContextEntity> ddDomainsWithoutRoleForUser = allDataDomains.stream()
-                                                                          .filter(availableDD -> updateContextRolesForUserDto.getDataDomainRoles()
-                                                                                                                             .stream()
-                                                                                                                             .noneMatch(ddRole -> ddRole.getContext()
-                                                                                                                                                        .getContextKey()
-                                                                                                                                                        .equalsIgnoreCase(
-                                                                                                                                                                availableDD.getContextKey())))
-                                                                          .toList();
+                .filter(availableDD -> updateContextRolesForUserDto.getDataDomainRoles()
+                        .stream()
+                        .noneMatch(ddRole -> ddRole.getContext()
+                                .getContextKey()
+                                .equalsIgnoreCase(
+                                        availableDD.getContextKey())))
+                .toList();
         if (!ddDomainsWithoutRoleForUser.isEmpty()) {
             Optional<RoleDto> first = roleService.getAll().stream().filter(roleDto -> HdRoleName.NONE.name().equalsIgnoreCase(roleDto.getName())).findFirst();
             if (first.isPresent()) {
@@ -558,10 +561,10 @@ public class UserService {
         }
         Optional<UserEntity> userEntity = Optional.of(getUserEntity(currentUserId));
         return userEntity.map(user -> user.getContextRoles()
-                                          .stream()
-                                          .filter(userContextRoleEntity -> HdContextType.DATA_DOMAIN.equals(userContextRoleEntity.getRole().getContextType()))
-                                          .filter(userContextRoleEntity -> !HdRoleName.NONE.equals(userContextRoleEntity.getRole().getName()))
-                                          .collect(Collectors.toSet())).orElse(Collections.emptySet());
+                .stream()
+                .filter(userContextRoleEntity -> HdContextType.DATA_DOMAIN.equals(userContextRoleEntity.getRole().getContextType()))
+                .filter(userContextRoleEntity -> !HdRoleName.NONE.equals(userContextRoleEntity.getRole().getName()))
+                .collect(Collectors.toSet())).orElse(Collections.emptySet());
     }
 
     @Transactional(readOnly = true)
