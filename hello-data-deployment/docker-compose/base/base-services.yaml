@@ -584,16 +584,12 @@ services:
       - redis
       - nats
       - smtp4dev
-      - superset-app-default-data-domain
-      - superset-app-extra-data-domain
       - airflow-webserver
       - cloudbeaver
       - filebrowser
       - hello-data-airflow-sidecar
       - hello-data-sidecar-cloudbeaver
       - hello-data-dbt-docs-sidecar
-      - hello-data-superset-sidecar-default-data-domain
-      - hello-data-superset-sidecar-extra-data-domain
     ports:
       - 8081:8081
     healthcheck:
