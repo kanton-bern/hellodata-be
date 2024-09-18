@@ -2,7 +2,7 @@
 
 ### Operating system
 
-#### At least 10GB of RAM available for docker under following systems
+#### At least 15GB of RAM available for docker under following systems
 
 - Linux
 - MacOS
@@ -19,8 +19,12 @@
 Make sure the `host.docker.internal` is added to the /etc/hosts file with either of these options:
 
 - **Linux/MacOS**: add `127.0.0.1 host.docker.internal` to the `/etc/hosts` file.
-- **Windows**: Enable in Docker Desktop under `Settings -> General -> Use WSL 2 based engine` the settings: `Add the *.docker.internal names to the host's etc/hosts file (Requires password)`
-    - Make sure Docker-Desktop entered it correctly in `C:\Windows\System32\drivers\etc\hosts`. There were some [cases](https://github.com/kanton-bern/hellodata-be/issues/21#issuecomment-1913578206) where its wrong OR the IP is an old one. This will cause an error to communicate between the containers. It should look something like this with your currrent IP placed:
+- **Windows**: Enable in Docker Desktop under `Settings -> General -> Use WSL 2 based engine` the settings:
+  `Add the *.docker.internal names to the host's etc/hosts file (Requires password)`
+    - Make sure Docker-Desktop entered it correctly in `C:\Windows\System32\drivers\etc\hosts`. There were
+      some [cases](https://github.com/kanton-bern/hellodata-be/issues/21#issuecomment-1913578206) where its wrong OR the
+      IP is an old one. This will cause an error to communicate between the containers. It should look something like
+      this with your currrent IP placed:
 
 ```sh
 # Added by Docker Desktop
@@ -31,15 +35,18 @@ Make sure the `host.docker.internal` is added to the /etc/hosts file with either
 # End of section
 ```
 
-Also be sure there is **no Postgres running** on port 5432 as these will conflict with the upspinning Postgres of HelloDATA.
+Also be sure there is **no Postgres running** on port 5432 as these will conflict with the upspinning Postgres of
+HelloDATA.
 
-If you are on [Mac](#mac), [Windows](#windows) or general [FAQ](#faq), please check the enhanced instructions on the bottom.
+If you are on [Mac](#mac), [Windows](#windows) or general [FAQ](#faq), please check the enhanced instructions on the
+bottom.
 
 ## Quick Start
 
 First **pull and build** all required images.
 
-Please don't forget to run it again after some time in order to fetch the latest changes, or use command below to always **fetch/build** before start (takes longer).
+Please don't forget to run it again after some time in order to fetch the latest changes, or use command below to always
+**fetch/build** before start (takes longer).
 
 ```sh
 docker-compose pull
@@ -69,15 +76,26 @@ After all started, go to [localhost:8080](http://localhost:8080/) in your browse
 
 ## FAQ
 
-- **Filebrowser login:** `admin/admin`. After successful login, the user should see the dbt-docs shared storage. Also, files can be opened in local file explorer from `./docker-compose/shared` path.
+- **Filebrowser login:** `admin/admin`. After successful login, the user should see the dbt-docs shared storage. Also,
+  files can be opened in local file explorer from `./docker-compose/shared` path.
 
 ## Mac
 
-- **Mac**: And for images unlike intel (e.g. Apple Sillicon), ensure that you are on latest Docker Desktop, and that you enable `Use Rosetta for x86/amd64 emulation on Apple Silicon` under `Settings -> General`. This setting substantially boosts the speed of non-native containers. Find more on [Docker Desktop Settings](https://docs.docker.com/desktop/settings/mac/?uuid=740D92D0-4D7C-4DD7-9DFD-8AF8D62F42F7) and [Multi-platform images](https://docs.docker.com/build/building/multi-platform/).
-- **Platform architecture:** If you are on a Mac or another `arm64` architecture, you mostly likely get the message `requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested`. It should still work, but much slower. 
+- **Mac**: And for images unlike intel (e.g. Apple Sillicon), ensure that you are on latest Docker Desktop, and that you
+  enable `Use Rosetta for x86/amd64 emulation on Apple Silicon` under `Settings -> General`. This setting substantially
+  boosts the speed of non-native containers. Find more
+  on [Docker Desktop Settings](https://docs.docker.com/desktop/settings/mac/?uuid=740D92D0-4D7C-4DD7-9DFD-8AF8D62F42F7)
+  and [Multi-platform images](https://docs.docker.com/build/building/multi-platform/).
 
+- **Mac**: Also enable this setting under `Settings -> Resources -> Network`: `Use kernel networking for UDP
+Use a more efficient kernel networking path for UDP. This may not be compatible with your VPN software.`
+
+- **Platform architecture:** If you are on a Mac or another `arm64` architecture, you mostly likely get the message
+  `requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested`.
+  It should still work, but much slower.
 
 ## Windows
 
-- If you use Windows native (not WSL or WSL2), ensure the LF (line feeds) are defined in Linux style. Use a tools like [dos2linux](https://linux.die.net/man/1/dos2unix) to
+- If you use Windows native (not WSL or WSL2), ensure the LF (line feeds) are defined in Linux style. Use a tools
+  like [dos2linux](https://linux.die.net/man/1/dos2unix) to
   convert, or make sure in your IDE (e.g., IntelliJ has the option to set).

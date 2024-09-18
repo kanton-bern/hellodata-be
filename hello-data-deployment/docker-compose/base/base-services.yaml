@@ -141,7 +141,7 @@ services:
       KC_SPI_CONFIG_UPDATE_MODE: "IGNORE"
       KC_SPI_CONFIG_UPDATE_ENABLE: "false"
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:8080/health/ready" ]
+      test: [ "CMD", "curl", "http://localhost:8080/realms/hellodata" ]
       interval: 10s
       timeout: 5s
       retries: 50
@@ -149,6 +149,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "host.docker.internal", "--hostname", "localhost", "--http-enabled", "true" ]
+
   redis:
     platform: ${HD_PLATFORM}
     image: redis:latest
@@ -598,7 +599,11 @@ services:
       - postgres
       - keycloak
       - hello-data-portal-api
+      - airflow-webserver
+      - cloudbeaver
     depends_on:
+      - airflow-webserver
+      - cloudbeaver
       - postgres
       - keycloak
       - redis
