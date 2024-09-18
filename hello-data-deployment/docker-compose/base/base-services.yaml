@@ -118,8 +118,8 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_MAX_CONNECTIONS: 200
-    volumes:
-      - postgres-volume:/var/lib/postgresql/data
+    #    volumes:
+    #      - postgres-volume:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 5s
@@ -137,8 +137,9 @@ services:
       KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm.json
       DB_VENDOR: h2
       KC_HEALTH_ENABLED: "true"
-    volumes:
-      - keycloakrealmvolume:/tmp
+      JAVA_OPTS_APPEND: "-Dcom:redhat:fips=false"
+      KC_SPI_CONFIG_UPDATE_MODE: "IGNORE"
+      KC_SPI_CONFIG_UPDATE_ENABLE: "false"
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:8080/health/ready" ]
       interval: 10s
@@ -147,7 +148,7 @@ services:
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "host.docker.internal", "--hostname", "localhost", "--http-enabled", "true" ]
   redis:
     platform: ${HD_PLATFORM}
     image: redis:latest
@@ -160,8 +161,6 @@ services:
       timeout: 30s
       retries: 50
     restart: always
-    volumes:
-      - redis_data:/data
 
   nats:
     platform: ${HD_PLATFORM}
@@ -547,13 +546,6 @@ services:
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    depends_on:
-      keycloak:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      hello-data-portal-api:
-        condition: service_healthy
     ports:
       - 8080:80
 
@@ -583,13 +575,6 @@ services:
       - keycloak
       - redis
       - nats
-      - smtp4dev
-      - airflow-webserver
-      - cloudbeaver
-      - filebrowser
-      - hello-data-airflow-sidecar
-      - hello-data-sidecar-cloudbeaver
-      - hello-data-dbt-docs-sidecar
     ports:
       - 8081:8081
     healthcheck:
@@ -618,4 +603,3 @@ services:
       - keycloak
       - redis
       - nats
-      - hello-data-portal-api

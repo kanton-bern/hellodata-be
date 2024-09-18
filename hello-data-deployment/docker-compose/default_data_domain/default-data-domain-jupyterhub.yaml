@@ -46,7 +46,7 @@ services:
       # within the container
       - "/var/run/docker.sock:/var/run/docker.sock:rw"
       # Bind Docker volume on host for JupyterHub database and cookie secrets
-      - "jupyterhub-data:/data"
+      #- "jupyterhub-data:/data"
       - "shared_scripts:/srv/jupyterhub/shared_scripts:ro"
     ports:
       - "8000:8000"
