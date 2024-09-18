@@ -123,7 +123,7 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 5s
-      retries: 5
+      retries: 20
     restart: always
 
   keycloak:
@@ -160,7 +160,7 @@ services:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 30s
-      retries: 50
+      retries: 20
     restart: always
 
   nats:
@@ -335,7 +335,7 @@ services:
       test: [ "CMD", "curl", "--fail", "http://${AIRFLOW_WEBSERVER_HOST_PORT:-8080}/health" ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -350,7 +350,7 @@ services:
       test: [ "CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"' ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -367,7 +367,7 @@ services:
         - 'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     environment:
       <<: *airflow-common-env
       # Required to handle warm shutdown of the celery workers properly
@@ -387,7 +387,7 @@ services:
       test: [ "CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"' ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -494,7 +494,7 @@ services:
       test: [ "CMD", "curl", "--fail", "http://localhost:5555/" ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -582,7 +582,7 @@ services:
       test: [ "CMD", "curl", "http://hello-data-portal-api:8081/api/actuator/health" ]
       interval: 10s
       timeout: 5s
-      retries: 15
+      retries: 20
 
   hello-data-portal-sidecar:
     platform: ${HD_PLATFORM}

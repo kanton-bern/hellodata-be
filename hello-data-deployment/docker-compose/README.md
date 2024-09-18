@@ -2,7 +2,7 @@
 
 ### Operating system
 
-#### At least 15GB of RAM available for docker under following systems
+#### At least 15GB of RAM available for docker under following systems (we recommend a decent machine with at least 32GB of physical memory)
 
 - Linux
 - MacOS
