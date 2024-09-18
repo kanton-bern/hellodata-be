@@ -144,7 +144,7 @@ services:
       test: [ "CMD", "curl", "http://localhost:8080/health/ready" ]
       interval: 10s
       timeout: 5s
-      retries: 15
+      retries: 50
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
