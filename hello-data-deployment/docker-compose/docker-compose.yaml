@@ -28,20 +28,9 @@
 version: "3.7"
 
 volumes:
-  keycloakrealmvolume:
-  redis_data:
-  cloudbeaver_data:
-  superset_home:
-    external: false
-  postgres-volume:
-    external: false
   shared-data:
     driver: local
-    driver_opts:
-      type: none
-      device: ./base/shared
-      o: bind
-  jupyterhub-data:
+  #jupyterhub-data:
   shared_scripts:
     driver: local
 

@@ -118,12 +118,12 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_MAX_CONNECTIONS: 200
-    volumes:
-      - postgres-volume:/var/lib/postgresql/data
+    #    volumes:
+    #      - postgres-volume:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 5s
-      retries: 5
+      retries: 20
     restart: always
 
   keycloak:
@@ -137,16 +137,18 @@ services:
       KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm.json
       DB_VENDOR: h2
       KC_HEALTH_ENABLED: "true"
-    volumes:
-      - keycloakrealmvolume:/tmp
+      JAVA_OPTS_APPEND: "-Dcom:redhat:fips=false"
+      KC_SPI_CONFIG_UPDATE_MODE: "IGNORE"
+      KC_SPI_CONFIG_UPDATE_ENABLE: "false"
     healthcheck:
-      test: [ "CMD", "curl", "http://localhost:8080/health/ready" ]
+      test: [ "CMD", "curl", "http://localhost:8080/realms/hellodata" ]
       interval: 10s
       timeout: 5s
-      retries: 15
+      retries: 50
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "host.docker.internal", "--hostname", "localhost", "--http-enabled", "true" ]
 
   redis:
     platform: ${HD_PLATFORM}
@@ -158,10 +160,8 @@ services:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 30s
-      retries: 50
+      retries: 20
     restart: always
-    volumes:
-      - redis_data:/data
 
   nats:
     platform: ${HD_PLATFORM}
@@ -335,7 +335,7 @@ services:
       test: [ "CMD", "curl", "--fail", "http://${AIRFLOW_WEBSERVER_HOST_PORT:-8080}/health" ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -350,7 +350,7 @@ services:
       test: [ "CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"' ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -367,7 +367,7 @@ services:
         - 'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     environment:
       <<: *airflow-common-env
       # Required to handle warm shutdown of the celery workers properly
@@ -387,7 +387,7 @@ services:
       test: [ "CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"' ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -494,7 +494,7 @@ services:
       test: [ "CMD", "curl", "--fail", "http://localhost:5555/" ]
       interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
     restart: always
     depends_on:
       <<: *airflow-common-depends-on
@@ -547,13 +547,6 @@ services:
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    depends_on:
-      keycloak:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      hello-data-portal-api:
-        condition: service_healthy
     ports:
       - 8080:80
 
@@ -583,24 +576,13 @@ services:
       - keycloak
       - redis
       - nats
-      - smtp4dev
-      - superset-app-default-data-domain
-      - superset-app-extra-data-domain
-      - airflow-webserver
-      - cloudbeaver
-      - filebrowser
-      - hello-data-airflow-sidecar
-      - hello-data-sidecar-cloudbeaver
-      - hello-data-dbt-docs-sidecar
-      - hello-data-superset-sidecar-default-data-domain
-      - hello-data-superset-sidecar-extra-data-domain
     ports:
       - 8081:8081
     healthcheck:
       test: [ "CMD", "curl", "http://hello-data-portal-api:8081/api/actuator/health" ]
       interval: 10s
       timeout: 5s
-      retries: 15
+      retries: 20
 
   hello-data-portal-sidecar:
     platform: ${HD_PLATFORM}
@@ -617,9 +599,12 @@ services:
       - postgres
       - keycloak
       - hello-data-portal-api
+      - airflow-webserver
+      - cloudbeaver
     depends_on:
+      - airflow-webserver
+      - cloudbeaver
       - postgres
       - keycloak
       - redis
       - nats
-      - hello-data-portal-api
