@@ -35,7 +35,6 @@ services:
       args:
         JUPYTERHUB_VERSION: latest
     restart: always
-    image: hellodata-jupyterhub-notebook-default-data-domain
     container_name: jupyterhub-default-data-domain
     networks:
       - hello-data-network
