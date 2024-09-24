@@ -35,8 +35,8 @@ ARG HELLO_DATA_AUTH_SERVER_URL
 
 RUN echo "window.environment = { \
             production: false, \
-            portalApi: 'http://localhost:8081/api', \
-            docsApi: 'http://localhost:8086/dbt-docs', \
+            portalApi: 'http://host.docker.internal:8081/api', \
+            docsApi: 'http://host.docker.internal:8086/dbt-docs', \
             debugInfoEnabled: true, \
             authConfig: { \
               logLevel: 1, \
@@ -46,21 +46,21 @@ RUN echo "window.environment = { \
               clientId: 'frontend-client' \
             }, \
             domainNamespace: 'hellodata', \
-            baseDomain: 'localhost', \
+            baseDomain: 'host.docker.internal', \
             deploymentEnvironment: { \
               name: 'PREVIEW', \
               headerColor: 'rgb(9,106,232)' \
             }, \
             locale: 'de-CH', \
             subSystemsConfig: { \
-              airflow: {protocol: 'http://', host: 'localhost', domain: ':28080'}, \
-              dbtDocs: {protocol: 'http://', host: 'localhost', domain: ':8086/dbt-docs'}, \
-              dmViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
-              dwhViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
-              advancedAnalyticsViewer: {protocol: 'http://', host: 'localhost', domain: ':8088'}, \
-              monitoringStatus: {protocol: 'http://', host: 'localhost', domain: ':5099'}, \
-              devToolsMailbox: {protocol: 'http://', host: 'localhost', domain: ':8001'}, \
-              devToolsFileBrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'} \
+              airflow: {protocol: 'http://', host: 'host.docker.internal', domain: ':28080'}, \
+              dbtDocs: {protocol: 'http://', host: 'host.docker.internal', domain: ':8086/dbt-docs'}, \
+              dmViewer: {protocol: 'http://', host: 'host.docker.internal', domain: ':8087/cloudbeaver/'}, \
+              dwhViewer: {protocol: 'http://', host: 'host.docker.internal', domain: ':8087/cloudbeaver/'}, \
+              advancedAnalyticsViewer: {protocol: 'http://', host: 'host.docker.internal', domain: ':8088'}, \
+              monitoringStatus: {protocol: 'http://', host: 'host.docker.internal', domain: ':5099'}, \
+              devToolsMailbox: {protocol: 'http://', host: 'host.docker.internal', domain: ':8001'}, \
+              devToolsFileBrowser: {protocol: 'http://', host: 'host.docker.internal', domain: ':8090'} \
             }, \
             footerConfig: { \
               openSourceDataPlatformUrl: 'https://kanton-bern.github.io/hellodata-be', \
