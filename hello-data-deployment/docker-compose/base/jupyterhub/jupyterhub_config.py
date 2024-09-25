@@ -83,7 +83,7 @@ c.GenericOAuthenticator.userdata_params = {'state': 'state'}
 c.GenericOAuthenticator.allow_all = True
 c.JupyterHub.admin_access = True
 
-OIDC_ISSUER = 'http://host.docker.internal:38080/realms/hellodata'
+OIDC_ISSUER = 'http://keycloak.localhost:38080/realms/hellodata'
 req = requests.get(OIDC_ISSUER)
 key_der_base64 = req.json()["public_key"]
 key_der = b64decode(key_der_base64.encode())

@@ -61,10 +61,10 @@ services:
       JUPYTERHUB_LOG_LEVEL: DEBUG
       OAUTH2_CLIENT_ID: frontend-client
       OAUTH2_CLIENT_SECRET: not-required
-      OAUTH2_ISSUER_URL: http://host.docker.internal:38080/realms/hellodata
-      OAUTH2_AUTHORIZE_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/auth
-      OAUTH2_TOKEN_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/token
-      OAUTH2_USERDATA_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/userinfo
+      OAUTH2_ISSUER_URL: http://keycloak.localhost:38080/realms/hellodata
+      OAUTH2_AUTHORIZE_URL: http://keycloak.localhost:38080/realms/hellodata/protocol/openid-connect/auth
+      OAUTH2_TOKEN_URL: http://keycloak.localhost:38080/realms/hellodata/protocol/openid-connect/token
+      OAUTH2_USERDATA_URL: http://keycloak.localhost:38080/realms/hellodata/protocol/openid-connect/userinfo
       OAUTH2_CALLBACK_URL: http://localhost:8000/hub/oauth_callback
       OAUTH2_SCOPE: openid
       OAUTH2_LOGIN_SERVICE: keycloak
@@ -117,8 +117,6 @@ services:
       - keycloak
       - jupyterhub-default-data-domain
     restart: always
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - hello-data-network
 
@@ -140,5 +138,3 @@ services:
     restart: always
     ports:
       - "8091:8089"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
