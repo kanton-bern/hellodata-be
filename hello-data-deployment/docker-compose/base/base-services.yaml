@@ -148,7 +148,7 @@ services:
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "host.docker.internal", "--hostname", "localhost", "--http-enabled", "true" ]
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "localhost", "--http-enabled", "true" ]
 
   redis:
     platform: ${HD_PLATFORM}

@@ -2422,7 +2422,7 @@
       "clientOfflineSessionIdleTimeout": "0",
       "cibaInterval": "5",
       "realmReusableOtpCode": "false",
-      "frontendUrl": "http://host.docker.internal:38080"
+      "frontendUrl": "http://localhost:38080"
     },
     "keycloakVersion": "20.0.5",
     "userManagedAccessAllowed": false,

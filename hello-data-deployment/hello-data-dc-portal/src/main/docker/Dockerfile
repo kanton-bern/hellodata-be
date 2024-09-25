@@ -40,7 +40,7 @@ RUN echo "window.environment = { \
             debugInfoEnabled: true, \
             authConfig: { \
               logLevel: 1, \
-              authority: 'http://host.docker.internal:38080/realms/hellodata', \
+              authority: 'http://localhost:38080/realms/hellodata', \
               redirectUrl: 'http://localhost:8080/app/', \
               postLogoutRedirectUri: 'http://localhost:8080/app/', \
               clientId: 'frontend-client' \
