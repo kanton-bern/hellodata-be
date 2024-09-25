@@ -32,6 +32,9 @@ x-airflow-common:
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
   image: bedag/hello-data-dc-airflow
   env_file: .env
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+    - "keycloak.localhost:host-gateway"
   environment:
     &airflow-common-env
     KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
@@ -144,6 +147,9 @@ services:
       timeout: 5s
       retries: 50
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "localhost", "--http-enabled", "true" ]
 
   redis:
@@ -205,6 +211,9 @@ services:
     env_file: .env
     ports:
       - 5099:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     links:
       - smtp4dev
     depends_on:
@@ -215,6 +224,9 @@ services:
     image: bedag/hello-data-dc-cloudbeaver
     env_file: .env
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     depends_on:
       - postgres
     links:
@@ -240,6 +252,9 @@ services:
       - keycloak
       - cloudbeaver
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   hello-data-sidecar-cloudbeaver:
     image: bedag/hello-data-sidecar-cloudbeaver
@@ -257,6 +272,9 @@ services:
       - keycloak
       - cloudbeaver
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   filebrowser:
     image: filebrowser/filebrowser
@@ -286,6 +304,9 @@ services:
     ports:
       - 8086:8086
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   hello-data-dbt-docs-sidecar:
     platform: ${HD_PLATFORM}
@@ -306,6 +327,9 @@ services:
       - keycloak
       - hello-data-dbt-docs
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   #AIRFLOW
   airflow-webserver:
@@ -491,6 +515,9 @@ services:
     image: bedag/hello-data-sidecar-airflow
     restart: always
     env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     environment:
       - HELLO_DATA_INSTANCE_URL=http://localhost:28080/
       - HELLO_DATA_AIRFLOW_HOST=airflow-webserver
@@ -514,6 +541,9 @@ services:
     image: bedag/hello-data-monitoring-storage
     restart: always
     env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     environment:
       - SPRING_PROFILES_ACTIVE=dc
     volumes:
@@ -525,6 +555,9 @@ services:
     image: bedag/hello-data-dc-portal
     env_file: .env
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     ports:
       - 8080:80
 
@@ -533,6 +566,9 @@ services:
     image: bedag/hello-data-portal-api
     env_file: .env
     restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     environment:
       - SPRING_PROFILES_ACTIVE=local-user-search,create-example-users
       - SPRING_MAIL_HOST=smtp4dev
@@ -564,6 +600,9 @@ services:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-sidecar-portal
     env_file: .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30

@@ -117,6 +117,9 @@ services:
       - keycloak
       - jupyterhub-default-data-domain
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     networks:
       - hello-data-network
 
@@ -138,3 +141,6 @@ services:
     restart: always
     ports:
       - "8091:8089"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"

@@ -30,6 +30,8 @@ Make sure the `host.docker.internal` is added to the /etc/hosts file with either
 # Added by Docker Desktop
 <YOUR-IP-HERE> host.docker.internal
 <YOUR-IP-HERE> gateway.docker.internal
+# Add this line yourself - needed to work with keycloak 23 on Google Chrome browser
+127.0.0.1 keycloak.localhost 
 # To allow the same kube context to work on the host and the container:
 127.0.0.1 kubernetes.docker.internal
 # End of section
