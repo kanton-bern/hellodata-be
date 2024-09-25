@@ -72,8 +72,7 @@ docker-compose down --volumes --remove-orphans
 
 The start might take some time.
 
-After all started, go to [host.docker.internal:8080](http://host.docker.internal:8080/) in your browser and log in with
-user: *admin / admin*
+After all started, go to [localhost:8080](http://localhost:8080/) in your browser and log in with user: *admin / admin*
 
 ## FAQ
 

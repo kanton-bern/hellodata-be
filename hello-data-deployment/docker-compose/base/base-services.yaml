@@ -141,14 +141,14 @@ services:
       KC_SPI_CONFIG_UPDATE_MODE: "IGNORE"
       KC_SPI_CONFIG_UPDATE_ENABLE: "false"
     healthcheck:
-      test: [ "CMD", "curl", "http://host.docker.internal:8080/realms/hellodata" ]
+      test: [ "CMD", "curl", "http://localhost:8080/realms/hellodata" ]
       interval: 10s
       timeout: 5s
       retries: 50
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "host.docker.internal", "--hostname", "host.docker.internal", "--http-enabled", "true" ]
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "--hostname", "host.docker.internal", "--hostname", "localhost", "--http-enabled", "true" ]
 
   redis:
     platform: ${HD_PLATFORM}
@@ -258,7 +258,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
       - NATS_SPRING_SERVER=nats://nats:4222
       - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgres:5432/hd_cloudbeaver
-      - HELLO_DATA_INSTANCE_URL=http://host.docker.internal:8087/cloudbeaver/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8087/cloudbeaver/
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
@@ -307,7 +307,7 @@ services:
     env_file: .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_dbt_docs
-      - HELLO_DATA_INSTANCE_URL=http://host.docker.internal:8086/dbt-docs/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8086/dbt-docs/
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
     links:
       - nats
@@ -491,7 +491,7 @@ services:
     ports:
       - 5555:5555
     healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://host.docker.internal:5555/" ]
+      test: [ "CMD", "curl", "--fail", "http://localhost:5555/" ]
       interval: 10s
       timeout: 10s
       retries: 20
@@ -510,7 +510,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - HELLO_DATA_INSTANCE_URL=http://host.docker.internal:28080/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:28080/
       - HELLO_DATA_AIRFLOW_HOST=airflow-webserver
       - HELLO_DATA_AIRFLOW_PORT=8080
       - HELLO_DATA_BUSINESS_CONTEXT_NAME=
@@ -562,7 +562,7 @@ services:
       - SPRING_MAIL_HOST=smtp4dev
       - SPRING_MAIL_PORT=25
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
-      - HELLO_DATA_AUTH_SERVER_REDIRECT_URL=http://host.docker.internal:8080
+      - HELLO_DATA_AUTH_SERVER_REDIRECT_URL=http://localhost:8080
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
     links:

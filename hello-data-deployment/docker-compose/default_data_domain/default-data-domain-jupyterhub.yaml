@@ -65,7 +65,7 @@ services:
       OAUTH2_AUTHORIZE_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/auth
       OAUTH2_TOKEN_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/token
       OAUTH2_USERDATA_URL: http://host.docker.internal:38080/realms/hellodata/protocol/openid-connect/userinfo
-      OAUTH2_CALLBACK_URL: http://host.docker.internal:8000/hub/oauth_callback
+      OAUTH2_CALLBACK_URL: http://localhost:8000/hub/oauth_callback
       OAUTH2_SCOPE: openid
       OAUTH2_LOGIN_SERVICE: keycloak
       OAUTH2_USERNAME_KEY: preferred_username
@@ -129,7 +129,7 @@ services:
       - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:35432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
-      - HELLO_DATA_INSTANCE_URL=http://host.docker.internal:8088/
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8088/
       - HELLO_DATA_INSTANCE_NAME=Jupyterhub Default Data Domain
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
