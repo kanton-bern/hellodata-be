@@ -45,7 +45,8 @@ export const authReducer = createReducer(
       isSuperuser: currentUserAuthData.isSuperuser,
       businessDomain: currentUserAuthData.businessDomain,
       permissionsLoaded: true,
-      disableLogout: currentUserAuthData.disableLogout
+      disableLogout: currentUserAuthData.disableLogout,
+      userDisabled: currentUserAuthData.userDisabled
     };
   }),
   on(logout, (state: AuthState): AuthState => {
@@ -57,7 +58,8 @@ export const authReducer = createReducer(
       contextRoles: [],
       permissions: [],
       isSuperuser: false,
-      businessDomain: ''
+      businessDomain: '',
+      userDisabled: false
     };
   }),
   on(fetchContextRolesSuccess, (state: AuthState, {contextRoles}): AuthState => {

@@ -600,6 +600,7 @@ services:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-sidecar-portal
     env_file: .env
+    restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
