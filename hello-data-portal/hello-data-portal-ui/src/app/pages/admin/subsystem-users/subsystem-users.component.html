@@ -1,22 +1,20 @@
 <h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
-<div class="card">
-  <div *ngIf="(tableData$ | async) as tableData">
-    <div *ngIf="(columns$ | async) as columns">
-      <p-table [value]="tableData" [columns]="columns">
-        <ng-template pTemplate="header" let-columns>
-          <tr>
-            <th>{{ '@Email' | transloco }}</th>
-            <th *ngFor="let col of columns">{{ col.header }}</th>
-          </tr>
-        </ng-template>
+<div class="card" *ngIf="(tableData$ | async) as tableData">
+  <div *ngIf="(columns$ | async) as columns">
+    <p-table [value]="tableData" [columns]="columns">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th>{{ '@Email' | transloco }}</th>
+          <th *ngFor="let col of columns">{{ col.header }}</th>
+        </tr>
+      </ng-template>
 
-        <ng-template pTemplate="body" let-row let-columns="columns">
-          <tr>
-            <td>{{ row.email }}</td>
-            <td *ngFor="let col of columns">{{ row[col.field] }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+      <ng-template pTemplate="body" let-row let-columns="columns">
+        <tr>
+          <td>{{ row.email }}</td>
+          <td *ngFor="let col of columns">{{ row[col.field] }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
 </div>
