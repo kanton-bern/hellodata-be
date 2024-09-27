@@ -97,3 +97,17 @@ export interface AdUser {
   lastName: string
   label: string
 }
+
+export interface SubsystemUserDto {
+  name: string;
+  surname: string;
+  email: string;
+  username: string;
+  roles: string[];
+  subsystemName: string;
+}
+
+export interface SubsystemUsersResultDto {
+  subsystemName: string;
+  users: SubsystemUserDto[]
+}

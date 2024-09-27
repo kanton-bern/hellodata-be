@@ -25,47 +25,39 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {
-  ContextDashboardsForUser,
-  DashboardForUser,
-  SubsystemUsersResultDto,
-  User,
-  UserActionForPopup
-} from "./users-management.model";
-import {Context, Role} from "./context-role.model";
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslocoModule} from "@ngneat/transloco";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {ButtonModule} from "primeng/button";
+import {EditorModule} from "primeng/editor";
+import {RippleModule} from "primeng/ripple";
+import {SharedModule} from "primeng/api";
+import {TableModule} from "primeng/table";
+import {ToolbarModule} from "primeng/toolbar";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {CheckboxModule} from "primeng/checkbox";
+import {TooltipModule} from "primeng/tooltip";
+import {SubsystemUsersComponent} from "./subsystem-users.component";
 
-export interface UsersManagementState {
-  permissionsForCurrentUser: string[],
-  users: User[],
-  userForPopup: UserActionForPopup | null
-  editedUser: User | null,
-  allDashboardsWithMarkedUser: DashboardForUser[],
-  allDashboardsWithMarkedUserFetched: boolean,
-  allAvailableContextRoles: Role[],
-  allAvailableContexts: Context[],
-  userContextRoles: any[],
-  selectedBusinessContextRoleForEditedUser: Role | null
-  selectedDataDomainRolesForEditedUser: any[],
-  selectedDashboardsForUser: ContextDashboardsForUser[],
-  adminEmails: string[];
-  userSaveButtonDisabled: boolean;
-  subsystemUsers: SubsystemUsersResultDto[]
-}
 
-export const initialUsersManagementState: UsersManagementState = {
-  permissionsForCurrentUser: [],
-  users: [],
-  userForPopup: null,
-  editedUser: null,
-  allDashboardsWithMarkedUser: [],
-  allDashboardsWithMarkedUserFetched: false,
-  allAvailableContextRoles: [],
-  allAvailableContexts: [],
-  userContextRoles: [],
-  selectedBusinessContextRoleForEditedUser: null,
-  selectedDataDomainRolesForEditedUser: [],
-  selectedDashboardsForUser: [],
-  adminEmails: [],
-  userSaveButtonDisabled: false,
-  subsystemUsers: []
+@NgModule({
+  declarations: [SubsystemUsersComponent],
+  imports: [
+    CommonModule,
+    TranslocoModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    EditorModule,
+    RippleModule,
+    SharedModule,
+    TableModule,
+    ToolbarModule,
+    FormsModule,
+    ConfirmDialogModule,
+    CheckboxModule,
+    TooltipModule,
+  ]
+})
+export class SubsystemUsersModule {
 }

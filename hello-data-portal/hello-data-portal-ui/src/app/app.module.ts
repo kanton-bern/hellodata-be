@@ -83,6 +83,7 @@ import {BaseComponent} from "./shared/components/base/base.component";
 import {DashboardImportExportModule} from "./pages/admin/dashboard-import-export/dashboard-import-export.module";
 import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
 import {AdvancedAnalyticsModule} from "./pages/advanced-analytics/advanced-analytics.module";
+import {SubsystemUsersModule} from "./pages/admin/subsystem-users/subsystem-users.module";
 
 registerLocaleData(localeDECH);
 
@@ -119,6 +120,7 @@ registerLocaleData(localeDECH);
     JsonPipe,
     UserManagementModule,
     WorkspacesModule,
+    SubsystemUsersModule,
     RolesManagementModule,
     AnnouncementsManagementModule,
     HomeModule,

@@ -25,47 +25,41 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {
-  ContextDashboardsForUser,
-  DashboardForUser,
-  SubsystemUsersResultDto,
-  User,
-  UserActionForPopup
-} from "./users-management.model";
-import {Context, Role} from "./context-role.model";
+import {Component, OnInit} from '@angular/core';
+import {Store} from "@ngrx/store";
+import {AppState} from "../../../store/app/app.state";
+import {BaseComponent} from "../../../shared/components/base/base.component";
+import {loadSubsystemUsers} from "../../../store/users-management/users-management.action";
+import {Observable} from "rxjs";
+import {SubsystemUsersResultDto} from "../../../store/users-management/users-management.model";
+import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
 
-export interface UsersManagementState {
-  permissionsForCurrentUser: string[],
-  users: User[],
-  userForPopup: UserActionForPopup | null
-  editedUser: User | null,
-  allDashboardsWithMarkedUser: DashboardForUser[],
-  allDashboardsWithMarkedUserFetched: boolean,
-  allAvailableContextRoles: Role[],
-  allAvailableContexts: Context[],
-  userContextRoles: any[],
-  selectedBusinessContextRoleForEditedUser: Role | null
-  selectedDataDomainRolesForEditedUser: any[],
-  selectedDashboardsForUser: ContextDashboardsForUser[],
-  adminEmails: string[];
-  userSaveButtonDisabled: boolean;
-  subsystemUsers: SubsystemUsersResultDto[]
-}
+@Component({
+  selector: 'app-subsystem-users',
+  templateUrl: './subsystem-users.component.html',
+  styleUrls: ['./subsystem-users.component.scss']
+})
+export class SubsystemUsersComponent extends BaseComponent implements OnInit {
 
-export const initialUsersManagementState: UsersManagementState = {
-  permissionsForCurrentUser: [],
-  users: [],
-  userForPopup: null,
-  editedUser: null,
-  allDashboardsWithMarkedUser: [],
-  allDashboardsWithMarkedUserFetched: false,
-  allAvailableContextRoles: [],
-  allAvailableContexts: [],
-  userContextRoles: [],
-  selectedBusinessContextRoleForEditedUser: null,
-  selectedDataDomainRolesForEditedUser: [],
-  selectedDashboardsForUser: [],
-  adminEmails: [],
-  userSaveButtonDisabled: false,
-  subsystemUsers: []
+  subsystemUsers$: Observable<SubsystemUsersResultDto[]>;
+
+  constructor(private store: Store<AppState>) {
+    super();
+    // this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
+    store.dispatch(loadSubsystemUsers());
+    this.subsystemUsers$ = store.select(selectSubsystemUsers);
+    // this.store.dispatch(createBreadcrumbs({
+    //   breadcrumbs: [
+    //     {
+    //       label: naviElements.announcementsManagement.label,
+    //       routerLink: naviElements.announcementsManagement.path,
+    //     }
+    //   ]
+    // }));
+  }
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+  }
+
 }

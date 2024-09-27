@@ -28,7 +28,16 @@
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {AdUser, ContextDashboardsForUser, CreateUserForm, CreateUserResponse, DashboardForUser, DashboardResponse, User} from "./users-management.model";
+import {
+  AdUser,
+  ContextDashboardsForUser,
+  CreateUserForm,
+  CreateUserResponse,
+  DashboardForUser,
+  DashboardResponse,
+  SubsystemUsersResultDto,
+  User
+} from "./users-management.model";
 import {ContextResponse} from "./context-role.model";
 import {environment} from "../../../environments/environment";
 
@@ -37,13 +46,18 @@ import {environment} from "../../../environments/environment";
 })
 export class UsersManagementService {
   baseUsersUrl = `${environment.portalApi}/users`;
-  invitedUsersUrl = `${this.baseUsersUrl}/invited`;
+  baseMetainfoUrl = `${environment.portalApi}/metainfo`;
 
   constructor(protected httpClient: HttpClient) {
   }
 
   public getUsers(): Observable<User[]> {
     return this.httpClient.get<User[]>(`${this.baseUsersUrl}`);
+  }
+
+  public getSubsystemUsers(): Observable<SubsystemUsersResultDto[]> {
+    console.log("get subsystem users")
+    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users`);
   }
 
   public getUserById(userId: string): Observable<User> {
