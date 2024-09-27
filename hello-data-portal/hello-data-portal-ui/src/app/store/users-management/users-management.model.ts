@@ -108,6 +108,6 @@ export interface SubsystemUserDto {
 }
 
 export interface SubsystemUsersResultDto {
-  subsystemName: string;
+  instanceName: string;
   users: SubsystemUserDto[]
 }

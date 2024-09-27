@@ -185,6 +185,7 @@
   "@Status": "Status",
   "@Storage size": "Taille de stockage",
   "@Subscriptions": "Service Abonnements",
+  "@Subsystem users": "Utilisateurs du sous-système",
   "@Summary header": "Statut | Documents | Service Abonnements",
   "@Superset Instanz öffnen": " >> Ouvrir l'instance Superset <<",
   "@Superuser": "Superuser",

@@ -185,6 +185,7 @@
   "@Status": "Status",
   "@Storage size": "Speichergrösse",
   "@Subscriptions": "Service Abonnements",
+  "@Subsystem users": "Subsystembenutzer",
   "@Summary header": "Status | Dokumentation | Service Abonnements",
   "@Superset Instanz öffnen": " >> Superset Instanz öffnen <<",
   "@Superuser": "HELLODATA_ADMIN",

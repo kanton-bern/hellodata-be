@@ -1,33 +1,22 @@
-<div *ngIf="(subsystemUsers$ | async) as subsystemUsers">
-  <p-table [paginator]="true"
-           [rowHover]="true"
-           [rows]="5"
-           [showCurrentPageReport]="true"
-           [tableStyle]="{ 'min-width': '20rem' }"
-           [value]="subsystemUsers"
-           dataKey="instanceName">
-    <ng-template pTemplate="header">
-      <tr>
-        <th id="email"></th>
-        <th id="dataDomain" pSortableColumn="contextKey">{{ '@Instance' | transloco }}
-          <p-sortIcon field="contextKey"></p-sortIcon>
-        </th>
-        <th id="name" pSortableColumn="name">{{ '@Faq' | transloco }}
-          <p-sortIcon field="name"></p-sortIcon>
-        </th>
-      </tr>
-    </ng-template>
-    <ng-template let-item pTemplate="body">
-      <tr>
-        <td>
-          <i class="fa fa-question-circle fa-lg"></i>
-        </td>
-        <td>
-          {{ item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName }}
-        </td>
-        <td>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+<h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
+<div class="card">
+  <div *ngIf="(tableData$ | async) as tableData">
+    <div *ngIf="(columns$ | async) as columns">
+      <p-table [value]="tableData" [columns]="columns">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th>{{ '@Email' | transloco }}</th>
+            <th *ngFor="let col of columns">{{ col.header }}</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row let-columns="columns">
+          <tr>
+            <td>{{ row.email }}</td>
+            <td *ngFor="let col of columns">{{ row[col.field] }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
 </div>

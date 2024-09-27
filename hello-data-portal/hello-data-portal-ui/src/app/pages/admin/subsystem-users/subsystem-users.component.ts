@@ -30,11 +30,17 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {loadSubsystemUsers} from "../../../store/users-management/users-management.action";
-import {Observable} from "rxjs";
-import {SubsystemUsersResultDto} from "../../../store/users-management/users-management.model";
+import {Observable, tap} from "rxjs";
 import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
+import {map} from "rxjs/operators";
+
+interface TableRow {
+  email: string;
+
+  [key: string]: any; // To allow dynamic columns for instanceNames
+}
 
 @Component({
   selector: 'app-subsystem-users',
@@ -43,12 +49,46 @@ import {naviElements} from "../../../app-navi-elements";
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit {
 
-  subsystemUsers$: Observable<SubsystemUsersResultDto[]>;
+  tableData$: Observable<TableRow[]>;
+  columns$: Observable<any[]>; // Observable for dynamic columns
 
   constructor(private store: Store<AppState>) {
     super();
     store.dispatch(loadSubsystemUsers());
-    this.subsystemUsers$ = store.select(selectSubsystemUsers);
+    // Observable for dynamic columns (instanceName)
+    this.columns$ = this.store.select(selectSubsystemUsers).pipe(
+      map(subsystemUsers =>
+        subsystemUsers.map(subsystem => ({
+          field: subsystem.instanceName,
+          header: subsystem.instanceName
+        }))
+      ),
+      tap(col => console.log("col", col))
+    );
+
+    // Observable for table data (rows based on email)
+    this.tableData$ = this.store.select(selectSubsystemUsers).pipe(
+      map(subsystemUsers => {
+        const uniqueEmails = Array.from(
+          new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
+        );
+
+        // Create table rows by email
+        const tableRows: TableRow[] = uniqueEmails.map(email => ({
+          email,
+        }));
+
+        // Populate rows with roles for each instanceName
+        tableRows.forEach(row => {
+          subsystemUsers.forEach(subsystem => {
+            const user = subsystem.users.find(user => user.email === row.email);
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : '-';
+          });
+        });
+
+        return tableRows;
+      }));
+
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
