@@ -30,7 +30,6 @@ import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.user.data.*;
-import ch.bedag.dap.hellodata.portal.user.service.KeycloakService;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.validation.Valid;
@@ -56,7 +55,6 @@ public class UserController {
     private final UserService userService;
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
-    private final KeycloakService keycloakService;
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
@@ -112,7 +110,7 @@ public class UserController {
                 userService.updateLastAccess(currentUserId.toString());
             }
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
-                    helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(), keycloakService.isUserDisabled(currentUserId.toString()));
+                    helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(), userService.isUserDisabled(currentUserId.toString()));
         } catch (ClientErrorException e) {
             log.error("Error on getting user sessions", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));

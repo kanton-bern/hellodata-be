@@ -143,6 +143,11 @@ public class UserService {
         }
     }
 
+    public boolean isUserDisabled(String userId) {
+        String authUserId = getAuthUserId(userId);
+        return keycloakService.isUserDisabled(authUserId);
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void syncAllUsers() {
         List<UserDto> allUsers = getAllUsers().stream().filter(UserDto::getEnabled).toList();
