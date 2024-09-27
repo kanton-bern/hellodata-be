@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.*;
+import ch.bedag.dap.hellodata.portal.user.service.KeycloakService;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -58,6 +59,8 @@ class UserControllerTest extends HDControllerTest {
     private HelloDataContextConfig helloDataContextConfig;
     @MockBean
     private SystemProperties systemProperties;
+    @MockBean
+    private KeycloakService keycloakService;
 
     @Test
     void createUser_noPrivilegesShouldReturnForbidden() throws Exception {
