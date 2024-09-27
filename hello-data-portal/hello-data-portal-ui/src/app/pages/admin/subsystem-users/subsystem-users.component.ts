@@ -33,6 +33,8 @@ import {loadSubsystemUsers} from "../../../store/users-management/users-manageme
 import {Observable} from "rxjs";
 import {SubsystemUsersResultDto} from "../../../store/users-management/users-management.model";
 import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {naviElements} from "../../../app-navi-elements";
 
 @Component({
   selector: 'app-subsystem-users',
@@ -45,17 +47,16 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>) {
     super();
-    // this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
     store.dispatch(loadSubsystemUsers());
     this.subsystemUsers$ = store.select(selectSubsystemUsers);
-    // this.store.dispatch(createBreadcrumbs({
-    //   breadcrumbs: [
-    //     {
-    //       label: naviElements.announcementsManagement.label,
-    //       routerLink: naviElements.announcementsManagement.path,
-    //     }
-    //   ]
-    // }));
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.subsystemUsers.label,
+          routerLink: naviElements.subsystemUsers.path,
+        }
+      ]
+    }));
   }
 
   override ngOnInit(): void {

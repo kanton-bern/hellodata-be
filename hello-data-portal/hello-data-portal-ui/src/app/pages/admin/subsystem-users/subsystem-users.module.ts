@@ -39,6 +39,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {CheckboxModule} from "primeng/checkbox";
 import {TooltipModule} from "primeng/tooltip";
 import {SubsystemUsersComponent} from "./subsystem-users.component";
+import {AccordionModule} from "primeng/accordion";
 
 
 @NgModule({
@@ -57,6 +58,7 @@ import {SubsystemUsersComponent} from "./subsystem-users.component";
     ConfirmDialogModule,
     CheckboxModule,
     TooltipModule,
+    AccordionModule,
   ]
 })
 export class SubsystemUsersModule {

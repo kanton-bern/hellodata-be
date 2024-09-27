@@ -1,1 +1,33 @@
-<pre>{{ subsystemUsers$ | async | json }}</pre>
+<div *ngIf="(subsystemUsers$ | async) as subsystemUsers">
+  <p-table [paginator]="true"
+           [rowHover]="true"
+           [rows]="5"
+           [showCurrentPageReport]="true"
+           [tableStyle]="{ 'min-width': '20rem' }"
+           [value]="subsystemUsers"
+           dataKey="instanceName">
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="email"></th>
+        <th id="dataDomain" pSortableColumn="contextKey">{{ '@Instance' | transloco }}
+          <p-sortIcon field="contextKey"></p-sortIcon>
+        </th>
+        <th id="name" pSortableColumn="name">{{ '@Faq' | transloco }}
+          <p-sortIcon field="name"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template let-item pTemplate="body">
+      <tr>
+        <td>
+          <i class="fa fa-question-circle fa-lg"></i>
+        </td>
+        <td>
+          {{ item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName }}
+        </td>
+        <td>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
