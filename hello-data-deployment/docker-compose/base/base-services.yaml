@@ -613,10 +613,8 @@ services:
       - postgres
       - keycloak
       - hello-data-portal-api
-      - airflow-webserver
       - cloudbeaver
     depends_on:
-      - airflow-webserver
       - cloudbeaver
       - postgres
       - keycloak

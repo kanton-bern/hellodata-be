@@ -40,6 +40,13 @@ import {CheckboxModule} from "primeng/checkbox";
 import {TooltipModule} from "primeng/tooltip";
 import {SubsystemUsersComponent} from "./subsystem-users.component";
 import {AccordionModule} from "primeng/accordion";
+import {InputNumberModule} from "primeng/inputnumber";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import {InputTextModule} from "primeng/inputtext";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {InputMaskModule} from "primeng/inputmask";
+import {AutoFocusModule} from "primeng/autofocus";
+import {TagModule} from "primeng/tag";
 
 
 @NgModule({
@@ -59,6 +66,14 @@ import {AccordionModule} from "primeng/accordion";
     CheckboxModule,
     TooltipModule,
     AccordionModule,
+    InputMaskModule,
+    InputSwitchModule,
+    InputTextModule,
+    InputTextareaModule,
+    InputNumberModule,
+    AutoFocusModule,
+    TagModule,
+
   ]
 })
 export class SubsystemUsersModule {

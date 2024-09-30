@@ -30,11 +30,12 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {loadSubsystemUsers} from "../../../store/users-management/users-management.action";
-import {Observable, tap} from "rxjs";
+import {Observable} from "rxjs";
 import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
+import {Table} from "primeng/table";
 
 interface TableRow {
   email: string;
@@ -57,13 +58,13 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit {
     store.dispatch(loadSubsystemUsers());
     // Observable for dynamic columns (instanceName)
     this.columns$ = this.store.select(selectSubsystemUsers).pipe(
-      map(subsystemUsers =>
-        subsystemUsers.map(subsystem => ({
+      map(subsystemUsers => [
+        {field: 'email', header: 'Email'},  // Add the email column first
+        ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.instanceName
         }))
-      ),
-      tap(col => console.log("col", col))
+      ])
     );
 
     // Observable for table data (rows based on email)
@@ -82,7 +83,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit {
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : '-';
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : 'Not found in instance';
           });
         });
 
@@ -103,4 +104,20 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit {
     super.ngOnInit();
   }
 
+  applyFilter(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
+  clear(table: Table, filterInput: HTMLInputElement): void {
+    table.clear();
+    filterInput.value = '';
+  }
+
+  shouldShowTag(value: string): boolean {
+    if (value.includes(','))
+      return true;
+    if (!value.includes('@') && value !== '-' && !value.includes('Not found in instance'))
+      return true;
+    return false;
+  }
 }
