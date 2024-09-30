@@ -49,7 +49,7 @@ interface TableRow {
   styleUrls: ['./subsystem-users.component.scss']
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit {
-
+  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>; // Observable for dynamic columns
 
@@ -83,7 +83,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit {
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : 'Not found in instance';
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
           });
         });
 
@@ -116,7 +116,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit {
   shouldShowTag(value: string): boolean {
     if (value.includes(','))
       return true;
-    if (!value.includes('@') && value !== '-' && !value.includes('Not found in instance'))
+    if (!value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT))
       return true;
     return false;
   }
