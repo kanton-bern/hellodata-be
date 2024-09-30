@@ -29,41 +29,22 @@ package ch.bedag.dap.hellodata.portal.user.controller;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
-import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
-import ch.bedag.dap.hellodata.portal.user.data.CreateUserRequestDto;
-import ch.bedag.dap.hellodata.portal.user.data.CreateUserResponseDto;
-import ch.bedag.dap.hellodata.portal.user.data.CurrentUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.DashboardsDto;
-import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
-import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
-import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.ClientErrorException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -129,7 +110,7 @@ public class UserController {
                 userService.updateLastAccess(currentUserId.toString());
             }
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
-                                      helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout());
+                    helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(), userService.isUserDisabled(currentUserId.toString()));
         } catch (ClientErrorException e) {
             log.error("Error on getting user sessions", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));

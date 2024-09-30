@@ -25,7 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ContextDashboardsForUser, DashboardForUser, User, UserActionForPopup} from "./users-management.model";
+import {
+  ContextDashboardsForUser,
+  DashboardForUser,
+  SubsystemUsersResultDto,
+  User,
+  UserActionForPopup
+} from "./users-management.model";
 import {Context, Role} from "./context-role.model";
 
 export interface UsersManagementState {
@@ -43,6 +49,7 @@ export interface UsersManagementState {
   selectedDashboardsForUser: ContextDashboardsForUser[],
   adminEmails: string[];
   userSaveButtonDisabled: boolean;
+  subsystemUsers: SubsystemUsersResultDto[]
 }
 
 export const initialUsersManagementState: UsersManagementState = {
@@ -59,5 +66,6 @@ export const initialUsersManagementState: UsersManagementState = {
   selectedDataDomainRolesForEditedUser: [],
   selectedDashboardsForUser: [],
   adminEmails: [],
-  userSaveButtonDisabled: false
+  userSaveButtonDisabled: false,
+  subsystemUsers: []
 }

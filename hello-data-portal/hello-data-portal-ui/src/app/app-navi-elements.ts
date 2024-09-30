@@ -153,6 +153,10 @@ export const naviElements: any = {
     path: 'dashboard-import-export',
     label: '@Dashboard import-export'
   },
+  subsystemUsers: {
+    path: 'subsystem-users',
+    label: '@Subsystem users'
+  },
   logout: {
     path: 'logout'
   },

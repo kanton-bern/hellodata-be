@@ -26,12 +26,20 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
-import {CreateUserForm, DashboardForUser, User, UserActionForPopup} from "./users-management.model";
+import {
+  CreateUserForm,
+  DashboardForUser,
+  SubsystemUsersResultDto,
+  User,
+  UserActionForPopup
+} from "./users-management.model";
 import {ContextResponse, Role} from "./context-role.model";
 
 export enum UsersManagementActionType {
   LOAD_USERS = '[USERS MANAGEMENT] Load Users',
   LOAD_USERS_SUCCESS = '[USERS MANAGEMENT] Load Users SUCCESS',
+  LOAD_SUBSYSTEM_USERS = '[USERS MANAGEMENT] Load Subsystem Users',
+  LOAD_SUBSYSTEM_USERS_SUCCESS = '[USERS MANAGEMENT] Load Subsystem Users SUCCESS',
   SHOW_USER_ACTION_POP_UP = '[USERS MANAGEMENT] Show user action pop up',
   HIDE_USER_ACTION_POP_UP = '[USERS MANAGEMENT] Hide user action pop up',
   INVOKE_ACTION_FROM_USER_POPUP = '[USERS MANAGEMENT] Invoke User popup action',
@@ -198,3 +206,11 @@ export const loadAdminEmailsSuccess = createAction(
   props<{ payload: string[] }>()
 );
 
+export const loadSubsystemUsers = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS
+);
+
+export const loadSubsystemUsersSuccess = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_SUCCESS,
+  props<{ payload: SubsystemUsersResultDto[] }>()
+);

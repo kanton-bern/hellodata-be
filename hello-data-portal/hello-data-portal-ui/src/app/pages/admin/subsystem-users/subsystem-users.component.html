@@ -1,0 +1,48 @@
+<h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
+<div class="card" *ngIf="(tableData$ | async) as tableData">
+  <div *ngIf="(columns$ | async) as columns">
+    <p-table #dt [value]="tableData" [columns]="columns">
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <div style="text-align: left">
+            <p-button
+              icon="pi pi-external-link"
+              label="{{ '@Export' | transloco }}"
+              (onClick)="dt.exportCSV()"/>
+          </div>
+          <div class="ml-auto">
+            <button pButton label="{{'@Clear' | transloco}}" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
+                    (click)="clear(dt, filterInput)"></button>
+            <span class="p-input-icon-left ml-auto">
+                  <i class="pi pi-search"></i>
+                  <input
+                    #filterInput
+                    pInputText
+                    type="text"
+                    (input)="dt.filterGlobal(applyFilter($event), 'contains')"
+                    placeholder="{{ '@Search' | transloco }}"/>
+              </span>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">{{ col.header }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            <ng-container *ngIf="shouldShowTag(row[col.field]); else singleValue">
+              <p-tag class="m-1" *ngFor="let value of row[col.field].split(',')" [value]="value.trim()"></p-tag>
+            </ng-container>
+            <ng-template #singleValue>
+              {{ row[col.field] }}
+            </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

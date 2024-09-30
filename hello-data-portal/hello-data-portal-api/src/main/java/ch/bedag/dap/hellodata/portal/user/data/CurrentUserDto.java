@@ -28,5 +28,6 @@ package ch.bedag.dap.hellodata.portal.user.data;
 
 import java.util.Set;
 
-public record CurrentUserDto(String email, Set<String> permissions, boolean isSuperuser, String businessDomain, boolean disableLogout) {
+public record CurrentUserDto(String email, Set<String> permissions, boolean isSuperuser, String businessDomain,
+                             boolean disableLogout, boolean userDisabled) {
 }

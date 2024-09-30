@@ -27,8 +27,6 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import jakarta.ws.rs.core.Response;
-import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.admin.client.Keycloak;
@@ -39,6 +37,9 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.net.URI;
+import java.util.List;
 
 @Log4j2
 @Service
@@ -54,6 +55,11 @@ public class KeycloakService {
         try (Response response = keycloak.realm(realmName).users().create(user)) {
             return getCreatedId(response);
         }
+    }
+
+    public boolean isUserDisabled(String userId) {
+        UserRepresentation user = keycloak.realm(realmName).users().get(userId).toRepresentation();
+        return !user.isEnabled();
     }
 
     public UserResource getUserResourceById(String userId) {

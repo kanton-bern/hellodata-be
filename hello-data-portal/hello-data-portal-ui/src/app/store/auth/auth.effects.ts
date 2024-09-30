@@ -28,7 +28,18 @@
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap} from "rxjs";
-import {authError, checkAuth, checkAuthComplete, fetchContextRoles, fetchContextRolesSuccess, fetchPermissionSuccess, login, loginComplete, logout} from "./auth.action";
+import {
+  authError,
+  checkAuth,
+  checkAuthComplete,
+  checkProfile,
+  fetchContextRoles,
+  fetchContextRolesSuccess,
+  fetchPermissionSuccess,
+  login,
+  loginComplete,
+  logout
+} from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
 import {navigate, showError} from "../app/app.action";
@@ -60,7 +71,11 @@ export class AuthEffects {
       ofType(checkAuth),
       switchMap(() => {
           return this._authService.checkAuth().pipe(
-            map(authResult => checkAuthComplete({isLoggedIn: authResult.isAuthenticated, accessToken: authResult.accessToken, profile: authResult.userData})),
+            map(authResult => checkAuthComplete({
+              isLoggedIn: authResult.isAuthenticated,
+              accessToken: authResult.accessToken,
+              profile: authResult.userData
+            })),
             catchError(e => of(authError(e)))
           )
         }
@@ -84,11 +99,19 @@ export class AuthEffects {
                     given_name: accessTokenPayload['given_name'],
                     email: accessTokenPayload['email'],
                   }
-                  return loginComplete({profile: userData, isLoggedIn: action.isLoggedIn, accessToken: action.accessToken})
+                  return loginComplete({
+                    profile: userData,
+                    isLoggedIn: action.isLoggedIn,
+                    accessToken: action.accessToken
+                  })
                 })
               );
             }
-            return of(loginComplete({profile: action.profile, isLoggedIn: action.isLoggedIn, accessToken: action.accessToken}));
+            return of(loginComplete({
+              profile: action.profile,
+              isLoggedIn: action.isLoggedIn,
+              accessToken: action.accessToken
+            }));
           }
           return of(navigate({url: 'home'}));
         }
@@ -96,6 +119,22 @@ export class AuthEffects {
       catchError(e => of(authError(e)))
     )
   });
+
+  checkProfile$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(checkProfile),
+      switchMap(() => this._usersManagementService.getCurrentAuthData()),
+      switchMap((currentUserAuthData) => {
+        console.debug("Check profile, current data", currentUserAuthData)
+        if (currentUserAuthData && !currentUserAuthData.userDisabled) {
+          return of(fetchPermissionSuccess({currentUserAuthData}))
+        }
+        console.debug("User disabled, logging out!")
+        return of(logout())
+      }),
+      catchError(e => of(authError(e)))
+    )
+  })
 
   loginComplete$ = createEffect(() => {
     return this._actions$.pipe(

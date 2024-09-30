@@ -26,10 +26,11 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.modules;
 
+import lombok.experimental.UtilityClass;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ModuleResourceKind {
@@ -42,7 +43,7 @@ public class ModuleResourceKind {
 
     public static List<String> getAllKinds() {
         Field[] declaredFields = ModuleResourceKind.class.getDeclaredFields();
-        List<Field> staticFields = new ArrayList<Field>();
+        List<Field> staticFields = new ArrayList<>();
         for (Field field : declaredFields) {
             if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
                 staticFields.add(field);

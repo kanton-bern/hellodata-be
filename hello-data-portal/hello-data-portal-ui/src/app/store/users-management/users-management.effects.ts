@@ -32,7 +32,12 @@ import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
 import {AppState} from "../app/app.state";
-import {selectDashboardsForUser, selectParamUserId, selectSelectedRolesForUser, selectUserForPopup} from "./users-management.selector";
+import {
+  selectDashboardsForUser,
+  selectParamUserId,
+  selectSelectedRolesForUser,
+  selectUserForPopup
+} from "./users-management.selector";
 import {Router} from "@angular/router";
 import {UserAction, UserActionForPopup} from "./users-management.model";
 import {CURRENT_EDITED_USER_ID} from "./users-management.reducer";
@@ -52,6 +57,8 @@ import {
   loadAvailableContextsSuccess,
   loadDashboards,
   loadDashboardsSuccess,
+  loadSubsystemUsers,
+  loadSubsystemUsersSuccess,
   loadUserById,
   loadUserByIdSuccess,
   loadUserContextRoles,
@@ -79,6 +86,15 @@ export class UsersManagementEffects {
     )
   });
 
+  loadSubsystemUsers$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadSubsystemUsers),
+      switchMap(() => this._usersManagementService.getSubsystemUsers()),
+      switchMap(result => of(loadSubsystemUsersSuccess({payload: result}))),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
 
   userPopupAction$ = createEffect(() => {
     return this._actions$.pipe(
@@ -88,17 +104,26 @@ export class UsersManagementEffects {
           switch (userActionForPopup!.action) {
             case (UserAction.DISABLE):
               return this._usersManagementService.disableUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
+                map(() => userPopupActionSuccess({
+                  email: userActionForPopup!.user.email,
+                  userActionForPopup: userActionForPopup as UserActionForPopup
+                })),
                 catchError(e => of(showError({error: e})))
               );
             case (UserAction.ENABLE):
               return this._usersManagementService.enableUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
+                map(() => userPopupActionSuccess({
+                  email: userActionForPopup!.user.email,
+                  userActionForPopup: userActionForPopup as UserActionForPopup
+                })),
                 catchError(e => of(showError({error: e})))
               );
             default:
               return this._usersManagementService.deleteUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
+                map(() => userPopupActionSuccess({
+                  email: userActionForPopup!.user.email,
+                  userActionForPopup: userActionForPopup as UserActionForPopup
+                })),
                 catchError(e => of(showError({error: e})))
               );
           }

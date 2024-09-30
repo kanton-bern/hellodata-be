@@ -117,6 +117,12 @@ export const ALL_MENU_ITEMS: any[] = [
         routerLink: '/dashboard-import-export',
         requiredPermissions: ['DASHBOARD_IMPORT_EXPORT']
       },
+      {
+        id: 'subsystemUsersMenu',
+        text: '@Subsystem users',
+        routerLink: '/subsystem-users',
+        requiredPermissions: ['USER_MANAGEMENT']
+      },
     ]
   },
   {

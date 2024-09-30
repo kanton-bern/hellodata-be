@@ -31,33 +31,25 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.Dashboa
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
-import ch.bedag.dap.hellodata.portal.user.data.CreateUserRequestDto;
-import ch.bedag.dap.hellodata.portal.user.data.CurrentUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.DashboardsDto;
-import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
-import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@ContextConfiguration(classes = { UserController.class })
+@ContextConfiguration(classes = {UserController.class})
 class UserControllerTest extends HDControllerTest {
 
     @MockBean
@@ -82,7 +74,7 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId)).contentType(MediaType.APPLICATION_JSON).content(asJsonString(createUserRequestDto)))
-               .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -101,11 +93,11 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId, Set.of("USER_MANAGEMENT")))
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .content(asJsonString(createUserRequestDto)))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("{'userId':'" + createdUserId + "'}"));
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(createUserRequestDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("{'userId':'" + createdUserId + "'}"));
     }
 
     @Test
@@ -128,10 +120,10 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(get("/users").header("authorization", generateToken(Set.of("USER_MANAGEMENT"))))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("[{'id':'" + users.get(0).getId() + "', 'email':'user1@test.com', 'firstName':'User', 'lastName':'One'}, {'id':'" + users.get(1).getId() +
-                                         "', 'email':'user2@test.com', 'firstName':'User', 'lastName':'Two'}]"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("[{'id':'" + users.get(0).getId() + "', 'email':'user1@test.com', 'firstName':'User', 'lastName':'One'}, {'id':'" + users.get(1).getId() +
+                        "', 'email':'user2@test.com', 'firstName':'User', 'lastName':'Two'}]"));
     }
 
     @Test
@@ -148,32 +140,32 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(get("/users/" + userId).header("authorization", generateToken(Set.of("USER_MANAGEMENT"))))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("""
-                                                 {
-                                                     "createdTimestamp": null,
-                                                     "email": "user1@test.com",
-                                                     "emailVerified": null,
-                                                     "enabled": null,
-                                                     "firstName": "User",
-                                                     "id": "42012620-df0d-4157-bf67-3683e7106a66",
-                                                     "invitationsCount": 0,
-                                                     "lastAccess": null,
-                                                     "lastName": "One",
-                                                     "permissions": null,
-                                                     "requiredActions": null,
-                                                     "superuser": null,
-                                                     "username": null
-                                                 }
-                                                 """));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        {
+                            "createdTimestamp": null,
+                            "email": "user1@test.com",
+                            "emailVerified": null,
+                            "enabled": null,
+                            "firstName": "User",
+                            "id": "42012620-df0d-4157-bf67-3683e7106a66",
+                            "invitationsCount": 0,
+                            "lastAccess": null,
+                            "lastName": "One",
+                            "permissions": null,
+                            "requiredActions": null,
+                            "superuser": null,
+                            "username": null
+                        }
+                        """));
     }
 
     @Test
     void getPermissionsForCurrentUser() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName", false);
+        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName", false, false);
 
         when(userService.getUserPortalPermissions(userId)).thenReturn(currentUser.permissions());
         HelloDataContextConfig.BusinessContext businessContext = new HelloDataContextConfig.BusinessContext();
@@ -183,9 +175,9 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(get("/users/current/profile").header("authorization", generateToken(userId, Set.of("USER_MANAGEMENT"))))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("{'email':'email@test.com', 'permissions':['PERMISSION1', 'PERMISSION2'], 'isSuperuser':false, 'businessDomain':'BusinessDomain'}"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("{'email':'email@test.com', 'permissions':['PERMISSION1', 'PERMISSION2'], 'isSuperuser':false, 'businessDomain':'BusinessDomain'}"));
     }
 
     @Test
@@ -232,34 +224,34 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(get("/users/" + userId + "/dashboards").header("authorization", generateToken(userId, "test", "test", "test", false, Set.of("USER_MANAGEMENT"))))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("""
-                                                 {
-                                                     "dashboards": [
-                                                         {
-                                                             "changedOnUtc": "2021-01-01T00:00:00.000Z",
-                                                             "compositeId": "1",
-                                                             "contextKey": "Context1",
-                                                             "id": 1,
-                                                             "instanceName": "Instance 1",
-                                                             "instanceUserId": 1,
-                                                             "title": "Dashboard 1",
-                                                             "viewer": false
-                                                         },
-                                                         {
-                                                             "changedOnUtc": "2021-01-01T00:00:00.000Z",
-                                                             "compositeId": "2",
-                                                             "contextKey": "Context2",
-                                                             "id": 2,
-                                                             "instanceName": "Instance 2",
-                                                             "instanceUserId": 2,
-                                                             "title": "Dashboard 2",
-                                                             "viewer": true
-                                                         }
-                                                     ]
-                                                 }
-                                                                                          """));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        {
+                            "dashboards": [
+                                {
+                                    "changedOnUtc": "2021-01-01T00:00:00.000Z",
+                                    "compositeId": "1",
+                                    "contextKey": "Context1",
+                                    "id": 1,
+                                    "instanceName": "Instance 1",
+                                    "instanceUserId": 1,
+                                    "title": "Dashboard 1",
+                                    "viewer": false
+                                },
+                                {
+                                    "changedOnUtc": "2021-01-01T00:00:00.000Z",
+                                    "compositeId": "2",
+                                    "contextKey": "Context2",
+                                    "id": 2,
+                                    "instanceName": "Instance 2",
+                                    "instanceUserId": 2,
+                                    "title": "Dashboard 2",
+                                    "viewer": true
+                                }
+                            ]
+                        }
+                        """));
     }
 
     @Test
@@ -295,50 +287,50 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(get("/users/current/context-roles").header("authorization", generateToken(userId, "test", "test", "test", false, Set.of("USER_MANAGEMENT"))))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("""
-                                                 [
-                                                     {
-                                                         "context": {
-                                                             "contextKey": "Context1",
-                                                             "createdBy": null,
-                                                             "createdDate": null,
-                                                             "extra": false,
-                                                             "id": "00af77f3-9f5b-47e0-8cad-68a1b89a43e8",
-                                                             "modifiedBy": null,
-                                                             "modifiedDate": null,
-                                                             "name": "Context1",
-                                                             "parentContextKey": null,
-                                                             "type": null
-                                                         },
-                                                         "role": {
-                                                             "contextType": null,
-                                                             "id": "f87047fc-779b-4f92-ad47-4decec7c0a2f",
-                                                             "name": "ROLE1"
-                                                         }
-                                                     },
-                                                     {
-                                                         "context": {
-                                                             "contextKey": "Context2",
-                                                             "createdBy": null,
-                                                             "createdDate": null,
-                                                             "extra": false,
-                                                             "id": "bcd7a61f-f851-480a-a316-92c087fd150f",
-                                                             "modifiedBy": null,
-                                                             "modifiedDate": null,
-                                                             "name": "Context2",
-                                                             "parentContextKey": null,
-                                                             "type": null
-                                                         },
-                                                         "role": {
-                                                             "contextType": null,
-                                                             "id": "2b62bb31-5b76-461e-884e-4902c5e539a2",
-                                                             "name": "ROLE2"
-                                                         }
-                                                     }
-                                                 ]
-                                                 """));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        [
+                            {
+                                "context": {
+                                    "contextKey": "Context1",
+                                    "createdBy": null,
+                                    "createdDate": null,
+                                    "extra": false,
+                                    "id": "00af77f3-9f5b-47e0-8cad-68a1b89a43e8",
+                                    "modifiedBy": null,
+                                    "modifiedDate": null,
+                                    "name": "Context1",
+                                    "parentContextKey": null,
+                                    "type": null
+                                },
+                                "role": {
+                                    "contextType": null,
+                                    "id": "f87047fc-779b-4f92-ad47-4decec7c0a2f",
+                                    "name": "ROLE1"
+                                }
+                            },
+                            {
+                                "context": {
+                                    "contextKey": "Context2",
+                                    "createdBy": null,
+                                    "createdDate": null,
+                                    "extra": false,
+                                    "id": "bcd7a61f-f851-480a-a316-92c087fd150f",
+                                    "modifiedBy": null,
+                                    "modifiedDate": null,
+                                    "name": "Context2",
+                                    "parentContextKey": null,
+                                    "type": null
+                                },
+                                "role": {
+                                    "contextType": null,
+                                    "id": "2b62bb31-5b76-461e-884e-4902c5e539a2",
+                                    "name": "ROLE2"
+                                }
+                            }
+                        ]
+                        """));
     }
 
     @Test
@@ -349,8 +341,8 @@ class UserControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(patch("/users/" + userId + "/context-roles").header("authorization", generateToken(userId, Set.of("USER_MANAGEMENT")))
-                                                                    .contentType(MediaType.APPLICATION_JSON)
-                                                                    .content(asJsonString(updateContextRoles))).andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateContextRoles))).andExpect(status().isOk());
     }
 }
 

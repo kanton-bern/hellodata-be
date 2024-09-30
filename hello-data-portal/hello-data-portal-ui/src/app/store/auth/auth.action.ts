@@ -34,6 +34,7 @@ export enum AuthActionType {
   FETCH_PERMISSIONS_SUCCESS = '[AUTH] Fetch permissions success',
   LOGOUT = '[AUTH] Logout',
   CHECK_AUTH = '[AUTH] Check auth',
+  CHECK_PROFILE = '[AUTH] Check profile',
   CHECK_AUTH_COMPLETE = '[AUTH] Check auth complete',
   AUTH_ERROR = '[AUTH] Auth error',
   FETCH_CONTEXT_ROLES = '[AUTH] Fetch context roles',
@@ -65,6 +66,10 @@ export const checkAuth = createAction(
 export const checkAuthComplete = createAction(
   AuthActionType.CHECK_AUTH_COMPLETE,
   props<{ isLoggedIn: boolean, accessToken: any, profile: any }>()
+);
+
+export const checkProfile = createAction(
+  AuthActionType.CHECK_PROFILE
 );
 
 export const authError = createAction(

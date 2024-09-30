@@ -55,6 +55,7 @@ services:
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   superset-init-default-data-domain:
     platform: ${HD_PLATFORM}
@@ -66,6 +67,7 @@ services:
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   superset-worker-default-data-domain:
     platform: ${HD_PLATFORM}
@@ -80,6 +82,7 @@ services:
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   superset-worker-beat-default-data-domain:
     platform: ${HD_PLATFORM}
@@ -94,6 +97,7 @@ services:
     restart: on-failure
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   hello-data-superset-sidecar-default-data-domain:
     platform: ${HD_PLATFORM}
@@ -101,6 +105,7 @@ services:
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     environment:
       - HELLO_DATA_INSTANCE_URL=http://localhost:38088/
       - HELLO_DATA_INSTANCE_NAME=Superset Default Data Domain
