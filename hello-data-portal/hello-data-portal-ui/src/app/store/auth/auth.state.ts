@@ -34,7 +34,9 @@ export interface AuthState {
   businessDomain: string,
   contextRoles: any[],
   disableLogout: boolean,
-  userDisabled: boolean
+  userDisabled: boolean,
+  supportedLanguages: string[],
+  selectedLanguage: string | null
 }
 
 export interface CurrentUserAuthData {
@@ -54,5 +56,8 @@ export const initialAuthState: AuthState = {
   businessDomain: '',
   contextRoles: [],
   disableLogout: false,
-  userDisabled: false
+  userDisabled: false,
+  supportedLanguages: ['de_CH', 'en', 'fr_CH'],
+  selectedLanguage: null
 }
+

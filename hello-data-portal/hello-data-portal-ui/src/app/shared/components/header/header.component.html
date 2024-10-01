@@ -3,28 +3,45 @@
 <div [ngStyle]="environment.color && { 'background-color': environment.color} || null" class="layout-topbar">
   <div class="card-container topbar-container overflow-hidden">
     <div class="flex">
-      <div *ngIf="environment.showEnvironment" class="flex align-items-center justify-content-center m-1 px-1 py-1 font-bold text-xl mr-4">
-        <p [pTooltip]="'@Environment' | transloco" class="glow top-menu-item" tooltipPosition="bottom">{{ "@Env " + environment.name | transloco}}</p>
+      <div *ngIf="environment.showEnvironment"
+           class="flex align-items-center justify-content-center m-1 px-1 py-1 font-bold text-xl mr-4">
+        <p [pTooltip]="'@Environment' | transloco" class="glow top-menu-item"
+           tooltipPosition="bottom">{{ "@Env " + environment.name | transloco }}</p>
       </div>
-      <div *ngIf="(businessDomain$ | async) as businessDomain" class="flex align-items-center justify-content-center m-1 px-1 py-1 font-medium text-xl">
-        <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item" tooltipPosition="bottom">{{ businessDomain }}</p>
+      <div *ngIf="(businessDomain$ | async) as businessDomain"
+           class="flex align-items-center justify-content-center m-1 px-1 py-1 font-medium text-xl">
+        <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item"
+           tooltipPosition="bottom">{{ businessDomain }}</p>
       </div>
-      <div class="flex-auto flex align-items-center m-1 px-1 py-1" *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
+      <div class="flex-auto flex align-items-center m-1 px-1 py-1"
+           *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
         <section [pTooltip]="'@Selected Data Domain' | transloco" class="top-menu-item" tooltipPosition="bottom">
            <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
-              <a (click)="selectedDataDomainMenu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
-                <span class="pl-2" style="cursor: pointer">{{selectedDataDomain.name | transloco}}</span>
+              <a (click)="selectedDataDomainMenu.toggle($event)"
+                 class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
+                <span class="pl-2" style="cursor: pointer">{{ selectedDataDomain.name | transloco }}</span>
                 <i class="fas fa-chevron-down p-1" style="cursor: pointer"></i>
               </a>
            </span>
         </section>
       </div>
       <div class="flex-auto flex align-items-center justify-content-end m-1 px-1 py-1">
-         <span class="mr-4 top-menu-item">
+        <span class="mr-1 top-menu-item">
+         <span *ngIf="(languages$ | async) as languages">
+           <a (click)="languageChangeMenu.toggle($event)"
+              class="route-link p-button-link align-self-end layout-topbar-button"
+              id="langMenu">
+<!--             flag here instead of lang code-->
+             <span class="pl-2" style="cursor: pointer">{{ selectedLanguage }}</span>
+           </a>
+         </span>
+         </span>
+        <span class="mr-4 top-menu-item">
            <span *ngIf="(userData$ | async) as userData">
-             <a (click)="menu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button" id="userMenu">
+             <a (click)="menu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button"
+                id="userMenu">
                <i class="fas fa-light fa-user" style="cursor: pointer"></i>
-               <span class="pl-2" style="cursor: pointer">{{userData.email}}</span>
+               <span class="pl-2" style="cursor: pointer">{{ userData.email }}</span>
              </a>
            </span>
          </span>
@@ -34,8 +51,18 @@
 </div>
 
 
-<app-published-announcements-wrapper class="published-announcements-container" *ngIf="isAuthenticated$ | async"></app-published-announcements-wrapper>
+<app-published-announcements-wrapper class="published-announcements-container"
+                                     *ngIf="isAuthenticated$ | async"></app-published-announcements-wrapper>
 <app-breadcrumb class="breadcrumb-container"></app-breadcrumb>
 <!--use p-menu here with reference above due to firefox issues with z-index-->
 <p-menu #menu [model]="userMenuItems" [popup]="true"></p-menu>
 <p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true"></p-menu>
+<p-menu #languageChangeMenu [model]="supportedLanguages" [popup]="true">
+  <ng-template pTemplate="item" let-item>
+    <a class="p-menuitem-link flex justify-content-between align-items-center p-3">
+      <div>
+        flag here
+      </div>
+    </a>
+  </ng-template>
+</p-menu>
