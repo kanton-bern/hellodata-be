@@ -24,7 +24,10 @@ start-default-dd:
 	docker-compose up superset-app-default-data-domain superset-init-default-data-domain superset-worker-default-data-domain superset-worker-beat-default-data-domain hello-data-superset-sidecar-default-data-domain -d --build
 
 start-airflow:
-	docker-compose up airflow-webserver airflow-scheduler airflow-worker airflow-triggerer airflow-init flower hello-data-airflow-sidecar -d
+	docker-compose up airflow-webserver airflow-scheduler airflow-worker airflow-triggerer airflow-init flower hello-data-airflow-sidecar -d --build
 
 stop:
 	docker-compose down --volumes --remove-orphans
+
+#start components for local FE or BE implementation:
+start-local-impl: start-portal start-dbt-docs start-cloudbeaver start-default-dd start-airflow

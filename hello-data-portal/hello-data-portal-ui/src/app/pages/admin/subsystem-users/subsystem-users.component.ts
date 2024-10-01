@@ -25,98 +25,126 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {loadSubsystemUsers} from "../../../store/users-management/users-management.action";
-import {Observable} from "rxjs";
+import {interval, Observable, Subject, takeUntil} from "rxjs";
 import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
 import {Table} from "primeng/table";
+import {loadRoleResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 
 interface TableRow {
-    email: string;
+  email: string;
 
-    [key: string]: any; // To allow dynamic columns for instanceNames
+  [key: string]: any; // To allow dynamic columns for instanceNames
 }
 
 @Component({
-    selector: 'app-subsystem-users',
-    templateUrl: './subsystem-users.component.html',
-    styleUrls: ['./subsystem-users.component.scss']
+  selector: 'app-subsystem-users',
+  templateUrl: './subsystem-users.component.html',
+  styleUrls: ['./subsystem-users.component.scss']
 })
-export class SubsystemUsersComponent extends BaseComponent implements OnInit {
-    private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
-    tableData$: Observable<TableRow[]>;
-    columns$: Observable<any[]>; // Observable for dynamic columns
+export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
+  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
+  tableData$: Observable<TableRow[]>;
+  columns$: Observable<any[]>;
+  private destroy$ = new Subject<void>();
+  interval$ = interval(10000);
 
-    constructor(private store: Store<AppState>) {
-        super();
-        store.dispatch(loadSubsystemUsers());
-        // Observable for dynamic columns (instanceName)
-        this.columns$ = this.store.select(selectSubsystemUsers).pipe(
-            map(subsystemUsers => [
-                {field: 'email', header: 'Email'},  // Add the email column first
-                ...subsystemUsers.map(subsystem => ({
-                    field: subsystem.instanceName,
-                    header: subsystem.instanceName
-                }))
-            ])
+  constructor(private store: Store<AppState>) {
+    super();
+    store.dispatch(loadRoleResources());
+    store.dispatch(loadSubsystemUsers());
+    this.columns$ = this.createDynamicColumns();
+    this.tableData$ = this.createTableData();
+    this.createBreadcrumbs();
+    this.createInterval();
+  }
+
+  private createDynamicColumns(): Observable<any[]> {
+    return this.store.select(selectSubsystemUsers).pipe(
+      map(subsystemUsers => [
+        {field: 'email', header: 'Email'},  // Add the email column first
+        ...subsystemUsers.map(subsystem => ({
+          field: subsystem.instanceName,
+          header: subsystem.instanceName
+        }))
+      ])
+    );
+  }
+
+  private createTableData(): Observable<TableRow[]> {
+    return this.store.select(selectSubsystemUsers).pipe(
+      map(subsystemUsers => {
+        const uniqueEmails = Array.from(
+          new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
         );
 
-        // Observable for table data (rows based on email)
-        this.tableData$ = this.store.select(selectSubsystemUsers).pipe(
-            map(subsystemUsers => {
-                const uniqueEmails = Array.from(
-                    new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
-                );
-
-                // Create table rows by email
-                const tableRows: TableRow[] = uniqueEmails.map(email => ({
-                    email,
-                }));
-
-                // Populate rows with roles for each instanceName
-                tableRows.forEach(row => {
-                    subsystemUsers.forEach(subsystem => {
-                        const user = subsystem.users.find(user => user.email === row.email);
-                        row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
-                    });
-                });
-
-                return tableRows;
-            }));
-
-        this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-                {
-                    label: naviElements.subsystemUsers.label,
-                    routerLink: naviElements.subsystemUsers.path,
-                }
-            ]
+        // Create table rows by email
+        const tableRows: TableRow[] = uniqueEmails.map(email => ({
+          email,
         }));
-    }
 
-    override ngOnInit(): void {
-        super.ngOnInit();
-    }
+        // Populate rows with roles for each instanceName
+        tableRows.forEach(row => {
+          subsystemUsers.forEach(subsystem => {
+            const user = subsystem.users.find(user => user.email === row.email);
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
+          });
+        });
 
-    applyFilter(event: Event): string {
-        return (event.target as HTMLInputElement).value;
-    }
+        return tableRows;
+      }));
+  }
 
-    clear(table: Table, filterInput: HTMLInputElement): void {
-        table.clear();
-        filterInput.value = '';
-    }
-
-    shouldShowTag(value: string): boolean {
-        if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
-            return true;
+  private createBreadcrumbs(): void {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.subsystemUsers.label,
+          routerLink: naviElements.subsystemUsers.path,
         }
-        return false;
+      ]
+    }));
+  }
+
+  private createInterval(): void {
+    this.interval$
+      .pipe(takeUntil(this.destroy$)) // Complete when the component is destroyed
+      .subscribe(() => {
+        this.store.dispatch(loadRoleResources());
+        this.store.dispatch(loadSubsystemUsers());
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+  }
+
+  applyFilter(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
+  clear(table: Table, filterInput: HTMLInputElement): void {
+    table.clear();
+    filterInput.value = '';
+  }
+
+  shouldShowTag(value: string): boolean {
+    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
+      return true;
     }
+    return false;
+  }
+
 }
