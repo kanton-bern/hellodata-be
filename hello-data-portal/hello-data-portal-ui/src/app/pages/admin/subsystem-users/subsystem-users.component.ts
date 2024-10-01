@@ -69,7 +69,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private createDynamicColumns(): Observable<any[]> {
     return this.store.select(selectSubsystemUsers).pipe(
       map(subsystemUsers => [
-        {field: 'email', header: 'Email'},  // Add the email column first
+        {field: 'email', header: 'Email'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.instanceName
@@ -85,12 +85,10 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
           new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
         );
 
-        // Create table rows by email
         const tableRows: TableRow[] = uniqueEmails.map(email => ({
           email,
-        }));
+        })).sort((a, b) => a.email.localeCompare(b.email));
 
-        // Populate rows with roles for each instanceName
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
@@ -115,7 +113,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
 
   private createInterval(): void {
     this.interval$
-      .pipe(takeUntil(this.destroy$)) // Complete when the component is destroyed
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.store.dispatch(loadRoleResources());
         this.store.dispatch(loadSubsystemUsers());
