@@ -97,6 +97,7 @@ body {
 
 .sidebar.close .nav-links {
   overflow: visible;
+  padding-left: 0;
 }
 
 .sidebar .nav-links::-webkit-scrollbar {
@@ -352,8 +353,8 @@ body {
 }
 
 .sidebar.close ~ .content-section {
-  left: 78px;
-  width: calc(100% - 78px);
+  left: 70px;
+  width: calc(100% - 63px);
 }
 
 .home-content {

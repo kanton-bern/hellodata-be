@@ -60,8 +60,9 @@
 <p-menu #languageChangeMenu [model]="supportedLanguages" [popup]="true">
   <ng-template pTemplate="item" let-item>
     <a class="p-menuitem-link flex justify-content-between align-items-center p-3">
+      <img src="/assets/images/" + {{ item.label }}/>
       <div>
-        flag here
+        {{ item.label + 'test' }}
       </div>
     </a>
   </ng-template>
