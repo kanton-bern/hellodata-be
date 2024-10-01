@@ -70,6 +70,7 @@ import {TabViewModule} from "primeng/tabview";
 import {InputTextModule} from "primeng/inputtext";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
+import {setSelectedLanguage} from "../../../store/auth/auth.action";
 
 @Component({
   selector: 'app-header',
@@ -177,8 +178,9 @@ export class HeaderComponent {
         } else {
           this.selectedLanguage = 'de_CH';
         }
+      } else {
+        this.selectedLanguage = selectedLanguage;
       }
-
       const languagesLocal: any = [];
       for (const language of supportedLanguages) {
         if (language === this.selectedLanguage) {
@@ -186,6 +188,9 @@ export class HeaderComponent {
         }
         languagesLocal.push({
           label: language,
+          command: (event: any) => {
+            this.onLanguageChange(event);
+          },
         });
       }
       this.supportedLanguages = languagesLocal;
@@ -196,6 +201,11 @@ export class HeaderComponent {
     this.store.dispatch(setSelectedDataDomain({dataDomain: $event.item.data}));
   }
 
+  private onLanguageChange($event: any) {
+    console.debug('on language change', $event.item.label)
+    this.translateService.setActiveLang($event.item.label);
+    this.store.dispatch(setSelectedLanguage({lang: $event.item.label}))
+  }
 }
 
 @NgModule({

@@ -54,6 +54,10 @@ export class TranslateService implements OnDestroy {
     return this.translocoService.events$;
   }
 
+  public setActiveLang(lang: string) {
+    this.translocoService.setActiveLang(lang);
+  }
+
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
