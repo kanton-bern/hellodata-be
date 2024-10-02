@@ -71,6 +71,7 @@ import {InputTextModule} from "primeng/inputtext";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
+import {DividerModule} from "primeng/divider";
 
 @Component({
   selector: 'app-header',
@@ -99,7 +100,7 @@ export class HeaderComponent {
   environment: Environment;
   userMenuItems: MenuItem[] = [];
   dataDomainSelectionItems: any[] = [];
-  supportedLanguages: MenuItem[] = [];
+  supportedLanguages: any[] = [];
 
   selectedLanguage = '';
 
@@ -183,14 +184,10 @@ export class HeaderComponent {
       }
       const languagesLocal: any = [];
       for (const language of supportedLanguages) {
-        if (language === this.selectedLanguage) {
-          continue;
-        }
         languagesLocal.push({
-          label: language,
-          command: (event: any) => {
-            this.onLanguageChange(event);
-          },
+          code: language,
+          label: language.slice(0, 2)?.toUpperCase(),
+          selected: this.selectedLanguage === language
         });
       }
       this.supportedLanguages = languagesLocal;
@@ -201,10 +198,10 @@ export class HeaderComponent {
     this.store.dispatch(setSelectedDataDomain({dataDomain: $event.item.data}));
   }
 
-  private onLanguageChange($event: any) {
-    console.debug('on language change', $event.item.label)
-    this.translateService.setActiveLang($event.item.label);
-    this.store.dispatch(setSelectedLanguage({lang: $event.item.label}))
+  onLanguageChange(langCode: any) {
+    console.debug('on language change', langCode)
+    this.translateService.setActiveLang(langCode);
+    this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 }
 
@@ -230,7 +227,8 @@ export class HeaderComponent {
     MenubarModule,
     InputTextModule,
     TabViewModule,
-    SharedModule
+    SharedModule,
+    DividerModule
   ],
   declarations: [HeaderComponent, BreadcrumbComponent],
   exports: [HeaderComponent]

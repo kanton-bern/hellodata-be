@@ -63,3 +63,8 @@ app-breadcrumb {
   position: relative;
   z-index: -1;
 }
+
+.selected-language {
+  font-weight: bold;
+  text-decoration: underline;
+}

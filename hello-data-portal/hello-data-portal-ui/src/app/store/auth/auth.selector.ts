@@ -78,7 +78,7 @@ export const selectDisableLogout = createSelector(
 
 export const selectSupportedLanguages = createSelector(
   authState,
-  (state: AuthState) => state.supportedLanguages.filter(lang => lang !== state.selectedLanguage)
+  (state: AuthState) => state.supportedLanguages
 );
 
 export const selectSelectedanguage = createSelector(

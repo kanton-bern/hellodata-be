@@ -16,6 +16,8 @@
       <div class="flex-auto flex align-items-center m-1 px-1 py-1"
            *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
         <section [pTooltip]="'@Selected Data Domain' | transloco" class="top-menu-item" tooltipPosition="bottom">
+
+
            <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
               <a (click)="selectedDataDomainMenu.toggle($event)"
                  class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
@@ -25,18 +27,19 @@
            </span>
         </section>
       </div>
-      <div class="flex-auto flex align-items-center justify-content-end m-1 px-1 py-1">
-        <span class="mr-3 top-menu-item" style="width: 30px; margin-top: 0; top: 8px; position: relative;">
-         <span *ngIf="(languages$ | async) as languages">
-           <a (click)="languageChangeMenu.toggle($event)"
-              class="route-link p-button-link align-self-end layout-topbar-button"
-              id="langMenu">
-             <img style="width: 100%;" src="/assets/img/{{ selectedLanguage }}.svg"/>
-           </a>
-         </span>
-         </span>
+      <div class="flex-auto flex align-items-center justify-content-end m-1 px-1 py-1"
+           *ngIf="(userData$ | async) as userData">
+        <span class="mr-3 top-menu-item" *ngIf="(languages$ | async) as languages">
+            <ng-template [ngForOf]="supportedLanguages" let-i="index" let-last="last" let-item ngFor>
+              <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
+                 (click)="onLanguageChange(item.code)">
+                {{ item.label }}
+              </a>
+              <span *ngIf="!last">|</span>
+            </ng-template>
+        </span>
         <span class="mr-4 top-menu-item">
-           <span *ngIf="(userData$ | async) as userData">
+           <span>
              <a (click)="menu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button"
                 id="userMenu">
                <i class="fas fa-light fa-user" style="cursor: pointer"></i>
@@ -56,10 +59,3 @@
 <!--use p-menu here with reference above due to firefox issues with z-index-->
 <p-menu #menu [model]="userMenuItems" [popup]="true"></p-menu>
 <p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true"></p-menu>
-<p-menu #languageChangeMenu [model]="supportedLanguages" [popup]="true" id="langMenu">
-  <ng-template pTemplate="item" let-item>
-    <a class="p-menuitem-link flex justify-content-between align-items-center" style="width: 45px">
-      <img style="width: 100%;" src="/assets/img/{{ item.label }}.svg"/>
-    </a>
-  </ng-template>
-</p-menu>
