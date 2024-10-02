@@ -42,6 +42,7 @@ import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {TranslateService} from "../../../../shared/services/translate.service";
+import {selectSelectedanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 
 @Component({
   selector: 'app-faq-edit',
@@ -52,10 +53,16 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
+  selectedLanguage$: Observable<string | null>;
+  supportedLanguages$: Observable<string[]>;
   formValueChangedSub!: Subscription;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
     super();
+
+    this.selectedLanguage$ = this.store.select(selectSelectedanguage);
+    this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
+
     this.availableDataDomains$ = combineLatest([
       this.store.select(selectAvailableDataDomainsWithAllEntry),
       this.translateService.selectTranslate(ALL_DATA_DOMAINS)
@@ -68,7 +75,11 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
       })
       return dataDomainsCopy;
     }));
-    this.editedFaq$ = this.store.select(selectEditedFaq).pipe(
+    this.editedFaq$ = this.getEditedFaq();
+  }
+
+  private getEditedFaq() {
+    return this.store.select(selectEditedFaq).pipe(
       tap(faq => {
         this.faqForm = this.fb.group({
           title: [faq?.title, [Validators.required.bind(this), Validators.minLength(3)]],
@@ -76,29 +87,9 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
           dataDomain: [faq && faq.contextKey ? faq.contextKey : ALL_DATA_DOMAINS],
         });
         if (faq.id) {
-          this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-              {
-                label: naviElements.faqManagement.label,
-                routerLink: naviElements.faqManagement.path,
-              },
-              {
-                label: naviElements.faqEdit.label,
-              }
-            ]
-          }));
+          this.createEditFaqBreadcrumbs();
         } else {
-          this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-              {
-                label: naviElements.faqManagement.label,
-                routerLink: naviElements.faqManagement.path,
-              },
-              {
-                label: naviElements.faqCreate.label,
-              }
-            ]
-          }));
+          this.createCreateFaqBreadcrumbs();
         }
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.faqForm.valueChanges.subscribe(newValues => {
@@ -106,6 +97,34 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
         });
       })
     );
+  }
+
+  private createCreateFaqBreadcrumbs() {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.faqManagement.label,
+          routerLink: naviElements.faqManagement.path,
+        },
+        {
+          label: naviElements.faqCreate.label,
+        }
+      ]
+    }));
+  }
+
+  private createEditFaqBreadcrumbs() {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.faqManagement.label,
+          routerLink: naviElements.faqManagement.path,
+        },
+        {
+          label: naviElements.faqEdit.label,
+        }
+      ]
+    }));
   }
 
   navigateToFaqList() {
@@ -143,7 +162,10 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(markUnsavedChanges({action: saveChangesToFaq(faqToBeSaved), stayOnPage: faqToBeSaved.id === undefined}));
+    this.store.dispatch(markUnsavedChanges({
+      action: saveChangesToFaq(faqToBeSaved),
+      stayOnPage: faqToBeSaved.id === undefined
+    }));
   }
 
   private unsubFormValueChanges() {

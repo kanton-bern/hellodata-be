@@ -27,12 +27,18 @@
 package ch.bedag.dap.hellodata.portal.faq.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.portal.faq.data.FaqMessages;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Setter
@@ -51,4 +57,9 @@ public class FaqEntity extends BaseEntity {
      * mapping to context entity
      */
     private String contextKey;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Basic(fetch = FetchType.EAGER)
+    @Column(columnDefinition = "json", name = "messages")
+    private FaqMessages messages;
 }

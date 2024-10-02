@@ -35,4 +35,5 @@ public class FaqCreateDto {
     private String title;
     private String message;
     private String contextKey;
+    private FaqMessages messages;
 }
