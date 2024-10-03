@@ -64,21 +64,24 @@
     </div>
 
     <p-tabView *ngIf="(supportedLanguages$ | async) as supportedLanguages">
-      <ng-template [ngForOf]="supportedLanguages" let-i="index" let-last="last" let-item ngFor>
-        <p-tabPanel header="{{ item.slice(0, 2)?.toUpperCase() }}">
-
+      <ng-template ngFor let-language [ngForOf]="supportedLanguages">
+        <p-tabPanel [header]="language.slice(0, 2).toUpperCase()">
           <div class="field grid">
             <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
             <div class="col-12 md:col-10">
               <input
                 class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-                formControlName="title"
+                [formControl]="getTitle(language)"
                 id="title"
                 type="text">
             </div>
           </div>
 
-          <p-editor [style]="{ height: '725px' }" formControlName="message" id="faqMessage"></p-editor>
+          <p-editor
+            [style]="{ height: '725px' }"
+            [formControl]="getMessage(language)"
+            id="faqMessage">
+          </p-editor>
         </p-tabPanel>
       </ng-template>
     </p-tabView>

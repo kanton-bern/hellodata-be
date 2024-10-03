@@ -31,12 +31,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
 
 @Data
 public class FaqDto {
     private String id;
-    private String title;
-    private String message;
     @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
     private LocalDateTime createdDate;
     private String createdBy;
@@ -45,5 +45,5 @@ public class FaqDto {
     private String modifiedBy;
     private String contextKey;
     private String contextName;
-    private FaqMessages messages;
+    private Map<Locale, FaqMessage> messages;
 }

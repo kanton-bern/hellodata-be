@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.portal.faq.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.portal.faq.data.FaqMessages;
+import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,6 +40,9 @@ import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.Locale;
+import java.util.Map;
+
 @Getter
 @Setter
 @ToString
@@ -47,9 +50,11 @@ import org.hibernate.type.SqlTypes;
 @Entity(name = "faq")
 public class FaqEntity extends BaseEntity {
 
+    @Deprecated(forRemoval = true)
     @NotBlank
     private String title;
 
+    @Deprecated(forRemoval = true)
     @NotBlank
     private String message;
 
@@ -61,5 +66,5 @@ public class FaqEntity extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.EAGER)
     @Column(columnDefinition = "json", name = "messages")
-    private FaqMessages messages;
+    private Map<Locale, FaqMessage> messages;
 }

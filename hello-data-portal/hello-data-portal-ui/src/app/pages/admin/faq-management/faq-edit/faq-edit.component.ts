@@ -27,7 +27,7 @@
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
@@ -79,23 +79,43 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   private getEditedFaq() {
-    return this.store.select(selectEditedFaq).pipe(
-      tap(faq => {
-        this.faqForm = this.fb.group({
-          title: [faq?.title, [Validators.required.bind(this), Validators.minLength(3)]],
-          message: [faq?.message, [Validators.required.bind(this), Validators.minLength(3)]],
-          dataDomain: [faq && faq.contextKey ? faq.contextKey : ALL_DATA_DOMAINS],
+    return combineLatest([
+      this.store.select(selectEditedFaq),
+      this.store.select(selectSupportedLanguages)
+    ]).pipe(
+      tap(([faq, supportedLanguages]) => {
+        const faqCpy = {...faq};
+
+        const languageFaqFormGroups: { [key: string]: FormGroup } = {};
+
+        supportedLanguages.forEach((language) => {
+          if (!faq.messages) {
+            faqCpy.messages = {};
+            faqCpy.messages[language] = {title: '', message: ''}
+          }
+          languageFaqFormGroups[language] = this.fb.group({
+            title: [faqCpy?.messages?.[language]?.title || '', [Validators.required, Validators.minLength(3)]],
+            message: [faqCpy?.messages?.[language]?.message || '', [Validators.required, Validators.minLength(3)]],
+          });
         });
-        if (faq.id) {
+
+        this.faqForm = this.fb.group({
+          languages: this.fb.group(languageFaqFormGroups),
+          dataDomain: [faqCpy && faqCpy.contextKey ? faqCpy.contextKey : ALL_DATA_DOMAINS],
+        });
+
+        if (faqCpy.id) {
           this.createEditFaqBreadcrumbs();
         } else {
           this.createCreateFaqBreadcrumbs();
         }
+
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.faqForm.valueChanges.subscribe(newValues => {
-          this.onChange(faq);
+          this.onChange(faqCpy);
         });
-      })
+      }),
+      map(([faqCpy]) => faqCpy)
     );
   }
 
@@ -134,8 +154,9 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   saveFaq(editedFaq: Faq) {
     const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue() as any;
+    console.log('raw form value', formFaq)
     faqToBeSaved.title = formFaq.title;
-    faqToBeSaved.message = formFaq.message;
+    faqToBeSaved.messages = formFaq.languages;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
@@ -176,5 +197,15 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   override ngOnInit(): void {
     super.ngOnInit();
+  }
+
+  getTitle(language: string): FormControl {
+    // @ts-ignore
+    return this.faqForm.get('languages')?.get(language).get('title');
+  }
+
+  getMessage(language: string): FormControl {
+    // @ts-ignore
+    return this.faqForm.get('languages')?.get(language).get('message');
   }
 }

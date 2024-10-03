@@ -47,7 +47,7 @@ import {
   saveChangesToFaqSuccess
 } from "./faq.action";
 import {selectParamFaqId, selectSelectedFaqForDeletion} from "../faq/faq.selector";
-import {Faq} from "../faq/faq.model";
+import {Faq, FaqMessage} from "../faq/faq.model";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError} from "../app/app.action";
 
@@ -92,17 +92,15 @@ export class FaqEffects {
         return action.faq.id
           ? this._faqService.updateFaq({
             id: action.faq.id,
-            title: action.faq.title as string,
-            message: action.faq.message as string,
-            contextKey: action.faq.contextKey as string
+            contextKey: action.faq.contextKey as string,
+            messages: action.faq.messages as { [locale: string]: FaqMessage }
           }).pipe(
             tap(() => this._notificationService.success('@Faq updated successfully')),
             map(() => saveChangesToFaqSuccess({faq: action.faq}))
           )
           : this._faqService.createFaq({
-            title: action.faq.title as string,
-            message: action.faq.message as string,
-            contextKey: action.faq.contextKey as string
+            contextKey: action.faq.contextKey as string,
+            messages: action.faq.messages as { [locale: string]: FaqMessage }
           }).pipe(
             tap(() => this._notificationService.success('@Faq added successfully')),
             map(() => saveChangesToFaqSuccess({faq: action.faq}))
