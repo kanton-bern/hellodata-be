@@ -37,7 +37,7 @@ This projces uses open-source software:
 | pyyaml          | MIT                        |
 
 
-## Java1
+## Java
 
 | Component                                                                   | License                                         |
 | -----                                                                       | ---                                             |
