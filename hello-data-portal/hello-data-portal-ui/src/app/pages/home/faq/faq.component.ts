@@ -33,6 +33,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
+import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 
 @Component({
   selector: 'app-faq',
@@ -41,9 +42,11 @@ import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 })
 export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;
+  selectedLanguage$: Observable<string | null>;
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>) {
     this.faq$ = this._getGroupedFaqs();
+    this.selectedLanguage$ = store.select(selectSelectedLanguage);
   }
 
   private _getGroupedFaqs(): Observable<GroupedFaq[]> {
@@ -73,6 +76,14 @@ export class FaqComponent implements OnInit {
 
   ngOnInit(): void {
     this.store.dispatch(loadFaqStartPage());
+  }
+
+  getTitle(faq: Faq, selectedLanguage: string): string | undefined {
+    return faq?.messages?.[selectedLanguage].title;
+  }
+
+  getMessage(faq: Faq, selectedLanguage: string): string | undefined {
+    return faq?.messages?.[selectedLanguage].message;
   }
 }
 
