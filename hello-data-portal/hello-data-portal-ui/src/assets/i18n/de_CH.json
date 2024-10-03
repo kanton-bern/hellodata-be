@@ -190,7 +190,7 @@
   "@Subsystem users": "Subsystembenutzer",
   "@Summary header": "Status | Dokumentation | Service Abonnements",
   "@Superset Instanz öffnen": " >> Superset Instanz öffnen <<",
-  "@Superuser": "HELLODATA_ADMIN",
+  "@Superuser": "HELLODATA ADMIN",
   "@Sync Started": "Synchronisation der Benutzer mit allen Umsystemen wurde erfolgreich gestartet",
   "@Sync Users": "Synchronisation",
   "@Sync Users Title": "Synchronisiere Benutzer mit allen Umsystemen",
