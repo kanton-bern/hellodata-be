@@ -35,7 +35,6 @@ import {Faq} from "../../../../store/faq/faq.model";
 import {naviElements} from "../../../../app-navi-elements";
 import {selectAvailableDataDomainsWithAllEntry} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "../../../../store/app/app.constants";
-import {Announcement} from "../../../../store/announcement/announcement.model";
 import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
@@ -89,7 +88,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
         const languageFaqFormGroups: { [key: string]: FormGroup } = {};
 
         supportedLanguages.forEach((language) => {
-          if (!faq.messages) {
+          if (!faqCpy.messages) {
             faqCpy.messages = {};
             faqCpy.messages[language] = {title: '', message: ''}
           }
@@ -174,8 +173,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     this.unsubFormValueChanges();
   }
 
-  private onChange(editedAnnouncement: Announcement) {
-    const faqToBeSaved = {id: editedAnnouncement.id} as any;
+  private onChange(editedFaq: Faq) {
+    const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue() as any;
     faqToBeSaved.title = formFaq.title;
     faqToBeSaved.message = formFaq.message;
@@ -198,13 +197,15 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     super.ngOnInit();
   }
 
-  getTitle(language: string): FormControl {
-    // @ts-ignore
-    return this.faqForm.get('languages')?.get(language).get('title');
+  getMessage(language: string): FormControl {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('message') as FormControl;
   }
 
-  getMessage(language: string): FormControl {
-    // @ts-ignore
-    return this.faqForm.get('languages')?.get(language).get('message');
+  getTitle(language: string): FormControl {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('title') as FormControl;
   }
 }

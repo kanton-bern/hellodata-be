@@ -26,8 +26,8 @@
 ///
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Observable, Subscription, tap} from "rxjs";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
@@ -35,9 +35,14 @@ import {Announcement} from "../../../../store/announcement/announcement.model";
 import {naviElements} from "../../../../app-navi-elements";
 import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
-import {deleteEditedAnnouncement, saveChangesToAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
+import {
+  deleteEditedAnnouncement,
+  saveChangesToAnnouncement,
+  showDeleteAnnouncementPopup
+} from "../../../../store/announcement/announcement.action";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
+import {selectSelectedLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -48,51 +53,80 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   editedAnnouncement$: Observable<any>;
   announcementForm!: FormGroup;
   formValueChangedSub!: Subscription;
+  selectedLanguage$: Observable<string | null>;
+  supportedLanguages$: Observable<string[]>;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
     this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement);
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
+    this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
-    this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement).pipe(
-      tap(announcement => {
+    this.editedAnnouncement$ = combineLatest([
+      this.store.select(selectEditedAnnouncement),
+      this.store.select(selectSupportedLanguages)
+    ]).pipe(
+      tap(([announcement, supportedLanguages]) => {
+        const announcementCpy = {...announcement};
+        const languageAnnouncementFormGroups: { [key: string]: FormGroup } = {};
+        supportedLanguages.forEach((language) => {
+          if (!announcementCpy.messages) {
+            announcementCpy.messages = {};
+            announcementCpy.messages[language] = '';
+          }
+          languageAnnouncementFormGroups[language] = this.fb.group({
+            message: [announcementCpy?.messages?.[language] || '', [Validators.required, Validators.minLength(3)]],
+          });
+        });
+
+
         this.announcementForm = this.fb.group({
-          message: [announcement?.message, [Validators.required.bind(this), Validators.minLength(3)]],
+          languages: this.fb.group(languageAnnouncementFormGroups),
           published: [announcement.published ? announcement.published : false]
         });
         if (announcement.id) {
-          this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-              {
-                label: naviElements.announcementsManagement.label,
-                routerLink: naviElements.announcementsManagement.path,
-              },
-              {
-                label: naviElements.announcementEdit.label,
-              }
-            ]
-          }));
+          this.createEditedAnnouncementBreadcrumbs();
         } else {
-          this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-              {
-                label: naviElements.announcementsManagement.label,
-                routerLink: naviElements.announcementsManagement.path,
-              },
-              {
-                label: naviElements.announcementCreate.label,
-              }
-            ]
-          }));
+          this.createCreatedAnnouncementBreadcrumbs();
         }
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.announcementForm.valueChanges.subscribe(newValues => {
           this.onChange(announcement);
         });
-      })
-    );
+      }),
+      map(([announcement]) => announcement)
+    )
+  }
+
+  private createCreatedAnnouncementBreadcrumbs() {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.announcementsManagement.label,
+          routerLink: naviElements.announcementsManagement.path,
+        },
+        {
+          label: naviElements.announcementCreate.label,
+        }
+      ]
+    }));
+  }
+
+  private createEditedAnnouncementBreadcrumbs() {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.announcementsManagement.label,
+          routerLink: naviElements.announcementsManagement.path,
+        },
+        {
+          label: naviElements.announcementEdit.label,
+        }
+      ]
+    }));
   }
 
   navigateToAnnouncementList() {
@@ -101,8 +135,11 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
 
   saveAnnouncement(editedAnnouncement: Announcement) {
     const announcementToBeSaved = {...editedAnnouncement} as Announcement;
-    const formAnnouncement = this.announcementForm.getRawValue() as Announcement;
-    announcementToBeSaved.message = formAnnouncement.message;
+    const formAnnouncement = this.announcementForm.getRawValue() as any;
+    announcementToBeSaved.messages = Object.keys(formAnnouncement.languages).reduce((acc, locale) => {
+      acc[locale] = formAnnouncement.languages[locale].message;
+      return acc;
+    }, {} as { [locale: string]: string });
     announcementToBeSaved.published = formAnnouncement.published;
     this.store.dispatch(saveChangesToAnnouncement({announcement: announcementToBeSaved}));
   }
@@ -121,15 +158,28 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
 
   private onChange(editedAnnouncement: Announcement) {
     const announcementToBeSaved = {...editedAnnouncement} as Announcement;
-    const formAnnouncement = this.announcementForm.getRawValue() as Announcement;
-    announcementToBeSaved.message = formAnnouncement.message;
+    const formAnnouncement = this.announcementForm.getRawValue() as any;
+    //convert structures
+    announcementToBeSaved.messages = Object.keys(formAnnouncement.languages).reduce((acc, locale) => {
+      acc[locale] = formAnnouncement.languages[locale].message;
+      return acc;
+    }, {} as { [locale: string]: string });
     announcementToBeSaved.published = formAnnouncement.published;
-    this.store.dispatch(markUnsavedChanges({action: saveChangesToAnnouncement({announcement: announcementToBeSaved}), stayOnPage: announcementToBeSaved.id === undefined}));
+    this.store.dispatch(markUnsavedChanges({
+      action: saveChangesToAnnouncement({announcement: announcementToBeSaved}),
+      stayOnPage: announcementToBeSaved.id === undefined
+    }));
   }
 
   private unsubFormValueChanges() {
     if (this.formValueChangedSub) {
       this.formValueChangedSub.unsubscribe();
     }
+  }
+
+  getMessage(language: string): FormControl {
+    const languagesGroup = this.announcementForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('message') as FormControl;
   }
 }

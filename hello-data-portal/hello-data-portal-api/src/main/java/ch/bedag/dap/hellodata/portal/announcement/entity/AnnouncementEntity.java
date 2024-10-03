@@ -27,14 +27,20 @@
 package ch.bedag.dap.hellodata.portal.announcement.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -43,11 +49,12 @@ import java.time.LocalDateTime;
 @Entity(name = "announcement")
 public class AnnouncementEntity extends BaseEntity {
 
-    @NotBlank
-    private String message;
-
     private Boolean published;
 
     private LocalDateTime publishedDate;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Basic(fetch = FetchType.EAGER)
+    @Column(columnDefinition = "json", name = "messages")
+    private Map<Locale, String> messages;
 }

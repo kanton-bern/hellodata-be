@@ -28,13 +28,15 @@ package ch.bedag.dap.hellodata.portal.announcement.data;
 
 import ch.bedag.dap.hellodata.portal.base.config.LocalDateTimeToMillisSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.time.LocalDateTime;
 import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
 
 @Data
 public class AnnouncementDto {
     private String id;
-    private String message;
     private Boolean published;
     @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
     private LocalDateTime createdDate;
@@ -44,4 +46,5 @@ public class AnnouncementDto {
     private String modifiedBy;
     @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
     private LocalDateTime publishedDate;
+    private Map<Locale, String> messages;
 }

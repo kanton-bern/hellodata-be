@@ -96,3 +96,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/33_add_username_to_portal.xml
   - include:
       file: db/changelog/changelogs/34_add_messages_to_faq_table.xml
+  - include:
+      file: db/changelog/changelogs/35_add_messages_to_announcement_table.xml

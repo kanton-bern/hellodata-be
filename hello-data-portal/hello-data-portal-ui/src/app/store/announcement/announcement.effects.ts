@@ -116,14 +116,14 @@ export class AnnouncementEffects {
           ? this._announcementService.updateAnnouncement({
             id: action.announcement.id,
             published: action.announcement.published as boolean,
-            message: action.announcement.message as string,
+            messages: action.announcement.messages as any,
           }).pipe(
             tap(() => this._notificationService.success('@Announcement updated successfully')),
             map(() => saveChangesToAnnouncementSuccess({announcement: action.announcement}))
           )
           : this._announcementService.createAnnouncement({
             published: action.announcement.published as boolean,
-            message: action.announcement.message as string,
+            messages: action.announcement.messages as any,
           }).pipe(
             tap(() => this._notificationService.success('@Announcement added successfully')),
             map(() => saveChangesToAnnouncementSuccess({announcement: action.announcement}))
