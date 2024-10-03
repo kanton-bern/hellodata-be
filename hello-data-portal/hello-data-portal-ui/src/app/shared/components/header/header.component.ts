@@ -39,7 +39,7 @@ import {
   selectDisableLogout,
   selectIsAuthenticated,
   selectProfile,
-  selectSelectedanguage,
+  selectSelectedLanguage,
   selectSupportedLanguages
 } from "../../../store/auth/auth.selector";
 import {MenubarModule} from "primeng/menubar";
@@ -102,7 +102,7 @@ export class HeaderComponent {
   dataDomainSelectionItems: any[] = [];
   supportedLanguages: any[] = [];
 
-  selectedLanguage = '';
+  selectedLanguage: string | null = null;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
@@ -169,19 +169,10 @@ export class HeaderComponent {
 
   private getSupportedLanguages() {
     return combineLatest([
-      this.store.select(selectSelectedanguage),
+      this.store.select(selectSelectedLanguage),
       this.store.select(selectSupportedLanguages)
     ]).pipe(tap(([selectedLanguage, supportedLanguages]) => {
-      if (selectedLanguage === null) {
-        const browserLanguage = navigator.language.replace('-', '_');
-        if (supportedLanguages.includes(browserLanguage)) {
-          this.selectedLanguage = browserLanguage;
-        } else {
-          this.selectedLanguage = 'de_CH';
-        }
-      } else {
-        this.selectedLanguage = selectedLanguage;
-      }
+      this.selectedLanguage = selectedLanguage;
       const languagesLocal: any = [];
       for (const language of supportedLanguages) {
         languagesLocal.push({
@@ -199,7 +190,6 @@ export class HeaderComponent {
   }
 
   onLanguageChange(langCode: any) {
-    console.debug('on language change', langCode)
     this.translateService.setActiveLang(langCode);
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }

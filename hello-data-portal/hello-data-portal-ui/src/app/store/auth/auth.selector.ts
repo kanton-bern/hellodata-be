@@ -81,7 +81,17 @@ export const selectSupportedLanguages = createSelector(
   (state: AuthState) => state.supportedLanguages
 );
 
-export const selectSelectedanguage = createSelector(
+export const selectSelectedLanguage = createSelector(
   authState,
-  (state: AuthState) => state.selectedLanguage
+  (state: AuthState) => {
+    if (!state.selectedLanguage) {
+      const browserLanguage = navigator.language.replace('-', '_');
+      if (state.supportedLanguages.includes(browserLanguage)) {
+        return browserLanguage;
+      } else {
+        return state.defaultLanguage;
+      }
+    }
+    return state.selectedLanguage
+  }
 );

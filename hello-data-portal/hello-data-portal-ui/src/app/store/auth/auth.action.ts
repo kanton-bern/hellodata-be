@@ -40,6 +40,8 @@ export enum AuthActionType {
   FETCH_CONTEXT_ROLES = '[AUTH] Fetch context roles',
   FETCH_CONTEXT_ROLES_SUCCESS = '[AUTH] Fetch context roles success',
   SET_SELECTED_LANGUAGE = '[AUTH] Set selected language',
+  SET_DEFAULT_LANGUAGE = '[AUTH] Set default language',
+  SET_AVAILABLE_LANGUAGES = '[AUTH] Set available languages',
 }
 
 export const login = createAction(
@@ -90,4 +92,14 @@ export const fetchContextRolesSuccess = createAction(
 export const setSelectedLanguage = createAction(
   AuthActionType.SET_SELECTED_LANGUAGE,
   props<{ lang: string }>()
+);
+
+export const setDefaultLanguage = createAction(
+  AuthActionType.SET_DEFAULT_LANGUAGE,
+  props<{ lang: string }>()
+);
+
+export const setAvailableLanguages = createAction(
+  AuthActionType.SET_AVAILABLE_LANGUAGES,
+  props<{ langs: string[] }>()
 );

@@ -31,6 +31,8 @@ import {
   fetchPermissionSuccess,
   loginComplete,
   logout,
+  setAvailableLanguages,
+  setDefaultLanguage,
   setSelectedLanguage
 } from "./auth.action";
 import {createReducer, on} from "@ngrx/store";
@@ -42,6 +44,18 @@ export const authReducer = createReducer(
       ...state,
       profile: profile,
       isLoggedIn: isLoggedIn,
+    };
+  }),
+  on(setDefaultLanguage, (state: AuthState, {lang}): AuthState => {
+    return {
+      ...state,
+      selectedLanguage: lang,
+    };
+  }),
+  on(setAvailableLanguages, (state: AuthState, {langs}): AuthState => {
+    return {
+      ...state,
+      supportedLanguages: langs,
     };
   }),
   on(fetchPermissionSuccess, (state: AuthState, {currentUserAuthData}): AuthState => {

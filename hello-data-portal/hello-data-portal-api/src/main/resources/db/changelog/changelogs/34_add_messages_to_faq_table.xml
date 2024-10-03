@@ -36,6 +36,8 @@
         <addColumn tableName="faq">
             <column name="messages" type="jsonb"/>
         </addColumn>
+        <dropNotNullConstraint tableName="faq" columnName="title" columnDataType="varchar"/>
+        <dropNotNullConstraint tableName="faq" columnName="message" columnDataType="varchar"/>
     </changeSet>
 
 </databaseChangeLog>

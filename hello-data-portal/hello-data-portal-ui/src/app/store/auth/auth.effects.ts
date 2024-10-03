@@ -38,7 +38,9 @@ import {
   fetchPermissionSuccess,
   login,
   loginComplete,
-  logout
+  logout,
+  setAvailableLanguages,
+  setDefaultLanguage
 } from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
@@ -47,6 +49,7 @@ import {loadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {loadAvailableDataDomains, loadMyDashboards} from "../my-dashboards/my-dashboards.action";
 import {loadDocumentation, loadPipelines, loadStorageSize} from "../summary/summary.actions";
+import {TranslateService} from "../../shared/services/translate.service";
 
 @Injectable()
 export class AuthEffects {
@@ -149,9 +152,13 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(fetchPermissionSuccess),
       switchMap((action) => {
+        const defaultLanguage = this._translateService.getDefaultLanguage();
+        const availableLangs = this._translateService.getAvailableLangs();
         const permissions = action.currentUserAuthData.permissions;
         if (!permissions || permissions.length === 0 || !permissions.includes('DASHBOARDS')) {
           return of(
+            setAvailableLanguages({langs: availableLangs}),
+            setDefaultLanguage({lang: defaultLanguage}),
             loadAvailableDataDomains(),
             loadAppInfoResources(),
             loadDocumentation(),
@@ -161,6 +168,8 @@ export class AuthEffects {
             loadStorageSize());
         }
         return of(
+          setAvailableLanguages({langs: availableLangs}),
+          setDefaultLanguage({lang: defaultLanguage}),
           loadAvailableDataDomains(),
           loadAppInfoResources(),
           loadMyDashboards(),
@@ -193,6 +202,7 @@ export class AuthEffects {
     private _actions$: Actions,
     private _authService: AuthService,
     private _usersManagementService: UsersManagementService,
+    private _translateService: TranslateService,
   ) {
   }
 }

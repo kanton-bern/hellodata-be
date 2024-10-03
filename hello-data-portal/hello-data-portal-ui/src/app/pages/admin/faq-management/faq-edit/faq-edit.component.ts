@@ -42,7 +42,7 @@ import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {TranslateService} from "../../../../shared/services/translate.service";
-import {selectSelectedanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
+import {selectSelectedLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 
 @Component({
   selector: 'app-faq-edit',
@@ -60,7 +60,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
     super();
 
-    this.selectedLanguage$ = this.store.select(selectSelectedanguage);
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
 
     this.availableDataDomains$ = combineLatest([
@@ -154,7 +154,6 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   saveFaq(editedFaq: Faq) {
     const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue() as any;
-    console.log('raw form value', formFaq)
     faqToBeSaved.title = formFaq.title;
     faqToBeSaved.messages = formFaq.languages;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {

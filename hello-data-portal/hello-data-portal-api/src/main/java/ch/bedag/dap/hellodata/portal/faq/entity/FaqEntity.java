@@ -32,7 +32,6 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -51,11 +50,9 @@ import java.util.Map;
 public class FaqEntity extends BaseEntity {
 
     @Deprecated(forRemoval = true)
-    @NotBlank
     private String title;
 
     @Deprecated(forRemoval = true)
-    @NotBlank
     private String message;
 
     /**
