@@ -156,6 +156,9 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(fetchPermissionSuccess),
       switchMap((action) => {
+        if (action.currentUserAuthData.selectedLanguage) {
+          this._translateService.setActiveLang(action.currentUserAuthData.selectedLanguage);
+        }
         const defaultLanguage = this._translateService.getDefaultLanguage();
         const availableLangs = this._translateService.getAvailableLangs();
         const permissions = action.currentUserAuthData.permissions;
