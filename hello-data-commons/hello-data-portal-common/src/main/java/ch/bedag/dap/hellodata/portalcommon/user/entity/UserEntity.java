@@ -35,16 +35,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.validator.constraints.Length;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -62,6 +64,7 @@ public class UserEntity extends BaseEntity {
     //how many invitation emails has been sent
     private int invitationsCount;
     private boolean creationEmailSent;
+    private Locale selectedLanguage;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Set<UserContextRoleEntity> contextRoles;
 
@@ -73,14 +76,14 @@ public class UserEntity extends BaseEntity {
             return false;
         }
         return this.getPortalRoles()
-                   .stream()
-                   .anyMatch(userPortalRoleEntity -> Objects.equals(userPortalRoleEntity.getRole().getName(), SystemDefaultPortalRoleName.HELLODATA_ADMIN.name()));
+                .stream()
+                .anyMatch(userPortalRoleEntity -> Objects.equals(userPortalRoleEntity.getRole().getName(), SystemDefaultPortalRoleName.HELLODATA_ADMIN.name()));
     }
 
     public List<String> getPermissionsFromAllRoles() {
         return CollectionUtils.emptyIfNull(this.getPortalRoles())
-                              .stream()
-                              .flatMap(userPortalRoleEntity -> userPortalRoleEntity.getRole().getPermissions().getPortalPermissions().stream())
-                              .toList();
+                .stream()
+                .flatMap(userPortalRoleEntity -> userPortalRoleEntity.getRole().getPermissions().getPortalPermissions().stream())
+                .toList();
     }
 }

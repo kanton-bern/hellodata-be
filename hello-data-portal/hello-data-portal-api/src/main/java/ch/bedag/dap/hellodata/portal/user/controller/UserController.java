@@ -110,7 +110,9 @@ public class UserController {
                 userService.updateLastAccess(currentUserId.toString());
             }
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
-                    helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(), userService.isUserDisabled(currentUserId.toString()));
+                    helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
+                    userService.isUserDisabled(currentUserId.toString()), userService.getSelectedLanguage(currentUserId.toString())
+            );
         } catch (ClientErrorException e) {
             log.error("Error on getting user sessions", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
@@ -216,5 +218,11 @@ public class UserController {
     @GetMapping("/data-domains")
     public List<DataDomainDto> getAvailableDataDomains() {
         return userService.getAvailableDataDomains();
+    }
+
+    @PatchMapping("/{userId}/set-selected-lang/{lang}")
+    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
+    public void setSelectedLanguageForUser(@PathVariable String userId, @PathVariable Locale lang) {
+        userService.setSelectedLanguage(userId, lang);
     }
 }

@@ -74,6 +74,9 @@
                 [formControl]="getTitle(language)"
                 id="title"
                 type="text">
+              <small class="p-error block" *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty">
+                {{ '@Value has minimum length' | transloco: {min: getTitle(language)?.errors?.['minlength'].requiredLength} }}
+              </small>
             </div>
           </div>
 

@@ -47,7 +47,8 @@ export interface User {
   lastAccess: number | null;
   permissions: string[],
   invitationsCount: number,
-  superuser: boolean
+  superuser: boolean,
+  selectedLanguage: string | null
 }
 
 export interface CreateUserForm {

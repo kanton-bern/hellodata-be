@@ -218,6 +218,7 @@
   "@Username": "Usename",
   "@Users": "Utilisateurs",
   "@Users management": "Gestion des utilisateurs",
+  "@Value has minimum length": "La valeur a une longueur minimale de: {{min}}",
   "@Version": "Version",
   "@Version Control": "Version Control",
   "@View announcements": "Afficher les annonces",

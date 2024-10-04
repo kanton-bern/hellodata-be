@@ -27,7 +27,7 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, tap} from "rxjs";
+import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   authError,
   checkAuth,
@@ -40,7 +40,8 @@ import {
   loginComplete,
   logout,
   setAvailableLanguages,
-  setDefaultLanguage
+  setDefaultLanguage,
+  setSelectedLanguage
 } from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
@@ -50,6 +51,9 @@ import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.actio
 import {loadAvailableDataDomains, loadMyDashboards} from "../my-dashboards/my-dashboards.action";
 import {loadDocumentation, loadPipelines, loadStorageSize} from "../summary/summary.actions";
 import {TranslateService} from "../../shared/services/translate.service";
+import {Store} from "@ngrx/store";
+import {AppState} from "../app/app.state";
+import {selectProfile} from "./auth.selector";
 
 @Injectable()
 export class AuthEffects {
@@ -198,8 +202,20 @@ export class AuthEffects {
     )
   });
 
+  setSelectedLanguage$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setSelectedLanguage),
+      withLatestFrom(
+        this._store.select(selectProfile)
+      ),
+      switchMap(([action, profile]) => this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang)),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
   constructor(
     private _actions$: Actions,
+    private _store: Store<AppState>,
     private _authService: AuthService,
     private _usersManagementService: UsersManagementService,
     private _translateService: TranslateService,

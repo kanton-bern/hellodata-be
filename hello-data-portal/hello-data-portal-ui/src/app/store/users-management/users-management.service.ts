@@ -100,6 +100,10 @@ export class UsersManagementService {
     return this.httpClient.patch<DashboardResponse>(`${this.baseUsersUrl}/${userId}/dashboards`, data);
   }
 
+  public editSelectedLanguageForUser(userId: string, lang: string): Observable<any> {
+    return this.httpClient.patch<any>(`${this.baseUsersUrl}/${userId}/set-selected-lang/${lang}`, lang);
+  }
+
   public getAvailableContexts(): Observable<ContextResponse> {
     return this.httpClient.get<ContextResponse>(`${this.baseUsersUrl}/contexts`);
   }

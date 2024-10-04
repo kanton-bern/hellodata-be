@@ -49,7 +49,7 @@ export const authReducer = createReducer(
   on(setDefaultLanguage, (state: AuthState, {lang}): AuthState => {
     return {
       ...state,
-      selectedLanguage: lang,
+      defaultLanguage: lang,
     };
   }),
   on(setAvailableLanguages, (state: AuthState, {langs}): AuthState => {
@@ -66,7 +66,8 @@ export const authReducer = createReducer(
       businessDomain: currentUserAuthData.businessDomain,
       permissionsLoaded: true,
       disableLogout: currentUserAuthData.disableLogout,
-      userDisabled: currentUserAuthData.userDisabled
+      userDisabled: currentUserAuthData.userDisabled,
+      selectedLanguage: currentUserAuthData.selectedLanguage
     };
   }),
   on(logout, (state: AuthState): AuthState => {

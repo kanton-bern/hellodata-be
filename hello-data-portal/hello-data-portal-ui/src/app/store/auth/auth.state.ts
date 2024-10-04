@@ -45,7 +45,8 @@ export interface CurrentUserAuthData {
   isSuperuser: boolean,
   businessDomain: string,
   disableLogout: boolean,
-  userDisabled: boolean
+  userDisabled: boolean,
+  selectedLanguage: string | null
 }
 
 export const initialAuthState: AuthState = {
