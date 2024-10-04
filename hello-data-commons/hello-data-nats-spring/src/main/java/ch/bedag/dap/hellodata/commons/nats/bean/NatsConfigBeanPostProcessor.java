@@ -29,21 +29,18 @@ package ch.bedag.dap.hellodata.commons.nats.bean;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
 import io.nats.client.Connection;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Log4j2
 public class NatsConfigBeanPostProcessor implements BeanPostProcessor {
@@ -74,13 +71,13 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor {
                 if (parameterTypes.length != 1 || !parameterTypes[0].equals(subscribeAnnotation.event().getDataClass())) {
                     throw new NatsException(
                             String.format("Method '%s' on bean with name '%s' must have a single parameter of type %s when using the @%s annotation.", method.toGenericString(),
-                                          beanName, subscribeAnnotation.event().getDataClass().getName(), JetStreamSubscribe.class.getName()));
+                                    beanName, subscribeAnnotation.event().getDataClass().getName(), JetStreamSubscribe.class.getName()));
                 }
                 Class<?> returnType = method.getReturnType();
                 if (!returnType.equals(CompletableFuture.class)) {
                     throw new NatsException(
                             String.format("Method '%s' on bean with name '%s' must return type %s when using the @%s annotation.", method.toGenericString(), beanName,
-                                          CompletableFuture.class.getName(), JetStreamSubscribe.class.getName()));
+                                    CompletableFuture.class.getName(), JetStreamSubscribe.class.getName()));
                 }
                 createSubscribeAnnotationManagerThread(bean, method, subscribeAnnotation);
             });
@@ -110,7 +107,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor {
             ArrayList<BeanMethodWrapper> beanWrappers = new ArrayList<>(List.of(new BeanMethodWrapper(method, bean, subscriptionId)));
             String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "");
             String durableNameBase64 = new String(Base64.getEncoder().encode(durableName.getBytes(StandardCharsets.UTF_8)));
-            log.info("durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
+            log.debug("durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
             SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableNameBase64);
             THREADS.add(thread);
             ExecutorService executorService = Executors.newSingleThreadExecutor();
