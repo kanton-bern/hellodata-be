@@ -52,7 +52,7 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
         log.debug("Connection Event:" + event);
         switch (event) {
             case CONNECTED -> log.debug("CONNECTED to NATS!");
-            case DISCONNECTED -> log.warn("RECONNECTED to NATS!");
+            case DISCONNECTED -> log.warn("DISCONNECTED from NATS!");
             case RECONNECTED -> log.debug("RECONNECTED to NATS!");
             case RESUBSCRIBED -> log.debug("RESUBSCRIBED!");
             default -> log.debug("Other event: {}", event);
