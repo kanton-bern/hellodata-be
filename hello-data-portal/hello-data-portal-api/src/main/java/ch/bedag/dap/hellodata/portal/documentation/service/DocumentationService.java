@@ -57,7 +57,7 @@ public class DocumentationService {
             DocumentationDto documentationDto = modelMapper.map(entity, DocumentationDto.class);
             //FIXME temporary workaround for existing, old non-i18n documentation entity
             //@Deprecated(forRemoval = true)
-            if (documentationDto.getTexts() != null || !documentationDto.getTexts().isEmpty()) {
+            if (documentationDto.getTexts() == null || documentationDto.getTexts().isEmpty()) {
                 documentationDto.setTexts(new HashMap<>());
                 Locale oldDefault = Locale.forLanguageTag("de_CH");
                 documentationDto.getTexts().put(oldDefault, entity.getText());

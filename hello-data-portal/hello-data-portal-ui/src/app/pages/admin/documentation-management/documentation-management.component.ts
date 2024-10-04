@@ -31,12 +31,12 @@ import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
 import {combineLatest, map, Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
-import {markUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/summary/summary.actions";
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../../store/auth/auth.selector";
 import {Documentation} from "../../../store/summary/summary.model";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-documentation',
@@ -44,14 +44,12 @@ import {Documentation} from "../../../store/summary/summary.model";
   styleUrls: ['./documentation-management.component.scss']
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
-  documentation: Documentation = {
-    texts: {}
-  };
+  documentationForm!: FormGroup;
   documentation$: Observable<any>;
   selectedLanguage$: Observable<string | null>;
   supportedLanguages$: Observable<string[]>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
     this.store.dispatch(loadDocumentation());
     this.documentation$ = combineLatest([
@@ -59,20 +57,21 @@ export class DocumentationManagementComponent extends BaseComponent implements O
       this.store.select(selectSupportedLanguages)
     ]).pipe(
       tap(([doc, supportedLanguages]) => {
-        let docCpy: Documentation;
-        if (doc) {
-          docCpy = {...doc} as Documentation;
-          docCpy.texts = {...doc.texts};
-        } else {
-          docCpy = {texts: {}};
-        }
-        if (!docCpy.texts || Object.keys(docCpy.texts).length === 0) {
-          supportedLanguages.forEach((language) => {
-            docCpy.texts = {};
-            docCpy.texts[language] = '';
+        const documentationCpy = {...doc};
+        const languageAnnouncementFormGroups: { [key: string]: FormGroup } = {};
+        supportedLanguages.forEach((language) => {
+          if (!documentationCpy.texts) {
+            documentationCpy.texts = {};
+            documentationCpy.texts[language] = '';
+          }
+          languageAnnouncementFormGroups[language] = this.fb.group({
+            text: [documentationCpy?.texts?.[language] || '', [Validators.required, Validators.minLength(3)]],
           });
-        }
-        this.documentation = docCpy;
+        });
+
+        this.documentationForm = this.fb.group({
+          languages: this.fb.group(languageAnnouncementFormGroups),
+        });
       }),
       map(([doc]) => doc)
     );
@@ -85,17 +84,15 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     super.ngOnInit();
   }
 
-  createOrUpdateDocumentation() {
+  createOrUpdateDocumentation(documentation: Documentation) {
+    const documentationToBeSaved = {...documentation} as Documentation;
+    const formDocumentation = this.documentationForm.getRawValue() as any;
+    documentationToBeSaved.texts = Object.keys(formDocumentation.languages).reduce((acc, locale) => {
+      acc[locale] = formDocumentation.languages[locale].text;
+      return acc;
+    }, {} as { [locale: string]: string });
     this.store.dispatch(createOrUpdateDocumentation({
-      documentation: this.documentation as Documentation
-    }));
-  }
-
-  onTextChange() {
-    this.store.dispatch(markUnsavedChanges({
-      action: createOrUpdateDocumentation({
-        documentation: this.documentation as Documentation
-      })
+      documentation: documentationToBeSaved
     }));
   }
 
@@ -110,4 +107,9 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     }));
   }
 
+  getText(language: string): FormControl {
+    const languagesGroup = this.documentationForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('text') as FormControl;
+  }
 }
