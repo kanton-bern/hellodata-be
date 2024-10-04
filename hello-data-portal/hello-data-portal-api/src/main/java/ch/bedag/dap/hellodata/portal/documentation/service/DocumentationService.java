@@ -36,6 +36,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 @Log4j2
@@ -51,24 +54,34 @@ public class DocumentationService {
         Optional<DocumentationEntity> first = documentationRepository.findFirstByOrderByIdAsc();
         if (first.isPresent()) {
             DocumentationEntity entity = first.get();
-            return modelMapper.map(entity, DocumentationDto.class);
+            DocumentationDto documentationDto = modelMapper.map(entity, DocumentationDto.class);
+            //FIXME temporary workaround for existing, old non-i18n documentation entity
+            //@Deprecated(forRemoval = true)
+            if (documentationDto.getTexts() != null || !documentationDto.getTexts().isEmpty()) {
+                documentationDto.setTexts(new HashMap<>());
+                Locale oldDefault = Locale.forLanguageTag("de_CH");
+                documentationDto.getTexts().put(oldDefault, entity.getText());
+            }
+            return documentationDto;
         }
         return null;
     }
 
     @Transactional
     public void createOrUpdateDocumentation(DocumentationDto documentation) {
-        String text = documentation.getText();
-        String sanitizedText = HdHtmlSanitizer.sanitizeHtml(text);
+        Map<Locale, String> texts = documentation.getTexts();
+        for (Map.Entry<Locale, String> entry : texts.entrySet()) {
+            entry.setValue(HdHtmlSanitizer.sanitizeHtml(entry.getValue()));
+        }
         if (documentationRepository.count() == 0) {
             DocumentationEntity entity = new DocumentationEntity();
-            entity.setText(sanitizedText);
+            entity.setTexts(texts);
             documentationRepository.save(entity);
         } else {
             Optional<DocumentationEntity> found = documentationRepository.findFirstByOrderByIdAsc();
             if (found.isPresent()) {
                 DocumentationEntity entity = found.get();
-                entity.setText(sanitizedText);
+                entity.setTexts(texts);
                 documentationRepository.save(entity);
             }
         }

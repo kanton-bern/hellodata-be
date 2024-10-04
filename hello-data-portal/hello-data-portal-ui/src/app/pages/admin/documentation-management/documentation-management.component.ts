@@ -29,12 +29,14 @@ import {Component, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
-import {Observable, tap} from "rxjs";
+import {combineLatest, map, Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
 import {markUnsavedChanges} from "../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/summary/summary.actions";
+import {selectSelectedLanguage, selectSupportedLanguages} from "../../../store/auth/auth.selector";
+import {Documentation} from "../../../store/summary/summary.model";
 
 @Component({
   selector: 'app-documentation',
@@ -42,15 +44,40 @@ import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/sum
   styleUrls: ['./documentation-management.component.scss']
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
-  documentation = '';
+  documentation: Documentation = {
+    texts: {}
+  };
   documentation$: Observable<any>;
+  selectedLanguage$: Observable<string | null>;
+  supportedLanguages$: Observable<string[]>;
 
   constructor(private store: Store<AppState>) {
     super();
     this.store.dispatch(loadDocumentation());
-    this.documentation$ = this.store.select(selectDocumentation).pipe(tap(doc => {
-      this.documentation = doc;
-    }));
+    this.documentation$ = combineLatest([
+      this.store.select(selectDocumentation),
+      this.store.select(selectSupportedLanguages)
+    ]).pipe(
+      tap(([doc, supportedLanguages]) => {
+        let docCpy: Documentation;
+        if (doc) {
+          docCpy = {...doc} as Documentation;
+          docCpy.texts = {...doc.texts};
+        } else {
+          docCpy = {texts: {}};
+        }
+        if (!docCpy.texts || Object.keys(docCpy.texts).length === 0) {
+          supportedLanguages.forEach((language) => {
+            docCpy.texts = {};
+            docCpy.texts[language] = '';
+          });
+        }
+        this.documentation = docCpy;
+      }),
+      map(([doc]) => doc)
+    );
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
+    this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
     this.createBreadcrumbs();
   }
 
@@ -60,14 +87,14 @@ export class DocumentationManagementComponent extends BaseComponent implements O
 
   createOrUpdateDocumentation() {
     this.store.dispatch(createOrUpdateDocumentation({
-      documentation: {text: this.documentation}
+      documentation: this.documentation as Documentation
     }));
   }
 
   onTextChange() {
     this.store.dispatch(markUnsavedChanges({
       action: createOrUpdateDocumentation({
-        documentation: {text: this.documentation}
+        documentation: this.documentation as Documentation
       })
     }));
   }
@@ -82,4 +109,5 @@ export class DocumentationManagementComponent extends BaseComponent implements O
       ]
     }));
   }
+
 }

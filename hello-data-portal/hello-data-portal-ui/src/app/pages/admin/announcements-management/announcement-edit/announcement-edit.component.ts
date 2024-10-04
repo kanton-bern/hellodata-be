@@ -82,7 +82,6 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
           });
         });
 
-
         this.announcementForm = this.fb.group({
           languages: this.fb.group(languageAnnouncementFormGroups),
           published: [announcement.published ? announcement.published : false]

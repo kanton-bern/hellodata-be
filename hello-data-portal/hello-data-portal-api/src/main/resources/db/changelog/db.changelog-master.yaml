@@ -100,3 +100,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/35_add_messages_to_announcement_table.xml
   - include:
       file: db/changelog/changelogs/36_add_selected_language_to_user.xml
+  - include:
+      file: db/changelog/changelogs/37_add_texts_to_documentation_table.xml

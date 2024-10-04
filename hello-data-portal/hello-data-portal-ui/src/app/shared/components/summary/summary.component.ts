@@ -28,7 +28,18 @@
 import {Component, EventEmitter, NgModule, Output} from '@angular/core';
 import {SidebarModule} from "primeng/sidebar";
 import {ScrollPanelModule} from "primeng/scrollpanel";
-import {AsyncPipe, DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault} from "@angular/common";
+import {
+  AsyncPipe,
+  DatePipe,
+  JsonPipe,
+  NgClass,
+  NgForOf,
+  NgIf,
+  NgStyle,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault
+} from "@angular/common";
 import {FieldsetModule} from "primeng/fieldset";
 import {AccordionModule} from "primeng/accordion";
 import {EditorModule} from "primeng/editor";
@@ -44,7 +55,7 @@ import {HdCommonModule} from "../../../hd-common.module";
 import {TranslocoModule} from "@ngneat/transloco";
 import {TooltipModule} from "primeng/tooltip";
 import {DataViewModule} from "primeng/dataview";
-import {Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
+import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
 import {FooterModule} from "../footer/footer.component";
@@ -63,7 +74,7 @@ export class SummaryComponent {
   overlaySidebarVisible = false;
 
   pipelines$: Observable<Pipeline[]>;
-  documentation$: Observable<string>;
+  documentation$: Observable<Documentation | null>;
   storeSize$: Observable<StorageMonitoringResult | null>;
 
   constructor(private store: Store<AppState>, public appInfo: AppInfoService) {
