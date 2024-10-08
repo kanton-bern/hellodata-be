@@ -27,7 +27,7 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
+import {catchError, EMPTY, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   authError,
   checkAuth,
@@ -211,7 +211,12 @@ export class AuthEffects {
       withLatestFrom(
         this._store.select(selectProfile)
       ),
-      switchMap(([action, profile]) => this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang)),
+      switchMap(([action, profile]) => {
+        return this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang)
+      }),
+      switchMap(() => {
+        return EMPTY;
+      }),
       catchError(e => of(showError({error: e})))
     )
   });

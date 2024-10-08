@@ -63,7 +63,7 @@ export class TranslateService implements OnDestroy {
   }
 
   public getAvailableLangs(): string[] {
-    const availableLangs = this.translocoService.getAvailableLangs();
+    const availableLangs = [...this.translocoService.getAvailableLangs()];
     if (Array.isArray(availableLangs) && typeof availableLangs[0] === 'string') {
       return (availableLangs as string[]).sort((a, b) => a.localeCompare(b));
     }

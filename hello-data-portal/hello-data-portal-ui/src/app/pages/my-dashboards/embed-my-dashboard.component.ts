@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnInit} from '@angular/core';
-import {Observable, tap} from "rxjs";
+import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentMyDashboardInfo} from "../../store/my-dashboards/my-dashboards.selector";
@@ -35,6 +35,8 @@ import {naviElements} from "../../app-navi-elements";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
+import {selectSelectedLanguage} from "../../store/auth/auth.selector";
+import {filter} from "rxjs/operators";
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 export const LOGGED_IN_SUPERSET_USER = 'logged_in_superset_user';
@@ -49,30 +51,38 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
 
   constructor(private store: Store<AppState>, private openedSupersetsService: OpenedSubsystemsService) {
     super();
-    this.currentMyDashboardInfo$ = this.store.select(selectCurrentMyDashboardInfo).pipe(tap((dashboardInfo) => {
-      if (dashboardInfo) {
-        this.load(dashboardInfo);
-      }
-    }));
+    this.currentMyDashboardInfo$ = combineLatest([
+      this.store.select(selectCurrentMyDashboardInfo),
+      this.store.select(selectSelectedLanguage),
+    ]).pipe(
+      filter(([dashboardInfo, selectedLanguage]) => selectedLanguage !== null),
+      tap(([dashboardInfo, selectedLanguage]) => {
+        console.log('dashboard info selected language', dashboardInfo, selectedLanguage)
+        if (dashboardInfo) {
+          this.load(dashboardInfo, selectedLanguage as string);
+        }
+      }),
+    )
   }
 
   override ngOnInit(): void {
     super.ngOnInit();
   }
 
-  private load(dashboardInfo: any) {
+  private load(dashboardInfo: any, selectedLanguage: string) {
     if (dashboardInfo.appinfo && dashboardInfo.dashboard && dashboardInfo.profile) {
       const supersetUrl = dashboardInfo.appinfo?.data.url;
       const sessionStorageKey = LOGGED_IN_SUPERSET_USER + '_[' + supersetUrl + ']';
       const dashboardPath = 'superset/dashboard/' + dashboardInfo.dashboard?.id + '/?standalone=1';
       const loggedInSupersetUser = sessionStorage.getItem(sessionStorageKey);
-      if (!loggedInSupersetUser || loggedInSupersetUser !== dashboardInfo.profile.email) {
-        const supersetLogoutUrl = supersetUrl + 'logout';
-        const supersetLoginUrl = supersetUrl + `login/keycloak?next=${supersetUrl + dashboardPath}`;
-        this.url = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
-      } else {
-        this.url = supersetUrl + dashboardPath;
-      }
+      // if (!loggedInSupersetUser || loggedInSupersetUser !== dashboardInfo.profile.email) {
+      const supersetLogoutUrl = supersetUrl + 'logout';
+      const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${selectedLanguage.slice(0, 2)}&next=${encodeURIComponent(supersetUrl + dashboardPath)}`;
+      this.url = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
+      // }
+      // else {
+      //   this.url = supersetUrl + dashboardPath;
+      // }
 
       this.openedSupersetsService.rememberOpenedSubsystem(supersetUrl + 'logout');
       sessionStorage.setItem(sessionStorageKey, dashboardInfo.profile.email);
