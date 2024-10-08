@@ -56,7 +56,6 @@ export class UsersManagementService {
   }
 
   public getSubsystemUsers(): Observable<SubsystemUsersResultDto[]> {
-    console.log("get subsystem users")
     return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users`);
   }
 

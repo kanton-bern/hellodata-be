@@ -39,7 +39,6 @@ import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {filter} from "rxjs/operators";
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
-export const LOGGED_IN_SUPERSET_USER = 'logged_in_superset_user';
 
 @Component({
   templateUrl: 'embed-my-dashboard.component.html',
@@ -71,20 +70,12 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   private load(dashboardInfo: any, selectedLanguage: string) {
     if (dashboardInfo.appinfo && dashboardInfo.dashboard && dashboardInfo.profile) {
       const supersetUrl = dashboardInfo.appinfo?.data.url;
-      const sessionStorageKey = LOGGED_IN_SUPERSET_USER + '_[' + supersetUrl + ']';
       const dashboardPath = 'superset/dashboard/' + dashboardInfo.dashboard?.id + '/?standalone=1';
-      const loggedInSupersetUser = sessionStorage.getItem(sessionStorageKey);
-      // if (!loggedInSupersetUser || loggedInSupersetUser !== dashboardInfo.profile.email) {
       const supersetLogoutUrl = supersetUrl + 'logout';
-      const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${selectedLanguage.slice(0, 2)}&next=${encodeURIComponent(supersetUrl + dashboardPath)}`;
+      const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${selectedLanguage.slice(0, 2)}${encodeURIComponent('&')}next=${supersetUrl + dashboardPath}`;
       this.url = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
-      // }
-      // else {
-      //   this.url = supersetUrl + dashboardPath;
-      // }
 
       this.openedSupersetsService.rememberOpenedSubsystem(supersetUrl + 'logout');
-      sessionStorage.setItem(sessionStorageKey, dashboardInfo.profile.email);
       const dataDomainName = dashboardInfo.appinfo?.businessContextInfo.subContext.name;
       this.createBreadcrumbs(dataDomainName, dashboardInfo.dashboard, dashboardInfo.currentUrl);
     }

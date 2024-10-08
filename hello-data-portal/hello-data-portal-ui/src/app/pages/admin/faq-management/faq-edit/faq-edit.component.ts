@@ -211,7 +211,6 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   getErrorMessageForTitle(language: string): string {
     const titleControl = this.getTitle(language);
-    console.log('errors', titleControl.errors)
     if (titleControl?.errors?.['required']) {
       return 'First name is required';
     }
