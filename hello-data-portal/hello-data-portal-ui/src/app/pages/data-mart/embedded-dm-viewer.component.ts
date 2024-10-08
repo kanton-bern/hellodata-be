@@ -26,7 +26,6 @@
 ///
 
 import {Component, HostListener} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -41,7 +40,7 @@ export class EmbeddedDmViewerComponent {
   url = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor(private store: Store<AppState>) {
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -57,10 +56,10 @@ export class EmbeddedDmViewerComponent {
       window.scrollBy(0, -60);
     }, 10);
     setTimeout(function () {
-      document.querySelectorAll<HTMLElement>('.layout-topbar-button').forEach(element => {
-        element.style.visibility = "visible";
+      document.querySelectorAll<HTMLElement>('.p-scrolltop-icon').forEach(element => {
+        element.click();
       });
-    }, 1000);
+    }, 200);
   }
 
 }
