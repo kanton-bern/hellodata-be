@@ -57,7 +57,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
     ]).pipe(
       filter(([dashboardInfo, selectedLanguage]) => selectedLanguage !== null),
       tap(([dashboardInfo, selectedLanguage]) => {
-        console.log('dashboard info selected language', dashboardInfo, selectedLanguage)
         if (dashboardInfo) {
           this.load(dashboardInfo, selectedLanguage as string);
         }
