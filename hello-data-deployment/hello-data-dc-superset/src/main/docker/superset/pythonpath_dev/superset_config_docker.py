@@ -133,6 +133,12 @@ class HdAuthOAuthView(AuthView):
                 }
                 decoded_token = ab_security_manager.auth_user_oauth(userinfo)
                 login_user(decoded_token, remember=True)
+
+                lang = request.args.get('lang')
+                if lang:
+                    log.info("Setting Lang from request: " + lang)
+                    session["locale"] = lang
+
                 next = request.args.get('next')
                 if next:
                     return redirect(get_safe_redirect(next))
@@ -249,7 +255,8 @@ AUTH_TYPE = AUTH_OAUTH
 
 logging.getLogger('flask_appbuilder.security.manager').setLevel(logging.DEBUG)
 
-keycloak_metadata_url = os.getenv('KEYCLOAK_SERVER_METADATA_URL', 'http://keycloak:8080/realms/hellodata/.well-known/openid-configuration')
+keycloak_metadata_url = os.getenv('KEYCLOAK_SERVER_METADATA_URL',
+                                  'http://keycloak:8080/realms/hellodata/.well-known/openid-configuration')
 api_base_url = os.getenv('KEYCLOAK_API_BASE_URL', 'http://keycloak:8080/realms/hellodata/protocol/')
 
 log.info('keycloak_metadata_url')
