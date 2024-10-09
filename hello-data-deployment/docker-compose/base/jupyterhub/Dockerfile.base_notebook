@@ -28,4 +28,6 @@ ENV API_USERNAME="user"
 ENV API_PASSWORD="password"
 
 RUN python3 -m pip install --no-cache-dir \
-    psycopg2-binary
+    psycopg2-binary \
+    jupyterlab-language-pack-de-DE \
+    jupyterlab-language-pack-fr-FR

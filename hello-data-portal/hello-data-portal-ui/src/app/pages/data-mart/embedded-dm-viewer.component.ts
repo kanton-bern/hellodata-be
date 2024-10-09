@@ -31,6 +31,9 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {HttpClient} from "@angular/common/http";
+import {Observable, tap} from "rxjs";
+import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
@@ -40,7 +43,15 @@ export class EmbeddedDmViewerComponent {
   url = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
 
-  constructor(private store: Store<AppState>) {
+  selectedLanguage$: Observable<any>;
+
+  constructor(private store: Store<AppState>, private http: HttpClient) {
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
+      console.log('language changed?', selectedLang)
+      if (selectedLang) {
+        this.changeSessionLanguage(selectedLang.slice(0, 2)).subscribe();
+      }
+    }));
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -48,6 +59,36 @@ export class EmbeddedDmViewerComponent {
         }
       ]
     }));
+  }
+
+  changeSessionLanguage(locale: string): Observable<any> {
+    console.log('change session language')
+    const body = {
+      query: `
+        mutation changeSessionLanguage($locale: String!) {
+          changeSessionLanguage(locale: $locale)
+        }
+      `,
+      variables: {
+        locale: locale,
+      },
+      operationName: 'changeSessionLanguage',
+    };
+
+    return this.http.post(this.url + 'api/gql', body, {
+      // headers: {
+      //   'Content-Type': 'application/json',
+      //   'accept': '*/*',
+      //   'accept-language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7',
+      //   'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+      //   'sec-ch-ua-mobile': '?0',
+      //   'sec-ch-ua-platform': '"macOS"',
+      //   'sec-fetch-dest': 'empty',
+      //   'sec-fetch-mode': 'cors',
+      //   'sec-fetch-site': 'same-origin',
+      // },
+      withCredentials: true,
+    });
   }
 
   @HostListener("window:scroll", ["$event"])
