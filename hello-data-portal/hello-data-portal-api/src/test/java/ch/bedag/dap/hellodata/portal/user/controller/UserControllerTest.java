@@ -40,6 +40,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -165,7 +166,7 @@ class UserControllerTest extends HDControllerTest {
     void getPermissionsForCurrentUser() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName", false, false);
+        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName", false, false, Locale.ENGLISH);
 
         when(userService.getUserPortalPermissions(userId)).thenReturn(currentUser.permissions());
         HelloDataContextConfig.BusinessContext businessContext = new HelloDataContextConfig.BusinessContext();
