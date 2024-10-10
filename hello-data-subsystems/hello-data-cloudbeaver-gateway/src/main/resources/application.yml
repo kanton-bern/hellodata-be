@@ -83,8 +83,10 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
+            allowedOrigins: "${hello-data.cors.allowed-origins:http://localhost:8080}"
+            allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE}"
+            allowedHeaders: "${CORS_ALLOWED_HEADERS:*}"
+            allowCredentials: ${CORS_ALLOW_CREDENTIALS:true}
       routes:
         - id: actuator_route
           uri: http://localhost:8082
