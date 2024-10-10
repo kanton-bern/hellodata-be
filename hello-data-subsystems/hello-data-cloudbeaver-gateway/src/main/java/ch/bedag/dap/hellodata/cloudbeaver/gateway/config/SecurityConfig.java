@@ -129,6 +129,8 @@ public class SecurityConfig {
                 corsConfig.addAllowedMethod("HEAD");
                 corsConfig.addAllowedMethod("OPTIONS");
 
+                corsConfig.setAllowCredentials(true);
+
                 corsConfig.setAllowedHeaders(CORS_ALLOWED_HEADERS);
                 corsConfig.setMaxAge(3600L);
                 corsConfig.setExposedHeaders(List.of("xsrf-token"));
