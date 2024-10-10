@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.faq.controller;
 
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqCreateDto;
+import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.service.FaqService;
 import org.junit.jupiter.api.Test;
@@ -37,9 +38,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,6 +53,9 @@ class FaqControllerTest extends HDControllerTest {
     void createAnnouncement_userLoggedInNoPrivileges() throws Exception {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        createDto.setMessages(messages);
         createDto.setContextKey("Test context key");
 
         // when then
@@ -68,6 +70,9 @@ class FaqControllerTest extends HDControllerTest {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
         createDto.setContextKey("Test context key");
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        createDto.setMessages(messages);
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/faq")
@@ -83,6 +88,9 @@ class FaqControllerTest extends HDControllerTest {
         UUID uuid = UUID.randomUUID();
         updateDto.setId(uuid);
         updateDto.setContextKey("Test context key");
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        updateDto.setMessages(messages);
 
         // when then
         mockMvc.perform(
@@ -97,6 +105,9 @@ class FaqControllerTest extends HDControllerTest {
         UUID uuid = UUID.randomUUID();
         updateDto.setId(uuid);
         updateDto.setContextKey("Test context key");
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        updateDto.setMessages(messages);
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.put("/faq")
