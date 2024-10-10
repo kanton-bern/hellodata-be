@@ -80,11 +80,11 @@ spring:
         wiretap: true
       httpclient:
         wiretap: true
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
+#      globalcors:
+#        corsConfigurations:
+#          '[/**]':
+#            allowedOrigins: "*"
+#            allowedMethods: "*"
       routes:
         - id: actuator_route
           uri: http://localhost:8082
