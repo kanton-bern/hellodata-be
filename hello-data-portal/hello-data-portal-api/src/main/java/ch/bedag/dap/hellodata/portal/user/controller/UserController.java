@@ -221,8 +221,11 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/set-selected-lang/{lang}")
-    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void setSelectedLanguageForUser(@PathVariable String userId, @PathVariable Locale lang) {
+        //currently only user can set lang for himself
+        if (!userId.equals(SecurityUtils.getCurrentUserId().toString())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
         userService.setSelectedLanguage(userId, lang);
     }
 }

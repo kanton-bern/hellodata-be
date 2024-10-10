@@ -54,6 +54,7 @@ import {TranslateService} from "../../shared/services/translate.service";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectProfile} from "./auth.selector";
+import {CloudbeaverService} from "./cloudbeaver.service";
 
 @Injectable()
 export class AuthEffects {
@@ -212,7 +213,12 @@ export class AuthEffects {
         this._store.select(selectProfile)
       ),
       switchMap(([action, profile]) => {
-        return this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang)
+        return this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang).pipe(
+          switchMap(() => {
+            // Reuse action.lang here
+            return this._cloudbeaverService.updateUserPreferences(action.lang);
+          })
+        );
       }),
       switchMap(() => {
         return EMPTY;
@@ -227,6 +233,7 @@ export class AuthEffects {
     private _authService: AuthService,
     private _usersManagementService: UsersManagementService,
     private _translateService: TranslateService,
+    private _cloudbeaverService: CloudbeaverService
   ) {
   }
 }

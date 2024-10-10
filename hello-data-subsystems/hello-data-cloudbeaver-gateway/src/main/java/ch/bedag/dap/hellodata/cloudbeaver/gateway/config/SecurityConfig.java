@@ -87,7 +87,7 @@ public class SecurityConfig {
     @PostConstruct
     public void init() {
         log.info("[CORS configuration] List of allowed origins {}", allowedOrigins);
-        log.info("[CORS configuration] List of allowed headers {}", CORS_ALLOWED_HEADERS);
+//        log.info("[CORS configuration] List of allowed headers {}", CORS_ALLOWED_HEADERS);
     }
 
     @Bean
@@ -112,31 +112,31 @@ public class SecurityConfig {
             http.cors(ServerHttpSecurity.CorsSpec::disable);
         } else {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
-            http.cors(cors -> cors.configurationSource(request -> {
-                CorsConfiguration corsConfig = new CorsConfiguration();
-                if (!allowedOriginList.isEmpty()) {
-                    for (String allowedOrigin : allowedOriginList) {
-                        corsConfig.addAllowedOrigin(allowedOrigin);
-                    }
-                } else {
-                    corsConfig.addAllowedOrigin("*"); //NOSONAR
-                }
-                corsConfig.addAllowedMethod("GET");
-                corsConfig.addAllowedMethod("POST");
-                corsConfig.addAllowedMethod("PUT");
-                corsConfig.addAllowedMethod("DELETE");
-                corsConfig.addAllowedMethod("PATCH");
-                corsConfig.addAllowedMethod("HEAD");
-                corsConfig.addAllowedMethod("OPTIONS");
-
-                corsConfig.setAllowCredentials(true);
-
-                corsConfig.setAllowedHeaders(CORS_ALLOWED_HEADERS);
-                corsConfig.setMaxAge(3600L);
-                corsConfig.setExposedHeaders(List.of("xsrf-token"));
-                log.info("[CORS configuration] Created cors configuration - allowed origins {}", corsConfig.getAllowedOrigins());
-                return corsConfig;
-            }));
+//            http.cors(cors -> cors.configurationSource(request -> {
+//                CorsConfiguration corsConfig = new CorsConfiguration();
+//                if (!allowedOriginList.isEmpty()) {
+//                    for (String allowedOrigin : allowedOriginList) {
+//                        corsConfig.addAllowedOrigin(allowedOrigin);
+//                    }
+//                } else {
+//                    corsConfig.addAllowedOrigin("*"); //NOSONAR
+//                }
+//                corsConfig.addAllowedMethod("GET");
+//                corsConfig.addAllowedMethod("POST");
+//                corsConfig.addAllowedMethod("PUT");
+//                corsConfig.addAllowedMethod("DELETE");
+//                corsConfig.addAllowedMethod("PATCH");
+//                corsConfig.addAllowedMethod("HEAD");
+//                corsConfig.addAllowedMethod("OPTIONS");
+//
+//                corsConfig.setAllowCredentials(true);
+//
+//                corsConfig.setAllowedHeaders(CORS_ALLOWED_HEADERS);
+//                corsConfig.setMaxAge(3600L);
+//                corsConfig.setExposedHeaders(List.of("xsrf-token"));
+//                log.info("[CORS configuration] Created cors configuration - allowed origins {}", corsConfig.getAllowedOrigins());
+//                return corsConfig;
+//            }));
         }
     }
 

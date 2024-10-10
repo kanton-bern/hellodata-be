@@ -80,12 +80,14 @@ spring:
         wiretap: true
       httpclient:
         wiretap: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
       globalcors:
         corsConfigurations:
           '[/**]':
             allowedOrigins: "${hello-data.cors.allowed-origins:http://localhost:8080}"
-            allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE}"
-            allowedHeaders: "${CORS_ALLOWED_HEADERS:*}"
+            allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,HEAD,PATCH,OPTIONS}"
+            allowedHeaders: "${CORS_ALLOWED_HEADERS:Access-Control-Allow-Methods,Access-Control-Allow-Origin,Authorization,Access-Control-Allow-Headers,Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers"
             allowCredentials: ${CORS_ALLOW_CREDENTIALS:true}
       routes:
         - id: actuator_route
