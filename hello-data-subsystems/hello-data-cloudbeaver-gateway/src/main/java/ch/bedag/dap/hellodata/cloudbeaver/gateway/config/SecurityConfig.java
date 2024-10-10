@@ -134,6 +134,7 @@ public class SecurityConfig {
                 corsConfig.setAllowedHeaders(CORS_ALLOWED_HEADERS);
                 corsConfig.setMaxAge(3600L);
                 corsConfig.setExposedHeaders(List.of("xsrf-token"));
+                log.info("[CORS configuration] Created cors configuration - allowed origins {}", corsConfig.getAllowedOrigins());
                 return corsConfig;
             }));
         }
