@@ -73,7 +73,7 @@ services:
       OAUTH2_LOGIN_SERVICE: keycloak
       OAUTH2_USERNAME_KEY: preferred_username
       OAUTH2_USERDATA_PARAMS: state:state
-      OAUTH2_ALLOW_ALL: true
+      OAUTH2_ALLOW_ALL: 'true'
       HUB_IP: jupyterhub-default-data-domain
       JUPYTERHUB_CRYPT_KEY: GTxQ9tNJ3v5TA3ZrmFs4ZtW0yF3a2nLn+f6Pd8c+Z5E=
 
