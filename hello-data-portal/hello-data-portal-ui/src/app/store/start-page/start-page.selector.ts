@@ -64,7 +64,6 @@ export const selectCurrentJupyterhubLink = createSelector(
   metaInfoResourcesState,
   selectDataDomainKeyParam,
   (state: StartPageState, metainfoResourcesState, dataDomainKeyParam) => {
-    console.log('inside selector', metainfoResourcesState, dataDomainKeyParam)
     const currentDataDomainJupyterhub = metainfoResourcesState.appInfos.filter(appinfo => appinfo.moduleType === 'JUPYTERHUB' && appinfo.businessContextInfo?.subContext.key === dataDomainKeyParam)[0];
     if (currentDataDomainJupyterhub) {
       return currentDataDomainJupyterhub.data.url;

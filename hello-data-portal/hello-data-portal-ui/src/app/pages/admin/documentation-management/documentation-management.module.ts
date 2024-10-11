@@ -29,10 +29,11 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {EditorModule} from "primeng/editor";
 import {TranslocoModule} from "@ngneat/transloco";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DocumentationManagementComponent} from "./documentation-management.component";
 import {ButtonModule} from "primeng/button";
 import {ToolbarModule} from "primeng/toolbar";
+import {TabViewModule} from "primeng/tabview";
 
 
 @NgModule({
@@ -43,7 +44,9 @@ import {ToolbarModule} from "primeng/toolbar";
     TranslocoModule,
     FormsModule,
     ButtonModule,
-    ToolbarModule
+    ToolbarModule,
+    TabViewModule,
+    ReactiveFormsModule
   ],
 })
 export class DocumentationManagementModule {

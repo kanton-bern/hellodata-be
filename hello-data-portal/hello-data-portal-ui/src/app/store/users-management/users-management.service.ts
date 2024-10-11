@@ -56,7 +56,6 @@ export class UsersManagementService {
   }
 
   public getSubsystemUsers(): Observable<SubsystemUsersResultDto[]> {
-    console.log("get subsystem users")
     return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users`);
   }
 
@@ -98,6 +97,10 @@ export class UsersManagementService {
 
   public editDashboardRoleForUser(userId: string, data: DashboardForUser): Observable<DashboardResponse> {
     return this.httpClient.patch<DashboardResponse>(`${this.baseUsersUrl}/${userId}/dashboards`, data);
+  }
+
+  public editSelectedLanguageForUser(userId: string, lang: string): Observable<any> {
+    return this.httpClient.patch<any>(`${this.baseUsersUrl}/${userId}/set-selected-lang/${lang}`, lang);
   }
 
   public getAvailableContexts(): Observable<ContextResponse> {

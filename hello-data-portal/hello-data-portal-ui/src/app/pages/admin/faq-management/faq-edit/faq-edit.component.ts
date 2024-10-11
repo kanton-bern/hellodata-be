@@ -27,7 +27,7 @@
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
@@ -35,13 +35,13 @@ import {Faq} from "../../../../store/faq/faq.model";
 import {naviElements} from "../../../../app-navi-elements";
 import {selectAvailableDataDomainsWithAllEntry} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "../../../../store/app/app.constants";
-import {Announcement} from "../../../../store/announcement/announcement.model";
 import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {TranslateService} from "../../../../shared/services/translate.service";
+import {selectSelectedLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 
 @Component({
   selector: 'app-faq-edit',
@@ -52,10 +52,16 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
+  selectedLanguage$: Observable<string | null>;
+  supportedLanguages$: Observable<string[]>;
   formValueChangedSub!: Subscription;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
     super();
+
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
+    this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
+
     this.availableDataDomains$ = combineLatest([
       this.store.select(selectAvailableDataDomainsWithAllEntry),
       this.translateService.selectTranslate(ALL_DATA_DOMAINS)
@@ -68,44 +74,76 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
       })
       return dataDomainsCopy;
     }));
-    this.editedFaq$ = this.store.select(selectEditedFaq).pipe(
-      tap(faq => {
-        this.faqForm = this.fb.group({
-          title: [faq?.title, [Validators.required.bind(this), Validators.minLength(3)]],
-          message: [faq?.message, [Validators.required.bind(this), Validators.minLength(3)]],
-          dataDomain: [faq && faq.contextKey ? faq.contextKey : ALL_DATA_DOMAINS],
+    this.editedFaq$ = this.getEditedFaq();
+  }
+
+  private getEditedFaq() {
+    return combineLatest([
+      this.store.select(selectEditedFaq),
+      this.store.select(selectSupportedLanguages)
+    ]).pipe(
+      tap(([faq, supportedLanguages]) => {
+        const faqCpy = {...faq};
+
+        const languageFaqFormGroups: { [key: string]: FormGroup } = {};
+
+        supportedLanguages.forEach((language) => {
+          if (!faqCpy.messages) {
+            faqCpy.messages = {};
+            faqCpy.messages[language] = {title: '', message: ''}
+          }
+          languageFaqFormGroups[language] = this.fb.group({
+            title: [faqCpy?.messages?.[language]?.title || '', [Validators.required, Validators.minLength(3)]],
+            message: [faqCpy?.messages?.[language]?.message || '', [Validators.required, Validators.minLength(3)]],
+          });
         });
-        if (faq.id) {
-          this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-              {
-                label: naviElements.faqManagement.label,
-                routerLink: naviElements.faqManagement.path,
-              },
-              {
-                label: naviElements.faqEdit.label,
-              }
-            ]
-          }));
+
+        this.faqForm = this.fb.group({
+          languages: this.fb.group(languageFaqFormGroups),
+          dataDomain: [faqCpy && faqCpy.contextKey ? faqCpy.contextKey : ALL_DATA_DOMAINS],
+        });
+
+        if (faqCpy.id) {
+          this.createEditFaqBreadcrumbs();
         } else {
-          this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-              {
-                label: naviElements.faqManagement.label,
-                routerLink: naviElements.faqManagement.path,
-              },
-              {
-                label: naviElements.faqCreate.label,
-              }
-            ]
-          }));
+          this.createCreateFaqBreadcrumbs();
         }
+
         this.unsubFormValueChanges();
         this.formValueChangedSub = this.faqForm.valueChanges.subscribe(newValues => {
-          this.onChange(faq);
+          this.onChange(faqCpy);
         });
-      })
+      }),
+      map(([faqCpy]) => faqCpy)
     );
+  }
+
+  private createCreateFaqBreadcrumbs() {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.faqManagement.label,
+          routerLink: naviElements.faqManagement.path,
+        },
+        {
+          label: naviElements.faqCreate.label,
+        }
+      ]
+    }));
+  }
+
+  private createEditFaqBreadcrumbs() {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.faqManagement.label,
+          routerLink: naviElements.faqManagement.path,
+        },
+        {
+          label: naviElements.faqEdit.label,
+        }
+      ]
+    }));
   }
 
   navigateToFaqList() {
@@ -116,7 +154,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue() as any;
     faqToBeSaved.title = formFaq.title;
-    faqToBeSaved.message = formFaq.message;
+    faqToBeSaved.messages = formFaq.languages;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
@@ -135,15 +173,18 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     this.unsubFormValueChanges();
   }
 
-  private onChange(editedAnnouncement: Announcement) {
-    const faqToBeSaved = {id: editedAnnouncement.id} as any;
+  private onChange(editedFaq: Faq) {
+    const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue() as any;
     faqToBeSaved.title = formFaq.title;
     faqToBeSaved.message = formFaq.message;
     if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
       faqToBeSaved.contextKey = formFaq.dataDomain;
     }
-    this.store.dispatch(markUnsavedChanges({action: saveChangesToFaq(faqToBeSaved), stayOnPage: faqToBeSaved.id === undefined}));
+    this.store.dispatch(markUnsavedChanges({
+      action: saveChangesToFaq(faqToBeSaved),
+      stayOnPage: faqToBeSaved.id === undefined
+    }));
   }
 
   private unsubFormValueChanges() {
@@ -154,5 +195,33 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
 
   override ngOnInit(): void {
     super.ngOnInit();
+  }
+
+  getMessage(language: string): FormControl {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('message') as FormControl;
+  }
+
+  getTitle(language: string): FormControl {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('title') as FormControl;
+  }
+
+  getErrorMessageForTitle(language: string): string {
+    const titleControl = this.getTitle(language);
+    if (titleControl?.errors?.['required']) {
+      return 'First name is required';
+    }
+    if (titleControl?.errors?.['minlength']) {
+      return `First name must be at least ${titleControl.errors['minlength'].requiredLength} characters long`;
+    }
+    if (titleControl?.errors?.['maxlength']) {
+      return `First name cannot be more than ${titleControl.errors['maxlength'].requiredLength} characters long`;
+    }
+
+    // Add other error checks as needed
+    return '';
   }
 }

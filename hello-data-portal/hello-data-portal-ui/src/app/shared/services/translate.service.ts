@@ -26,7 +26,7 @@
 ///
 
 import {Injectable, OnDestroy} from "@angular/core";
-import {TranslocoEvents, TranslocoService} from "@ngneat/transloco";
+import {LangDefinition, TranslocoEvents, TranslocoService} from "@ngneat/transloco";
 import {Observable, Subscription} from "rxjs";
 import {HashMap, TranslateParams, TranslocoScope} from "@ngneat/transloco/lib/types";
 
@@ -52,6 +52,23 @@ export class TranslateService implements OnDestroy {
 
   public events(): Observable<TranslocoEvents> {
     return this.translocoService.events$;
+  }
+
+  public setActiveLang(lang: string) {
+    this.translocoService.setActiveLang(lang);
+  }
+
+  public getDefaultLanguage() {
+    return this.translocoService.getDefaultLang();
+  }
+
+  public getAvailableLangs(): string[] {
+    const availableLangs = [...this.translocoService.getAvailableLangs()];
+    if (Array.isArray(availableLangs) && typeof availableLangs[0] === 'string') {
+      return (availableLangs as string[]).sort((a, b) => a.localeCompare(b));
+    }
+
+    return (availableLangs as LangDefinition[]).map(langDef => langDef.label).sort((a, b) => a.localeCompare(b));
   }
 
   ngOnDestroy(): void {

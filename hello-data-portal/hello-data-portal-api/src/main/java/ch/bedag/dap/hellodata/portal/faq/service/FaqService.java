@@ -31,17 +31,13 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextReposi
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqCreateDto;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqDto;
+import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
 import ch.bedag.dap.hellodata.portal.faq.repository.FaqRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import jakarta.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -49,6 +45,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
 
 @Service
 @Log4j2
@@ -67,22 +65,40 @@ public class FaqService {
         }
         if (!SecurityUtils.isSuperuser() && currentUserContextRoles.isEmpty()) {
             return faqRepository.findAll()
-                                .stream()
-                                .filter(entity -> entity.getContextKey() == null)
-                                .map(entity -> modelMapper.map(entity, FaqDto.class))
-                                .map(this::mapContextName)
-                                .toList();
+                    .stream()
+                    .filter(entity -> entity.getContextKey() == null)
+                    .map(entity -> map(entity))
+                    .map(this::mapContextName)
+                    .toList();
         }
         if (!currentUserContextRoles.isEmpty()) {
             List<String> contextKeys = currentUserContextRoles.stream().map(UserContextRoleEntity::getContextKey).toList();
             return faqRepository.findAll()
-                                .stream()
-                                .filter(entity -> entity.getContextKey() == null || contextKeys.contains(entity.getContextKey()))
-                                .map(entity -> modelMapper.map(entity, FaqDto.class))
-                                .map(this::mapContextName)
-                                .toList();
+                    .stream()
+                    .filter(entity -> entity.getContextKey() == null || contextKeys.contains(entity.getContextKey()))
+                    .map(entity -> map(entity))
+                    .map(this::mapContextName)
+                    .toList();
         }
         return Collections.emptyList();
+    }
+
+
+    private FaqDto map(FaqEntity entity) {
+        FaqDto faqDto = modelMapper.map(entity, FaqDto.class);
+        if (faqDto.getMessages() == null) {
+            faqDto.setMessages(new HashMap<>());
+        }
+        //FIXME temporary workaround for existing, old non-i18n faq entities
+        //@Deprecated(forRemoval = true)
+        Locale oldDefault = Locale.forLanguageTag("de_CH");
+        if (!faqDto.getMessages().containsKey(oldDefault)) {
+            FaqMessage faqMessage = new FaqMessage();
+            faqMessage.setMessage(entity.getMessage());
+            faqMessage.setTitle(entity.getTitle());
+            faqDto.getMessages().put(oldDefault, faqMessage);
+        }
+        return faqDto;
     }
 
     @NotNull

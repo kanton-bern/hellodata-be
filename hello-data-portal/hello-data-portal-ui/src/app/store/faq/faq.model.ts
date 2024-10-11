@@ -27,25 +27,27 @@
 
 export interface Faq {
   id?: string;
-  title?: string,
-  message?: string;
   createdDate?: Date;
   createdBy?: string;
   modifiedDate?: Date;
   modifiedBy?: string;
   contextKey?: string
   contextName?: string
+  messages?: { [locale: string]: FaqMessage }
 }
 
 export interface FaqCreate {
-  title: string;
-  message: string;
   contextKey: string;
+  messages: { [locale: string]: FaqMessage }
 }
 
 export interface FaqUpdate {
   id: string,
+  contextKey: string;
+  messages: { [locale: string]: FaqMessage }
+}
+
+export interface FaqMessage {
   title: string;
   message: string;
-  contextKey: string;
 }

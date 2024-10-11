@@ -41,6 +41,7 @@ import {ToolbarModule} from "primeng/toolbar";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {CheckboxModule} from "primeng/checkbox";
 import {TooltipModule} from "primeng/tooltip";
+import {TabViewModule} from "primeng/tabview";
 
 
 @NgModule({
@@ -63,6 +64,7 @@ import {TooltipModule} from "primeng/tooltip";
     ConfirmDialogModule,
     CheckboxModule,
     TooltipModule,
+    TabViewModule,
   ]
 })
 export class AnnouncementsManagementModule {

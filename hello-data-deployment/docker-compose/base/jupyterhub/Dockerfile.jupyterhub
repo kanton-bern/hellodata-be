@@ -15,6 +15,9 @@ RUN python3 -m pip install --no-cache-dir \
     dockerspawner \
     oauthenticator \
     pyjwt \
-    cryptography
+    cryptography \
+    jupyterlab-language-pack-de-DE \
+    jupyterlab-language-pack-fr-FR
+
 
 CMD ["jupyterhub", "-f", "/srv/jupyterhub/jupyterhub_config.py"]

@@ -30,7 +30,8 @@ import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
-import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
+import {selectCurrentUserPermissions, selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {Documentation} from "../../../store/summary/summary.model";
 
 @Component({
   selector: 'app-home-documentation',
@@ -43,14 +44,18 @@ export class HomeDocumentationComponent {
   documentation$: Observable<any>;
   summarySidebarVisible = false;
   overlaySidebarVisible = false;
+  selectedLanguage$: Observable<string | null>;
 
-  documentation = '';
+  documentation: Documentation = {
+    texts: {}
+  };
 
   constructor(private store: Store<AppState>) {
-    this.documentation$ = this.store.select(selectDocumentation).pipe(tap(documentationText => {
-      this.documentation = documentationText;
+    this.documentation$ = this.store.select(selectDocumentation).pipe(tap(documentation => {
+      this.documentation = documentation as Documentation;
     }));
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
+    this.selectedLanguage$ = store.select(selectSelectedLanguage);
   }
 
   toggleSummaryPanel() {

@@ -26,22 +26,33 @@
 ///
 
 import {Component, HostListener} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {HttpClient} from "@angular/common/http";
+import {Observable, tap} from "rxjs";
+import {selectSelectedLanguage} from "../../store/auth/auth.selector";
+import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
+import {navigate} from "../../store/app/app.action";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
   styleUrls: ['./embedded-dm-viewer.component.scss']
 })
 export class EmbeddedDmViewerComponent {
-  url = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
+  baseUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
+  iframeUrl = this.baseUrl;
+  selectedLanguage$: Observable<any>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor(private store: Store<AppState>) {
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
+      if (selectedLang) {
+        this.updateIframeUrl(selectedLang);
+      }
+    }));
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -51,16 +62,20 @@ export class EmbeddedDmViewerComponent {
     }));
   }
 
+  updateIframeUrl(language: string) {
+    this.iframeUrl = `${this.baseUrl}?lang=${language}`;
+  }
+
   @HostListener("window:scroll", ["$event"])
   onWindowScroll() {
     setTimeout(function () {
       window.scrollBy(0, -60);
     }, 10);
     setTimeout(function () {
-      document.querySelectorAll<HTMLElement>('.layout-topbar-button').forEach(element => {
-        element.style.visibility = "visible";
+      document.querySelectorAll<HTMLElement>('.p-scrolltop-icon').forEach(element => {
+        element.click();
       });
-    }, 1000);
+    }, 200);
   }
 
 }

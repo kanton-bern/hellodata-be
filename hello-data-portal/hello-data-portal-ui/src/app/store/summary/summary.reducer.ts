@@ -35,12 +35,12 @@ export const summaryReducer = createReducer(
     if (payload) {
       return {
         ...state,
-        documentation: payload.text
+        documentation: {texts: payload.texts}
       };
     }
     return {
       ...state,
-      documentation: ''
+      documentation: null
     };
   }),
   on(loadPipelinesSuccess, (state: SummaryState, {payload}): SummaryState => {

@@ -28,7 +28,10 @@ package ch.bedag.dap.hellodata.portal.documentation.data;
 
 import lombok.Data;
 
+import java.util.Locale;
+import java.util.Map;
+
 @Data
 public class DocumentationDto {
-    private String text;
+    private Map<Locale, String> texts;
 }

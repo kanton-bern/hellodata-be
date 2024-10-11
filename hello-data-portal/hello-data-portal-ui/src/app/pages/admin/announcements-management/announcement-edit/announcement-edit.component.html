@@ -1,122 +1,137 @@
-
 <div class="card">
   <form *ngIf="(editedAnnouncement$ | async) as editedAnnouncement" [formGroup]="announcementForm">
-    <h5>{{'@Announcement' | transloco}}</h5>
+    <h5>{{ '@Announcement' | transloco }}</h5>
 
     <div *ngIf="editedAnnouncement.createdDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{'@Created date' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               disabled
-               id="createdDate"
-               type="text"
-               value="{{editedAnnouncement.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+        <input
+          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled
+          id="createdDate"
+          type="text"
+          value="{{editedAnnouncement.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
       </div>
     </div>
 
     <div *ngIf="editedAnnouncement.createdDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{'@Created by' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               disabled
-               id="createdBy"
-               type="text"
-               value="{{editedAnnouncement.createdBy}}">
+        <input
+          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled
+          id="createdBy"
+          type="text"
+          value="{{editedAnnouncement.createdBy}}">
       </div>
     </div>
 
 
     <div *ngIf="editedAnnouncement.modifiedDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{'@Modified date' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               disabled
-               id="modifiedDate"
-               type="text"
-               value="{{editedAnnouncement.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+        <input
+          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled
+          id="modifiedDate"
+          type="text"
+          value="{{editedAnnouncement.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
       </div>
     </div>
 
 
     <div *ngIf="editedAnnouncement.modifiedBy" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{'@Modified by' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
-               disabled
-               id="modifiedBy"
-               type="text"
-               value="{{editedAnnouncement.modifiedBy}}">
+        <input
+          class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+          disabled
+          id="modifiedBy"
+          type="text"
+          value="{{editedAnnouncement.modifiedBy}}">
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="published">{{'@Published' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="published">{{ '@Published' | transloco }}</label>
       <div class="col-12 md:col-10">
         <p-checkbox [binary]="true" formControlName="published" id="published" inputId="published"></p-checkbox>
       </div>
     </div>
 
     <div *ngIf="editedAnnouncement.publishedDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="publishedDate">{{'@Published date' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="publishedDate">{{ '@Published date' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
-               disabled
-               id="publishedDate"
-               type="text"
-               value="{{editedAnnouncement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+        <input
+          class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+          disabled
+          id="publishedDate"
+          type="text"
+          value="{{editedAnnouncement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
       </div>
     </div>
 
-    <p-editor [style]="{ height: '725px' }" formControlName="message">
-      <ng-template pTemplate="header">
-       <span class="ql-formats">
-          <select class="ql-header">
-              <option value="1">Heading</option>
-              <option value="2">Subheading</option>
-              <option selected>Normal</option>
-          </select>
-          <select class="ql-font">
-              <option selected>Sans Serif</option>
-              <option value="serif">Serif</option>
-              <option value="monospace">Monospace</option>
-          </select>
-      </span>
-        <span class="ql-formats">
-          <button aria-label="Bold" class="ql-bold" type="button"></button>
-          <button aria-label="Italic" class="ql-italic" type="button"></button>
-          <button aria-label="Underline" class="ql-underline" type="button"></button>
-      </span>
-        <span class="ql-formats">
-          <select class="ql-color"></select>
-          <select class="ql-background"></select>
-      </span>
-        <span class="ql-formats">
-          <button aria-label="Ordered List" class="ql-list" type="button" value="ordered"></button>
-          <button aria-label="Unordered List" class="ql-list" type="button" value="bullet"></button>
-          <select class="ql-align">
-              <option selected></option>
-              <option value="center">center</option>
-              <option value="right">right</option>
-              <option value="justify">justify</option>
-          </select>
-      </span>
-        <span class="ql-formats">
-          <button aria-label="Insert Link" class="ql-link" type="button"></button>
-          <button aria-label="Insert Code Block" class="ql-code-block" type="button"></button>
-      </span>
-        <span class="ql-formats">
-          <button aria-label="Remove Styles" class="ql-clean" type="button"></button>
-      </span>
+
+    <p-tabView *ngIf="(supportedLanguages$ | async) as supportedLanguages">
+      <ng-template ngFor let-language [ngForOf]="supportedLanguages">
+        <p-tabPanel [header]="language.slice(0, 2).toUpperCase()">
+          <div class="field grid">
+            <p-editor [style]="{ height: '725px' }" [formControl]="getMessage(language)">
+              <ng-template pTemplate="header">
+                 <span class="ql-formats">
+                    <select class="ql-header">
+                        <option value="1">Heading</option>
+                        <option value="2">Subheading</option>
+                        <option selected>Normal</option>
+                    </select>
+                    <select class="ql-font">
+                        <option selected>Sans Serif</option>
+                        <option value="serif">Serif</option>
+                        <option value="monospace">Monospace</option>
+                    </select>
+                </span>
+                <span class="ql-formats">
+                    <button aria-label="Bold" class="ql-bold" type="button"></button>
+                    <button aria-label="Italic" class="ql-italic" type="button"></button>
+                    <button aria-label="Underline" class="ql-underline" type="button"></button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-color"></select>
+                    <select class="ql-background"></select>
+                </span>
+                <span class="ql-formats">
+                    <button aria-label="Ordered List" class="ql-list" type="button" value="ordered"></button>
+                    <button aria-label="Unordered List" class="ql-list" type="button" value="bullet"></button>
+                    <select class="ql-align">
+                        <option selected></option>
+                        <option value="center">center</option>
+                        <option value="right">right</option>
+                        <option value="justify">justify</option>
+                    </select>
+                </span>
+                <span class="ql-formats">
+                    <button aria-label="Insert Link" class="ql-link" type="button"></button>
+                    <button aria-label="Insert Code Block" class="ql-code-block" type="button"></button>
+                </span>
+                <span class="ql-formats">
+                    <button aria-label="Remove Styles" class="ql-clean" type="button"></button>
+                </span>
+              </ng-template>
+            </p-editor>
+          </div>
+        </p-tabPanel>
       </ng-template>
-    </p-editor>
+    </p-tabView>
+
 
     <p-toolbar>
       <div class="p-toolbar-group-start">
-        <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+        <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                  icon="fas fa-arrow-left"></p-button>
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="saveAnnouncement(editedAnnouncement)"
-                  [disabled]="announcementForm.invalid||!announcementForm.dirty"
+                  [disabled]="announcementForm.invalid || !announcementForm.dirty"
                   icon="fas fa-floppy-disk"
                   label="{{'@Save' | transloco}}"
                   styleClass="p-button-success mr-2"></p-button>

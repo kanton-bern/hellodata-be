@@ -141,6 +141,7 @@ class HdAuthOAuthView(AuthView):
 
                 next = request.args.get('next')
                 if next:
+                    log.info("Redirecting to : " + next)
                     return redirect(get_safe_redirect(next))
                 return redirect(self.appbuilder.get_url_for_index)
         if provider is None:

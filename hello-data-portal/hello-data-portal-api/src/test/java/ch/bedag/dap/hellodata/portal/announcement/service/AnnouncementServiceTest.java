@@ -31,10 +31,10 @@ import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementDto;
 import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementUpdateDto;
 import ch.bedag.dap.hellodata.portal.announcement.entity.AnnouncementEntity;
 import ch.bedag.dap.hellodata.portal.announcement.repository.AnnouncementRepository;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+
+import java.util.*;
+
+import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -106,6 +106,9 @@ public class AnnouncementServiceTest {
     public void testCreate() {
         // given
         AnnouncementCreateDto createDto = new AnnouncementCreateDto();
+        HashMap<Locale, String> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, "message");
+        createDto.setMessages(messages);
 
         // when
         announcementService.create(createDto);
@@ -119,6 +122,9 @@ public class AnnouncementServiceTest {
         // given
         AnnouncementUpdateDto updateDto = new AnnouncementUpdateDto();
         updateDto.setId(UUID.randomUUID());
+        HashMap<Locale, String> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, "message");
+        updateDto.setMessages(messages);
 
         AnnouncementEntity existingEntity = new AnnouncementEntity();
         existingEntity.setId(updateDto.getId());

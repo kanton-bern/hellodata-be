@@ -30,18 +30,20 @@ import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementCreateDto;
 import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementUpdateDto;
 import ch.bedag.dap.hellodata.portal.announcement.service.AnnouncementService;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.Set;
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AnnouncementController.class)
-@ContextConfiguration(classes = { AnnouncementController.class })
+@ContextConfiguration(classes = {AnnouncementController.class})
 class AnnouncementControllerTest extends HDControllerTest {
     @MockBean
     private AnnouncementService announcementService;
@@ -50,27 +52,25 @@ class AnnouncementControllerTest extends HDControllerTest {
     void createAnnouncement_userLoggedInNoPrivileges() throws Exception {
         // given
         AnnouncementCreateDto createDto = new AnnouncementCreateDto();
-        createDto.setMessage("Test Announcement");
         createDto.setPublished("Published");
 
         // when then
         mockMvc.perform(
-                       MockMvcRequestBuilders.post("/announcements").header("authorization", generateToken()).contentType(MediaType.APPLICATION_JSON).content(asJsonString(createDto)))
-               .andExpect(status().isForbidden());
+                        MockMvcRequestBuilders.post("/announcements").header("authorization", generateToken()).contentType(MediaType.APPLICATION_JSON).content(asJsonString(createDto)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     void createAnnouncement_userLoggedInHasPrivileges() throws Exception {
         // given
         AnnouncementCreateDto createDto = new AnnouncementCreateDto();
-        createDto.setMessage("Test Announcement");
         createDto.setPublished("Published");
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/announcements")
-                                              .header("authorization", generateToken(Set.of("ANNOUNCEMENT_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(createDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("ANNOUNCEMENT_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createDto))).andExpect(status().isOk());
     }
 
     @Test
@@ -79,13 +79,12 @@ class AnnouncementControllerTest extends HDControllerTest {
         AnnouncementUpdateDto updateDto = new AnnouncementUpdateDto();
         UUID uuid = UUID.randomUUID();
         updateDto.setId(uuid);
-        updateDto.setMessage("Test Announcement");
         updateDto.setPublished("Published");
 
         // when then
         mockMvc.perform(
-                       MockMvcRequestBuilders.put("/announcements").header("authorization", generateToken()).contentType(MediaType.APPLICATION_JSON).content(asJsonString(updateDto)))
-               .andExpect(status().isForbidden());
+                        MockMvcRequestBuilders.put("/announcements").header("authorization", generateToken()).contentType(MediaType.APPLICATION_JSON).content(asJsonString(updateDto)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -94,14 +93,13 @@ class AnnouncementControllerTest extends HDControllerTest {
         AnnouncementUpdateDto updateDto = new AnnouncementUpdateDto();
         UUID uuid = UUID.randomUUID();
         updateDto.setId(uuid);
-        updateDto.setMessage("Test Announcement");
         updateDto.setPublished("Published");
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.put("/announcements")
-                                              .header("authorization", generateToken(Set.of("ANNOUNCEMENT_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(updateDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("ANNOUNCEMENT_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateDto))).andExpect(status().isOk());
     }
 
     @Test
@@ -120,6 +118,6 @@ class AnnouncementControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.delete("/announcements/" + uuid).header("authorization", generateToken(Set.of("ANNOUNCEMENT_MANAGEMENT"))))
-               .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 }

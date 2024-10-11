@@ -1,9 +1,9 @@
-
-<h2 class="content-block">{{'@Faq management' | transloco}}</h2>
-<div class="card">
+<h2 class="content-block">{{ '@Faq management' | transloco }}</h2>
+<div class="card" *ngIf="(selectedLanguage$ | async) as selectedLanguage">
   <p-toolbar styleClass="mb-4 gap-2">
     <ng-template pTemplate="left">
-      <button (click)="createFaq()" class="p-button-success mr-2" icon="fas fa-circle-plus" id="createFaqButton" label="{{'@Create' | transloco }}" pButton pRipple></button>
+      <button (click)="createFaq()" class="p-button-success mr-2" icon="fas fa-circle-plus" id="createFaqButton"
+              label="{{'@Create' | transloco }}" pButton pRipple></button>
     </ng-template>
   </p-toolbar>
 
@@ -22,24 +22,25 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="title">
-            {{'@Title' | transloco}}
+            {{ '@Title' | transloco }}
           </th>
           <th id="dataDomain">
-            {{'@Data domain' | transloco}}
+            {{ '@Data domain' | transloco }}
           </th>
           <th id="message" style="min-width:15rem">
-            {{'@Message' | transloco}}
+            {{ '@Message' | transloco }}
           </th>
           <th id="actions" style="min-width:8rem"></th>
         </tr>
       </ng-template>
       <ng-template let-faq pTemplate="body">
         <tr>
-          <td>{{ faq.title }}</td>
+          <td>{{ getTitle(faq, selectedLanguage) }}</td>
           <td *ngIf="faq.contextName">{{ faq.contextName }}</td>
           <td *ngIf="faq.contextName === null" class="font-italic">{{ '@All Data Domains' | transloco }}</td>
           <td>
-            <p-editor [(ngModel)]="faq.message" [disabled]="true" [readonly]="true" [style]="{ height: '320px' }">
+            <p-editor [ngModel]="getMessage(faq, selectedLanguage)" [disabled]="true" [readonly]="true"
+                      [style]="{ height: '320px' }">
               <p-header hidden></p-header>
             </p-editor>
           </td>

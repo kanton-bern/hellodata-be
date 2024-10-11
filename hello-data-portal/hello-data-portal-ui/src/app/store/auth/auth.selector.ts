@@ -75,3 +75,23 @@ export const selectDisableLogout = createSelector(
   authState,
   (state: AuthState) => state.disableLogout
 );
+
+export const selectSupportedLanguages = createSelector(
+  authState,
+  (state: AuthState) => state.supportedLanguages
+);
+
+export const selectSelectedLanguage = createSelector(
+  authState,
+  (state: AuthState) => {
+    if (!state.selectedLanguage) {
+      const browserLanguage = navigator.language.replace('-', '_');
+      if (state.supportedLanguages.includes(browserLanguage)) {
+        return browserLanguage;
+      } else {
+        return state.defaultLanguage;
+      }
+    }
+    return state.selectedLanguage
+  }
+);

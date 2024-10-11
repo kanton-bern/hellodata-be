@@ -29,7 +29,6 @@ package ch.bedag.dap.hellodata.portal.documentation.service;
 import ch.bedag.dap.hellodata.portal.documentation.data.DocumentationDto;
 import ch.bedag.dap.hellodata.portal.documentation.entity.DocumentationEntity;
 import ch.bedag.dap.hellodata.portal.documentation.repository.DocumentationRepository;
-import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,10 +36,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Log4j2
 @SuppressWarnings("unused")
@@ -65,14 +68,16 @@ class DocumentationServiceTest {
         when(documentationRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.of(documentationEntity));
 
         DocumentationDto documentationDto = new DocumentationDto();
-        documentationDto.setText("Sample documentation text");
+        Map<Locale, String> textMap = new HashMap<>();
+        textMap.put(Locale.ENGLISH, "Sample documentation text");
+        documentationDto.setTexts(textMap);
         when(modelMapper.map(documentationEntity, DocumentationDto.class)).thenReturn(documentationDto);
 
         // when
         DocumentationDto result = documentationService.getDocumentation();
 
         // then
-        assertEquals("Sample documentation text", result.getText());
+        assertEquals("Sample documentation text", result.getTexts().get(Locale.ENGLISH));
 
         verify(documentationRepository, times(1)).findFirstByOrderByIdAsc();
         verify(modelMapper, times(1)).map(documentationEntity, DocumentationDto.class);
@@ -82,7 +87,9 @@ class DocumentationServiceTest {
     void testCreateOrUpdateDocumentation() {
         // given
         DocumentationDto documentationDto = new DocumentationDto();
-        documentationDto.setText("Updated documentation text");
+        Map<Locale, String> textMap = new HashMap<>();
+        textMap.put(Locale.ENGLISH, "Updated documentation text");
+        documentationDto.setTexts(textMap);
 
         when(documentationRepository.count()).thenReturn(1L);
 
@@ -93,7 +100,7 @@ class DocumentationServiceTest {
         documentationService.createOrUpdateDocumentation(documentationDto);
 
         // then
-        assertEquals("Updated documentation text", existingEntity.getText());
+        assertEquals("Updated documentation text", existingEntity.getTexts().get(Locale.ENGLISH));
 
         verify(documentationRepository, times(1)).count();
         verify(documentationRepository, times(1)).findFirstByOrderByIdAsc();

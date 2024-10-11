@@ -30,20 +30,16 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.util.NatsUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.nats.client.Connection;
-import io.nats.client.JetStream;
-import io.nats.client.JetStreamApiException;
-import io.nats.client.JetStreamSubscription;
-import io.nats.client.Message;
-import io.nats.client.PushSubscribeOptions;
+import io.nats.client.*;
 import io.nats.client.api.ConsumerConfiguration;
+import lombok.extern.log4j.Log4j2;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import lombok.extern.log4j.Log4j2;
 
 /**
  * One stream subject configuration = one corresponding thread below to delegate messages to beans subscribing
@@ -57,7 +53,7 @@ public class SubscribeAnnotationThread extends Thread {
     private JetStreamSubscription subscription;
 
     SubscribeAnnotationThread(Connection natsConnection, JetStreamSubscribe sub, List<BeanMethodWrapper> beanWrappers, String durableName) {
-        log.info("Creating subscription thread for beans listening to {}", beanWrappers.get(0).subscriptionId());
+        log.debug("Creating subscription thread for beans listening to {}", beanWrappers.get(0).subscriptionId());
         this.natsConnection = natsConnection;
         this.subscribeAnnotation = sub;
         this.beanWrappers = beanWrappers;

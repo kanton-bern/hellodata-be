@@ -33,7 +33,15 @@ import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
 import {PublishedAnnouncementsModule} from "../published-announcement/published-announcements.module";
-import {selectCurrentBusinessDomain, selectCurrentContextRolesFilterOffNone, selectDisableLogout, selectIsAuthenticated, selectProfile} from "../../../store/auth/auth.selector";
+import {
+  selectCurrentBusinessDomain,
+  selectCurrentContextRolesFilterOffNone,
+  selectDisableLogout,
+  selectIsAuthenticated,
+  selectProfile,
+  selectSelectedLanguage,
+  selectSupportedLanguages
+} from "../../../store/auth/auth.selector";
 import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
 import {MenuModule} from "primeng/menu";
@@ -45,7 +53,10 @@ import {TranslocoModule} from "@ngneat/transloco";
 import {DropdownModule} from "primeng/dropdown";
 import {FormsModule} from "@angular/forms";
 import {ToolbarModule} from "primeng/toolbar";
-import {selectAvailableDataDomains, selectSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.selector";
+import {
+  selectAvailableDataDomains,
+  selectSelectedDataDomain
+} from "../../../store/my-dashboards/my-dashboards.selector";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {RippleModule} from "primeng/ripple";
 import {AnimateModule} from "primeng/animate";
@@ -54,6 +65,13 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
 import {navigate} from "../../../store/app/app.action";
 import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
+import {MenuItem, SharedModule} from "primeng/api";
+import {TabViewModule} from "primeng/tabview";
+import {InputTextModule} from "primeng/inputtext";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {BrowserModule} from "@angular/platform-browser";
+import {setSelectedLanguage} from "../../../store/auth/auth.action";
+import {DividerModule} from "primeng/divider";
 
 @Component({
   selector: 'app-header',
@@ -68,35 +86,30 @@ export class HeaderComponent {
   menuToggleEnabled = false;
   @Input()
   title!: string;
+
   userData$: Observable<IUser>;
+  languages$: Observable<any[]>;
   isAuthenticated$: Observable<boolean>;
   businessDomain$: Observable<string>;
   availableDataDomains$: Observable<DataDomain[]>;
-  translationsLoaded$: Observable<any>;
-  environment: Environment;
-
-  userMenuItems: any[] = [];
-
-  dataDomainSelectionItems: any = [];
   selectedDataDomain$: Observable<DataDomain | null>;
   currentUserContextRolesNotNone$: Observable<any>;
+
+  translationsLoaded$: Observable<any>;
+
+  environment: Environment;
+  userMenuItems: MenuItem[] = [];
+  dataDomainSelectionItems: any[] = [];
+  supportedLanguages: any[] = [];
+
+  selectedLanguage: string | null = null;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
+    this.languages$ = this.getSupportedLanguages();
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
-    this.availableDataDomains$ = this.store.select(selectAvailableDataDomains).pipe(tap(availableDataDomains => {
-      this.dataDomainSelectionItems = [];
-      for (const availableDataDomain of availableDataDomains) {
-        this.dataDomainSelectionItems.push({
-          label: translateService.translate(availableDataDomain.name),
-          command: (event: any) => {
-            this.onDataDomainChanged(event);
-          },
-          data: availableDataDomain
-        })
-      }
-    }));
+    this.availableDataDomains$ = this.getAvailableDataDomains();
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.environment = {
       name: environment.deploymentEnvironment.name,
@@ -139,10 +152,47 @@ export class HeaderComponent {
 
   }
 
+  private getAvailableDataDomains() {
+    return this.store.select(selectAvailableDataDomains).pipe(tap(availableDataDomains => {
+      this.dataDomainSelectionItems = [];
+      for (const availableDataDomain of availableDataDomains) {
+        this.dataDomainSelectionItems.push({
+          label: this.translateService.translate(availableDataDomain.name),
+          command: (event: any) => {
+            this.onDataDomainChanged(event);
+          },
+          data: availableDataDomain
+        })
+      }
+    }));
+  }
+
+  private getSupportedLanguages() {
+    return combineLatest([
+      this.store.select(selectSelectedLanguage),
+      this.store.select(selectSupportedLanguages)
+    ]).pipe(tap(([selectedLanguage, supportedLanguages]) => {
+      this.selectedLanguage = selectedLanguage;
+      const languagesLocal: any = [];
+      for (const language of supportedLanguages) {
+        languagesLocal.push({
+          code: language,
+          label: language.slice(0, 2)?.toUpperCase(),
+          selected: this.selectedLanguage === language
+        });
+      }
+      this.supportedLanguages = languagesLocal;
+    }))
+  }
+
   onDataDomainChanged($event: any) {
     this.store.dispatch(setSelectedDataDomain({dataDomain: $event.item.data}));
   }
 
+  onLanguageChange(langCode: any) {
+    this.translateService.setActiveLang(langCode);
+    this.store.dispatch(setSelectedLanguage({lang: langCode}))
+  }
 }
 
 @NgModule({
@@ -161,7 +211,14 @@ export class HeaderComponent {
     ToolbarModule,
     RippleModule,
     AnimateModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    MenubarModule,
+    InputTextModule,
+    TabViewModule,
+    SharedModule,
+    DividerModule
   ],
   declarations: [HeaderComponent, BreadcrumbComponent],
   exports: [HeaderComponent]

@@ -26,12 +26,15 @@
  */
 package ch.bedag.dap.hellodata.portal.announcement.data;
 
-import java.util.UUID;
 import lombok.Data;
+
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 @Data
 public class AnnouncementUpdateDto {
     private UUID id;
-    private String message;
+    private Map<Locale, String> messages;
     private String published;
 }

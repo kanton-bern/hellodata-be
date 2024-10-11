@@ -29,17 +29,19 @@ package ch.bedag.dap.hellodata.portal.documentation.controller;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.documentation.data.DocumentationDto;
 import ch.bedag.dap.hellodata.portal.documentation.service.DocumentationService;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.Set;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SummaryController.class)
-@ContextConfiguration(classes = { SummaryController.class })
+@ContextConfiguration(classes = {SummaryController.class})
 class SummaryControllerTest extends HDControllerTest {
 
     @MockBean
@@ -49,25 +51,23 @@ class SummaryControllerTest extends HDControllerTest {
     void createOrUpdateDocumentation_userLoggedInNoPrivileges() throws Exception {
         // given
         DocumentationDto documentationDto = new DocumentationDto();
-        documentationDto.setText("Test documentation");
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/summary/documentation")
-                                              .header("authorization", generateToken())
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(documentationDto))).andExpect(status().isForbidden());
+                .header("authorization", generateToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(documentationDto))).andExpect(status().isForbidden());
     }
 
     @Test
     void createOrUpdateDocumentation_userLoggedInHasPrivileges() throws Exception {
         // given
         DocumentationDto documentationDto = new DocumentationDto();
-        documentationDto.setText("Test documentation");
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/summary/documentation")
-                                              .header("authorization", generateToken(Set.of("DOCUMENTATION_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(documentationDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("DOCUMENTATION_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(documentationDto))).andExpect(status().isOk());
     }
 }

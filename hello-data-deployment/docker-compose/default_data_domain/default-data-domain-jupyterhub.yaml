@@ -49,6 +49,9 @@ services:
       - "shared_scripts:/srv/jupyterhub/shared_scripts:ro"
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     environment:
       # This username will be a JupyterHub admin
       JUPYTERHUB_ADMIN: admin
@@ -86,6 +89,9 @@ services:
       - jupyterhub-default-data-domain
     networks:
       - hello-data-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   # just to build an image
   jupyterhub-notebook-default-data-domain:
@@ -99,6 +105,9 @@ services:
     depends_on:
       - jupyterhub-default-data-domain
     command: echo "This service is only for building our custom image which will be spawned by jupyterhub"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   hello-data-jupyterhub-gateway-default-data-domain:
     image: bedag/hello-data-jupyterhub-gateway

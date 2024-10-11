@@ -21,10 +21,13 @@ start-portal:
 	docker-compose up hello-data-portal-ui hello-data-portal-api hello-data-portal-sidecar -d --build
 
 start-default-dd:
-	docker-compose up superset-app-default-data-domain superset-init-default-data-domain superset-worker-default-data-domain superset-worker-beat-default-data-domain hello-data-superset-sidecar-default-data-domain -d --build
+	docker-compose up showcase-files-default-data-domain superset-app-default-data-domain superset-init-default-data-domain superset-worker-default-data-domain superset-worker-beat-default-data-domain hello-data-superset-sidecar-default-data-domain -d --build
 
 start-airflow:
 	docker-compose up airflow-webserver airflow-scheduler airflow-worker airflow-triggerer airflow-init flower hello-data-airflow-sidecar -d --build
+
+start-jupyterhub: start-portal
+	docker-compose up hello-data-sidecar-jupyterhub-default-data-domain hello-data-jupyterhub-gateway-default-data-domain jupyterhub-notebook-default-data-domain jupyterhub-proxy-default-data-domain jupyterhub-default-data-domain -d --build
 
 stop:
 	docker-compose down --volumes --remove-orphans

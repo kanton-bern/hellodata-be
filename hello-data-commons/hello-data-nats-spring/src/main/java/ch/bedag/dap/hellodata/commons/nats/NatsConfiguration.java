@@ -28,7 +28,6 @@ package ch.bedag.dap.hellodata.commons.nats;
 
 import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
 import ch.bedag.dap.hellodata.commons.nats.bean.NatsConfigBeanPostProcessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.spring.boot.autoconfigure.NatsAutoConfiguration;
@@ -50,13 +49,13 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
 
     @Override
     public void connectionEvent(Connection cnctn, Events event) {
-        log.info("Connection Event:" + event);
+        log.debug("Connection Event:" + event);
         switch (event) {
-            case CONNECTED -> log.info("CONNECTED to NATS!");
-            case DISCONNECTED -> log.warn("RECONNECTED to NATS!");
-            case RECONNECTED -> log.info("RECONNECTED to NATS!");
-            case RESUBSCRIBED -> log.info("RESUBSCRIBED!");
-            default -> log.info("Other event: {}", event);
+            case CONNECTED -> log.debug("CONNECTED to NATS!");
+            case DISCONNECTED -> log.warn("DISCONNECTED from NATS!");
+            case RECONNECTED -> log.debug("RECONNECTED to NATS!");
+            case RESUBSCRIBED -> log.debug("RESUBSCRIBED!");
+            default -> log.debug("Other event: {}", event);
         }
     }
 
@@ -69,7 +68,7 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
     @Bean
     @ConditionalOnWebApplication
     public NatsHealthIndicator natsHealthIndicator(Connection auditNatsConnection) {
-        log.info("Creating NatsHealthIndicator.");
+        log.debug("Creating NatsHealthIndicator.");
         return new NatsHealthIndicator(auditNatsConnection);
     }
 }

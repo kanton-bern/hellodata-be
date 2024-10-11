@@ -27,10 +27,18 @@
 package ch.bedag.dap.hellodata.portal.documentation.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import jakarta.persistence.Basic;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.Locale;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -38,5 +46,11 @@ import lombok.Setter;
 @Entity(name = "documentation")
 public class DocumentationEntity extends BaseEntity {
 
+    @Deprecated
     private String text;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Basic(fetch = FetchType.EAGER)
+    @Column(columnDefinition = "json", name = "texts")
+    private Map<Locale, String> texts;
 }

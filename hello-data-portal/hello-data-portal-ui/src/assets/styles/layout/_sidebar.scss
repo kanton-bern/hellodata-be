@@ -93,10 +93,12 @@ body {
   height: 100%;
   //padding: 30px 0 150px 0;
   overflow: auto;
+  margin-top: 0;
 }
 
 .sidebar.close .nav-links {
   overflow: visible;
+  padding-left: 0;
 }
 
 .sidebar .nav-links::-webkit-scrollbar {
@@ -344,6 +346,7 @@ body {
 }
 
 .content-section {
+  top: -8px;
   position: relative;
   height: 100vh;
   left: 260px;
@@ -352,8 +355,8 @@ body {
 }
 
 .sidebar.close ~ .content-section {
-  left: 78px;
-  width: calc(100% - 78px);
+  left: 70px;
+  width: calc(100% - 63px);
 }
 
 .home-content {

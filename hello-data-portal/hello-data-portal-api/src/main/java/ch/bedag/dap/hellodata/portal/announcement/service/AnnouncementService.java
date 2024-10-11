@@ -41,12 +41,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-@Service
 @Log4j2
+@Service
 @AllArgsConstructor
 public class AnnouncementService {
     private final AnnouncementRepository announcementRepository;
@@ -65,7 +63,9 @@ public class AnnouncementService {
     @Transactional
     public void create(AnnouncementCreateDto announcementCreateDto) {
         AnnouncementEntity entity = modelMapper.map(announcementCreateDto, AnnouncementEntity.class);
-        sanitizeMessage(announcementCreateDto.getMessage(), entity);
+        for (Map.Entry<Locale, String> entry : announcementCreateDto.getMessages().entrySet()) {
+            entry.setValue(sanitizeMessage(entry.getValue()));
+        }
         updatePublishedDate(entity);
         announcementRepository.save(entity);
     }
@@ -78,15 +78,16 @@ public class AnnouncementService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         AnnouncementEntity entityToUpdate = entity.get();
+        for (Map.Entry<Locale, String> entry : announcementUpdateDto.getMessages().entrySet()) {
+            entry.setValue(sanitizeMessage(entry.getValue()));
+        }
         modelMapper.map(announcementUpdateDto, entityToUpdate);
-        sanitizeMessage(announcementUpdateDto.getMessage(), entityToUpdate);
         updatePublishedDate(entityToUpdate);
         announcementRepository.save(entityToUpdate);
     }
 
-    private static void sanitizeMessage(String unsanitizedMessage, AnnouncementEntity entity) {
-        String sanitizedMessage = HdHtmlSanitizer.sanitizeHtml(unsanitizedMessage);
-        entity.setMessage(sanitizedMessage);
+    private String sanitizeMessage(String unsanitizedMessage) {
+        return HdHtmlSanitizer.sanitizeHtml(unsanitizedMessage);
     }
 
     private static void updatePublishedDate(AnnouncementEntity entityToUpdate) {
@@ -110,3 +111,4 @@ public class AnnouncementService {
         return modelMapper.map(entity.get(), AnnouncementDto.class);
     }
 }
+

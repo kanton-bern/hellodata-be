@@ -28,21 +28,22 @@ package ch.bedag.dap.hellodata.portal.faq.controller;
 
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqCreateDto;
+import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.service.FaqService;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.*;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FaqController.class)
-@ContextConfiguration(classes = { FaqController.class })
+@ContextConfiguration(classes = {FaqController.class})
 class FaqControllerTest extends HDControllerTest {
 
     @MockBean
@@ -52,30 +53,32 @@ class FaqControllerTest extends HDControllerTest {
     void createAnnouncement_userLoggedInNoPrivileges() throws Exception {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
-        createDto.setTitle("Test title");
-        createDto.setMessage("Test message");
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        createDto.setMessages(messages);
         createDto.setContextKey("Test context key");
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/faq")
-                                              .header("authorization", generateToken(new HashSet<>()))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(createDto))).andExpect(status().isForbidden());
+                .header("authorization", generateToken(new HashSet<>()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createDto))).andExpect(status().isForbidden());
     }
 
     @Test
     void createAnnouncement_userLoggedInHasPrivileges() throws Exception {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
-        createDto.setTitle("Test title");
-        createDto.setMessage("Test message");
         createDto.setContextKey("Test context key");
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        createDto.setMessages(messages);
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/faq")
-                                              .header("authorization", generateToken(Set.of("FAQ_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(createDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("FAQ_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createDto))).andExpect(status().isOk());
     }
 
     @Test
@@ -84,14 +87,15 @@ class FaqControllerTest extends HDControllerTest {
         FaqUpdateDto updateDto = new FaqUpdateDto();
         UUID uuid = UUID.randomUUID();
         updateDto.setId(uuid);
-        updateDto.setTitle("Test title");
-        updateDto.setMessage("Test message");
         updateDto.setContextKey("Test context key");
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        updateDto.setMessages(messages);
 
         // when then
         mockMvc.perform(
-                       MockMvcRequestBuilders.put("/faq").header("authorization", generateToken(new HashSet<>())).contentType(MediaType.APPLICATION_JSON).content(asJsonString(updateDto)))
-               .andExpect(status().isForbidden());
+                        MockMvcRequestBuilders.put("/faq").header("authorization", generateToken(new HashSet<>())).contentType(MediaType.APPLICATION_JSON).content(asJsonString(updateDto)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -100,15 +104,16 @@ class FaqControllerTest extends HDControllerTest {
         FaqUpdateDto updateDto = new FaqUpdateDto();
         UUID uuid = UUID.randomUUID();
         updateDto.setId(uuid);
-        updateDto.setTitle("Test title");
-        updateDto.setMessage("Test message");
         updateDto.setContextKey("Test context key");
+        HashMap<Locale, FaqMessage> messages = new HashMap<>();
+        messages.put(Locale.ENGLISH, new FaqMessage());
+        updateDto.setMessages(messages);
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.put("/faq")
-                                              .header("authorization", generateToken(Set.of("FAQ_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(updateDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("FAQ_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateDto))).andExpect(status().isOk());
     }
 
     @Test

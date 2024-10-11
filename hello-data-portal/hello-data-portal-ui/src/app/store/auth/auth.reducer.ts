@@ -26,7 +26,15 @@
 ///
 
 import {AuthState, initialAuthState} from "./auth.state";
-import {fetchContextRolesSuccess, fetchPermissionSuccess, loginComplete, logout} from "./auth.action";
+import {
+  fetchContextRolesSuccess,
+  fetchPermissionSuccess,
+  loginComplete,
+  logout,
+  setAvailableLanguages,
+  setDefaultLanguage,
+  setSelectedLanguage
+} from "./auth.action";
 import {createReducer, on} from "@ngrx/store";
 
 export const authReducer = createReducer(
@@ -38,6 +46,18 @@ export const authReducer = createReducer(
       isLoggedIn: isLoggedIn,
     };
   }),
+  on(setDefaultLanguage, (state: AuthState, {lang}): AuthState => {
+    return {
+      ...state,
+      defaultLanguage: lang,
+    };
+  }),
+  on(setAvailableLanguages, (state: AuthState, {langs}): AuthState => {
+    return {
+      ...state,
+      supportedLanguages: langs,
+    };
+  }),
   on(fetchPermissionSuccess, (state: AuthState, {currentUserAuthData}): AuthState => {
     return {
       ...state,
@@ -46,7 +66,8 @@ export const authReducer = createReducer(
       businessDomain: currentUserAuthData.businessDomain,
       permissionsLoaded: true,
       disableLogout: currentUserAuthData.disableLogout,
-      userDisabled: currentUserAuthData.userDisabled
+      userDisabled: currentUserAuthData.userDisabled,
+      selectedLanguage: currentUserAuthData.selectedLanguage
     };
   }),
   on(logout, (state: AuthState): AuthState => {
@@ -60,6 +81,12 @@ export const authReducer = createReducer(
       isSuperuser: false,
       businessDomain: '',
       userDisabled: false
+    };
+  }),
+  on(setSelectedLanguage, (state: AuthState, {lang}): AuthState => {
+    return {
+      ...state,
+      selectedLanguage: lang
     };
   }),
   on(fetchContextRolesSuccess, (state: AuthState, {contextRoles}): AuthState => {

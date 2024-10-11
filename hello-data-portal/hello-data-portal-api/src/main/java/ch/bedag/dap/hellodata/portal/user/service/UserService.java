@@ -656,4 +656,17 @@ public class UserService {
         }
         return activeUsers;
     }
+
+    @Transactional
+    public void setSelectedLanguage(String userId, Locale lang) {
+        UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
+        userEntity.setSelectedLanguage(lang);
+        userRepository.save(userEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public Locale getSelectedLanguage(String userId) {
+        UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
+        return userEntity.getSelectedLanguage();
+    }
 }

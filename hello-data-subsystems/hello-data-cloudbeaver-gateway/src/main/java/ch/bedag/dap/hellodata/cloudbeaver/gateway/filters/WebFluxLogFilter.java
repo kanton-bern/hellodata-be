@@ -37,6 +37,8 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.stream.Collectors;
+
 public class WebFluxLogFilter implements WebFilter, Ordered {
     final Logger log = LoggerFactory.getLogger(WebFluxLogFilter.class);
 
@@ -49,15 +51,23 @@ public class WebFluxLogFilter implements WebFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return chain.filter(exchange).doOnEach(signal -> {
             if (signal.isOnComplete() || signal.isOnError()) {
-                log.warn("log :: \n\trequestId: {}, \n\tip: {}, \n\tmethod: {}, \n\tpath :{}, \n\theaders: {}, \n\tresponse :{}", exchange.getRequest().getId(),
-                         exchange.getRequest().getRemoteAddress(), exchange.getRequest().getMethod(), exchange.getRequest().getURI(), exchange.getRequest()
-                                                                                                                                              .getHeaders()
-                                                                                                                                              .entrySet()
-                                                                                                                                              .stream()
-                                                                                                                                              .filter(stringListEntry -> !stringListEntry.getKey()
-                                                                                                                                                                                         .equals(SecurityConfig.AUTHORIZATION_HEADER_NAME))
-                                                                                                                                              .toList(),
-                         exchange.getResponse().getStatusCode());
+                log.info("\n:: Request Log ::");
+                log.info("Request id: {}", exchange.getRequest().getId());
+                log.info("Ip: {}", exchange.getRequest().getRemoteAddress());
+                log.info("Method: {}", exchange.getRequest().getMethod());
+                log.info("Path: {}", exchange.getRequest().getURI());
+                log.info("Request Headers: {}", exchange.getRequest()
+                        .getHeaders()
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toList()));
+                log.info("Response: {}", exchange.getResponse().getStatusCode());
+                log.info("Response Headers: {}", exchange.getResponse()
+                        .getHeaders()
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toList()));
+                log.info("\n:: End Request Log ::");
             }
         });
     }

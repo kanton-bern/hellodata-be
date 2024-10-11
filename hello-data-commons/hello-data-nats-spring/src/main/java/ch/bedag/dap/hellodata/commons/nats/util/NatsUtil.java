@@ -30,16 +30,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.nats.client.JetStreamApiException;
 import io.nats.client.JetStreamManagement;
-import io.nats.client.api.DiscardPolicy;
-import io.nats.client.api.RetentionPolicy;
-import io.nats.client.api.StorageType;
-import io.nats.client.api.StreamConfiguration;
-import io.nats.client.api.StreamInfo;
-import java.io.IOException;
-import java.time.Duration;
+import io.nats.client.api.*;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+
+import java.io.IOException;
+import java.time.Duration;
 
 @Slf4j
 @UtilityClass
@@ -47,10 +44,10 @@ public class NatsUtil {
 
     public static StreamInfo createOrUpdateStream(JetStreamManagement jsm, String streamName, String subject) throws IOException, JetStreamApiException {
         StreamInfo streamInfo = getStreamInfoOrNull(jsm, streamName);
-        log.info("Create or update stream {}, streamInfo {}", streamName, streamInfo);
+        log.debug("Create or update stream {}, streamInfo {}", streamName, streamInfo);
         if (streamInfo == null) {
             StreamInfo stream = createStream(jsm, streamName, StorageType.File, subject);
-            log.info("Created stream {}", getObjectMapper().writeValueAsString(stream));
+            log.debug("Created stream {}", getObjectMapper().writeValueAsString(stream));
             return stream;
         }
 
@@ -59,8 +56,8 @@ public class NatsUtil {
             streamConfiguration.getSubjects().add(subject);
             streamConfiguration = StreamConfiguration.builder(streamConfiguration).subjects(streamConfiguration.getSubjects()).build();
             streamInfo = jsm.updateStream(streamConfiguration);
-            log.info("Existing stream {} was updated, has subject(s) {}", streamName, streamInfo.getConfiguration().getSubjects());
-            log.info("Updated stream configuration {}", getObjectMapper().writeValueAsString(streamConfiguration));
+            log.debug("Existing stream {} was updated, has subject(s) {}", streamName, streamInfo.getConfiguration().getSubjects());
+            log.debug("Updated stream configuration {}", getObjectMapper().writeValueAsString(streamConfiguration));
         }
 
         return streamInfo;
@@ -81,17 +78,17 @@ public class NatsUtil {
         int maxMessages = 200;
         int messageMaxAgeMinutes = 2;
         StreamConfiguration sc = StreamConfiguration.builder()
-                                                    .name(streamName)
-                                                    .storageType(storageType)
-                                                    .subjects(subjects)
-                                                    .retentionPolicy(RetentionPolicy.Limits)
-                                                    .discardPolicy(DiscardPolicy.Old)
-                                                    .maxAge(Duration.ofMinutes(messageMaxAgeMinutes))
-                                                    .duplicateWindow(Duration.ofMinutes(messageMaxAgeMinutes))
-                                                    .maxMessages(maxMessages)
-                                                    .build();
+                .name(streamName)
+                .storageType(storageType)
+                .subjects(subjects)
+                .retentionPolicy(RetentionPolicy.Limits)
+                .discardPolicy(DiscardPolicy.Old)
+                .maxAge(Duration.ofMinutes(messageMaxAgeMinutes))
+                .duplicateWindow(Duration.ofMinutes(messageMaxAgeMinutes))
+                .maxMessages(maxMessages)
+                .build();
         StreamInfo si = jsm.addStream(sc);
-        log.info("Created stream {} with subject(s) {}", streamName, si.getConfiguration().getSubjects());
+        log.debug("Created stream {} with subject(s) {}", streamName, si.getConfiguration().getSubjects());
         return si;
     }
 

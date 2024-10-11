@@ -27,7 +27,7 @@
 
 export interface Announcement {
   id?: string;
-  message?: string;
+  messages?: { [locale: string]: string }
   published?: boolean;
   createdDate?: Date;
   createdBy?: string;
@@ -37,12 +37,12 @@ export interface Announcement {
 }
 
 export interface AnnouncementCreate {
-  message: string;
+  messages?: { [locale: string]: string }
   published: boolean;
 }
 
 export interface AnnouncementUpdate {
   id: string;
-  message: string;
+  messages?: { [locale: string]: string }
   published: boolean;
 }
