@@ -279,3 +279,9 @@ $RECYCLE.BIN/
 # .obsidian/
 
 /hello-data-deployment/docker-compose/base/airflow/conf/
+hello-data-portal/hello-data-portal-ui/src/config/environment.js
+.vscode/settings.json
+.run/stop_dc.xml
+.run/start_local_impl_dc.xml
+.run/run_frontend.xml
+.run/HellodataPortalApiApplication.xml
