@@ -37,6 +37,7 @@ import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/sum
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../../store/auth/auth.selector";
 import {Documentation} from "../../../store/summary/summary.model";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-documentation',
@@ -56,6 +57,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
       this.store.select(selectDocumentation),
       this.store.select(selectSupportedLanguages)
     ]).pipe(
+      take(1),
       tap(([doc, supportedLanguages]) => {
         const documentationCpy = {...doc};
         const languageAnnouncementFormGroups: { [key: string]: FormGroup } = {};

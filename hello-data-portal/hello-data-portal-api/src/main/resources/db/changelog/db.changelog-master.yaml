@@ -102,3 +102,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/36_add_selected_language_to_user.xml
   - include:
       file: db/changelog/changelogs/37_add_texts_to_documentation_table.xml
+  - include:
+      file: db/changelog/changelogs/38_delete_default_selected_language_from_user.xml

@@ -28,7 +28,7 @@
 import {Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {selectCurrentContextRoles, selectProfile} from "../../store/auth/auth.selector";
+import {selectCurrentContextRoles, selectProfile, selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {Observable} from "rxjs";
 import {BUSINESS_DOMAIN_CONTEXT_TYPE, DATA_DOMAIN_CONTEXT_TYPE} from "../../store/users-management/users-management.model";
 import {naviElements} from "../../app-navi-elements";
@@ -41,12 +41,14 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 export class ProfileComponent {
   userDetails$: Observable<any>;
   userContextRoles$: Observable<any[]>;
+  selectedLanguage$: Observable<string | null>;
   protected readonly BUSINESS_DOMAIN_CONTEXT_TYPE = BUSINESS_DOMAIN_CONTEXT_TYPE;
   protected readonly DATA_DOMAIN_CONTEXT_TYPE = DATA_DOMAIN_CONTEXT_TYPE;
 
   constructor(private store: Store<AppState>) {
     this.userDetails$ = this.store.select(selectProfile);
     this.userContextRoles$ = this.store.select(selectCurrentContextRoles);
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {

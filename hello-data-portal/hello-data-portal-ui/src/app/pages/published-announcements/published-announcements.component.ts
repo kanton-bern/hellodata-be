@@ -7,6 +7,8 @@ import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/an
 import {loadAllAnnouncements} from "../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
+import {selectSelectedLanguage} from "../../store/auth/auth.selector";
+import {Announcement} from "../../store/announcement/announcement.model";
 
 @Component({
   providers: [DialogService],
@@ -16,10 +18,16 @@ import {naviElements} from "../../app-navi-elements";
 })
 export class PublishedAnnouncementsComponent implements OnInit {
   announcements$: Observable<any>;
+  selectedLanguage$: Observable<string | null>;
 
   constructor(private store: Store<AppState>) {
     this.announcements$ = this.store.select(selectAllAnnouncementsByPublishedFlag(true));
     store.dispatch(loadAllAnnouncements());
+    this.selectedLanguage$ = store.select(selectSelectedLanguage);
+  }
+
+  getMessage(announcement: Announcement, selectedLanguage: string): string | undefined {
+    return announcement?.messages?.[selectedLanguage];
   }
 
   ngOnInit(): void {

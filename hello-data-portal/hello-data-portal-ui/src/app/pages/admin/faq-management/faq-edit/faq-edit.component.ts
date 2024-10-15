@@ -42,6 +42,7 @@ import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action"
 import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
+import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-faq-edit',
@@ -82,8 +83,10 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
       this.store.select(selectEditedFaq),
       this.store.select(selectSupportedLanguages)
     ]).pipe(
+      take(1),
       tap(([faq, supportedLanguages]) => {
-        const faqCpy = {...faq};
+        console.log('get edited faq', faq, supportedLanguages)
+        const faqCpy = JSON.parse(JSON.stringify(faq));
 
         const languageFaqFormGroups: { [key: string]: FormGroup } = {};
 

@@ -43,6 +43,7 @@ import {
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
+import {take} from "rxjs/operators";
 
 @Component({
   selector: 'app-announcement-edit',
@@ -69,6 +70,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
       this.store.select(selectEditedAnnouncement),
       this.store.select(selectSupportedLanguages)
     ]).pipe(
+      take(1),
       tap(([announcement, supportedLanguages]) => {
         const announcementCpy = {...announcement};
         const languageAnnouncementFormGroups: { [key: string]: FormGroup } = {};

@@ -41,6 +41,7 @@ $background-color: #ffffff;
 .layout-topbar .layout-topbar-button {
   padding: 5px;
   transition: all 0.3s ease;
+  visibility: visible !important;
 }
 
 .layout-topbar .layout-topbar-button:hover {
