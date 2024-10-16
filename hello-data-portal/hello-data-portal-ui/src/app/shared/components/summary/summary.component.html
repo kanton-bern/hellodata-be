@@ -54,7 +54,7 @@
           </div>
         </ng-template>
         <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
-          <p-editor [disabled]="true" [ngModel]="documentation.texts[selectedLanguage]" [readonly]="true">
+          <p-editor [disabled]="true" [ngModel]="documentation.texts[selectedLanguage.code]" [readonly]="true">
             <p-header hidden></p-header>
           </p-editor>
         </div>

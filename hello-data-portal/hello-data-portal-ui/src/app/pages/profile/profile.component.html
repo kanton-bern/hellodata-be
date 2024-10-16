@@ -39,7 +39,7 @@
     <div class="col-12 md:col-10">
       <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
              disabled id="selectedLanguage" type="text"
-             value="{{ selectedLanguage$ | async }}">
+             [value]="(selectedLanguage$ | async)?.code + ' ' + ((selectedLanguage$ | async)?.typeTranslationKey | transloco)"/>
     </div>
   </div>
   <div *ngIf="(userContextRoles$ | async) as roles" class="field grid">

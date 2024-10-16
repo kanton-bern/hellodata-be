@@ -7,7 +7,7 @@
             <i class="fas fa-circle-info"></i>
           </div>
           <div class="p-toolbar-group-center" style="width: 65%">
-            <p-editor [ngModel]="getMessage(announcement, selectedLanguage)" [disabled]="true" [readonly]="true" [style]="{width: '100%'}">
+            <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code)" [disabled]="true" [readonly]="true" [style]="{width: '100%'}">
               <p-header hidden></p-header>
             </p-editor>
           </div>

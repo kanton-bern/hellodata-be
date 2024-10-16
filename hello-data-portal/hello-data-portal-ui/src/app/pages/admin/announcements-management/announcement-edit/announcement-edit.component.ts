@@ -54,13 +54,11 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   editedAnnouncement$: Observable<any>;
   announcementForm!: FormGroup;
   formValueChangedSub!: Subscription;
-  selectedLanguage$: Observable<string | null>;
   supportedLanguages$: Observable<string[]>;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
     this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement);
-    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
   }
 
@@ -68,9 +66,8 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     super.ngOnInit();
     this.editedAnnouncement$ = combineLatest([
       this.store.select(selectEditedAnnouncement),
-      this.store.select(selectSupportedLanguages)
+      this.store.select(selectSupportedLanguages).pipe(take(1))
     ]).pipe(
-      take(1),
       tap(([announcement, supportedLanguages]) => {
         const announcementCpy = {...announcement};
         const languageAnnouncementFormGroups: { [key: string]: FormGroup } = {};

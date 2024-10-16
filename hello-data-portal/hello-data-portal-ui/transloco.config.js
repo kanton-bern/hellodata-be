@@ -28,7 +28,7 @@ module.exports = {
   rootTranslationsPath: 'src/assets/i18n/',
   defaultLang: 'de_CH',
   langs: ['en', 'de_CH', 'fr_CH'],
-  fallbackLang: 'en',
+  fallbackLang: 'de_CH',
   keysManager: {},
   missingHandler: {
     logMissingKey: true

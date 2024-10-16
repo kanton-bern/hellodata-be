@@ -50,7 +50,7 @@ export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewIn
   publishedAnnouncements$: Observable<any>;
   private renderer: Renderer2;
   private headerComponentRef!: ComponentRef<PublishedAnnouncementsPopupHeaderComponent>;
-  selectedLanguage$: Observable<string | null>;
+  selectedLanguage$: Observable<any>;
 
   constructor(private store: Store<AppState>, private viewContainerRef: ViewContainerRef, private readonly rendererFactory: RendererFactory2) {
     this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements);
@@ -73,8 +73,8 @@ export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewIn
     this.renderer.appendChild(titleSpan, this.headerComponentRef.location.nativeElement)
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: string): string | undefined {
-    return announcement?.messages?.[selectedLanguage];
+  getMessage(announcement: Announcement, selectedLanguage: any): string | undefined {
+    return announcement?.messages?.[selectedLanguage.code];
   }
 
 }

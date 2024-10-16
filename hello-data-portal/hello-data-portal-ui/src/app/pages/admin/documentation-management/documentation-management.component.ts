@@ -47,7 +47,6 @@ import {take} from "rxjs/operators";
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   documentationForm!: FormGroup;
   documentation$: Observable<any>;
-  selectedLanguage$: Observable<string | null>;
   supportedLanguages$: Observable<string[]>;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
@@ -55,9 +54,8 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     this.store.dispatch(loadDocumentation());
     this.documentation$ = combineLatest([
       this.store.select(selectDocumentation),
-      this.store.select(selectSupportedLanguages)
+      this.store.select(selectSupportedLanguages).pipe(take(1))
     ]).pipe(
-      take(1),
       tap(([doc, supportedLanguages]) => {
         const documentationCpy = {...doc};
         const languageAnnouncementFormGroups: { [key: string]: FormGroup } = {};
@@ -77,7 +75,6 @@ export class DocumentationManagementComponent extends BaseComponent implements O
       }),
       map(([doc]) => doc)
     );
-    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
     this.createBreadcrumbs();
   }

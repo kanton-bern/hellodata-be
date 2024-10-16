@@ -172,7 +172,7 @@ export class HeaderComponent {
       this.store.select(selectSelectedLanguage),
       this.store.select(selectSupportedLanguages)
     ]).pipe(tap(([selectedLanguage, supportedLanguages]) => {
-      this.selectedLanguage = selectedLanguage;
+      this.selectedLanguage = selectedLanguage.code;
       const languagesLocal: any = [];
       for (const language of supportedLanguages) {
         languagesLocal.push({

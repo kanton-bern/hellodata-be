@@ -50,7 +50,7 @@ export class EmbeddedDmViewerComponent {
   constructor(private store: Store<AppState>) {
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
       if (selectedLang) {
-        this.updateIframeUrl(selectedLang);
+        this.updateIframeUrl(selectedLang.code as string);
       }
     }));
     this.store.dispatch(createBreadcrumbs({

@@ -29,8 +29,8 @@
           <td>
             <p-accordion>
               <ng-container *ngFor="let domainFaq of item.faqs">
-                <p-accordionTab header="{{ getTitle(domainFaq, selectedLanguage) }}">
-                  <p-editor [ngModel]="getMessage(domainFaq, selectedLanguage)" [disabled]="true" [readonly]="true"
+                <p-accordionTab header="{{ getTitle(domainFaq, selectedLanguage.code) }}">
+                  <p-editor [ngModel]="getMessage(domainFaq, selectedLanguage.code)" [disabled]="true" [readonly]="true"
                             [style]="{ height: '320px' }">
                     <p-header hidden></p-header>
                   </p-editor>

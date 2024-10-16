@@ -53,14 +53,12 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
-  selectedLanguage$: Observable<string | null>;
   supportedLanguages$: Observable<string[]>;
   formValueChangedSub!: Subscription;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
     super();
 
-    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
 
     this.availableDataDomains$ = combineLatest([
@@ -81,11 +79,9 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   private getEditedFaq() {
     return combineLatest([
       this.store.select(selectEditedFaq),
-      this.store.select(selectSupportedLanguages)
+      this.store.select(selectSupportedLanguages).pipe(take(1))
     ]).pipe(
-      take(1),
       tap(([faq, supportedLanguages]) => {
-        console.log('get edited faq', faq, supportedLanguages)
         const faqCpy = JSON.parse(JSON.stringify(faq));
 
         const languageFaqFormGroups: { [key: string]: FormGroup } = {};

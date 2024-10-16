@@ -18,7 +18,7 @@ import {Announcement} from "../../store/announcement/announcement.model";
 })
 export class PublishedAnnouncementsComponent implements OnInit {
   announcements$: Observable<any>;
-  selectedLanguage$: Observable<string | null>;
+  selectedLanguage$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     this.announcements$ = this.store.select(selectAllAnnouncementsByPublishedFlag(true));

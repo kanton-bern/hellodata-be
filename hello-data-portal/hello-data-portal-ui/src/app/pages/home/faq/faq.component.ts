@@ -42,7 +42,7 @@ import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 })
 export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;
-  selectedLanguage$: Observable<string | null>;
+  selectedLanguage$: Observable<any>;
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>) {
     this.faq$ = this._getGroupedFaqs();

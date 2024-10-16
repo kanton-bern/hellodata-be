@@ -57,7 +57,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
       filter(([dashboardInfo, selectedLanguage]) => selectedLanguage !== null),
       tap(([dashboardInfo, selectedLanguage]) => {
         if (dashboardInfo) {
-          this.load(dashboardInfo, selectedLanguage as string);
+          this.load(dashboardInfo, selectedLanguage.code as string);
         }
       }),
     )

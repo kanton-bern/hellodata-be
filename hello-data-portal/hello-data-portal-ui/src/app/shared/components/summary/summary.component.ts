@@ -76,7 +76,7 @@ export class SummaryComponent {
   pipelines$: Observable<Pipeline[]>;
   documentation$: Observable<Documentation | null>;
   storeSize$: Observable<StorageMonitoringResult | null>;
-  selectedLanguage$: Observable<string | null>;
+  selectedLanguage$: Observable<any>;
 
   constructor(private store: Store<AppState>, public appInfo: AppInfoService) {
     this.documentation$ = store.select(selectDocumentation);

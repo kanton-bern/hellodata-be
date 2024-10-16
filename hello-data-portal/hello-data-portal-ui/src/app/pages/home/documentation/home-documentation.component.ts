@@ -44,7 +44,7 @@ export class HomeDocumentationComponent {
   documentation$: Observable<any>;
   summarySidebarVisible = false;
   overlaySidebarVisible = false;
-  selectedLanguage$: Observable<string | null>;
+  selectedLanguage$: Observable<any>;
 
   documentation: Documentation = {
     texts: {}

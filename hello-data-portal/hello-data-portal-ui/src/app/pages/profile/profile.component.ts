@@ -41,7 +41,7 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 export class ProfileComponent {
   userDetails$: Observable<any>;
   userContextRoles$: Observable<any[]>;
-  selectedLanguage$: Observable<string | null>;
+  selectedLanguage$: Observable<any>;
   protected readonly BUSINESS_DOMAIN_CONTEXT_TYPE = BUSINESS_DOMAIN_CONTEXT_TYPE;
   protected readonly DATA_DOMAIN_CONTEXT_TYPE = DATA_DOMAIN_CONTEXT_TYPE;
 
