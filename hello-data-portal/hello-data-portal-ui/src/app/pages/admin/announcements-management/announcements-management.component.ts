@@ -87,7 +87,7 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
     return deleteAnnouncement();
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: string): string | undefined {
-    return announcement?.messages?.[selectedLanguage];
+  getMessage(announcement: Announcement, selectedLanguage: any): string | undefined {
+    return announcement?.messages?.[selectedLanguage.code];
   }
 }

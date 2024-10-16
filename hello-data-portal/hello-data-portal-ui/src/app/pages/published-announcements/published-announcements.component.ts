@@ -26,8 +26,8 @@ export class PublishedAnnouncementsComponent implements OnInit {
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: string): string | undefined {
-    return announcement?.messages?.[selectedLanguage];
+  getMessage(announcement: Announcement, selectedLanguage: any): string | undefined {
+    return announcement?.messages?.[selectedLanguage.code];
   }
 
   ngOnInit(): void {

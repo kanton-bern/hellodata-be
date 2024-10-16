@@ -46,13 +46,14 @@ import {take} from "rxjs/operators";
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   documentationForm!: FormGroup;
-  documentation$: Observable<any>;
+  initForm$: Observable<any>;
+  selectedLanguage$: Observable<any>;
   supportedLanguages$: Observable<string[]>;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
     this.store.dispatch(loadDocumentation());
-    this.documentation$ = combineLatest([
+    this.initForm$ = combineLatest([
       this.store.select(selectDocumentation),
       this.store.select(selectSupportedLanguages).pipe(take(1))
     ]).pipe(
@@ -73,8 +74,11 @@ export class DocumentationManagementComponent extends BaseComponent implements O
           languages: this.fb.group(languageAnnouncementFormGroups),
         });
       }),
-      map(([doc]) => doc)
+      map(([doc, supportedLanguages]) => {
+        return  {doc: doc, langs: supportedLanguages};
+      })
     );
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
     this.createBreadcrumbs();
   }
