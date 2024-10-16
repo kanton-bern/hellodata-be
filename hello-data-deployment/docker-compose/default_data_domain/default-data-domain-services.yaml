@@ -56,8 +56,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
-    volumes:
-      - ./pythonpath_dev:/app/docker/pythonpath_dev
 
   superset-init-default-data-domain:
     platform: ${HD_PLATFORM}
