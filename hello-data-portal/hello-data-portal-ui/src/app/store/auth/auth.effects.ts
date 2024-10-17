@@ -245,8 +245,6 @@ export class AuthEffects {
       tap(([_, selectedLanguage])  => {
         if (selectedLanguage) {
           this._translateService.setActiveLang(selectedLanguage.code as string);
-        } else {
-          this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
         }
       }),
       switchMap(() => {
