@@ -25,7 +25,7 @@ So why would you need a HelloDATA BE? It's simple. You want the best of both wor
 
 But let's be honest for a second if we use the latest shiny thing from open source. There are a lot of bugs, missing features, and independent tools. That's precisely where HelloDATA BE comes into play. We are building the **missing platform** that combines the best-of-breed open-source technologies into a **single portal**, making it enterprise-ready by adding features you typically won't get in an open-source product. Or we fix bugs that were encountered during our extensive tests.
 
-Sounds too good to be true? Give it a try. Do you want to knot the best thing? It's open-source as well. Check out our [GitHub HelloDATA BE](https://github.com/kanton-bern/hellodata-be).
+Sounds too good to be true? Give it a try. Do you want to know the best thing? It's open-source as well. Check out our [GitHub HelloDATA BE](https://github.com/kanton-bern/hellodata-be).
 
 
 ## Quick Start for Developers
@@ -38,5 +38,3 @@ docker-compose up -d
 ```
 
 **Note:** Please refer to our [docker-compose README](https://github.com/kanton-bern/hellodata-be/tree/main/hello-data-deployment/docker-compose/README.md) for more information; there are some must presets you need to configure.
-
-TEST
