@@ -53,8 +53,9 @@ import {loadDocumentation, loadPipelines, loadStorageSize} from "../summary/summ
 import {TranslateService} from "../../shared/services/translate.service";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {selectProfile} from "./auth.selector";
+import {selectProfile, selectSelectedLanguage} from "./auth.selector";
 import {CloudbeaverService} from "./cloudbeaver.service";
+import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 
 @Injectable()
 export class AuthEffects {
@@ -156,9 +157,15 @@ export class AuthEffects {
   fetchPermissionSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(fetchPermissionSuccess),
-      switchMap((action) => {
+      withLatestFrom(this._store.select(selectSelectedLanguage)),
+      switchMap(([action, selectedLanguage]) => {
+        console.log('fetch permission success', action, selectedLanguage)
         if (action.currentUserAuthData.selectedLanguage) {
           this._translateService.setActiveLang(action.currentUserAuthData.selectedLanguage);
+        } else if (selectedLanguage){
+          this._translateService.setActiveLang(selectedLanguage.code as string);
+        } else {
+          this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
         }
         const defaultLanguage = this._translateService.getDefaultLanguage();
         const availableLangs = this._translateService.getAvailableLangs();

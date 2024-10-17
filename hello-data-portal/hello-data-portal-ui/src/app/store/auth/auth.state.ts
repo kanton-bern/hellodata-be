@@ -61,6 +61,6 @@ export const initialAuthState: AuthState = {
   userDisabled: false,
   supportedLanguages: [],
   selectedLanguage: null,
-  defaultLanguage: null
+  defaultLanguage: 'de_CH'
 }
 
