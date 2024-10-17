@@ -38,7 +38,7 @@ import {
   fetchPermissionSuccess,
   login,
   loginComplete,
-  logout,
+  logout, setActiveTranslocoLanguage,
   setAvailableLanguages,
   setDefaultLanguage,
   setSelectedLanguage
@@ -157,15 +157,7 @@ export class AuthEffects {
   fetchPermissionSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(fetchPermissionSuccess),
-      withLatestFrom(this._store.select(selectSelectedLanguage)),
-      switchMap(([action, selectedLanguage]) => {
-        if (action.currentUserAuthData.selectedLanguage) {
-          this._translateService.setActiveLang(action.currentUserAuthData.selectedLanguage);
-        } else if (selectedLanguage){
-          this._translateService.setActiveLang(selectedLanguage.code as string);
-        } else {
-          this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
-        }
+      switchMap((action) => {
         const defaultLanguage = this._translateService.getDefaultLanguage();
         const availableLangs = this._translateService.getAvailableLangs();
         const permissions = action.currentUserAuthData.permissions;
@@ -225,6 +217,37 @@ export class AuthEffects {
             return this._cloudbeaverService.updateUserPreferences(action.lang);
           })
         );
+      }),
+      switchMap(() => {
+        return EMPTY;
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  setAvailableLanguages$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setAvailableLanguages),
+      switchMap(() => {
+        return of(setActiveTranslocoLanguage());
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+
+  setActiveTranslocoLanguage$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setActiveTranslocoLanguage),
+      withLatestFrom(
+        this._store.select(selectSelectedLanguage)
+      ),
+      tap(([_, selectedLanguage])  => {
+        if (selectedLanguage) {
+          this._translateService.setActiveLang(selectedLanguage.code as string);
+        } else {
+          this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
+        }
       }),
       switchMap(() => {
         return EMPTY;
