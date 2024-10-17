@@ -34,3 +34,11 @@ stop:
 
 #start components for local FE or BE implementation:
 start-local-impl: start-portal start-dbt-docs start-cloudbeaver start-default-dd start-airflow
+
+CONTAINER ?=
+
+start:
+	docker-compose up -d $(CONTAINER)
+
+stop:
+	docker-compose stop $(CONTAINER)
