@@ -91,7 +91,7 @@ public class FaqService {
         }
         //FIXME temporary workaround for existing, old non-i18n faq entities
         //@Deprecated(forRemoval = true)
-        Locale oldDefault = Locale.forLanguageTag("de_CH");
+        Locale oldDefault = Locale.forLanguageTag("de-CH");
         if (!faqDto.getMessages().containsKey(oldDefault)) {
             FaqMessage faqMessage = new FaqMessage();
             faqMessage.setMessage(entity.getMessage());

@@ -59,7 +59,7 @@ public class DocumentationService {
             //@Deprecated(forRemoval = true)
             if (documentationDto.getTexts() == null || documentationDto.getTexts().isEmpty()) {
                 documentationDto.setTexts(new HashMap<>());
-                Locale oldDefault = Locale.forLanguageTag("de_CH");
+                Locale oldDefault = Locale.forLanguageTag("de-CH");
                 documentationDto.getTexts().put(oldDefault, entity.getText());
             }
             return documentationDto;

@@ -87,7 +87,7 @@ export const selectSelectedLanguage = createSelector(
     if (!state.selectedLanguage) {
       let browserLanguage = navigator.language.replace('-', '_');
       if (browserLanguage.startsWith('en')) {
-        browserLanguage = 'en';
+        return {code: 'en', typeTranslationKey: '@Browser default language'};
       }
       if (state.supportedLanguages.includes(browserLanguage)) {
         return {code: browserLanguage, typeTranslationKey: '@Browser default language'};

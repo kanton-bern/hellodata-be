@@ -82,10 +82,10 @@ export class FaqListComponent extends BaseComponent implements OnInit {
   }
 
   getTitle(faq: Faq, selectedLanguage: any): string | undefined {
-    return faq?.messages?.[selectedLanguage.code].title;
+    return faq?.messages?.[selectedLanguage.code]?.title;
   }
 
   getMessage(faq: Faq, selectedLanguage: any): string | undefined {
-    return faq?.messages?.[selectedLanguage.code].message;
+    return faq?.messages?.[selectedLanguage.code]?.message;
   }
 }

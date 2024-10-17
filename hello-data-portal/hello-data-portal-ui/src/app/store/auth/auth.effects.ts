@@ -159,7 +159,6 @@ export class AuthEffects {
       ofType(fetchPermissionSuccess),
       withLatestFrom(this._store.select(selectSelectedLanguage)),
       switchMap(([action, selectedLanguage]) => {
-        console.log('fetch permission success', action, selectedLanguage)
         if (action.currentUserAuthData.selectedLanguage) {
           this._translateService.setActiveLang(action.currentUserAuthData.selectedLanguage);
         } else if (selectedLanguage){
