@@ -4,7 +4,7 @@
 
 It's the demo cases of HD-BE, it's importing animal data from an external source and loading them with Airflow, modeled with dbt, and visualized in Superset.
 
-It hopefully will show you how the platform works and it comes pre-installed with the [docker-compose](../../../hello-data-deployment/docker-compose/README.md) installation.
+It hopefully will show you how the platform works and it comes pre-installed with the [docker-compose](https://github.com/kanton-bern/hellodata-be/tree/develop/hello-data-deployment/docker-compose) installation.
 
 ## How can I get started and explore it?
 

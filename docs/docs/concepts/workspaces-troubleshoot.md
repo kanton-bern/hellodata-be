@@ -1,4 +1,4 @@
-# Troubleshooting
+# Workspace Troubleshooting
 
 ## Kubernetes
 

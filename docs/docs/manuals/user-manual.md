@@ -4,12 +4,12 @@
 
 This use manual should enable you to use the HelloDATA platform and illustrate the features of the product and how to use them.
 
-→ More about the Platform and its architecture you can find on [Architecture & Concepts](/architecture/architecture/).
+→ More about the Platform and its architecture you can find on [Architecture & Concepts](../architecture/architecture.md).
 
 ## Navigation
 
 ### Portal
-The entry page of HelloDATA is the [Web Portal](/architecture/data-stack/#control-pane-portal).
+The entry page of HelloDATA is the [Web Portal](../architecture/data-stack.md#control-pane-portal).
 
 1. Navigation to jump to the different capabilities of HelloDATA
 2. Extended status information about
@@ -21,7 +21,7 @@ The entry page of HelloDATA is the [Web Portal](/architecture/data-stack/#contro
 ![](../images/1068204566.png)
 
 #### Business & Data Domain
-As explained in [Domain View](../architecture/architecture.md#Domain%20View), a key feature is to create business domains with n-data domains. If you have access to more than one data domain, you can switch between them by clicking the `drop-down` at the top and switch between them.
+As explained in [Domain View](../architecture/architecture.md#domain-view), a key feature is to create business domains with n-data domains. If you have access to more than one data domain, you can switch between them by clicking the `drop-down` at the top and switch between them.
 
 ![](../images/Pasted%20image%2020231130145958.png)
 

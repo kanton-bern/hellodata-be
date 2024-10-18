@@ -308,5 +308,5 @@ I hope this has illustrated how to create your own workspace. Otherwise let us k
 
 ## Troubleshooting
 
-If you enconter errors, we collect them in [Troubleshooting](workspaces-troubleshoot.md).
+If you enconter errors, we collect them in [Troubleshooting](../concepts/workspaces-troubleshoot.md).
 
