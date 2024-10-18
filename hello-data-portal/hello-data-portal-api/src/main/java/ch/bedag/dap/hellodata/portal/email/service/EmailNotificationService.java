@@ -32,7 +32,6 @@ import ch.bedag.dap.hellodata.portal.email.model.EmailTemplate;
 import ch.bedag.dap.hellodata.portal.email.model.EmailTemplateData;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
-import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -40,6 +39,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.*;
 
@@ -50,39 +50,38 @@ public class EmailNotificationService {
 
     private final EmailSendService emailSendService;
     private final HelloDataContextConfig helloDataContextConfig;
-    private final UserService userService;
 
     public void notifyAboutUserCreation(String createdUserFirstName, String createdUserEmail, UpdateContextRolesForUserDto updateContextRolesForUserDto,
-                                        List<UserContextRoleDto> adminContextRolesAddedToUser) {
+                                        List<UserContextRoleDto> adminContextRolesAddedToUser, Locale locale) {
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACCOUNT_CREATED);
         fillRolesInformation(updateContextRolesForUserDto, adminContextRolesAddedToUser, emailTemplateData);
-        fillCommonParamsAndSend(createdUserFirstName, createdUserEmail, emailTemplateData);
+        fillCommonParamsAndSend(createdUserFirstName, createdUserEmail, emailTemplateData, locale);
     }
 
-    public void notifyAboutUserActivation(String activatedUserFirstName, String createdUserEmail) {
+    public void notifyAboutUserActivation(String activatedUserFirstName, String createdUserEmail, Locale locale) {
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACTIVATED);
-        fillCommonParamsAndSend(activatedUserFirstName, createdUserEmail, emailTemplateData);
+        fillCommonParamsAndSend(activatedUserFirstName, createdUserEmail, emailTemplateData, locale);
     }
 
-    public void notifyAboutUserDeactivation(String deactivatedUserFirstName, String createdUserEmail) {
+    public void notifyAboutUserDeactivation(String deactivatedUserFirstName, String createdUserEmail, Locale locale) {
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_DEACTIVATED);
-        fillCommonParamsAndSend(deactivatedUserFirstName, createdUserEmail, emailTemplateData);
+        fillCommonParamsAndSend(deactivatedUserFirstName, createdUserEmail, emailTemplateData, locale);
     }
 
     public void notifyAboutUserRoleChanged(String editedUserFirstName, String editedUserEmail, UpdateContextRolesForUserDto updateContextRolesForUserDto,
-                                           List<UserContextRoleDto> adminContextRolesAddedToUser) {
+                                           List<UserContextRoleDto> adminContextRolesAddedToUser, Locale locale) {
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ROLE_CHANGED);
         fillRolesInformation(updateContextRolesForUserDto, adminContextRolesAddedToUser, emailTemplateData);
-        fillCommonParamsAndSend(editedUserFirstName, editedUserEmail, emailTemplateData);
+        fillCommonParamsAndSend(editedUserFirstName, editedUserEmail, emailTemplateData, locale);
     }
 
-    private void fillCommonParamsAndSend(String editedUserFirstName, String createdUserEmail, EmailTemplateData emailTemplateData) {
+    private void fillCommonParamsAndSend(String editedUserFirstName, String createdUserEmail, EmailTemplateData emailTemplateData, Locale locale) {
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, editedUserFirstName);
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, SecurityUtils.getCurrentUserFullName());
         emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
         emailTemplateData.getReceivers().add(createdUserEmail);
-        emailTemplateData.setLocale(userService.getSelectedLanguageByEmail(createdUserEmail));
+        emailTemplateData.setLocale(locale);
         emailSendService.sendEmailFromTemplate(emailTemplateData);
     }
 

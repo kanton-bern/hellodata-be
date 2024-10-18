@@ -278,7 +278,7 @@ public class UserService {
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
-        emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail());
+        emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail(), getSelectedLanguageByEmail(representation.getEmail()));
     }
 
     @Transactional
@@ -294,7 +294,7 @@ public class UserService {
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
         UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
         synchronizeContextRolesWithSubsystems(userEntity);
-        emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail());
+        emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail(), userEntity.getSelectedLanguage());
     }
 
     @Transactional(readOnly = true)
@@ -381,11 +381,11 @@ public class UserService {
         UserRepresentation representation = getUserRepresentation(userId.toString());
         List<UserContextRoleDto> adminContextRoles = getAdminContextRoles(userEntity);
         if (!userEntity.isCreationEmailSent()) {
-            emailNotificationService.notifyAboutUserCreation(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles);
+            emailNotificationService.notifyAboutUserCreation(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
             userEntity.setCreationEmailSent(true);
             userRepository.save(userEntity);
         } else {
-            emailNotificationService.notifyAboutUserRoleChanged(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles);
+            emailNotificationService.notifyAboutUserRoleChanged(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
         }
     }
 
