@@ -32,17 +32,16 @@ import ch.bedag.dap.hellodata.portal.email.model.EmailTemplate;
 import ch.bedag.dap.hellodata.portal.email.model.EmailTemplateData;
 import ch.bedag.dap.hellodata.portal.user.data.UpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
+import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.AFFECTED_USER_FIRST_NAME_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.BUSINESS_DOMAIN_NAME_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.BUSINESS_DOMAIN_ROLE_NAME_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.DATA_DOMAIN_ROLES_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.*;
 
 @Service
 @Log4j2
@@ -51,6 +50,7 @@ public class EmailNotificationService {
 
     private final EmailSendService emailSendService;
     private final HelloDataContextConfig helloDataContextConfig;
+    private final UserService userService;
 
     public void notifyAboutUserCreation(String createdUserFirstName, String createdUserEmail, UpdateContextRolesForUserDto updateContextRolesForUserDto,
                                         List<UserContextRoleDto> adminContextRolesAddedToUser) {
@@ -80,8 +80,9 @@ public class EmailNotificationService {
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, editedUserFirstName);
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, SecurityUtils.getCurrentUserFullName());
-        emailTemplateData.setSubjectParams(new Object[] { helloDataContextConfig.getBusinessContext().getName() });
+        emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
         emailTemplateData.getReceivers().add(createdUserEmail);
+        emailTemplateData.setLocale(userService.getSelectedLanguageByEmail(createdUserEmail));
         emailSendService.sendEmailFromTemplate(emailTemplateData);
     }
 
@@ -101,13 +102,13 @@ public class EmailNotificationService {
     @NotNull
     private List<UserContextRoleDto> filterOffDuplicates(UpdateContextRolesForUserDto updateContextRolesForUserDto, List<UserContextRoleDto> adminContextRolesAddedToUser) {
         return adminContextRolesAddedToUser.stream()
-                                           .filter(adminContextRole -> updateContextRolesForUserDto.getDataDomainRoles()
-                                                                                                   .stream()
-                                                                                                   .noneMatch(contextRoleForUser -> contextRoleForUser.getContext()
-                                                                                                                                                      .getContextKey()
-                                                                                                                                                      .equalsIgnoreCase(
-                                                                                                                                                              adminContextRole.getContext()
-                                                                                                                                                                              .getContextKey())))
-                                           .toList();
+                .filter(adminContextRole -> updateContextRolesForUserDto.getDataDomainRoles()
+                        .stream()
+                        .noneMatch(contextRoleForUser -> contextRoleForUser.getContext()
+                                .getContextKey()
+                                .equalsIgnoreCase(
+                                        adminContextRole.getContext()
+                                                .getContextKey())))
+                .toList();
     }
 }

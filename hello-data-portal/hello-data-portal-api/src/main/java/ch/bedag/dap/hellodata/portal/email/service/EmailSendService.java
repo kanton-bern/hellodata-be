@@ -32,13 +32,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ArrayUtils;
@@ -50,6 +43,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Service
 @Log4j2
@@ -97,9 +93,6 @@ class EmailSendService {
         email.setFrom(systemProperties.getNoReplyEmail());
         email.setTo(emailTemplateData.getReceivers().toArray(new String[0]));
         Locale locale = emailTemplateData.getLocale();
-        if (locale == null) {
-            locale = systemProperties.getDefaultLocale();
-        }
         String message = resourceBundleMessageSource.getMessage(emailTemplateData.getSubject(), emailTemplateData.getSubjectParams(), emailTemplateData.getSubject(), locale);
         email.setSubject(message);
         email.setText(templateService.getContent(emailTemplateData.getTemplate(), getTemplateModel(emailTemplateData), locale));

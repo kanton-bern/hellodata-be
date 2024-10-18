@@ -669,4 +669,9 @@ public class UserService {
         UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
         return userEntity.getSelectedLanguage();
     }
+
+    @Transactional(readOnly = true)
+    public Locale getSelectedLanguageByEmail(String email) {
+        return userRepository.findSelectedLanguageByEmail(email);
+    }
 }

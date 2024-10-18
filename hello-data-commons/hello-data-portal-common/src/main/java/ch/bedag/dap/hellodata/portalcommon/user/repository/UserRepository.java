@@ -28,19 +28,21 @@ package ch.bedag.dap.hellodata.portalcommon.user.repository;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import org.apache.catalina.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
     Optional<UserEntity> findUserEntityByEmailIgnoreCase(String email);
+
     Optional<UserEntity> findUserEntityByEmailIgnoreCaseAndUsernameIgnoreCase(String email, String username);
 
     /**
@@ -57,9 +59,12 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     boolean existsByIdOrAuthId(UUID id, String authId);
 
     @Query(nativeQuery = true,
-           value = "select u.* from user_ u join user_context_role r " + "on u.id = r.user_id and r.id in (" + "select ucr.id from user_context_role ucr " + "join role r " +
-                   "on ucr.role_id = r.id " + "where name = :#{#roleName?.name()})")
+            value = "select u.* from user_ u join user_context_role r " + "on u.id = r.user_id and r.id in (" + "select ucr.id from user_context_role ucr " + "join role r " +
+                    "on ucr.role_id = r.id " + "where name = :#{#roleName?.name()})")
     List<UserEntity> findUsersByHdRoleName(@Param("roleName") HdRoleName roleName);
 
     List<UserEntity> findAllByUsernameIsNull();
+
+    @Query("SELECT u.selectedLanguage FROM user_ u WHERE u.email = :email")
+    Locale findSelectedLanguageByEmail(@Param("email") String email);
 }

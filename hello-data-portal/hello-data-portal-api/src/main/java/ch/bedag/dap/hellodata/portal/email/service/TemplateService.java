@@ -26,22 +26,30 @@
  */
 package ch.bedag.dap.hellodata.portal.email.service;
 
-import java.util.Locale;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 
+import java.util.Locale;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 class TemplateService {
 
+    private final static String MULTILANGUAGE_TEMPLATE_PATH = "default";
     private final SpringTemplateEngine templateEngine;
 
     String getContent(String templateName, Map<String, Object> model, Locale locale) {
         Context context = new Context(locale, model);
-        String localizedTemplateName = locale.toString() + "/" + templateName;
+        String rootTemplateLangPath;
+        if (locale == null) {
+            rootTemplateLangPath = MULTILANGUAGE_TEMPLATE_PATH;
+        } else {
+            rootTemplateLangPath = locale.toString();
+        }
+        String localizedTemplateName = rootTemplateLangPath + "/" + templateName;
         return templateEngine.process(localizedTemplateName, context);
     }
 }
