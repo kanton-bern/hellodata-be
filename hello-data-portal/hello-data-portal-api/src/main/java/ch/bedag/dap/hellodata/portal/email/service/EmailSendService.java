@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.email.service;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.email.model.EmailTemplateData;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -37,7 +38,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -55,11 +56,18 @@ class EmailSendService {
 
     private final JavaMailSender javaMailSender;
     private final TemplateService templateService;
-    private final MessageSource resourceBundleMessageSource;
     private final SystemProperties systemProperties;
-
+    private ResourceBundleMessageSource resourceBundleMessageSource;
     @Value("${hello-data.auth-server.redirect-url}")
     private String redirectUrl;
+
+    @PostConstruct
+    public void init() {
+        this.resourceBundleMessageSource = new ResourceBundleMessageSource();
+        resourceBundleMessageSource.setBasename("i18n/messages");
+        resourceBundleMessageSource.setDefaultEncoding("UTF-8");
+        resourceBundleMessageSource.setFallbackToSystemLocale(false); // Avoid using system locale as default
+    }
 
     void sendEmailFromTemplate(EmailTemplateData templateData) {
         if (templateData.getReceivers().isEmpty()) {
