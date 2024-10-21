@@ -157,6 +157,10 @@ export const naviElements: any = {
     path: 'subsystem-users',
     label: '@Subsystem users'
   },
+  usersOverview: {
+    path: 'users-overview',
+    label: '@Users overview'
+  },
   logout: {
     path: 'logout'
   },

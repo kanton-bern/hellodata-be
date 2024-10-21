@@ -72,6 +72,7 @@ import {PublishedAnnouncementsComponent} from "./pages/published-announcements/p
 import {AdvancedAnalyticsViewerComponent} from "./pages/advanced-analytics/advanced-analytics-viewer.component";
 import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
 import {SubsystemUsersComponent} from "./pages/admin/subsystem-users/subsystem-users.component";
+import {UsersOverviewComponent} from "./pages/admin/users-overview/users-overview.component";
 
 const routes: Routes = [
 
@@ -154,6 +155,23 @@ const routes: Routes = [
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['USER_MANAGEMENT'],
+        }
+      }
+    ]
+  },
+  {
+    path: naviElements.usersOverview.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['USERS_OVERVIEW'],
+    },
+    children: [
+      {
+        path: '',
+        component: UsersOverviewComponent,
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['USERS_OVERVIEW'],
         }
       }
     ]
