@@ -59,6 +59,10 @@ export class UsersManagementService {
     return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users`);
   }
 
+  public getAllUsersWithRolesForDashboards(): Observable<SubsystemUsersResultDto[]> {
+    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-overview`);
+  }
+
   public getUserById(userId: string): Observable<User> {
     return this.httpClient.get<User>(`${this.baseUsersUrl}/${userId}`);
   }
@@ -128,6 +132,10 @@ export class UsersManagementService {
     return this.httpClient.get<any>(`${this.baseUsersUrl}/search/${email}`);
   }
 
+  public getAdminEmails(): Observable<string[]> {
+    return this.httpClient.get<string[]>(`${this.baseUsersUrl}/admin-emails`);
+  }
+
   private convertMapToJson(map: Map<any, any>): any {
     const converted: any = {};
 
@@ -136,9 +144,5 @@ export class UsersManagementService {
     });
 
     return converted;
-  }
-
-  public getAdminEmails(): Observable<string[]> {
-    return this.httpClient.get<string[]>(`${this.baseUsersUrl}/admin-emails`);
   }
 }

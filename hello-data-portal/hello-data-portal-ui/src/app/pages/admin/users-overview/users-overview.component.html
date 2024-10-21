@@ -1,1 +1,49 @@
-fancy table heree
+<pre class="hidden">{{ interval$ | async }}</pre>
+<h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
+<div *ngIf="(tableData$ | async) as tableData" class="card">
+  <div *ngIf="(columns$ | async) as columns">
+    <p-table #dt [columns]="columns" [value]="tableData">
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <div style="text-align: left">
+            <p-button
+              (onClick)="dt.exportCSV()"
+              icon="pi pi-external-link"
+              label="{{ '@Export' | transloco }}"/>
+          </div>
+          <div class="ml-auto">
+            <button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash" label="{{'@Clear' | transloco}}"
+                    pButton></button>
+            <span class="p-input-icon-left ml-auto">
+                  <i class="pi pi-search"></i>
+                  <input
+                    #filterInput
+                    (input)="dt.filterGlobal(applyFilter($event), 'contains')"
+                    pInputText
+                    placeholder="{{ '@Search' | transloco }}"
+                    type="text"/>
+              </span>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template let-columns pTemplate="header">
+        <tr>
+          <th *ngFor="let col of columns">{{ col.header }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template let-columns="columns" let-row pTemplate="body">
+        <tr>
+          <td *ngFor="let col of columns">
+            <ng-container *ngIf="shouldShowTag(row[col.field]); else singleValue">
+              <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"></p-tag>
+            </ng-container>
+            <ng-template #singleValue>
+              {{ row[col.field] }}
+            </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

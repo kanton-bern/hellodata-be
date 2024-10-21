@@ -32,6 +32,7 @@ import {
   loadAvailableContextRolesSuccess,
   loadAvailableContextsSuccess,
   loadDashboardsSuccess,
+  loadSubsystemUsersForDashboardsSuccess,
   loadSubsystemUsersSuccess,
   loadUserByIdSuccess,
   loadUserContextRolesSuccess,
@@ -72,6 +73,12 @@ export const usersManagementReducer = createReducer(
     return {
       ...state,
       subsystemUsers: payload
+    };
+  }),
+  on(loadSubsystemUsersForDashboardsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsersForDashboards: payload
     };
   }),
   on(showUserActionPopup, (state: UsersManagementState, {userActionForPopup}): UsersManagementState => {

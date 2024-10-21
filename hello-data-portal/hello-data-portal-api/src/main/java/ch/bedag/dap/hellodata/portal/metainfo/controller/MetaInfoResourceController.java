@@ -26,14 +26,18 @@
  */
 package ch.bedag.dap.hellodata.portal.metainfo.controller;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUserDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
+import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -46,8 +50,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static ch.bedag.dap.hellodata.commons.SlugifyUtil.*;
 import static ch.bedag.dap.hellodata.commons.security.Permission.USER_MANAGEMENT;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
 
@@ -58,6 +65,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind
 public class MetaInfoResourceController {
 
     private final MetaInfoResourceService metaInfoResourceService;
+    private final UserService userService;
 
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/filtered/by-app-info")
@@ -102,5 +110,52 @@ public class MetaInfoResourceController {
             result.add(new SubsystemUsersResultDto(usersPack.getInstanceName(), subsystemUserDtos));
         }
         return result;
+    }
+
+    /**
+     * Fetches users with roles for all subsystems
+     *
+     * @return list of resources
+     */
+    @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
+    @GetMapping(value = "/resources/users-overview")
+    public List<SubsystemUsersResultDto> getAllUsersWithRolesForDashboards() {
+        List<SubsystemUsersResultDto> result = new ArrayList<>();
+        List<AppInfoResource> supersetAppInfos = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_APP_INFO, AppInfoResource.class);
+        Set<String> supersetsNames = supersetAppInfos.stream().map(superset -> superset.getInstanceName()).collect(Collectors.toSet());
+        List<UserDto> allPortalUsers = userService.getAllUsers();
+        List<String> allPortalUsersEmails = allPortalUsers.stream().map(u -> u.getEmail()).toList();
+        List<MetaInfoResourceEntity> userPacksForSubsystems = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS).stream().filter(uPack -> supersetsNames.contains(uPack.getInstanceName())).toList();
+        for (MetaInfoResourceEntity usersPack : userPacksForSubsystems) {
+            List<SubsystemUser> subsystemUsers = ((List<SubsystemUser>) usersPack.getMetainfo().getData()).stream().filter(u -> allPortalUsersEmails.contains(u.getEmail())).toList();
+            List<SubsystemUserDto> subsystemUserDtos = new ArrayList<>(subsystemUsers.size());
+            for (SubsystemUser subsystemUser : subsystemUsers) {
+                addUser(usersPack, subsystemUser, allPortalUsers, subsystemUserDtos);
+            }
+            result.add(new SubsystemUsersResultDto(usersPack.getInstanceName(), subsystemUserDtos));
+        }
+
+        return result;
+    }
+
+    private void addUser(MetaInfoResourceEntity usersPack, SubsystemUser u, List<UserDto> allPortalUsers, List<SubsystemUserDto> subsystemUserDtos) {
+        Optional<UserDto> portalUser = allPortalUsers.stream().filter(usr -> u.getEmail().equalsIgnoreCase(u.getEmail())).findFirst();
+        if (portalUser.isPresent()) {
+            List<String> roles = u.getRoles().stream().map(r -> r.getName()).filter(r -> complies(r)).sorted().toList();
+            SubsystemUserDto subsystemUserDto = new SubsystemUserDto(
+                    u.getFirstName(),
+                    u.getLastName(),
+                    u.getEmail(),
+                    u.getUsername(),
+                    roles,
+                    usersPack.getInstanceName()
+            );
+            subsystemUserDtos.add(subsystemUserDto);
+
+        }
+    }
+
+    private boolean complies(String r) {
+        return r.startsWith(DASHBOARD_ROLE_PREFIX) || r.equalsIgnoreCase(BI_ADMIN_ROLE_NAME) || r.equalsIgnoreCase(BI_VIEWER_ROLE_NAME) || r.equalsIgnoreCase(BI_EDITOR_ROLE_NAME);
     }
 }

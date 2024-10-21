@@ -40,6 +40,8 @@ export enum UsersManagementActionType {
   LOAD_USERS_SUCCESS = '[USERS MANAGEMENT] Load Users SUCCESS',
   LOAD_SUBSYSTEM_USERS = '[USERS MANAGEMENT] Load Subsystem Users',
   LOAD_SUBSYSTEM_USERS_SUCCESS = '[USERS MANAGEMENT] Load Subsystem Users SUCCESS',
+  LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS = '[USERS MANAGEMENT] Load Subsystem Users for dashboards',
+  LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS_SUCCESS = '[USERS MANAGEMENT] Load Subsystem Users for dashboards SUCCESS',
   SHOW_USER_ACTION_POP_UP = '[USERS MANAGEMENT] Show user action pop up',
   HIDE_USER_ACTION_POP_UP = '[USERS MANAGEMENT] Hide user action pop up',
   INVOKE_ACTION_FROM_USER_POPUP = '[USERS MANAGEMENT] Invoke User popup action',
@@ -212,5 +214,14 @@ export const loadSubsystemUsers = createAction(
 
 export const loadSubsystemUsersSuccess = createAction(
   UsersManagementActionType.LOAD_SUBSYSTEM_USERS_SUCCESS,
+  props<{ payload: SubsystemUsersResultDto[] }>()
+);
+
+export const loadSubsystemUsersForDashboards = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS
+);
+
+export const loadSubsystemUsersForDashboardsSuccess = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS_SUCCESS,
   props<{ payload: SubsystemUsersResultDto[] }>()
 );

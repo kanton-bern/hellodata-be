@@ -50,6 +50,7 @@ export interface UsersManagementState {
   adminEmails: string[];
   userSaveButtonDisabled: boolean;
   subsystemUsers: SubsystemUsersResultDto[]
+  subsystemUsersForDashboards: SubsystemUsersResultDto[]
 }
 
 export const initialUsersManagementState: UsersManagementState = {
@@ -67,5 +68,6 @@ export const initialUsersManagementState: UsersManagementState = {
   selectedDashboardsForUser: [],
   adminEmails: [],
   userSaveButtonDisabled: false,
-  subsystemUsers: []
+  subsystemUsers: [],
+  subsystemUsersForDashboards: []
 }
