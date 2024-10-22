@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.metainfo.controller;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
+import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
@@ -96,7 +97,7 @@ public class MetaInfoResourceController {
      */
     @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
     @GetMapping(value = "/resources/users-dashboards-overview")
-    public List<SubsystemUsersResultDto> getAllUsersWithRolesForDashboards() {
+    public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
         return metaInfoUsersService.getAllUsersWithRolesForDashboards();
     }
 

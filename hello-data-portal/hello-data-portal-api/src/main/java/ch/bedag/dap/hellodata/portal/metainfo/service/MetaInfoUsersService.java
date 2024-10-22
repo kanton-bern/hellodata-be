@@ -1,6 +1,8 @@
 package ch.bedag.dap.hellodata.portal.metainfo.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
@@ -9,17 +11,20 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.RoleToDashboardName;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUserDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ch.bedag.dap.hellodata.commons.SlugifyUtil.*;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
@@ -30,6 +35,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind
 public class MetaInfoUsersService {
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
+    private final HdContextRepository contextRepository;
 
 
     @Transactional(readOnly = true)
@@ -41,7 +47,8 @@ public class MetaInfoUsersService {
             List<SubsystemUserDto> subsystemUserDtos = new ArrayList<>(subsystemUsers.size());
             for (SubsystemUser u : subsystemUsers) {
                 SubsystemUserDto subsystemUserDto = new SubsystemUserDto(
-                        u.getFirstName(), u.getLastName(), u.getEmail(), u.getUsername(), u.getRoles().stream().map(r -> r.getName()).toList(), usersPack.getInstanceName()
+                        u.getFirstName(), u.getLastName(), u.getEmail(), u.getUsername(),
+                        u.getRoles().stream().map(r -> r.getName()).toList(), usersPack.getInstanceName()
                 );
                 subsystemUserDtos.add(subsystemUserDto);
             }
@@ -51,13 +58,14 @@ public class MetaInfoUsersService {
     }
 
     @Transactional(readOnly = true)
-    public List<SubsystemUsersResultDto> getAllUsersWithRolesForDashboards() {
-        List<SubsystemUsersResultDto> result = new ArrayList<>();
+    public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
+        List<DashboardUsersResultDto> result = new ArrayList<>();
         List<AppInfoResource> supersetAppInfos = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_APP_INFO, AppInfoResource.class);
         List<DashboardResource> supersetDashboards = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_DASHBOARDS, DashboardResource.class);
 
         Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName = new HashMap<>();
-        Map<String, List<SupersetDashboard>> instanceNamesToSupersetDashboards = supersetDashboards.stream().collect(Collectors.toMap(DashboardResource::getInstanceName, DashboardResource::getData));
+        Map<String, List<SupersetDashboard>> instanceNamesToSupersetDashboards = supersetDashboards.stream()
+                .collect(Collectors.toMap(DashboardResource::getInstanceName, DashboardResource::getData));
         for (Map.Entry<String, List<SupersetDashboard>> entry : instanceNamesToSupersetDashboards.entrySet()) {
             String instanceName = entry.getKey();
             List<RoleToDashboardName> roleToDashboardNameList = new LinkedList<>();
@@ -71,29 +79,46 @@ public class MetaInfoUsersService {
             roleNameToDashboardNamesPerInstanceName.put(instanceName, roleToDashboardNameList);
         }
 
-
+        Map<String, String> contextKeyToNameMap = contextRepository.findAll().stream().collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName));
         Set<String> supersetsNames = supersetAppInfos.stream().map(superset -> superset.getInstanceName()).collect(Collectors.toSet());
         List<UserDto> allPortalUsers = userService.getAllUsers();
         List<String> allPortalUsersEmails = allPortalUsers.stream().map(u -> u.getEmail()).toList();
-        List<MetaInfoResourceEntity> userPacksForSubsystems = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS).stream().filter(uPack -> supersetsNames.contains(uPack.getInstanceName())).toList();
+        List<MetaInfoResourceEntity> userPacksForSubsystems = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS)
+                .stream().filter(uPack -> supersetsNames.contains(uPack.getInstanceName())).toList();
         for (MetaInfoResourceEntity usersPack : userPacksForSubsystems) {
             List<SubsystemUser> subsystemUsers = ((List<SubsystemUser>) usersPack.getMetainfo().getData()).stream().filter(u -> allPortalUsersEmails.contains(u.getEmail())).toList();
             List<SubsystemUserDto> subsystemUserDtos = new ArrayList<>(subsystemUsers.size());
             for (SubsystemUser subsystemUser : subsystemUsers) {
-                SubsystemUserDto user = createUser(usersPack, subsystemUser, allPortalUsers, roleNameToDashboardNamesPerInstanceName);
+                SubsystemUserDto user = generateUserDto(usersPack, subsystemUser, allPortalUsers, roleNameToDashboardNamesPerInstanceName);
                 subsystemUserDtos.add(user);
             }
-            result.add(new SubsystemUsersResultDto(usersPack.getInstanceName(), subsystemUserDtos));
+            result.add(new DashboardUsersResultDto(contextKeyToNameMap.get(usersPack.getContextKey()), usersPack.getInstanceName(), subsystemUserDtos));
         }
         return result;
     }
 
-    private SubsystemUserDto createUser(MetaInfoResourceEntity usersPack, SubsystemUser subsystemUser, List<UserDto> allPortalUsers, Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName) {
+    private SubsystemUserDto generateUserDto(MetaInfoResourceEntity usersPack, SubsystemUser subsystemUser, List<UserDto> allPortalUsers,
+                                             Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName) {
         String usersInstanceName = usersPack.getInstanceName();
         List<RoleToDashboardName> roleToDashboardNameList = roleNameToDashboardNamesPerInstanceName.get(usersInstanceName);
         Optional<UserDto> portalUser = allPortalUsers.stream().filter(usr -> usr.getEmail().equalsIgnoreCase(subsystemUser.getEmail())).findFirst();
         if (portalUser.isPresent()) {
-            List<String> roles = subsystemUser.getRoles().stream().map(r -> r.getName()).filter(r -> complies(r)).sorted().map(r -> mapRoleNameToDashboardName(r, roleToDashboardNameList)).toList();
+            List<String> roles;
+            if (CollectionUtils.containsAny(subsystemUser.getRoles().stream().map(SupersetRole::getName).toList(), ADMIN_ROLE_NAME, BI_ADMIN_ROLE_NAME, BI_EDITOR_ROLE_NAME)) {
+                // concat user roles and dashboard roles as these users have access to all dashboards in instance
+                roles = Stream.concat(roleNameToDashboardNamesPerInstanceName.get(usersInstanceName).stream().map(r -> r.roleName()), subsystemUser.getRoles().stream().map(r -> r.getName()))
+                        .filter(r -> complies(r))
+                        .sorted()
+                        .map(r -> mapRoleNameToDashboardName(r, roleToDashboardNameList))
+                        .toList();
+            } else {
+                roles = subsystemUser.getRoles().stream()
+                        .map(r -> r.getName())
+                        .filter(r -> complies(r))
+                        .sorted()
+                        .map(r -> mapRoleNameToDashboardName(r, roleToDashboardNameList))
+                        .toList();
+            }
             return new SubsystemUserDto(
                     subsystemUser.getFirstName(),
                     subsystemUser.getLastName(),
@@ -115,6 +140,10 @@ public class MetaInfoUsersService {
     }
 
     private boolean complies(String r) {
-        return r.startsWith(DASHBOARD_ROLE_PREFIX) || r.equalsIgnoreCase(BI_ADMIN_ROLE_NAME) || r.equalsIgnoreCase(BI_VIEWER_ROLE_NAME) || r.equalsIgnoreCase(BI_EDITOR_ROLE_NAME);
+        return r.equalsIgnoreCase(ADMIN_ROLE_NAME) ||
+                r.startsWith(DASHBOARD_ROLE_PREFIX) ||
+                r.equalsIgnoreCase(BI_ADMIN_ROLE_NAME) ||
+                r.equalsIgnoreCase(BI_VIEWER_ROLE_NAME) ||
+                r.equalsIgnoreCase(BI_EDITOR_ROLE_NAME);
     }
 }

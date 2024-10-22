@@ -37,7 +37,8 @@
         <tr>
           <td *ngFor="let col of columns">
             <ng-container *ngIf="shouldShowTag(row[col.field]); else singleValue">
-              <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"></p-tag>
+              <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"
+                     severity="{{getTagSeverity(value)}}"></p-tag>
             </ng-container>
             <ng-template #singleValue>
               {{ row[col.field] }}

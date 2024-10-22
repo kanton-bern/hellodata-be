@@ -28,6 +28,7 @@
 import {
   ContextDashboardsForUser,
   DashboardForUser,
+  DashboardUsersResultDto,
   SubsystemUsersResultDto,
   User,
   UserActionForPopup
@@ -50,7 +51,7 @@ export interface UsersManagementState {
   adminEmails: string[];
   userSaveButtonDisabled: boolean;
   subsystemUsers: SubsystemUsersResultDto[]
-  subsystemUsersForDashboards: SubsystemUsersResultDto[]
+  subsystemUsersForDashboards: DashboardUsersResultDto[]
 }
 
 export const initialUsersManagementState: UsersManagementState = {

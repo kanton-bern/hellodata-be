@@ -35,6 +35,7 @@ import {
   CreateUserResponse,
   DashboardForUser,
   DashboardResponse,
+  DashboardUsersResultDto,
   SubsystemUsersResultDto,
   User
 } from "./users-management.model";
@@ -59,8 +60,8 @@ export class UsersManagementService {
     return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users`);
   }
 
-  public getAllUsersWithRolesForDashboards(): Observable<SubsystemUsersResultDto[]> {
-    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview`);
+  public getAllUsersWithRolesForDashboards(): Observable<DashboardUsersResultDto[]> {
+    return this.httpClient.get<DashboardUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview`);
   }
 
   public getUserById(userId: string): Observable<User> {

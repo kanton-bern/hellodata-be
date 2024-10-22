@@ -29,6 +29,7 @@ import {createAction, props} from "@ngrx/store";
 import {
   CreateUserForm,
   DashboardForUser,
+  DashboardUsersResultDto,
   SubsystemUsersResultDto,
   User,
   UserActionForPopup
@@ -223,5 +224,5 @@ export const loadSubsystemUsersForDashboards = createAction(
 
 export const loadSubsystemUsersForDashboardsSuccess = createAction(
   UsersManagementActionType.LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS_SUCCESS,
-  props<{ payload: SubsystemUsersResultDto[] }>()
+  props<{ payload: DashboardUsersResultDto[] }>()
 );
