@@ -36,13 +36,14 @@ import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
@@ -56,11 +57,11 @@ public class OrchestrationService {
         if (currentUserId != null) {
             UserEntity userEntity = userRepository.getByIdOrAuthId(currentUserId.toString());
             List<String> contextKeysFromContextRoles = userEntity.getContextRoles()
-                                                                 .stream()
-                                                                 .filter(contextRole -> contextRole.getRole().getName() != HdRoleName.NONE)
-                                                                 .map(UserContextRoleEntity::getContextKey)
-                                                                 .toList();
-            log.info("Found {} context keys for user {}", contextKeysFromContextRoles, userEntity.getEmail());
+                    .stream()
+                    .filter(contextRole -> contextRole.getRole().getName() != HdRoleName.NONE)
+                    .map(UserContextRoleEntity::getContextKey)
+                    .toList();
+            log.debug("Found {} context keys for user {}", contextKeysFromContextRoles, userEntity.getEmail());
             List<PipelineResource> pipelines =
                     metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class);
             return filterByPath(pipelines, contextKeysFromContextRoles);
@@ -70,18 +71,18 @@ public class OrchestrationService {
 
     private List<PipelineDto> filterByPath(List<PipelineResource> pipelines, List<String> contextKeysFromContextRoles) {
         List<PipelineDto> result = pipelines.stream().flatMap((pipelineResource -> pipelineResource.getData().stream())).map(pipeline -> {
-            log.info("Checking pipeline {}", pipeline);
+            log.debug("Checking pipeline {}", pipeline);
             String contextKeyForDag = contextKeysFromContextRoles.stream()
-                                                                 .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
-                                                                 .findFirst()
-                                                                 .orElse(null);
-            log.info("Found context key for dag {}", contextKeyForDag);
+                    .filter(contextKey -> pipeline.getFileLocation().toLowerCase().contains("/" + contextKey.toLowerCase() + "/"))
+                    .findFirst()
+                    .orElse(null);
+            log.debug("Found context key for dag {}", contextKeyForDag);
             if (contextKeyForDag != null) {
                 return PipelineDto.fromPipeline(pipeline, contextKeyForDag);
             }
             return null;
         }).filter(Objects::nonNull).toList();
-        log.info("Filtered pipelines {}", result);
+        log.debug("Filtered pipelines {}", result);
         return result;
     }
 }
