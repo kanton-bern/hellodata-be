@@ -60,7 +60,7 @@ export class UsersManagementService {
   }
 
   public getAllUsersWithRolesForDashboards(): Observable<SubsystemUsersResultDto[]> {
-    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-overview`);
+    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview`);
   }
 
   public getUserById(userId: string): Observable<User> {
