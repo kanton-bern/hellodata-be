@@ -53,17 +53,41 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
-  private destroy$ = new Subject<void>();
   interval$ = interval(10000);
+  private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>) {
     super();
-    store.dispatch(loadRoleResources());
     store.dispatch(loadSubsystemUsers());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
     this.createInterval();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+  }
+
+  applyFilter(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
+  clear(table: Table, filterInput: HTMLInputElement): void {
+    table.clear();
+    filterInput.value = '';
+  }
+
+  shouldShowTag(value: string): boolean {
+    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
+      return true;
+    }
+    return false;
   }
 
   private createDynamicColumns(): Observable<any[]> {
@@ -118,31 +142,6 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
         this.store.dispatch(loadRoleResources());
         this.store.dispatch(loadSubsystemUsers());
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-  }
-
-  applyFilter(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
-  clear(table: Table, filterInput: HTMLInputElement): void {
-    table.clear();
-    filterInput.value = '';
-  }
-
-  shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
-      return true;
-    }
-    return false;
   }
 
 }

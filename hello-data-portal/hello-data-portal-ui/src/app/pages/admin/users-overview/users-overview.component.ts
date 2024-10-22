@@ -49,6 +49,7 @@ import {
 import {selectSubsystemUsersForDashboards} from "../../../store/users-management/users-management.selector";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../../shared/components/base/base.component";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 interface TableRow {
   email: string;
@@ -70,7 +71,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
 
   constructor(private store: Store<AppState>) {
     super();
-    store.dispatch(loadRoleResources());
     store.dispatch(loadSubsystemUsersForDashboards());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
@@ -170,6 +170,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     ButtonModule,
     ToolbarModule,
     RippleModule,
+    ProgressSpinnerModule,
   ],
   declarations: [
     UsersOverviewComponent
