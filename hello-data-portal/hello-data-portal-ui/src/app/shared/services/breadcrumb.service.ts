@@ -29,9 +29,10 @@ import {Injectable} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectBreadcrumbs} from "../../store/breadcrumb/breadcrumb.selector";
-import {map, Observable} from "rxjs";
+import {combineLatest, delay, map, Observable} from "rxjs";
 import {MenuItem} from "primeng/api";
 import {TranslateService} from "./translate.service";
+import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 
 @Injectable({
   providedIn: 'root'
@@ -42,16 +43,21 @@ export class BreadcrumbService {
   }
 
   getBreadCrumbs(): Observable<MenuItem[]> {
-    return this.store.select(selectBreadcrumbs).pipe(map(breadcrumbs => {
-      const translatedBreadCrumbs: MenuItem[] = []
-      breadcrumbs.forEach(breadcrumb => {
-        const labelTranslated = breadcrumb.label?.startsWith('@') ? this.translateService.translate(breadcrumb.label as string) : breadcrumb.label
-        translatedBreadCrumbs.push({
-          ...breadcrumb,
-          label: labelTranslated
-        });
-      })
-      return translatedBreadCrumbs;
-    }));
+    return combineLatest([
+      this.store.select(selectBreadcrumbs),
+      this.store.select(selectSelectedLanguage)
+    ]).pipe(
+      delay(100),
+      map(([breadcrumbs, _]) => {
+        const translatedBreadCrumbs: MenuItem[] = []
+        breadcrumbs.forEach(breadcrumb => {
+          const labelTranslated = breadcrumb.label?.startsWith('@') ? this.translateService.translate(breadcrumb.label as string) : breadcrumb.label
+          translatedBreadCrumbs.push({
+            ...breadcrumb,
+            label: labelTranslated
+          });
+        })
+        return translatedBreadCrumbs;
+      }));
   }
 }
