@@ -29,7 +29,7 @@ import {Component, NgModule, OnDestroy, OnInit} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {TranslocoModule} from "@ngneat/transloco";
 import {RouterLink} from "@angular/router";
-import {Table, TableModule} from "primeng/table";
+import {TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";
 import {TooltipModule} from "primeng/tooltip";
 import {InputTextModule} from "primeng/inputtext";
@@ -41,11 +41,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {combineLatest, interval, Observable, Subject, takeUntil} from "rxjs";
-import {loadRoleResources} from "../../../store/metainfo-resource/metainfo-resource.action";
-import {
-  loadSubsystemUsers,
-  loadSubsystemUsersForDashboards
-} from "../../../store/users-management/users-management.action";
+import {loadSubsystemUsersForDashboards} from "../../../store/users-management/users-management.action";
 import {selectSubsystemUsersForDashboards} from "../../../store/users-management/users-management.selector";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../../shared/components/base/base.component";
@@ -85,15 +81,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
 
   override ngOnInit(): void {
     super.ngOnInit();
-  }
-
-  applyFilter(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
-  clear(table: Table, filterInput: HTMLInputElement): void {
-    table.clear();
-    filterInput.value = '';
   }
 
   shouldShowTag(value: string): boolean {
@@ -171,8 +158,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.interval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.store.dispatch(loadRoleResources());
-        this.store.dispatch(loadSubsystemUsers());
+        this.store.dispatch(loadSubsystemUsersForDashboards());
       });
   }
 }

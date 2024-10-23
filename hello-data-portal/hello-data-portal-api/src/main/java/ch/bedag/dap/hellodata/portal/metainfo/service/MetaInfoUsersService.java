@@ -82,16 +82,17 @@ public class MetaInfoUsersService {
     @Transactional(readOnly = true)
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
         List<DashboardUsersResultDto> result = new ArrayList<>();
+
         List<AppInfoResource> supersetAppInfos = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_APP_INFO, AppInfoResource.class);
         List<DashboardResource> supersetDashboards = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_DASHBOARDS, DashboardResource.class);
         Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName = mapDashboardRoleWithDashboardNamePerInstance(supersetDashboards);
-        // for performance - map context key to context name
         Map<String, String> contextKeyToNameMap = contextRepository.findAll().stream().collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName));
         Set<String> supersetsNames = supersetAppInfos.stream().map(superset -> superset.getInstanceName()).collect(Collectors.toSet());
         List<UserDto> allPortalUsers = userService.getAllUsers();
         List<String> allPortalUsersEmails = allPortalUsers.stream().map(u -> u.getEmail()).toList();
         List<MetaInfoResourceEntity> userPacksForSubsystems = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS)
                 .stream().filter(uPack -> supersetsNames.contains(uPack.getInstanceName())).toList();
+
         for (MetaInfoResourceEntity usersPack : userPacksForSubsystems) {
             List<SubsystemUser> subsystemUsers = ((List<SubsystemUser>) usersPack.getMetainfo().getData()).stream().filter(u -> allPortalUsersEmails.contains(u.getEmail())).toList();
             List<SubsystemUserDto> subsystemUserDtos = new ArrayList<>(subsystemUsers.size());
