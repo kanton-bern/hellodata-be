@@ -1,5 +1,5 @@
 <pre class="hidden">{{ interval$ | async }}</pre>
-<h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
+<h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
 <div *ngIf="(tableData$ | async) as tableData" class="card">
   <div *ngIf="(columns$ | async) as columns">
     <p-table #dt [columns]="columns" [value]="tableData">
