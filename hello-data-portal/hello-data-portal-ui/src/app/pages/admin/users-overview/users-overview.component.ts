@@ -62,7 +62,7 @@ interface TableRow {
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
-  interval$ = interval(10000);
+  interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {

@@ -53,7 +53,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
-  interval$ = interval(10000);
+  interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>) {
