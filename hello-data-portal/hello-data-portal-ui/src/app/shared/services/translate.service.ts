@@ -84,5 +84,8 @@ export class TranslateService implements OnDestroy {
     if (this.loadSub) {
       this.loadSub.unsubscribe();
     }
+    if (this.eventSub) {
+      this.eventSub.unsubscribe();
+    }
   }
 }
