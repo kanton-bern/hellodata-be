@@ -64,7 +64,6 @@ interface TableRow {
   styleUrls: ['./users-overview.component.scss']
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
-  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   interval$ = interval(10000);
@@ -98,7 +97,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(UsersOverviewComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
+    if (value.includes(',') || !value.includes('@') && value !== '-') {
       return true;
     }
     return false;
@@ -110,6 +109,14 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
       return 'danger';
     }
     return value.trim().startsWith('BI_') ? '' : 'success';
+  }
+
+  translateValue(value: string): string {
+    if (value.startsWith('@')) {
+      return this.translateService.translate(value);
+    } else {
+      return value; // No translation needed
+    }
   }
 
   private createDynamicColumns(): Observable<any[]> {
@@ -141,7 +148,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : UsersOverviewComponent.NOT_FOUND_IN_INSTANCE_TEXT;
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : '@No permissions';
           });
         });
 

@@ -22,7 +22,8 @@
             <p-columnFilter
               ariaLabel="Filter {{col.header}}"
               field="{{ col.field }}"
-              placeholder="{{ '@Search' | transloco }}"
+              matchMode="contains"
+              placeholder="{{ '@Type and press enter' | transloco }}"
               type="text"/>
           </th>
         </tr>
@@ -36,7 +37,7 @@
                      severity="{{getTagSeverity(value)}}"></p-tag>
             </ng-container>
             <ng-template #singleValue>
-              {{ row[col.field] }}
+              {{ translateValue(row[col.field]) }}
             </ng-template>
           </td>
         </tr>
