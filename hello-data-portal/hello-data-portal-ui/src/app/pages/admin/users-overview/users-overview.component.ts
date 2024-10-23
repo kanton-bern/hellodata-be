@@ -25,18 +25,28 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Store} from "@ngrx/store";
-import {AppState} from "../../../store/app/app.state";
-import {BaseComponent} from "../../../shared/components/base/base.component";
-import {loadSubsystemUsers} from "../../../store/users-management/users-management.action";
-import {interval, Observable, Subject, takeUntil} from "rxjs";
-import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
+import {Component, NgModule, OnDestroy, OnInit} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {TranslocoModule} from "@ngneat/transloco";
+import {RouterLink} from "@angular/router";
+import {TableModule} from "primeng/table";
+import {TagModule} from "primeng/tag";
+import {TooltipModule} from "primeng/tooltip";
+import {InputTextModule} from "primeng/inputtext";
+import {ButtonModule} from "primeng/button";
+import {ToolbarModule} from "primeng/toolbar";
+import {RippleModule} from "primeng/ripple";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
+import {Store} from "@ngrx/store";
+import {AppState} from "../../../store/app/app.state";
+import {combineLatest, interval, Observable, Subject, takeUntil} from "rxjs";
+import {loadSubsystemUsersForDashboards} from "../../../store/users-management/users-management.action";
+import {selectSubsystemUsersForDashboards} from "../../../store/users-management/users-management.selector";
 import {map} from "rxjs/operators";
-import {Table} from "primeng/table";
-import {loadRoleResources} from "../../../store/metainfo-resource/metainfo-resource.action";
+import {BaseComponent} from "../../../shared/components/base/base.component";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 interface TableRow {
   email: string;
@@ -45,20 +55,19 @@ interface TableRow {
 }
 
 @Component({
-  selector: 'app-subsystem-users',
-  templateUrl: './subsystem-users.component.html',
-  styleUrls: ['./subsystem-users.component.scss']
+  selector: 'app-users-overview',
+  templateUrl: './users-overview.component.html',
+  styleUrls: ['./users-overview.component.scss']
 })
-export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
-  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
+export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     super();
-    store.dispatch(loadSubsystemUsers());
+    store.dispatch(loadSubsystemUsersForDashboards());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
@@ -74,36 +83,46 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     super.ngOnInit();
   }
 
-  applyFilter(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
-  clear(table: Table, filterInput: HTMLInputElement): void {
-    table.clear();
-    filterInput.value = '';
-  }
-
   shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
+    if (value.includes(',') || !value.includes('@') && value !== '-') {
       return true;
     }
     return false;
   }
 
+  getTagSeverity(value: string) {
+    const valTrimmed = value.trim();
+    if (valTrimmed.includes('Admin')) {
+      return 'danger';
+    }
+    return value.trim().startsWith('BI_') ? '' : 'success';
+  }
+
+  translateValue(value: string): string {
+    if (value.startsWith('@')) {
+      return this.translateService.translate(value);
+    } else {
+      return value; // No translation needed
+    }
+  }
+
   private createDynamicColumns(): Observable<any[]> {
-    return this.store.select(selectSubsystemUsers).pipe(
-      map(subsystemUsers => [
-        {field: 'email', header: 'Email'},
+    return combineLatest([
+      this.store.select(selectSubsystemUsersForDashboards),
+      this.translateService.selectTranslate('@Users')
+    ]).pipe(
+      map(([subsystemUsers, userTextTranslated]) => [
+        {field: 'email', header: userTextTranslated},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
-          header: subsystem.instanceName
+          header: subsystem.contextName
         }))
       ])
     );
   }
 
   private createTableData(): Observable<TableRow[]> {
-    return this.store.select(selectSubsystemUsers).pipe(
+    return this.store.select(selectSubsystemUsersForDashboards).pipe(
       map(subsystemUsers => {
         const uniqueEmails = Array.from(
           new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
@@ -116,7 +135,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : '@No permissions';
           });
         });
 
@@ -128,8 +147,8 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
-          label: naviElements.subsystemUsers.label,
-          routerLink: naviElements.subsystemUsers.path,
+          label: naviElements.usersOverview.label,
+          routerLink: naviElements.usersOverview.path,
         }
       ]
     }));
@@ -139,9 +158,29 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.interval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.store.dispatch(loadRoleResources());
-        this.store.dispatch(loadSubsystemUsers());
+        this.store.dispatch(loadSubsystemUsersForDashboards());
       });
   }
+}
 
+@NgModule({
+  imports: [
+    CommonModule,
+    TranslocoModule,
+    RouterLink,
+    TableModule,
+    TagModule,
+    TooltipModule,
+    InputTextModule,
+    ButtonModule,
+    ToolbarModule,
+    RippleModule,
+    ProgressSpinnerModule,
+  ],
+  declarations: [
+    UsersOverviewComponent
+  ],
+  exports: []
+})
+export class UsersOverviewModule {
 }

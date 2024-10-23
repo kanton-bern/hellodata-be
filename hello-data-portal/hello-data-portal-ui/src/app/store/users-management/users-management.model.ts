@@ -112,3 +112,9 @@ export interface SubsystemUsersResultDto {
   instanceName: string;
   users: SubsystemUserDto[]
 }
+
+export interface DashboardUsersResultDto {
+  contextName: string;
+  instanceName: string;
+  users: SubsystemUserDto[]
+}

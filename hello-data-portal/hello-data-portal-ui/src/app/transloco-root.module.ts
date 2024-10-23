@@ -26,9 +26,15 @@
 ///
 
 import {HttpClient} from '@angular/common/http';
-import {Translation, TRANSLOCO_CONFIG, TRANSLOCO_LOADER, translocoConfig, TranslocoLoader, TranslocoModule} from '@ngneat/transloco';
+import {
+  Translation,
+  TRANSLOCO_CONFIG,
+  TRANSLOCO_LOADER,
+  translocoConfig,
+  TranslocoLoader,
+  TranslocoModule
+} from '@ngneat/transloco';
 import {Injectable, NgModule} from '@angular/core';
-import {EMPTY} from "rxjs";
 
 @Injectable({providedIn: 'root'})
 export class TranslocoHttpLoader implements TranslocoLoader {
@@ -51,6 +57,9 @@ export class TranslocoHttpLoader implements TranslocoLoader {
         defaultLang: 'de_CH',
         // Remove this option if your application doesn't support changing language in runtime.
         reRenderOnLangChange: true,
+        missingHandler: {
+          logMissingKey: false,
+        },
       })
     },
     {provide: TRANSLOCO_LOADER, useClass: TranslocoHttpLoader}

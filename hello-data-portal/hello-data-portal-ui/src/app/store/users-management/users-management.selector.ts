@@ -52,6 +52,11 @@ export const selectSubsystemUsers = createSelector(
   (state: UsersManagementState) => state.subsystemUsers
 );
 
+export const selectSubsystemUsersForDashboards = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.subsystemUsersForDashboards
+);
+
 export const selectUsersCopy = createSelector(
   usersManagementState,
   (state: UsersManagementState) => [...state.users]
