@@ -59,7 +59,7 @@ interface TableRow {
 }
 
 @Component({
-  selector: 'users-overview',
+  selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
   styleUrls: ['./users-overview.component.scss']
 })
