@@ -20,7 +20,6 @@ import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,26 +38,6 @@ public class MetaInfoUsersService {
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
     private final HdContextRepository contextRepository;
-
-    private static @NotNull Map<String, List<RoleToDashboardName>> mapDashboardRoleWithDashboardNamePerInstance(List<DashboardResource> supersetDashboards) {
-        // for performance - collect mapping between a 'D_*' role and a dashboard name in each instance
-        Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName = new HashMap<>();
-        Map<String, List<SupersetDashboard>> instanceNamesToSupersetDashboards = supersetDashboards.stream()
-                .collect(Collectors.toMap(DashboardResource::getInstanceName, DashboardResource::getData));
-        for (Map.Entry<String, List<SupersetDashboard>> entry : instanceNamesToSupersetDashboards.entrySet()) {
-            String instanceName = entry.getKey();
-            List<RoleToDashboardName> roleToDashboardNameList = new LinkedList<>();
-            List<SupersetDashboard> supersetDashboardList = entry.getValue();
-            for (SupersetDashboard supersetDashboard : supersetDashboardList) {
-                Optional<SupersetRole> dashboardNameRole = supersetDashboard.getRoles().stream().filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst();
-                if (dashboardNameRole.isPresent()) {
-                    roleToDashboardNameList.add(new RoleToDashboardName(dashboardNameRole.get().getName(), supersetDashboard.getDashboardTitle()));
-                }
-            }
-            roleNameToDashboardNamesPerInstanceName.put(instanceName, roleToDashboardNameList);
-        }
-        return roleNameToDashboardNamesPerInstanceName;
-    }
 
     @Transactional(readOnly = true)
     public List<SubsystemUsersResultDto> getAllUsersWithRoles() {
@@ -81,28 +60,28 @@ public class MetaInfoUsersService {
 
     @Transactional(readOnly = true)
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
-        List<DashboardUsersResultDto> result = new ArrayList<>();
-
         List<AppInfoResource> supersetAppInfos = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_APP_INFO, AppInfoResource.class);
         List<DashboardResource> supersetDashboards = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_DASHBOARDS, DashboardResource.class);
         Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName = mapDashboardRoleWithDashboardNamePerInstance(supersetDashboards);
         Map<String, String> contextKeyToNameMap = contextRepository.findAll().stream().collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName));
-        Set<String> supersetsNames = supersetAppInfos.stream().map(superset -> superset.getInstanceName()).collect(Collectors.toSet());
+        Set<String> supersetsNames = supersetAppInfos.stream().map(AppInfoResource::getInstanceName).collect(Collectors.toSet());
         List<UserDto> allPortalUsers = userService.getAllUsers();
-        List<String> allPortalUsersEmails = allPortalUsers.stream().map(u -> u.getEmail()).toList();
+        List<String> allPortalUsersEmails = allPortalUsers.stream().map(UserDto::getEmail).toList();
+
         List<MetaInfoResourceEntity> userPacksForSubsystems = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS)
                 .stream().filter(uPack -> supersetsNames.contains(uPack.getInstanceName())).toList();
 
-        for (MetaInfoResourceEntity usersPack : userPacksForSubsystems) {
-            List<SubsystemUser> subsystemUsers = ((List<SubsystemUser>) usersPack.getMetainfo().getData()).stream().filter(u -> allPortalUsersEmails.contains(u.getEmail())).toList();
-            List<SubsystemUserDto> subsystemUserDtos = new ArrayList<>(subsystemUsers.size());
-            for (SubsystemUser subsystemUser : subsystemUsers) {
-                SubsystemUserDto user = generateUserDto(usersPack, subsystemUser, allPortalUsers, roleNameToDashboardNamesPerInstanceName);
-                subsystemUserDtos.add(user);
-            }
-            result.add(new DashboardUsersResultDto(contextKeyToNameMap.get(usersPack.getContextKey()), usersPack.getInstanceName(), subsystemUserDtos));
-        }
-        return result;
+        return userPacksForSubsystems.parallelStream()
+                .map(usersPack -> {
+                    List<SubsystemUserDto> subsystemUserDtos = ((List<SubsystemUser>) usersPack.getMetainfo().getData())
+                            .stream()
+                            .filter(subsystemUser -> allPortalUsersEmails.contains(subsystemUser.getEmail()))
+                            .map(subsystemUser -> generateUserDto(usersPack, subsystemUser, allPortalUsers, roleNameToDashboardNamesPerInstanceName))
+                            .toList();
+
+                    return new DashboardUsersResultDto(contextKeyToNameMap.get(usersPack.getContextKey()), usersPack.getInstanceName(), subsystemUserDtos);
+                })
+                .toList();
     }
 
     private SubsystemUserDto generateUserDto(MetaInfoResourceEntity usersPack, SubsystemUser subsystemUser, List<UserDto> allPortalUsers,
@@ -151,8 +130,6 @@ public class MetaInfoUsersService {
         if (dashboardNameForRoleName.isPresent()) {
             return dashboardNameForRoleName.get().dashboardName();
         }
-        // this should never occur
-        log.warn("No role name for dashboard found! Check the roles and dashboards mapping in superset! {}", roleName);
         return roleName;
     }
 
@@ -162,5 +139,22 @@ public class MetaInfoUsersService {
                 r.equalsIgnoreCase(BI_ADMIN_ROLE_NAME) ||
                 r.equalsIgnoreCase(BI_VIEWER_ROLE_NAME) ||
                 r.equalsIgnoreCase(BI_EDITOR_ROLE_NAME);
+    }
+
+    private Map<String, List<RoleToDashboardName>> mapDashboardRoleWithDashboardNamePerInstance(List<DashboardResource> supersetDashboards) {
+        // Collect mapping between 'D_*' role and dashboard name for each instance
+        Map<String, List<SupersetDashboard>> instanceNamesToSupersetDashboards = supersetDashboards.stream()
+                .collect(Collectors.toMap(DashboardResource::getInstanceName, DashboardResource::getData));
+
+        return instanceNamesToSupersetDashboards.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().parallelStream()
+                                .flatMap(supersetDashboard -> supersetDashboard.getRoles().stream()
+                                        .filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX))
+                                        .map(role -> new RoleToDashboardName(role.getName(), supersetDashboard.getDashboardTitle()))
+                                )
+                                .toList()
+                ));
     }
 }
