@@ -40,150 +40,154 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {interval, Observable, Subject, takeUntil} from "rxjs";
+import {combineLatest, interval, Observable, Subject, takeUntil} from "rxjs";
 import {loadRoleResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 import {
-    loadSubsystemUsers,
-    loadSubsystemUsersForDashboards
+  loadSubsystemUsers,
+  loadSubsystemUsersForDashboards
 } from "../../../store/users-management/users-management.action";
 import {selectSubsystemUsersForDashboards} from "../../../store/users-management/users-management.selector";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 interface TableRow {
-    email: string;
+  email: string;
 
-    [key: string]: any; // To allow dynamic columns for instanceNames
+  [key: string]: any; // To allow dynamic columns for instanceNames
 }
 
 @Component({
-    selector: 'users-overview',
-    templateUrl: './users-overview.component.html',
-    styleUrls: ['./users-overview.component.scss']
+  selector: 'users-overview',
+  templateUrl: './users-overview.component.html',
+  styleUrls: ['./users-overview.component.scss']
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
-    private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
-    tableData$: Observable<TableRow[]>;
-    columns$: Observable<any[]>;
-    interval$ = interval(10000);
-    private destroy$ = new Subject<void>();
+  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
+  tableData$: Observable<TableRow[]>;
+  columns$: Observable<any[]>;
+  interval$ = interval(10000);
+  private destroy$ = new Subject<void>();
 
-    constructor(private store: Store<AppState>) {
-        super();
-        store.dispatch(loadSubsystemUsersForDashboards());
-        this.columns$ = this.createDynamicColumns();
-        this.tableData$ = this.createTableData();
-        this.createBreadcrumbs();
-        this.createInterval();
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+    super();
+    store.dispatch(loadSubsystemUsersForDashboards());
+    this.columns$ = this.createDynamicColumns();
+    this.tableData$ = this.createTableData();
+    this.createBreadcrumbs();
+    this.createInterval();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+  }
+
+  applyFilter(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
+  clear(table: Table, filterInput: HTMLInputElement): void {
+    table.clear();
+    filterInput.value = '';
+  }
+
+  shouldShowTag(value: string): boolean {
+    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(UsersOverviewComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
+      return true;
     }
+    return false;
+  }
 
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
+  getTagSeverity(value: string) {
+    const valTrimmed = value.trim();
+    if (valTrimmed.includes('Admin')) {
+      return 'danger';
     }
+    return value.trim().startsWith('BI_') ? '' : 'success';
+  }
 
-    override ngOnInit(): void {
-        super.ngOnInit();
-    }
+  private createDynamicColumns(): Observable<any[]> {
+    return combineLatest([
+      this.store.select(selectSubsystemUsersForDashboards),
+      this.translateService.selectTranslate('@Users')
+    ]).pipe(
+      map(([subsystemUsers, userTextTranslated]) => [
+        {field: 'email', header: userTextTranslated},
+        ...subsystemUsers.map(subsystem => ({
+          field: subsystem.instanceName,
+          header: subsystem.contextName
+        }))
+      ])
+    );
+  }
 
-    applyFilter(event: Event): string {
-        return (event.target as HTMLInputElement).value;
-    }
-
-    clear(table: Table, filterInput: HTMLInputElement): void {
-        table.clear();
-        filterInput.value = '';
-    }
-
-    shouldShowTag(value: string): boolean {
-        if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(UsersOverviewComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
-            return true;
-        }
-        return false;
-    }
-
-    getTagSeverity(value: string) {
-        const valTrimmed = value.trim();
-        if (valTrimmed.includes('Admin')) {
-            return 'danger';
-        }
-        return value.trim().startsWith('BI_') ? '' : 'success';
-    }
-
-    private createDynamicColumns(): Observable<any[]> {
-        return this.store.select(selectSubsystemUsersForDashboards).pipe(
-            map(subsystemUsers => [
-                {field: 'email', header: 'Email'},
-                ...subsystemUsers.map(subsystem => ({
-                    field: subsystem.instanceName,
-                    header: subsystem.contextName
-                }))
-            ])
+  private createTableData(): Observable<TableRow[]> {
+    return this.store.select(selectSubsystemUsersForDashboards).pipe(
+      map(subsystemUsers => {
+        const uniqueEmails = Array.from(
+          new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
         );
-    }
 
-    private createTableData(): Observable<TableRow[]> {
-        return this.store.select(selectSubsystemUsersForDashboards).pipe(
-            map(subsystemUsers => {
-                const uniqueEmails = Array.from(
-                    new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
-                );
+        const tableRows: TableRow[] = uniqueEmails.map(email => ({
+          email,
+        })).sort((a, b) => a.email.localeCompare(b.email));
 
-                const tableRows: TableRow[] = uniqueEmails.map(email => ({
-                    email,
-                })).sort((a, b) => a.email.localeCompare(b.email));
+        tableRows.forEach(row => {
+          subsystemUsers.forEach(subsystem => {
+            const user = subsystem.users.find(user => user.email === row.email);
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : UsersOverviewComponent.NOT_FOUND_IN_INSTANCE_TEXT;
+          });
+        });
 
-                tableRows.forEach(row => {
-                    subsystemUsers.forEach(subsystem => {
-                        const user = subsystem.users.find(user => user.email === row.email);
-                        row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : UsersOverviewComponent.NOT_FOUND_IN_INSTANCE_TEXT;
-                    });
-                });
+        return tableRows;
+      }));
+  }
 
-                return tableRows;
-            }));
-    }
+  private createBreadcrumbs(): void {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.usersOverview.label,
+          routerLink: naviElements.usersOverview.path,
+        }
+      ]
+    }));
+  }
 
-    private createBreadcrumbs(): void {
-        this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-                {
-                    label: naviElements.usersOverview.label,
-                    routerLink: naviElements.usersOverview.path,
-                }
-            ]
-        }));
-    }
-
-    private createInterval(): void {
-        this.interval$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(() => {
-                this.store.dispatch(loadRoleResources());
-                this.store.dispatch(loadSubsystemUsers());
-            });
-    }
+  private createInterval(): void {
+    this.interval$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.store.dispatch(loadRoleResources());
+        this.store.dispatch(loadSubsystemUsers());
+      });
+  }
 }
 
 @NgModule({
-    imports: [
-        CommonModule,
-        TranslocoModule,
-        RouterLink,
-        TableModule,
-        TagModule,
-        TooltipModule,
-        InputTextModule,
-        ButtonModule,
-        ToolbarModule,
-        RippleModule,
-        ProgressSpinnerModule,
-    ],
-    declarations: [
-        UsersOverviewComponent
-    ],
-    exports: []
+  imports: [
+    CommonModule,
+    TranslocoModule,
+    RouterLink,
+    TableModule,
+    TagModule,
+    TooltipModule,
+    InputTextModule,
+    ButtonModule,
+    ToolbarModule,
+    RippleModule,
+    ProgressSpinnerModule,
+  ],
+  declarations: [
+    UsersOverviewComponent
+  ],
+  exports: []
 })
 export class UsersOverviewModule {
 }
