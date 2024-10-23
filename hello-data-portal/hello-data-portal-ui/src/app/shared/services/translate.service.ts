@@ -41,7 +41,7 @@ export class TranslateService implements OnDestroy {
   private readonly loadSub: Subscription;
   private readonly eventSub: Subscription;
 
-  constructor(private translocoService: TranslocoService, private http: HttpClient, private config: PrimeNGConfig) {
+  constructor(private translocoService: TranslocoService, private http: HttpClient, private primengConfig: PrimeNGConfig) {
     const activeLang = translocoService.getActiveLang();
     this.loadSub = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
     this.eventSub = translocoService.events$.pipe(
@@ -49,7 +49,7 @@ export class TranslateService implements OnDestroy {
       switchMap(event => {
         return this.http.get<Translation>(`./assets/i18n/primeng/${event.payload.langName}.json`).pipe(
           tap(primengTranslations => {
-            this.config.setTranslation(primengTranslations);
+            this.primengConfig.setTranslation(primengTranslations);
           }));
       })
     ).subscribe();
