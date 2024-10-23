@@ -26,20 +26,33 @@
 ///
 
 import {Injectable, OnDestroy} from "@angular/core";
-import {LangDefinition, TranslocoEvents, TranslocoService} from "@ngneat/transloco";
-import {Observable, Subscription} from "rxjs";
+import {LangDefinition, Translation, TranslocoService} from "@ngneat/transloco";
+import {Observable, Subscription, switchMap, tap} from "rxjs";
 import {HashMap, TranslateParams, TranslocoScope} from "@ngneat/transloco/lib/types";
+import {filter} from "rxjs/operators";
+import {HttpClient} from "@angular/common/http";
+import {PrimeNGConfig} from "primeng/api";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TranslateService implements OnDestroy {
 
-  private readonly subscription: Subscription;
+  private readonly loadSub: Subscription;
+  private readonly eventSub: Subscription;
 
-  constructor(private translocoService: TranslocoService) {
+  constructor(private translocoService: TranslocoService, private http: HttpClient, private config: PrimeNGConfig) {
     const activeLang = translocoService.getActiveLang();
-    this.subscription = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
+    this.loadSub = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
+    this.eventSub = translocoService.events$.pipe(
+      filter(event => event.type === 'langChanged'),
+      switchMap(event => {
+        return this.http.get<Translation>(`./assets/i18n/primeng/${event.payload.langName}.json`).pipe(
+          tap(primengTranslations => {
+            this.config.setTranslation(primengTranslations);
+          }));
+      })
+    ).subscribe();
   }
 
   public translate(key: TranslateParams, params?: HashMap, lang?: string): string {
@@ -48,10 +61,6 @@ export class TranslateService implements OnDestroy {
 
   public selectTranslate(key: TranslateParams, params?: HashMap, lang?: string | TranslocoScope, _isObject?: boolean): Observable<string> {
     return this.translocoService.selectTranslate(key, params, lang, _isObject);
-  }
-
-  public events(): Observable<TranslocoEvents> {
-    return this.translocoService.events$;
   }
 
   public setActiveLang(lang: string) {
@@ -72,8 +81,8 @@ export class TranslateService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.loadSub) {
+      this.loadSub.unsubscribe();
     }
   }
 }

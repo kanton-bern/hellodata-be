@@ -38,7 +38,8 @@ import {
   fetchPermissionSuccess,
   login,
   loginComplete,
-  logout, setActiveTranslocoLanguage,
+  logout,
+  setActiveTranslocoLanguage,
   setAvailableLanguages,
   setDefaultLanguage,
   setSelectedLanguage
@@ -55,7 +56,6 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectProfile, selectSelectedLanguage} from "./auth.selector";
 import {CloudbeaverService} from "./cloudbeaver.service";
-import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 
 @Injectable()
 export class AuthEffects {
@@ -242,7 +242,7 @@ export class AuthEffects {
       withLatestFrom(
         this._store.select(selectSelectedLanguage)
       ),
-      tap(([_, selectedLanguage])  => {
+      tap(([_, selectedLanguage]) => {
         if (selectedLanguage) {
           this._translateService.setActiveLang(selectedLanguage.code as string);
         }

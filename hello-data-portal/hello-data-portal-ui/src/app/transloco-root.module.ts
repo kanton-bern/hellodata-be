@@ -26,9 +26,15 @@
 ///
 
 import {HttpClient} from '@angular/common/http';
-import {Translation, TRANSLOCO_CONFIG, TRANSLOCO_LOADER, translocoConfig, TranslocoLoader, TranslocoModule} from '@ngneat/transloco';
+import {
+  Translation,
+  TRANSLOCO_CONFIG,
+  TRANSLOCO_LOADER,
+  translocoConfig,
+  TranslocoLoader,
+  TranslocoModule
+} from '@ngneat/transloco';
 import {Injectable, NgModule} from '@angular/core';
-import {EMPTY} from "rxjs";
 
 @Injectable({providedIn: 'root'})
 export class TranslocoHttpLoader implements TranslocoLoader {

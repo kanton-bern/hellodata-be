@@ -11,25 +11,20 @@
               icon="pi pi-external-link"
               label="{{ '@Export' | transloco }}"/>
           </div>
-          <div class="ml-auto">
-            <button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
-                    label="{{'@Clear' | transloco}}"
-                    pButton></button>
-            <span class="p-input-icon-left ml-auto">
-                  <i class="pi pi-search"></i>
-                  <input
-                    #filterInput
-                    (input)="dt.filterGlobal(applyFilter($event), 'contains')"
-                    pInputText
-                    placeholder="{{ '@Search' | transloco }}"
-                    type="text"/>
-              </span>
-          </div>
         </div>
       </ng-template>
-      <ng-template let-columns pTemplate="header">
+      <ng-template let-columns let-row pTemplate="header">
         <tr>
           <th *ngFor="let col of columns">{{ col.header }}</th>
+        </tr>
+        <tr>
+          <th *ngFor="let col of columns">
+            <p-columnFilter
+              ariaLabel="Filter {{col.header}}"
+              field="{{ col.field }}"
+              placeholder="{{ '@Search' | transloco }}"
+              type="text"/>
+          </th>
         </tr>
       </ng-template>
 
