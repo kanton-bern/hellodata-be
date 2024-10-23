@@ -64,7 +64,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
@@ -182,9 +181,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
         List<UserEntity> allPortalUsers = userRepository.findAll();
+        List<UserRepresentation> allKeycloakUsers = keycloakService.getAllUsers();
         List<UserRepresentation> userRepresentationList = new ArrayList<>();
         for (UserEntity user : allPortalUsers) {
-            UserRepresentation userRepresentationById = getUserRepresentation(user);
+            UserRepresentation userRepresentationById = getUserRepresentation(user, allKeycloakUsers);
             if (userRepresentationById != null) {
                 userRepresentationList.add(userRepresentationById);
             }
@@ -197,11 +197,10 @@ public class UserService {
                 .toList();
     }
 
-    @Nullable
-    private UserRepresentation getUserRepresentation(UserEntity user) {
+    private UserRepresentation getUserRepresentation(UserEntity user, List<UserRepresentation> allKeycloakUsers) {
         UserRepresentation userRepresentationById = null;
         try {
-            userRepresentationById = getUserRepresentation(user.getId().toString());
+            userRepresentationById = allKeycloakUsers.stream().filter(keycloakUser -> keycloakUser.getEmail().equalsIgnoreCase(user.getEmail())).findFirst().get();
         } catch (Exception e) {
             log.error("Error fetching user from the keycloak, user portal id : {}, email {}. Is user deleted in the keycloak?", user.getId(), user.getEmail());
         }
@@ -647,9 +646,10 @@ public class UserService {
 
     public List<UserEntity> findHelloDataAdminUsers() {
         List<UserEntity> portalUsers = userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN);
+        List<UserRepresentation> allKeycloakUsers = keycloakService.getAllUsers();
         List<UserEntity> activeUsers = new ArrayList<>();
         for (UserEntity currentUser : portalUsers) {
-            UserRepresentation userRepresentation = getUserRepresentation(currentUser);
+            UserRepresentation userRepresentation = getUserRepresentation(currentUser, allKeycloakUsers);
             if (userRepresentation != null && userRepresentation.isEnabled()) {
                 activeUsers.add(currentUser);
             }
