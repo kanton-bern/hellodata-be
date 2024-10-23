@@ -144,6 +144,7 @@ public class UserServiceTest {
         when(userRepresentation.getId()).thenReturn(createdUserId);
         when(userRepresentation.isEnabled()).thenReturn(true);
         when(keycloakService.getUserRepresentationById(any())).thenReturn(userRepresentation);
+        when(keycloakService.getAllUsers()).thenReturn(List.of(userRepresentation));
         when(userRepository.existsByIdOrAuthId(any(UUID.class), any(String.class))).thenReturn(false);
         when(userRepository.findAll()).thenReturn(List.of(userEntity));
         when(userRepository.saveAndFlush(any(UserEntity.class))).thenReturn(new UserEntity());
