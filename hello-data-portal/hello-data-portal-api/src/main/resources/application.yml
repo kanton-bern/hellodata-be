@@ -66,6 +66,8 @@ hello-data:
       email: mail
   cors:
     allowed-origins: ${hello-data.auth-server.redirect-url},${hello-data.auth-server.url} #can be comma separated
+  cache:
+    keycloak-users-ttl-minutes: 60
 
 #spring props
 spring:

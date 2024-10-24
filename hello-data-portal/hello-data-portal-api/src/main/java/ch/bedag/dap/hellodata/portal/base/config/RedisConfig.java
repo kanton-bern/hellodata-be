@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +47,10 @@ import java.time.Duration;
 @EnableCaching
 @Configuration
 public class RedisConfig {
+
+    @Value("${hello-data.cache.keycloak-users-ttl-minutes}")
+    private long keycloakUserTtlCacheMinutes;
+
     @Bean
     public RedisTemplate<String, UserCache> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, UserCache> template = new RedisTemplate<>();
@@ -80,7 +85,7 @@ public class RedisConfig {
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return (builder) -> builder
                 .withCacheConfiguration("keycloak-users",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)));
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(keycloakUserTtlCacheMinutes)));
     }
 }
 
