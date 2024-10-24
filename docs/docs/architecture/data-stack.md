@@ -1,7 +1,7 @@
 # Data Stack
 We'll explain which data stack is behind HelloDATA BE.
 
-## Control Pane - Portal
+## Control Pane Portal
 
 The **differentiator of HelloDATA** lies in the Portal. It combines all the loosely open-source tools into a single control pane.
 
