@@ -67,6 +67,7 @@ import org.jetbrains.annotations.NotNull;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -152,14 +153,14 @@ public class UserService {
         List<UserDto> allUsers = getAllUsers().stream().filter(UserDto::getEnabled).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
-        allUsers.forEach(u -> {
+        allUsers.parallelStream().forEach(user -> {
             try {
                 UserEntity userEntity;
-                UUID id = UUID.fromString(u.getId());
+                UUID id = UUID.fromString(user.getId());
                 if (!userRepository.existsByIdOrAuthId(id, id.toString())) {
                     userEntity = new UserEntity();
                     userEntity.setId(id);
-                    userEntity.setEmail(u.getEmail());
+                    userEntity.setEmail(user.getEmail());
                     userRepository.saveAndFlush(userEntity);
                     roleService.createNoneContextRoles(userEntity);
                 } else {
@@ -168,11 +169,11 @@ public class UserService {
                         roleService.createNoneContextRoles(userEntity);
                     }
                 }
-                createUserInSubsystems(u.getId());
+                createUserInSubsystems(user.getId());
                 synchronizeContextRolesWithSubsystems(userEntity);
                 counter.getAndIncrement();
             } catch (Exception e) {
-                log.error("Could not sync user {} with subsystems", u.getEmail(), e);
+                log.error("Could not sync user {} with subsystems", user.getEmail(), e);
             }
         });
         log.info("Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
@@ -208,6 +209,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "keycloak-users")
     public void deleteUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
@@ -266,6 +268,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "keycloak-users")
     public void disableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
@@ -281,6 +284,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "keycloak-users")
     public void enableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
@@ -326,6 +330,7 @@ public class UserService {
         return contextsDto;
     }
 
+    @CacheEvict(value = "keycloak-users")
     @Transactional
     public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         updateContextRoles(userId, updateContextRolesForUserDto);
