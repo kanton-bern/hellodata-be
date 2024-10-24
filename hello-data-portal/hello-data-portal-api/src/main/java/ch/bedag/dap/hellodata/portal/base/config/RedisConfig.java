@@ -100,9 +100,9 @@ public class RedisConfig {
         return (builder) -> builder
                 .withCacheConfiguration("keycloak-users",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(keycloakUserTtlCacheMinutes)))
-                .withCacheConfiguration("users_",
+                .withCacheConfiguration("users",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersTtlCacheMinutes)))
-                .withCacheConfiguration("users_with_dashboards_",
+                .withCacheConfiguration("users_with_dashboards",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersWithDashboardsTtlCacheMinutes)))
                 .withCacheConfiguration("subsystem_users",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(subsystemUsersTtlCacheMinutes)));

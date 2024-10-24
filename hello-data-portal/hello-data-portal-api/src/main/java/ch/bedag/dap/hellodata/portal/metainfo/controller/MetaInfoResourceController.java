@@ -97,7 +97,7 @@ public class MetaInfoResourceController {
      *
      * @return list of resources
      */
-    @Cacheable(value = "users_with_dashboards_")
+    @Cacheable(value = "users_with_dashboards")
     @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
     @GetMapping(value = "/resources/users-dashboards-overview")
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
