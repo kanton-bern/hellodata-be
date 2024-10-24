@@ -33,7 +33,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -63,7 +65,10 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory factory) {
+    public CacheManager cacheManager(@Value("${hello-data.cache.enabled}") String enableCaching, RedisConnectionFactory factory) {
+        if (!enableCaching.equalsIgnoreCase("true")) {
+            return new NoOpCacheManager();
+        }
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(JsonGenerator.Feature.IGNORE_UNKNOWN);
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
