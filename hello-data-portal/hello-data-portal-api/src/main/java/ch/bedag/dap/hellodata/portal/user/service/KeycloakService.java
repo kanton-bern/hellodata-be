@@ -55,7 +55,7 @@ public class KeycloakService {
     @Value("${hello-data.auth-server.realm}")
     private String realmName;
 
-    @CacheEvict(allEntries = true, cacheNames = "keycloak-users")
+    @CacheEvict(allEntries = true)
     public String createUser(UserRepresentation user) {
         try (Response response = keycloak.realm(realmName).users().create(user)) {
             return getCreatedId(response);

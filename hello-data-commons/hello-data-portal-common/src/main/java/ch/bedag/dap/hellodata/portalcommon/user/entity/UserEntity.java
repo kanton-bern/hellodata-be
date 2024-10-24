@@ -65,10 +65,10 @@ public class UserEntity extends BaseEntity {
     private int invitationsCount;
     private boolean creationEmailSent;
     private Locale selectedLanguage;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserContextRoleEntity> contextRoles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserPortalRoleEntity> portalRoles;
 
     public Boolean getSuperuser() {
