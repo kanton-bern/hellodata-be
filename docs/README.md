@@ -17,12 +17,14 @@
 ### Local installation
 * To build and run the documentation locally you need to have Python 3 installed on your machine inclusive pip.
 * Then run the following code once to create and activate your virtual environment and install MkDocs and its dependencies.
+* Linkchekcker is a local CLI tool to check all links from a webpage.
 
 #### Linux/Mac
 ```bash
 python -m venv ~/.venvs/hd-docs
 source ~/.venvs/hd-docs/bin/activate
 pip install mkdocs
+pip install linkchecker
 pip install -r requirements.txt
 ``` 
 
@@ -31,6 +33,7 @@ pip install -r requirements.txt
 python -m venv ~/.venvs/hd-docs
 .\~/.venvs/hd-docs/Scripts/activate.bat
 pip install mkdocs
+pip install linkchecker
 pip install -r requirements.txt
 ```
 
@@ -47,6 +50,20 @@ mkdocs serve
 ```bash
 .\~/.venvs/hd-docs/Scripts/activate.bat
 mkdocs serve
+```
+
+### Check links of locally served documentation
+
+#### Linux/Mac
+```bash
+source ~/.venvs/hd-docs/bin/activate
+linkchecker http://127.0.0.1:8000/ 
+```
+
+#### Windows
+```bash
+.\~/.venvs/hd-docs/Scripts/activate.bat
+linkchecker http://127.0.0.1:8000/
 ```
 
 ### Build HTML pages locally
