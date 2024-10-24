@@ -55,6 +55,7 @@ import {FieldsetModule} from "primeng/fieldset";
 import {ScrollPanelModule} from "primeng/scrollpanel";
 import {SidebarModule} from "primeng/sidebar";
 import {BadgeModule} from "primeng/badge";
+import {AdminInitModule} from "../../shared/components/admin-init/admin-init.component";
 
 
 @NgModule({
@@ -82,7 +83,8 @@ import {BadgeModule} from "primeng/badge";
     FieldsetModule,
     ScrollPanelModule,
     SidebarModule,
-    BadgeModule
+    BadgeModule,
+    AdminInitModule
   ]
 })
 export class HomeModule {

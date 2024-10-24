@@ -37,6 +37,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.ClientErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -56,6 +58,7 @@ public class UserController {
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
 
+    @CacheEvict(allEntries = true, cacheNames = {"users_", "users_with_dashboards_", "subsystem_users"})
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public CreateUserResponseDto createUser(@RequestBody @Valid @NotNull CreateUserRequestDto createUserRequestDto) {
@@ -74,6 +77,7 @@ public class UserController {
         }
     }
 
+    @Cacheable(value = "users_")
     @GetMapping
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public List<UserDto> getAllUsers() {
@@ -141,6 +145,7 @@ public class UserController {
         }
     }
 
+    @CacheEvict(allEntries = true, cacheNames = {"users_", "users_with_dashboards_", "subsystem_users"})
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void deleteUserById(@PathVariable String userId) {
@@ -152,6 +157,7 @@ public class UserController {
         }
     }
 
+    @CacheEvict(allEntries = true, cacheNames = {"users_", "users_with_dashboards_", "subsystem_users"})
     @PatchMapping("/{userId}/disable")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void disableUserById(@PathVariable String userId) {
@@ -163,6 +169,7 @@ public class UserController {
         }
     }
 
+    @CacheEvict(allEntries = true, cacheNames = {"users_", "users_with_dashboards_", "subsystem_users"})
     @PatchMapping("/{userId}/enable")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void enableUserById(@PathVariable String userId) {
@@ -198,6 +205,7 @@ public class UserController {
         return userService.getContextRolesForUser(userId);
     }
 
+    @CacheEvict(allEntries = true, cacheNames = {"users_", "users_with_dashboards_", "subsystem_users"})
     @PatchMapping("/{userId}/context-roles")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void updateContextRolesForUser(@PathVariable UUID userId, @NotNull @Valid @RequestBody UpdateContextRolesForUserDto updateContextRolesForUserDto) {
@@ -220,6 +228,7 @@ public class UserController {
         return userService.getAvailableDataDomains();
     }
 
+    @CacheEvict(allEntries = true, cacheNames = {"users_", "users_with_dashboards_", "subsystem_users"})
     @PatchMapping("/{userId}/set-selected-lang/{lang}")
     public void setSelectedLanguageForUser(@PathVariable String userId, @PathVariable Locale lang) {
         //currently only user can set lang for himself

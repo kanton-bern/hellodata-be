@@ -28,6 +28,7 @@
 import {AppState} from "../app/app.state";
 import {createSelector} from "@ngrx/store";
 import {AuthState} from "./auth.state";
+import {BUSINESS_DOMAIN_ADMIN_ROLE, BUSINESS_DOMAIN_CONTEXT_TYPE} from "../users-management/users-management.model";
 
 const authState = (state: AppState) => state.auth;
 
@@ -44,6 +45,16 @@ export const selectProfile = createSelector(
 export const selectIsSuperuser = createSelector(
   authState,
   (state: AuthState) => state.isSuperuser
+);
+
+export const selectIsBusinessDomainAdmin = createSelector(
+  authState,
+  (state: AuthState) => {
+    if (state.contextRoles.length > 0) {
+      return state.contextRoles.some(userContextRole => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE && userContextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
+    }
+    return false;
+  }
 );
 
 export const selectCurrentUserPermissions = createSelector(

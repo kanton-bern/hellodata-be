@@ -195,7 +195,7 @@ public class UserService {
                 .map(userRepresentation -> modelMapper.map(userRepresentation, UserDto.class))
                 .map(userDto -> fetchAdditionalDataFromPortal(userDto,
                         allPortalUsers.stream().filter(userEntity -> idEquals(userDto, userEntity)).findFirst()))
-                .toList();
+                .collect(Collectors.toList()); //NOSONAR it breaks the redis cache with .toList()
     }
 
     private UserRepresentation getUserRepresentation(UserEntity user, List<UserRepresentation> allKeycloakUsers) {

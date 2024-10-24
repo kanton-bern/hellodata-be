@@ -35,6 +35,7 @@ import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,6 +85,7 @@ public class MetaInfoResourceController {
      *
      * @return list of resources
      */
+    @Cacheable(value = "subsystem_users")
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/subsystem-users")
     public List<SubsystemUsersResultDto> getAllUsersWithRoles() {
@@ -95,6 +97,7 @@ public class MetaInfoResourceController {
      *
      * @return list of resources
      */
+    @Cacheable(value = "users_with_dashboards_")
     @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
     @GetMapping(value = "/resources/users-dashboards-overview")
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {

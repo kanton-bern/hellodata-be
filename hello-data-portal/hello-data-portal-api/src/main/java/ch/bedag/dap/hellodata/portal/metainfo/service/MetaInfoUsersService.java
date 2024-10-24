@@ -72,7 +72,7 @@ public class MetaInfoUsersService {
         List<MetaInfoResourceEntity> userPacksForSubsystems = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS)
                 .stream().filter(uPack -> supersetsNames.contains(uPack.getInstanceName())).toList();
 
-        return userPacksForSubsystems.parallelStream()
+        return userPacksForSubsystems.stream()
                 .map(usersPack -> {
                     List<SubsystemUserDto> subsystemUserDtos = ((List<SubsystemUser>) usersPack.getMetainfo().getData())
                             .stream()
@@ -82,7 +82,7 @@ public class MetaInfoUsersService {
 
                     return new DashboardUsersResultDto(contextKeyToNameMap.get(usersPack.getContextKey()), usersPack.getInstanceName(), subsystemUserDtos);
                 })
-                .toList();
+                .collect(Collectors.toList()); //NOSONAR it breaks the redis cache with .toList()
     }
 
     private SubsystemUserDto generateUserDto(MetaInfoResourceEntity usersPack, SubsystemUser subsystemUser, UserDto portalUser,

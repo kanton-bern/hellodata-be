@@ -26,9 +26,12 @@
  */
 package ch.bedag.dap.hellodata.portal.user.data;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
+import java.util.List;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @Data
 public class UserDto {
     private String id;

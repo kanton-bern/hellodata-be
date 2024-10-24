@@ -53,6 +53,15 @@ public class RedisConfig {
     @Value("${hello-data.cache.keycloak-users-ttl-minutes}")
     private long keycloakUserTtlCacheMinutes;
 
+    @Value("${hello-data.cache.users-ttl-minutes}")
+    private long usersTtlCacheMinutes;
+
+    @Value("${hello-data.cache.users-with-dashboards-ttl-minutes}")
+    private long usersWithDashboardsTtlCacheMinutes;
+
+    @Value("${hello-data.cache.subsystem-users-ttl-minutes}")
+    private long subsystemUsersTtlCacheMinutes;
+
     @Bean
     public RedisTemplate<String, UserCache> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, UserCache> template = new RedisTemplate<>();
@@ -91,8 +100,12 @@ public class RedisConfig {
         return (builder) -> builder
                 .withCacheConfiguration("keycloak-users",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(keycloakUserTtlCacheMinutes)))
-                .withCacheConfiguration("users",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(keycloakUserTtlCacheMinutes)));
+                .withCacheConfiguration("users_",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersTtlCacheMinutes)))
+                .withCacheConfiguration("users_with_dashboards_",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersWithDashboardsTtlCacheMinutes)))
+                .withCacheConfiguration("subsystem_users",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(subsystemUsersTtlCacheMinutes)));
     }
 }
 
