@@ -27,13 +27,12 @@
 package ch.bedag.dap.hellodata.portal.metainfo.controller;
 
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
-import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUserDto;
+import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
+import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -44,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -58,6 +56,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind
 public class MetaInfoResourceController {
 
     private final MetaInfoResourceService metaInfoResourceService;
+    private final MetaInfoUsersService metaInfoUsersService;
 
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/filtered/by-app-info")
@@ -88,19 +87,19 @@ public class MetaInfoResourceController {
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/subsystem-users")
     public List<SubsystemUsersResultDto> getAllUsersWithRoles() {
-        List<SubsystemUsersResultDto> result = new ArrayList<>();
-        List<HdResource> userPacksForSubsystems = metaInfoResourceService.findAllByKind(ModuleResourceKind.HELLO_DATA_USERS);
-        for (HdResource usersPack : userPacksForSubsystems) {
-            List<SubsystemUser> subsystemUsers = ((List<SubsystemUser>) usersPack.getData()).stream().toList();
-            List<SubsystemUserDto> subsystemUserDtos = new ArrayList<>(subsystemUsers.size());
-            for (SubsystemUser u : subsystemUsers) {
-                SubsystemUserDto subsystemUserDto = new SubsystemUserDto(
-                        u.getFirstName(), u.getLastName(), u.getEmail(), u.getUsername(), u.getRoles().stream().map(r -> r.getName()).toList(), usersPack.getInstanceName()
-                );
-                subsystemUserDtos.add(subsystemUserDto);
-            }
-            result.add(new SubsystemUsersResultDto(usersPack.getInstanceName(), subsystemUserDtos));
-        }
-        return result;
+        return metaInfoUsersService.getAllUsersWithRoles();
     }
+
+    /**
+     * Fetches users with dashboards for all superset subsystems
+     *
+     * @return list of resources
+     */
+    @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
+    @GetMapping(value = "/resources/users-dashboards-overview")
+    public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
+        return metaInfoUsersService.getAllUsersWithRolesForDashboards();
+    }
+
+
 }

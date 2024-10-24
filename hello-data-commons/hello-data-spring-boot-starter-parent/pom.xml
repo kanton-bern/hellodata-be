@@ -16,7 +16,7 @@
     <name>hello-data-spring-boot-starter-parent</name>
 
     <properties>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>

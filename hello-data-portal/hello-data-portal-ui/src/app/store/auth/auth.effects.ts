@@ -39,6 +39,7 @@ import {
   login,
   loginComplete,
   logout,
+  setActiveTranslocoLanguage,
   setAvailableLanguages,
   setDefaultLanguage,
   setSelectedLanguage
@@ -53,7 +54,7 @@ import {loadDocumentation, loadPipelines, loadStorageSize} from "../summary/summ
 import {TranslateService} from "../../shared/services/translate.service";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {selectProfile} from "./auth.selector";
+import {selectProfile, selectSelectedLanguage} from "./auth.selector";
 import {CloudbeaverService} from "./cloudbeaver.service";
 
 @Injectable()
@@ -157,9 +158,6 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(fetchPermissionSuccess),
       switchMap((action) => {
-        if (action.currentUserAuthData.selectedLanguage) {
-          this._translateService.setActiveLang(action.currentUserAuthData.selectedLanguage);
-        }
         const defaultLanguage = this._translateService.getDefaultLanguage();
         const availableLangs = this._translateService.getAvailableLangs();
         const permissions = action.currentUserAuthData.permissions;
@@ -219,6 +217,35 @@ export class AuthEffects {
             return this._cloudbeaverService.updateUserPreferences(action.lang);
           })
         );
+      }),
+      switchMap(() => {
+        return EMPTY;
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  setAvailableLanguages$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setAvailableLanguages),
+      switchMap(() => {
+        return of(setActiveTranslocoLanguage());
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+
+  setActiveTranslocoLanguage$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setActiveTranslocoLanguage),
+      withLatestFrom(
+        this._store.select(selectSelectedLanguage)
+      ),
+      tap(([_, selectedLanguage]) => {
+        if (selectedLanguage) {
+          this._translateService.setActiveLang(selectedLanguage.code as string);
+        }
       }),
       switchMap(() => {
         return EMPTY;

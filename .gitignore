@@ -285,3 +285,4 @@ hello-data-portal/hello-data-portal-ui/src/config/environment.js
 .run/start_local_impl_dc.xml
 .run/run_frontend.xml
 .run/HellodataPortalApiApplication.xml
+/.vscode/launch.json

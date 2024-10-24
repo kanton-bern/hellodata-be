@@ -1,0 +1,47 @@
+<pre class="hidden">{{ interval$ | async }}</pre>
+<h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
+<div *ngIf="(tableData$ | async) as tableData" class="card">
+  <div *ngIf="(columns$ | async) as columns">
+    <p-table #dt [columns]="columns" [value]="tableData">
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <div style="text-align: left">
+            <p-button
+              (onClick)="dt.exportCSV()"
+              icon="pi pi-external-link"
+              label="{{ '@Export' | transloco }}"/>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template let-columns let-row pTemplate="header">
+        <tr>
+          <th *ngFor="let col of columns">{{ col.header }}</th>
+        </tr>
+        <tr>
+          <th *ngFor="let col of columns">
+            <p-columnFilter
+              ariaLabel="Filter {{col.header}}"
+              field="{{ col.field }}"
+              matchMode="contains"
+              placeholder="{{ '@Type and press enter' | transloco }}"
+              type="text"/>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template let-columns="columns" let-row pTemplate="body">
+        <tr>
+          <td *ngFor="let col of columns">
+            <ng-container *ngIf="shouldShowTag(row[col.field]); else singleValue">
+              <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"
+                     severity="{{getTagSeverity(value)}}"></p-tag>
+            </ng-container>
+            <ng-template #singleValue>
+              {{ translateValue(row[col.field]) }}
+            </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

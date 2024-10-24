@@ -50,7 +50,7 @@ class FaqControllerTest extends HDControllerTest {
     private FaqService faqService;
 
     @Test
-    void createAnnouncement_userLoggedInNoPrivileges() throws Exception {
+    void createFaq_userLoggedInNoPrivileges() throws Exception {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
         HashMap<Locale, FaqMessage> messages = new HashMap<>();
@@ -66,7 +66,7 @@ class FaqControllerTest extends HDControllerTest {
     }
 
     @Test
-    void createAnnouncement_userLoggedInHasPrivileges() throws Exception {
+    void createFaq_userLoggedInHasPrivileges() throws Exception {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
         createDto.setContextKey("Test context key");
@@ -82,7 +82,7 @@ class FaqControllerTest extends HDControllerTest {
     }
 
     @Test
-    void updateAnnouncement_userLoggedInNoPrivileges() throws Exception {
+    void updateFaq_userLoggedInNoPrivileges() throws Exception {
         // given
         FaqUpdateDto updateDto = new FaqUpdateDto();
         UUID uuid = UUID.randomUUID();
@@ -99,7 +99,7 @@ class FaqControllerTest extends HDControllerTest {
     }
 
     @Test
-    void updateAnnouncement_userLoggedInHasPrivileges() throws Exception {
+    void updateFaq_userLoggedInHasPrivileges() throws Exception {
         // given
         FaqUpdateDto updateDto = new FaqUpdateDto();
         UUID uuid = UUID.randomUUID();

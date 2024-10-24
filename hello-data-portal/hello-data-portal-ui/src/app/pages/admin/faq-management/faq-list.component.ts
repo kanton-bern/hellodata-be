@@ -81,11 +81,11 @@ export class FaqListComponent extends BaseComponent implements OnInit {
     return deleteFaq();
   }
 
-  getTitle(faq: Faq, selectedLanguage: string): string | undefined {
-    return faq?.messages?.[selectedLanguage].title;
+  getTitle(faq: Faq, selectedLanguage: any): string | undefined {
+    return faq?.messages?.[selectedLanguage.code]?.title;
   }
 
-  getMessage(faq: Faq, selectedLanguage: string): string | undefined {
-    return faq?.messages?.[selectedLanguage].message;
+  getMessage(faq: Faq, selectedLanguage: any): string | undefined {
+    return faq?.messages?.[selectedLanguage.code]?.message;
   }
 }

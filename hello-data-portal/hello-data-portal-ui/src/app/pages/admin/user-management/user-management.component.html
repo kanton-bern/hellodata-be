@@ -1,13 +1,12 @@
-<h2 class="content-block">{{ '@Users management' | transloco }}</h2>
+<h2 class="content-block">{{'@Users management' | transloco}}</h2>
 <div class="card">
-  <h3>{{ '@Invite user' | transloco }}</h3>
+  <h3>{{'@Invite user' | transloco}}</h3>
   <form [formGroup]="inviteForm" autocomplete="off">
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="user">{{'@E-mail' | transloco}}</label>
       <div class="col-12 md:col-10">
         <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary">
-          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
-                          [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
+          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)" [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
                           name="user">
               <ng-template let-user pTemplate="item">
                 <div class="flex align-items-center gap-1">
@@ -16,12 +15,11 @@
             </ng-template>
           </p-autoComplete>
           </span>
-        <small *ngIf="!inviteForm.controls['user'].valid && inviteForm.controls['user'].dirty"
-               class="p-error">{{ '@Email is invalid' | transloco }}</small>
+        <small *ngIf="!inviteForm.controls['user'].valid && inviteForm.controls['user'].dirty" class="p-error">{{'@Email is invalid' | transloco}}</small>
       </div>
     </div>
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{'@First name' | transloco}}</label>
       <div class="col-12 md:col-10">
         <input [readOnly]="true"
                class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
@@ -30,12 +28,11 @@
                name="firstName"
                pInputText
                type="text">
-        <small *ngIf="!inviteForm.controls['firstName'].valid && inviteForm.controls['firstName'].dirty"
-               class="p-error">{{ '@First name is invalid' | transloco }}</small>
+        <small *ngIf="!inviteForm.controls['firstName'].valid && inviteForm.controls['firstName'].dirty" class="p-error">{{'@First name is invalid' | transloco}}</small>
       </div>
     </div>
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{'@Last name' | transloco}}</label>
       <div class="col-12 md:col-10">
         <input [readOnly]="true"
                class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
@@ -44,8 +41,7 @@
                name="lastName"
                pInputText
                type="text">
-        <small *ngIf="!inviteForm.controls['lastName'].valid && inviteForm.controls['lastName'].dirty"
-               class="p-error">{{ '@Last name is invalid' | transloco }}</small>
+        <small *ngIf="!inviteForm.controls['lastName'].valid && inviteForm.controls['lastName'].dirty" class="p-error">{{'@Last name is invalid' | transloco}}</small>
       </div>
     </div>
     <p-toolbar>
@@ -65,7 +61,7 @@
 <div *ngIf="(users$ | async) as users" class="card">
   <p-toolbar>
     <div class="p-toolbar-group-start">
-      <h3>{{ '@Users' | transloco }}</h3>
+      <h3>{{'@Users' | transloco}}</h3>
 
     </div>
     <div class="p-toolbar-group-end">
@@ -98,8 +94,7 @@
         <div id="searchBox">
           <span class="p-input-icon-left p-ml-auto">
           <i class="pi pi-search"></i>
-          <input #textInput [(ngModel)]="filterValue" (input)="dt.filterGlobal(filterValue, 'contains')" pInputText
-                 placeholder="{{'@Search' | transloco}}" type="text"/>
+          <input #textInput [(ngModel)]="filterValue" (input)="dt.filterGlobal(filterValue, 'contains')" pInputText placeholder="{{'@Search' | transloco}}" type="text"/>
           </span>
         </div>
       </div>
@@ -108,27 +103,27 @@
     <ng-template pTemplate="header">
       <tr>
         <th id="emailHeader" pSortableColumn="email" style="max-width:5rem">
-          {{ '@E-mail' | transloco }}
+          {{'@E-mail' | transloco}}
           <p-sortIcon field="email"></p-sortIcon>
         </th>
         <th id="firstNameHeader" pSortableColumn="firstName" style="max-width:5rem">
-          {{ '@First name' | transloco }}
+          {{'@First name' | transloco}}
           <p-sortIcon field="firstName"></p-sortIcon>
         </th>
-        <th id="lastNameHeader" pSortableColumn="lastName">
-          {{ '@Last name' | transloco }}
+        <th id="lastNameHeader" pSortableColumn="lastName" style="max-width:5rem">
+          {{'@Last name' | transloco}}
           <p-sortIcon field="lastName"></p-sortIcon>
         </th>
         <th id="superuser" pSortableColumn="superuser">
-          {{ '@Superuser' | transloco }}
+          {{'@Superuser' | transloco}}
           <p-sortIcon field="superuser"></p-sortIcon>
         </th>
         <th id="enabled" pSortableColumn="enabled">
-          {{ '@Enabled' | transloco }}
+          {{'@Enabled' | transloco}}
           <p-sortIcon field="enabled"></p-sortIcon>
         </th>
         <th id="lastAccess" pSortableColumn="lastAccess" style="min-width:15rem">
-          {{ '@Last login' | transloco }}
+          {{'@Last login' | transloco}}
           <p-sortIcon field="lastAccess"></p-sortIcon>
         </th>
         <th id="actions" style="min-width:10rem"></th>
@@ -137,13 +132,13 @@
     <ng-template let-user pTemplate="body">
       <tr>
         <td>
-          {{ user.email }}
+          {{user.email}}
         </td>
         <td>
-          {{ user.firstName }}
+          {{user.firstName}}
         </td>
         <td>
-          {{ user.lastName }}
+          {{user.lastName}}
         </td>
         <td>
           <div *ngIf="user.superuser">
@@ -156,8 +151,8 @@
           </div>
         </td>
         <td>
-          <span *ngIf="user.lastAccess">{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
-          <span *ngIf="user.lastAccess === null">{{ '@Never' | transloco }}</span>
+          <span *ngIf="user.lastAccess">{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss'  }}</span>
+          <span *ngIf="user.lastAccess === null">{{ '@Never' | transloco}}</span>
         </td>
         <td *ngIf="(loggedInUser$ | async) as loggedInUser">
           <button (click)="editUser(user)"
@@ -166,13 +161,11 @@
                   pButton
                   pRipple
                   pTooltip="{{'@Edit' | transloco}}"></button>
-          <button (click)="enableUser(user)"
-                  *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
+          <button (click)="enableUser(user)" *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
                   class="p-button-rounded p-button-success mr-2"
                   icon="fas fa-circle-plus" pButton pRipple
                   pTooltip="{{'@Enable' | transloco}}"></button>
-          <button (click)="disableUser(user)"
-                  *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
+          <button (click)="disableUser(user)" *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
                   class="p-button-rounded p-button-warning mr-2"
                   icon="fas fa-circle-xmark" pButton pRipple
                   pTooltip="{{'@Disable' | transloco}}"></button>

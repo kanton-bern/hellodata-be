@@ -79,11 +79,11 @@ export class FaqComponent implements OnInit {
   }
 
   getTitle(faq: Faq, selectedLanguage: string): string | undefined {
-    return faq?.messages?.[selectedLanguage].title;
+    return faq?.messages?.[selectedLanguage]?.title;
   }
 
   getMessage(faq: Faq, selectedLanguage: string): string | undefined {
-    return faq?.messages?.[selectedLanguage].message;
+    return faq?.messages?.[selectedLanguage]?.message;
   }
 }
 

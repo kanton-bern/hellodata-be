@@ -58,6 +58,8 @@ import {
   loadDashboards,
   loadDashboardsSuccess,
   loadSubsystemUsers,
+  loadSubsystemUsersForDashboards,
+  loadSubsystemUsersForDashboardsSuccess,
   loadSubsystemUsersSuccess,
   loadUserById,
   loadUserByIdSuccess,
@@ -91,6 +93,15 @@ export class UsersManagementEffects {
       ofType(loadSubsystemUsers),
       switchMap(() => this._usersManagementService.getSubsystemUsers()),
       switchMap(result => of(loadSubsystemUsersSuccess({payload: result}))),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  loadSubsystemUsersForDashboards$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadSubsystemUsersForDashboards),
+      switchMap(() => this._usersManagementService.getAllUsersWithRolesForDashboards()),
+      switchMap(result => of(loadSubsystemUsersForDashboardsSuccess({payload: result}))),
       catchError(e => of(showError({error: e})))
     )
   });

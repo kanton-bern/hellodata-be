@@ -168,8 +168,8 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   onSelectEmail($event: any) {
-    this.inviteForm.get('firstName')?.setValue($event.firstName);
-    this.inviteForm.get('lastName')?.setValue($event.lastName);
+    this.inviteForm.get('firstName')?.setValue($event.value.firstName);
+    this.inviteForm.get('lastName')?.setValue($event.value.lastName);
     this.inviteForm.get('user')?.setErrors(null);
   }
 

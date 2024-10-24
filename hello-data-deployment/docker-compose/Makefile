@@ -29,8 +29,17 @@ start-airflow:
 start-jupyterhub: start-portal
 	docker-compose up hello-data-sidecar-jupyterhub-default-data-domain hello-data-jupyterhub-gateway-default-data-domain jupyterhub-notebook-default-data-domain jupyterhub-proxy-default-data-domain jupyterhub-default-data-domain -d --build
 
-stop:
+stop-all:
 	docker-compose down --volumes --remove-orphans
 
 #start components for local FE or BE implementation:
 start-local-impl: start-portal start-dbt-docs start-cloudbeaver start-default-dd start-airflow
+
+svc ?=
+
+#make start svc=keycloak
+start:
+	docker-compose up -d $(svc)
+
+stop:
+	docker-compose stop $(svc)

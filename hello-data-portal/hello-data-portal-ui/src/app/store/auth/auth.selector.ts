@@ -85,9 +85,12 @@ export const selectSelectedLanguage = createSelector(
   authState,
   (state: AuthState) => {
     if (!state.selectedLanguage) {
-      let browserLanguage = navigator.language.replace('-', '_');
+      const browserLanguage = navigator.language.replace('-', '_');
+      if (!state.supportedLanguages) {
+        return {code: state.defaultLanguage, typeTranslationKey: '@App fallback language'};
+      }
       if (browserLanguage.startsWith('en')) {
-        browserLanguage = 'en';
+        return {code: 'en', typeTranslationKey: '@Browser default language'};
       }
       if (state.supportedLanguages.includes(browserLanguage)) {
         return {code: browserLanguage, typeTranslationKey: '@Browser default language'};

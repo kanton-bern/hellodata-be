@@ -61,7 +61,7 @@ public class FaqService {
     public List<FaqDto> getAll() {
         Set<UserContextRoleEntity> currentUserContextRoles = userService.getCurrentUserDataDomainRolesWithoutNone();
         if (SecurityUtils.isSuperuser()) {
-            return faqRepository.findAll().stream().map(entity -> modelMapper.map(entity, FaqDto.class)).map(this::mapContextName).toList();
+            return faqRepository.findAll().stream().map(entity -> map(entity)).map(this::mapContextName).toList();
         }
         if (!SecurityUtils.isSuperuser() && currentUserContextRoles.isEmpty()) {
             return faqRepository.findAll()
@@ -91,7 +91,7 @@ public class FaqService {
         }
         //FIXME temporary workaround for existing, old non-i18n faq entities
         //@Deprecated(forRemoval = true)
-        Locale oldDefault = Locale.forLanguageTag("de_CH");
+        Locale oldDefault = Locale.forLanguageTag("de-CH");
         if (!faqDto.getMessages().containsKey(oldDefault)) {
             FaqMessage faqMessage = new FaqMessage();
             faqMessage.setMessage(entity.getMessage());
@@ -152,6 +152,6 @@ public class FaqService {
         }
         FaqEntity faqEntity = entity.get();
         userService.validateUserHasAccessToContext(faqEntity.getContextKey(), "User doesn't have permissions to view the faq");
-        return modelMapper.map(faqEntity, FaqDto.class);
+        return map(faqEntity);
     }
 }

@@ -64,10 +64,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -153,14 +153,14 @@ public class UserService {
         List<UserDto> allUsers = getAllUsers().stream().filter(UserDto::getEnabled).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
-        allUsers.forEach(u -> {
+        allUsers.parallelStream().forEach(user -> {
             try {
                 UserEntity userEntity;
-                UUID id = UUID.fromString(u.getId());
+                UUID id = UUID.fromString(user.getId());
                 if (!userRepository.existsByIdOrAuthId(id, id.toString())) {
                     userEntity = new UserEntity();
                     userEntity.setId(id);
-                    userEntity.setEmail(u.getEmail());
+                    userEntity.setEmail(user.getEmail());
                     userRepository.saveAndFlush(userEntity);
                     roleService.createNoneContextRoles(userEntity);
                 } else {
@@ -169,11 +169,11 @@ public class UserService {
                         roleService.createNoneContextRoles(userEntity);
                     }
                 }
-                createUserInSubsystems(u.getId());
+                createUserInSubsystems(user.getId());
                 synchronizeContextRolesWithSubsystems(userEntity);
                 counter.getAndIncrement();
             } catch (Exception e) {
-                log.error("Could not sync user {} with subsystems", u.getEmail(), e);
+                log.error("Could not sync user {} with subsystems", user.getEmail(), e);
             }
         });
         log.info("Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
@@ -182,9 +182,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
         List<UserEntity> allPortalUsers = userRepository.findAll();
+        List<UserRepresentation> allKeycloakUsers = keycloakService.getAllUsers();
         List<UserRepresentation> userRepresentationList = new ArrayList<>();
         for (UserEntity user : allPortalUsers) {
-            UserRepresentation userRepresentationById = getUserRepresentation(user);
+            UserRepresentation userRepresentationById = getUserRepresentation(user, allKeycloakUsers);
             if (userRepresentationById != null) {
                 userRepresentationList.add(userRepresentationById);
             }
@@ -197,11 +198,10 @@ public class UserService {
                 .toList();
     }
 
-    @Nullable
-    private UserRepresentation getUserRepresentation(UserEntity user) {
+    private UserRepresentation getUserRepresentation(UserEntity user, List<UserRepresentation> allKeycloakUsers) {
         UserRepresentation userRepresentationById = null;
         try {
-            userRepresentationById = getUserRepresentation(user.getId().toString());
+            userRepresentationById = allKeycloakUsers.stream().filter(keycloakUser -> keycloakUser.getEmail().equalsIgnoreCase(user.getEmail())).findFirst().get();
         } catch (Exception e) {
             log.error("Error fetching user from the keycloak, user portal id : {}, email {}. Is user deleted in the keycloak?", user.getId(), user.getEmail());
         }
@@ -209,6 +209,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "keycloak-users")
     public void deleteUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
@@ -267,6 +268,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "keycloak-users")
     public void disableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
@@ -278,10 +280,11 @@ public class UserService {
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
-        emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail());
+        emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail(), getSelectedLanguageByEmail(representation.getEmail()));
     }
 
     @Transactional
+    @CacheEvict(value = "keycloak-users")
     public void enableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
@@ -294,7 +297,7 @@ public class UserService {
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
         UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
         synchronizeContextRolesWithSubsystems(userEntity);
-        emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail());
+        emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail(), userEntity.getSelectedLanguage());
     }
 
     @Transactional(readOnly = true)
@@ -327,6 +330,7 @@ public class UserService {
         return contextsDto;
     }
 
+    @CacheEvict(value = "keycloak-users")
     @Transactional
     public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         updateContextRoles(userId, updateContextRolesForUserDto);
@@ -381,11 +385,11 @@ public class UserService {
         UserRepresentation representation = getUserRepresentation(userId.toString());
         List<UserContextRoleDto> adminContextRoles = getAdminContextRoles(userEntity);
         if (!userEntity.isCreationEmailSent()) {
-            emailNotificationService.notifyAboutUserCreation(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles);
+            emailNotificationService.notifyAboutUserCreation(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
             userEntity.setCreationEmailSent(true);
             userRepository.save(userEntity);
         } else {
-            emailNotificationService.notifyAboutUserRoleChanged(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles);
+            emailNotificationService.notifyAboutUserRoleChanged(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
         }
     }
 
@@ -647,9 +651,10 @@ public class UserService {
 
     public List<UserEntity> findHelloDataAdminUsers() {
         List<UserEntity> portalUsers = userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN);
+        List<UserRepresentation> allKeycloakUsers = keycloakService.getAllUsers();
         List<UserEntity> activeUsers = new ArrayList<>();
         for (UserEntity currentUser : portalUsers) {
-            UserRepresentation userRepresentation = getUserRepresentation(currentUser);
+            UserRepresentation userRepresentation = getUserRepresentation(currentUser, allKeycloakUsers);
             if (userRepresentation != null && userRepresentation.isEnabled()) {
                 activeUsers.add(currentUser);
             }
@@ -668,5 +673,10 @@ public class UserService {
     public Locale getSelectedLanguage(String userId) {
         UserEntity userEntity = userRepository.getByIdOrAuthId(userId);
         return userEntity.getSelectedLanguage();
+    }
+
+    @Transactional(readOnly = true)
+    public Locale getSelectedLanguageByEmail(String email) {
+        return userRepository.findSelectedLanguageByEmail(email);
     }
 }

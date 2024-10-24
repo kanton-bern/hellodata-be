@@ -57,19 +57,19 @@ public class FaqController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('FAQ_MANAGEMENT')")
-    public FaqDto getAnnouncementById(@PathVariable UUID id) {
+    public FaqDto getFaqById(@PathVariable UUID id) {
         return faqService.getById(id);
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('FAQ_MANAGEMENT')")
-    public void createAnnouncement(@Valid @RequestBody FaqCreateDto faqCreateDto) {
+    public void createFaq(@Valid @RequestBody FaqCreateDto faqCreateDto) {
         faqService.create(faqCreateDto);
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('FAQ_MANAGEMENT')")
-    public void updateAnnouncement(@Valid @RequestBody FaqUpdateDto faqUpdateDto) {
+    public void updateFaq(@Valid @RequestBody FaqUpdateDto faqUpdateDto) {
         faqService.update(faqUpdateDto);
     }
 
