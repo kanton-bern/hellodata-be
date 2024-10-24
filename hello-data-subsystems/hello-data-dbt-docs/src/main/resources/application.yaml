@@ -64,7 +64,7 @@ spring:
   thymeleaf:
     cache: false
   cache:
-    type: redis
+    cache-names: project-docs
   boot:
     admin:
       client:
