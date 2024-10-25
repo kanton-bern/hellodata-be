@@ -187,12 +187,6 @@ public class UserController {
         return userService.getDashboardsMarkUser(userId);
     }
 
-    @GetMapping("/sync")
-    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
-    public void syncUsers() {
-        userService.syncAllUsers();
-    }
-
     @GetMapping("/contexts")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     public ContextsDto getAvailableContexts() {

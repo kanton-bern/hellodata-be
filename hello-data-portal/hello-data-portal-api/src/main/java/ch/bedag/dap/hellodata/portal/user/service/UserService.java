@@ -153,7 +153,7 @@ public class UserService {
         List<UserDto> allUsers = getAllUsers().stream().filter(UserDto::getEnabled).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
-        allUsers.parallelStream().forEach(user -> {
+        allUsers.stream().forEach(user -> {
             try {
                 UserEntity userEntity;
                 UUID id = UUID.fromString(user.getId());
@@ -173,10 +173,10 @@ public class UserService {
                 synchronizeContextRolesWithSubsystems(userEntity);
                 counter.getAndIncrement();
             } catch (Exception e) {
-                log.error("Could not sync user {} with subsystems", user.getEmail(), e);
+                log.error("[syncAllUsers] Could not sync user {} with subsystems", user.getEmail(), e);
             }
         });
-        log.info("Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
+        log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
     }
 
     @Transactional(readOnly = true)

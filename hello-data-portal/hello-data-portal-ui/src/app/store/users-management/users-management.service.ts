@@ -47,6 +47,7 @@ import {environment} from "../../../environments/environment";
 })
 export class UsersManagementService {
   baseUsersUrl = `${environment.portalApi}/users`;
+  baseUsersSyncUrl = `${environment.portalApi}/user-sync`;
   baseMetainfoUrl = `${environment.portalApi}/metainfo`;
 
   constructor(protected httpClient: HttpClient) {
@@ -85,7 +86,7 @@ export class UsersManagementService {
   }
 
   public syncUsers(): Observable<any> {
-    return this.httpClient.get<any>(`${this.baseUsersUrl}/sync`);
+    return this.httpClient.get<any>(`${this.baseUsersSyncUrl}/start`);
   }
 
   public getCurrentAuthData(): Observable<any> {

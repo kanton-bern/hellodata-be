@@ -42,12 +42,6 @@ import ch.bedag.dap.hellodata.portal.user.conf.ExampleUsersProperties;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -55,10 +49,14 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Component
@@ -171,9 +169,9 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             roleService.setBusinessDomainRoleForUser(ddViewerEntity, HdRoleName.NONE);
             ddViewerEntity = userRepository.getReferenceById(ddViewerEntity.getId());
             Optional<RoleDto> ddViewerRoleResult = allRoles.stream()
-                                                           .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
-                                                                           role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_VIEWER.name()))
-                                                           .findFirst();
+                    .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
+                            role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_VIEWER.name()))
+                    .findFirst();
             if (ddViewerRoleResult.isPresent()) {
                 RoleDto ddViewerRole = ddViewerRoleResult.get();
                 roleService.updateDomainRoleForUser(ddViewerEntity, ddViewerRole, contextKey);
@@ -206,9 +204,9 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             roleService.setBusinessDomainRoleForUser(ddEditorEntity, HdRoleName.NONE);
             ddEditorEntity = userRepository.getReferenceById(ddEditorEntity.getId());
             Optional<RoleDto> ddEditorRoleResult = allRoles.stream()
-                                                           .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
-                                                                           role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_EDITOR.name()))
-                                                           .findFirst();
+                    .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
+                            role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_EDITOR.name()))
+                    .findFirst();
             if (ddEditorRoleResult.isPresent()) {
                 RoleDto ddEditorRole = ddEditorRoleResult.get();
                 roleService.updateDomainRoleForUser(ddEditorEntity, ddEditorRole, contextKey);
@@ -241,9 +239,9 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             roleService.setBusinessDomainRoleForUser(ddAdminEntity, HdRoleName.NONE);
             ddAdminEntity = userRepository.getReferenceById(ddAdminEntity.getId());
             Optional<RoleDto> ddAdminRoleResult = allRoles.stream()
-                                                          .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
-                                                                          role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_ADMIN.name()))
-                                                          .findFirst();
+                    .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
+                            role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_ADMIN.name()))
+                    .findFirst();
             if (ddAdminRoleResult.isPresent()) {
                 RoleDto ddAdminRole = ddAdminRoleResult.get();
                 roleService.updateDomainRoleForUser(ddAdminEntity, ddAdminRole, contextKey);
