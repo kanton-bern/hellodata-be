@@ -60,6 +60,10 @@ public class UserEntity extends BaseEntity {
     private String email;
     @Length(max = 255)
     private String username;
+    private String firstName;
+    private String lastName;
+    private boolean enabled;
+    private boolean superuser;
     private LocalDateTime lastAccess;
     //how many invitation emails has been sent
     private int invitationsCount;

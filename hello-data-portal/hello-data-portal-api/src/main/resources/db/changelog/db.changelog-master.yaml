@@ -106,3 +106,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/38_delete_default_selected_language_from_user.xml
   - include:
       file: db/changelog/changelogs/39_create_user_sync_lock_table.xml
+  - include:
+      file: db/changelog/changelogs/40_add_more_columns_to_user.xml

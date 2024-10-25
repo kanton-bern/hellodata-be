@@ -46,7 +46,7 @@ import java.util.List;
 
 @Log4j2
 @Service
-@CacheConfig(cacheNames = "keycloak-users")
+@CacheConfig(cacheNames = "keycloak_users")
 @RequiredArgsConstructor
 public class KeycloakService {
 

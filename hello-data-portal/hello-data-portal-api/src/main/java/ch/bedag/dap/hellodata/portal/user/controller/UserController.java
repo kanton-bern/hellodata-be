@@ -37,8 +37,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.ClientErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,7 +56,7 @@ public class UserController {
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public CreateUserResponseDto createUser(@RequestBody @Valid @NotNull CreateUserRequestDto createUserRequestDto) {
@@ -77,7 +75,7 @@ public class UserController {
         }
     }
 
-    @Cacheable(value = "users")
+
     @GetMapping
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public List<UserDto> getAllUsers() {
@@ -123,14 +121,6 @@ public class UserController {
         }
     }
 
-    private Set<String> getCurrentUserPermissions() {
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
-        if (currentUserId != null) {
-            return userService.getUserPortalPermissions(currentUserId);
-        }
-        return new HashSet<>();
-    }
-
     @GetMapping("/current/context-roles")
     public List<UserContextRoleDto> getContextRolesForCurrentUser() {
         try {
@@ -145,7 +135,6 @@ public class UserController {
         }
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void deleteUserById(@PathVariable String userId) {
@@ -157,24 +146,22 @@ public class UserController {
         }
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @PatchMapping("/{userId}/disable")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
-    public void disableUserById(@PathVariable String userId) {
+    public UserDto disableUserById(@PathVariable String userId) {
         try {
-            userService.disableUserById(userId);
+            return userService.disableUserById(userId);
         } catch (ClientErrorException e) {
             log.error("Error on user disable", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
         }
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @PatchMapping("/{userId}/enable")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
-    public void enableUserById(@PathVariable String userId) {
+    public UserDto enableUserById(@PathVariable String userId) {
         try {
-            userService.enableUserById(userId);
+            return userService.enableUserById(userId);
         } catch (ClientErrorException e) {
             log.error("Error on user enable", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
@@ -199,7 +186,6 @@ public class UserController {
         return userService.getContextRolesForUser(userId);
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @PatchMapping("/{userId}/context-roles")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void updateContextRolesForUser(@PathVariable UUID userId, @NotNull @Valid @RequestBody UpdateContextRolesForUserDto updateContextRolesForUserDto) {
@@ -222,7 +208,6 @@ public class UserController {
         return userService.getAvailableDataDomains();
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @PatchMapping("/{userId}/set-selected-lang/{lang}")
     public void setSelectedLanguageForUser(@PathVariable String userId, @PathVariable Locale lang) {
         //currently only user can set lang for himself
@@ -230,5 +215,13 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         userService.setSelectedLanguage(userId, lang);
+    }
+
+    private Set<String> getCurrentUserPermissions() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId != null) {
+            return userService.getUserPortalPermissions(currentUserId);
+        }
+        return new HashSet<>();
     }
 }
