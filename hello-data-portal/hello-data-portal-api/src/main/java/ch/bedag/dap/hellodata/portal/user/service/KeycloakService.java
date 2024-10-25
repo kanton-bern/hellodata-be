@@ -67,7 +67,6 @@ public class KeycloakService {
         return !user.isEnabled();
     }
 
-    @Cacheable(key = "#userId")
     public UserResource getUserResourceById(String userId) {
         return keycloak.realm(realmName).users().get(userId);
     }
@@ -80,7 +79,6 @@ public class KeycloakService {
         return null;
     }
 
-    @Cacheable(key = "#email")
     public UserRepresentation getUserRepresentationByEmail(String email) {
         List<UserRepresentation> userRepresentations = keycloak.realm(realmName).users().searchByEmail(email, true);
         if (CollectionUtils.isEmpty(userRepresentations)) {

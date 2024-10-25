@@ -98,7 +98,7 @@ public class RedisConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return (builder) -> builder
-                .withCacheConfiguration("keycloak-users",
+                .withCacheConfiguration("keycloak_users",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(keycloakUserTtlCacheMinutes)))
                 .withCacheConfiguration("users",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersTtlCacheMinutes)))
