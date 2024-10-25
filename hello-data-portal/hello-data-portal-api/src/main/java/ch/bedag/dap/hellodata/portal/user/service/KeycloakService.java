@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
+import ch.bedag.dap.hellodata.portal.cache.service.CacheService;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -34,15 +35,16 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -51,20 +53,15 @@ import java.util.List;
 public class KeycloakService {
 
     private final Keycloak keycloak;
+    private final CacheService cacheService;
 
     @Value("${hello-data.auth-server.realm}")
     private String realmName;
 
-    @CacheEvict(allEntries = true)
     public String createUser(UserRepresentation user) {
         try (Response response = keycloak.realm(realmName).users().create(user)) {
             return getCreatedId(response);
         }
-    }
-
-    public boolean isUserDisabled(String userId) {
-        UserRepresentation user = keycloak.realm(realmName).users().get(userId).toRepresentation();
-        return !user.isEnabled();
     }
 
     public UserResource getUserResourceById(String userId) {
@@ -89,10 +86,19 @@ public class KeycloakService {
 
     @Cacheable
     public List<UserRepresentation> getAllUsers() {
+        return getAllUsersInternal();
+    }
+
+    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
+    public void refreshCaches() {
+        cacheService.updateCache("keycloak_users", this::getAllUsersInternal);
+    }
+
+    private List<UserRepresentation> getAllUsersInternal() {
         Integer userCount = keycloak.realm(realmName).users().count();
         if (userCount == null) {
             log.warn("Could not get current usercount from realm {}. Still trying to load users.", realmName);
-            userCount = 1000;
+            userCount = 10000;
         }
         return keycloak.realm(realmName).users().list(0, userCount);
     }

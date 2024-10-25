@@ -47,6 +47,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
+import ch.bedag.dap.hellodata.portal.cache.service.CacheService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
@@ -66,9 +67,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,6 +82,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -103,8 +105,8 @@ public class UserService {
     private final RoleService roleService;
     private final EmailNotificationService emailNotificationService;
     private final UserLookupProviderManager userLookupProviderManager;
+    private final CacheService cacheService;
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @Transactional
     public String createUser(String email, String firstName, String lastName) {
         email = email.toLowerCase(Locale.ROOT);
@@ -189,13 +191,9 @@ public class UserService {
     @Cacheable(value = "users")
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
-        List<UserEntity> allPortalUsers = userRepository.findAll();
-        return allPortalUsers.stream()
-                .map(this::map)
-                .collect(Collectors.toList()); //NOSONAR it breaks the redis cache with .toList()
+        return getAllUsersInternal();
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @Transactional
     public void deleteUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
@@ -238,7 +236,6 @@ public class UserService {
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @Transactional
     public UserDto disableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
@@ -259,7 +256,6 @@ public class UserService {
         return map(userEntity);
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @Transactional
     public UserDto enableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
@@ -310,7 +306,6 @@ public class UserService {
         return contextsDto;
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @Transactional
     public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         updateContextRoles(userId, updateContextRolesForUserDto);
@@ -417,7 +412,6 @@ public class UserService {
         return userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN).stream().filter(userEntity -> userEntity.isEnabled()).toList();
     }
 
-    @CacheEvict(allEntries = true, cacheNames = {"users", "users_with_dashboards", "subsystem_users"})
     @Transactional
     public void setSelectedLanguage(String userId, Locale lang) {
         UserEntity userEntity = getUserEntity(userId);
@@ -434,6 +428,18 @@ public class UserService {
     @Transactional(readOnly = true)
     public Locale getSelectedLanguageByEmail(String email) {
         return userRepository.findSelectedLanguageByEmail(email);
+    }
+
+    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
+    public void refreshCaches() {
+        cacheService.updateCache("users", this::getAllUsersInternal);
+    }
+
+    private List<UserDto> getAllUsersInternal() {
+        List<UserEntity> allPortalUsers = userRepository.findAll();
+        return allPortalUsers.stream()
+                .map(this::map)
+                .collect(Collectors.toList());
     }
 
     private SubsystemUserUpdate getSubsystemUserUpdate(UserRepresentation representation) {

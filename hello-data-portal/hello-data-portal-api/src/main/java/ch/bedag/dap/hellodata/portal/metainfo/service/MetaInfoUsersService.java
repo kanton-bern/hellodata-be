@@ -11,6 +11,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.portal.cache.service.CacheService;
 import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.RoleToDashboardName;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUserDto;
@@ -20,10 +21,13 @@ import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,9 +42,27 @@ public class MetaInfoUsersService {
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
     private final HdContextRepository contextRepository;
+    private final CacheService cacheService;
 
+    @Cacheable(value = "subsystem_users")
     @Transactional(readOnly = true)
     public List<SubsystemUsersResultDto> getAllUsersWithRoles() {
+        return getAllUsersWithRolesInternal();
+    }
+
+    @Cacheable(value = "users_with_dashboards")
+    @Transactional(readOnly = true)
+    public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
+        return getDashboardUsersResultDtosInternal();
+    }
+
+    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
+    public void refreshCaches() {
+        cacheService.updateCache("users_with_dashboards", this::getDashboardUsersResultDtosInternal);
+        cacheService.updateCache("subsystem_users", this::getAllUsersWithRolesInternal);
+    }
+
+    private List<SubsystemUsersResultDto> getAllUsersWithRolesInternal() {
         List<SubsystemUsersResultDto> result = new ArrayList<>();
         List<HdResource> userPacksForSubsystems = metaInfoResourceService.findAllByKind(ModuleResourceKind.HELLO_DATA_USERS);
         for (HdResource usersPack : userPacksForSubsystems) {
@@ -58,8 +80,7 @@ public class MetaInfoUsersService {
         return result;
     }
 
-    @Transactional(readOnly = true)
-    public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
+    private List<DashboardUsersResultDto> getDashboardUsersResultDtosInternal() {
         List<AppInfoResource> supersetAppInfos = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_APP_INFO, AppInfoResource.class);
         List<DashboardResource> supersetDashboards = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_DASHBOARDS, DashboardResource.class);
         Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName = mapDashboardRoleWithDashboardNamePerInstance(supersetDashboards);
@@ -82,7 +103,7 @@ public class MetaInfoUsersService {
 
                     return new DashboardUsersResultDto(contextKeyToNameMap.get(usersPack.getContextKey()), usersPack.getInstanceName(), subsystemUserDtos);
                 })
-                .collect(Collectors.toList()); //NOSONAR it breaks the redis cache with .toList()
+                .collect(Collectors.toList());
     }
 
     private SubsystemUserDto generateUserDto(MetaInfoResourceEntity usersPack, SubsystemUser subsystemUser, UserDto portalUser,
