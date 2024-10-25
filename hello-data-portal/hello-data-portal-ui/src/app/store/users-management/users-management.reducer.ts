@@ -34,6 +34,7 @@ import {
   loadDashboardsSuccess,
   loadSubsystemUsersForDashboardsSuccess,
   loadSubsystemUsersSuccess,
+  loadSyncStatusSuccess,
   loadUserByIdSuccess,
   loadUserContextRolesSuccess,
   loadUsersSuccess,
@@ -206,6 +207,12 @@ export const usersManagementReducer = createReducer(
     return {
       ...state,
       userSaveButtonDisabled: false
+    };
+  }),
+  on(loadSyncStatusSuccess, (state: UsersManagementState, {status}): UsersManagementState => {
+    return {
+      ...state,
+      syncStatus: status
     };
   }),
 );

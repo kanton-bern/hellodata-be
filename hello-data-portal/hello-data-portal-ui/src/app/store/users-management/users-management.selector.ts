@@ -167,6 +167,13 @@ export const selectSelectedRolesForUser = createSelector(
   }
 );
 
+export const selectSyncStatus = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => {
+    return state.syncStatus
+  }
+);
+
 
 export const selectDashboardsForUser = createSelector(
   usersManagementState,

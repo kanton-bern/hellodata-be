@@ -65,6 +65,10 @@ export class UsersManagementService {
     return this.httpClient.get<DashboardUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview`);
   }
 
+  public getSyncStatus(): Observable<string> {
+    return this.httpClient.get<string>(`${this.baseUsersSyncUrl}/status`);
+  }
+
   public getUserById(userId: string): Observable<User> {
     return this.httpClient.get<User>(`${this.baseUsersUrl}/${userId}`);
   }

@@ -51,7 +51,8 @@ export interface UsersManagementState {
   adminEmails: string[];
   userSaveButtonDisabled: boolean;
   subsystemUsers: SubsystemUsersResultDto[]
-  subsystemUsersForDashboards: DashboardUsersResultDto[]
+  subsystemUsersForDashboards: DashboardUsersResultDto[],
+  syncStatus: string
 }
 
 export const initialUsersManagementState: UsersManagementState = {
@@ -70,5 +71,8 @@ export const initialUsersManagementState: UsersManagementState = {
   adminEmails: [],
   userSaveButtonDisabled: false,
   subsystemUsers: [],
-  subsystemUsersForDashboards: []
+  subsystemUsersForDashboards: [],
+  syncStatus: 'COMPLETED'
 }
+
+

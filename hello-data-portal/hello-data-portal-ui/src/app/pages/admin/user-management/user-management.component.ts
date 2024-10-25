@@ -28,8 +28,8 @@
 import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {debounceTime, distinctUntilChanged, Observable, Subject, Subscription} from "rxjs";
-import {selectUsersCopy} from "../../../store/users-management/users-management.selector";
+import {debounceTime, distinctUntilChanged, interval, Observable, Subject, Subscription, takeUntil} from "rxjs";
+import {selectSyncStatus, selectUsersCopy} from "../../../store/users-management/users-management.selector";
 import {CommonModule} from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
@@ -53,13 +53,22 @@ import {CheckboxModule} from "primeng/checkbox";
 import {DividerModule} from "primeng/divider";
 import {switchMap} from "rxjs/operators";
 import {DropdownModule} from "primeng/dropdown";
-import {DashboardViewerPermissionsComponent} from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
+import {
+  DashboardViewerPermissionsComponent
+} from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
 import {MultiSelectModule} from "primeng/multiselect";
 import {naviElements} from "../../../app-navi-elements";
 import {UsersManagementService} from "../../../store/users-management/users-management.service";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {createUser, loadUsers, navigateToUserEdition, showUserActionPopup, syncUsers} from "../../../store/users-management/users-management.action";
+import {
+  createUser,
+  loadSyncStatus,
+  loadUsers,
+  navigateToUserEdition,
+  showUserActionPopup,
+  syncUsers
+} from "../../../store/users-management/users-management.action";
 import {selectProfile} from "../../../store/auth/auth.selector";
 import {IUser} from "../../../store/auth/auth.model";
 
@@ -71,40 +80,26 @@ import {IUser} from "../../../store/auth/auth.model";
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
 
   users$: Observable<any>;
+  syncStatus$: Observable<string>;
   loggedInUser$: Observable<IUser | undefined>;
   inviteForm!: FormGroup;
   suggestedAdUsers: AdUser[] = [];
   filterValue = '';
+  interval$ = interval(30000);
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
+  private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
     super();
     this.users$ = this.store.select(selectUsersCopy);
+    this.syncStatus$ = this.store.select(selectSyncStatus);
     this.loggedInUser$ = this.store.select(selectProfile);
     this.store.dispatch(loadUsers());
-    this.store.dispatch(createBreadcrumbs({
-      breadcrumbs: [
-        {
-          label: naviElements.userManagement.label,
-          routerLink: naviElements.userManagement.path,
-        }
-      ]
-    }));
-
-    this.searchSubscription = this.searchSubject
-      .pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        switchMap((searchQuery: string | undefined) => {
-          return this.userService.searchUserByEmail(searchQuery);
-        })
-      )
-      .subscribe(
-        (users: AdUser[]) => {
-          return this.suggestedAdUsers = this.enhanceSuggestedAdUsers(users);
-        }
-      )
+    this.store.dispatch(loadSyncStatus());
+    this.createBreadcrumbs();
+    this.createSearchSubscription();
+    this.createInterval();
   }
 
   override ngOnInit(): void {
@@ -117,19 +112,10 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     this.restoreUserTableSearchFilter();
   }
 
-  private restoreUserTableSearchFilter() {
-    const storageItem = sessionStorage.getItem("portal-users-table");
-    if (storageItem) {
-      const storageItemObject = JSON.parse(storageItem);
-      const filterValue = storageItemObject.filters?.global?.value;
-      if (filterValue) {
-        this.filterValue = filterValue;
-      }
-    }
-  }
-
   public ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   createUser() {
@@ -145,15 +131,33 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   showUserDeletionPopup(data: User) {
-    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DELETE, actionFromUsersEdition: false}}));
+    this.store.dispatch(showUserActionPopup({
+      userActionForPopup: {
+        user: data,
+        action: UserAction.DELETE,
+        actionFromUsersEdition: false
+      }
+    }));
   }
 
   enableUser(data: User) {
-    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.ENABLE, actionFromUsersEdition: false}}));
+    this.store.dispatch(showUserActionPopup({
+      userActionForPopup: {
+        user: data,
+        action: UserAction.ENABLE,
+        actionFromUsersEdition: false
+      }
+    }));
   }
 
   disableUser(data: User) {
-    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DISABLE, actionFromUsersEdition: false}}));
+    this.store.dispatch(showUserActionPopup({
+      userActionForPopup: {
+        user: data,
+        action: UserAction.DISABLE,
+        actionFromUsersEdition: false
+      }
+    }));
   }
 
   syncUsers() {
@@ -173,11 +177,58 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     this.inviteForm.get('user')?.setErrors(null);
   }
 
+  private createSearchSubscription() {
+    this.searchSubscription = this.searchSubject
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        switchMap((searchQuery: string | undefined) => {
+          return this.userService.searchUserByEmail(searchQuery);
+        })
+      )
+      .subscribe(
+        (users: AdUser[]) => {
+          return this.suggestedAdUsers = this.enhanceSuggestedAdUsers(users);
+        }
+      )
+  }
+
+  private createBreadcrumbs() {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.userManagement.label,
+          routerLink: naviElements.userManagement.path,
+        }
+      ]
+    }));
+  }
+
+  private restoreUserTableSearchFilter() {
+    const storageItem = sessionStorage.getItem("portal-users-table");
+    if (storageItem) {
+      const storageItemObject = JSON.parse(storageItem);
+      const filterValue = storageItemObject.filters?.global?.value;
+      if (filterValue) {
+        this.filterValue = filterValue;
+      }
+    }
+  }
+
   private enhanceSuggestedAdUsers(users: AdUser[]) {
     return users.map(user => {
       user.label = user.email + " (" + user.firstName + " " + user.lastName + ")";
       return user;
     });
+  }
+
+  private createInterval(): void {
+    this.interval$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.store.dispatch(loadUsers());
+        this.store.dispatch(loadSyncStatus());
+      });
   }
 }
 

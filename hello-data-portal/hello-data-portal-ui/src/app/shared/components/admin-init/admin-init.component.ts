@@ -8,6 +8,7 @@ import {selectIsBusinessDomainAdmin, selectIsSuperuser} from "../../../store/aut
 import {
   loadSubsystemUsers,
   loadSubsystemUsersForDashboards,
+  loadSyncStatus,
   loadUsers
 } from "../../../store/users-management/users-management.action";
 
@@ -26,17 +27,19 @@ export class AdminInitComponent {
     ]).pipe(
       tap(([isSuperuser, isBusinessDomainAdmin]) => {
         if (isSuperuser) {
-          console.log('im a superuser and loading subsystem users!')
-          store.dispatch(loadSubsystemUsers());
-          this.store.dispatch(loadUsers());
-          this.store.dispatch(loadSubsystemUsersForDashboards());
+          this.store.dispatch(loadSubsystemUsers());
+          this.commonAdminFetch();
         } else if (isBusinessDomainAdmin) {
-          console.log('im business domain admin and loading users!')
-          this.store.dispatch(loadUsers());
-          this.store.dispatch(loadSubsystemUsersForDashboards());
+          this.commonAdminFetch();
         }
       })
     );
+  }
+
+  private commonAdminFetch() {
+    this.store.dispatch(loadUsers());
+    this.store.dispatch(loadSubsystemUsersForDashboards());
+    this.store.dispatch(loadSyncStatus());
   }
 }
 

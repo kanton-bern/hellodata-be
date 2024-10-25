@@ -61,6 +61,8 @@ import {
   loadSubsystemUsersForDashboards,
   loadSubsystemUsersForDashboardsSuccess,
   loadSubsystemUsersSuccess,
+  loadSyncStatus,
+  loadSyncStatusSuccess,
   loadUserById,
   loadUserByIdSuccess,
   loadUserContextRoles,
@@ -105,7 +107,6 @@ export class UsersManagementEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
 
   userPopupAction$ = createEffect(() => {
     return this._actions$.pipe(
@@ -226,17 +227,13 @@ export class UsersManagementEffects {
   );
 
   syncUsers$ = createEffect(() => {
-      return this._actions$.pipe(
-        ofType(syncUsers),
-        switchMap(action => {
-            return this._usersManagementService.syncUsers().pipe(
-              map((result) => syncUsersSuccess()),
-              catchError(e => of(showError({error: e})))
-            )
-          }
-        ))
-    }
-  );
+    return this._actions$.pipe(
+      ofType(syncUsers),
+      switchMap(action => this._usersManagementService.syncUsers()),
+      switchMap(() => of(syncUsersSuccess(), loadSyncStatus())),
+      catchError(e => of(showError({error: e})))
+    )
+  });
 
   syncUsersSuccess$ = createEffect(() => {
       return this._actions$.pipe(
@@ -299,6 +296,15 @@ export class UsersManagementEffects {
       ofType(loadAdminEmails),
       switchMap(() => this._usersManagementService.getAdminEmails()),
       switchMap(result => of(loadAdminEmailsSuccess({payload: result}))),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  loadSyncStatus$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadSyncStatus),
+      switchMap(() => this._usersManagementService.getSyncStatus()),
+      switchMap(result => of(loadSyncStatusSuccess({status: result}))),
       catchError(e => of(showError({error: e})))
     )
   });
