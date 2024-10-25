@@ -199,6 +199,7 @@
   "@Sync Started": "La synchronisation des utilisateurs avec tous les systèmes environnants a été lancée avec succès",
   "@Sync Users": "Sync",
   "@Sync Users Title": "Synchroniser les utilisateurs avec les systèmes environnants",
+  "@Sync in progress": "Synchronisation en cours",
   "@Title": "Titre",
   "@Title is invalid": "Le titre n'est pas valide",
   "@Type and press enter": "Tapez et appuyez sur Entrée",

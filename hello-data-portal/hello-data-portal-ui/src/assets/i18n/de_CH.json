@@ -198,6 +198,7 @@
   "@Sync Started": "Synchronisation der Benutzer mit allen Umsystemen wurde erfolgreich gestartet",
   "@Sync Users": "Synchronisation",
   "@Sync Users Title": "Synchronisiere Benutzer mit allen Umsystemen",
+  "@Sync in progress": "Synchronisierung läuft",
   "@Title": "Titel",
   "@Title is invalid": "Titel ist ungültig",
   "@Type and press enter": "Tippen und Enter drücken",

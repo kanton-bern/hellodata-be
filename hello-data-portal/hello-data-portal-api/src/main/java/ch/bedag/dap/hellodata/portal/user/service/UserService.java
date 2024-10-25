@@ -598,6 +598,8 @@ public class UserService {
             userDto.setEnabled(userEntity.isEnabled());
             userDto.setSuperuser(userEntity.getSuperuser());
             userDto.setInvitationsCount(userEntity.getInvitationsCount());
+            userDto.setFirstName(userEntity.getFirstName());
+            userDto.setLastName(userEntity.getLastName());
             if (userEntity.getLastAccess() != null) {
                 ZonedDateTime zdt = ZonedDateTime.of(userEntity.getLastAccess(), ZoneId.systemDefault());
                 userDto.setLastAccess(zdt.toInstant().toEpochMilli());

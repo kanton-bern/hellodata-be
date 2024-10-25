@@ -27,6 +27,7 @@
 
 import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
 import {
+  deleteUserInStore,
   hideUserPopupAction,
   loadAdminEmailsSuccess,
   loadAvailableContextRolesSuccess,
@@ -43,6 +44,8 @@ import {
   selectDataDomainRoleForEditedUser,
   setSelectedDashboardForUser,
   showUserActionPopup,
+  syncUsersSuccess,
+  updateUserInStore,
   updateUserRoles,
   updateUserRolesSuccess
 } from "./users-management.action";
@@ -209,10 +212,29 @@ export const usersManagementReducer = createReducer(
       userSaveButtonDisabled: false
     };
   }),
+  on(syncUsersSuccess, (state: UsersManagementState, {status}): UsersManagementState => {
+    return {
+      ...state,
+      syncStatus: status
+    };
+  }),
   on(loadSyncStatusSuccess, (state: UsersManagementState, {status}): UsersManagementState => {
     return {
       ...state,
       syncStatus: status
+    };
+  }),
+  on(updateUserInStore, (state: UsersManagementState, {userChanged}): UsersManagementState => {
+    return {
+      ...state,
+      users: state.users.map(user => user.email === userChanged.email ? {...userChanged} : user),
+      editedUser: state.editedUser ? userChanged : state.editedUser
+    };
+  }),
+  on(deleteUserInStore, (state: UsersManagementState, {userDeleted}): UsersManagementState => {
+    return {
+      ...state,
+      users: state.users.filter(user => user.email !== userDeleted.email),
     };
   }),
 );

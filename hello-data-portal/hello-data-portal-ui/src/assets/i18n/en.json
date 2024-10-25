@@ -199,6 +199,7 @@
   "@Sync Started": "Synchronization of users with surrounding systems started successfully",
   "@Sync Users": "Sync",
   "@Sync Users Title": "Synchronize users with surrounding systems",
+  "@Sync in progress": "Sync in progress",
   "@Title": "Title",
   "@Title is invalid": "Title is invalid",
   "@Type and press enter": "Type and press enter",

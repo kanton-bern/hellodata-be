@@ -47,6 +47,7 @@ import {navigate, showError, showSuccess} from "../app/app.action";
 import {
   createUser,
   createUserSuccess,
+  deleteUserInStore,
   hideUserPopupAction,
   invokeActionFromUserPopup,
   loadAdminEmails,
@@ -73,6 +74,7 @@ import {
   navigateToUsersManagement,
   syncUsers,
   syncUsersSuccess,
+  updateUserInStore,
   updateUserRoles,
   updateUserRolesSuccess,
   userPopupActionSuccess
@@ -116,26 +118,26 @@ export class UsersManagementEffects {
           switch (userActionForPopup!.action) {
             case (UserAction.DISABLE):
               return this._usersManagementService.disableUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({
+                switchMap((user) => of(userPopupActionSuccess({
                   email: userActionForPopup!.user.email,
                   userActionForPopup: userActionForPopup as UserActionForPopup
-                })),
+                }), updateUserInStore({userChanged: user}))),
                 catchError(e => of(showError({error: e})))
               );
             case (UserAction.ENABLE):
               return this._usersManagementService.enableUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({
+                switchMap((user) => of(userPopupActionSuccess({
                   email: userActionForPopup!.user.email,
                   userActionForPopup: userActionForPopup as UserActionForPopup
-                })),
+                }), updateUserInStore({userChanged: user}))),
                 catchError(e => of(showError({error: e})))
               );
             default:
               return this._usersManagementService.deleteUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({
+                switchMap(() => of(userPopupActionSuccess({
                   email: userActionForPopup!.user.email,
                   userActionForPopup: userActionForPopup as UserActionForPopup
-                })),
+                }), deleteUserInStore({userDeleted: userActionForPopup!.user}))),
                 catchError(e => of(showError({error: e})))
               );
           }
@@ -229,8 +231,8 @@ export class UsersManagementEffects {
   syncUsers$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(syncUsers),
-      switchMap(action => this._usersManagementService.syncUsers()),
-      switchMap(() => of(syncUsersSuccess(), loadSyncStatus())),
+      switchMap(() => this._usersManagementService.syncUsers()),
+      switchMap((status) => of(syncUsersSuccess({status}), loadSyncStatus())),
       catchError(e => of(showError({error: e})))
     )
   });

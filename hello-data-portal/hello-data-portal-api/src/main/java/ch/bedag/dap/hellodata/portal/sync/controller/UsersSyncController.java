@@ -17,8 +17,8 @@ public class UsersSyncController {
 
     @GetMapping("/start")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
-    public void syncUsers() {
-        usersSyncService.startSynchronization();
+    public UserSyncStatus syncUsers() {
+        return usersSyncService.startSynchronization();
     }
 
     @GetMapping("/status")

@@ -85,7 +85,8 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   inviteForm!: FormGroup;
   suggestedAdUsers: AdUser[] = [];
   filterValue = '';
-  interval$ = interval(30000);
+  syncStatusInterval$ = interval(30000);
+  fetchUsersInterval$ = interval(60000 * 2);
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
   private destroy$ = new Subject<void>();
@@ -223,11 +224,15 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   private createInterval(): void {
-    this.interval$
+    this.syncStatusInterval$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.store.dispatch(loadSyncStatus());
+      });
+    this.fetchUsersInterval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.store.dispatch(loadUsers());
-        this.store.dispatch(loadSyncStatus());
       });
   }
 }

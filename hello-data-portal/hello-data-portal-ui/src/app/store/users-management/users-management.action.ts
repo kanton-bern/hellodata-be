@@ -72,7 +72,9 @@ export enum UsersManagementActionType {
   LOAD_ADMIN_EMAILS = '[USERS MANAGEMENT] Load email addresses of all HD Administrators',
   LOAD_ADMIN_EMAILS_SUCCESS = '[USERS MANAGEMENT] Load email addresses of all HD Administrators SUCCESS',
   LOAD_SYNC_STATUS = '[USERS MANAGEMENT] Load sync status',
-  LOAD_SYNC_STATUS_SUCCESS = '[USERS MANAGEMENT] Load sync status SUCCESS'
+  LOAD_SYNC_STATUS_SUCCESS = '[USERS MANAGEMENT] Load sync status SUCCESS',
+  UPDATE_USER_IN_STORE = '[USERS MANAGEMENT] Update user in store',
+  DELETE_USER_IN_STORE = '[USERS MANAGEMENT] Delete user in store',
 }
 
 export const loadUsers = createAction(
@@ -82,6 +84,16 @@ export const loadUsers = createAction(
 export const loadUsersSuccess = createAction(
   UsersManagementActionType.LOAD_USERS_SUCCESS,
   props<{ payload: User[] }>()
+);
+
+export const updateUserInStore = createAction(
+  UsersManagementActionType.UPDATE_USER_IN_STORE,
+  props<{ userChanged: User }>()
+);
+
+export const deleteUserInStore = createAction(
+  UsersManagementActionType.DELETE_USER_IN_STORE,
+  props<{ userDeleted: User }>()
 );
 
 export const showUserActionPopup = createAction(
@@ -117,7 +129,8 @@ export const syncUsers = createAction(
 );
 
 export const syncUsersSuccess = createAction(
-  UsersManagementActionType.SYNC_ALL_USERS_SUCCESS
+  UsersManagementActionType.SYNC_ALL_USERS_SUCCESS,
+  props<{ status: string }>()
 );
 
 export const navigateToUserEdition = createAction(

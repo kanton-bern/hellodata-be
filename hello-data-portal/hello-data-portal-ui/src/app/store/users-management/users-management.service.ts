@@ -77,20 +77,20 @@ export class UsersManagementService {
     return this.httpClient.delete<void>(`${this.baseUsersUrl}/${userRepresentation.id}`);
   }
 
-  public enableUser(userRepresentation: User): Observable<void> {
-    return this.httpClient.patch<void>(`${this.baseUsersUrl}/${userRepresentation.id}/enable`, {});
+  public enableUser(userRepresentation: User): Observable<User> {
+    return this.httpClient.patch<User>(`${this.baseUsersUrl}/${userRepresentation.id}/enable`, {});
   }
 
-  public disableUser(userRepresentation: User): Observable<void> {
-    return this.httpClient.patch<void>(`${this.baseUsersUrl}/${userRepresentation.id}/disable`, {});
+  public disableUser(userRepresentation: User): Observable<User> {
+    return this.httpClient.patch<User>(`${this.baseUsersUrl}/${userRepresentation.id}/disable`, {});
   }
 
   public createUser(createUserForm: CreateUserForm): Observable<CreateUserResponse> {
     return this.httpClient.post<CreateUserResponse>(`${this.baseUsersUrl}`, createUserForm);
   }
 
-  public syncUsers(): Observable<any> {
-    return this.httpClient.get<any>(`${this.baseUsersSyncUrl}/start`);
+  public syncUsers(): Observable<string> {
+    return this.httpClient.get<string>(`${this.baseUsersSyncUrl}/start`);
   }
 
   public getCurrentAuthData(): Observable<any> {

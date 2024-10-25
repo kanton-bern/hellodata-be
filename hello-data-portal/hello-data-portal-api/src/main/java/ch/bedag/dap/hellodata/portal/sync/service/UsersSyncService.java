@@ -51,7 +51,7 @@ public class UsersSyncService {
     @Transactional
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
     public void synchronizeUsers() {
-        if (Boolean.TRUE.equals(isStaleLockAquired())) {
+        if (Boolean.TRUE.equals(acquireLock())) {
             UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
             if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED) {
                 LocalDateTime startTime = LocalDateTime.now();
@@ -72,12 +72,13 @@ public class UsersSyncService {
     }
 
     @Transactional
-    public void startSynchronization() {
+    public UserSyncStatus startSynchronization() {
         UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
         if (userSyncLockEntity.getStatus() == UserSyncStatus.COMPLETED) {
             userSyncLockEntity.setStatus(UserSyncStatus.STARTED);
             userSyncLockRepository.save(userSyncLockEntity);
         }
+        return userSyncLockEntity.getStatus();
     }
 
     @Transactional(readOnly = true)
@@ -94,9 +95,8 @@ public class UsersSyncService {
         return all.get(0);
     }
 
-    private Boolean isStaleLockAquired() {
-        Boolean lockAcquired = jdbcTemplate.queryForObject(ADVISORY_LOCK_QUERY, Boolean.class, LOCK_ID);
-        return lockAcquired;
+    private Boolean acquireLock() {
+        return jdbcTemplate.queryForObject(ADVISORY_LOCK_QUERY, Boolean.class, LOCK_ID);
     }
 
     private void releaseStaleLock() {
