@@ -43,6 +43,7 @@ import {
 import {
   selectSyncStatus,
   selectUsersCopy,
+  selectUsersLoading,
   selectUsersTotalRecords
 } from "../../../store/users-management/users-management.selector";
 import {CommonModule} from "@angular/common";
@@ -96,6 +97,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
 
   users$: Observable<any>;
   syncStatus$: Observable<string>;
+  usersLoading$: Observable<boolean>;
   usersTotalRecords = 0;
   loggedInUser$: Observable<IUser | undefined>;
   inviteForm!: FormGroup;
@@ -119,6 +121,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     );
     this.syncStatus$ = this.store.select(selectSyncStatus);
     this.loggedInUser$ = this.store.select(selectProfile);
+    this.usersLoading$ = this.store.select(selectUsersLoading);
     this.store.dispatch(loadSyncStatus());
     this.createBreadcrumbs();
     this.createSearchSubscription();

@@ -38,6 +38,7 @@ import {
   loadSyncStatusSuccess,
   loadUserByIdSuccess,
   loadUserContextRolesSuccess,
+  loadUsers,
   loadUsersSuccess,
   navigateToUsersManagement,
   selectBusinessDomainRoleForEditedUser,
@@ -56,6 +57,12 @@ import {createReducer, on} from "@ngrx/store";
 
 export const usersManagementReducer = createReducer(
   initialUsersManagementState,
+  on(loadUsers, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      usersLoading: true,
+    };
+  }),
   on(loadUsersSuccess, (state: UsersManagementState, {users, totalElements}): UsersManagementState => {
     for (const key in sessionStorage) {
       if (key.startsWith('UM_')) {
@@ -65,6 +72,7 @@ export const usersManagementReducer = createReducer(
     return {
       ...state,
       users: users,
+      usersLoading: false,
       usersTotalRecords: totalElements,
       allDashboardsWithMarkedUser: [],
       allDashboardsWithMarkedUserFetched: false,

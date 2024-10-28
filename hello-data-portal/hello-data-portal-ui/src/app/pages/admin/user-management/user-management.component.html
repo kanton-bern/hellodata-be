@@ -82,6 +82,7 @@
     (onLazyLoad)="loadUsers($event)"
     [globalFilterFields]="['email','firstName','lastName','lastAccess']"
     [lazy]="true"
+    [loading]="(usersLoading$ | async) ?? false"
     [paginator]="true"
     [rowHover]="true"
     [rowsPerPageOptions]="[5, 10, 20]"
