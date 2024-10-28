@@ -77,4 +77,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     Page<UserEntity> findAll(Pageable pageable, @Param("search") String search);
 
     Page<UserEntity> findAll(Pageable pageable);
+
+    List<UserEntity> getUserEntitiesByEnabled(boolean enabled);
 }

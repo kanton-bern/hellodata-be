@@ -1,5 +1,6 @@
 package ch.bedag.dap.hellodata.portal.sync.service;
 
+import ch.bedag.dap.hellodata.portal.lock.service.AdvisoryLockService;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncLockEntity;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus;
 import ch.bedag.dap.hellodata.portal.sync.repository.UserSyncLockRepository;
@@ -8,7 +9,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +23,14 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UsersSyncService {
 
-    private static final long LOCK_ID = 5432543124L; // Unique lock ID for synchronization
-    private static final String ADVISORY_UNLOCK_QUERY = "SELECT pg_advisory_unlock(" + LOCK_ID + ")";
-    private static final String ADVISORY_LOCK_QUERY = "SELECT pg_try_advisory_lock(?)";
+    private static final long LOCK_ID = 5432543124L;
     private final UserService userService;
     private final UserSyncLockRepository userSyncLockRepository;
-    private final JdbcTemplate jdbcTemplate;
+    private final AdvisoryLockService advisoryLockService;
 
     @PostConstruct
     public void releaseStaleLocksOnStartup() {
-        releaseStaleLock();
+        advisoryLockService.releaseStaleLock(LOCK_ID);
         log.info("[syncAllUsers] Released stale advisory lock at startup.");
     }
 
@@ -44,14 +42,14 @@ public class UsersSyncService {
                 userSyncLockEntity.getModifiedDate().isBefore(LocalDateTime.now().minusMinutes(30))) {
             userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
             userSyncLockRepository.save(userSyncLockEntity);
-            releaseStaleLock();
+            advisoryLockService.releaseStaleLock(LOCK_ID);
         }
     }
 
     @Transactional
     @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
     public void synchronizeUsers() {
-        if (Boolean.TRUE.equals(acquireLock())) {
+        if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
             UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
             if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED) {
                 LocalDateTime startTime = LocalDateTime.now();
@@ -61,7 +59,7 @@ public class UsersSyncService {
                 } finally {
                     userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
                     userSyncLockRepository.save(userSyncLockEntity);
-                    releaseStaleLock();
+                    advisoryLockService.releaseStaleLock(LOCK_ID);
                     Duration between = Duration.between(startTime, LocalDateTime.now());
                     log.info("[syncAllUsers] Synchronize users completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
                 }
@@ -95,11 +93,4 @@ public class UsersSyncService {
         return all.get(0);
     }
 
-    private Boolean acquireLock() {
-        return jdbcTemplate.queryForObject(ADVISORY_LOCK_QUERY, Boolean.class, LOCK_ID);
-    }
-
-    private void releaseStaleLock() {
-        jdbcTemplate.execute(ADVISORY_UNLOCK_QUERY);
-    }
 }

@@ -48,8 +48,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContex
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
-import ch.bedag.dap.hellodata.portal.event.UpdateMetainfoUsersCacheEvent;
-import ch.bedag.dap.hellodata.portal.event.UpdatePortalUsersCacheEvent;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -68,7 +66,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
-import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -106,7 +103,6 @@ public class UserService {
     private final RoleService roleService;
     private final EmailNotificationService emailNotificationService;
     private final UserLookupProviderManager userLookupProviderManager;
-    private final ApplicationEventMulticaster applicationEventMulticaster;
 
     @Transactional
     public String createUser(String email, String firstName, String lastName) {
@@ -141,7 +137,6 @@ public class UserService {
         roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
         roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);
         createUserInSubsystems(keycloakUserId);
-        applicationEventMulticaster.multicastEvent(new UpdatePortalUsersCacheEvent(this));
         return keycloakUserId;
     }
 
@@ -161,7 +156,7 @@ public class UserService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void syncAllUsers() {
-        List<UserDto> allUsers = getAllUsers().stream().filter(UserDto::getEnabled).toList();
+        List<UserDto> allUsers = userRepository.getUserEntitiesByEnabled(true).stream().map(this::map).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
         allUsers.stream().forEach(user -> {
@@ -187,7 +182,6 @@ public class UserService {
                 log.error("[syncAllUsers] Could not sync user {} with subsystems", user.getEmail(), e);
             }
         });
-        applicationEventMulticaster.multicastEvent(new UpdatePortalUsersCacheEvent(this));
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
     }
 
@@ -231,7 +225,6 @@ public class UserService {
         subsystemUserDelete.setUsername(userRepresentation.getUsername());
         userResource.remove();
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
-        applicationEventMulticaster.multicastEvent(new UpdatePortalUsersCacheEvent(this));
     }
 
     @Transactional(readOnly = true)
@@ -270,7 +263,6 @@ public class UserService {
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
         emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail(), getSelectedLanguageByEmail(representation.getEmail()));
-        applicationEventMulticaster.multicastEvent(new UpdatePortalUsersCacheEvent(this));
         return map(userEntity);
     }
 
@@ -291,7 +283,6 @@ public class UserService {
         userRepository.saveAndFlush(userEntity);
         synchronizeContextRolesWithSubsystems(userEntity);
         emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail(), userEntity.getSelectedLanguage());
-        applicationEventMulticaster.multicastEvent(new UpdatePortalUsersCacheEvent(this));
         return map(userEntity);
     }
 
@@ -332,8 +323,6 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         synchronizeContextRolesWithSubsystems(userEntity);
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
-        applicationEventMulticaster.multicastEvent(new UpdatePortalUsersCacheEvent(this));
-        applicationEventMulticaster.multicastEvent(new UpdateMetainfoUsersCacheEvent(this));
     }
 
     @Transactional(readOnly = true)
@@ -438,7 +427,6 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setSelectedLanguage(lang);
         userRepository.save(userEntity);
-        applicationEventMulticaster.multicastEvent(new UpdatePortalUsersCacheEvent(this));
     }
 
     @Transactional(readOnly = true)

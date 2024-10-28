@@ -50,7 +50,7 @@ public class KeycloakUserSyncService {
      * Checks if any of keycloak users has a changed id (e.g: user removed directly in the keycloak and then added again)
      */
     @Transactional
-    @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-minutes}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-hours}", timeUnit = TimeUnit.HOURS)
     public void syncUsers() {
         log.info("[sync-users-with-keycloak] Started");
         List<UserRepresentation> allUsers = keycloakService.getAllUsers();

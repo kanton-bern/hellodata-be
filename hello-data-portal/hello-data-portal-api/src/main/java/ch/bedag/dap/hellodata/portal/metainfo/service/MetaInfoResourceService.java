@@ -80,6 +80,7 @@ public class MetaInfoResourceService {
         return resourceRepository.findAllByKind(kind);
     }
 
+    @Transactional(readOnly = true)
     public <T extends HdResource> T findByInstanceNameAndKind(String instanceName, String kind, Class<T> concreteClass) {
         MetaInfoResourceEntity metaInfoResourceEntity = resourceRepository.getByInstanceNameAndKind(instanceName, kind);
         if (metaInfoResourceEntity != null) {
@@ -91,6 +92,7 @@ public class MetaInfoResourceService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     public <T extends HdResource> T findByModuleTypeInstanceNameAndKind(ModuleType moduleType, String instanceName, String kind, Class<T> concreteClass) {
         MetaInfoResourceEntity metaInfoResourceEntity = resourceRepository.getByModuleTypeAndInstanceNameAndKind(moduleType, instanceName, kind);
         if (metaInfoResourceEntity != null) {
@@ -107,6 +109,7 @@ public class MetaInfoResourceService {
         return resourceRepository.findAllByKind(kind).stream().map(MetaInfoResourceEntity::getMetainfo).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<HdResource> findAllByAppInfo(String apiVersion, String instanceName, ModuleType moduleType) {
         return resourceRepository.findAllFilteredByAppInfo(apiVersion, instanceName, moduleType).stream().map(MetaInfoResourceEntity::getMetainfo).toList();
     }

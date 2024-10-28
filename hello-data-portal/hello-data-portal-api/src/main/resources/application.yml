@@ -37,7 +37,7 @@ hello-data:
     # IMPORTANT: admin-cli needs a service-account and manage-users permission: --> ServiceAccountRoles -> assign role -> filter by client -> add "manage-users"
     admin-client-id: admin-cli
     admin-client-secret: LiLlI86eFxXNWXUWqov4eyG1ocgWwPEq
-    sync-users-schedule-minutes: 10
+    sync-users-schedule-hours: 1
   default-admin:
     email: admin@hellodata.ch
     username: admin
@@ -68,10 +68,8 @@ hello-data:
     allowed-origins: ${hello-data.auth-server.redirect-url},${hello-data.auth-server.url} #can be comma separated
   cache:
     enabled: true
-    keycloak-users-ttl-minutes: 30
-    users-ttl-minutes: 30
-    users-with-dashboards-ttl-minutes: 30
-    subsystem-users-ttl-minutes: 30
+    users-with-dashboards-ttl-minutes: 60
+    subsystem-users-ttl-minutes: 60
 
 #spring props
 spring:

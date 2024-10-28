@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
-import ch.bedag.dap.hellodata.portal.event.UpdateKeycloakUsersCacheEvent;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -35,7 +34,6 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -51,13 +49,11 @@ import java.util.List;
 public class KeycloakService {
 
     private final Keycloak keycloak;
-    private final ApplicationEventPublisher applicationEventPublisher;
     @Value("${hello-data.auth-server.realm}")
     private String realmName;
 
     public String createUser(UserRepresentation user) {
         try (Response response = keycloak.realm(realmName).users().create(user)) {
-            applicationEventPublisher.publishEvent(new UpdateKeycloakUsersCacheEvent(this));
             return getCreatedId(response);
         }
     }
@@ -82,7 +78,6 @@ public class KeycloakService {
         return userRepresentations.get(0);
     }
 
-    //    @Cacheable
     public List<UserRepresentation> getAllUsers() {
         return getAllUsersInternal();
     }

@@ -20,6 +20,7 @@ import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,10 +50,11 @@ public class MetaInfoUsersService {
     @Cacheable(value = "users_with_dashboards")
     @Transactional(readOnly = true)
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
-        return getDashboardUsersResultDtosInternal();
+        return getAllUsersWithRolesForDashboardsInternal();
     }
 
-    private List<SubsystemUsersResultDto> getAllUsersWithRolesInternal() {
+    @CachePut(value = "subsystem_users")
+    public List<SubsystemUsersResultDto> getAllUsersWithRolesInternal() {
         List<SubsystemUsersResultDto> result = new ArrayList<>();
         List<HdResource> userPacksForSubsystems = metaInfoResourceService.findAllByKind(ModuleResourceKind.HELLO_DATA_USERS);
         for (HdResource usersPack : userPacksForSubsystems) {
@@ -70,7 +72,8 @@ public class MetaInfoUsersService {
         return result;
     }
 
-    private List<DashboardUsersResultDto> getDashboardUsersResultDtosInternal() {
+    @CachePut(value = "users_with_dashboards")
+    public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboardsInternal() {
         List<AppInfoResource> supersetAppInfos = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_APP_INFO, AppInfoResource.class);
         List<DashboardResource> supersetDashboards = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_DASHBOARDS, DashboardResource.class);
         Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName = mapDashboardRoleWithDashboardNamePerInstance(supersetDashboards);
