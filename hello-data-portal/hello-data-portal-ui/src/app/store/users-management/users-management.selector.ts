@@ -47,6 +47,11 @@ export const selectUsers = createSelector(
   (state: UsersManagementState) => state.users
 );
 
+export const selectUsersTotalRecords = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.usersTotalRecords
+);
+
 export const selectSubsystemUsers = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.subsystemUsers

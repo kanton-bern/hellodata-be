@@ -38,6 +38,7 @@ import {Context, Role} from "./context-role.model";
 export interface UsersManagementState {
   permissionsForCurrentUser: string[],
   users: User[],
+  usersTotalRecords: number,
   userForPopup: UserActionForPopup | null
   editedUser: User | null,
   allDashboardsWithMarkedUser: DashboardForUser[],
@@ -58,6 +59,7 @@ export interface UsersManagementState {
 export const initialUsersManagementState: UsersManagementState = {
   permissionsForCurrentUser: [],
   users: [],
+  usersTotalRecords: 0,
   userForPopup: null,
   editedUser: null,
   allDashboardsWithMarkedUser: [],

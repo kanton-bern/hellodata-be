@@ -78,12 +78,13 @@ export enum UsersManagementActionType {
 }
 
 export const loadUsers = createAction(
-  UsersManagementActionType.LOAD_USERS
+  UsersManagementActionType.LOAD_USERS,
+  props<{ page: number, size: number, sort: string, search: string }>()
 );
 
 export const loadUsersSuccess = createAction(
   UsersManagementActionType.LOAD_USERS_SUCCESS,
-  props<{ payload: User[] }>()
+  props<{ users: User[], totalElements: number, totalPages: number }>()
 );
 
 export const updateUserInStore = createAction(

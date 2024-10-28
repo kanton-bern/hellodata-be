@@ -26,7 +26,7 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   AdUser,
@@ -53,8 +53,22 @@ export class UsersManagementService {
   constructor(protected httpClient: HttpClient) {
   }
 
-  public getUsers(): Observable<User[]> {
-    return this.httpClient.get<User[]>(`${this.baseUsersUrl}`);
+  getUsers(page: number, size: number, sort: string, search: string): Observable<{
+    content: User[],
+    totalElements: number,
+    totalPages: number
+  }> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort)
+      .set('search', search || '');
+
+    return this.httpClient.get<{
+      content: User[],
+      totalElements: number,
+      totalPages: number
+    }>(`${this.baseUsersUrl}`, {params});
   }
 
   public getSubsystemUsers(): Observable<SubsystemUsersResultDto[]> {

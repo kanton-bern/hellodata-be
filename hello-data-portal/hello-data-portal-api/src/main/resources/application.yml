@@ -68,10 +68,10 @@ hello-data:
     allowed-origins: ${hello-data.auth-server.redirect-url},${hello-data.auth-server.url} #can be comma separated
   cache:
     enabled: true
-    keycloak-users-ttl-minutes: 480 #8h by default
-    users-ttl-minutes: 480 #8h by default
-    users-with-dashboards-ttl-minutes: 480 #8h by default
-    subsystem-users-ttl-minutes: 480 #8h by default
+    keycloak-users-ttl-minutes: 30
+    users-ttl-minutes: 30
+    users-with-dashboards-ttl-minutes: 30
+    subsystem-users-ttl-minutes: 30
 
 #spring props
 spring:

@@ -28,8 +28,23 @@
 import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {debounceTime, distinctUntilChanged, interval, Observable, Subject, Subscription, takeUntil} from "rxjs";
-import {selectSyncStatus, selectUsersCopy} from "../../../store/users-management/users-management.selector";
+import {
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  interval,
+  map,
+  Observable,
+  Subject,
+  Subscription,
+  takeUntil,
+  tap
+} from "rxjs";
+import {
+  selectSyncStatus,
+  selectUsersCopy,
+  selectUsersTotalRecords
+} from "../../../store/users-management/users-management.selector";
 import {CommonModule} from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
@@ -37,7 +52,7 @@ import {UserEditComponent} from "./user-edit/user-edit.component";
 import {ActionsUserPopupComponent} from "./actions-user-popup/actions-user-popup.component";
 import {TranslocoModule} from "@ngneat/transloco";
 import {RouterLink} from "@angular/router";
-import {TableModule} from "primeng/table";
+import {TableLazyLoadEvent, TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";
 import {TooltipModule} from "primeng/tooltip";
 import {InputTextModule} from "primeng/inputtext";
@@ -81,22 +96,29 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
 
   users$: Observable<any>;
   syncStatus$: Observable<string>;
+  usersTotalRecords = 0;
   loggedInUser$: Observable<IUser | undefined>;
   inviteForm!: FormGroup;
   suggestedAdUsers: AdUser[] = [];
   filterValue = '';
   syncStatusInterval$ = interval(30000);
-  fetchUsersInterval$ = interval(60000 * 2);
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
     super();
-    this.users$ = this.store.select(selectUsersCopy);
+    this.users$ = combineLatest([
+      this.store.select(selectUsersCopy),
+      this.store.select(selectUsersTotalRecords)
+    ]).pipe(
+      tap(([_, usersTotalRecords]) => {
+        this.usersTotalRecords = usersTotalRecords;
+      }),
+      map(([users, _]) => users),
+    );
     this.syncStatus$ = this.store.select(selectSyncStatus);
     this.loggedInUser$ = this.store.select(selectProfile);
-    this.store.dispatch(loadUsers());
     this.store.dispatch(loadSyncStatus());
     this.createBreadcrumbs();
     this.createSearchSubscription();
@@ -178,6 +200,16 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     this.inviteForm.get('user')?.setErrors(null);
   }
 
+  loadUsers(event: TableLazyLoadEvent) {
+    console.log('table lazy load event', event)
+    this.store.dispatch(loadUsers({
+      page: event.first as number / (event.rows as number),
+      size: event.rows as number,
+      sort: event.sortField ? `${event.sortField}, ${event.sortOrder ? event.sortOrder > 0 ? 'asc' : 'desc' : ''}` : '',
+      search: event.globalFilter ? event.globalFilter as string : ''
+    }));
+  }
+
   private createSearchSubscription() {
     this.searchSubscription = this.searchSubject
       .pipe(
@@ -228,11 +260,6 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.store.dispatch(loadSyncStatus());
-      });
-    this.fetchUsersInterval$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.store.dispatch(loadUsers());
       });
   }
 }

@@ -37,8 +37,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.ClientErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -75,16 +81,29 @@ public class UserController {
         }
     }
 
-
     @GetMapping
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
-    public List<UserDto> getAllUsers() {
-        try {
-            return userService.getAllUsers();
-        } catch (ClientErrorException e) {
-            log.error("Error on users fetch", e);
-            throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
+    public ResponseEntity<Page<UserDto>> getAllUsers(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String search) {
+
+        sort = StringUtils.defaultIfEmpty(sort, null);
+        search = StringUtils.defaultIfEmpty(search, null);
+
+        Sort sorting = Sort.by(Sort.Direction.ASC, "id");
+        if (sort != null && !sort.isEmpty()) {
+            String[] sortParams = sort.split(",");
+            if (sortParams.length == 2) {
+                String sortField = sortParams[0];
+                Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
+                sorting = Sort.by(direction, sortField);
+            }
         }
+        Pageable pageable = PageRequest.of(page, size, sorting);
+        Page<UserDto> usersPage = userService.getAllUsersPageable(pageable, search);
+        return ResponseEntity.ok(usersPage);
     }
 
     @GetMapping("/{userId}")

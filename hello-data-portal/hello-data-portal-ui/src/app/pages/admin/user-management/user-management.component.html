@@ -62,7 +62,7 @@
   </form>
 </div>
 
-<div *ngIf="(users$ | async) as users" class="card">
+<div class="card">
   <p-toolbar>
     <div class="p-toolbar-group-start">
       <h3>{{ '@Users' | transloco }}</h3>
@@ -79,14 +79,16 @@
 
   <p-table
     #dt
-    *ngIf="users.length > 0"
+    (onLazyLoad)="loadUsers($event)"
     [globalFilterFields]="['email','firstName','lastName','lastAccess']"
+    [lazy]="true"
     [paginator]="true"
     [rowHover]="true"
+    [rowsPerPageOptions]="[5, 10, 20]"
     [rows]="10"
-    [showCurrentPageReport]="true"
     [tableStyle]="{ 'min-width': '75rem' }"
-    [value]="users"
+    [totalRecords]="usersTotalRecords"
+    [value]="users$ | async"
     dataKey="id"
     id="userTable"
     stateKey="portal-users-table"

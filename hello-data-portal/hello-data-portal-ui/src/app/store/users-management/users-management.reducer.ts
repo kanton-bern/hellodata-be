@@ -56,7 +56,7 @@ import {createReducer, on} from "@ngrx/store";
 
 export const usersManagementReducer = createReducer(
   initialUsersManagementState,
-  on(loadUsersSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+  on(loadUsersSuccess, (state: UsersManagementState, {users, totalElements}): UsersManagementState => {
     for (const key in sessionStorage) {
       if (key.startsWith('UM_')) {
         sessionStorage.removeItem(key);
@@ -64,7 +64,8 @@ export const usersManagementReducer = createReducer(
     }
     return {
       ...state,
-      users: payload,
+      users: users,
+      usersTotalRecords: totalElements,
       allDashboardsWithMarkedUser: [],
       allDashboardsWithMarkedUserFetched: false,
       userContextRoles: [],

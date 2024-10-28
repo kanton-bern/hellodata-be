@@ -83,14 +83,21 @@ import {
 @Injectable()
 export class UsersManagementEffects {
 
-  loadUsers$ = createEffect(() => {
-    return this._actions$.pipe(
+  loadUsers$ = createEffect(() =>
+    this._actions$.pipe(
       ofType(loadUsers),
-      switchMap(() => this._usersManagementService.getUsers()),
-      switchMap(result => of(loadUsersSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(({page, size, sort, search}) =>
+        this._usersManagementService.getUsers(page, size, sort, search).pipe(
+          map((response) => loadUsersSuccess({
+            users: response.content,
+            totalElements: response.totalElements,
+            totalPages: response.totalPages
+          })),
+          catchError(e => of(showError({error: e})))
+        )
+      )
     )
-  });
+  );
 
   loadSubsystemUsers$ = createEffect(() => {
     return this._actions$.pipe(
@@ -164,7 +171,7 @@ export class UsersManagementEffects {
         } else if (action.userActionForPopup.actionFromUsersEdition) {
           return of(loadUserById(), hideUserPopupAction());
         }
-        return of(loadUsers(), hideUserPopupAction());
+        return of(hideUserPopupAction());
       })
     )
   });

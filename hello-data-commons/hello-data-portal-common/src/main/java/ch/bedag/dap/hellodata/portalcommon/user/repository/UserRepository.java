@@ -28,6 +28,8 @@ package ch.bedag.dap.hellodata.portalcommon.user.repository;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -67,4 +69,12 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
     @Query("SELECT u.selectedLanguage FROM user_ u WHERE u.email = :email")
     Locale findSelectedLanguageByEmail(@Param("email") String email);
+
+    @Query("SELECT u FROM user_ u WHERE " +
+            "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<UserEntity> findAll(Pageable pageable, @Param("search") String search);
+
+    Page<UserEntity> findAll(Pageable pageable);
 }

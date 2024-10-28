@@ -8,8 +8,7 @@ import {selectIsBusinessDomainAdmin, selectIsSuperuser} from "../../../store/aut
 import {
   loadSubsystemUsers,
   loadSubsystemUsersForDashboards,
-  loadSyncStatus,
-  loadUsers
+  loadSyncStatus
 } from "../../../store/users-management/users-management.action";
 
 @Component({
@@ -37,7 +36,7 @@ export class AdminInitComponent {
   }
 
   private commonAdminFetch() {
-    this.store.dispatch(loadUsers());
+    // this.store.dispatch(loadUsers());
     this.store.dispatch(loadSubsystemUsersForDashboards());
     this.store.dispatch(loadSyncStatus());
   }
