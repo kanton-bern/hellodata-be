@@ -21,7 +21,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_META
 @Log4j2
 @Service
 @AllArgsConstructor
-public class CacheUpdateServiceImpl {
+public class CacheUpdateService {
 
     private static final long LOCK_ID = 6432543124L;
 
@@ -50,18 +50,18 @@ public class CacheUpdateServiceImpl {
     }
 
     private void updateUsersWithDashboardsCache() {
-        log.info("[CACHE] Updating metainfo users with dashboard permissions cache");
+        log.info("[CACHE] Updating subsystem users with dashboard permissions cache");
         LocalDateTime startTime = LocalDateTime.now();
         metaInfoUsersService.getAllUsersWithRolesForDashboardsInternal();
         Duration between = Duration.between(startTime, LocalDateTime.now());
-        log.info("[CACHE] Updating metainfo users with dashboard permissions completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
+        log.info("[CACHE] Updating subsystem users with dashboard permissions completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }
 
     private void updateUsersWithRolesCache() {
-        log.info("[CACHE] Updating metainfo users aggregation cache");
+        log.info("[CACHE] Updating subsystem users aggregation cache");
         LocalDateTime startTime = LocalDateTime.now();
         metaInfoUsersService.getAllUsersWithRolesInternal();
         Duration between = Duration.between(startTime, LocalDateTime.now());
-        log.info("[CACHE] Updating metainfo users aggregation completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
+        log.info("[CACHE] Updating subsystem users aggregation completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }
 }
