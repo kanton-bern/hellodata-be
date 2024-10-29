@@ -36,6 +36,10 @@ import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -44,10 +48,10 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
 @ContextConfiguration(classes = {UserController.class})
@@ -115,16 +119,33 @@ class UserControllerTest extends HDControllerTest {
         userDto2.setFirstName("User");
         userDto2.setLastName("Two");
         List<UserDto> users = List.of(userDto1, userDto2);
+        Page<UserDto> pagedUsers = new PageImpl<>(users, PageRequest.of(0, 10, Sort.by("id")), users.size());
+
 
         // Mock the service method
-        when(userService.getAllUsers()).thenReturn(users);
+        when(userService.getAllUsersPageable(any(), any())).thenReturn(pagedUsers);
 
         // when then
-        mockMvc.perform(get("/users").header("authorization", generateToken(Set.of("USER_MANAGEMENT"))))
+        mockMvc.perform(get("/users")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "id,asc")
+                        .header("authorization", generateToken(Set.of("USER_MANAGEMENT"))))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json("[{'id':'" + users.get(0).getId() + "', 'email':'user1@test.com', 'firstName':'User', 'lastName':'One'}, {'id':'" + users.get(1).getId() +
-                        "', 'email':'user2@test.com', 'firstName':'User', 'lastName':'Two'}]"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content[0].id").value(userDto1.getId()))
+                .andExpect(jsonPath("$.content[0].email").value("user1@test.com"))
+                .andExpect(jsonPath("$.content[0].firstName").value("User"))
+                .andExpect(jsonPath("$.content[0].lastName").value("One"))
+                .andExpect(jsonPath("$.content[1].id").value(userDto2.getId()))
+                .andExpect(jsonPath("$.content[1].email").value("user2@test.com"))
+                .andExpect(jsonPath("$.content[1].firstName").value("User"))
+                .andExpect(jsonPath("$.content[1].lastName").value("Two"))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.totalElements").value(users.size()))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.size").value(10));
     }
 
     @Test
@@ -155,7 +176,6 @@ class UserControllerTest extends HDControllerTest {
                             "lastAccess": null,
                             "lastName": "One",
                             "permissions": null,
-                            "requiredActions": null,
                             "superuser": null,
                             "username": null
                         }
