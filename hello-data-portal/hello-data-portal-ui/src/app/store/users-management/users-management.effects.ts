@@ -333,7 +333,7 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(clearSubsystemUsersForDashboardsCache),
       switchMap(() => this._usersManagementService.clearAllUsersWithRolesForDashboardsCache()),
-      switchMap(() => of(loadSubsystemUsersForDashboards)),
+      switchMap(() => of(loadSubsystemUsersForDashboards())),
       catchError(e => of(showError({error: e})))
     )
   });

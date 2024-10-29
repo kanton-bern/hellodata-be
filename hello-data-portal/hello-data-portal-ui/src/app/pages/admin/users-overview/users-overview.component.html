@@ -2,7 +2,7 @@
 <h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
 <div *ngIf="(tableData$ | async) as tableData" class="card">
   <div *ngIf="(columns$ | async) as columns">
-    <p-table #dt [columns]="columns" [value]="tableData">
+    <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData">
       <ng-template pTemplate="caption">
         <div class="flex">
           <div style="text-align: left">
@@ -10,6 +10,12 @@
               (onClick)="dt.exportCSV()"
               icon="pi pi-external-link"
               label="{{ '@Export' | transloco }}"/>
+          </div>
+          <div class="ml-1" style="text-align: left">
+            <p-button (onClick)="clearCache()"
+                      icon="pi pi-times-circle"
+                      label="{{ '@Clear cache' | transloco }}"
+                      styleClass="p-button-rounded p-button-help"/>
           </div>
         </div>
       </ng-template>

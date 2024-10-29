@@ -55,6 +55,7 @@ export interface UsersManagementState {
   subsystemUsers: SubsystemUsersResultDto[],
   subsystemUsersLoading: boolean,
   subsystemUsersForDashboards: DashboardUsersResultDto[],
+  subsystemUsersForDashboardsLoading: boolean,
   syncStatus: string
 }
 
@@ -78,6 +79,7 @@ export const initialUsersManagementState: UsersManagementState = {
   subsystemUsers: [],
   subsystemUsersLoading: false,
   subsystemUsersForDashboards: [],
+  subsystemUsersForDashboardsLoading: false,
   syncStatus: 'COMPLETED'
 }
 

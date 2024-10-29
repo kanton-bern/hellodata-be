@@ -40,9 +40,15 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {combineLatest, interval, Observable, Subject, takeUntil} from "rxjs";
-import {loadSubsystemUsersForDashboards} from "../../../store/users-management/users-management.action";
-import {selectSubsystemUsersForDashboards} from "../../../store/users-management/users-management.selector";
+import {interval, Observable, Subject, takeUntil} from "rxjs";
+import {
+  clearSubsystemUsersForDashboardsCache,
+  loadSubsystemUsersForDashboards
+} from "../../../store/users-management/users-management.action";
+import {
+  selectSubsystemUsersForDashboards,
+  selectSubsystemUsersForDashboardsLoading
+} from "../../../store/users-management/users-management.selector";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
@@ -63,6 +69,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
+  dataLoading$: Observable<boolean>;
   interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
@@ -73,6 +80,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
     this.createInterval();
+    this.dataLoading$ = this.store.select(selectSubsystemUsersForDashboardsLoading);
   }
 
   ngOnDestroy(): void {
@@ -107,13 +115,14 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     }
   }
 
+  clearCache() {
+    this.store.dispatch(clearSubsystemUsersForDashboardsCache());
+  }
+
   private createDynamicColumns(): Observable<any[]> {
-    return combineLatest([
-      this.store.select(selectSubsystemUsersForDashboards),
-      this.translateService.selectTranslate('@Users')
-    ]).pipe(
-      map(([subsystemUsers, userTextTranslated]) => [
-        {field: 'email', header: userTextTranslated},
+    return this.store.select(selectSubsystemUsersForDashboards).pipe(
+      map((subsystemUsers) => [
+        {field: 'email', header: '@Users'},
         {field: 'enabled', header: '@Enabled'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
@@ -166,7 +175,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
         this.store.dispatch(loadSubsystemUsersForDashboards());
       });
   }
-
 }
 
 @NgModule({

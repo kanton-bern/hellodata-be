@@ -36,6 +36,7 @@ import {
   loadAvailableContextsSuccess,
   loadDashboardsSuccess,
   loadSubsystemUsers,
+  loadSubsystemUsersForDashboards,
   loadSubsystemUsersForDashboardsSuccess,
   loadSubsystemUsersSuccess,
   loadSyncStatusSuccess,
@@ -98,10 +99,17 @@ export const usersManagementReducer = createReducer(
       subsystemUsersLoading: false
     };
   }),
+  on(loadSubsystemUsersForDashboards, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsersForDashboardsLoading: true
+    };
+  }),
   on(loadSubsystemUsersForDashboardsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
     return {
       ...state,
-      subsystemUsersForDashboards: payload
+      subsystemUsersForDashboards: payload,
+      subsystemUsersForDashboardsLoading: false
     };
   }),
   on(showUserActionPopup, (state: UsersManagementState, {userActionForPopup}): UsersManagementState => {
@@ -259,13 +267,15 @@ export const usersManagementReducer = createReducer(
   on(clearSubsystemUsersCache, (state: UsersManagementState): UsersManagementState => {
     return {
       ...state,
-      subsystemUsers: []
+      subsystemUsers: [],
+      subsystemUsersLoading: true
     };
   }),
   on(clearSubsystemUsersForDashboardsCache, (state: UsersManagementState): UsersManagementState => {
     return {
       ...state,
-      subsystemUsersForDashboards: []
+      subsystemUsersForDashboards: [],
+      subsystemUsersForDashboardsLoading: true
     };
   }),
 );

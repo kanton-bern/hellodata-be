@@ -95,7 +95,7 @@ public class MetaInfoResourceController {
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/subsystem-users/clear-cache")
     public void clearSubsystemUsersCache() {
-        log.info("Cleared up subsystem users cache");
+        log.info("Cleared up subsystem users cache by {}", SecurityUtils.getCurrentUserEmail());
     }
 
     /**
@@ -113,7 +113,7 @@ public class MetaInfoResourceController {
     @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
     @GetMapping(value = "/resources/users-dashboards-overview/clear-cache")
     public void clearUsersWithRolesForDashboardsCache() {
-        log.info("Cleared up users with dashboards cache");
+        log.info("Cleared up users with dashboards cache by {}", SecurityUtils.getCurrentUserEmail());
     }
 
 

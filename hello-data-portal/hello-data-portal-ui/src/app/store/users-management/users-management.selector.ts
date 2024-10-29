@@ -205,4 +205,9 @@ export const selectSubsystemUsersLoading = createSelector(
   (state: UsersManagementState) => state.subsystemUsersLoading
 );
 
+export const selectSubsystemUsersForDashboardsLoading = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.subsystemUsersForDashboardsLoading
+);
+
 
