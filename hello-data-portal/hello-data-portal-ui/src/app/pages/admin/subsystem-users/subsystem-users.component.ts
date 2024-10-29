@@ -143,7 +143,6 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
             row[subsystem.instanceName] = user ? user.roles.join(', ') || SubsystemUsersComponent.NO_PERMISSIONS : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
           });
         });
-        console.log('table rows?', tableRows)
         return tableRows;
       }));
   }

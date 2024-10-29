@@ -204,7 +204,6 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   loadUsers(event: TableLazyLoadEvent) {
-    console.log('table lazy load event', event)
     this.store.dispatch(loadUsers({
       page: event.first as number / (event.rows as number),
       size: event.rows as number,
