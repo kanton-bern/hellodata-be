@@ -30,7 +30,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {clearSubsystemUsersCache, loadSubsystemUsers} from "../../../store/users-management/users-management.action";
-import {interval, Observable, Subject, takeUntil} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {
   selectSubsystemUsers,
   selectSubsystemUsersLoading
@@ -39,7 +39,6 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
 import {Table} from "primeng/table";
-import {loadRoleResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 import {TranslateService} from "../../../shared/services/translate.service";
 
 interface TableRow {
@@ -59,7 +58,6 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   dataLoading$: Observable<boolean>;
-  interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
@@ -68,7 +66,6 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
-    this.createInterval();
     this.dataLoading$ = this.store.select(selectSubsystemUsersLoading);
   }
 
@@ -158,12 +155,4 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     }));
   }
 
-  private createInterval(): void {
-    this.interval$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.store.dispatch(loadRoleResources());
-        this.store.dispatch(loadSubsystemUsers());
-      });
-  }
 }

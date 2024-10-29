@@ -40,7 +40,7 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {interval, Observable, Subject, takeUntil} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {
   clearSubsystemUsersForDashboardsCache,
   loadSubsystemUsersForDashboards
@@ -70,7 +70,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   dataLoading$: Observable<boolean>;
-  interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
@@ -79,7 +78,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
-    this.createInterval();
     this.dataLoading$ = this.store.select(selectSubsystemUsersForDashboardsLoading);
   }
 
@@ -168,13 +166,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     }));
   }
 
-  private createInterval(): void {
-    this.interval$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.store.dispatch(loadSubsystemUsersForDashboards());
-      });
-  }
 }
 
 @NgModule({
