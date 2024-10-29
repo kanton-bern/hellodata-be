@@ -37,14 +37,18 @@ public class CacheUpdateService {
     @SneakyThrows
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_METAINFO_USERS_CACHE)
-    public CompletableFuture<Void> updateCache(UserResource userResource) {
+    public CompletableFuture<Void> updateMetainfoUsersCache(UserResource userResource) {
         if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
-            updateUsersWithRolesCache();
-            if (userResource.getModuleType() == ModuleType.SUPERSET) {
-                updateUsersWithDashboardsCache();
+            try {
+                updateUsersWithRolesCache();
+                if (userResource.getModuleType() == ModuleType.SUPERSET) {
+                    updateUsersWithDashboardsCache();
+                }
+            } finally {
+                advisoryLockService.releaseStaleLock(LOCK_ID);
             }
         } else {
-            log.info("[CACHE] Another instance is already synchronizing cache.");
+            log.info("[CACHE] Another instance is already synchronizing metainfo users cache.");
         }
         return null;
     }
