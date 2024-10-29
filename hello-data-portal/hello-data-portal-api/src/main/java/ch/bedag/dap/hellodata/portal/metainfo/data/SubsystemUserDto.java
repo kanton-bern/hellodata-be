@@ -7,5 +7,6 @@ public record SubsystemUserDto(String name,
                                String email,
                                String username,
                                List<String> roles,
-                               String subsystemName) {
+                               String subsystemName,
+                               boolean enabled) {
 }

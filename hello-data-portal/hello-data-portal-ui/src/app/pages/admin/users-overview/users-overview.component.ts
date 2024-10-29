@@ -60,6 +60,7 @@ interface TableRow {
   styleUrls: ['./users-overview.component.scss']
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
+  private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   interval$ = interval(30000);
@@ -135,7 +136,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : '@No permissions';
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY : UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY;
           });
         });
 

@@ -56,7 +56,7 @@ public class CacheUpdateService {
     private void updateUsersWithDashboardsCache() {
         log.info("[CACHE] Updating subsystem users with dashboard permissions cache");
         LocalDateTime startTime = LocalDateTime.now();
-        metaInfoUsersService.getAllUsersWithRolesForDashboardsInternal();
+        metaInfoUsersService.getAllUsersWithRolesForDashboardsRefreshCache();
         Duration between = Duration.between(startTime, LocalDateTime.now());
         log.info("[CACHE] Updating subsystem users with dashboard permissions completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }
@@ -64,7 +64,7 @@ public class CacheUpdateService {
     private void updateUsersWithRolesCache() {
         log.info("[CACHE] Updating subsystem users aggregation cache");
         LocalDateTime startTime = LocalDateTime.now();
-        metaInfoUsersService.getAllUsersWithRolesInternal();
+        metaInfoUsersService.getAllUsersWithRolesRefreshCache();
         Duration between = Duration.between(startTime, LocalDateTime.now());
         log.info("[CACHE] Updating subsystem users aggregation completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }

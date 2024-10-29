@@ -37,6 +37,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
 import {Table} from "primeng/table";
 import {loadRoleResources} from "../../../store/metainfo-resource/metainfo-resource.action";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 interface TableRow {
   email: string;
@@ -50,13 +51,14 @@ interface TableRow {
   styleUrls: ['./subsystem-users.component.scss']
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
-  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
+  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';
+  private static readonly NO_PERMISSIONS = '@User has no permissions in the instance';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     super();
     store.dispatch(loadSubsystemUsers());
     this.columns$ = this.createDynamicColumns();
@@ -84,10 +86,18 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   }
 
   shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
+    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT) && !value.includes(SubsystemUsersComponent.NO_PERMISSIONS)) {
       return true;
     }
     return false;
+  }
+
+  translateValue(value: string): string {
+    if (value.startsWith('@')) {
+      return this.translateService.translate(value);
+    } else {
+      return value; // No translation needed
+    }
   }
 
   private createDynamicColumns(): Observable<any[]> {
@@ -116,7 +126,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || SubsystemUsersComponent.NO_PERMISSIONS : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
           });
         });
 
