@@ -50,8 +50,11 @@ import java.time.Duration;
 @Configuration
 public class RedisConfig {
 
-    @Value("${hello-data.cache.keycloak-users-ttl-minutes}")
-    private long keycloakUserTtlCacheMinutes;
+    @Value("${hello-data.cache.users-with-dashboards-ttl-minutes}")
+    private long usersWithDashboardsTtlCacheMinutes;
+
+    @Value("${hello-data.cache.subsystem-users-ttl-minutes}")
+    private long subsystemUsersTtlCacheMinutes;
 
     @Bean
     public RedisTemplate<String, UserCache> redisTemplate(RedisConnectionFactory connectionFactory) {
@@ -89,8 +92,10 @@ public class RedisConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return (builder) -> builder
-                .withCacheConfiguration("keycloak-users",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(keycloakUserTtlCacheMinutes)));
+                .withCacheConfiguration("users_with_dashboards",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersWithDashboardsTtlCacheMinutes)))
+                .withCacheConfiguration("subsystem_users",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(subsystemUsersTtlCacheMinutes)));
     }
 }
 

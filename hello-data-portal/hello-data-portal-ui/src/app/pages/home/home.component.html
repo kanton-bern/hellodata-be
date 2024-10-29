@@ -1,13 +1,13 @@
 <div *ngIf="loadedPermissions$ | async" class="home-view">
 
-  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ | async )?.length === 0">
+  <div *ngIf="(currentUserContextRolesNotNone$ | async )?.length === 0" class="grid">
     <p-fieldset class="col-12 lg:col-12">
       <ng-template pTemplate="header">
         <div class="flex align-items-center gap-2 text-primary">
-          <p-badge value="{{ '@Welcome' | transloco }}" size="large" severity="success"></p-badge>
+          <p-badge severity="success" size="large" value="{{ '@Welcome' | transloco }}"></p-badge>
         </div>
       </ng-template>
-      <div class="h-full permission-error" *ngIf="businessDomain$ | async as businessDomain">
+      <div *ngIf="businessDomain$ | async as businessDomain" class="h-full permission-error">
         {{ '@Permission missing' | transloco: {businessdomain: businessDomain} }}
         <ng-container *ngIf="adminEmails$ |async as adminEmails">
           <ul *ngFor="let email of adminEmails" class="email-list">
@@ -18,11 +18,11 @@
     </p-fieldset>
   </div>
 
-  <div class="grid" *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
+  <div *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0" class="grid">
     <p-fieldset class="col-12 lg:col-6">
       <ng-template pTemplate="header">
         <div class="flex align-items-center text-primary">
-          <h5 class="m-0" id="dashboardsHeader">{{'@Dashboards' | transloco}}</h5>
+          <h5 class="m-0" id="dashboardsHeader">{{ '@Dashboards' | transloco }}</h5>
         </div>
       </ng-template>
       <div class="h-full">
@@ -33,7 +33,7 @@
     <p-fieldset class="col-12 lg:col-6">
       <ng-template pTemplate="header">
         <div class="flex align-items-center text-primary">
-          <h5 class="m-0" id="externalDashboardsHeader">{{'@External dashboards' | transloco}}</h5>
+          <h5 class="m-0" id="externalDashboardsHeader">{{ '@External dashboards' | transloco }}</h5>
         </div>
       </ng-template>
       <div class="h-full">
@@ -44,7 +44,7 @@
     <p-fieldset *ngIf="hasPermissions(['DATA_MARTS']) |async" class="col-12 lg:col-6">
       <ng-template pTemplate="header">
         <div class="flex align-items-center text-primary">
-          <h5 class="m-0" id="dataMartsHeader">{{'@Data Marts' | transloco}}</h5>
+          <h5 class="m-0" id="dataMartsHeader">{{ '@Data Marts' | transloco }}</h5>
         </div>
       </ng-template>
       <div class="h-full">
@@ -55,7 +55,7 @@
     <p-fieldset *ngIf="hasPermissions(['DATA_LINEAGE']) |async" class="col-12 lg:col-6">
       <ng-template pTemplate="header">
         <div class="flex align-items-center text-primary">
-          <h5 class="m-0" id="lineageHeader">{{'@Lineage' | transloco}}</h5>
+          <h5 class="m-0" id="lineageHeader">{{ '@Lineage' | transloco }}</h5>
         </div>
       </ng-template>
       <div class="h-full">
@@ -66,7 +66,7 @@
     <p-fieldset class="col-12 lg:col-6">
       <ng-template pTemplate="header">
         <div class="flex align-items-center text-primary">
-          <h5 class="m-0" id="faqHeader">{{'@Faq' | transloco}}</h5>
+          <h5 class="m-0" id="faqHeader">{{ '@Faq' | transloco }}</h5>
         </div>
       </ng-template>
       <div class="h-full">
@@ -77,7 +77,7 @@
     <p-fieldset class="col-12 lg:col-6">
       <ng-template pTemplate="header">
         <div class="flex align-items-center text-primary">
-          <h5 class="m-0" id="documentationHeader">{{'@Documentation' | transloco}}</h5>
+          <h5 class="m-0" id="documentationHeader">{{ '@Documentation' | transloco }}</h5>
         </div>
       </ng-template>
       <div class="h-full">
@@ -85,5 +85,6 @@
       </div>
     </p-fieldset>
 
+    <app-admin-init></app-admin-init>
   </div>
 </div>

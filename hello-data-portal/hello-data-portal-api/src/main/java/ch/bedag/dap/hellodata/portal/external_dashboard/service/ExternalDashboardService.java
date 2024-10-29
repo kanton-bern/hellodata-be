@@ -35,11 +35,6 @@ import ch.bedag.dap.hellodata.portal.external_dashboard.entity.ExternalDashboard
 import ch.bedag.dap.hellodata.portal.external_dashboard.repository.ExternalDashboardRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -47,6 +42,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
 
 @Log4j2
 @Service
@@ -63,18 +60,18 @@ public class ExternalDashboardService {
         if (!currentUserContextRoles.isEmpty()) {
             List<String> contextKeys = currentUserContextRoles.stream().map(UserContextRoleEntity::getContextKey).toList();
             return externalDashboardRepository.findAll()
-                                              .stream()
-                                              .filter(entity -> contextKeys.contains(entity.getContextKey()))
-                                              .map(entity -> modelMapper.map(entity, ExternalDashboardDto.class))
-                                              .map(dto -> {
-                                                  Optional<HdContextEntity> byContextKey = contextRepository.getByContextKey(dto.getContextKey());
-                                                  if (byContextKey.isPresent()) {
-                                                      HdContextEntity context = byContextKey.get();
-                                                      dto.setContextName(context.getName());
-                                                  }
-                                                  return dto;
-                                              })
-                                              .toList();
+                    .stream()
+                    .filter(entity -> contextKeys.contains(entity.getContextKey()))
+                    .map(entity -> modelMapper.map(entity, ExternalDashboardDto.class))
+                    .map(dto -> {
+                        Optional<HdContextEntity> byContextKey = contextRepository.getByContextKey(dto.getContextKey());
+                        if (byContextKey.isPresent()) {
+                            HdContextEntity context = byContextKey.get();
+                            dto.setContextName(context.getName());
+                        }
+                        return dto;
+                    })
+                    .toList();
         }
         return Collections.emptyList();
     }

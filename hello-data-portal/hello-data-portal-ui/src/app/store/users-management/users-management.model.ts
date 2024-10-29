@@ -106,6 +106,7 @@ export interface SubsystemUserDto {
   username: string;
   roles: string[];
   subsystemName: string;
+  enabled: boolean
 }
 
 export interface SubsystemUsersResultDto {

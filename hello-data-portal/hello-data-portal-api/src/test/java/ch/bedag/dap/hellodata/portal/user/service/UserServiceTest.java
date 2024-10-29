@@ -141,12 +141,10 @@ public class UserServiceTest {
         when(userRepresentation.getEmail()).thenReturn(email);
         when(userRepresentation.getFirstName()).thenReturn(firstName);
         when(userRepresentation.getLastName()).thenReturn(lastName);
-        when(userRepresentation.getId()).thenReturn(createdUserId);
         when(userRepresentation.isEnabled()).thenReturn(true);
         when(keycloakService.getUserRepresentationById(any())).thenReturn(userRepresentation);
-        when(keycloakService.getAllUsers()).thenReturn(List.of(userRepresentation));
+        when(userRepository.getUserEntitiesByEnabled(true)).thenReturn(List.of(userEntity));
         when(userRepository.existsByIdOrAuthId(any(UUID.class), any(String.class))).thenReturn(false);
-        when(userRepository.findAll()).thenReturn(List.of(userEntity));
         when(userRepository.saveAndFlush(any(UserEntity.class))).thenReturn(new UserEntity());
 
         // when

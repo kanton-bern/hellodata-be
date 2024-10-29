@@ -31,17 +31,15 @@ import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache.USER_CACHE_PREFIX;
 
 @Component
@@ -53,6 +51,7 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
     private final RedisTemplate<String, UserCache> redisTemplate;
 
     @Override
+    @Transactional
     public HellodataAuthenticationToken convert(Jwt jwt) {
         String email = jwt.getClaims().get("email").toString();
         String givenName = jwt.getClaims().get("given_name").toString();

@@ -40,9 +40,15 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {combineLatest, interval, Observable, Subject, takeUntil} from "rxjs";
-import {loadSubsystemUsersForDashboards} from "../../../store/users-management/users-management.action";
-import {selectSubsystemUsersForDashboards} from "../../../store/users-management/users-management.selector";
+import {Observable, Subject} from "rxjs";
+import {
+  clearSubsystemUsersForDashboardsCache,
+  loadSubsystemUsersForDashboards
+} from "../../../store/users-management/users-management.action";
+import {
+  selectSubsystemUsersForDashboards,
+  selectSubsystemUsersForDashboardsLoading
+} from "../../../store/users-management/users-management.selector";
 import {map} from "rxjs/operators";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
@@ -60,9 +66,10 @@ interface TableRow {
   styleUrls: ['./users-overview.component.scss']
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
+  private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
-  interval$ = interval(30000);
+  dataLoading$: Observable<boolean>;
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
@@ -71,7 +78,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
-    this.createInterval();
+    this.dataLoading$ = this.store.select(selectSubsystemUsersForDashboardsLoading);
   }
 
   ngOnDestroy(): void {
@@ -84,7 +91,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-') {
+    if (value.includes(',') || !value.includes('@') && !value.includes('true') && !value.includes('false')) {
       return true;
     }
     return false;
@@ -106,13 +113,19 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     }
   }
 
+  clearCache() {
+    this.store.dispatch(clearSubsystemUsersForDashboardsCache());
+  }
+
+  reload() {
+    this.store.dispatch(loadSubsystemUsersForDashboards());
+  }
+
   private createDynamicColumns(): Observable<any[]> {
-    return combineLatest([
-      this.store.select(selectSubsystemUsersForDashboards),
-      this.translateService.selectTranslate('@Users')
-    ]).pipe(
-      map(([subsystemUsers, userTextTranslated]) => [
-        {field: 'email', header: userTextTranslated},
+    return this.store.select(selectSubsystemUsersForDashboards).pipe(
+      map((subsystemUsers) => [
+        {field: 'email', header: '@Users'},
+        {field: 'enabled', header: '@Enabled'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.contextName
@@ -135,7 +148,10 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : '@No permissions';
+            if (user) {
+              row['enabled'] = '' + user?.enabled;
+            }
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY : UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY;
           });
         });
 
@@ -152,14 +168,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
         }
       ]
     }));
-  }
-
-  private createInterval(): void {
-    this.interval$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.store.dispatch(loadSubsystemUsersForDashboards());
-      });
   }
 }
 

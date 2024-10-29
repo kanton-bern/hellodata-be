@@ -47,6 +47,16 @@ export const selectUsers = createSelector(
   (state: UsersManagementState) => state.users
 );
 
+export const selectUsersTotalRecords = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.usersTotalRecords
+);
+
+export const selectUsersLoading = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.usersLoading
+);
+
 export const selectSubsystemUsers = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.subsystemUsers
@@ -167,6 +177,13 @@ export const selectSelectedRolesForUser = createSelector(
   }
 );
 
+export const selectSyncStatus = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => {
+    return state.syncStatus
+  }
+);
+
 
 export const selectDashboardsForUser = createSelector(
   usersManagementState,
@@ -181,6 +198,16 @@ export const selectAdminEmails = createSelector(
 export const selectUserSaveButtonDisabled = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.userSaveButtonDisabled
+);
+
+export const selectSubsystemUsersLoading = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.subsystemUsersLoading
+);
+
+export const selectSubsystemUsersForDashboardsLoading = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.subsystemUsersForDashboardsLoading
 );
 
 

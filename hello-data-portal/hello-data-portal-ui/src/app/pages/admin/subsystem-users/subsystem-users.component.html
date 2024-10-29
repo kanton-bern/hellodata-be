@@ -1,45 +1,65 @@
-<pre class="hidden">{{ interval$ | async }}</pre>
 <h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
-<div class="card" *ngIf="(tableData$ | async) as tableData">
+<div *ngIf="(tableData$ | async) as tableData" class="card">
   <div *ngIf="(columns$ | async) as columns">
-    <p-table #dt [value]="tableData" [columns]="columns">
+    <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData">
       <ng-template pTemplate="caption">
         <div class="flex">
           <div style="text-align: left">
-            <p-button
-              icon="pi pi-external-link"
-              label="{{ '@Export' | transloco }}"
-              (onClick)="dt.exportCSV()"/>
+            <p-button (onClick)="dt.exportCSV()"
+                      [disabled]="(dataLoading$ | async) ?? false"
+                      icon="pi pi-external-link"
+                      label="{{ '@Export' | transloco }}"/>
+          </div>
+          <div class="ml-1" style="text-align: left">
+            <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
+                      icon="pi pi-replay"
+                      label="{{ '@Reload' | transloco }}"
+                      styleClass="p-button-rounded p-button-success"/>
+          </div>
+          <div class="ml-1" style="text-align: left">
+            <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
+                      icon="pi pi-times-circle"
+                      label="{{ '@Clear cache' | transloco }}"
+                      styleClass="p-button-rounded p-button-help"/>
           </div>
           <div class="ml-auto">
-            <button pButton label="{{'@Clear' | transloco}}" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
-                    (click)="clear(dt, filterInput)"></button>
+            <button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
+                    label="{{'@Clear' | transloco}}"
+                    pButton></button>
             <span class="p-input-icon-left ml-auto">
                   <i class="pi pi-search"></i>
                   <input
                     #filterInput
-                    pInputText
-                    type="text"
                     (input)="dt.filterGlobal(applyFilter($event), 'contains')"
-                    placeholder="{{ '@Search' | transloco }}"/>
+                    pInputText
+                    placeholder="{{ '@Search' | transloco }}"
+                    type="text"/>
               </span>
           </div>
         </div>
       </ng-template>
-      <ng-template pTemplate="header" let-columns>
+      <ng-template let-columns pTemplate="header">
         <tr>
-          <th *ngFor="let col of columns">{{ col.header }}</th>
+          <th *ngFor="let col of columns">{{ translateValue(col.header) }}</th>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-row let-columns="columns">
+      <ng-template let-columns="columns" let-row pTemplate="body">
         <tr>
           <td *ngFor="let col of columns">
             <ng-container *ngIf="shouldShowTag(row[col.field]); else singleValue">
-              <p-tag class="m-1" *ngFor="let value of row[col.field].split(',')" [value]="value.trim()"></p-tag>
+              <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"></p-tag>
             </ng-container>
             <ng-template #singleValue>
-              {{ row[col.field] }}
+              <ng-container *ngIf="row[col.field] === 'true'">
+                <i class="fa fa-check text-success"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] === 'false'">
+                <i class="fa fa-times text-danger"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] !== 'true' && row[col.field] !== 'false'">
+                {{ translateValue(row[col.field]) }}
+              </ng-container>
             </ng-template>
           </td>
         </tr>

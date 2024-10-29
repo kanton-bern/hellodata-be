@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.user.service;
 import ch.bedag.dap.hellodata.portal.user.KeycloakTestContainerTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;

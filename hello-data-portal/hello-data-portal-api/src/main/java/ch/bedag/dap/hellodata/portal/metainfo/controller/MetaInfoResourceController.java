@@ -35,6 +35,7 @@ import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -90,6 +91,13 @@ public class MetaInfoResourceController {
         return metaInfoUsersService.getAllUsersWithRoles();
     }
 
+    @CacheEvict(value = "subsystem_users")
+    @PreAuthorize("hasAnyAuthority('WORKSPACES')")
+    @GetMapping(value = "/resources/subsystem-users/clear-cache")
+    public void clearSubsystemUsersCache() {
+        log.info("Cleared up subsystem users cache by {}", SecurityUtils.getCurrentUserEmail());
+    }
+
     /**
      * Fetches users with dashboards for all superset subsystems
      *
@@ -99,6 +107,13 @@ public class MetaInfoResourceController {
     @GetMapping(value = "/resources/users-dashboards-overview")
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
         return metaInfoUsersService.getAllUsersWithRolesForDashboards();
+    }
+
+    @CacheEvict(value = "users_with_dashboards")
+    @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
+    @GetMapping(value = "/resources/users-dashboards-overview/clear-cache")
+    public void clearUsersWithRolesForDashboardsCache() {
+        log.info("Cleared up users with dashboards cache by {}", SecurityUtils.getCurrentUserEmail());
     }
 
 

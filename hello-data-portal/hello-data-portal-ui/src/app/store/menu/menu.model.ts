@@ -88,6 +88,12 @@ export const ALL_MENU_ITEMS: any[] = [
         requiredPermissions: ['USER_MANAGEMENT']
       },
       {
+        id: 'usersOverviewMenu',
+        text: '@Users overview',
+        routerLink: '/users-overview',
+        requiredPermissions: ['USERS_OVERVIEW']
+      },
+      {
         id: 'portalRoleManagementMenu',
         text: '@Portal role management',
         routerLink: '/roles-management',
@@ -116,12 +122,6 @@ export const ALL_MENU_ITEMS: any[] = [
         text: '@Dashboard import-export',
         routerLink: '/dashboard-import-export',
         requiredPermissions: ['DASHBOARD_IMPORT_EXPORT']
-      },
-      {
-        id: 'usersOverviewMenu',
-        text: '@Users overview',
-        routerLink: '/users-overview',
-        requiredPermissions: ['USERS_OVERVIEW']
       }
     ]
   },

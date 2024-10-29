@@ -29,14 +29,17 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {loadSubsystemUsers} from "../../../store/users-management/users-management.action";
-import {interval, Observable, Subject, takeUntil} from "rxjs";
-import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
+import {clearSubsystemUsersCache, loadSubsystemUsers} from "../../../store/users-management/users-management.action";
+import {Observable, Subject} from "rxjs";
+import {
+  selectSubsystemUsers,
+  selectSubsystemUsersLoading
+} from "../../../store/users-management/users-management.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
 import {Table} from "primeng/table";
-import {loadRoleResources} from "../../../store/metainfo-resource/metainfo-resource.action";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 interface TableRow {
   email: string;
@@ -50,19 +53,20 @@ interface TableRow {
   styleUrls: ['./subsystem-users.component.scss']
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
-  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = 'Not found in the instance';
+  private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';
+  private static readonly NO_PERMISSIONS = '@User has no permissions in the instance';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
-  interval$ = interval(30000);
+  dataLoading$: Observable<boolean>;
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     super();
     store.dispatch(loadSubsystemUsers());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
-    this.createInterval();
+    this.dataLoading$ = this.store.select(selectSubsystemUsersLoading);
   }
 
   ngOnDestroy(): void {
@@ -83,17 +87,34 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     filterInput.value = '';
   }
 
-  shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT)) {
+  shouldShowTag(value: any): boolean {
+    if (value.includes(',') || !value.startsWith('@') && value !== 'false' && value !== 'true') {
       return true;
     }
     return false;
   }
 
+  translateValue(value: string): string {
+    if (value.startsWith('@')) {
+      return this.translateService.translate(value);
+    } else {
+      return value; // No translation needed
+    }
+  }
+
+  clearCache() {
+    this.store.dispatch(clearSubsystemUsersCache());
+  }
+
+  reload() {
+    this.store.dispatch(loadSubsystemUsers());
+  }
+
   private createDynamicColumns(): Observable<any[]> {
     return this.store.select(selectSubsystemUsers).pipe(
       map(subsystemUsers => [
-        {field: 'email', header: 'Email'},
+        {field: 'email', header: '@Users'},
+        {field: 'enabled', header: '@Enabled'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.instanceName
@@ -116,10 +137,13 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || '-' : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
+            if (user) {
+              row['enabled'] = '' + user?.enabled;
+            }
+            row[subsystem.instanceName] = user ? user.roles.join(', ') || SubsystemUsersComponent.NO_PERMISSIONS : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
           });
         });
-
+        console.log('table rows?', tableRows)
         return tableRows;
       }));
   }
@@ -134,14 +158,4 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
       ]
     }));
   }
-
-  private createInterval(): void {
-    this.interval$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.store.dispatch(loadRoleResources());
-        this.store.dispatch(loadSubsystemUsers());
-      });
-  }
-
 }
