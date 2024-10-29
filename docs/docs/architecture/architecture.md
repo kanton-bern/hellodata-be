@@ -24,7 +24,7 @@ Resources encapsulated inside a **Data Domain** can be:
 
 On top, you can add **subsystems**. This can be seen as extensions that make HelloDATA pluggable with additional tools. We now support [CloudBeaver](https://github.com/dbeaver/cloudbeaver) for viewing your Postgres databases, RtD, and Gitea. You can imagine adding almost infinite tools with capabilities you'd like to have (data catalog, semantic layer, specific BI tool, Jupyter Notebooks, etc.).
 
-Read more about Business and Data Domain access rights in [Roles / Authorization Concept](/manuals/role-authorization-concept/).
+Read more about Business and Data Domain access rights in [Roles / Authorization Concept](../manuals/role-authorization-concept.md).
 
 ![](../images/1040683243%201.png)
 #### Data Domain
