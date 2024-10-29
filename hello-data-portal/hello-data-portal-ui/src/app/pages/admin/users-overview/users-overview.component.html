@@ -15,11 +15,12 @@
       </ng-template>
       <ng-template let-columns let-row pTemplate="header">
         <tr>
-          <th *ngFor="let col of columns">{{ col.header }}</th>
+          <th *ngFor="let col of columns">{{ translateValue(col.header) }}</th>
         </tr>
         <tr>
           <th *ngFor="let col of columns">
             <p-columnFilter
+              [hidden]="col.field === 'enabled'"
               ariaLabel="Filter {{col.header}}"
               field="{{ col.field }}"
               matchMode="contains"
@@ -37,7 +38,15 @@
                      severity="{{getTagSeverity(value)}}"></p-tag>
             </ng-container>
             <ng-template #singleValue>
-              {{ translateValue(row[col.field]) }}
+              <ng-container *ngIf="row[col.field] === 'true'">
+                <i class="fa fa-check text-success"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] === 'false'">
+                <i class="fa fa-times text-danger"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] !== 'true' && row[col.field] !== 'false'">
+                {{ translateValue(row[col.field]) }}
+              </ng-container>
             </ng-template>
           </td>
         </tr>

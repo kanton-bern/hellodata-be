@@ -85,7 +85,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-') {
+    if (value.includes(',') || !value.includes('@') && !value.includes('true') && !value.includes('false')) {
       return true;
     }
     return false;
@@ -114,6 +114,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     ]).pipe(
       map(([subsystemUsers, userTextTranslated]) => [
         {field: 'email', header: userTextTranslated},
+        {field: 'enabled', header: '@Enabled'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.contextName
@@ -136,6 +137,9 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
+            if (user) {
+              row['enabled'] = '' + user?.enabled;
+            }
             row[subsystem.instanceName] = user ? user.roles.join(', ') || UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY : UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY;
           });
         });
@@ -162,6 +166,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
         this.store.dispatch(loadSubsystemUsersForDashboards());
       });
   }
+
 }
 
 @NgModule({

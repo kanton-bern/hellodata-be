@@ -12,7 +12,8 @@
               label="{{ '@Export' | transloco }}"/>
           </div>
           <div class="ml-auto">
-            <button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash" label="{{'@Clear' | transloco}}"
+            <button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
+                    label="{{'@Clear' | transloco}}"
                     pButton></button>
             <span class="p-input-icon-left ml-auto">
                   <i class="pi pi-search"></i>
@@ -28,7 +29,7 @@
       </ng-template>
       <ng-template let-columns pTemplate="header">
         <tr>
-          <th *ngFor="let col of columns">{{ col.header }}</th>
+          <th *ngFor="let col of columns">{{ translateValue(col.header) }}</th>
         </tr>
       </ng-template>
 
@@ -39,7 +40,15 @@
               <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"></p-tag>
             </ng-container>
             <ng-template #singleValue>
-              {{ translateValue(row[col.field]) }}
+              <ng-container *ngIf="row[col.field] === 'true'">
+                <i class="fa fa-check text-success"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] === 'false'">
+                <i class="fa fa-times text-danger"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] !== 'true' && row[col.field] !== 'false'">
+                {{ translateValue(row[col.field]) }}
+              </ng-container>
             </ng-template>
           </td>
         </tr>

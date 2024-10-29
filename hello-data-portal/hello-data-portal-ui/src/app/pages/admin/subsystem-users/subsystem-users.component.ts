@@ -85,8 +85,8 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     filterInput.value = '';
   }
 
-  shouldShowTag(value: string): boolean {
-    if (value.includes(',') || !value.includes('@') && value !== '-' && !value.includes(SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT) && !value.includes(SubsystemUsersComponent.NO_PERMISSIONS)) {
+  shouldShowTag(value: any): boolean {
+    if (value.includes(',') || !value.startsWith('@') && value !== 'false' && value !== 'true') {
       return true;
     }
     return false;
@@ -103,7 +103,8 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private createDynamicColumns(): Observable<any[]> {
     return this.store.select(selectSubsystemUsers).pipe(
       map(subsystemUsers => [
-        {field: 'email', header: 'Email'},
+        {field: 'email', header: '@Users'},
+        {field: 'enabled', header: '@Enabled'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.instanceName
@@ -126,10 +127,13 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
             const user = subsystem.users.find(user => user.email === row.email);
+            if (user) {
+              row['enabled'] = '' + user?.enabled;
+            }
             row[subsystem.instanceName] = user ? user.roles.join(', ') || SubsystemUsersComponent.NO_PERMISSIONS : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
           });
         });
-
+        console.log('table rows?', tableRows)
         return tableRows;
       }));
   }
