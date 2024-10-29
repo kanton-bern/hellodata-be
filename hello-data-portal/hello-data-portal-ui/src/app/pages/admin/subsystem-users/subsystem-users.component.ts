@@ -106,6 +106,10 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.store.dispatch(clearSubsystemUsersCache());
   }
 
+  reload() {
+    this.store.dispatch(loadSubsystemUsers());
+  }
+
   private createDynamicColumns(): Observable<any[]> {
     return this.store.select(selectSubsystemUsers).pipe(
       map(subsystemUsers => [
@@ -154,5 +158,4 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
       ]
     }));
   }
-
 }

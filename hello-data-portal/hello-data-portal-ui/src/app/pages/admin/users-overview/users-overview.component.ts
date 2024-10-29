@@ -117,6 +117,10 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.store.dispatch(clearSubsystemUsersForDashboardsCache());
   }
 
+  reload() {
+    this.store.dispatch(loadSubsystemUsersForDashboards());
+  }
+
   private createDynamicColumns(): Observable<any[]> {
     return this.store.select(selectSubsystemUsersForDashboards).pipe(
       map((subsystemUsers) => [
@@ -165,7 +169,6 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
       ]
     }));
   }
-
 }
 
 @NgModule({
