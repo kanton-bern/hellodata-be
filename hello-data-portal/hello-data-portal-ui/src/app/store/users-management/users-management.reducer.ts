@@ -27,12 +27,15 @@
 
 import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
 import {
+  clearSubsystemUsersCache,
+  clearSubsystemUsersForDashboardsCache,
   deleteUserInStore,
   hideUserPopupAction,
   loadAdminEmailsSuccess,
   loadAvailableContextRolesSuccess,
   loadAvailableContextsSuccess,
   loadDashboardsSuccess,
+  loadSubsystemUsers,
   loadSubsystemUsersForDashboardsSuccess,
   loadSubsystemUsersSuccess,
   loadSyncStatusSuccess,
@@ -82,10 +85,17 @@ export const usersManagementReducer = createReducer(
       editedUser: null,
     };
   }),
+  on(loadSubsystemUsers, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsersLoading: true
+    };
+  }),
   on(loadSubsystemUsersSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
     return {
       ...state,
-      subsystemUsers: payload
+      subsystemUsers: payload,
+      subsystemUsersLoading: false
     };
   }),
   on(loadSubsystemUsersForDashboardsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
@@ -244,6 +254,18 @@ export const usersManagementReducer = createReducer(
     return {
       ...state,
       users: state.users.filter(user => user.email !== userDeleted.email),
+    };
+  }),
+  on(clearSubsystemUsersCache, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsers: []
+    };
+  }),
+  on(clearSubsystemUsersForDashboardsCache, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsersForDashboards: []
     };
   }),
 );

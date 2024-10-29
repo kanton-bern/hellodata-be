@@ -45,6 +45,8 @@ import {ContextRoleService} from "./context-role.service";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError, showSuccess} from "../app/app.action";
 import {
+  clearSubsystemUsersCache,
+  clearSubsystemUsersForDashboardsCache,
   createUser,
   createUserSuccess,
   deleteUserInStore,
@@ -314,6 +316,24 @@ export class UsersManagementEffects {
       ofType(loadSyncStatus),
       switchMap(() => this._usersManagementService.getSyncStatus()),
       switchMap(result => of(loadSyncStatusSuccess({status: result}))),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  clearSubsystemUsersCache$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(clearSubsystemUsersCache),
+      switchMap(() => this._usersManagementService.clearSubsystemUsersCache()),
+      switchMap(() => of(loadSubsystemUsers())),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  clearSubsystemUsersForDashboardsCache$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(clearSubsystemUsersForDashboardsCache),
+      switchMap(() => this._usersManagementService.clearAllUsersWithRolesForDashboardsCache()),
+      switchMap(() => of(loadSubsystemUsersForDashboards)),
       catchError(e => of(showError({error: e})))
     )
   });

@@ -47,12 +47,13 @@ export interface UsersManagementState {
   allAvailableContextRoles: Role[],
   allAvailableContexts: Context[],
   userContextRoles: any[],
-  selectedBusinessContextRoleForEditedUser: Role | null
+  selectedBusinessContextRoleForEditedUser: Role | null,
   selectedDataDomainRolesForEditedUser: any[],
   selectedDashboardsForUser: ContextDashboardsForUser[],
-  adminEmails: string[];
-  userSaveButtonDisabled: boolean;
-  subsystemUsers: SubsystemUsersResultDto[]
+  adminEmails: string[],
+  userSaveButtonDisabled: boolean,
+  subsystemUsers: SubsystemUsersResultDto[],
+  subsystemUsersLoading: boolean,
   subsystemUsersForDashboards: DashboardUsersResultDto[],
   syncStatus: string
 }
@@ -75,6 +76,7 @@ export const initialUsersManagementState: UsersManagementState = {
   adminEmails: [],
   userSaveButtonDisabled: false,
   subsystemUsers: [],
+  subsystemUsersLoading: false,
   subsystemUsersForDashboards: [],
   syncStatus: 'COMPLETED'
 }

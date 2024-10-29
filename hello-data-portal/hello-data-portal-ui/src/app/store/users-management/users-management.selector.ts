@@ -200,4 +200,9 @@ export const selectUserSaveButtonDisabled = createSelector(
   (state: UsersManagementState) => state.userSaveButtonDisabled
 );
 
+export const selectSubsystemUsersLoading = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.subsystemUsersLoading
+);
+
 

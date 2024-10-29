@@ -75,8 +75,16 @@ export class UsersManagementService {
     return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users`);
   }
 
+  public clearSubsystemUsersCache(): Observable<SubsystemUsersResultDto[]> {
+    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users/clear-cache`);
+  }
+
   public getAllUsersWithRolesForDashboards(): Observable<DashboardUsersResultDto[]> {
     return this.httpClient.get<DashboardUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview`);
+  }
+
+  public clearAllUsersWithRolesForDashboardsCache(): Observable<DashboardUsersResultDto[]> {
+    return this.httpClient.get<DashboardUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview/clear-cache`);
   }
 
   public getSyncStatus(): Observable<string> {

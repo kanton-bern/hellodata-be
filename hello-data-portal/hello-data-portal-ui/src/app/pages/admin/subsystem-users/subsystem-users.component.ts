@@ -29,9 +29,12 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {loadSubsystemUsers} from "../../../store/users-management/users-management.action";
+import {clearSubsystemUsersCache, loadSubsystemUsers} from "../../../store/users-management/users-management.action";
 import {interval, Observable, Subject, takeUntil} from "rxjs";
-import {selectSubsystemUsers} from "../../../store/users-management/users-management.selector";
+import {
+  selectSubsystemUsers,
+  selectSubsystemUsersLoading
+} from "../../../store/users-management/users-management.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
@@ -55,6 +58,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private static readonly NO_PERMISSIONS = '@User has no permissions in the instance';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
+  dataLoading$: Observable<boolean>;
   interval$ = interval(30000);
   private destroy$ = new Subject<void>();
 
@@ -65,6 +69,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
     this.createInterval();
+    this.dataLoading$ = this.store.select(selectSubsystemUsersLoading);
   }
 
   ngOnDestroy(): void {
@@ -98,6 +103,10 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     } else {
       return value; // No translation needed
     }
+  }
+
+  clearCache() {
+    this.store.dispatch(clearSubsystemUsersCache());
   }
 
   private createDynamicColumns(): Observable<any[]> {
@@ -157,5 +166,4 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
         this.store.dispatch(loadSubsystemUsers());
       });
   }
-
 }

@@ -75,6 +75,8 @@ export enum UsersManagementActionType {
   LOAD_SYNC_STATUS_SUCCESS = '[USERS MANAGEMENT] Load sync status SUCCESS',
   UPDATE_USER_IN_STORE = '[USERS MANAGEMENT] Update user in store',
   DELETE_USER_IN_STORE = '[USERS MANAGEMENT] Delete user in store',
+  CLEAR_SUBSYSTEM_USERS_CACHE = '[USERS MANAGEMENT] Clear subsystem users cache',
+  CLEAR_SUBSYSTEM_USERS_FOR_DASHBOARDS_CACHE = '[USERS MANAGEMENT] Clear subsystem users for dashboard cache',
 }
 
 export const loadUsers = createAction(
@@ -250,4 +252,12 @@ export const loadSyncStatus = createAction(
 export const loadSyncStatusSuccess = createAction(
   UsersManagementActionType.LOAD_SYNC_STATUS_SUCCESS,
   props<{ status: string }>()
+);
+
+export const clearSubsystemUsersCache = createAction(
+  UsersManagementActionType.CLEAR_SUBSYSTEM_USERS_CACHE
+);
+
+export const clearSubsystemUsersForDashboardsCache = createAction(
+  UsersManagementActionType.CLEAR_SUBSYSTEM_USERS_FOR_DASHBOARDS_CACHE
 );
