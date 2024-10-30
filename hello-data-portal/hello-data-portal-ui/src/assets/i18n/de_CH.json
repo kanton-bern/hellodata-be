@@ -220,7 +220,7 @@
   "@User enabled successfully": "Benutzer erfolgreich aktiviert",
   "@User has no permissions in the instance": "Der Benutzer hat keine Berechtigungen in der Instanz",
   "@User management": "Benutzerverwaltung",
-  "@User not found in the instance": "User wurde in der Instanz nicht gefunden",
+  "@User not found in the instance": "Benutzer in der Instanz nicht gefunden",
   "@User role": "Benutzerrolle",
   "@User roles updated": "Benutzerrollen aktualisiert",
   "@User selected language": "[Vom Benutzer ausgewählte Sprache]",

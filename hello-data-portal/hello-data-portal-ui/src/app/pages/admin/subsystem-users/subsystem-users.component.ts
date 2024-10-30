@@ -88,7 +88,7 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   }
 
   shouldShowTag(value: any): boolean {
-    if (value.includes(',') || !value.startsWith('@') && value !== 'false' && value !== 'true') {
+    if (value.includes(',') || !value.includes('@') && value !== 'false' && value !== 'true') {
       return true;
     }
     return false;
