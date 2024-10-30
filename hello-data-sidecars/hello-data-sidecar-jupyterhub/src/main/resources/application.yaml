@@ -40,6 +40,10 @@ hellodata:
     dwh-admin-password: postgres
     dwh-url: jdbc:postgresql://localhost:5432/postgres
     dwh-driver-class-name: org.postgresql.Driver
+    dwh-temp-user-schemas:
+      - public
+      - lzn
+      - csv
 spring:
   application:
     name: HelloDATA Sidecar for Jupyterhub

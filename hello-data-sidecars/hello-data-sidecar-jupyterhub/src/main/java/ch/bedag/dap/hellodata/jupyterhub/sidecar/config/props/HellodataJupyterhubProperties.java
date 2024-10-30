@@ -4,6 +4,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Data
 @Component
 @ConfigurationProperties(prefix = "hellodata.jupyterhub")
@@ -13,4 +15,5 @@ public class HellodataJupyterhubProperties {
     private String dwhAdminPassword;
     private String dwhUrl;
     private String dwhDriverClassName;
+    private List<String> dwhTempUserSchemas;
 }
