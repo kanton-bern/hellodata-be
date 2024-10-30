@@ -38,7 +38,13 @@ import {
   selectUserContextRoles,
   selectUserSaveButtonDisabled
 } from "../../../../store/users-management/users-management.selector";
-import {DashboardForUser, DATA_DOMAIN_VIEWER_ROLE, NONE_ROLE, User, UserAction} from "../../../../store/users-management/users-management.model";
+import {
+  DashboardForUser,
+  DATA_DOMAIN_VIEWER_ROLE,
+  NONE_ROLE,
+  User,
+  UserAction
+} from "../../../../store/users-management/users-management.model";
 import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 import {Context} from "../../../../store/users-management/context-role.model";
@@ -125,11 +131,23 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   showUserDisablePopup(data: User) {
-    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.DISABLE, actionFromUsersEdition: true}}));
+    this.store.dispatch(showUserActionPopup({
+      userActionForPopup: {
+        user: data,
+        action: UserAction.DISABLE,
+        actionFromUsersEdition: true
+      }
+    }));
   }
 
   showUserEnablePopup(data: User) {
-    this.store.dispatch(showUserActionPopup({userActionForPopup: {user: data, action: UserAction.ENABLE, actionFromUsersEdition: true}}));
+    this.store.dispatch(showUserActionPopup({
+      userActionForPopup: {
+        user: data,
+        action: UserAction.ENABLE,
+        actionFromUsersEdition: true
+      }
+    }));
   }
 
   onBusinessDomainRoleSelected($event: any, dataDomains: Context[], availableDataDomainRoles: any[]) {
@@ -137,9 +155,17 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       this.dashboardTableVisibility.forEach((value, key) => {
         this.dashboardTableVisibility.set(key, false);
       });
+      const dataDomainAdmin = availableDataDomainRoles.find(dataDomainRole => dataDomainRole.name === 'DATA_DOMAIN_ADMIN');
       dataDomains.forEach(dataDomain => {
-        const dataDomainAdmin = availableDataDomainRoles.find(dataDomainRole => dataDomainRole.name === 'DATA_DOMAIN_ADMIN');
-        this.store.dispatch(selectDataDomainRoleForEditedUser({selectedRoleForContext: {role: dataDomainAdmin, context: dataDomain}}));
+        if (this.userForm) {
+          this.userForm.get(dataDomain?.contextKey as string)?.setValue(dataDomainAdmin);
+        }
+        this.store.dispatch(selectDataDomainRoleForEditedUser({
+          selectedRoleForContext: {
+            role: dataDomainAdmin,
+            context: dataDomain
+          }
+        }));
       })
     }
     this.store.dispatch(selectBusinessDomainRoleForEditedUser({selectedRole: $event.value}));
@@ -153,7 +179,12 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey: dataDomain.contextKey as string}));
       this.dashboardTableVisibility.set(dataDomain.contextKey as string, false);
     }
-    this.store.dispatch(selectDataDomainRoleForEditedUser({selectedRoleForContext: {role: $event.value, context: dataDomain}}));
+    this.store.dispatch(selectDataDomainRoleForEditedUser({
+      selectedRoleForContext: {
+        role: $event.value,
+        context: dataDomain
+      }
+    }));
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
 
