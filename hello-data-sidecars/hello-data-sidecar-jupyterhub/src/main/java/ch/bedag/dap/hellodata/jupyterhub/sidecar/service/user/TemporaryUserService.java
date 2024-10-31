@@ -69,6 +69,7 @@ public class TemporaryUserService {
         log.debug("Username: {}, Password: {}", username, password);
         responseDto.setPassword(password);
         responseDto.setUsername(username);
+        responseDto.setExpiryDate(expiryDate);
         return responseDto;
     }
 
