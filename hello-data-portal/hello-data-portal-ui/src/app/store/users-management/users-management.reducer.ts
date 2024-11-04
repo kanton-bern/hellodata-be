@@ -267,14 +267,14 @@ export const usersManagementReducer = createReducer(
   on(clearSubsystemUsersCache, (state: UsersManagementState): UsersManagementState => {
     return {
       ...state,
-      subsystemUsers: [],
+      // subsystemUsers: [],
       subsystemUsersLoading: true
     };
   }),
   on(clearSubsystemUsersForDashboardsCache, (state: UsersManagementState): UsersManagementState => {
     return {
       ...state,
-      subsystemUsersForDashboards: [],
+      // subsystemUsersForDashboards: [],
       subsystemUsersForDashboardsLoading: true
     };
   }),
