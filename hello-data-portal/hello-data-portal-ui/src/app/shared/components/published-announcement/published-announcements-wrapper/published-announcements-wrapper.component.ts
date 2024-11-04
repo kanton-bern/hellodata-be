@@ -65,7 +65,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
         debounceTime(700),
         map(([announcements, currentUrl]) => {
           const skipAnnouncementsPopup =
-            currentUrl.includes(naviElements.dataWarehouseViewer.path) || currentUrl.includes(naviElements.advancedAnalyticsViewer.path);
+            currentUrl.includes(naviElements.dataWarehouseViewer.path) || currentUrl.includes('advanced-analytics-viewer');
           if (skipAnnouncementsPopup || this.ref && announcements && announcements.length === 0) {
             this.ref?.close();
           } else if (!this.ref && announcements && announcements.length > 0) {
