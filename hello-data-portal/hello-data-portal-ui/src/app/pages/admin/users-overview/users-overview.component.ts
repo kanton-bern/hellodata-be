@@ -40,7 +40,7 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {Observable, Subject} from "rxjs";
+import {combineLatest, map, Observable, Subject} from "rxjs";
 import {
   clearSubsystemUsersForDashboardsCache,
   loadSubsystemUsersForDashboards
@@ -49,7 +49,6 @@ import {
   selectSubsystemUsersForDashboards,
   selectSubsystemUsersForDashboardsLoading
 } from "../../../store/users-management/users-management.selector";
-import {map} from "rxjs/operators";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {TranslateService} from "../../../shared/services/translate.service";
@@ -67,6 +66,7 @@ interface TableRow {
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
+  readonly NO_TAG = '_no_tag';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   dataLoading$: Observable<boolean>;
@@ -90,7 +90,10 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     super.ngOnInit();
   }
 
-  shouldShowTag(value: string): boolean {
+  shouldShowTag(value: string, noTag: any): boolean {
+    if (noTag) {
+      return false;
+    }
     if (value.includes(',') || !value.includes('@') && !value.includes('true') && !value.includes('false')) {
       return true;
     }
@@ -135,8 +138,11 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   private createTableData(): Observable<TableRow[]> {
-    return this.store.select(selectSubsystemUsersForDashboards).pipe(
-      map(subsystemUsers => {
+    return combineLatest([
+      this.store.select(selectSubsystemUsersForDashboards),
+      this.translateService.selectTranslate(UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY)
+    ]).pipe(
+      map(([subsystemUsers, noPermissionsTranslation]) => {
         const uniqueEmails = Array.from(
           new Set(subsystemUsers.flatMap(su => su.users.map(user => user.email)))
         );
@@ -151,7 +157,11 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
             if (user) {
               row['enabled'] = '' + user?.enabled;
             }
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY : UsersOverviewComponent.NO_PERMISSIONS_TRANSLATION_KEY;
+            const value = user ? user.roles.join(', ') || noPermissionsTranslation : noPermissionsTranslation;
+            row[subsystem.instanceName] = value;
+            if (value === noPermissionsTranslation) {
+              row[subsystem.instanceName + this.NO_TAG] = true
+            }
           });
         });
 
