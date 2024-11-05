@@ -58,7 +58,8 @@ public class PublishedUserResourcesConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_USER_RESOURCES)
     public void subscribe(UserResource userResource) {
-        log.info("------- Received user resource {}", userResource);
+        log.debug("------- Received user resource from instance {}", userResource.getInstanceName());
+        log.trace("------- Received user resource {}", userResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(userResource);
         HdContextEntity context = genericPublishedResourceConsumer.attachContext(userResource, resource);
         List<SubsystemUser> data = userResource.getData();
