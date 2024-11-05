@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.commons.nats.service;
 
 import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
-import ch.bedag.dap.hellodata.commons.nats.util.NatsUtil;
+import ch.bedag.dap.hellodata.commons.nats.util.NatsStreamUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
@@ -36,12 +36,13 @@ import io.nats.client.JetStreamApiException;
 import io.nats.client.PublishOptions;
 import io.nats.client.api.PublishAck;
 import io.nats.client.impl.NatsMessage;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Log4j2
 @Service
@@ -59,7 +60,7 @@ public class NatsSenderService {
 
     private <T> PublishAck publishMessageToJetStream(String streamName, String subjectName, T body) {
         try {
-            NatsUtil.createOrUpdateStream(connection.jetStreamManagement(), streamName, subjectName);
+            NatsStreamUtil.createOrUpdateStream(connection.jetStreamManagement(), streamName, subjectName);
             /* get a JetStream instance from the current nats connection*/
             JetStream js = connection.jetStream();
             String message;

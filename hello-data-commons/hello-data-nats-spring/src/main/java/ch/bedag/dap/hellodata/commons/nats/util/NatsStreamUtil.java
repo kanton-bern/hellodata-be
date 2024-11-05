@@ -40,7 +40,7 @@ import java.time.Duration;
 
 @Slf4j
 @UtilityClass
-public class NatsUtil {
+public class NatsStreamUtil {
 
     public static StreamInfo createOrUpdateStream(JetStreamManagement jsm, String streamName, String subject) throws IOException, JetStreamApiException {
         StreamInfo streamInfo = getStreamInfoOrNull(jsm, streamName);

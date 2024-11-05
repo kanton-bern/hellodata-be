@@ -34,15 +34,14 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserR
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.resource.AirflowUserResourceProviderService;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
 import static ch.bedag.dap.hellodata.sidecars.airflow.service.user.AirflowUserUtil.toAirflowUser;
 
@@ -56,10 +55,9 @@ public class AirflowCreateUserConsumer {
     private final AirflowClientProvider airflowClientProvider;
 
 
-
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate supersetUserCreate) {
+    public void createUser(SubsystemUserUpdate supersetUserCreate) {
         try {
             log.info("------- Received airflow user creation request {}", supersetUserCreate);
 
@@ -68,13 +66,13 @@ public class AirflowCreateUserConsumer {
 
             // Airflow only allows unique username and email, so we make sure there is nobody with either of these already existing, before creating a new one
             Optional<AirflowUserResponse> userResult = users.getUsers()
-                                                            .stream()
-                                                            .filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail()) ||
-                                                                            user.getUsername().equalsIgnoreCase(supersetUserCreate.getUsername()))
-                                                            .findFirst();
+                    .stream()
+                    .filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail()) ||
+                            user.getUsername().equalsIgnoreCase(supersetUserCreate.getUsername()))
+                    .findFirst();
             if (userResult.isPresent()) {
                 log.info("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-                return null;//NOSONAR
+                return;
             }
 
             log.info("Going to create new user with email: {}", supersetUserCreate.getEmail());
@@ -84,6 +82,5 @@ public class AirflowCreateUserConsumer {
         } catch (URISyntaxException | IOException e) {
             log.error("Could not create user {}", supersetUserCreate.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 }

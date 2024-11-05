@@ -46,7 +46,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
 import static ch.bedag.dap.hellodata.sidecars.airflow.service.user.AirflowUserUtil.*;
@@ -62,7 +61,7 @@ public class AirflowUserContextRoleConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
-    public CompletableFuture<Void> subscribe(UserContextRoleUpdate userContextRoleUpdate) {
+    public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("Update user context roles {}", userContextRoleUpdate);
         AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
         try {
@@ -89,8 +88,6 @@ public class AirflowUserContextRoleConsumer {
         } catch (URISyntaxException | IOException e) {
             log.error("Could not update user {}", userContextRoleUpdate.getEmail(), e);
         }
-
-        return null;
     }
 
     private void addOrRemoveAdminRole(UserContextRoleUpdate userContextRoleUpdate, List<AirflowRole> allAirflowRoles, AirflowUserResponse airflowUser) {

@@ -31,10 +31,10 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.ResourceReposit
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PERMISSION_RESOURCES;
 
 @Log4j2
@@ -46,10 +46,9 @@ public class PublishedPermissionResourcesConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_PERMISSION_RESOURCES)
-    public CompletableFuture<Void> subscribe(PermissionResource permissionResource) {
+    public void subscribe(PermissionResource permissionResource) {
         log.info("------- Received permission resource {}", permissionResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(permissionResource);
         genericPublishedResourceConsumer.attachContext(permissionResource, resource);
-        return null;
     }
 }

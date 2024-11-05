@@ -31,12 +31,13 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.User;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource.CbUserResourceProviderService;
-import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
 
 @Log4j2
@@ -49,7 +50,7 @@ public class CbCreateUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate subsystemUserUpdate) {
+    public void createUser(SubsystemUserUpdate subsystemUserUpdate) {
         log.info("------- Received cloudbeaver user creation request {}", subsystemUserUpdate);
         User user = userRepository.findByUserNameOrEmail(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
         if (user != null) {
@@ -60,7 +61,6 @@ public class CbCreateUserConsumer {
             userRepository.save(dbtDocUser);
             userResourceProviderService.publishUsers();
         }
-        return null;//NOSONAR
     }
 
     @NotNull

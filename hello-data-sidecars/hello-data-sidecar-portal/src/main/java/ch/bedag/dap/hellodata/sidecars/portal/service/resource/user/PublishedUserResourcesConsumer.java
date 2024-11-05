@@ -42,7 +42,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache.USER_CACHE_PREFIX;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_USER_RESOURCES;
@@ -58,14 +57,13 @@ public class PublishedUserResourcesConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_USER_RESOURCES)
-    public CompletableFuture<Void> subscribe(UserResource userResource) {
+    public void subscribe(UserResource userResource) {
         log.info("------- Received user resource {}", userResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(userResource);
         HdContextEntity context = genericPublishedResourceConsumer.attachContext(userResource, resource);
         List<SubsystemUser> data = userResource.getData();
         saveUsersToCache(userResource, data);
         natsSenderService.publishMessageToJetStream(UPDATE_METAINFO_USERS_CACHE, userResource);
-        return null;
     }
 
     private void saveUsersToCache(UserResource userResource, List<SubsystemUser> data) {

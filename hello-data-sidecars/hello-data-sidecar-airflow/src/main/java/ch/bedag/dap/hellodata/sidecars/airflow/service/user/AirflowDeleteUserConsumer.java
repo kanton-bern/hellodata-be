@@ -33,13 +33,14 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserR
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.resource.AirflowUserResourceProviderService;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Optional;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
 
 @Log4j2
@@ -53,7 +54,7 @@ public class AirflowDeleteUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DELETE_USER)
-    public CompletableFuture<Void> deleteUser(SubsystemUserDelete subsystemUserDelete) {
+    public void deleteUser(SubsystemUserDelete subsystemUserDelete) {
         try {
             log.info("------- Received airflow user deletion request {}", subsystemUserDelete);
 
@@ -61,13 +62,13 @@ public class AirflowDeleteUserConsumer {
             AirflowUsersResponse users = airflowClient.users();
 
             Optional<AirflowUserResponse> userResult = users.getUsers()
-                                                            .stream()
-                                                            .filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserDelete.getEmail()) ||
-                                                                            user.getUsername().equalsIgnoreCase(subsystemUserDelete.getUsername()))
-                                                            .findFirst();
+                    .stream()
+                    .filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserDelete.getEmail()) ||
+                            user.getUsername().equalsIgnoreCase(subsystemUserDelete.getUsername()))
+                    .findFirst();
             if (!userResult.isPresent()) {
                 log.info("User {} doesn't exist in instance, omitting. Email: {}", subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
-                return null;//NOSONAR
+                return;
             }
 
             log.info("Going to delete user with email: {}", subsystemUserDelete.getEmail());
@@ -76,6 +77,5 @@ public class AirflowDeleteUserConsumer {
         } catch (URISyntaxException | IOException e) {
             log.error("Could not delete user {}", subsystemUserDelete.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 }

@@ -31,10 +31,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.User;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource.CbUserResourceProviderService;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
 
 @Log4j2
@@ -47,16 +47,15 @@ public class CbDeleteUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DELETE_USER)
-    public CompletableFuture<Void> deleteUser(SubsystemUserDelete subsystemUserDelete) {
+    public void deleteUser(SubsystemUserDelete subsystemUserDelete) {
         log.info("------- Received cloudbeaver user deletion request {}", subsystemUserDelete);
         User user = userRepository.findByUserNameOrEmail(subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
         if (user == null) {
             log.info("User {} doesn't exist in instance, omitting deletion. Email: {}", subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
-            return null;//NOSONAR
+            return;
         }
         log.info("Going to delete cloudbeaver user with email: {}", subsystemUserDelete.getEmail());
         userRepository.delete(user);
         userResourceProviderService.publishUsers();
-        return null;//NOSONAR
     }
 }

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DISABLE_USER;
 import static ch.bedag.dap.hellodata.sidecars.airflow.service.user.AirflowUserUtil.*;
@@ -35,7 +34,7 @@ public class AirflowDisableUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DISABLE_USER)
-    public CompletableFuture<Void> disableUser(SubsystemUserUpdate supersetUserUpdate) {
+    public void disableUser(SubsystemUserUpdate supersetUserUpdate) {
         try {
             log.info("------- Received airflow user disable request {}", supersetUserUpdate);
 
@@ -66,7 +65,6 @@ public class AirflowDisableUserConsumer {
         } catch (URISyntaxException | IOException e) {
             log.error("Could not disable user {}", supersetUserUpdate.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 
 }

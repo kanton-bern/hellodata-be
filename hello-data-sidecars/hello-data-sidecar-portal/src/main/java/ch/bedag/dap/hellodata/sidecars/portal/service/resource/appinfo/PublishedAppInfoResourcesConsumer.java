@@ -33,11 +33,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.sidecars.portal.service.context.HdContextService;
 import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_APP_INFO_RESOURCES;
 
 @Log4j2
@@ -51,13 +51,12 @@ public class PublishedAppInfoResourcesConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_APP_INFO_RESOURCES)
-    public CompletableFuture<Void> subscribe(AppInfoResource appInfoResource) {
+    public void subscribe(AppInfoResource appInfoResource) {
         log.info("------- Received appInfo resource {}, for the following context config {}", appInfoResource, appInfoResource.getBusinessContextInfo());
         HdBusinessContextInfo businessContextInfo = appInfoResource.getBusinessContextInfo();
         HdContextEntity contextForResource = hdContextService.saveBusinessContext(businessContextInfo);
         MetaInfoResourceEntity savedResource = genericPublishedResourceConsumer.persistResource(appInfoResource);
         savedResource.setContextKey(contextForResource.getContextKey());
         genericPublishedResourceConsumer.saveEntity(savedResource);
-        return null;
     }
 }

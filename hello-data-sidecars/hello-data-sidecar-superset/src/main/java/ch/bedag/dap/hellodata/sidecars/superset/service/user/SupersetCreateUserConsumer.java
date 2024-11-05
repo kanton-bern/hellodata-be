@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.ENABLE_USER;
@@ -61,7 +60,7 @@ public class SupersetCreateUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate supersetUserCreate) {
+    public void createUser(SubsystemUserUpdate supersetUserCreate) {
         try {
             log.info("------- Received superset user creation request {}", supersetUserCreate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -83,12 +82,11 @@ public class SupersetCreateUserConsumer {
         } catch (URISyntaxException | IOException e) {
             log.error("Could not create/enable user {}", supersetUserCreate.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = ENABLE_USER)
-    public CompletableFuture<Void> enableUser(SubsystemUserUpdate subsystemUserUpdate) {
+    public void enableUser(SubsystemUserUpdate subsystemUserUpdate) {
         try {
             log.info("------- Received superset user enable request {}", subsystemUserUpdate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -103,7 +101,6 @@ public class SupersetCreateUserConsumer {
         } catch (URISyntaxException | IOException e) {
             log.error("Could not enable user {}", subsystemUserUpdate.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 
     private void createUser(SubsystemUserUpdate supersetUserCreate, Optional<Integer> aPublicRoleId, SupersetClient supersetClient) throws URISyntaxException, IOException {

@@ -35,15 +35,16 @@ import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.RoleRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.service.resource.DbtDocsUserResourceProviderService;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
 
 @Log4j2
@@ -58,15 +59,15 @@ public class DbtDocsUserContextRoleConsumer {
     @NotNull
     private static Set<String> getRelevantUserDataDomainContextKeys(UserContextRoleUpdate userContextRoleUpdate) {
         return userContextRoleUpdate.getContextRoles()
-                                    .stream()
-                                    .filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN && contextRole.getRoleName() != HdRoleName.NONE)
-                                    .map(UserContextRoleUpdate.ContextRole::getContextKey)
-                                    .collect(Collectors.toSet());
+                .stream()
+                .filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN && contextRole.getRoleName() != HdRoleName.NONE)
+                .map(UserContextRoleUpdate.ContextRole::getContextKey)
+                .collect(Collectors.toSet());
     }
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
-    public CompletableFuture<Void> subscribe(UserContextRoleUpdate userContextRoleUpdate) {
+    public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
         Set<String> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
             User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
@@ -79,7 +80,6 @@ public class DbtDocsUserContextRoleConsumer {
             User updateUser = userRepository.save(user);
             userResourceProviderService.publishUsers();
         }
-        return null;
     }
 
     @NotNull

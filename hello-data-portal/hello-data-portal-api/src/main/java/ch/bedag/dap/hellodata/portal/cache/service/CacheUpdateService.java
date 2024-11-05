@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_METAINFO_USERS_CACHE;
 
@@ -37,7 +36,7 @@ public class CacheUpdateService {
     @SneakyThrows
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_METAINFO_USERS_CACHE)
-    public CompletableFuture<Void> updateMetainfoUsersCache(UserResource userResource) {
+    public void updateMetainfoUsersCache(UserResource userResource) {
         if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
             try {
                 updateUsersWithRolesCache();
@@ -50,7 +49,6 @@ public class CacheUpdateService {
         } else {
             log.info("[CACHE] Another instance is already synchronizing metainfo users cache.");
         }
-        return null;
     }
 
     private void updateUsersWithDashboardsCache() {

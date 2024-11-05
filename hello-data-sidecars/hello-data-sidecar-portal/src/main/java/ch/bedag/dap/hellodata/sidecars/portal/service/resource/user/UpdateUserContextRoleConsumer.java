@@ -36,16 +36,17 @@ import ch.bedag.dap.hellodata.portalcommon.role.repository.PortalRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserPortalRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
 
 @Log4j2
@@ -58,12 +59,26 @@ public class UpdateUserContextRoleConsumer {
     private final UserPortalRoleRepository userPortalRoleRepository;
     private final PortalRoleRepository portalRoleRepository;
 
+    @Nullable
+    private static SystemDefaultPortalRoleName getSystemDefaultPortalRoleName(HdRoleName roleName) {
+        SystemDefaultPortalRoleName portalRoleName;
+        switch (roleName) {
+            case HELLODATA_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.HELLODATA_ADMIN;
+            case BUSINESS_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN;
+            case DATA_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
+            case DATA_DOMAIN_EDITOR -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
+            case DATA_DOMAIN_VIEWER -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
+            default -> portalRoleName = null;
+        }
+        return portalRoleName;
+    }
+
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
-    public CompletableFuture<Void> subscribe(UserContextRoleUpdate userContextRoleUpdate) {
+    public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("Update user context role received {}", userContextRoleUpdate);
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCaseAndUsernameIgnoreCase(userContextRoleUpdate.getEmail(),
-                                                                                                                     userContextRoleUpdate.getUsername());
+                userContextRoleUpdate.getUsername());
         List<UserContextRoleUpdate.ContextRole> domainContextRoles = userContextRoleUpdate.getContextRoles(); // Filter by context necessary? Only BD is available here
         if (userEntityByEmail.isPresent()) {
             UserEntity userEntity = userEntityByEmail.get();
@@ -73,7 +88,6 @@ public class UpdateUserContextRoleConsumer {
             }
             updateContextRoles(domainContextRoles, userEntity);
         }
-        return null;
     }
 
     private void updateContextRoles(List<UserContextRoleUpdate.ContextRole> domainContextRoles, UserEntity userEntity) {
@@ -95,20 +109,6 @@ public class UpdateUserContextRoleConsumer {
                 }
             }
         }
-    }
-
-    @Nullable
-    private static SystemDefaultPortalRoleName getSystemDefaultPortalRoleName(HdRoleName roleName) {
-        SystemDefaultPortalRoleName portalRoleName;
-        switch (roleName) {
-            case HELLODATA_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.HELLODATA_ADMIN;
-            case BUSINESS_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN;
-            case DATA_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
-            case DATA_DOMAIN_EDITOR -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
-            case DATA_DOMAIN_VIEWER -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
-            default -> portalRoleName = null;
-        }
-        return portalRoleName;
     }
 
     private void deleteExistingUserPortalRoles(UserEntity userEntity, Set<UserPortalRoleEntity> userPortalRoleEntities) {

@@ -38,7 +38,6 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -72,12 +71,6 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor {
                     throw new NatsException(
                             String.format("Method '%s' on bean with name '%s' must have a single parameter of type %s when using the @%s annotation.", method.toGenericString(),
                                     beanName, subscribeAnnotation.event().getDataClass().getName(), JetStreamSubscribe.class.getName()));
-                }
-                Class<?> returnType = method.getReturnType();
-                if (!returnType.equals(CompletableFuture.class)) {
-                    throw new NatsException(
-                            String.format("Method '%s' on bean with name '%s' must return type %s when using the @%s annotation.", method.toGenericString(), beanName,
-                                    CompletableFuture.class.getName(), JetStreamSubscribe.class.getName()));
                 }
                 createSubscribeAnnotationManagerThread(bean, method, subscribeAnnotation);
             });

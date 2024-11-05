@@ -30,10 +30,10 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEnt
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROLE_RESOURCES;
 
 @Log4j2
@@ -44,10 +44,9 @@ public class PublishedRoleResourcesConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_ROLE_RESOURCES)
-    public CompletableFuture<Void> subscribe(RoleResource roleResource) {
+    public void subscribe(RoleResource roleResource) {
         log.info("------- Received role resource {}", roleResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(roleResource);
         genericPublishedResourceConsumer.attachContext(roleResource, resource);
-        return null;
     }
 }

@@ -2,7 +2,6 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DISABLE_USER;
 
@@ -31,7 +29,7 @@ public class SupersetDisableUserConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = DISABLE_USER)
-    public CompletableFuture<Void> disableUser(SubsystemUserUpdate subsystemUserUpdate) {
+    public void disableUser(SubsystemUserUpdate subsystemUserUpdate) {
         try {
             log.info("------- Received superset user disable request {}", subsystemUserUpdate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -39,7 +37,7 @@ public class SupersetDisableUserConsumer {
             Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserUpdate.getEmail())).findFirst();
             if (supersetUserResult.isEmpty()) {
                 log.info("User {} doesn't exist in instance, omitting disable action", subsystemUserUpdate.getEmail());
-                return null;//NOSONAR
+                return;
             }
             SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
             supersetUserActiveUpdate.setActive(false);
@@ -49,6 +47,5 @@ public class SupersetDisableUserConsumer {
         } catch (URISyntaxException | IOException e) {
             log.error("Could not disable user {}", subsystemUserUpdate.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 }
