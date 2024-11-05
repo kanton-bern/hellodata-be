@@ -81,7 +81,7 @@ public class NatsStreamUtil {
                 .name(streamName)
                 .storageType(storageType)
                 .subjects(subjects)
-                .retentionPolicy(RetentionPolicy.Limits)
+                .retentionPolicy(RetentionPolicy.Interest)
                 .discardPolicy(DiscardPolicy.Old)
                 .maxAge(Duration.ofMinutes(messageMaxAgeMinutes))
                 .duplicateWindow(Duration.ofMinutes(messageMaxAgeMinutes))
