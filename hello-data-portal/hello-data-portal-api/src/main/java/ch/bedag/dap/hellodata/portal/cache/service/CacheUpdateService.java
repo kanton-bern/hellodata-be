@@ -2,7 +2,7 @@ package ch.bedag.dap.hellodata.portal.cache.service;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.ArbitralResource;
 import ch.bedag.dap.hellodata.portal.lock.service.AdvisoryLockService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import jakarta.annotation.PostConstruct;
@@ -36,11 +36,11 @@ public class CacheUpdateService {
     @SneakyThrows
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_METAINFO_USERS_CACHE)
-    public void updateMetainfoUsersCache(UserResource userResource) {
+    public void updateMetainfoUsersCache(ArbitralResource arbitralResource) {
         if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
             try {
                 updateUsersWithRolesCache();
-                if (userResource.getModuleType() == ModuleType.SUPERSET) {
+                if (arbitralResource.getModuleType() == ModuleType.SUPERSET) {
                     updateUsersWithDashboardsCache();
                 }
             } finally {
