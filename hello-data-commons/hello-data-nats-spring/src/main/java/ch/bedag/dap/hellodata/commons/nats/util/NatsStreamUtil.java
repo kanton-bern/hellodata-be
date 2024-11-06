@@ -83,7 +83,7 @@ public class NatsStreamUtil {
             log.error("Api error code {}", e.getApiErrorCode());
             log.error("Error code {}", e.getErrorCode());
             log.error("Error description {}", e.getErrorDescription());
-            if (e.getApiErrorCode() == 404) { // Consumer not found, safe to create a new one
+            if (e.getErrorCode() == 404) { // Consumer not found, safe to create a new one
                 return jsm.addOrUpdateConsumer(streamName, config);
             } else {
                 throw e; // Handle other exceptions appropriately
