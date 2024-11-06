@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
 import io.nats.client.Connection;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -38,11 +39,9 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Log4j2
-public class NatsConfigBeanPostProcessor implements BeanPostProcessor {
+public class NatsConfigBeanPostProcessor implements BeanPostProcessor, DisposableBean {
 
     private final Connection natsConnection;
     private final List<SubscribeAnnotationThread> THREADS = new ArrayList<>();
@@ -78,6 +77,11 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor {
         return bean;
     }
 
+    @Override
+    public void destroy() {
+        THREADS.forEach(SubscribeAnnotationThread::shutdown); // Shutdown individual threads
+    }
+
     /**
      * Each annotated method in service ( {@link JetStreamSubscribe} ) with specific stream_subject id will have one manager thread to fetch messages and invoke beans
      * Will add another bean/method to invoke for existing subscription thread
@@ -100,11 +104,10 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor {
             ArrayList<BeanMethodWrapper> beanWrappers = new ArrayList<>(List.of(new BeanMethodWrapper(method, bean, subscriptionId)));
             String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "");
             String durableNameBase64 = new String(Base64.getEncoder().encode(durableName.getBytes(StandardCharsets.UTF_8)));
-            log.debug("durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
+            log.debug("Durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
             SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableNameBase64);
+            thread.start();
             THREADS.add(thread);
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(thread);
         }
     }
 }

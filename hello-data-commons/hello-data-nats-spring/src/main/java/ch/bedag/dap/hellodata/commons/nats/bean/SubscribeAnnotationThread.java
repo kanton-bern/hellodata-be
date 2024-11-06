@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.nats.client.*;
 import io.nats.client.api.ConsumerConfiguration;
+import io.nats.client.api.ConsumerInfo;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
@@ -39,6 +40,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * One stream subject configuration = one corresponding thread below to delegate messages to beans subscribing
@@ -49,6 +53,7 @@ public class SubscribeAnnotationThread extends Thread {
     private final JetStreamSubscribe subscribeAnnotation;
     private final List<BeanMethodWrapper> beanWrappers;
     private final String durableName;
+    private final ExecutorService executorService;
     private JetStreamSubscription subscription;
 
     SubscribeAnnotationThread(Connection natsConnection, JetStreamSubscribe sub, List<BeanMethodWrapper> beanWrappers, String durableName) {
@@ -57,6 +62,7 @@ public class SubscribeAnnotationThread extends Thread {
         this.subscribeAnnotation = sub;
         this.beanWrappers = beanWrappers;
         this.durableName = durableName;
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         //keep one subscription
         subscribe();
     }
@@ -75,21 +81,22 @@ public class SubscribeAnnotationThread extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 log.debug("------- Run message fetch");
                 if (subscription != null) {
                     Message message = subscription.nextMessage(Duration.ofSeconds(10L));
-                    log.debug("------- No message fetched from the queue");
                     if (message != null) {
-                        passMessageToSpringBean(message);
+                        log.debug("------- Message fetched from the queue");
+                        executorService.submit(() -> passMessageToSpringBean(message));
+                    } else {
+                        log.debug("------- No message fetched from the queue");
                     }
                 } else {
                     log.warn("Subscription to NATS is null. Please check if NATS is available.");
                 }
             } catch (IllegalStateException e) {
                 log.error("", e);
-                //try to subscribe again
                 subscribe();
             } catch (InterruptedException e) {
                 log.error("", e);
@@ -106,12 +113,27 @@ public class SubscribeAnnotationThread extends Thread {
         return beanWrappers;
     }
 
+    public void shutdown() {
+        log.info("Shutting down subscription thread");
+        unsubscribe();
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private void subscribe() {
         try {
             NatsStreamUtil.createOrUpdateStream(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             JetStream jetStream = natsConnection.jetStream();
             ConsumerConfiguration consumerConfig = ConsumerConfiguration.builder().durable(this.durableName).build();
-            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder().configuration(consumerConfig).build();
+            ConsumerInfo consumerInfo = NatsStreamUtil.getOrCreateConsumer(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), durableName, consumerConfig);
+            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder().configuration(consumerInfo.getConsumerConfiguration()).build();
             subscription = jetStream.subscribe(subscribeAnnotation.event().getSubject(), pushSubscribeOptions);
         } catch (IOException | JetStreamApiException exception) {
             unsubscribe();

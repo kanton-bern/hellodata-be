@@ -74,6 +74,19 @@ public class NatsStreamUtil {
         }
     }
 
+    public static ConsumerInfo getOrCreateConsumer(JetStreamManagement jsm, String streamName, String durableName, ConsumerConfiguration config) throws IOException, JetStreamApiException {
+        try {
+            // Attempt to get existing consumer info
+            return jsm.getConsumerInfo(streamName, durableName);
+        } catch (JetStreamApiException e) {
+            if (e.getApiErrorCode() == 404) { // Consumer not found, safe to create a new one
+                return jsm.addOrUpdateConsumer(streamName, config);
+            } else {
+                throw e; // Handle other exceptions appropriately
+            }
+        }
+    }
+
     private static StreamInfo createStream(JetStreamManagement jsm, String streamName, StorageType storageType, String... subjects) throws IOException, JetStreamApiException {
         int maxMessages = 2000;
         int messageMaxAgeMinutes = 5;

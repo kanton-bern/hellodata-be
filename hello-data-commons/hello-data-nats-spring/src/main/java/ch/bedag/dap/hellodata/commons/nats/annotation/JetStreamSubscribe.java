@@ -27,18 +27,10 @@
 package ch.bedag.dap.hellodata.commons.nats.annotation;
 
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Method should be returning Future<Void> instead of void
- */
-@Async
+import java.lang.annotation.*;
+
 @Transactional
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -47,5 +39,4 @@ public @interface JetStreamSubscribe {
 
     HDEvent event();
 
-    int timeoutSeconds() default 10;
 }
