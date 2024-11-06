@@ -79,6 +79,8 @@ public class NatsStreamUtil {
             // Attempt to get existing consumer info
             return jsm.getConsumerInfo(streamName, durableName);
         } catch (JetStreamApiException e) {
+            log.error("Error on get or create consumer", e);
+            log.error("Api error code", e.getApiErrorCode());
             if (e.getApiErrorCode() == 404) { // Consumer not found, safe to create a new one
                 return jsm.addOrUpdateConsumer(streamName, config);
             } else {
