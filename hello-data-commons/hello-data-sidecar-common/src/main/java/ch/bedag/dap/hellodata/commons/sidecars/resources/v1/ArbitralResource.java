@@ -5,6 +5,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ArbitralResource implements HdResource {
@@ -18,12 +20,14 @@ public class ArbitralResource implements HdResource {
     private String instanceName;
     private Metadata metadata;
     private Object data;
+    private UUID uuid;
 
     public ArbitralResource(ModuleType moduleType, String instanceName, Metadata metadata, Object data) {
         this.moduleType = moduleType;
         this.instanceName = instanceName;
         this.metadata = metadata;
         this.data = data;
+        this.uuid = UUID.randomUUID();
     }
 
     public ArbitralResource(HdResource otherResource, boolean withData) {
@@ -33,6 +37,7 @@ public class ArbitralResource implements HdResource {
         if (withData) {
             this.data = otherResource.getData();
         }
+        this.uuid = UUID.randomUUID();
     }
 
     public ArbitralResource() {
