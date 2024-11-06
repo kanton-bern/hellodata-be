@@ -140,7 +140,7 @@ public class SubscribeAnnotationThread extends Thread {
                 StopWatch watch = new StopWatch();
                 watch.start();
                 beanWrapper.method().invoke(beanWrapper.bean(), getObjectMapper().readValue(message.getData(), clazz));
-                log.debug("NATS message processing finished {}. The operation took", beanWrapper.bean().getClass().getName(), watch.formatTime());
+                log.debug("NATS message processing finished {}. The operation took {}", beanWrapper.bean().getClass().getName(), watch.formatTime());
             }
             message.ack();
         } catch (IllegalAccessException | InvocationTargetException | CompletionException | IOException e) {
