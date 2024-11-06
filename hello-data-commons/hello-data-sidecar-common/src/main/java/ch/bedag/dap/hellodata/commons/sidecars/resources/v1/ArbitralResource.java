@@ -34,4 +34,8 @@ public class ArbitralResource implements HdResource {
             this.data = otherResource.getData();
         }
     }
+
+    public ArbitralResource() {
+        //NOOP default constructor for serialization
+    }
 }
