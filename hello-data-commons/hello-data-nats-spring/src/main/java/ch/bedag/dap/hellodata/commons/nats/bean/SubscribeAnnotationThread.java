@@ -122,8 +122,7 @@ public class SubscribeAnnotationThread extends Thread {
                 future.get(subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
             } catch (TimeoutException e) {
                 log.warn("[NATS] Task exceeded timeout. Attempting to cancel...");
-                // Attempt to cancel and interrupt the task
-                future.cancel(true); // `true` attempts to interrupt the running thread
+                future.cancel(true);
             } catch (InterruptedException | ExecutionException e) {
                 log.error("[NATS] Task encountered an exception: ", e);
             }
@@ -143,10 +142,10 @@ public class SubscribeAnnotationThread extends Thread {
             // Configure consumer without pull settings
             ConsumerConfiguration consumerConfig = ConsumerConfiguration.builder()
                     .durable(this.durableName)
+                    .maxPullWaiting(-1)
                     .build();  // Ensure no pull-specific settings are included
 
             ConsumerInfo consumerInfo = NatsStreamUtil.getOrCreateConsumer(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), durableName, consumerConfig);
-
             // Create a push subscription
             PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder()
                     .configuration(consumerInfo.getConsumerConfiguration())
