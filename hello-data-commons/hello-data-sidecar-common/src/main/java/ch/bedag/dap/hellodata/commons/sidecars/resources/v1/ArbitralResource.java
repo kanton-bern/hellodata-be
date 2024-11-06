@@ -19,5 +19,21 @@ public class ArbitralResource implements HdResource {
     private Metadata metadata;
     private Object data;
 
+    public ArbitralResource(ModuleType moduleType, String instanceName, Metadata metadata, Object data) {
+        this.moduleType = moduleType;
+        this.instanceName = instanceName;
+        this.metadata = metadata;
+        this.data = data;
+    }
 
+    public ArbitralResource(HdResource otherResource, boolean withData) {
+        this.moduleType = otherResource.getModuleType();
+        this.instanceName = otherResource.getInstanceName();
+        this.metadata = otherResource.getMetadata();
+        if (withData) {
+            this.data = otherResource.getData();
+        } else {
+            this.data = new Object();
+        }
+    }
 }
