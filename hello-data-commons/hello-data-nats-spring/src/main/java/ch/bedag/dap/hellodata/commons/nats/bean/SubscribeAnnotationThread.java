@@ -55,7 +55,7 @@ public class SubscribeAnnotationThread extends Thread {
     private JetStreamSubscription subscription;
 
     SubscribeAnnotationThread(Connection natsConnection, JetStreamSubscribe sub, List<BeanMethodWrapper> beanWrappers, String durableName, ExecutorService executorService) {
-        log.debug("Creating subscription thread for beans listening to {}", beanWrappers.get(0).subscriptionId());
+        log.debug("[NATS] Creating subscription thread for beans listening to {}", beanWrappers.get(0).subscriptionId());
         this.natsConnection = natsConnection;
         this.subscribeAnnotation = sub;
         this.beanWrappers = beanWrappers;
@@ -74,6 +74,7 @@ public class SubscribeAnnotationThread extends Thread {
     public void unsubscribe() {
         if (this.subscription != null) {
             this.subscription.unsubscribe();
+            log.info("[NATS] Unsubscribed from NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         }
     }
 
@@ -81,11 +82,11 @@ public class SubscribeAnnotationThread extends Thread {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                log.debug("------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null) {
                     fetchAndRunInAThread();
                 } else {
-                    log.warn("Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                    log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 }
             } catch (IllegalStateException e) {
                 log.error("", e);
@@ -106,7 +107,7 @@ public class SubscribeAnnotationThread extends Thread {
     }
 
     public void shutdown() {
-        log.info("Shutting down subscription thread");
+        log.info("[NATS] Shutting down subscription thread");
         unsubscribe();
 
     }
@@ -114,31 +115,45 @@ public class SubscribeAnnotationThread extends Thread {
     private void fetchAndRunInAThread() throws InterruptedException {
         Message message = subscription.nextMessage(Duration.ofSeconds(10L));
         if (message != null) {
-            log.debug("------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+            log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             Future<?> future = executorService.submit(() -> passMessageToSpringBean(message));
             try {
                 // Wait for task completion within the given timeout
                 future.get(subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
             } catch (TimeoutException e) {
-                log.warn("Task exceeded timeout. Attempting to cancel...");
+                log.warn("[NATS] Task exceeded timeout. Attempting to cancel...");
                 // Attempt to cancel and interrupt the task
                 future.cancel(true); // `true` attempts to interrupt the running thread
             } catch (InterruptedException | ExecutionException e) {
-                log.error("Task encountered an exception: ", e);
+                log.error("[NATS] Task encountered an exception: ", e);
             }
         } else {
-            log.debug("------- No message fetched from the queue for for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+            log.debug("[NATS] ------- No message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         }
     }
 
     private void subscribe() {
         try {
+            log.info("[NATS] Subscribing to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+            // Ensure stream and subject are correctly configured
             NatsStreamUtil.createOrUpdateStream(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+
             JetStream jetStream = natsConnection.jetStream();
-            ConsumerConfiguration consumerConfig = ConsumerConfiguration.builder().durable(this.durableName).build();
+
+            // Configure consumer without pull settings
+            ConsumerConfiguration consumerConfig = ConsumerConfiguration.builder()
+                    .durable(this.durableName)
+                    .build();  // Ensure no pull-specific settings are included
+
             ConsumerInfo consumerInfo = NatsStreamUtil.getOrCreateConsumer(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), durableName, consumerConfig);
-            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder().configuration(consumerInfo.getConsumerConfiguration()).build();
+
+            // Create a push subscription
+            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder()
+                    .configuration(consumerInfo.getConsumerConfiguration())
+                    .build();
+
             subscription = jetStream.subscribe(subscribeAnnotation.event().getSubject(), pushSubscribeOptions);
+            log.info("[NATS] Subscribed to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         } catch (IOException | JetStreamApiException exception) {
             unsubscribe();
             throw new RuntimeException(exception);
@@ -148,18 +163,18 @@ public class SubscribeAnnotationThread extends Thread {
     private void passMessageToSpringBean(Message message) {
         try {
             for (BeanMethodWrapper beanWrapper : beanWrappers) {
-                log.debug("Passing NATS message to bean {}", beanWrapper.bean().getClass().getName());
+                log.debug("[NATS] Passing NATS message to bean {}", beanWrapper.bean().getClass().getName());
                 Class<?> clazz = subscribeAnnotation.event().getDataClass();
                 StopWatch watch = new StopWatch();
                 watch.start();
-                log.info("Expected type: {}", clazz.getName());
-                log.info("Method parameter type: {}", beanWrapper.method().getParameterTypes()[0].getName());
+                log.debug("[NATS] Expected type: {}", clazz.getName());
+                log.debug("[NATS] Method parameter type: {}", beanWrapper.method().getParameterTypes()[0].getName());
                 beanWrapper.method().invoke(beanWrapper.bean(), getObjectMapper().readValue(message.getData(), clazz));
-                log.debug("NATS message processing finished {}. The operation took {}", beanWrapper.bean().getClass().getName(), watch.formatTime());
+                log.debug("[NATS] NATS message processing finished {}. The operation took {}", beanWrapper.bean().getClass().getName(), watch.formatTime());
             }
             message.ack();
         } catch (IllegalAccessException | InvocationTargetException | CompletionException | IOException e) {
-            log.error("Error invoking method", e);
+            log.error("[NATS] Error invoking method", e);
         }
     }
 }
