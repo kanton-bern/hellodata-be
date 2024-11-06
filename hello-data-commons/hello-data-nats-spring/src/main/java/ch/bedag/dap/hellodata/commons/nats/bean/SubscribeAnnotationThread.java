@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.nats.client.*;
 import io.nats.client.api.ConsumerConfiguration;
-import io.nats.client.api.ConsumerInfo;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -134,23 +133,10 @@ public class SubscribeAnnotationThread extends Thread {
     private void subscribe() {
         try {
             log.info("[NATS] Subscribing to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
-            // Ensure stream and subject are correctly configured
             NatsStreamUtil.createOrUpdateStream(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
-
             JetStream jetStream = natsConnection.jetStream();
-
-            // Configure consumer without pull settings
-            ConsumerConfiguration consumerConfig = ConsumerConfiguration.builder()
-                    .durable(this.durableName)
-                    .maxPullWaiting(-1)
-                    .build();  // Ensure no pull-specific settings are included
-
-            ConsumerInfo consumerInfo = NatsStreamUtil.getOrCreateConsumer(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), durableName, consumerConfig);
-            // Create a push subscription
-            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder()
-                    .configuration(consumerInfo.getConsumerConfiguration())
-                    .build();
-
+            ConsumerConfiguration consumerConfig = ConsumerConfiguration.builder().durable(this.durableName).build();
+            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder().configuration(consumerConfig).build();
             subscription = jetStream.subscribe(subscribeAnnotation.event().getSubject(), pushSubscribeOptions);
             log.info("[NATS] Subscribed to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         } catch (IOException | JetStreamApiException exception) {
