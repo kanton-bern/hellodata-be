@@ -35,9 +35,9 @@ public class NatsListener implements ConnectionListener {
 
     @Override
     public void connectionEvent(Connection conn, Events type) {
-        log.debug("connection status:[{}]", conn.getStatus());
+        log.debug("[NATS] connection status:[{}]", conn.getStatus());
         if (conn.getStatus().equals(Connection.Status.CLOSED)) {
-            log.debug("NATS connection is closed, server is shutting down");
+            log.debug("[NATS] Connection is closed, server is shutting down");
             System.exit(1);
         }
     }

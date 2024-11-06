@@ -44,10 +44,10 @@ public class NatsStreamUtil {
 
     public static StreamInfo createOrUpdateStream(JetStreamManagement jsm, String streamName, String subject) throws IOException, JetStreamApiException {
         StreamInfo streamInfo = getStreamInfoOrNull(jsm, streamName);
-        log.debug("Create or update stream {}, streamInfo {}", streamName, streamInfo);
+        log.debug("[NATS] Create or update stream {}, streamInfo {}", streamName, streamInfo);
         if (streamInfo == null) {
             StreamInfo stream = createStream(jsm, streamName, StorageType.File, subject);
-            log.debug("Created stream {}", getObjectMapper().writeValueAsString(stream));
+            log.debug("[NATS] Created stream {}", getObjectMapper().writeValueAsString(stream));
             return stream;
         }
 
@@ -56,8 +56,8 @@ public class NatsStreamUtil {
             streamConfiguration.getSubjects().add(subject);
             streamConfiguration = StreamConfiguration.builder(streamConfiguration).subjects(streamConfiguration.getSubjects()).build();
             streamInfo = jsm.updateStream(streamConfiguration);
-            log.debug("Existing stream {} was updated, has subject(s) {}", streamName, streamInfo.getConfiguration().getSubjects());
-            log.debug("Updated stream configuration {}", getObjectMapper().writeValueAsString(streamConfiguration));
+            log.debug("[NATS] Existing stream {} was updated, has subject(s) {}", streamName, streamInfo.getConfiguration().getSubjects());
+            log.debug("[NATS] Updated stream configuration {}", getObjectMapper().writeValueAsString(streamConfiguration));
         }
 
         return streamInfo;
@@ -88,7 +88,7 @@ public class NatsStreamUtil {
                 .maxMessages(maxMessages)
                 .build();
         StreamInfo si = jsm.addStream(sc);
-        log.debug("Created stream {} with subject(s) {}", streamName, si.getConfiguration().getSubjects());
+        log.debug("[NATS] Created stream {} with subject(s) {}", streamName, si.getConfiguration().getSubjects());
         return si;
     }
 

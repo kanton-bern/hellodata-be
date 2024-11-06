@@ -49,13 +49,13 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
 
     @Override
     public void connectionEvent(Connection cnctn, Events event) {
-        log.debug("Connection Event:" + event);
+        log.debug("[NATS] Connection Event:" + event);
         switch (event) {
-            case CONNECTED -> log.debug("CONNECTED to NATS!");
-            case DISCONNECTED -> log.warn("DISCONNECTED from NATS!");
-            case RECONNECTED -> log.debug("RECONNECTED to NATS!");
-            case RESUBSCRIBED -> log.debug("RESUBSCRIBED!");
-            default -> log.debug("Other event: {}", event);
+            case CONNECTED -> log.debug("[NATS] CONNECTED to NATS!");
+            case DISCONNECTED -> log.warn("[NATS] DISCONNECTED from NATS!");
+            case RECONNECTED -> log.debug("[NATS] RECONNECTED to NATS!");
+            case RESUBSCRIBED -> log.debug("[NATS] RESUBSCRIBED!");
+            default -> log.debug("[NATS] Other event: {}", event);
         }
     }
 
@@ -68,7 +68,7 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
     @Bean
     @ConditionalOnWebApplication
     public NatsHealthIndicator natsHealthIndicator(Connection auditNatsConnection) {
-        log.debug("Creating NatsHealthIndicator.");
+        log.debug("[NATS] Creating NatsHealthIndicator.");
         return new NatsHealthIndicator(auditNatsConnection);
     }
 }

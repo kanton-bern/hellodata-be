@@ -118,7 +118,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             ArrayList<BeanMethodWrapper> beanWrappers = new ArrayList<>(List.of(new BeanMethodWrapper(method, bean, subscriptionId)));
             String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "");
             String durableNameBase64 = new String(Base64.getEncoder().encode(durableName.getBytes(StandardCharsets.UTF_8)));
-            log.debug("Durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
+            log.debug("[NATS] Durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
             SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableNameBase64, executorService);
             executorService.submit(thread);
             THREADS.add(thread);
