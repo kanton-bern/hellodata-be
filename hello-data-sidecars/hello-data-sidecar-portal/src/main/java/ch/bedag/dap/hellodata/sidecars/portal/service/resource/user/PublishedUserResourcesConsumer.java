@@ -32,9 +32,9 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEnt
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.ArbitralResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserCacheUpdate;
 import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -65,7 +65,7 @@ public class PublishedUserResourcesConsumer {
         HdContextEntity context = genericPublishedResourceConsumer.attachContext(userResource, resource);
         List<SubsystemUser> data = userResource.getData();
         saveUsersToCache(userResource, data);
-        natsSenderService.publishMessageToJetStream(UPDATE_METAINFO_USERS_CACHE, new ArbitralResource(userResource, false));
+        natsSenderService.publishMessageToJetStream(UPDATE_METAINFO_USERS_CACHE, new UserCacheUpdate(userResource.getModuleType()));
     }
 
     private void saveUsersToCache(UserResource userResource, List<SubsystemUser> data) {
