@@ -135,8 +135,14 @@ public class SubscribeAnnotationThread extends Thread {
             log.info("[NATS] Subscribing to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             NatsStreamUtil.createOrUpdateStream(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             JetStream jetStream = natsConnection.jetStream();
-            ConsumerConfiguration consumerConfig = ConsumerConfiguration.builder().durable(this.durableName).build();
-            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions.builder().configuration(consumerConfig).build();
+            ConsumerConfiguration consumerConfig = ConsumerConfiguration
+                    .builder()
+                    .durable(this.durableName)
+                    .build();
+            PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions
+                    .builder()
+                    .configuration(consumerConfig)
+                    .build();
             subscription = jetStream.subscribe(subscribeAnnotation.event().getSubject(), pushSubscribeOptions);
             log.info("[NATS] Subscribed to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         } catch (IOException | JetStreamApiException exception) {
