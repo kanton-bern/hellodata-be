@@ -40,6 +40,7 @@ public class ModuleResourceKind {
     public static final String HELLO_DATA_PERMISSIONS = "hellodata/Permissions";
     public static final String HELLO_DATA_USERS = "hellodata/Users";
     public static final String HELLO_DATA_PIPELINES = "hellodata/Pipelines";
+    public static final String HELLO_DATA_ARBITRAL = "hellodata/Arbitral";
 
     public static List<String> getAllKinds() {
         Field[] declaredFields = ModuleResourceKind.class.getDeclaredFields();

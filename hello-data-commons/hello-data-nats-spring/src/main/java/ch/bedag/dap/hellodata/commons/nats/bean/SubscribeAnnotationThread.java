@@ -152,6 +152,8 @@ public class SubscribeAnnotationThread extends Thread {
                 Class<?> clazz = subscribeAnnotation.event().getDataClass();
                 StopWatch watch = new StopWatch();
                 watch.start();
+                log.info("Expected type: {}", clazz.getName());
+                log.info("Method parameter type: {}", beanWrapper.method().getParameterTypes()[0].getName());
                 beanWrapper.method().invoke(beanWrapper.bean(), getObjectMapper().readValue(message.getData(), clazz));
                 log.debug("NATS message processing finished {}. The operation took {}", beanWrapper.bean().getClass().getName(), watch.formatTime());
             }

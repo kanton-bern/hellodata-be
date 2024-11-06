@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.events;
 
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.ArbitralResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
@@ -48,7 +49,7 @@ public enum HDEvent {
     PUBLISH_PERMISSION_RESOURCES(METAINFO_STREAM, "publish_resources.permission", PermissionResource.class),
     PUBLISH_PIPELINE_RESOURCES(METAINFO_STREAM, "publish_resources.pipeline", PipelineResource.class),
     PUBLISH_USER_RESOURCES(METAINFO_STREAM, "publish_resources.user", UserResource.class),
-    UPDATE_METAINFO_USERS_CACHE(METAINFO_STREAM, "metainfo.user-cache", Object.class),
+    UPDATE_METAINFO_USERS_CACHE(METAINFO_STREAM, "metainfo.user-cache", ArbitralResource.class),
     DISABLE_USER(METAINFO_STREAM, "disable_user", SubsystemUserUpdate.class),
     ENABLE_USER(METAINFO_STREAM, "enable_user", SubsystemUserUpdate.class),
     CREATE_USER(METAINFO_STREAM, "create_user", SubsystemUserUpdate.class),
