@@ -81,17 +81,17 @@ public class SubscribeAnnotationThread extends Thread {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                log.debug("------- Run message fetch");
+                log.debug("------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null) {
                     Message message = subscription.nextMessage(Duration.ofSeconds(10L));
                     if (message != null) {
-                        log.debug("------- Message fetched from the queue");
+                        log.debug("------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                         executorService.submit(() -> passMessageToSpringBean(message));
                     } else {
-                        log.debug("------- No message fetched from the queue");
+                        log.debug("------- No message fetched from the queue for for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                     }
                 } else {
-                    log.warn("Subscription to NATS is null. Please check if NATS is available.");
+                    log.warn("Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 }
             } catch (IllegalStateException e) {
                 log.error("", e);
