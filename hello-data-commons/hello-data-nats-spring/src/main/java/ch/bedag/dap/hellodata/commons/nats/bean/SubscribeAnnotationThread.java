@@ -34,6 +34,7 @@ import io.nats.client.*;
 import io.nats.client.api.ConsumerConfiguration;
 import io.nats.client.api.ConsumerInfo;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -136,8 +137,10 @@ public class SubscribeAnnotationThread extends Thread {
             for (BeanMethodWrapper beanWrapper : beanWrappers) {
                 log.debug("Passing NATS message to bean {}", beanWrapper.bean().getClass().getName());
                 Class<?> clazz = subscribeAnnotation.event().getDataClass();
+                StopWatch watch = new StopWatch();
+                watch.start();
                 beanWrapper.method().invoke(beanWrapper.bean(), getObjectMapper().readValue(message.getData(), clazz));
-                log.debug("NATS message processing finished {}", beanWrapper.bean().getClass().getName());
+                log.debug("NATS message processing finished {}. The operation took", beanWrapper.bean().getClass().getName(), watch.formatTime());
             }
             message.ack();
         } catch (IllegalAccessException | InvocationTargetException | CompletionException | IOException e) {
