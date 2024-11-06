@@ -32,8 +32,6 @@ public class ArbitralResource implements HdResource {
         this.metadata = otherResource.getMetadata();
         if (withData) {
             this.data = otherResource.getData();
-        } else {
-            this.data = new Object();
         }
     }
 }
