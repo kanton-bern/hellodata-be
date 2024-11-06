@@ -112,7 +112,7 @@ public class SubscribeAnnotationThread extends Thread {
     }
 
     private void fetchAndRunInAThread() throws InterruptedException {
-        Message message = subscription.nextMessage(Duration.ofSeconds(10L));
+        Message message = subscription.nextMessage(Duration.ofMinutes(1L));
         if (message != null) {
             log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             Future<?> future = executorService.submit(() -> passMessageToSpringBean(message));

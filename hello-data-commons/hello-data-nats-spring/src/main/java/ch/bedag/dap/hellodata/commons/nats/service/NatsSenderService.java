@@ -71,6 +71,7 @@ public class NatsSenderService {
             }
 
             log.trace("+=+=+=+= Publishing message {}, to the stream {} and subject {}", message, streamName, subjectName);
+            log.debug("+=+=+=+= Publishing message to the stream {} and subject {}", message, streamName, subjectName);
 
             // Generate a MurmurHash3-based message ID
             String messageId = Hashing.murmur3_128().hashString(message, StandardCharsets.UTF_8).toString();
