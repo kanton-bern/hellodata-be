@@ -39,4 +39,5 @@ public @interface JetStreamSubscribe {
 
     HDEvent event();
 
+    int timeoutMinutes() default 10;
 }

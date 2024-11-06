@@ -120,7 +120,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             String durableNameBase64 = new String(Base64.getEncoder().encode(durableName.getBytes(StandardCharsets.UTF_8)));
             log.debug("Durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
             SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableNameBase64, executorService);
-            thread.start();
+            executorService.submit(thread);
             THREADS.add(thread);
         }
     }

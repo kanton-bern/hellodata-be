@@ -40,8 +40,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
 /**
  * One stream subject configuration = one corresponding thread below to delegate messages to beans subscribing
@@ -84,13 +83,7 @@ public class SubscribeAnnotationThread extends Thread {
             try {
                 log.debug("------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null) {
-                    Message message = subscription.nextMessage(Duration.ofSeconds(10L));
-                    if (message != null) {
-                        log.debug("------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
-                        executorService.submit(() -> passMessageToSpringBean(message));
-                    } else {
-                        log.debug("------- No message fetched from the queue for for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
-                    }
+                    fetchAndRunInAThread();
                 } else {
                     log.warn("Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 }
@@ -116,6 +109,26 @@ public class SubscribeAnnotationThread extends Thread {
         log.info("Shutting down subscription thread");
         unsubscribe();
 
+    }
+
+    private void fetchAndRunInAThread() throws InterruptedException {
+        Message message = subscription.nextMessage(Duration.ofSeconds(10L));
+        if (message != null) {
+            log.debug("------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+            Future<?> future = executorService.submit(() -> passMessageToSpringBean(message));
+            try {
+                // Wait for task completion within the given timeout
+                future.get(subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
+            } catch (TimeoutException e) {
+                log.warn("Task exceeded timeout. Attempting to cancel...");
+                // Attempt to cancel and interrupt the task
+                future.cancel(true); // `true` attempts to interrupt the running thread
+            } catch (InterruptedException | ExecutionException e) {
+                log.error("Task encountered an exception: ", e);
+            }
+        } else {
+            log.debug("------- No message fetched from the queue for for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+        }
     }
 
     private void subscribe() {
