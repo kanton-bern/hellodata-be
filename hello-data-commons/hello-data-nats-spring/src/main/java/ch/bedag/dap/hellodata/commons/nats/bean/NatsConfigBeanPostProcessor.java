@@ -39,12 +39,16 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 public class NatsConfigBeanPostProcessor implements BeanPostProcessor, DisposableBean {
 
     private final Connection natsConnection;
     private final List<SubscribeAnnotationThread> THREADS = new ArrayList<>();
+    private final ExecutorService executorService;
     @Value("${spring.application.name}")
     private String appName;
     @Value("${hello-data.instance.name:}")
@@ -52,6 +56,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     public NatsConfigBeanPostProcessor(Connection natsConnection) {
         this.natsConnection = natsConnection;
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     @Override
@@ -79,6 +84,15 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     @Override
     public void destroy() {
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
         THREADS.forEach(SubscribeAnnotationThread::shutdown); // Shutdown individual threads
     }
 
@@ -105,7 +119,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "");
             String durableNameBase64 = new String(Base64.getEncoder().encode(durableName.getBytes(StandardCharsets.UTF_8)));
             log.debug("Durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
-            SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableNameBase64);
+            SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableNameBase64, executorService);
             thread.start();
             THREADS.add(thread);
         }

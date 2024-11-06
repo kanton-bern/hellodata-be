@@ -41,8 +41,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * One stream subject configuration = one corresponding thread below to delegate messages to beans subscribing
@@ -56,13 +54,13 @@ public class SubscribeAnnotationThread extends Thread {
     private final ExecutorService executorService;
     private JetStreamSubscription subscription;
 
-    SubscribeAnnotationThread(Connection natsConnection, JetStreamSubscribe sub, List<BeanMethodWrapper> beanWrappers, String durableName) {
+    SubscribeAnnotationThread(Connection natsConnection, JetStreamSubscribe sub, List<BeanMethodWrapper> beanWrappers, String durableName, ExecutorService executorService) {
         log.debug("Creating subscription thread for beans listening to {}", beanWrappers.get(0).subscriptionId());
         this.natsConnection = natsConnection;
         this.subscribeAnnotation = sub;
         this.beanWrappers = beanWrappers;
         this.durableName = durableName;
-        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.executorService = executorService;
         //keep one subscription
         subscribe();
     }
@@ -116,15 +114,7 @@ public class SubscribeAnnotationThread extends Thread {
     public void shutdown() {
         log.info("Shutting down subscription thread");
         unsubscribe();
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+
     }
 
     private void subscribe() {
