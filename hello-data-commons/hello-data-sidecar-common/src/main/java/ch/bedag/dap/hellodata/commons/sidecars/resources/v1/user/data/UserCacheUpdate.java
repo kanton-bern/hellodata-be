@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserCacheUpdate {
-    private final ModuleType moduleType;
+    private ModuleType moduleType;
 }

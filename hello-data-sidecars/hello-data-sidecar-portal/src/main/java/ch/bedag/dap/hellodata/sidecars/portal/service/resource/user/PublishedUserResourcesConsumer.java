@@ -65,7 +65,9 @@ public class PublishedUserResourcesConsumer {
         HdContextEntity context = genericPublishedResourceConsumer.attachContext(userResource, resource);
         List<SubsystemUser> data = userResource.getData();
         saveUsersToCache(userResource, data);
-        natsSenderService.publishMessageToJetStream(UPDATE_METAINFO_USERS_CACHE, new UserCacheUpdate(userResource.getModuleType()));
+        UserCacheUpdate userCacheUpdate = new UserCacheUpdate();
+        userCacheUpdate.setModuleType(userResource.getModuleType());
+        natsSenderService.publishMessageToJetStream(UPDATE_METAINFO_USERS_CACHE, userCacheUpdate);
     }
 
     private void saveUsersToCache(UserResource userResource, List<SubsystemUser> data) {
