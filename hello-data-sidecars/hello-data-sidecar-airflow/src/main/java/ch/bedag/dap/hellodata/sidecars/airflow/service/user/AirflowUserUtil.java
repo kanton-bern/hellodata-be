@@ -65,7 +65,7 @@ public class AirflowUserUtil {
         }
     }
 
-    public static void updateUser(AirflowUserResponse airflowUser, AirflowClient airflowClient, AirflowUserResourceProviderService airflowUserResourceProviderService) throws IOException, URISyntaxException {
+    public static void updateUser(AirflowUserResponse airflowUser, AirflowClient airflowClient, AirflowUserResourceProviderService airflowUserResourceProviderService, boolean sendBackUsersList) throws IOException, URISyntaxException {
         if (airflowUser == null) {
             return;
         }
@@ -77,7 +77,9 @@ public class AirflowUserUtil {
         airflowUserRolesUpdate.setFirstName(airflowUser.getFirstName());
         airflowUserRolesUpdate.setLastName(airflowUser.getLastName());
         airflowClient.updateUser(airflowUserRolesUpdate, airflowUser.getUsername());
-        airflowUserResourceProviderService.publishUsers();
+        if (sendBackUsersList) {
+            airflowUserResourceProviderService.publishUsers();
+        }
     }
 
     public static AirflowUserResponse getAirflowUser(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient) throws URISyntaxException, IOException {
@@ -99,7 +101,7 @@ public class AirflowUserUtil {
         return usersByEmail.get(0);
     }
 
-    public static  void removeAllDataDomainRolesFromUser(AirflowUser airflowUser) {
+    public static void removeAllDataDomainRolesFromUser(AirflowUser airflowUser) {
         if (airflowUser == null) {
             return;
         }

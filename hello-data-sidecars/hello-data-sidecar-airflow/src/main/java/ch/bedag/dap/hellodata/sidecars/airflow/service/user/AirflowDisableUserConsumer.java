@@ -56,8 +56,7 @@ public class AirflowDisableUserConsumer {
                 removeRoleFromUser(airflowUser, AF_OPERATOR_ROLE_NAME, allAirflowRoles);
                 removeAllDataDomainRolesFromUser(airflowUser);
                 addRoleToUser(airflowUser, PUBLIC_ROLE_NAME, allAirflowRoles);
-                updateUser(airflowUser, airflowClient, airflowUserResourceProviderService);
-                userResourceProviderService.publishUsers();
+                updateUser(airflowUser, airflowClient, airflowUserResourceProviderService, supersetUserUpdate.isSendBackUsersList());
                 log.info("User with email: {} disabled", supersetUserUpdate.getEmail());
             } else {
                 log.warn("User with email: {} not found", supersetUserUpdate.getEmail());

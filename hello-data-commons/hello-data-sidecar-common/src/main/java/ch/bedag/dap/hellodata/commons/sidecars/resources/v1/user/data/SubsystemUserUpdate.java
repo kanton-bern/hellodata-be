@@ -28,8 +28,9 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -43,4 +44,6 @@ public class SubsystemUserUpdate {
     private String password;
     private String username;
     private Boolean active;
+    //technical - send user list pushback enabled by default
+    private boolean sendBackUsersList = true;
 }

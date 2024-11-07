@@ -38,7 +38,6 @@ import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,20 +58,6 @@ public class UpdateUserContextRoleConsumer {
     private final UserPortalRoleRepository userPortalRoleRepository;
     private final PortalRoleRepository portalRoleRepository;
 
-    @Nullable
-    private static SystemDefaultPortalRoleName getSystemDefaultPortalRoleName(HdRoleName roleName) {
-        SystemDefaultPortalRoleName portalRoleName;
-        switch (roleName) {
-            case HELLODATA_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.HELLODATA_ADMIN;
-            case BUSINESS_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN;
-            case DATA_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
-            case DATA_DOMAIN_EDITOR -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
-            case DATA_DOMAIN_VIEWER -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
-            default -> portalRoleName = null;
-        }
-        return portalRoleName;
-    }
-
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
@@ -88,6 +73,19 @@ public class UpdateUserContextRoleConsumer {
             }
             updateContextRoles(domainContextRoles, userEntity);
         }
+    }
+
+    private SystemDefaultPortalRoleName getSystemDefaultPortalRoleName(HdRoleName roleName) {
+        SystemDefaultPortalRoleName portalRoleName;
+        switch (roleName) {
+            case HELLODATA_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.HELLODATA_ADMIN;
+            case BUSINESS_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN;
+            case DATA_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
+            case DATA_DOMAIN_EDITOR -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
+            case DATA_DOMAIN_VIEWER -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
+            default -> portalRoleName = null;
+        }
+        return portalRoleName;
     }
 
     private void updateContextRoles(List<UserContextRoleUpdate.ContextRole> domainContextRoles, UserEntity userEntity) {

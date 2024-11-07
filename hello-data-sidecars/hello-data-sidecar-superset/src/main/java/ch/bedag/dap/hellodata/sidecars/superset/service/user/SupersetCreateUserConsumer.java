@@ -73,12 +73,14 @@ public class SupersetCreateUserConsumer {
             SupersetUsersResponse users = supersetClient.users();
             Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail())).findFirst();
             if (supersetUserResult.isPresent()) {
-                log.info("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
+                log.warn("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
                 enableUser(supersetUserCreate, supersetUserResult.get(), supersetClient, aPublicRoleId);
             } else {
                 createUser(supersetUserCreate, aPublicRoleId, supersetClient);
             }
-            userResourceProviderService.publishUsers();
+            if (supersetUserCreate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         } catch (URISyntaxException | IOException e) {
             log.error("Could not create/enable user {}", supersetUserCreate.getEmail(), e);
         }
@@ -97,7 +99,9 @@ public class SupersetCreateUserConsumer {
             } else {
                 log.warn("Couldn't find user {}", subsystemUserUpdate.getEmail());
             }
-            userResourceProviderService.publishUsers();
+            if (subsystemUserUpdate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         } catch (URISyntaxException | IOException e) {
             log.error("Could not enable user {}", subsystemUserUpdate.getEmail(), e);
         }

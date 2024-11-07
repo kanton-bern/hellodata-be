@@ -26,22 +26,18 @@
  */
 package ch.bedag.dap.hellodata.sidecars.dbt.service.resource;
 
+import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemGetAllUsers;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.Role;
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.service.cloud.PodUtilsProvider;
 import io.kubernetes.client.openapi.models.V1Pod;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +46,17 @@ import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
+
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.GET_ALL_USERS;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_USER_RESOURCES;
 
 @Log4j2
@@ -63,7 +70,13 @@ public class DbtDocsUserResourceProviderService {
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-seconds:300}", timeUnit = TimeUnit.SECONDS)
+    @JetStreamSubscribe(event = GET_ALL_USERS)
+    public void refreshUsers(SubsystemGetAllUsers subsystemGetAllUsers) throws URISyntaxException, IOException {
+        log.info("--> Publish all users event {}", subsystemGetAllUsers);
+        publishUsers();
+    }
+
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     @Transactional(readOnly = true)
     public void publishUsers() {
         log.info("--> publishUsers()");

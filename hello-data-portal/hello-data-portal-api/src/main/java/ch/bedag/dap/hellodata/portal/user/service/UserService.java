@@ -41,10 +41,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -176,12 +173,15 @@ public class UserService {
                     }
                 }
                 createUserInSubsystems(user.getId());
-                synchronizeContextRolesWithSubsystems(userEntity);
+                synchronizeContextRolesWithSubsystems(userEntity, false);
                 counter.getAndIncrement();
             } catch (Exception e) {
                 log.error("[syncAllUsers] Could not sync user {} with subsystems", user.getEmail(), e);
             }
         });
+        if (counter.get() > 0) {
+            natsSenderService.publishMessageToJetStream(HDEvent.GET_ALL_USERS, new SubsystemGetAllUsers());
+        }
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
     }
 
@@ -243,6 +243,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public void createUserInSubsystems(String userId) {
         SubsystemUserUpdate createUser = getSubsystemUserUpdate(userId);
+        createUser.setSendBackUsersList(false);
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
 
@@ -341,7 +342,7 @@ public class UserService {
     }
 
     @Transactional
-    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity) {
+    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, boolean sendBackUsersList) {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
         userContextRoleUpdate.setEmail(userEntity.getEmail());
         userContextRoleUpdate.setUsername(userEntity.getUsername());
@@ -356,7 +357,13 @@ public class UserService {
             contextRoles.add(contextRole);
         });
         userContextRoleUpdate.setContextRoles(contextRoles);
+        userContextRoleUpdate.setSendBackUsersList(sendBackUsersList);
         natsSenderService.publishMessageToJetStream(HDEvent.UPDATE_USER_CONTEXT_ROLE, userContextRoleUpdate);
+    }
+
+    @Transactional
+    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity) {
+        synchronizeContextRolesWithSubsystems(userEntity, true);
     }
 
     @Transactional(readOnly = true)

@@ -33,10 +33,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineRes
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.StorageMonitoringResult;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserCacheUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import lombok.Getter;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDStream.METAINFO_STREAM;
@@ -56,6 +53,7 @@ public enum HDEvent {
     UPDATE_USER_CONTEXT_ROLE(METAINFO_STREAM, "update_user_context_role", UserContextRoleUpdate.class),
     UPDATE_STORAGE_MONITORING_RESULT(METAINFO_STREAM, "update_storage_monitoring_result", StorageMonitoringResult.class),
     DELETE_USER(METAINFO_STREAM, "delete_user", SubsystemUserDelete.class),
+    GET_ALL_USERS(METAINFO_STREAM, "users_refresh", SubsystemGetAllUsers.class),
     ;
     private final HDStream stream;
     private final String subject;

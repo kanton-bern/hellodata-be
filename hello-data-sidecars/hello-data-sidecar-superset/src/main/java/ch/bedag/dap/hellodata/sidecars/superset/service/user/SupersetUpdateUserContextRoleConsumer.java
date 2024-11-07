@@ -106,7 +106,9 @@ public class SupersetUpdateUserContextRoleConsumer {
             removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
             SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, supersetUser.getId());
             log.info("-=-=-=-= UPDATED USER ROLES: user: {}, role ids: {}", userContextRoleUpdate.getEmail(), updatedUser.getResult().getRoles());
-            userResourceProviderService.publishUsers();
+            if (userContextRoleUpdate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         }
     }
 

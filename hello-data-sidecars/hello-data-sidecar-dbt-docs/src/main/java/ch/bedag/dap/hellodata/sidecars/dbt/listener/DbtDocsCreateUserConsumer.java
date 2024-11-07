@@ -61,7 +61,9 @@ public class DbtDocsCreateUserConsumer {
         log.info("Going to create new dbt docs user with email: {}", supersetUserCreate.getEmail());
         User dbtDocUser = toDbtDocUser(supersetUserCreate);
         userRepository.save(dbtDocUser);
-        userResourceProviderService.publishUsers();
+        if (supersetUserCreate.isSendBackUsersList()) {
+            userResourceProviderService.publishUsers();
+        }
     }
 
     @NotNull

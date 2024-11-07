@@ -59,7 +59,9 @@ public class CbCreateUserConsumer {
             log.info("Going to create new cloudbeaver user with email: {}", subsystemUserUpdate.getEmail());
             User dbtDocUser = toCbUser(subsystemUserUpdate);
             userRepository.save(dbtDocUser);
-            userResourceProviderService.publishUsers();
+            if (subsystemUserUpdate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         }
     }
 

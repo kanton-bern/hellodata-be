@@ -78,7 +78,9 @@ public class AirflowCreateUserConsumer {
             log.info("Going to create new user with email: {}", supersetUserCreate.getEmail());
             AirflowUser airflowUser = toAirflowUser(supersetUserCreate);
             airflowClient.createUser(airflowUser);
-            userResourceProviderService.publishUsers();
+            if (supersetUserCreate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         } catch (URISyntaxException | IOException e) {
             log.error("Could not create user {}", supersetUserCreate.getEmail(), e);
         }

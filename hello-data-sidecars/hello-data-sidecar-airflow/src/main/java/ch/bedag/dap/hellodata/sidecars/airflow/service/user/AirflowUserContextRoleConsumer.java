@@ -76,14 +76,14 @@ public class AirflowUserContextRoleConsumer {
                         airflowUser.setRoles(new ArrayList<>());
                     }
                     addOrRemoveAdminRole(userContextRoleUpdate, allAirflowRoles, airflowUser);
-                    updateBusinessContextRoleForUser(airflowUser, dataDomainContextRoles, allAirflowRoles, airflowClient);
+                    updateBusinessContextRoleForUser(airflowUser, dataDomainContextRoles, allAirflowRoles, airflowClient, userContextRoleUpdate);
                 } else {
                     log.warn("User {} not found in airflow", userContextRoleUpdate.getEmail());
                 }
             } else {
                 removeAllDataDomainRolesFromUser(airflowUser);
                 leavePublicRoleIfNoneOthersSet(airflowUser, allAirflowRoles);
-                updateUser(airflowUser, airflowClient, airflowUserResourceProviderService);
+                updateUser(airflowUser, airflowClient, airflowUserResourceProviderService, userContextRoleUpdate.isSendBackUsersList());
             }
         } catch (URISyntaxException | IOException e) {
             log.error("Could not update user {}", userContextRoleUpdate.getEmail(), e);
@@ -115,7 +115,7 @@ public class AirflowUserContextRoleConsumer {
     }
 
     private void updateBusinessContextRoleForUser(AirflowUserResponse airflowUser, List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles,
-                                                  List<AirflowRole> allAirflowRoles, AirflowClient airflowClient) throws IOException, URISyntaxException {
+                                                  List<AirflowRole> allAirflowRoles, AirflowClient airflowClient, UserContextRoleUpdate userContextRoleUpdate) throws IOException, URISyntaxException {
         removeAllDataDomainRolesFromUser(airflowUser);
         for (UserContextRoleUpdate.ContextRole contextRole : dataDomainContextRoles) {
             String dataDomainRole = DATA_DOMAIN_ROLE_PREFIX + contextRole.getContextKey();
@@ -127,7 +127,7 @@ public class AirflowUserContextRoleConsumer {
         }
         removeRoleFromUser(airflowUser, VIEWER_ROLE_NAME, allAirflowRoles);
         leavePublicRoleIfNoneOthersSet(airflowUser, allAirflowRoles);
-        updateUser(airflowUser, airflowClient, airflowUserResourceProviderService);
+        updateUser(airflowUser, airflowClient, airflowUserResourceProviderService, userContextRoleUpdate.isSendBackUsersList());
     }
 
     private void leavePublicRoleIfNoneOthersSet(AirflowUserResponse airflowUser, List<AirflowRole> allAirflowRoles) {

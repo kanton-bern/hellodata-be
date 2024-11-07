@@ -104,7 +104,9 @@ public class CbUserContextRoleConsumer {
             user.setRoles(userRoles);
             log.info("Update roles {} for user: {}", userRoles, user.getEmail());
             User updateUser = userRepository.save(user);
-            userResourceProviderService.publishUsers();
+            if (userContextRoleUpdate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         }
     }
 

@@ -30,9 +30,9 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermission;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.PrivilegeRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.cloud.PodUtilsProvider;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -59,7 +59,7 @@ public class CbPermissionResourceProviderService {
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-seconds:300}", timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishPermissions() {
         log.info("--> publishPermissions()");
         PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();

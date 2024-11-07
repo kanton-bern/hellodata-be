@@ -35,11 +35,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.respon
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import io.kubernetes.client.openapi.models.V1Pod;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.ObjectProvider;
@@ -48,6 +43,13 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROLE_RESOURCES;
 
 @Log4j2
@@ -61,7 +63,7 @@ public class RoleResourceProviderService {
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-seconds:300}", timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishRoles() throws URISyntaxException, IOException {
         log.info("--> publishRoles()");
         List<RolePermissions> data = getRolePermissions();
@@ -91,11 +93,11 @@ public class RoleResourceProviderService {
             try {
                 SupersetRolePermissionsResponse supersetRolePermissionsResponse = supersetClientInstance.rolePermissions(role.getId());
                 List<RolePermissions.PermissionNameViewMenuName> permissions = supersetRolePermissionsResponse.getResult()
-                                                                                                              .stream()
-                                                                                                              .map(permission -> new RolePermissions.PermissionNameViewMenuName(
-                                                                                                                      permission.getId(), permission.getPermissionName(),
-                                                                                                                      permission.getViewMenuName()))
-                                                                                                              .toList();
+                        .stream()
+                        .map(permission -> new RolePermissions.PermissionNameViewMenuName(
+                                permission.getId(), permission.getPermissionName(),
+                                permission.getViewMenuName()))
+                        .toList();
                 data.add(new RolePermissions(role.getId(), role.getName(), permissions));
             } catch (URISyntaxException | IOException e) {
                 throw new RuntimeException(e);
