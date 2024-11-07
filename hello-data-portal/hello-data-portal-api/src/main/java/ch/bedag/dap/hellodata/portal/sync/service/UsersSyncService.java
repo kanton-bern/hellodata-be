@@ -35,11 +35,11 @@ public class UsersSyncService {
     }
 
     @Transactional
-    @Scheduled(fixedDelay = 30, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelay = 15, timeUnit = TimeUnit.MINUTES)
     public void resetStatusIfOld() {
         UserSyncLockEntity userSyncLockEntity = getUserSyncLockEntity();
         if (userSyncLockEntity.getStatus() == UserSyncStatus.STARTED &&
-                userSyncLockEntity.getModifiedDate().isBefore(LocalDateTime.now().minusMinutes(30))) {
+                userSyncLockEntity.getModifiedDate().isBefore(LocalDateTime.now().minusMinutes(15))) {
             userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
             userSyncLockRepository.save(userSyncLockEntity);
             advisoryLockService.releaseStaleLock(LOCK_ID);
