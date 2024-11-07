@@ -47,23 +47,23 @@ public class CacheUpdateService {
                 advisoryLockService.releaseStaleLock(LOCK_ID);
             }
         } else {
-            log.info("[CACHE] Another instance is already synchronizing metainfo users cache.");
+            log.debug("[CACHE] Another instance is already synchronizing metainfo users cache.");
         }
     }
 
     private void updateUsersWithDashboardsCache() {
-        log.info("[CACHE] Updating subsystem users with dashboard permissions cache");
+        log.debug("[CACHE] Updating subsystem users with dashboard permissions cache");
         LocalDateTime startTime = LocalDateTime.now();
         metaInfoUsersService.getAllUsersWithRolesForDashboardsRefreshCache();
         Duration between = Duration.between(startTime, LocalDateTime.now());
-        log.info("[CACHE] Updating subsystem users with dashboard permissions completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
+        log.debug("[CACHE] Updating subsystem users with dashboard permissions completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }
 
     private void updateUsersWithRolesCache() {
-        log.info("[CACHE] Updating subsystem users aggregation cache");
+        log.debug("[CACHE] Updating subsystem users aggregation cache");
         LocalDateTime startTime = LocalDateTime.now();
         metaInfoUsersService.getAllUsersWithRolesRefreshCache();
         Duration between = Duration.between(startTime, LocalDateTime.now());
-        log.info("[CACHE] Updating subsystem users aggregation completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
+        log.debug("[CACHE] Updating subsystem users aggregation completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }
 }
