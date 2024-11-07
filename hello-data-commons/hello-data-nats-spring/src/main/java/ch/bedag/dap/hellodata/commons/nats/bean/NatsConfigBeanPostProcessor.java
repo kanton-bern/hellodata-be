@@ -57,7 +57,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     public NatsConfigBeanPostProcessor(Connection natsConnection) {
         this.natsConnection = natsConnection;
-        int nThreads = HDEvent.values().length * 2;
+        int nThreads = roundUpToNextMultipleOfTen(HDEvent.values().length * 2);
         this.executorService = Executors.newFixedThreadPool(nThreads);
         log.info("[NATS] Created pool with {} threads for messages processing ", nThreads);
     }
@@ -97,6 +97,10 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             Thread.currentThread().interrupt();
         }
         THREADS.forEach(SubscribeAnnotationThread::shutdown); // Shutdown individual threads
+    }
+
+    private int roundUpToNextMultipleOfTen(int number) {
+        return (int) (Math.ceil(number / 10.0) * 10);
     }
 
     /**
