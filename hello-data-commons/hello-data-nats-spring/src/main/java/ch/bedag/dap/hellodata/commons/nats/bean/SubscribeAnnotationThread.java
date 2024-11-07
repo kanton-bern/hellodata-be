@@ -137,6 +137,7 @@ public class SubscribeAnnotationThread extends Thread {
             JetStream jetStream = natsConnection.jetStream();
             ConsumerConfiguration consumerConfig = ConsumerConfiguration
                     .builder()
+                    .name(this.durableName)
                     .durable(this.durableName)
                     .build();
             PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions

@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.commons.nats.bean;
 
+import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
 import io.nats.client.Connection;
@@ -37,7 +38,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -116,10 +116,10 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             subscribeAnnotationThreadFound.getBeanWrappers().add(new BeanMethodWrapper(method, bean, subscriptionId));
         } else {
             ArrayList<BeanMethodWrapper> beanWrappers = new ArrayList<>(List.of(new BeanMethodWrapper(method, bean, subscriptionId)));
-            String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "") + UUID.randomUUID();
-            String durableNameBase64 = new String(Base64.getEncoder().encode(durableName.getBytes(StandardCharsets.UTF_8)));
-            log.debug("[NATS] Durable name for consumer: {}, Base64: {}", durableName, durableNameBase64);
-            SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableNameBase64, executorService);
+            String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "") + "-" + UUID.randomUUID();
+            durableName = SlugifyUtil.slugify(durableName);
+            log.debug("[NATS] Durable name for consumer: {}", durableName);
+            SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableName, executorService);
             executorService.submit(thread);
             THREADS.add(thread);
         }

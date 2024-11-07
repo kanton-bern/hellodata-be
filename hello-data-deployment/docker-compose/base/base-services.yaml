@@ -187,6 +187,16 @@ services:
     # nats stream ls
     # nats stream view
 
+  nats-ui:
+    image: ghcr.io/nats-nui/nui:latest
+    container_name: nats-ui
+    ports:
+      - 31311:31311
+    depends_on:
+      - nats
+    environment:
+      - NATS_SERVER_URL=nats://nats:4222  # Connect to the NATS server within the network
+
   #   smtp dev server
   smtp4dev:
     platform: ${HD_PLATFORM}
