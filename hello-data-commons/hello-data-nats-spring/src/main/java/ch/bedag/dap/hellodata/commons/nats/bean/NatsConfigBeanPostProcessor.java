@@ -117,7 +117,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
         } else {
             ArrayList<BeanMethodWrapper> beanWrappers = new ArrayList<>(List.of(new BeanMethodWrapper(method, bean, subscriptionId)));
             String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "") + "-" + UUID.randomUUID();
-            durableName = SlugifyUtil.slugify(durableName);
+            durableName = SlugifyUtil.slugify(durableName, "");
             log.debug("[NATS] Durable name for consumer: {}", durableName);
             SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableName, executorService);
             executorService.submit(thread);
