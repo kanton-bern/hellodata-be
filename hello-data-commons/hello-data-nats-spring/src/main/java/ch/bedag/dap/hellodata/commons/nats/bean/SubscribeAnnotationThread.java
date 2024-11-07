@@ -37,6 +37,7 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -111,7 +112,7 @@ public class SubscribeAnnotationThread extends Thread {
     }
 
     private void fetchAndRunInAThread() throws InterruptedException {
-        Message message = subscription.nextMessage(0L);
+        Message message = subscription.nextMessage(Duration.ofSeconds(10L));
         if (message != null) {
             log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             Future<?> future = executorService.submit(() -> passMessageToSpringBean(message));
