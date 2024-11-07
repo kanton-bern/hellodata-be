@@ -432,7 +432,7 @@ public class UserService {
     @Transactional
     public void setSelectedLanguage(String userId, Locale lang) {
         UserEntity userEntity = getUserEntity(userId);
-        if (!userEntity.getId().equals(SecurityUtils.getCurrentUserId().toString())) {
+        if (!userEntity.getId().equals(SecurityUtils.getCurrentUserId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         userEntity.setSelectedLanguage(lang);
