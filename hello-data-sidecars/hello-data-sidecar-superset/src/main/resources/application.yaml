@@ -102,3 +102,4 @@ server:
 logging:
   level:
     ch.bedag.dap.hellodata.sidecars.superset.service.user: DEBUG
+    org.apache.http.client.protocol: ERROR

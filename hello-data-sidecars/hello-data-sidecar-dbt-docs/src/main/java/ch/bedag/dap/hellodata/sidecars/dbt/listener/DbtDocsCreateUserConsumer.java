@@ -55,7 +55,7 @@ public class DbtDocsCreateUserConsumer {
         log.info("------- Received dbt docs user creation request {}", supersetUserCreate);
         User user = userRepository.findByUserNameOrEmail(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
         if (user != null) {
-            log.info("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
+            log.debug("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
             return;
         }
         log.info("Going to create new dbt docs user with email: {}", supersetUserCreate.getEmail());

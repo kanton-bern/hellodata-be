@@ -73,7 +73,7 @@ public class SupersetCreateUserConsumer {
             SupersetUsersResponse users = supersetClient.users();
             Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail())).findFirst();
             if (supersetUserResult.isPresent()) {
-                log.warn("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
+                log.debug("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
                 enableUser(supersetUserCreate, supersetUserResult.get(), supersetClient, aPublicRoleId);
             } else {
                 createUser(supersetUserCreate, aPublicRoleId, supersetClient);

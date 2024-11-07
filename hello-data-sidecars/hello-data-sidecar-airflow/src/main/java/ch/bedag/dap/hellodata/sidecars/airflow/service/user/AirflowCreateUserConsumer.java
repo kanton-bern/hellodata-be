@@ -71,7 +71,7 @@ public class AirflowCreateUserConsumer {
                             user.getUsername().equalsIgnoreCase(supersetUserCreate.getUsername()))
                     .findFirst();
             if (userResult.isPresent()) {
-                log.info("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
+                log.debug("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
                 return;
             }
 
