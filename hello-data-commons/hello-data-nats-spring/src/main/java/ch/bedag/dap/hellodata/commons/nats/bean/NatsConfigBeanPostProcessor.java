@@ -56,7 +56,9 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     public NatsConfigBeanPostProcessor(Connection natsConnection) {
         this.natsConnection = natsConnection;
-        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        this.executorService = Executors.newFixedThreadPool(nThreads);
+        log.info("[NATS] Created {} threads for NATS processing ", nThreads);
     }
 
     @Override
