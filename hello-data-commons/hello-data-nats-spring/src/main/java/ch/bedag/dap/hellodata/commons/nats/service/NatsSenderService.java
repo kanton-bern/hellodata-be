@@ -30,7 +30,6 @@ import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
 import ch.bedag.dap.hellodata.commons.nats.util.NatsStreamUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.hash.Hashing;
 import io.nats.client.Connection;
 import io.nats.client.JetStream;
 import io.nats.client.JetStreamApiException;
@@ -43,6 +42,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Log4j2
 @Service
@@ -74,7 +74,8 @@ public class NatsSenderService {
             log.debug("+=+=+=+= Publishing message to the stream {} and subject {}", streamName, subjectName);
 
             // Generate a MurmurHash3-based message ID
-            String messageId = Hashing.murmur3_128().hashString(message, StandardCharsets.UTF_8).toString();
+//            String messageId = Hashing.murmur3_128().hashString(message, StandardCharsets.UTF_8).toString();
+            String messageId = UUID.randomUUID().toString();
 
             NatsMessage natsMessage = NatsMessage.builder()
                     .subject(subjectName)
