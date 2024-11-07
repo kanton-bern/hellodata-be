@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.commons.nats.bean;
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
+import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import io.nats.client.Connection;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
@@ -42,14 +43,13 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Log4j2
 public class NatsConfigBeanPostProcessor implements BeanPostProcessor, DisposableBean {
 
     private final Connection natsConnection;
     private final List<SubscribeAnnotationThread> THREADS = new ArrayList<>();
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
     @Value("${spring.application.name}")
     private String appName;
     @Value("${hello-data.instance.name:}")
@@ -57,24 +57,13 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     public NatsConfigBeanPostProcessor(Connection natsConnection) {
         this.natsConnection = natsConnection;
-        int nThreads = Runtime.getRuntime().availableProcessors();
+        int nThreads = HDEvent.values().length * 2;
         this.executorService = Executors.newFixedThreadPool(nThreads);
-
+        log.info("[NATS] Created pool with {} threads for messages processing ", nThreads);
     }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) {
-        final Class<?> clazz = bean.getClass();
-        AtomicInteger counter = new AtomicInteger();
-        Arrays.stream(clazz.getMethods()).forEach(method -> {
-            Optional<JetStreamSubscribe> subOpt = Optional.ofNullable(AnnotationUtils.findAnnotation(method, JetStreamSubscribe.class));
-            subOpt.ifPresent(subscribeAnnotation -> {
-                counter.incrementAndGet();
-            });
-        });
-        int nThreads = counter.get() * 2;
-        this.executorService = Executors.newFixedThreadPool(nThreads);
-        log.info("[NATS] Created {} threads for messages processing ", nThreads);
         return bean;
     }
 
