@@ -14,7 +14,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Log4j2
 @UtilityClass
@@ -83,22 +82,7 @@ public class AirflowUserUtil {
     }
 
     public static AirflowUserResponse getAirflowUser(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient) throws URISyntaxException, IOException {
-        List<AirflowUserResponse> usersByEmail =
-                airflowClient.users().getUsers().stream().filter(user -> userContextRoleUpdate.getEmail().equalsIgnoreCase(user.getEmail()) && userContextRoleUpdate.getUsername().equalsIgnoreCase(user.getUsername())).toList();
-        if (CollectionUtils.isNotEmpty(usersByEmail) && usersByEmail.size() > 1) {
-            log.warn("[Found more than one user by an email] --- {} has usernames: [{}]", userContextRoleUpdate.getEmail(),
-                    usersByEmail.stream().map(AirflowUser::getUsername).collect(Collectors.joining(",")));
-            for (AirflowUserResponse airflowUserResponse : usersByEmail) {
-                if (!airflowUserResponse.getEmail().equalsIgnoreCase(airflowUserResponse.getUsername())) {
-                    log.warn("[Found more than one user by an email] --- returning user with username != email");
-                    return airflowUserResponse;
-                }
-            }
-        }
-        if (CollectionUtils.isEmpty(usersByEmail)) {
-            return null;
-        }
-        return usersByEmail.get(0);
+        return airflowClient.getUser(userContextRoleUpdate.getUsername());
     }
 
     public static void removeAllDataDomainRolesFromUser(AirflowUser airflowUser) {

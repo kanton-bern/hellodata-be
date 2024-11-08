@@ -30,7 +30,6 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.AirflowClient;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.resource.AirflowUserResourceProviderService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
 
@@ -59,14 +57,9 @@ public class AirflowDeleteUserConsumer {
             log.info("------- Received airflow user deletion request {}", subsystemUserDelete);
 
             AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
-            AirflowUsersResponse users = airflowClient.users();
+            AirflowUserResponse user = airflowClient.getUser(subsystemUserDelete.getUsername());
 
-            Optional<AirflowUserResponse> userResult = users.getUsers()
-                    .stream()
-                    .filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserDelete.getEmail()) ||
-                            user.getUsername().equalsIgnoreCase(subsystemUserDelete.getUsername()))
-                    .findFirst();
-            if (!userResult.isPresent()) {
+            if (user == null) {
                 log.info("User {} doesn't exist in instance, omitting. Email: {}", subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
                 return;
             }

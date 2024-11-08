@@ -1,7 +1,6 @@
 package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DISABLE_USER;
 
@@ -33,15 +31,14 @@ public class SupersetDisableUserConsumer {
         try {
             log.info("------- Received superset user disable request {}", subsystemUserUpdate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-            SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserUpdate.getEmail())).findFirst();
-            if (supersetUserResult.isEmpty()) {
+            SupersetUsersResponse response = supersetClient.getUser(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
+            if (response == null) {
                 log.info("User {} doesn't exist in instance, omitting disable action", subsystemUserUpdate.getEmail());
                 return;
             }
             SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
             supersetUserActiveUpdate.setActive(false);
-            supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, supersetUserResult.get().getId());
+            supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, response.getResult().get(0).getId());
             userResourceProviderService.publishUsers();
             log.info("User with email: {} disabled", subsystemUserUpdate.getEmail());
         } catch (URISyntaxException | IOException e) {

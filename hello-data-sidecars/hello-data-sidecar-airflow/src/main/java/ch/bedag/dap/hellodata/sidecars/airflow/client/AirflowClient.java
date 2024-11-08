@@ -29,18 +29,9 @@ package ch.bedag.dap.hellodata.sidecars.airflow.client;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.dag.AirflowDagRunsResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.dag.AirflowDagsResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.exception.UnexpectedResponseException;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowPermissionsResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRole;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRolesResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUser;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserRolesUpdate;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
+import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -54,6 +45,10 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 @Log4j2
 public class AirflowClient {
@@ -106,12 +101,15 @@ public class AirflowClient {
         return airflowUsersResponse;
     }
 
-    private AirflowUsersResponse getAirflowUsersResponse(int offset, int limit) throws URISyntaxException, IOException {
-        HttpUriRequest request = AirflowApiRequestBuilder.getListUsersRequest(host, port, username, password, offset, limit);
+    /**
+     * Gets a user.
+     */
+    public AirflowUserResponse getUser(String airflowUsername) throws URISyntaxException, IOException {
+        HttpUriRequest request = AirflowApiRequestBuilder.getUserRequest(host, port, username, password, airflowUsername);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("users() response json \n{}", new String(bytes));
-        return getObjectMapper().readValue(bytes, AirflowUsersResponse.class);
+        log.debug("getUser({}) response json \n{}", airflowUsername, new String(bytes));
+        return getObjectMapper().readValue(bytes, AirflowUserResponse.class);
     }
 
     /**
@@ -195,6 +193,14 @@ public class AirflowClient {
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("dagRuns({}) response json \n{}", username, new String(bytes));
         return getObjectMapper().readValue(bytes, AirflowDagRunsResponse.class);
+    }
+
+    private AirflowUsersResponse getAirflowUsersResponse(int offset, int limit) throws URISyntaxException, IOException {
+        HttpUriRequest request = AirflowApiRequestBuilder.getListUsersRequest(host, port, username, password, offset, limit);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("users() response json \n{}", new String(bytes));
+        return getObjectMapper().readValue(bytes, AirflowUsersResponse.class);
     }
 
     private ApiResponse executeRequest(HttpUriRequest request) throws IOException {

@@ -37,6 +37,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.IdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserByIdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.exception.BadReturnedValueException;
 import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
@@ -170,6 +171,38 @@ public class SupersetClient {
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("updateUsersActiveFlag({}) response json \n{}", userId, new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetUserUpdateResponse.class);
+    }
+
+    /**
+     * Get a user.
+     *
+     * @return a user.
+     * @throws URISyntaxException        If the Superset URL is invalid.
+     * @throws ClientProtocolException   If there was an error communicating with the
+     *                                   Superset server.
+     * @throws IOException               If there was an error communicating with the
+     *                                   Superset server.
+     * @throws BadReturnedValueException If query will return more than one user
+     */
+    public SupersetUsersResponse getUser(String username, String email) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUserRequest(host, port, authToken, username, email);
+        try {
+            ApiResponse resp = executeRequest(request);
+            byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+            log.debug("getUser({}, {}) response json \n{}", username, email, new String(bytes));
+            SupersetUsersResponse supersetUsersResponse = getObjectMapper().readValue(bytes, SupersetUsersResponse.class);
+            if (supersetUsersResponse.getResult() != null && supersetUsersResponse.getResult().size() > 1) {
+                throw new BadReturnedValueException(String.format("Too many users returned for username %s and email %s. Should get list of 1 got %s",
+                        username, email, supersetUsersResponse.getResult()));
+            }
+            return supersetUsersResponse;
+        } catch (UnexpectedResponseException e) {
+            if (e.getCode() == 404) {
+                log.warn("User not found by email {} and username {}", email, username);
+                return null;
+            }
+            throw e;
+        }
     }
 
     /**

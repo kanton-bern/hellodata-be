@@ -36,19 +36,18 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
@@ -113,24 +112,12 @@ public class SupersetUpdateUserContextRoleConsumer {
     }
 
     private SubsystemUser getSubsystemUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient) throws URISyntaxException, IOException {
-        List<SubsystemUser> supersetUserResult =
-                supersetClient.users().getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(userContextRoleUpdate.getEmail()) && user.getUsername().equalsIgnoreCase(
-                        userContextRoleUpdate.getUsername())).toList();
-        if (CollectionUtils.isNotEmpty(supersetUserResult) && supersetUserResult.size() > 1) {
-            log.warn("[Found more than one user by an email] --- {} has usernames: [{}]", userContextRoleUpdate.getEmail(),
-                    supersetUserResult.stream().map(SubsystemUser::getUsername).collect(Collectors.joining(",")));
-            for (SubsystemUser subsystemUser : supersetUserResult) {
-                if (!subsystemUser.getEmail().equalsIgnoreCase(subsystemUser.getUsername())) {
-                    log.warn("[Found more than one user by an email] --- returning user with username != email");
-                    return subsystemUser;
-                }
-            }
-        }
-        if (CollectionUtils.isEmpty(supersetUserResult)) {
+        SupersetUsersResponse response = supersetClient.getUser(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        if (response == null) {
             log.warn("[Couldn't find user by email: {} and username: {}]", userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername());
             return null;
         }
-        return supersetUserResult.get(0);
+        return response.getResult().get(0);
     }
 
     private void removeBiRoles(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {

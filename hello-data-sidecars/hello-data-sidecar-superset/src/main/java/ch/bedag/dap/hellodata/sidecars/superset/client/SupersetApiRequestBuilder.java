@@ -37,14 +37,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.tuple.Pair;
@@ -56,6 +48,16 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.springframework.util.CollectionUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Log4j2
 @UtilityClass
@@ -86,69 +88,87 @@ public class SupersetApiRequestBuilder {
         StringEntity entity = new StringEntity(body.toString());
 
         return RequestBuilder.post() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(entity) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setEntity(entity) //
+                .build();
     }
 
     public static HttpUriRequest getCsrfTokenRequest(String host, int port, String authToken) throws URISyntaxException {
         URI apiUri = buildUri(host, port, CSRF_TOKEN_API_ENDPOINT, null);
 
         return RequestBuilder.get() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
+    }
+
+    public static HttpUriRequest getUserRequest(String host, int port, String authToken, String username, String email) throws URISyntaxException, IOException {
+        JsonArray filtersArray = new JsonArray();
+
+        JsonObject usernameFilter = new JsonObject();
+        usernameFilter.addProperty("col", "username");
+        usernameFilter.addProperty("opr", "eq");
+        usernameFilter.addProperty("value", URLEncoder.encode(username, "UTF-8"));
+
+        JsonObject emailFilter = new JsonObject();
+        emailFilter.addProperty("col", "email");
+        emailFilter.addProperty("opr", "eq");
+        emailFilter.addProperty("value", URLEncoder.encode(email, "UTF-8"));
+
+        filtersArray.add(usernameFilter);
+        filtersArray.add(emailFilter);
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filtersArray, USERS_API_ENDPOINT);
     }
 
     public static HttpUriRequest getCreateUserRequest(String host, int port, String authToken, SubsystemUserUpdate supersetUser) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, USERS_API_ENDPOINT, null);
         String json = getObjectMapper().writeValueAsString(supersetUser);
         return RequestBuilder.post() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                .build();
     }
 
     public static HttpUriRequest getDeleteUserRequest(String host, int port, String authToken, int supersetUserId) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, supersetUserId), null);
         return RequestBuilder.delete() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
     }
 
     public static HttpUriRequest getUserByIdRequest(int userId, String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, String.format(UPDATE_USER_API_ENDPOINT, userId));
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, String.format(UPDATE_USER_API_ENDPOINT, userId));
     }
 
     public static HttpUriRequest getListUsersRequest(String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, USERS_API_ENDPOINT);
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, USERS_API_ENDPOINT);
     }
 
     public static HttpUriRequest getListRolePermissionsRequest(int roleId, String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, String.format(LIST_ROLE_PERMISSIONS_API_ENDPOINT, roleId));
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, String.format(LIST_ROLE_PERMISSIONS_API_ENDPOINT, roleId));
     }
 
     public static HttpUriRequest getListRolesRequest(String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, LIST_ROLES_API_ENDPOINT);
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_ROLES_API_ENDPOINT);
     }
 
     public static HttpUriRequest getListPermissionsRequest(String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, LIST_PERMISSIONS_API_ENDPOINT);
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_PERMISSIONS_API_ENDPOINT);
     }
 
     public static HttpUriRequest getDashboardRequest(int dashboardId, String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, String.format(DASHBOARD_API_ENDPOINT, dashboardId));
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, String.format(DASHBOARD_API_ENDPOINT, dashboardId));
     }
 
     public static HttpUriRequest getListDashboardsRequest(String host, int port, String authToken) throws URISyntaxException {
-        return getHttpUriRequestWithBasicParams(host, port, authToken, null, LIST_DASHBOARD_API_ENDPOINT);
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_DASHBOARD_API_ENDPOINT);
     }
 
     public static ObjectMapper getObjectMapper() {
@@ -157,7 +177,7 @@ public class SupersetApiRequestBuilder {
         return objectMapper;
     }
 
-    private static HttpUriRequest getHttpUriRequestWithBasicParams(String host, int port, String authToken, JsonArray columns, String listDashboardApiEndpoint) throws
+    private static HttpUriRequest getHttpUriRequestWithBasicParams(String host, int port, String authToken, JsonArray columns, JsonArray filters, String listDashboardApiEndpoint) throws
             URISyntaxException {
         JsonObject param = new JsonObject();
         param.addProperty("page", 0);
@@ -165,14 +185,17 @@ public class SupersetApiRequestBuilder {
         if (columns != null) {
             param.add("columns", columns);
         }
+        if (filters != null) {
+            param.add("filters", filters);
+        }
 
         URI apiUri = buildUri(host, port, listDashboardApiEndpoint, List.of(Pair.of("q", param.toString())));
 
         return RequestBuilder.get() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
     }
 
     public static HttpUriRequest getExportDashboardRequest(String host, int port, String authToken, int dashboardId) throws URISyntaxException {
@@ -182,10 +205,10 @@ public class SupersetApiRequestBuilder {
         URI apiUri = buildUri(host, port, EXPORT_DASHBOARD_API_ENDPOINT, List.of(Pair.of("q", ids.toString())));
 
         return RequestBuilder.get() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.TEXT_PLAIN.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.TEXT_PLAIN.getMimeType()) //
+                .build();
     }
 
     public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride,
@@ -206,13 +229,13 @@ public class SupersetApiRequestBuilder {
             builder.addTextBody("passwords", new Gson().toJson(passwords), contentType);
 
             return RequestBuilder.post() //
-                                 .setUri(apiUri) //
-                                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                                 .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                                 .setHeader("X-CSRFToken", csrfToken) //
-                                 .setHeader("Cookie", sessionCookie) //
-                                 .setEntity(builder.build()) //
-                                 .build();
+                    .setUri(apiUri) //
+                    .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                    .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                    .setHeader("X-CSRFToken", csrfToken) //
+                    .setHeader("Cookie", sessionCookie) //
+                    .setEntity(builder.build()) //
+                    .build();
         }
     }
 
@@ -240,11 +263,11 @@ public class SupersetApiRequestBuilder {
 
     private static HttpUriRequest createPutRequest(String authToken, URI apiUri, String json) {
         return RequestBuilder.put() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                .build();
     }
 
     private static URI buildUri(String host, int port, String endpoint, List<Pair<String, String>> params) throws URISyntaxException {

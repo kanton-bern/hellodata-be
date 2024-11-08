@@ -31,7 +31,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.airflow.client.AirflowClient;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUser;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.resource.AirflowUserResourceProviderService;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
 import static ch.bedag.dap.hellodata.sidecars.airflow.service.user.AirflowUserUtil.toAirflowUser;
@@ -62,15 +60,9 @@ public class AirflowCreateUserConsumer {
             log.info("------- Received airflow user creation request {}", supersetUserCreate);
 
             AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
-            AirflowUsersResponse users = airflowClient.users();
+            AirflowUserResponse user = airflowClient.getUser(supersetUserCreate.getUsername());
 
-            // Airflow only allows unique username and email, so we make sure there is nobody with either of these already existing, before creating a new one
-            Optional<AirflowUserResponse> userResult = users.getUsers()
-                    .stream()
-                    .filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail()) ||
-                            user.getUsername().equalsIgnoreCase(supersetUserCreate.getUsername()))
-                    .findFirst();
-            if (userResult.isPresent()) {
+            if (user != null) {
                 log.debug("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
                 return;
             }

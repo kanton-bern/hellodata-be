@@ -70,11 +70,11 @@ public class SupersetCreateUserConsumer {
                     .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME))
                     .map(SupersetRole::getId)
                     .findFirst();
-            SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail())).findFirst();
-            if (supersetUserResult.isPresent()) {
+            SupersetUsersResponse response = supersetClient.getUser(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
+            if (response != null) {
+                SubsystemUser user = response.getResult().get(0);
                 log.debug("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
-                enableUser(supersetUserCreate, supersetUserResult.get(), supersetClient, aPublicRoleId);
+                enableUser(supersetUserCreate, user, supersetClient, aPublicRoleId);
             } else {
                 createUser(supersetUserCreate, aPublicRoleId, supersetClient);
             }
@@ -92,10 +92,10 @@ public class SupersetCreateUserConsumer {
         try {
             log.info("------- Received superset user enable request {}", subsystemUserUpdate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-            SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserUpdate.getEmail())).findFirst();
-            if (supersetUserResult.isPresent()) {
-                enableUser(subsystemUserUpdate, supersetUserResult.get(), supersetClient);
+            SupersetUsersResponse response = supersetClient.getUser(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
+            if (response != null) {
+                SubsystemUser user = response.getResult().get(0);
+                enableUser(subsystemUserUpdate, user, supersetClient);
             } else {
                 log.warn("Couldn't find user {}", subsystemUserUpdate.getEmail());
             }
