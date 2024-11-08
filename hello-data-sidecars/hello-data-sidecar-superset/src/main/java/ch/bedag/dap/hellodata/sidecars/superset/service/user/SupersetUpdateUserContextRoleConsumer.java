@@ -123,6 +123,7 @@ public class SupersetUpdateUserContextRoleConsumer {
             subsystemUserUpdate.setActive(userContextRoleUpdate.getActive());
             subsystemUserUpdate.setFirstName(userContextRoleUpdate.getFirstName());
             subsystemUserUpdate.setLastName(userContextRoleUpdate.getLastName());
+            subsystemUserUpdate.setPassword(userContextRoleUpdate.getFirstName());
 
             List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).toList();
             subsystemUserUpdate.setRoles(roles);
