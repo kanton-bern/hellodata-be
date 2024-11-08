@@ -106,10 +106,18 @@ public class AirflowClient {
      */
     public AirflowUserResponse getUser(String airflowUsername) throws URISyntaxException, IOException {
         HttpUriRequest request = AirflowApiRequestBuilder.getUserRequest(host, port, username, password, airflowUsername);
-        ApiResponse resp = executeRequest(request);
-        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
-        log.debug("getUser({}) response json \n{}", airflowUsername, new String(bytes));
-        return getObjectMapper().readValue(bytes, AirflowUserResponse.class);
+        try {
+            ApiResponse resp = executeRequest(request);
+            byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+            log.debug("getUser({}) response json \n{}", airflowUsername, new String(bytes));
+            return getObjectMapper().readValue(bytes, AirflowUserResponse.class);
+        } catch (UnexpectedResponseException e) {
+            if (e.getCode() == 404) {
+                log.warn("User not found by username {}", airflowUsername);
+                return null;
+            }
+            throw e;
+        }
     }
 
     /**
