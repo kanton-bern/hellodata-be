@@ -156,29 +156,26 @@ public class UserService {
         List<UserDto> allUsers = userRepository.getUserEntitiesByEnabled(true).stream().map(this::map).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
-        allUsers.stream().forEach(user -> {
-            try {
-                UserEntity userEntity;
-                UUID id = UUID.fromString(user.getId());
-                if (!userRepository.existsByIdOrAuthId(id, id.toString())) {
-                    userEntity = new UserEntity();
-                    userEntity.setId(id);
-                    userEntity.setEmail(user.getEmail());
-                    userRepository.saveAndFlush(userEntity);
+        List<UserEntity> usersCreated = allUsers.stream().map(user -> {
+            UserEntity userEntity;
+            UUID id = UUID.fromString(user.getId());
+            if (!userRepository.existsByIdOrAuthId(id, id.toString())) {
+                userEntity = new UserEntity();
+                userEntity.setId(id);
+                userEntity.setEmail(user.getEmail());
+                userRepository.saveAndFlush(userEntity);
+                roleService.createNoneContextRoles(userEntity);
+            } else {
+                userEntity = getUserEntity(id);
+                if (CollectionUtils.isEmpty(userEntity.getContextRoles())) {
                     roleService.createNoneContextRoles(userEntity);
-                } else {
-                    userEntity = getUserEntity(id);
-                    if (CollectionUtils.isEmpty(userEntity.getContextRoles())) {
-                        roleService.createNoneContextRoles(userEntity);
-                    }
                 }
-                createUserInSubsystems(user.getId());
-                synchronizeContextRolesWithSubsystems(userEntity, false);
-                counter.getAndIncrement();
-            } catch (Exception e) {
-                log.error("[syncAllUsers] Could not sync user {} with subsystems", user.getEmail(), e);
             }
-        });
+            createUserInSubsystems(user.getId());
+            counter.getAndIncrement();
+            return userEntity;
+        }).toList();
+        usersCreated.stream().forEach(entity -> synchronizeContextRolesWithSubsystems(entity, false));
         if (counter.get() > 0) {
             natsSenderService.publishMessageToJetStream(HDEvent.GET_ALL_USERS, new SubsystemGetAllUsers());
         }
