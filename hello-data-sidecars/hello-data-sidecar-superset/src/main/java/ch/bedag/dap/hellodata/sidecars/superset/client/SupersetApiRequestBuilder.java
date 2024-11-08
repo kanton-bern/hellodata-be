@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserAc
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -125,7 +126,11 @@ public class SupersetApiRequestBuilder {
 
     public static HttpUriRequest getCreateUserRequest(String host, int port, String authToken, SubsystemUserUpdate supersetUser) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, USERS_API_ENDPOINT, null);
-        String json = getObjectMapper().writeValueAsString(supersetUser);
+        ObjectMapper objectMapper = getObjectMapper();
+        ObjectNode node = objectMapper.valueToTree(supersetUser);
+        node.remove("sendBackUsersList");
+
+        String json = objectMapper.writeValueAsString(node);
         return RequestBuilder.post() //
                 .setUri(apiUri) //
                 .setHeader(HttpHeaders.AUTHORIZATION, BEARER_TOKEN_VALUE_PREFIX + authToken) //
