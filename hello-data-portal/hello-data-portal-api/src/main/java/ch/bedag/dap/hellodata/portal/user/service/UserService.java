@@ -59,6 +59,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -174,9 +175,13 @@ public class UserService {
             boolean isLast = counter.incrementAndGet() == allUsers.size();
             return getUserContextRoleUpdate(userEntity, isLast);
         }).toList();
-        AllUsersContextRoleUpdate allUsersContextRoleUpdate = new AllUsersContextRoleUpdate();
-        allUsersContextRoleUpdate.setUserContextRoleUpdates(list);
-        natsSenderService.publishMessageToJetStream(HDEvent.SYNC_ALL_USERS, allUsersContextRoleUpdate);
+        List<List<UserContextRoleUpdate>> partition = ListUtils.partition(list, 50);
+        for (List<UserContextRoleUpdate> batch : partition) {
+            AllUsersContextRoleUpdate allUsersContextRoleUpdate = new AllUsersContextRoleUpdate();
+            allUsersContextRoleUpdate.setUserContextRoleUpdates(batch);
+            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_ALL_USERS, allUsersContextRoleUpdate);
+            log.info("[syncAllUsers] Synchronized batch of {} users.", batch.size());
+        }
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
     }
 

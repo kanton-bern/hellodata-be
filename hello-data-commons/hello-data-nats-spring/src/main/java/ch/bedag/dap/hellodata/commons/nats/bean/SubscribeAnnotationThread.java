@@ -83,7 +83,17 @@ public class SubscribeAnnotationThread extends Thread {
             try {
                 log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null) {
-                    fetchAndRunInAThread();
+                    Message message = subscription.nextMessage(Duration.ofSeconds(10L));
+                    if (message != null) {
+                        log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                        if (subscribeAnnotation.asyncRun()) {
+                            processMessageInThread(message);
+                        } else {
+                            passMessageToSpringBean(message);
+                        }
+                    } else {
+                        log.debug("[NATS] ------- No message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                    }
                 } else {
                     log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 }
@@ -111,30 +121,25 @@ public class SubscribeAnnotationThread extends Thread {
 
     }
 
-    private void fetchAndRunInAThread() throws InterruptedException {
-        Message message = subscription.nextMessage(Duration.ofSeconds(10L));
-        if (message != null) {
-            log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
-            // Submit as a CompletableFuture directly
-            CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> passMessageToSpringBean(message), executorService);
+    private void processMessageInThread(Message message) throws InterruptedException {
+        // Submit as a CompletableFuture directly
+        CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> passMessageToSpringBean(message), executorService);
 
-            // Create a ScheduledExecutorService for the timeout task
-            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-            ScheduledFuture<?> timeoutHandler = scheduler.schedule(() -> {
-                if (!completableFuture.isDone()) {
-                    log.warn("[NATS] Task exceeded timeout. Attempting to cancel...");
-                    completableFuture.cancel(true);
-                }
-            }, subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
+        // Create a ScheduledExecutorService for the timeout task
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        ScheduledFuture<?> timeoutHandler = scheduler.schedule(() -> {
+            if (!completableFuture.isDone()) {
+                log.warn("[NATS] Task exceeded timeout. Attempting to cancel...");
+                completableFuture.cancel(true);
+            }
+        }, subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
 
-            // If completableFuture finishes before timeout, cancel the scheduled task and release resources
-            completableFuture.whenComplete((result, throwable) -> {
-                timeoutHandler.cancel(false);  // Cancel the timeout task
-                scheduler.shutdown();  // Release the scheduled thread
-            });
-        } else {
-            log.debug("[NATS] ------- No message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
-        }
+        // If completableFuture finishes before timeout, cancel the scheduled task and release resources
+        completableFuture.whenComplete((result, throwable) -> {
+            timeoutHandler.cancel(false);  // Cancel the timeout task
+            scheduler.shutdown();  // Release the scheduled thread
+        });
+
     }
 
     private void subscribe() {

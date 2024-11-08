@@ -40,4 +40,6 @@ public @interface JetStreamSubscribe {
     HDEvent event();
 
     long timeoutMinutes() default 5L;
+
+    boolean asyncRun() default true;
 }
