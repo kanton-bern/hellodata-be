@@ -71,15 +71,18 @@ public class SupersetUpdateUserContextRoleConsumer {
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void subscribe(UserContextRoleUpdate userContextRoleUpdate) throws URISyntaxException, IOException {
         log.info("-=-=-=-= RECEIVED USER CONTEXT ROLES UPDATE: payload: {}", userContextRoleUpdate);
-        String dataDomainKey = helloDataContextConfig.getContext().getKey();
         SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
         SupersetRolesResponse allRoles = supersetClient.roles();
+        updateUserRoles(userContextRoleUpdate, supersetClient, allRoles);
+    }
+
+    public void updateUserRoles(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient, SupersetRolesResponse allRoles) throws URISyntaxException, IOException {
+        String dataDomainKey = helloDataContextConfig.getContext().getKey();
         SubsystemUser supersetUser = getSupersetUser(userContextRoleUpdate, supersetClient, allRoles);
         Optional<UserContextRoleUpdate.ContextRole> dataDomainContextRole =
                 userContextRoleUpdate.getContextRoles().stream().filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(dataDomainKey)).findFirst();
         if (dataDomainContextRole.isPresent()) {
             UserContextRoleUpdate.ContextRole contextRole = dataDomainContextRole.get();
-            List<SupersetRole> supersetUserRoles = supersetUser.getRoles();
             SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
             supersetUserRolesUpdate.setRoles(supersetUser.getRoles().stream().map(SupersetRole::getId).toList());
             removeBiRoles(allRoles, supersetUserRolesUpdate);
@@ -115,7 +118,7 @@ public class SupersetUpdateUserContextRoleConsumer {
 
     private SubsystemUser getSupersetUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient, SupersetRolesResponse allRoles) throws URISyntaxException, IOException {
         SupersetUsersResponse response = supersetClient.getUser(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
-        if (response == null || response.getResult().size() == 0) {
+        if (response == null || response.getResult().isEmpty()) {
             log.warn("[Couldn't find user by email: {} and username: {}, creating...]", userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername());
             SubsystemUserUpdate subsystemUserUpdate = new SubsystemUserUpdate();
             subsystemUserUpdate.setUsername(userContextRoleUpdate.getUsername());
