@@ -31,7 +31,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextReposi
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemGetAllUsers;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -145,7 +145,7 @@ public class UserServiceTest {
         userService.syncAllUsers();
 
         // then
-        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.GET_ALL_USERS), any(SubsystemGetAllUsers.class));
+        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.UPDATE_USER_CONTEXT_ROLE), any(UserContextRoleUpdate.class));
     }
 
     @Test
