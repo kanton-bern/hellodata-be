@@ -44,15 +44,17 @@ import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.stream.Stream;
+
 import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeAllDashboardRoles;
 import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removePublicRoleIfAdded;
 
@@ -60,8 +62,6 @@ import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.rem
 @Service
 @RequiredArgsConstructor
 public class UpdateDashboardUserRolesListener {
-
-    private static final String PUBLIC_ROLE_NAME = "Public";
 
     private final Connection natsConnection;
     private final ObjectMapper objectMapper;
@@ -89,10 +89,10 @@ public class UpdateDashboardUserRolesListener {
                 SupersetDashboardResponse dashboardsFromSuperset = supersetClient.dashboards();
                 for (DashboardForUserDto dashboardForUserDto : dashboards) {
                     SupersetDashboard dashboard = dashboardsFromSuperset.getResult()
-                                                                        .stream()
-                                                                        .filter(supersetDashboard -> supersetDashboard.getId() == dashboardForUserDto.getId())
-                                                                        .findFirst()
-                                                                        .orElse(null);
+                            .stream()
+                            .filter(supersetDashboard -> supersetDashboard.getId() == dashboardForUserDto.getId())
+                            .findFirst()
+                            .orElse(null);
                     assignDashboardRoleToUser(user, dashboard, allRoles, supersetUserRolesUpdate);
                 }
 

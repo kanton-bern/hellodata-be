@@ -71,7 +71,7 @@ public class SupersetCreateUserConsumer {
                     .map(SupersetRole::getId)
                     .findFirst();
             SupersetUsersResponse response = supersetClient.getUser(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-            if (response != null) {
+            if (response != null && response.getResult().size() > 0) {
                 SubsystemUser user = response.getResult().get(0);
                 log.debug("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
                 enableUser(supersetUserCreate, user, supersetClient, aPublicRoleId);
@@ -93,7 +93,7 @@ public class SupersetCreateUserConsumer {
             log.info("------- Received superset user enable request {}", subsystemUserUpdate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse response = supersetClient.getUser(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
-            if (response != null) {
+            if (response != null && response.getResult().size() > 0) {
                 SubsystemUser user = response.getResult().get(0);
                 enableUser(subsystemUserUpdate, user, supersetClient);
             } else {

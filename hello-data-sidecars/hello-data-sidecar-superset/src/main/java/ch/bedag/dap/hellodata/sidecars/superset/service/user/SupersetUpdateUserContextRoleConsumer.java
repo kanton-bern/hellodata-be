@@ -113,7 +113,7 @@ public class SupersetUpdateUserContextRoleConsumer {
 
     private SubsystemUser getSubsystemUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient) throws URISyntaxException, IOException {
         SupersetUsersResponse response = supersetClient.getUser(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
-        if (response == null) {
+        if (response == null || response.getResult().size() == 0) {
             log.warn("[Couldn't find user by email: {} and username: {}]", userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername());
             return null;
         }
