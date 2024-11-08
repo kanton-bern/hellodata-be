@@ -100,6 +100,7 @@ public class AirflowUserContextRoleConsumer {
 
     private List<AirflowRole> createContextRolesIfNotExist(List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles, List<AirflowRole> roles,
                                                            AirflowClient airflowClient) throws URISyntaxException, IOException {
+        boolean roleCreated = false;
         for (UserContextRoleUpdate.ContextRole contextRole : dataDomainContextRoles) {
             Optional<AirflowRole> airflowRoleResult =
                     roles.stream().filter(airflowRole -> airflowRole.getName().equalsIgnoreCase(DATA_DOMAIN_ROLE_PREFIX + contextRole.getContextKey())).findFirst();
@@ -107,9 +108,12 @@ public class AirflowUserContextRoleConsumer {
                 AirflowRole role = new AirflowRole();
                 role.setName(DATA_DOMAIN_ROLE_PREFIX + contextRole.getContextKey());
                 airflowClient.createRole(role);
+                roleCreated = true;
             }
         }
-        airflowRoleResourceProviderService.publishRoles();
+        if (roleCreated) {
+            airflowRoleResourceProviderService.publishRoles();
+        }
         //fetch roles again
         return airflowClient.roles().getRoles();
     }

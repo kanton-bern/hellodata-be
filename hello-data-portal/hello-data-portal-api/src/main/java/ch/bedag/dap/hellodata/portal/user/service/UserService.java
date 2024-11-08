@@ -177,9 +177,9 @@ public class UserService {
         }).toList();
         List<List<UserContextRoleUpdate>> partition = ListUtils.partition(list, 50);
         for (List<UserContextRoleUpdate> batch : partition) {
-            AllUsersContextRoleUpdate allUsersContextRoleUpdate = new AllUsersContextRoleUpdate();
-            allUsersContextRoleUpdate.setUserContextRoleUpdates(batch);
-            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_ALL_USERS, allUsersContextRoleUpdate);
+            UsersContextRoleUpdate usersContextRoleUpdate = new UsersContextRoleUpdate();
+            usersContextRoleUpdate.setUserContextRoleUpdates(batch);
+            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, usersContextRoleUpdate);
             log.info("[syncAllUsers] Synchronized batch of {} users.", batch.size());
         }
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());

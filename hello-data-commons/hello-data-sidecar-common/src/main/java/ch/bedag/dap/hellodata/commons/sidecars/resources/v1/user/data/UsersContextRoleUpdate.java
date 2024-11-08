@@ -9,6 +9,6 @@ import java.util.List;
 @ToString
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AllUsersContextRoleUpdate {
+public class UsersContextRoleUpdate {
     private List<UserContextRoleUpdate> userContextRoleUpdates;
 }
