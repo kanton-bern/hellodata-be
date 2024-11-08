@@ -24,7 +24,7 @@ public class SupersetSyncUsersConsumer {
     private final SupersetClientProvider supersetClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L, asyncRun = false)
+    @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L)
     public void subscribe(UsersContextRoleUpdate usersContextRoleUpdate) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -39,6 +39,6 @@ public class SupersetSyncUsersConsumer {
                 log.error("Could not synchronize username {}, email {}", userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail(), e);
             }
         }
-        log.info("[SYNC_USERS] Finished users synchronization. Operation took {}", stopWatch.formatTime());
+        log.info("[SYNC_USERS] Finished all users synchronization. Operation took {}", stopWatch.formatTime());
     }
 }

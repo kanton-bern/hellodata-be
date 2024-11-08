@@ -96,6 +96,8 @@ public class CbUserContextRoleConsumer {
             if (userContextRoleUpdate.isSendBackUsersList()) {
                 userResourceProviderService.publishUsers();
             }
+        } else {
+            log.info("Relevant user data domain context keys not found {}", userContextRoleUpdate);
         }
     }
 

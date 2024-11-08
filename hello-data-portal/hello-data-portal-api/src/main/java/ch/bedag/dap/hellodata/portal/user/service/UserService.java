@@ -175,12 +175,14 @@ public class UserService {
             boolean isLast = counter.incrementAndGet() == allUsers.size();
             return getUserContextRoleUpdate(userEntity, isLast);
         }).toList();
-        List<List<UserContextRoleUpdate>> partition = ListUtils.partition(list, 50);
+        List<List<UserContextRoleUpdate>> partition = partitionBatches(list);
+
+        // Proceed with publishing the partitions
         for (List<UserContextRoleUpdate> batch : partition) {
             UsersContextRoleUpdate usersContextRoleUpdate = new UsersContextRoleUpdate();
             usersContextRoleUpdate.setUserContextRoleUpdates(batch);
             natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, usersContextRoleUpdate);
-            log.info("[syncAllUsers] Synchronized batch of {} users.", batch.size());
+            log.info("[syncUsers] Synchronized batch of {} users.", batch.size());
         }
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
     }
@@ -434,6 +436,31 @@ public class UserService {
     @Transactional(readOnly = true)
     public Locale getSelectedLanguageByEmail(String email) {
         return userRepository.findSelectedLanguageByEmail(email);
+    }
+
+    /**
+     * partition batches and leave the last one as the biggest one, because it will trigger users pushback
+     */
+    private List<List<UserContextRoleUpdate>> partitionBatches(List<UserContextRoleUpdate> list) {
+        List<List<UserContextRoleUpdate>> partition = ListUtils.partition(list, 25);
+
+        // Check if we have at least three partitions
+        if (partition.size() >= 3) {
+            // Remove the last three partitions
+            List<UserContextRoleUpdate> lastPartition = partition.remove(partition.size() - 1);
+            List<UserContextRoleUpdate> secondLastPartition = partition.remove(partition.size() - 1);
+            List<UserContextRoleUpdate> thirdLastPartition = partition.remove(partition.size() - 1);
+
+            // Merge the last three partitions into one
+            List<UserContextRoleUpdate> mergedPartition = new ArrayList<>();
+            mergedPartition.addAll(thirdLastPartition);
+            mergedPartition.addAll(secondLastPartition);
+            mergedPartition.addAll(lastPartition);
+
+            // Add the merged partition back to the list
+            partition.add(mergedPartition);
+        }
+        return partition;
     }
 
     private UserContextRoleUpdate getUserContextRoleUpdate(UserEntity userEntity, boolean sendBackUsersList) {

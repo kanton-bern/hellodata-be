@@ -24,7 +24,7 @@ public class AirflowSyncUsersConsumer {
     private final AirflowClientProvider airflowClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L, asyncRun = false)
+    @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L)
     public void subscribe(UsersContextRoleUpdate usersContextRoleUpdate) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
