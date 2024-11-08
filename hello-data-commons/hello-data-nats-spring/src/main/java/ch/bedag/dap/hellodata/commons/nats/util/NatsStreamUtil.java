@@ -76,12 +76,12 @@ public class NatsStreamUtil {
 
     private static StreamInfo createStream(JetStreamManagement jsm, String streamName, StorageType storageType, String... subjects) throws IOException, JetStreamApiException {
         int maxMessages = 2000;
-        int messageMaxAgeMinutes = 1;
+        int messageMaxAgeMinutes = 2;
         StreamConfiguration sc = StreamConfiguration.builder()
                 .name(streamName)
                 .storageType(storageType)
                 .subjects(subjects)
-                .retentionPolicy(RetentionPolicy.Limits)
+                .retentionPolicy(RetentionPolicy.Interest)
                 .discardPolicy(DiscardPolicy.Old)
                 .maxAge(Duration.ofMinutes(messageMaxAgeMinutes))
                 .duplicateWindow(Duration.ZERO)

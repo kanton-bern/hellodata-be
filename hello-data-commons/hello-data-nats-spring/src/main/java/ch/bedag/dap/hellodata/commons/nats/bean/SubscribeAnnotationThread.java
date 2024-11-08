@@ -142,6 +142,8 @@ public class SubscribeAnnotationThread extends Thread {
                     .build();
             PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions
                     .builder()
+                    .name(this.durableName)
+                    .durable(this.durableName)
                     .configuration(consumerConfig)
                     .build();
             subscription = jetStream.subscribe(subscribeAnnotation.event().getSubject(), pushSubscribeOptions);

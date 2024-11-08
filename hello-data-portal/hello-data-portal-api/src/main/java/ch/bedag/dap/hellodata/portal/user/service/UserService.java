@@ -41,7 +41,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -171,12 +174,10 @@ public class UserService {
                     roleService.createNoneContextRoles(userEntity);
                 }
             }
-            synchronizeContextRolesWithSubsystems(userEntity, false);
             counter.getAndIncrement();
+            boolean isLast = counter.incrementAndGet() == allUsers.size();
+            synchronizeContextRolesWithSubsystems(userEntity, isLast);
         });
-        if (counter.get() > 0) {
-            natsSenderService.publishMessageToJetStream(HDEvent.GET_ALL_USERS, new SubsystemGetAllUsers());
-        }
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
     }
 
