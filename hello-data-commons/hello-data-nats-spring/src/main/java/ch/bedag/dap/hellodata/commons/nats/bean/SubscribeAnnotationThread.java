@@ -151,6 +151,7 @@ public class SubscribeAnnotationThread extends Thread {
                     .builder()
                     .name(this.durableName)
                     .durable(this.durableName)
+                    .ackWait(Duration.ofMinutes(subscribeAnnotation.timeoutMinutes()))
                     .build();
             PushSubscribeOptions pushSubscribeOptions = PushSubscribeOptions
                     .builder()
