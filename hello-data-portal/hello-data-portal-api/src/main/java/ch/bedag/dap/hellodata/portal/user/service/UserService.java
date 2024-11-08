@@ -174,8 +174,7 @@ public class UserService {
                     roleService.createNoneContextRoles(userEntity);
                 }
             }
-            counter.getAndIncrement();
-            boolean isLast = counter.incrementAndGet() == allUsers.size();
+            boolean isLast = counter.incrementAndGet() >= allUsers.size();
             synchronizeContextRolesWithSubsystems(userEntity, isLast);
         });
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
