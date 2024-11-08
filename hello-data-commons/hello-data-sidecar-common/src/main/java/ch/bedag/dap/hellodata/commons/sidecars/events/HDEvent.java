@@ -51,6 +51,7 @@ public enum HDEvent {
     ENABLE_USER(METAINFO_STREAM, "enable_user", SubsystemUserUpdate.class),
     CREATE_USER(METAINFO_STREAM, "create_user", SubsystemUserUpdate.class),
     UPDATE_USER_CONTEXT_ROLE(METAINFO_STREAM, "update_user_context_role", UserContextRoleUpdate.class),
+    SYNC_ALL_USERS(METAINFO_STREAM, "sync_all_users", AllUsersContextRoleUpdate.class),
     UPDATE_STORAGE_MONITORING_RESULT(METAINFO_STREAM, "update_storage_monitoring_result", StorageMonitoringResult.class),
     DELETE_USER(METAINFO_STREAM, "delete_user", SubsystemUserDelete.class),
     GET_ALL_USERS(METAINFO_STREAM, "users_refresh", SubsystemGetAllUsers.class),

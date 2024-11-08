@@ -38,7 +38,6 @@ import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource.CbUserResourceProviderService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -57,16 +56,6 @@ public class CbUserContextRoleConsumer {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final CbUserResourceProviderService userResourceProviderService;
-
-    @NotNull
-    private static Set<UserContextRoleUpdate.ContextRole> getRelevantUserDataDomainContextKeys(UserContextRoleUpdate userContextRoleUpdate) {
-        return userContextRoleUpdate.getContextRoles()
-                .stream()
-                .filter(contextRole -> (contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN ||
-                        contextRole.getRoleName().getContextType() == HdContextType.BUSINESS_DOMAIN) &&
-                        contextRole.getRoleName() != HdRoleName.NONE)
-                .collect(Collectors.toSet());
-    }
 
     static List<Role> mapRoles(User user, Set<UserContextRoleUpdate.ContextRole> dataDomainContexts, List<Role> allCbRoles) {
         Set<Role> newDistinctUserRoles = new HashSet<>();
@@ -108,6 +97,15 @@ public class CbUserContextRoleConsumer {
                 userResourceProviderService.publishUsers();
             }
         }
+    }
+
+    private Set<UserContextRoleUpdate.ContextRole> getRelevantUserDataDomainContextKeys(UserContextRoleUpdate userContextRoleUpdate) {
+        return userContextRoleUpdate.getContextRoles()
+                .stream()
+                .filter(contextRole -> (contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN ||
+                        contextRole.getRoleName().getContextType() == HdContextType.BUSINESS_DOMAIN) &&
+                        contextRole.getRoleName() != HdRoleName.NONE)
+                .collect(Collectors.toSet());
     }
 
     private User toCbUser(UserContextRoleUpdate userContextRoleUpdate) {

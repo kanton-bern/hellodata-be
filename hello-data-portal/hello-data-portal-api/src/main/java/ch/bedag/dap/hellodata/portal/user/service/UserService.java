@@ -41,10 +41,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -159,7 +156,7 @@ public class UserService {
         List<UserDto> allUsers = userRepository.getUserEntitiesByEnabled(true).stream().map(this::map).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
-        allUsers.stream().forEach(user -> {
+        List<UserContextRoleUpdate> list = allUsers.stream().map(user -> {
             UserEntity userEntity;
             UUID id = UUID.fromString(user.getId());
             if (!userRepository.existsByIdOrAuthId(id, id.toString())) {
@@ -175,8 +172,11 @@ public class UserService {
                 }
             }
             boolean isLast = counter.incrementAndGet() == allUsers.size();
-            synchronizeContextRolesWithSubsystems(userEntity, isLast);
-        });
+            return getUserContextRoleUpdate(userEntity, isLast);
+        }).toList();
+        AllUsersContextRoleUpdate allUsersContextRoleUpdate = new AllUsersContextRoleUpdate();
+        allUsersContextRoleUpdate.setUserContextRoleUpdates(list);
+        natsSenderService.publishMessageToJetStream(HDEvent.SYNC_ALL_USERS, allUsersContextRoleUpdate);
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
     }
 
@@ -338,24 +338,7 @@ public class UserService {
 
     @Transactional
     public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, boolean sendBackUsersList) {
-        UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
-        userContextRoleUpdate.setEmail(userEntity.getEmail());
-        userContextRoleUpdate.setUsername(userEntity.getUsername());
-        userContextRoleUpdate.setFirstName(userEntity.getFirstName());
-        userContextRoleUpdate.setLastName(userEntity.getLastName());
-        userContextRoleUpdate.setActive(userEntity.isEnabled());
-        List<UserContextRoleEntity> allContextRolesForUser = roleService.getAllContextRolesForUser(userEntity);
-        List<UserContextRoleUpdate.ContextRole> contextRoles = new ArrayList<>();
-        allContextRolesForUser.forEach(contextRoleForUser -> {
-            UserContextRoleUpdate.ContextRole contextRole = new UserContextRoleUpdate.ContextRole();
-            contextRole.setContextKey(contextRoleForUser.getContextKey());
-            contextRole.setRoleName(contextRoleForUser.getRole().getName());
-            Optional<HdContextEntity> byContextKey = contextRepository.getByContextKey(contextRoleForUser.getContextKey());
-            byContextKey.ifPresent(contextEntity -> contextRole.setParentContextKey(contextRole.getParentContextKey()));
-            contextRoles.add(contextRole);
-        });
-        userContextRoleUpdate.setContextRoles(contextRoles);
-        userContextRoleUpdate.setSendBackUsersList(sendBackUsersList);
+        UserContextRoleUpdate userContextRoleUpdate = getUserContextRoleUpdate(userEntity, sendBackUsersList);
         natsSenderService.publishMessageToJetStream(HDEvent.UPDATE_USER_CONTEXT_ROLE, userContextRoleUpdate);
     }
 
@@ -448,6 +431,27 @@ public class UserService {
         return userRepository.findSelectedLanguageByEmail(email);
     }
 
+    private UserContextRoleUpdate getUserContextRoleUpdate(UserEntity userEntity, boolean sendBackUsersList) {
+        UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
+        userContextRoleUpdate.setEmail(userEntity.getEmail());
+        userContextRoleUpdate.setUsername(userEntity.getUsername());
+        userContextRoleUpdate.setFirstName(userEntity.getFirstName());
+        userContextRoleUpdate.setLastName(userEntity.getLastName());
+        userContextRoleUpdate.setActive(userEntity.isEnabled());
+        List<UserContextRoleEntity> allContextRolesForUser = roleService.getAllContextRolesForUser(userEntity);
+        List<UserContextRoleUpdate.ContextRole> contextRoles = new ArrayList<>();
+        allContextRolesForUser.forEach(contextRoleForUser -> {
+            UserContextRoleUpdate.ContextRole contextRole = new UserContextRoleUpdate.ContextRole();
+            contextRole.setContextKey(contextRoleForUser.getContextKey());
+            contextRole.setRoleName(contextRoleForUser.getRole().getName());
+            Optional<HdContextEntity> byContextKey = contextRepository.getByContextKey(contextRoleForUser.getContextKey());
+            byContextKey.ifPresent(contextEntity -> contextRole.setParentContextKey(contextRole.getParentContextKey()));
+            contextRoles.add(contextRole);
+        });
+        userContextRoleUpdate.setContextRoles(contextRoles);
+        userContextRoleUpdate.setSendBackUsersList(sendBackUsersList);
+        return userContextRoleUpdate;
+    }
 
     private SubsystemUserUpdate getSubsystemUserUpdate(UserRepresentation representation) {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
