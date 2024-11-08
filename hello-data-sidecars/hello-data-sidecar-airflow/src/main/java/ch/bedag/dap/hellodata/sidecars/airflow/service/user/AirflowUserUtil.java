@@ -82,7 +82,24 @@ public class AirflowUserUtil {
     }
 
     public static AirflowUserResponse getAirflowUser(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient) throws URISyntaxException, IOException {
-        return airflowClient.getUser(userContextRoleUpdate.getUsername());
+        AirflowUserResponse user = airflowClient.getUser(userContextRoleUpdate.getUsername());
+        if (user == null) {
+            log.warn("User {} not found in airflow, creating", userContextRoleUpdate.getEmail());
+            AirflowUser airflowUser = toAirflowUser(userContextRoleUpdate);
+            return airflowClient.createUser(airflowUser);
+        }
+        return user;
+    }
+
+    private static AirflowUser toAirflowUser(UserContextRoleUpdate userContextRoleUpdate) {
+        AirflowUser airflowUser = new AirflowUser();
+        airflowUser.setEmail(userContextRoleUpdate.getEmail());
+        airflowUser.setRoles(new ArrayList<>()); // Default User-Roles are defined in Airflow-Config
+        airflowUser.setUsername(userContextRoleUpdate.getUsername());
+        airflowUser.setFirstName(userContextRoleUpdate.getFirstName());
+        airflowUser.setLastName(userContextRoleUpdate.getLastName());
+        airflowUser.setPassword(userContextRoleUpdate.getUsername()); // Login will be handled by Keycloak
+        return airflowUser;
     }
 
     public static void removeAllDataDomainRolesFromUser(AirflowUser airflowUser) {

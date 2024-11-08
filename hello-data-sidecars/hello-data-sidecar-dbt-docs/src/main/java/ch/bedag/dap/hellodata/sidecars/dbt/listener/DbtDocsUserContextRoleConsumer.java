@@ -62,16 +62,28 @@ public class DbtDocsUserContextRoleConsumer {
         if (!userDataDomainKeys.isEmpty()) {
             User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
             if (user == null) {
-                throw new RuntimeException("Cannot update roles! User not found: " + userContextRoleUpdate.getEmail());
+                log.info("User {} not found, creating", userContextRoleUpdate.getUsername());
+                User dbtDocUser = toDbtDocUser(userContextRoleUpdate);
+                user = userRepository.saveAndFlush(dbtDocUser);
             }
             log.info("Update roles for user: {}", user.getEmail());
             List<Role> userRoles = getUserRoles(user, userDataDomainKeys);
             user.setRoles(userRoles);
-            User updateUser = userRepository.save(user);
+            User updateUser = userRepository.saveAndFlush(user);
             if (userContextRoleUpdate.isSendBackUsersList()) {
                 userResourceProviderService.publishUsers();
             }
         }
+    }
+
+    private User toDbtDocUser(UserContextRoleUpdate userContextRoleUpdate) {
+        User dbtDocUser = new User(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        dbtDocUser.setRoles(new ArrayList<>());
+        dbtDocUser.setFirstName(userContextRoleUpdate.getFirstName());
+        dbtDocUser.setLastName(userContextRoleUpdate.getLastName());
+        dbtDocUser.setEnabled(true);
+        dbtDocUser.setSuperuser(false);
+        return dbtDocUser;
     }
 
     private Set<String> getRelevantUserDataDomainContextKeys(UserContextRoleUpdate userContextRoleUpdate) {

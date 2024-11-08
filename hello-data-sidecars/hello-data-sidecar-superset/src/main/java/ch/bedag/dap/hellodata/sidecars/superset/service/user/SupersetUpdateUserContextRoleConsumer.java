@@ -33,8 +33,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
+import ch.bedag.dap.hellodata.sidecars.superset.client.data.IdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
@@ -71,11 +73,11 @@ public class SupersetUpdateUserContextRoleConsumer {
         log.info("-=-=-=-= RECEIVED USER CONTEXT ROLES UPDATE: payload: {}", userContextRoleUpdate);
         String dataDomainKey = helloDataContextConfig.getContext().getKey();
         SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-        SubsystemUser supersetUser = getSubsystemUser(userContextRoleUpdate, supersetClient);
+        SupersetRolesResponse allRoles = supersetClient.roles();
+        SubsystemUser supersetUser = getSupersetUser(userContextRoleUpdate, supersetClient, allRoles);
         Optional<UserContextRoleUpdate.ContextRole> dataDomainContextRole =
                 userContextRoleUpdate.getContextRoles().stream().filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(dataDomainKey)).findFirst();
-        if (supersetUser != null && dataDomainContextRole.isPresent()) {
-            SupersetRolesResponse allRoles = supersetClient.roles();
+        if (dataDomainContextRole.isPresent()) {
             UserContextRoleUpdate.ContextRole contextRole = dataDomainContextRole.get();
             List<SupersetRole> supersetUserRoles = supersetUser.getRoles();
             SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
@@ -111,11 +113,21 @@ public class SupersetUpdateUserContextRoleConsumer {
         }
     }
 
-    private SubsystemUser getSubsystemUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient) throws URISyntaxException, IOException {
+    private SubsystemUser getSupersetUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient, SupersetRolesResponse allRoles) throws URISyntaxException, IOException {
         SupersetUsersResponse response = supersetClient.getUser(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
         if (response == null || response.getResult().size() == 0) {
-            log.warn("[Couldn't find user by email: {} and username: {}]", userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername());
-            return null;
+            log.warn("[Couldn't find user by email: {} and username: {}, creating...]", userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername());
+            SubsystemUserUpdate subsystemUserUpdate = new SubsystemUserUpdate();
+            subsystemUserUpdate.setUsername(userContextRoleUpdate.getUsername());
+            subsystemUserUpdate.setEmail(userContextRoleUpdate.getEmail());
+            subsystemUserUpdate.setActive(userContextRoleUpdate.getActive());
+            subsystemUserUpdate.setFirstName(userContextRoleUpdate.getFirstName());
+            subsystemUserUpdate.setLastName(userContextRoleUpdate.getLastName());
+
+            List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).toList();
+            subsystemUserUpdate.setRoles(roles);
+            IdResponse createdUser = supersetClient.createUser(subsystemUserUpdate);
+            return supersetClient.user(createdUser.id).getResult();
         }
         return response.getResult().get(0);
     }

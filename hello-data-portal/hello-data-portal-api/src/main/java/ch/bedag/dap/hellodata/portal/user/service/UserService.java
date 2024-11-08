@@ -156,7 +156,7 @@ public class UserService {
         List<UserDto> allUsers = userRepository.getUserEntitiesByEnabled(true).stream().map(this::map).toList();
         log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
         AtomicInteger counter = new AtomicInteger();
-        List<UserEntity> usersCreated = allUsers.stream().map(user -> {
+        allUsers.stream().forEach(user -> {
             UserEntity userEntity;
             UUID id = UUID.fromString(user.getId());
             if (!userRepository.existsByIdOrAuthId(id, id.toString())) {
@@ -171,11 +171,9 @@ public class UserService {
                     roleService.createNoneContextRoles(userEntity);
                 }
             }
-            createUserInSubsystems(user.getId());
+            synchronizeContextRolesWithSubsystems(userEntity, false);
             counter.getAndIncrement();
-            return userEntity;
-        }).toList();
-        usersCreated.stream().forEach(entity -> synchronizeContextRolesWithSubsystems(entity, false));
+        });
         if (counter.get() > 0) {
             natsSenderService.publishMessageToJetStream(HDEvent.GET_ALL_USERS, new SubsystemGetAllUsers());
         }
@@ -343,6 +341,9 @@ public class UserService {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
         userContextRoleUpdate.setEmail(userEntity.getEmail());
         userContextRoleUpdate.setUsername(userEntity.getUsername());
+        userContextRoleUpdate.setFirstName(userEntity.getFirstName());
+        userContextRoleUpdate.setLastName(userEntity.getLastName());
+        userContextRoleUpdate.setActive(userEntity.isEnabled());
         List<UserContextRoleEntity> allContextRolesForUser = roleService.getAllContextRolesForUser(userEntity);
         List<UserContextRoleUpdate.ContextRole> contextRoles = new ArrayList<>();
         allContextRolesForUser.forEach(contextRoleForUser -> {

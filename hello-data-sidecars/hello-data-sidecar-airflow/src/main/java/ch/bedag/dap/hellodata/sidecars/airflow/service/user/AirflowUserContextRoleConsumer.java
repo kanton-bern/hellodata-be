@@ -71,15 +71,11 @@ public class AirflowUserContextRoleConsumer {
             AirflowUserResponse airflowUser = getAirflowUser(userContextRoleUpdate, airflowClient);
             if (!dataDomainContextRoles.isEmpty()) {
                 allAirflowRoles = createContextRolesIfNotExist(dataDomainContextRoles, allAirflowRoles, airflowClient);
-                if (airflowUser != null) {
-                    if (airflowUser.getRoles() == null) {
-                        airflowUser.setRoles(new ArrayList<>());
-                    }
-                    addOrRemoveAdminRole(userContextRoleUpdate, allAirflowRoles, airflowUser);
-                    updateBusinessContextRoleForUser(airflowUser, dataDomainContextRoles, allAirflowRoles, airflowClient, userContextRoleUpdate);
-                } else {
-                    log.warn("User {} not found in airflow", userContextRoleUpdate.getEmail());
+                if (airflowUser.getRoles() == null) {
+                    airflowUser.setRoles(new ArrayList<>());
                 }
+                addOrRemoveAdminRole(userContextRoleUpdate, allAirflowRoles, airflowUser);
+                updateBusinessContextRoleForUser(airflowUser, dataDomainContextRoles, allAirflowRoles, airflowClient, userContextRoleUpdate);
             } else {
                 removeAllDataDomainRolesFromUser(airflowUser);
                 leavePublicRoleIfNoneOthersSet(airflowUser, allAirflowRoles);

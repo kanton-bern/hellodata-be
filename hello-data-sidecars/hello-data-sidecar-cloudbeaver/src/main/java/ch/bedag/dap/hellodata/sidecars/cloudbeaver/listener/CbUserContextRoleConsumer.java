@@ -91,26 +91,35 @@ public class CbUserContextRoleConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
-        if (log.isDebugEnabled()) {
-            log.debug("--> processing UserContextRoleUpdate: {}", userContextRoleUpdate.toString());
-        }
+        log.debug("--> processing UserContextRoleUpdate: {}", userContextRoleUpdate.toString());
         Set<UserContextRoleUpdate.ContextRole> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
             User user = userRepository.findByUserNameAndEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
             if (user == null) {
-                throw new RuntimeException("Cannot update roles! User not found: " + userContextRoleUpdate.getEmail());
+                log.info("User {} not found, creating...", userContextRoleUpdate.getUsername());
+                User dbtDocUser = toCbUser(userContextRoleUpdate);
+                user = userRepository.saveAndFlush(dbtDocUser);
             }
             List<Role> userRoles = mapUserRoles(user, userDataDomainKeys);
             user.setRoles(userRoles);
             log.info("Update roles {} for user: {}", userRoles, user.getEmail());
-            User updateUser = userRepository.save(user);
+            User updateUser = userRepository.saveAndFlush(user);
             if (userContextRoleUpdate.isSendBackUsersList()) {
                 userResourceProviderService.publishUsers();
             }
         }
     }
 
-    @NotNull
+    private User toCbUser(UserContextRoleUpdate userContextRoleUpdate) {
+        User dbtDocUser = new User(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        dbtDocUser.setRoles(new ArrayList<>());
+        dbtDocUser.setFirstName(userContextRoleUpdate.getFirstName());
+        dbtDocUser.setLastName(userContextRoleUpdate.getLastName());
+        dbtDocUser.setEnabled(true);
+        dbtDocUser.setSuperuser(false);
+        return dbtDocUser;
+    }
+
     private List<Role> mapUserRoles(User user, Set<UserContextRoleUpdate.ContextRole> dataDomainContexts) {
         log.debug("--> mapping context to roles {}", dataDomainContexts);
         List<Role> allCbRoles = roleRepository.findAll();
