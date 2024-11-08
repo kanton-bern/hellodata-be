@@ -116,15 +116,13 @@ public class SubscribeAnnotationThread extends Thread {
         if (message != null) {
             log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             Future<?> future = executorService.submit(() -> passMessageToSpringBean(message));
-            try {
-                // Wait for task completion within the given timeout
-                future.get(subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
-            } catch (TimeoutException e) {
-                log.warn("[NATS] Task exceeded timeout. Attempting to cancel...");
-                future.cancel(true);
-            } catch (InterruptedException | ExecutionException e) {
-                log.error("[NATS] Task encountered an exception: ", e);
-            }
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.schedule(() -> {
+                if (!future.isDone()) {
+                    log.warn("[NATS] Task exceeded timeout. Attempting to cancel...");
+                    future.cancel(true);
+                }
+            }, subscribeAnnotation.timeoutMinutes(), TimeUnit.MINUTES);
         } else {
             log.debug("[NATS] ------- No message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         }
