@@ -175,7 +175,7 @@ public class UserService {
             boolean isLast = counter.incrementAndGet() == allUsers.size();
             return getUserContextRoleUpdate(userEntity, isLast);
         }).collect(Collectors.toList());
-        List<List<UserContextRoleUpdate>> partition = partitionBatches(list);
+        List<List<UserContextRoleUpdate>> partition = partitionToBatches(list);
 
         // Proceed with publishing the partitions
         for (List<UserContextRoleUpdate> batch : partition) {
@@ -439,9 +439,9 @@ public class UserService {
     }
 
     /**
-     * partition batches and leave the last one as the biggest one, because it will trigger users pushback
+     * partition list to batches and leave the last one as the biggest one, because it will trigger users list pushback
      */
-    private List<List<UserContextRoleUpdate>> partitionBatches(List<UserContextRoleUpdate> list) {
+    private List<List<UserContextRoleUpdate>> partitionToBatches(List<UserContextRoleUpdate> list) {
         List<List<UserContextRoleUpdate>> partition = new ArrayList<>(ListUtils.partition(list, 25));
 
         // Check if we have at least three partitions

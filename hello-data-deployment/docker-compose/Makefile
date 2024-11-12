@@ -6,7 +6,7 @@ start-all:
 	docker-compose up -d --build
 
 start-infra:
-	docker-compose up -d --build postgres keycloak redis nats nats-box nats-ui cloudbeaver hello-data-cloudbeaver-gateway hello-data-dbt-docs hello-data-dbt-docs-sidecar
+	docker-compose up -d --build postgres keycloak redis nats nats-box nats-ui
 
 start-cloudbeaver: start-infra
 	docker-compose up -d --build  cloudbeaver hello-data-cloudbeaver-gateway hello-data-sidecar-cloudbeaver
