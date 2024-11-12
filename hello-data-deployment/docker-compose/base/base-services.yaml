@@ -167,7 +167,7 @@ services:
 
   nats:
     platform: ${HD_PLATFORM}
-    image: nats:2.7.2-alpine
+    image: nats:alpine3.20
     command: --name hello-data --http_port 8222 --js
     restart: on-failure
     ports:
