@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.nats.client.*;
 import io.nats.client.api.ConsumerConfiguration;
+import io.nats.client.api.ConsumerInfo;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -81,6 +82,7 @@ public class SubscribeAnnotationThread extends Thread {
     public void run() {
         while (true) {
             try {
+                checkOrCreateConsumer();
                 log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null) {
                     Message message = subscription.nextMessage(Duration.ofSeconds(10L));
@@ -119,6 +121,23 @@ public class SubscribeAnnotationThread extends Thread {
         log.info("[NATS] Shutting down subscription thread");
         unsubscribe();
 
+    }
+
+    /**
+     * Checks if the consumer still exists and recreates it if missing.
+     */
+    private void checkOrCreateConsumer() {
+        try {
+            JetStreamManagement jsm = natsConnection.jetStreamManagement();
+            ConsumerInfo consumerInfo = jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
+            if (consumerInfo == null) {
+                log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing...", durableName, subscribeAnnotation.event().getStreamName());
+                subscribe();
+            }
+        } catch (JetStreamApiException | IOException e) {
+            log.error("[NATS] Error checking consumer status for stream {} and subject {}. Re-subscribing...", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), e);
+            subscribe();
+        }
     }
 
     private void processMessageInThread(Message message) throws InterruptedException {
