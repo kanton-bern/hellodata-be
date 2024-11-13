@@ -27,7 +27,7 @@ public class CbSyncUsersConsumer {
         List<UserContextRoleUpdate> userContextRoleUpdates = usersContextRoleUpdate.getUserContextRoleUpdates();
         for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
             try {
-                cbUserContextRoleConsumer.subscribe(userContextRoleUpdate);
+                cbUserContextRoleConsumer.processContextRoleUpdate(userContextRoleUpdate);
             } catch (Exception e) {
                 log.error("Could not synchronize user {}", userContextRoleUpdate.getEmail(), e);
             }

@@ -57,24 +57,25 @@ public class DbtDocsUserContextRoleConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
-    public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
+    public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
+        User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        if (user == null) {
+            log.info("User {} not found, creating", userContextRoleUpdate.getUsername());
+            User dbtDocUser = toDbtDocUser(userContextRoleUpdate);
+            user = userRepository.saveAndFlush(dbtDocUser);
+        }
         Set<String> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
-            User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
-            if (user == null) {
-                log.info("User {} not found, creating", userContextRoleUpdate.getUsername());
-                User dbtDocUser = toDbtDocUser(userContextRoleUpdate);
-                user = userRepository.saveAndFlush(dbtDocUser);
-            }
             log.info("Update roles for user: {}", user.getEmail());
             List<Role> userRoles = getUserRoles(user, userDataDomainKeys);
             user.setRoles(userRoles);
-            User updateUser = userRepository.saveAndFlush(user);
-            if (userContextRoleUpdate.isSendBackUsersList()) {
-                userResourceProviderService.publishUsers();
-            }
         } else {
-            log.info("Relevant user data domain context keys not found {}", userContextRoleUpdate);
+            log.info("No set of roles for user: {}", user.getEmail());
+            user.setRoles(new ArrayList<>());
+        }
+        userRepository.saveAndFlush(user);
+        if (userContextRoleUpdate.isSendBackUsersList()) {
+            userResourceProviderService.publishUsers();
         }
     }
 

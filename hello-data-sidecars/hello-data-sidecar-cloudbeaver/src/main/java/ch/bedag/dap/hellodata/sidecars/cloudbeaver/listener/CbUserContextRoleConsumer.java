@@ -79,25 +79,26 @@ public class CbUserContextRoleConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
-    public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
+    public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
         log.debug("--> processing UserContextRoleUpdate: {}", userContextRoleUpdate.toString());
+        User user = userRepository.findByUserNameAndEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        if (user == null) {
+            log.info("User {} not found, creating...", userContextRoleUpdate.getUsername());
+            User dbtDocUser = toCbUser(userContextRoleUpdate);
+            user = userRepository.saveAndFlush(dbtDocUser);
+        }
         Set<UserContextRoleUpdate.ContextRole> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
-            User user = userRepository.findByUserNameAndEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
-            if (user == null) {
-                log.info("User {} not found, creating...", userContextRoleUpdate.getUsername());
-                User dbtDocUser = toCbUser(userContextRoleUpdate);
-                user = userRepository.saveAndFlush(dbtDocUser);
-            }
             List<Role> userRoles = mapUserRoles(user, userDataDomainKeys);
             user.setRoles(userRoles);
             log.info("Update roles {} for user: {}", userRoles, user.getEmail());
-            User updateUser = userRepository.saveAndFlush(user);
-            if (userContextRoleUpdate.isSendBackUsersList()) {
-                userResourceProviderService.publishUsers();
-            }
         } else {
-            log.info("Relevant user data domain context keys not found {}", userContextRoleUpdate);
+            log.info("No set of roles for user: {}", user.getEmail());
+            user.setRoles(new ArrayList<>());
+        }
+        userRepository.saveAndFlush(user);
+        if (userContextRoleUpdate.isSendBackUsersList()) {
+            userResourceProviderService.publishUsers();
         }
     }
 
