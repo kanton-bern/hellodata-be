@@ -93,7 +93,7 @@ public class CbUserContextRoleConsumer {
             user.setRoles(userRoles);
             log.info("Update roles {} for user: {}", userRoles, user.getEmail());
         } else {
-            log.info("No set of roles for user: {}", user.getEmail());
+            log.info("No roles assigned to user: {}", user.getEmail());
             user.setRoles(new ArrayList<>());
         }
         userRepository.saveAndFlush(user);
