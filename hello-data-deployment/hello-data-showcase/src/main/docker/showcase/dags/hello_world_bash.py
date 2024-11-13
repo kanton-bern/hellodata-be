@@ -3,7 +3,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from datetime import datetime
 
-dag_name = 'dagName' + "DD_KEY"
+dag_name = 'hello_world_bash_' + "DD_KEY"
 
 default_args = {
     'description': 'Hello world example with bash usage',
