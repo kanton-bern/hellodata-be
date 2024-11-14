@@ -52,7 +52,7 @@ public class KeycloakUserSyncService {
     @Transactional
     @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-hours}", timeUnit = TimeUnit.HOURS)
     public void syncUsers() {
-        log.info("[sync-users-with-keycloak] Started");
+        log.debug("[sync-users-with-keycloak] Started");
         List<UserRepresentation> allUsers = keycloakService.getAllUsers();
         List<UserEntity> allPortalUsers = userRepository.findAll();
         for (UserRepresentation userRepresentation : allUsers) {
@@ -66,7 +66,7 @@ public class KeycloakUserSyncService {
             }
         }
         userRepository.saveAll(allPortalUsers);
-        log.info("[sync-users-with-keycloak] Completed");
+        log.debug("[sync-users-with-keycloak] Completed");
     }
 
 }
