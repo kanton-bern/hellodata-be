@@ -47,7 +47,9 @@ export class TranslateService implements OnDestroy {
     this.eventSub = translocoService.events$.pipe(
       filter(event => event.type === 'langChanged'),
       switchMap(event => {
-        return this.http.get<Translation>(`./assets/i18n/primeng/${event.payload.langName}.json`).pipe(
+        const timestamp = new Date().getTime();
+        const url = `./assets/i18n/primeng/${event.payload.langName}.json?ts=${timestamp}`;
+        return this.http.get<Translation>(url).pipe(
           tap(primengTranslations => {
             this.primengConfig.setTranslation(primengTranslations);
           }));

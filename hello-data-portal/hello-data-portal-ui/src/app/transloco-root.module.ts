@@ -42,8 +42,10 @@ export class TranslocoHttpLoader implements TranslocoLoader {
   }
 
   getTranslation(lang: string) {
-    console.debug('get translation', lang)
-    return this.http.get<Translation>(`./assets/i18n/${lang}.json`);
+    console.debug('get translation', lang);
+    const timestamp = new Date().getTime();
+    const url = `./assets/i18n/${lang}.json?ts=${timestamp}`;
+    return this.http.get<Translation>(url);
   }
 }
 
