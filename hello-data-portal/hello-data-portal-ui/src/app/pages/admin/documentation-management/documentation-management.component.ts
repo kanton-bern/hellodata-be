@@ -75,7 +75,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
         });
       }),
       map(([doc, supportedLanguages]) => {
-        return  {doc: doc, langs: supportedLanguages};
+        return {doc: doc, langs: supportedLanguages};
       })
     );
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
@@ -99,6 +99,20 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     }));
   }
 
+  getText(language: string): FormControl {
+    const languagesGroup = this.documentationForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('text') as FormControl;
+  }
+
+  notFilled(language: string): boolean {
+    const languagesGroup = this.documentationForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup?.get(language) as FormGroup;
+
+    const messageControl = languageForm?.get('message') as FormControl;
+    return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+  }
+
   private createBreadcrumbs() {
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -108,11 +122,5 @@ export class DocumentationManagementComponent extends BaseComponent implements O
         }
       ]
     }));
-  }
-
-  getText(language: string): FormControl {
-    const languagesGroup = this.documentationForm.get('languages') as FormGroup;
-    const languageForm = languagesGroup.get(language) as FormGroup;
-    return languageForm.get('text') as FormControl;
   }
 }

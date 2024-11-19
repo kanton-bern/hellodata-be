@@ -41,7 +41,7 @@ import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {TranslateService} from "../../../../shared/services/translate.service";
-import {selectSelectedLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
+import {selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
 
 @Component({
@@ -74,6 +74,78 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
       return dataDomainsCopy;
     }));
     this.editedFaq$ = this.getEditedFaq();
+  }
+
+  navigateToFaqList() {
+    this.store.dispatch(navigate({url: 'faq-management'}));
+  }
+
+  saveFaq(editedFaq: Faq) {
+    const faqToBeSaved = {id: editedFaq.id} as any;
+    const formFaq = this.faqForm.getRawValue() as any;
+    faqToBeSaved.title = formFaq.title;
+    faqToBeSaved.messages = formFaq.languages;
+    if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
+      faqToBeSaved.contextKey = formFaq.dataDomain;
+    }
+    this.store.dispatch(saveChangesToFaq({faq: faqToBeSaved}));
+  }
+
+  openDeletePopup(editedFaq: Faq) {
+    this.store.dispatch(showDeleteFaqPopup({faq: editedFaq}));
+  }
+
+  getDeletionAction() {
+    return deleteEditedFaq();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubFormValueChanges();
+  }
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+  }
+
+  getMessage(language: string): FormControl {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('message') as FormControl;
+  }
+
+  getTitle(language: string): FormControl {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('title') as FormControl;
+  }
+
+  getErrorMessageForTitle(language: string): string {
+    const titleControl = this.getTitle(language);
+    if (titleControl?.errors?.['required']) {
+      return 'First name is required';
+    }
+    if (titleControl?.errors?.['minlength']) {
+      return `First name must be at least ${titleControl.errors['minlength'].requiredLength} characters long`;
+    }
+    if (titleControl?.errors?.['maxlength']) {
+      return `First name cannot be more than ${titleControl.errors['maxlength'].requiredLength} characters long`;
+    }
+
+    // Add other error checks as needed
+    return '';
+  }
+
+  getHeaderNameWithStatus(language: string) {
+    this.translateService.selectTranslate(ALL_DATA_DOMAINS);
+    return language.slice(0, 2).toUpperCase()
+  }
+
+  notFilled(language: string): boolean {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup?.get(language) as FormGroup;
+
+    const messageControl = languageForm?.get('message') as FormControl;
+    return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
   }
 
   private getEditedFaq() {
@@ -145,33 +217,6 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     }));
   }
 
-  navigateToFaqList() {
-    this.store.dispatch(navigate({url: 'faq-management'}));
-  }
-
-  saveFaq(editedFaq: Faq) {
-    const faqToBeSaved = {id: editedFaq.id} as any;
-    const formFaq = this.faqForm.getRawValue() as any;
-    faqToBeSaved.title = formFaq.title;
-    faqToBeSaved.messages = formFaq.languages;
-    if (formFaq.dataDomain !== ALL_DATA_DOMAINS) {
-      faqToBeSaved.contextKey = formFaq.dataDomain;
-    }
-    this.store.dispatch(saveChangesToFaq({faq: faqToBeSaved}));
-  }
-
-  openDeletePopup(editedFaq: Faq) {
-    this.store.dispatch(showDeleteFaqPopup({faq: editedFaq}));
-  }
-
-  getDeletionAction() {
-    return deleteEditedFaq();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubFormValueChanges();
-  }
-
   private onChange(editedFaq: Faq) {
     const faqToBeSaved = {id: editedFaq.id} as any;
     const formFaq = this.faqForm.getRawValue() as any;
@@ -190,37 +235,5 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     if (this.formValueChangedSub) {
       this.formValueChangedSub.unsubscribe();
     }
-  }
-
-  override ngOnInit(): void {
-    super.ngOnInit();
-  }
-
-  getMessage(language: string): FormControl {
-    const languagesGroup = this.faqForm.get('languages') as FormGroup;
-    const languageForm = languagesGroup.get(language) as FormGroup;
-    return languageForm.get('message') as FormControl;
-  }
-
-  getTitle(language: string): FormControl {
-    const languagesGroup = this.faqForm.get('languages') as FormGroup;
-    const languageForm = languagesGroup.get(language) as FormGroup;
-    return languageForm.get('title') as FormControl;
-  }
-
-  getErrorMessageForTitle(language: string): string {
-    const titleControl = this.getTitle(language);
-    if (titleControl?.errors?.['required']) {
-      return 'First name is required';
-    }
-    if (titleControl?.errors?.['minlength']) {
-      return `First name must be at least ${titleControl.errors['minlength'].requiredLength} characters long`;
-    }
-    if (titleControl?.errors?.['maxlength']) {
-      return `First name cannot be more than ${titleControl.errors['maxlength'].requiredLength} characters long`;
-    }
-
-    // Add other error checks as needed
-    return '';
   }
 }

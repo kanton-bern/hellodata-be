@@ -2,8 +2,15 @@
 <div class="card">
   <form *ngIf="(initForm$ | async) as result" [formGroup]="documentationForm">
     <p-tabView *ngIf="(supportedLanguages$ | async) as supportedLanguages">
-      <ng-template ngFor let-language [ngForOf]="supportedLanguages">
-        <p-tabPanel [header]="language.slice(0, 2).toUpperCase()">
+      <ng-template [ngForOf]="supportedLanguages" let-language ngFor>
+        <p-tabPanel>
+          <ng-template pTemplate="header">
+            <div class="flex align-items-center gap-2">
+              <span class="font-bold white-space-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
+                    {{ language.slice(0, 2).toUpperCase() }}
+                </span>
+            </div>
+          </ng-template>
           <p-editor [formControl]="getText(language)"
                     [style]="{ height: '725px' }">
             <ng-template pTemplate="header">

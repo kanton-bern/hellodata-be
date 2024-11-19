@@ -64,25 +64,32 @@
     </div>
 
     <p-tabView *ngIf="(supportedLanguages$ | async) as supportedLanguages">
-      <ng-template ngFor let-language [ngForOf]="supportedLanguages">
-        <p-tabPanel [header]="language.slice(0, 2).toUpperCase()">
+      <ng-template [ngForOf]="supportedLanguages" let-language ngFor>
+        <p-tabPanel>
+          <ng-template pTemplate="header">
+            <div class="flex align-items-center gap-2">
+              <span class="font-bold white-space-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
+                    {{ getHeaderNameWithStatus(language) }}
+                </span>
+            </div>
+          </ng-template>
           <div class="field grid">
             <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
             <div class="col-12 md:col-10">
               <input
-                class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
                 [formControl]="getTitle(language)"
+                class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
                 id="title"
                 type="text">
-              <small class="p-error block" *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty">
+              <small *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty" class="p-error block">
                 {{ '@Value has minimum length' | transloco: {min: getTitle(language).errors?.['minlength'].requiredLength} }}
               </small>
             </div>
           </div>
 
           <p-editor
-            [style]="{ height: '725px' }"
             [formControl]="getMessage(language)"
+            [style]="{ height: '725px' }"
             id="faqMessage">
           </p-editor>
         </p-tabPanel>
@@ -96,7 +103,6 @@
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="saveFaq(editedFaq)"
-                  [disabled]="faqForm.invalid || !faqForm.dirty"
                   icon="fas fa-floppy-disk"
                   id="saveFaqButton"
                   label="{{'@Save' | transloco}}"

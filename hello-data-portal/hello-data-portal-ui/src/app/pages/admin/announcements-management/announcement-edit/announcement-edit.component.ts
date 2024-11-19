@@ -42,7 +42,7 @@ import {
 } from "../../../../store/announcement/announcement.action";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
-import {selectSelectedLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
+import {selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
 
 @Component({
@@ -99,6 +99,47 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     )
   }
 
+  navigateToAnnouncementList() {
+    this.store.dispatch(navigate({url: 'announcements-management'}));
+  }
+
+  saveAnnouncement(editedAnnouncement: Announcement) {
+    const announcementToBeSaved = {...editedAnnouncement} as Announcement;
+    const formAnnouncement = this.announcementForm.getRawValue() as any;
+    announcementToBeSaved.messages = Object.keys(formAnnouncement.languages).reduce((acc, locale) => {
+      acc[locale] = formAnnouncement.languages[locale].message;
+      return acc;
+    }, {} as { [locale: string]: string });
+    announcementToBeSaved.published = formAnnouncement.published;
+    this.store.dispatch(saveChangesToAnnouncement({announcement: announcementToBeSaved}));
+  }
+
+  openDeletePopup(editedAnnouncement: Announcement) {
+    this.store.dispatch(showDeleteAnnouncementPopup({announcement: editedAnnouncement}));
+  }
+
+  getDeletionAction() {
+    return deleteEditedAnnouncement();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubFormValueChanges();
+  }
+
+  getMessage(language: string): FormControl {
+    const languagesGroup = this.announcementForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup.get(language) as FormGroup;
+    return languageForm.get('message') as FormControl;
+  }
+
+  notFilled(language: string): boolean {
+    const languagesGroup = this.announcementForm.get('languages') as FormGroup;
+    const languageForm = languagesGroup?.get(language) as FormGroup;
+
+    const messageControl = languageForm?.get('message') as FormControl;
+    return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+  }
+
   private createCreatedAnnouncementBreadcrumbs() {
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -127,33 +168,6 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     }));
   }
 
-  navigateToAnnouncementList() {
-    this.store.dispatch(navigate({url: 'announcements-management'}));
-  }
-
-  saveAnnouncement(editedAnnouncement: Announcement) {
-    const announcementToBeSaved = {...editedAnnouncement} as Announcement;
-    const formAnnouncement = this.announcementForm.getRawValue() as any;
-    announcementToBeSaved.messages = Object.keys(formAnnouncement.languages).reduce((acc, locale) => {
-      acc[locale] = formAnnouncement.languages[locale].message;
-      return acc;
-    }, {} as { [locale: string]: string });
-    announcementToBeSaved.published = formAnnouncement.published;
-    this.store.dispatch(saveChangesToAnnouncement({announcement: announcementToBeSaved}));
-  }
-
-  openDeletePopup(editedAnnouncement: Announcement) {
-    this.store.dispatch(showDeleteAnnouncementPopup({announcement: editedAnnouncement}));
-  }
-
-  getDeletionAction() {
-    return deleteEditedAnnouncement();
-  }
-
-  ngOnDestroy(): void {
-    this.unsubFormValueChanges();
-  }
-
   private onChange(editedAnnouncement: Announcement) {
     const announcementToBeSaved = {...editedAnnouncement} as Announcement;
     const formAnnouncement = this.announcementForm.getRawValue() as any;
@@ -173,11 +187,5 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     if (this.formValueChangedSub) {
       this.formValueChangedSub.unsubscribe();
     }
-  }
-
-  getMessage(language: string): FormControl {
-    const languagesGroup = this.announcementForm.get('languages') as FormGroup;
-    const languageForm = languagesGroup.get(language) as FormGroup;
-    return languageForm.get('message') as FormControl;
   }
 }

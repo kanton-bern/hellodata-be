@@ -27,3 +27,13 @@
 .ql-header {
   min-width: 150px;
 }
+
+.not-filled {
+  color: grey;
+}
+
+.not-filled::after {
+  content: "!";
+  color: red;
+  font-weight: bold;
+}
