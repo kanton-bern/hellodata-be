@@ -399,7 +399,12 @@ public class UserService {
         if (email == null || email.length() < 3) {
             return new ArrayList<>();
         }
-        return userLookupProviderManager.searchUserByEmail(email);
+        return userLookupProviderManager.searchUserByEmail(email)
+                .stream()
+                .collect(Collectors.toMap(AdUserDto::getEmail, user -> user, (existing, replacement) -> existing))
+                .values()
+                .stream()
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
