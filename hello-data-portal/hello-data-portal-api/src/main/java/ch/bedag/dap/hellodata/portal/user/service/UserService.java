@@ -401,8 +401,7 @@ public class UserService {
         }
         return userLookupProviderManager.searchUserByEmail(email)
                 .stream()
-                .collect(Collectors.toMap(AdUserDto::getEmail, user -> user, (existing, replacement) -> existing))
-                .values()
+                .collect(Collectors.toCollection(LinkedHashSet::new))
                 .stream()
                 .collect(Collectors.toList());
     }
