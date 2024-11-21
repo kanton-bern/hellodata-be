@@ -42,7 +42,7 @@ import {
 } from "../../../../store/announcement/announcement.action";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
-import {selectSupportedLanguages} from "../../../../store/auth/auth.selector";
+import {selectDefaultLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
 
 @Component({
@@ -55,11 +55,13 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   announcementForm!: FormGroup;
   formValueChangedSub!: Subscription;
   supportedLanguages$: Observable<string[]>;
+  defaultLanguage$: Observable<string | null>;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
     this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement);
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
+    this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
   }
 
   override ngOnInit(): void {
@@ -140,18 +142,19 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
   }
 
-  isAtLeastOneLanguageFilled(): boolean {
+  isAtLeastDefaultLanguageFilled(defaultLanguage: string): boolean {
     const languagesGroup = this.announcementForm.get('languages') as FormGroup;
     if (!languagesGroup) {
       return false;
     }
 
-    const some = Object.values(languagesGroup.controls).some((languageControl) => {
-      const group = languageControl as FormGroup;
-      const valuePresent = group.get('message')?.value?.trim();
-      return valuePresent && valuePresent !== '';
-    });
-    return some === true;
+    const defaultLanguageControl = languagesGroup.get(defaultLanguage) as FormGroup;
+    if (!defaultLanguageControl) {
+      return false;
+    }
+
+    const filled = defaultLanguageControl.get('message')?.value?.trim();
+    return filled;
   }
 
   private createCreatedAnnouncementBreadcrumbs() {

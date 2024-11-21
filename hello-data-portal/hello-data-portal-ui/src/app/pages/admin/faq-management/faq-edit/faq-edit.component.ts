@@ -41,7 +41,7 @@ import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {TranslateService} from "../../../../shared/services/translate.service";
-import {selectSupportedLanguages} from "../../../../store/auth/auth.selector";
+import {selectDefaultLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
 
 @Component({
@@ -54,12 +54,13 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
   supportedLanguages$: Observable<string[]>;
+  defaultLanguage$: Observable<string | null>;
   formValueChangedSub!: Subscription;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
     super();
-
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
+    this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
 
     this.availableDataDomains$ = combineLatest([
       this.store.select(selectAvailableDataDomainsWithAllEntry),
@@ -129,19 +130,26 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     const languageForm = languagesGroup?.get(language) as FormGroup;
 
     const messageControl = languageForm?.get('message') as FormControl;
-    return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    const titleControl = languageForm?.get('title') as FormControl;
+    const messageNotFilled = !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    const titleNotFilled = !titleControl || titleControl.value === null || titleControl.value === undefined || titleControl.value.trim() === '';
+    return messageNotFilled || titleNotFilled;
   }
 
-  isAtLeastOneLanguageFilled(): boolean {
+  isAtLeastDefaultLanguageFilled(defaultLanguage: string): boolean {
     const languagesGroup = this.faqForm.get('languages') as FormGroup;
     if (!languagesGroup) {
       return false;
     }
 
-    return Object.values(languagesGroup.controls).some((languageControl) => {
-      const group = languageControl as FormGroup;
-      return group.get('title')?.value?.trim() && group.get('message')?.value?.trim();
-    });
+    const defaultLanguageControl = languagesGroup.get(defaultLanguage) as FormGroup;
+    if (!defaultLanguageControl) {
+      return false;
+    }
+
+    const filled = defaultLanguageControl.get('title')?.value?.trim() &&
+      defaultLanguageControl.get('message')?.value?.trim();
+    return filled;
   }
 
   private getEditedFaq() {

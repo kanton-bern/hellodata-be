@@ -34,7 +34,11 @@ import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {createOrUpdateDocumentation, loadDocumentation} from "../../../store/summary/summary.actions";
-import {selectSelectedLanguage, selectSupportedLanguages} from "../../../store/auth/auth.selector";
+import {
+  selectDefaultLanguage,
+  selectSelectedLanguage,
+  selectSupportedLanguages
+} from "../../../store/auth/auth.selector";
 import {Documentation} from "../../../store/summary/summary.model";
 import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {take} from "rxjs/operators";
@@ -49,9 +53,11 @@ export class DocumentationManagementComponent extends BaseComponent implements O
   initForm$: Observable<any>;
   selectedLanguage$: Observable<any>;
   supportedLanguages$: Observable<string[]>;
+  defaultLanguage$: Observable<string | null>;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
+    this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
     this.store.dispatch(loadDocumentation());
     this.initForm$ = combineLatest([
       this.store.select(selectDocumentation),
@@ -125,6 +131,21 @@ export class DocumentationManagementComponent extends BaseComponent implements O
       return valuePresent && valuePresent !== '';
     });
     return some === true;
+  }
+
+  isAtLeastDefaultLanguageFilled(defaultLanguage: string): boolean {
+    const languagesGroup = this.documentationForm.get('languages') as FormGroup;
+    if (!languagesGroup) {
+      return false;
+    }
+
+    const defaultLanguageControl = languagesGroup.get(defaultLanguage) as FormGroup;
+    if (!defaultLanguageControl) {
+      return false;
+    }
+
+    const filled = defaultLanguageControl.get('text')?.value?.trim()
+    return filled;
   }
 
   private createBreadcrumbs() {

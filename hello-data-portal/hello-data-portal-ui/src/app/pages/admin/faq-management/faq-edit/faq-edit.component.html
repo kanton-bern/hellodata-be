@@ -82,7 +82,7 @@
                 id="title"
                 type="text">
               <small *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty" class="p-error block">
-                {{ '@Value has minimum length' | transloco: {min: getTitle(language).errors?.['minlength'].requiredLength} }}
+                {{ '@Value has minimum length' | transloco: {min: getTitle(language).errors?.['minlength']?.requiredLength} }}
               </small>
             </div>
           </div>
@@ -101,9 +101,9 @@
         <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
                   icon="fas fa-arrow-left"></p-button>
       </div>
-      <div class="p-toolbar-group-end">
+      <div *ngIf="(defaultLanguage$ | async) as defaultLanguage" class="p-toolbar-group-end">
         <p-button (click)="saveFaq(editedFaq)"
-                  [disabled]="!isAtLeastOneLanguageFilled()"
+                  [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                   icon="fas fa-floppy-disk"
                   id="saveFaqButton"
                   label="{{'@Save' | transloco}}"
