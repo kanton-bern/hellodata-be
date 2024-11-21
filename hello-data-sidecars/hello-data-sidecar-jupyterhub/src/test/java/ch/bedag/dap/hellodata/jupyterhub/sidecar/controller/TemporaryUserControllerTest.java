@@ -57,6 +57,9 @@ class TemporaryUserControllerTest {
         // Arrange
         when(temporaryUserService.createTemporaryUser()).thenReturn(responseDto);
 
+        // Format expiryDate to match the precision of the JSON serialization
+        String formattedExpiryDate = responseDto.getExpiryDate().withNano((responseDto.getExpiryDate().getNano() / 1000) * 1000).toString();
+
         // Act and Assert
         mockMvc.perform(
                         get("/create-temporary-user")
@@ -67,7 +70,7 @@ class TemporaryUserControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.username").value(responseDto.getUsername()))
                 .andExpect(jsonPath("$.password").value(responseDto.getPassword()))
-                .andExpect(jsonPath("$.expiryDate").value(responseDto.getExpiryDate().toString()))
+                .andExpect(jsonPath("$.expiryDate").value(formattedExpiryDate))
                 .andExpect(jsonPath("$.host").value(responseDto.getHost()))
                 .andExpect(jsonPath("$.port").value(responseDto.getPort()))
                 .andExpect(jsonPath("$.databaseName").value(responseDto.getDatabaseName()));
