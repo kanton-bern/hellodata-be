@@ -29,7 +29,7 @@ import {Component, EventEmitter, Output} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {selectDocumentation} from "../../../store/summary/summary.selector";
+import {selectDocumentationFilterEmpty} from "../../../store/summary/summary.selector";
 import {selectCurrentUserPermissions, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 
 @Component({
@@ -47,7 +47,7 @@ export class HomeDocumentationComponent {
 
 
   constructor(private store: Store<AppState>) {
-    this.documentation$ = this.store.select(selectDocumentation);
+    this.documentation$ = this.store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
   }

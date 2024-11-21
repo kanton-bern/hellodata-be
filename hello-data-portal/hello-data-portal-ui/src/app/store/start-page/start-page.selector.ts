@@ -30,19 +30,28 @@ import {createSelector} from "@ngrx/store";
 import {StartPageState} from "./start-page.state";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 import {selectRouteParam} from "../router/router.selectors";
+import {AuthState} from "../auth/auth.state";
 
 const startPageState = (state: AppState) => state.startPage;
 const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
+const authState = (state: AppState) => state.auth;
 
 export const selectDataDomainKeyParam = selectRouteParam('dataDomainKey');
 export const selectFaq = createSelector(
   startPageState,
+  authState,
   selectSelectedDataDomain,
-  (state: StartPageState, selectedDataDomain) => {
+  (state: StartPageState, authState: AuthState, selectedDataDomain) => {
+    let faqs;
     if (selectedDataDomain === null || selectedDataDomain.id === '') {
-      return state.faq;
+      faqs = state.faq;
+    } else {
+      faqs = state.faq
+        .filter(faq => faq.contextKey === null || faq.contextKey === selectedDataDomain.key);
     }
-    return state.faq.filter(faq => faq.contextKey === null || faq.contextKey === selectedDataDomain.key);
+
+    return faqs.filter(faq => faq.messages !== undefined && faq.messages !== null && Object.keys(faq.messages).length > 0 &&
+      authState.defaultLanguage && faq.messages[authState.defaultLanguage].message && faq.messages[authState.defaultLanguage].message.trim() !== '');
   }
 );
 

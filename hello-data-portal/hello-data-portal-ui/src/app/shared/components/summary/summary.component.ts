@@ -46,7 +46,11 @@ import {EditorModule} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {selectDocumentation, selectPipelines, selectStorageSize} from "../../../store/summary/summary.selector";
+import {
+  selectDocumentationFilterEmpty,
+  selectPipelines,
+  selectStorageSize
+} from "../../../store/summary/summary.selector";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
 import {Observable} from "rxjs";
@@ -79,7 +83,7 @@ export class SummaryComponent {
   selectedLanguage$: Observable<any>;
 
   constructor(private store: Store<AppState>, public appInfo: AppInfoService) {
-    this.documentation$ = store.select(selectDocumentation);
+    this.documentation$ = store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.pipelines$ = this.store.select(selectPipelines);
     this.storeSize$ = this.store.select(selectStorageSize);

@@ -3,12 +3,12 @@ import {DialogService} from "primeng/dynamicdialog";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
-import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/announcement.selector";
 import {loadAllAnnouncements} from "../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {Announcement} from "../../store/announcement/announcement.model";
+import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/announcement.selector";
 
 @Component({
   providers: [DialogService],

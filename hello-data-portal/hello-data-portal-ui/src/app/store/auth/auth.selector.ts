@@ -92,6 +92,11 @@ export const selectSupportedLanguages = createSelector(
   (state: AuthState) => state.supportedLanguages
 );
 
+export const selectDefaultLanguage = createSelector(
+  authState,
+  (state: AuthState) => state.defaultLanguage
+);
+
 export const selectSelectedLanguage = createSelector(
   authState,
   (state: AuthState) => {

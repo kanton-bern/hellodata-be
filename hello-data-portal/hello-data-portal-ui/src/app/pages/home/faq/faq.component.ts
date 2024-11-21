@@ -28,7 +28,6 @@
 import {Component, OnInit} from '@angular/core';
 import {combineLatest, map, Observable} from "rxjs";
 import {Faq} from "../../../store/faq/faq.model";
-import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectFaq} from "../../../store/start-page/start-page.selector";
@@ -44,34 +43,9 @@ export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;
   selectedLanguage$: Observable<any>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor(private store: Store<AppState>) {
     this.faq$ = this._getGroupedFaqs();
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
-  }
-
-  private _getGroupedFaqs(): Observable<GroupedFaq[]> {
-    return combineLatest([
-      this.store.select(selectFaq),
-    ]).pipe(
-      map(([faqs]) => {
-        const myDashboards: GroupedFaq[] = [];
-        faqs.forEach(db => {
-          const contextKey = db.contextKey ? db.contextKey : "ALL_DATA_DOMAINS";
-          const contextName = db.contextName ? db.contextName : contextKey;
-          if (myDashboards.filter(d => d.contextKey == contextKey).length == 0) {
-            const items = {contextKey: contextKey, contextName: contextName, faqs: []} as GroupedFaq;
-            myDashboards.push(items);
-          }
-          const faqGroup = myDashboards.find(element => {
-            return element.contextKey == contextKey;
-          });
-          if (faqGroup) {
-            faqGroup.faqs.push(db);
-          }
-        });
-        return myDashboards;
-      })
-    )
   }
 
   ngOnInit(): void {
@@ -84,6 +58,31 @@ export class FaqComponent implements OnInit {
 
   getMessage(faq: Faq, selectedLanguage: string): string | undefined {
     return faq?.messages?.[selectedLanguage]?.message;
+  }
+
+  private _getGroupedFaqs(): Observable<GroupedFaq[]> {
+    return combineLatest([
+      this.store.select(selectFaq),
+    ]).pipe(
+      map(([faqs]) => {
+        const groupedFaqs: GroupedFaq[] = [];
+        faqs.forEach(db => {
+          const contextKey = db.contextKey ? db.contextKey : "ALL_DATA_DOMAINS";
+          const contextName = db.contextName ? db.contextName : contextKey;
+          if (groupedFaqs.filter(d => d.contextKey == contextKey).length == 0) {
+            const items = {contextKey: contextKey, contextName: contextName, faqs: []} as GroupedFaq;
+            groupedFaqs.push(items);
+          }
+          const faqGroup = groupedFaqs.find(element => {
+            return element.contextKey == contextKey;
+          });
+          if (faqGroup) {
+            faqGroup.faqs.push(db);
+          }
+        });
+        return groupedFaqs;
+      })
+    )
   }
 }
 

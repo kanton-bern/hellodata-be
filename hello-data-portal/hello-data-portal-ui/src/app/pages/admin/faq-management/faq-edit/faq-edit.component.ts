@@ -119,22 +119,6 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     return languageForm.get('title') as FormControl;
   }
 
-  getErrorMessageForTitle(language: string): string {
-    const titleControl = this.getTitle(language);
-    if (titleControl?.errors?.['required']) {
-      return 'First name is required';
-    }
-    if (titleControl?.errors?.['minlength']) {
-      return `First name must be at least ${titleControl.errors['minlength'].requiredLength} characters long`;
-    }
-    if (titleControl?.errors?.['maxlength']) {
-      return `First name cannot be more than ${titleControl.errors['maxlength'].requiredLength} characters long`;
-    }
-
-    // Add other error checks as needed
-    return '';
-  }
-
   getHeaderNameWithStatus(language: string) {
     this.translateService.selectTranslate(ALL_DATA_DOMAINS);
     return language.slice(0, 2).toUpperCase()
