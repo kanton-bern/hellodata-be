@@ -103,6 +103,7 @@
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="saveFaq(editedFaq)"
+                  [disabled]="!isAtLeastOneLanguageFilled()"
                   icon="fas fa-floppy-disk"
                   id="saveFaqButton"
                   label="{{'@Save' | transloco}}"

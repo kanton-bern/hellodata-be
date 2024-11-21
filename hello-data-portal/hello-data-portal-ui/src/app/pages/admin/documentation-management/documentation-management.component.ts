@@ -109,8 +109,22 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     const languagesGroup = this.documentationForm.get('languages') as FormGroup;
     const languageForm = languagesGroup?.get(language) as FormGroup;
 
-    const messageControl = languageForm?.get('message') as FormControl;
+    const messageControl = languageForm?.get('text') as FormControl;
     return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+  }
+
+  isAtLeastOneLanguageFilled(): boolean {
+    const languagesGroup = this.documentationForm.get('languages') as FormGroup;
+    if (!languagesGroup) {
+      return false;
+    }
+
+    const some = Object.values(languagesGroup.controls).some((languageControl) => {
+      const group = languageControl as FormGroup;
+      const valuePresent = group.get('text')?.value?.trim();
+      return valuePresent && valuePresent !== '';
+    });
+    return some === true;
   }
 
   private createBreadcrumbs() {

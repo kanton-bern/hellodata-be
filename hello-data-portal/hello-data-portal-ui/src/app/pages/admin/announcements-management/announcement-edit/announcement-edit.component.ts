@@ -140,6 +140,20 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
   }
 
+  isAtLeastOneLanguageFilled(): boolean {
+    const languagesGroup = this.announcementForm.get('languages') as FormGroup;
+    if (!languagesGroup) {
+      return false;
+    }
+
+    const some = Object.values(languagesGroup.controls).some((languageControl) => {
+      const group = languageControl as FormGroup;
+      const valuePresent = group.get('message')?.value?.trim();
+      return valuePresent && valuePresent !== '';
+    });
+    return some === true;
+  }
+
   private createCreatedAnnouncementBreadcrumbs() {
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [

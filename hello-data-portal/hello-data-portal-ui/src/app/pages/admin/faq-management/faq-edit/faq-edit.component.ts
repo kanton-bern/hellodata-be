@@ -148,6 +148,18 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
     return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
   }
 
+  isAtLeastOneLanguageFilled(): boolean {
+    const languagesGroup = this.faqForm.get('languages') as FormGroup;
+    if (!languagesGroup) {
+      return false;
+    }
+
+    return Object.values(languagesGroup.controls).some((languageControl) => {
+      const group = languageControl as FormGroup;
+      return group.get('title')?.value?.trim() && group.get('message')?.value?.trim();
+    });
+  }
+
   private getEditedFaq() {
     return combineLatest([
       this.store.select(selectEditedFaq),
