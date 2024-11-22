@@ -203,6 +203,7 @@
   "@Sync in progress": "Synchronisierung läuft",
   "@Title": "Titel",
   "@Title is invalid": "Titel ist ungültig",
+  "@Translation not available, fallback to default": "Übersetzung nicht verfügbar, Rückgriff auf {{default}}",
   "@Type and press enter": "Tippen und Enter drücken",
   "@Unexpected error occurred": "Ein unerwarteter Fehler ist aufgetreten",
   "@Unsaved changes message": "Möchtest du die Änderungen speichern, bevor du die Seite verlässt? ",

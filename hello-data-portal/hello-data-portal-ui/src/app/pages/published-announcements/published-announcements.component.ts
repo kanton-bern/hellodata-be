@@ -6,9 +6,10 @@ import {Observable} from "rxjs";
 import {loadAllAnnouncements} from "../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../app-navi-elements";
-import {selectSelectedLanguage} from "../../store/auth/auth.selector";
+import {selectDefaultLanguage, selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {Announcement} from "../../store/announcement/announcement.model";
 import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/announcement.selector";
+import {TranslateService} from "../../shared/services/translate.service";
 
 @Component({
   providers: [DialogService],
@@ -19,15 +20,21 @@ import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/an
 export class PublishedAnnouncementsComponent implements OnInit {
   announcements$: Observable<any>;
   selectedLanguage$: Observable<any>;
+  defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.announcements$ = this.store.select(selectAllAnnouncementsByPublishedFlag(true));
     store.dispatch(loadAllAnnouncements());
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = store.select(selectDefaultLanguage);
   }
 
-  getMessage(announcement: Announcement, selectedLanguage: any): string | undefined {
-    return announcement?.messages?.[selectedLanguage.code];
+  getMessage(announcement: Announcement, selectedLanguage: string, defaultLanguage: any): string | undefined {
+    const message = announcement?.messages?.[selectedLanguage];
+    if (!message || message.trim() === '') {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + announcement?.messages?.[defaultLanguage];
+    }
+    return message;
   }
 
   ngOnInit(): void {

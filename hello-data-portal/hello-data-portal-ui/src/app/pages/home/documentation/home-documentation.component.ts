@@ -30,7 +30,12 @@ import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentationFilterEmpty} from "../../../store/summary/summary.selector";
-import {selectCurrentUserPermissions, selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {
+  selectCurrentUserPermissions,
+  selectDefaultLanguage,
+  selectSelectedLanguage
+} from "../../../store/auth/auth.selector";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 @Component({
   selector: 'app-home-documentation',
@@ -41,23 +46,21 @@ export class HomeDocumentationComponent {
   @Output() rightSidebarVisible = new EventEmitter<boolean>();
   currentUserPermissions$: Observable<string[]>;
   documentation$: Observable<any>;
-  summarySidebarVisible = false;
-  overlaySidebarVisible = false;
   selectedLanguage$: Observable<any>;
+  defaultLanguage$: Observable<any>;
 
-
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.documentation$ = this.store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = store.select(selectDefaultLanguage);
   }
 
-  toggleSummaryPanel() {
-    this.summarySidebarVisible = !this.summarySidebarVisible;
-    this.rightSidebarVisible.emit(this.summarySidebarVisible);
-  }
-
-  openOverlaySidebar() {
-    this.overlaySidebarVisible = true;
+  getText(documentation: any, selectedLanguage: string, defaultLanguage: string) {
+    const text = documentation.texts[selectedLanguage];
+    if (!text || text.trim() === '') {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + documentation.texts[defaultLanguage];
+    }
+    return text;
   }
 }

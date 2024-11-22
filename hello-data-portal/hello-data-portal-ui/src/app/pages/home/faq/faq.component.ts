@@ -32,7 +32,8 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
-import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 @Component({
   selector: 'app-faq',
@@ -42,22 +43,32 @@ import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;
   selectedLanguage$: Observable<any>;
+  defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.faq$ = this._getGroupedFaqs();
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = store.select(selectDefaultLanguage);
   }
 
   ngOnInit(): void {
     this.store.dispatch(loadFaqStartPage());
   }
 
-  getTitle(faq: Faq, selectedLanguage: string): string | undefined {
-    return faq?.messages?.[selectedLanguage]?.title;
+  getTitle(faq: Faq, selectedLanguage: string, defaultLanguage: any): string | undefined {
+    const title = faq?.messages?.[selectedLanguage]?.title;
+    if (!title) {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + faq?.messages?.[defaultLanguage]?.title
+    }
+    return title;
   }
 
-  getMessage(faq: Faq, selectedLanguage: string): string | undefined {
-    return faq?.messages?.[selectedLanguage]?.message;
+  getMessage(faq: Faq, selectedLanguage: string, defaultLanguage: any): string | undefined {
+    const message = faq?.messages?.[selectedLanguage]?.message;
+    if (!message) {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + faq?.messages?.[defaultLanguage]?.message
+    }
+    return message;
   }
 
   private _getGroupedFaqs(): Observable<GroupedFaq[]> {

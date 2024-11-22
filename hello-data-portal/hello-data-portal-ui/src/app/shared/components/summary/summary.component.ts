@@ -54,7 +54,11 @@ import {
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
 import {Observable} from "rxjs";
-import {selectCurrentUserPermissions, selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {
+  selectCurrentUserPermissions,
+  selectDefaultLanguage,
+  selectSelectedLanguage
+} from "../../../store/auth/auth.selector";
 import {HdCommonModule} from "../../../hd-common.module";
 import {TranslocoModule} from "@ngneat/transloco";
 import {TooltipModule} from "primeng/tooltip";
@@ -64,6 +68,7 @@ import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
 import {FooterModule} from "../footer/footer.component";
 import {AppInfoService} from "../../services";
+import {TranslateService} from "../../services/translate.service";
 
 
 @Component({
@@ -81,13 +86,15 @@ export class SummaryComponent {
   documentation$: Observable<Documentation | null>;
   storeSize$: Observable<StorageMonitoringResult | null>;
   selectedLanguage$: Observable<any>;
+  defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, public appInfo: AppInfoService) {
+  constructor(private store: Store<AppState>, public appInfo: AppInfoService, private translateService: TranslateService) {
     this.documentation$ = store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.pipelines$ = this.store.select(selectPipelines);
     this.storeSize$ = this.store.select(selectStorageSize);
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = store.select(selectDefaultLanguage);
   }
 
   toggleSummaryPanel() {
@@ -103,6 +110,13 @@ export class SummaryComponent {
     this.store.dispatch(navigate({url: 'documentation-management'}))
   }
 
+  getText(documentation: Documentation, selectedLanguage: string, defaultLanguage: string) {
+    const text = documentation.texts[selectedLanguage];
+    if (!text) {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + documentation.texts[defaultLanguage];
+    }
+    return text;
+  }
 }
 
 
