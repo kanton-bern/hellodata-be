@@ -60,7 +60,8 @@
         <div *ngIf="(defaultLanguage$ | async) as defaultLanguage">
           <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
             <p-editor [disabled]="true" [ngModel]="getText(documentation, selectedLanguage.code, defaultLanguage)"
-                      [readonly]="true">
+                      [readonly]="true"
+                      class="p-editor-readonly">
               <p-header hidden></p-header>
             </p-editor>
           </div>

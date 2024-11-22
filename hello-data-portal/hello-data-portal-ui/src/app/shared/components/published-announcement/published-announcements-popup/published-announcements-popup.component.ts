@@ -33,7 +33,7 @@ import {TranslateService} from "../../../services/translate.service";
             </div>
             <div class="p-toolbar-group-center" style="width: 65%">
               <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)" [disabled]="true"
-                        [readonly]="true"
+                        [readonly]="true" class="p-editor-readonly"
                         [style]="{width: '100%'}">
                 <p-header hidden></p-header>
               </p-editor>

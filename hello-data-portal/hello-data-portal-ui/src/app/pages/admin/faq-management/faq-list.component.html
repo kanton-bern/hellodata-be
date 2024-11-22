@@ -1,5 +1,5 @@
 <h2 class="content-block">{{ '@Faq management' | transloco }}</h2>
-<div class="card" *ngIf="(selectedLanguage$ | async) as selectedLanguage">
+<div *ngIf="(selectedLanguage$ | async) as selectedLanguage" class="card">
   <p-toolbar styleClass="mb-4 gap-2">
     <ng-template pTemplate="left">
       <button (click)="createFaq()" class="p-button-success mr-2" icon="fas fa-circle-plus" id="createFaqButton"
@@ -39,8 +39,8 @@
           <td *ngIf="faq.contextName">{{ faq.contextName }}</td>
           <td *ngIf="faq.contextName === null" class="font-italic">{{ '@All Data Domains' | transloco }}</td>
           <td>
-            <p-editor [ngModel]="getMessage(faq, selectedLanguage)" [disabled]="true" [readonly]="true"
-                      [style]="{ height: '320px' }">
+            <p-editor [disabled]="true" [ngModel]="getMessage(faq, selectedLanguage)" [readonly]="true"
+                      [style]="{ height: '320px' }" class="p-editor-readonly">
               <p-header hidden></p-header>
             </p-editor>
           </td>

@@ -46,7 +46,9 @@ import {naviElements} from "../../../../app-navi-elements";
 @Component({
   providers: [DialogService],
   selector: 'app-published-announcements-wrapper',
-  template: '<div *ngFor="let announcement of publishedAnnouncements$ | async"></div>',
+  template: `
+    <div *ngIf="(publishedAnnouncements$ | async) as publishedAnnouncements">
+    </div>`,
 })
 export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
 

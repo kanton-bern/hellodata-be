@@ -56,6 +56,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   supportedLanguages$: Observable<string[]>;
   defaultLanguage$: Observable<string | null>;
   formValueChangedSub!: Subscription;
+  titleMinLenght = 3;
+  messageMinLength = 3;
 
   constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
     super();
@@ -117,7 +119,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   getTitle(language: string): FormControl {
     const languagesGroup = this.faqForm.get('languages') as FormGroup;
     const languageForm = languagesGroup.get(language) as FormGroup;
-    return languageForm.get('title') as FormControl;
+    const title = languageForm.get('title') as FormControl;
+    return title;
   }
 
   getHeaderNameWithStatus(language: string) {
@@ -168,8 +171,8 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
             faqCpy.messages[language] = {title: '', message: ''}
           }
           languageFaqFormGroups[language] = this.fb.group({
-            title: [faqCpy?.messages?.[language]?.title || '', [Validators.required, Validators.minLength(3)]],
-            message: [faqCpy?.messages?.[language]?.message || '', [Validators.required, Validators.minLength(3)]],
+            title: [faqCpy?.messages?.[language]?.title || '', [Validators.required, Validators.minLength(this.titleMinLenght)]],
+            message: [faqCpy?.messages?.[language]?.message || '', [Validators.required, Validators.minLength(this.messageMinLength)]],
           });
         });
 

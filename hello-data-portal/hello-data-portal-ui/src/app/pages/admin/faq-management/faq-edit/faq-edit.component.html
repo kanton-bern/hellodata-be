@@ -82,15 +82,13 @@
                 id="title"
                 type="text">
               <small *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty" class="p-error block">
-                {{ '@Value has minimum length' | transloco: {min: getTitle(language).errors?.['minlength']?.requiredLength} }}
+                {{ '@Value has minimum length' | transloco: {min: titleMinLenght} }}
               </small>
             </div>
           </div>
 
-          <p-editor
-            [formControl]="getMessage(language)"
-            [style]="{ height: '725px' }"
-            id="faqMessage">
+          <p-editor [formControl]="getMessage(language)"
+                    id="faqMessage">
           </p-editor>
         </p-tabPanel>
       </ng-template>

@@ -32,10 +32,10 @@
                 <ng-container *ngFor="let domainFaq of item.faqs">
                   <p-accordionTab header="{{ getTitle(domainFaq, selectedLanguage.code, defaultLanguage) }}"
                                   style="white-space: pre-wrap;">
-                    <p-editor [disabled]="true"
-                              [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
+                    <p-editor [disabled]="true" [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
                               [readonly]="true"
-                              [style]="{ height: '320px', 'white-space': 'pre-wrap' }">
+                              [style]="{ height: '320px', 'white-space': 'pre-wrap' }"
+                              class="p-editor-readonly">
                       <p-header hidden></p-header>
                     </p-editor>
                   </p-accordionTab>
