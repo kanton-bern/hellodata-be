@@ -19,7 +19,7 @@ public class PublishedStorageSizeConsumer {
     private final StorageSizeRepository storageSizeRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = UPDATE_STORAGE_MONITORING_RESULT)
+    @JetStreamSubscribe(event = UPDATE_STORAGE_MONITORING_RESULT, asyncRun = false)
     public void getStorageSizeUpdate(StorageMonitoringResult storageMonitoringResult) {
         log.info("Received storage monitoring result {}", storageMonitoringResult);
         StorageSizeEntity storageSizeEntity = new StorageSizeEntity();

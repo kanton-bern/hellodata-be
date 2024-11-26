@@ -56,7 +56,7 @@ public class SupersetDeleteUserConsumer {
     private final SupersetClientProvider supersetClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = DELETE_USER)
+    @JetStreamSubscribe(event = DELETE_USER, asyncRun = false)
     public void deleteUser(SubsystemUserDelete subsystemUserDelete) {
         try {
             log.info("------- Received superset user deletion request {}", subsystemUserDelete);

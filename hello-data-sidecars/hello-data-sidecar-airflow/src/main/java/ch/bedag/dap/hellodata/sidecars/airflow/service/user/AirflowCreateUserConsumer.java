@@ -54,7 +54,7 @@ public class AirflowCreateUserConsumer {
 
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
+    @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
     public void createUser(SubsystemUserUpdate supersetUserCreate) {
         try {
             log.info("------- Received airflow user creation request {}", supersetUserCreate);

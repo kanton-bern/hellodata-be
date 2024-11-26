@@ -31,7 +31,7 @@ public class AirflowDisableUserConsumer {
 
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = DISABLE_USER)
+    @JetStreamSubscribe(event = DISABLE_USER, asyncRun = false)
     public void disableUser(SubsystemUserUpdate supersetUserUpdate) {
         try {
             log.info("------- Received airflow user disable request {}", supersetUserUpdate);

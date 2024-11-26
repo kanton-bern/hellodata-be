@@ -50,7 +50,7 @@ public class DbtDocsCreateUserConsumer {
     private final UserRepository userRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
+    @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
     public void createUser(SubsystemUserUpdate supersetUserCreate) {
         log.info("------- Received dbt docs user creation request {}", supersetUserCreate);
         User user = userRepository.findByUserNameOrEmail(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());

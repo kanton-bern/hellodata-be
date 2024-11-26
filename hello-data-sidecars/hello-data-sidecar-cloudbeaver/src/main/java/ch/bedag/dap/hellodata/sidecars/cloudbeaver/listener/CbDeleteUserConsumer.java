@@ -46,7 +46,7 @@ public class CbDeleteUserConsumer {
     private final UserRepository userRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = DELETE_USER)
+    @JetStreamSubscribe(event = DELETE_USER, asyncRun = false)
     public void deleteUser(SubsystemUserDelete subsystemUserDelete) {
         log.info("------- Received cloudbeaver user deletion request {}", subsystemUserDelete);
         User user = userRepository.findByUserNameOrEmail(subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());

@@ -26,7 +26,7 @@ public class SupersetDisableUserConsumer {
     private final SupersetClientProvider supersetClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = DISABLE_USER)
+    @JetStreamSubscribe(event = DISABLE_USER, asyncRun = false)
     public void disableUser(SubsystemUserUpdate subsystemUserUpdate) {
         try {
             log.info("------- Received superset user disable request {}", subsystemUserUpdate);

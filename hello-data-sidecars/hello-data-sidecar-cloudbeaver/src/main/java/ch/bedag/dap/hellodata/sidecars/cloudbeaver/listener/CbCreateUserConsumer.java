@@ -49,7 +49,7 @@ public class CbCreateUserConsumer {
     private final UserRepository userRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
+    @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
     public void createUser(SubsystemUserUpdate subsystemUserUpdate) {
         log.info("------- Received cloudbeaver user creation request {}", subsystemUserUpdate);
         User user = userRepository.findByUserNameOrEmail(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());

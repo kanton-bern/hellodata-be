@@ -59,7 +59,7 @@ public class SupersetCreateUserConsumer {
     private final SupersetClientProvider supersetClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
+    @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
     public void createUser(SubsystemUserUpdate supersetUserCreate) {
         try {
             log.info("------- Received superset user creation request {}", supersetUserCreate);
@@ -87,7 +87,7 @@ public class SupersetCreateUserConsumer {
     }
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = ENABLE_USER)
+    @JetStreamSubscribe(event = ENABLE_USER, asyncRun = false)
     public void enableUser(SubsystemUserUpdate subsystemUserUpdate) {
         try {
             log.info("------- Received superset user enable request {}", subsystemUserUpdate);
