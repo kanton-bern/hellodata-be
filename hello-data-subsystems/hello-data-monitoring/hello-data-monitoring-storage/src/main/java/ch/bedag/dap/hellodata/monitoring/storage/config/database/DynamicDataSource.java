@@ -26,11 +26,15 @@
  */
 package ch.bedag.dap.hellodata.monitoring.storage.config.database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.Data;
+
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
-import javax.sql.DataSource;
-import lombok.Data;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 @Data
 public class DynamicDataSource {
@@ -38,11 +42,14 @@ public class DynamicDataSource {
     private final Map<String, DataSourceWrapper> dataSources = new HashMap<>();
 
     public void addDataSource(String name, String url, String username, String password, String totalAvailableBytes) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl(url);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-        dataSources.put(name, new DataSourceWrapper(dataSource, totalAvailableBytes));
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(url);
+        hikariConfig.setUsername(username);
+        hikariConfig.setPassword(password);
+        hikariConfig.setMaximumPoolSize(1);
+        hikariConfig.setMaxLifetime(MINUTES.toMillis(15));
+        HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
+        dataSources.put(name, new DataSourceWrapper(hikariDataSource, totalAvailableBytes));
     }
 
     public DataSource getDataSource(String name) {

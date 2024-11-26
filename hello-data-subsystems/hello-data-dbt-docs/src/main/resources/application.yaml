@@ -54,6 +54,9 @@ spring:
     username: airflow
     password: airflow
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+      max-lifetime: 900000 #15min
   jpa:
     properties:
       hibernate:

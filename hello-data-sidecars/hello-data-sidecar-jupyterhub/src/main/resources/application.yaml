@@ -52,6 +52,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/hd_metainfo
     password: postgres
     username: postgres
+    hikari:
+      maximum-pool-size: 1
+      max-lifetime: 900000 #15min
   boot:
     admin:
       client:
