@@ -40,6 +40,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -112,7 +113,7 @@ public class SupersetApiRequestBuilder {
         JsonObject usernameFilter = new JsonObject();
         usernameFilter.addProperty("col", "username");
         usernameFilter.addProperty("opr", "eq");
-        usernameFilter.addProperty("value", URLEncoder.encode(username, "UTF-8"));
+        usernameFilter.addProperty("value", URLEncoder.encode(StringEscapeUtils.escapeJava(username), "UTF-8"));
 
         JsonObject emailFilter = new JsonObject();
         emailFilter.addProperty("col", "email");
