@@ -37,6 +37,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.Dashboa
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,7 +80,8 @@ public class UpdateDashboardUserRolesListener {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = objectMapper.readValue(msg.getData(), SupersetDashboardsForUserUpdate.class);
                 log.info("-=-=-= RECEIVED DASHBOARD ROLES UPDATE {}", supersetDashboardsForUserUpdate);
-                SubsystemUser user = supersetClient.user(supersetDashboardsForUserUpdate.getSupersetUserId()).getResult();
+                SupersetUsersResponse userResponse = supersetClient.getUser(supersetDashboardsForUserUpdate.getSupersetUserName(), supersetDashboardsForUserUpdate.getSupersetUserEmail());
+                SubsystemUser user = userResponse.getResult().get(0);
                 SupersetRolesResponse allRoles = supersetClient.roles();
 
                 SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();

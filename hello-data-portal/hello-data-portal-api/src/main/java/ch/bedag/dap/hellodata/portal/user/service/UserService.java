@@ -592,6 +592,8 @@ public class UserService {
             SubsystemUser userInInstance = metaInfoResourceService.findUserInInstance(userEntity.getEmail(), supersetInstanceName);
             if (userInInstance != null) {
                 supersetDashboardsForUserUpdate.setSupersetUserId(userInInstance.getId());
+                supersetDashboardsForUserUpdate.setSupersetUserName(userInInstance.getUsername());
+                supersetDashboardsForUserUpdate.setSupersetUserEmail(userInInstance.getEmail());
                 supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
                 String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
                 log.info("[updateDashboardRoleForUser] Sending request to subject: {}", subject);

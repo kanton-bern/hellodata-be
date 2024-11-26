@@ -27,12 +27,15 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SupersetDashboardsForUserUpdate {
     List<DashboardForUserDto> dashboards;
     private int supersetUserId;
+    private String supersetUserName;
+    private String supersetUserEmail;
 }
