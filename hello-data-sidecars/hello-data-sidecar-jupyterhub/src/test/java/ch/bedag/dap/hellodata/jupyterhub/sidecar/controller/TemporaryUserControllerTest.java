@@ -1,6 +1,7 @@
 package ch.bedag.dap.hellodata.jupyterhub.sidecar.controller;
 
 import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
+import ch.bedag.dap.hellodata.jupyterhub.sidecar.config.datasource.DwhJdbcTemplateConfig;
 import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.TemporaryUserService;
 import ch.bedag.dap.hellodata.jupyterhub.sidecar.service.user.dto.TemporaryUserResponseDto;
 import io.nats.client.Connection;
@@ -37,6 +38,8 @@ class TemporaryUserControllerTest {
     private Connection connection;
     @MockBean
     private NatsHealthIndicator natsHealthIndicator;
+    @MockBean
+    private DwhJdbcTemplateConfig dwhJdbcTemplateConfig;
 
     private TemporaryUserResponseDto responseDto;
 
