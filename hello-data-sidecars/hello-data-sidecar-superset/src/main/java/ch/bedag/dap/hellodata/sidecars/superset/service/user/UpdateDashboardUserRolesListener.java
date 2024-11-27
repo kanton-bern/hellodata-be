@@ -33,9 +33,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
+import ch.bedag.dap.hellodata.sidecars.superset.client.data.IdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
@@ -56,8 +58,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeAllDashboardRoles;
-import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removePublicRoleIfAdded;
+import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.*;
 
 @Log4j2
 @Service
@@ -80,8 +81,7 @@ public class UpdateDashboardUserRolesListener {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = objectMapper.readValue(msg.getData(), SupersetDashboardsForUserUpdate.class);
                 log.info("-=-=-= RECEIVED DASHBOARD ROLES UPDATE {}", supersetDashboardsForUserUpdate);
-                SupersetUsersResponse userResponse = supersetClient.getUser(supersetDashboardsForUserUpdate.getSupersetUserName(), supersetDashboardsForUserUpdate.getSupersetUserEmail());
-                SubsystemUser user = userResponse.getResult().get(0);
+                SubsystemUser user = getSupersetUser(supersetClient, supersetDashboardsForUserUpdate);
                 SupersetRolesResponse allRoles = supersetClient.roles();
 
                 SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
@@ -110,6 +110,31 @@ public class UpdateDashboardUserRolesListener {
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);
+    }
+
+    private SubsystemUser getSupersetUser(SupersetClient supersetClient, SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate) throws URISyntaxException, IOException {
+        SupersetUsersResponse response = supersetClient.getUser(supersetDashboardsForUserUpdate.getSupersetUserName(), supersetDashboardsForUserUpdate.getSupersetUserEmail());
+        if (response == null || response.getResult().isEmpty()) {
+            log.warn("[Couldn't find user by email: {} and username: {}, creating...]", supersetDashboardsForUserUpdate.getSupersetUserEmail(), supersetDashboardsForUserUpdate.getSupersetUserName());
+            SupersetRolesResponse allRoles = supersetClient.roles();
+            List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).toList();
+            SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(supersetDashboardsForUserUpdate, roles);
+            IdResponse createdUser = supersetClient.createUser(subsystemUserUpdate);
+            return supersetClient.user(createdUser.id).getResult();
+        }
+        return response.getResult().get(0);
+    }
+
+    private SubsystemUserUpdate getSubsystemUserUpdate(SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate, List<Integer> roles) {
+        SubsystemUserUpdate subsystemUserUpdate = new SubsystemUserUpdate();
+        subsystemUserUpdate.setUsername(supersetDashboardsForUserUpdate.getSupersetUserName());
+        subsystemUserUpdate.setEmail(supersetDashboardsForUserUpdate.getSupersetUserEmail());
+        subsystemUserUpdate.setActive(supersetDashboardsForUserUpdate.getActive());
+        subsystemUserUpdate.setFirstName(supersetDashboardsForUserUpdate.getSupersetFirstName());
+        subsystemUserUpdate.setLastName(supersetDashboardsForUserUpdate.getSupersetLastName());
+        subsystemUserUpdate.setPassword(supersetDashboardsForUserUpdate.getSupersetFirstName());
+        subsystemUserUpdate.setRoles(roles);
+        return subsystemUserUpdate;
     }
 
     private void assignDashboardRoleToUser(SubsystemUser user, @Nullable SupersetDashboard dashboard, SupersetRolesResponse allRoles,

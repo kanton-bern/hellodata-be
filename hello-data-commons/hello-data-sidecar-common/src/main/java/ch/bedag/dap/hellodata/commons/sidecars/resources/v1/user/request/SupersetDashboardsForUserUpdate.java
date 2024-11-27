@@ -38,4 +38,7 @@ public class SupersetDashboardsForUserUpdate {
     private int supersetUserId;
     private String supersetUserName;
     private String supersetUserEmail;
+    private String supersetFirstName;
+    private String supersetLastName;
+    private Boolean active;
 }

@@ -595,6 +595,9 @@ public class UserService {
                 supersetDashboardsForUserUpdate.setSupersetUserName(userInInstance.getUsername());
                 supersetDashboardsForUserUpdate.setSupersetUserEmail(userInInstance.getEmail());
                 supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
+                supersetDashboardsForUserUpdate.setSupersetFirstName(userInInstance.getFirstName());
+                supersetDashboardsForUserUpdate.setSupersetLastName(userInInstance.getLastName());
+                supersetDashboardsForUserUpdate.setActive(userInInstance.isActive());
                 String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
                 log.info("[updateDashboardRoleForUser] Sending request to subject: {}", subject);
                 Message reply =
