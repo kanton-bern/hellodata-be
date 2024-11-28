@@ -29,7 +29,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
-import {combineLatest, debounceTime, EMPTY, map, Observable, tap} from "rxjs";
+import {combineLatest, debounceTime, EMPTY, map, Observable} from "rxjs";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {
   loadPublishedAnnouncementsFiltered,
@@ -47,7 +47,7 @@ import {naviElements} from "../../../../app-navi-elements";
   providers: [DialogService],
   selector: 'app-published-announcements-wrapper',
   template: `
-    <div *ngIf="(publishedAnnouncements$ | async) as publishedAnnouncements">
+    <div *ngIf="publishedAnnouncements$ | async">
     </div>`,
 })
 export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
@@ -70,7 +70,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
           if (skipAnnouncementsPopup || this.ref && announcements && announcements.length === 0) {
             this.ref?.close();
           } else if (!this.ref && announcements && announcements.length > 0) {
-            return this.openDialog(announcements);
+            this.openDialog(announcements);
           }
           return EMPTY;
         }));
@@ -92,14 +92,28 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
       contentStyle: {overflow: 'auto'},
       height: 'auto',
     });
-    return this.ref.onClose.pipe(tap(_ => {
+    this.ref.onClose.subscribe(_ => {
       if (this.hideAllCurrentAnnouncementsService.hide) {
         for (const announcement of announcements) {
           this.hide(announcement);
         }
         this.hideAllCurrentAnnouncementsService.hide = false;
       }
-    }))
+    });
+    const subscription = this.ref.onClose.subscribe(() => {
+      if (this.hideAllCurrentAnnouncementsService.hide) {
+        for (const announcement of announcements) {
+          this.hide(announcement);
+        }
+        this.hideAllCurrentAnnouncementsService.hide = false;
+      }
+    });
+
+    this.ref.onDestroy.subscribe(() => {
+      if (subscription) {
+        subscription.unsubscribe()
+      }
+    });
   }
 
 }
