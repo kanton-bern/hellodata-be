@@ -29,7 +29,7 @@ import {AfterViewInit, Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
-import {combineLatest, debounceTime, EMPTY, map, Observable} from "rxjs";
+import {combineLatest, debounceTime, Observable, tap} from "rxjs";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {
   loadPublishedAnnouncementsFiltered,
@@ -64,7 +64,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
         this.store.select(selectUrl)
       ]).pipe(
         debounceTime(700),
-        map(([announcements, currentUrl]) => {
+        tap(([announcements, currentUrl]) => {
           const skipAnnouncementsPopup =
             currentUrl.includes(naviElements.dataWarehouseViewer.path) || currentUrl.includes('advanced-analytics-viewer');
           if (skipAnnouncementsPopup || this.ref && announcements && announcements.length === 0) {
@@ -72,7 +72,6 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
           } else if (!this.ref && announcements && announcements.length > 0) {
             this.openDialog(announcements);
           }
-          return EMPTY;
         }));
     store.dispatch(loadPublishedAnnouncementsFiltered());
   }
