@@ -28,27 +28,47 @@
 import {Component, EventEmitter, NgModule, Output} from '@angular/core';
 import {SidebarModule} from "primeng/sidebar";
 import {ScrollPanelModule} from "primeng/scrollpanel";
-import {AsyncPipe, DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault} from "@angular/common";
+import {
+  AsyncPipe,
+  DatePipe,
+  JsonPipe,
+  NgClass,
+  NgForOf,
+  NgIf,
+  NgStyle,
+  NgSwitch,
+  NgSwitchCase,
+  NgSwitchDefault
+} from "@angular/common";
 import {FieldsetModule} from "primeng/fieldset";
 import {AccordionModule} from "primeng/accordion";
 import {EditorModule} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {selectDocumentation, selectPipelines, selectStorageSize} from "../../../store/summary/summary.selector";
+import {
+  selectDocumentationFilterEmpty,
+  selectPipelines,
+  selectStorageSize
+} from "../../../store/summary/summary.selector";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
 import {Observable} from "rxjs";
-import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
+import {
+  selectCurrentUserPermissions,
+  selectDefaultLanguage,
+  selectSelectedLanguage
+} from "../../../store/auth/auth.selector";
 import {HdCommonModule} from "../../../hd-common.module";
 import {TranslocoModule} from "@ngneat/transloco";
 import {TooltipModule} from "primeng/tooltip";
 import {DataViewModule} from "primeng/dataview";
-import {Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
+import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
 import {FooterModule} from "../footer/footer.component";
 import {AppInfoService} from "../../services";
+import {TranslateService} from "../../services/translate.service";
 
 
 @Component({
@@ -63,14 +83,18 @@ export class SummaryComponent {
   overlaySidebarVisible = false;
 
   pipelines$: Observable<Pipeline[]>;
-  documentation$: Observable<string>;
+  documentation$: Observable<Documentation | null>;
   storeSize$: Observable<StorageMonitoringResult | null>;
+  selectedLanguage$: Observable<any>;
+  defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, public appInfo: AppInfoService) {
-    this.documentation$ = store.select(selectDocumentation);
+  constructor(private store: Store<AppState>, public appInfo: AppInfoService, private translateService: TranslateService) {
+    this.documentation$ = store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.pipelines$ = this.store.select(selectPipelines);
     this.storeSize$ = this.store.select(selectStorageSize);
+    this.selectedLanguage$ = store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = store.select(selectDefaultLanguage);
   }
 
   toggleSummaryPanel() {
@@ -86,8 +110,12 @@ export class SummaryComponent {
     this.store.dispatch(navigate({url: 'documentation-management'}))
   }
 
-  navigateToDetails(pipeline: Pipeline) {
-    this.store.dispatch(navigate({url: `/embedded-orchestration/details/${pipeline.id}`}));
+  getText(documentation: Documentation, selectedLanguage: string, defaultLanguage: string) {
+    const text = documentation.texts[selectedLanguage];
+    if (!text) {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + documentation.texts[defaultLanguage];
+    }
+    return text;
   }
 }
 

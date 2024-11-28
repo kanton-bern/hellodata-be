@@ -26,9 +26,19 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {AdUser, ContextDashboardsForUser, CreateUserForm, CreateUserResponse, DashboardForUser, DashboardResponse, User} from "./users-management.model";
+import {
+  AdUser,
+  ContextDashboardsForUser,
+  CreateUserForm,
+  CreateUserResponse,
+  DashboardForUser,
+  DashboardResponse,
+  DashboardUsersResultDto,
+  SubsystemUsersResultDto,
+  User
+} from "./users-management.model";
 import {ContextResponse} from "./context-role.model";
 import {environment} from "../../../environments/environment";
 
@@ -37,13 +47,48 @@ import {environment} from "../../../environments/environment";
 })
 export class UsersManagementService {
   baseUsersUrl = `${environment.portalApi}/users`;
-  invitedUsersUrl = `${this.baseUsersUrl}/invited`;
+  baseUsersSyncUrl = `${environment.portalApi}/user-sync`;
+  baseMetainfoUrl = `${environment.portalApi}/metainfo`;
 
   constructor(protected httpClient: HttpClient) {
   }
 
-  public getUsers(): Observable<User[]> {
-    return this.httpClient.get<User[]>(`${this.baseUsersUrl}`);
+  getUsers(page: number, size: number, sort: string, search: string): Observable<{
+    content: User[],
+    totalElements: number,
+    totalPages: number
+  }> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort)
+      .set('search', search || '');
+
+    return this.httpClient.get<{
+      content: User[],
+      totalElements: number,
+      totalPages: number
+    }>(`${this.baseUsersUrl}`, {params});
+  }
+
+  public getSubsystemUsers(): Observable<SubsystemUsersResultDto[]> {
+    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users`);
+  }
+
+  public clearSubsystemUsersCache(): Observable<SubsystemUsersResultDto[]> {
+    return this.httpClient.get<SubsystemUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/subsystem-users/clear-cache`);
+  }
+
+  public getAllUsersWithRolesForDashboards(): Observable<DashboardUsersResultDto[]> {
+    return this.httpClient.get<DashboardUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview`);
+  }
+
+  public clearAllUsersWithRolesForDashboardsCache(): Observable<DashboardUsersResultDto[]> {
+    return this.httpClient.get<DashboardUsersResultDto[]>(`${this.baseMetainfoUrl}/resources/users-dashboards-overview/clear-cache`);
+  }
+
+  public getSyncStatus(): Observable<string> {
+    return this.httpClient.get<string>(`${this.baseUsersSyncUrl}/status`);
   }
 
   public getUserById(userId: string): Observable<User> {
@@ -54,20 +99,20 @@ export class UsersManagementService {
     return this.httpClient.delete<void>(`${this.baseUsersUrl}/${userRepresentation.id}`);
   }
 
-  public enableUser(userRepresentation: User): Observable<void> {
-    return this.httpClient.patch<void>(`${this.baseUsersUrl}/${userRepresentation.id}/enable`, {});
+  public enableUser(userRepresentation: User): Observable<User> {
+    return this.httpClient.patch<User>(`${this.baseUsersUrl}/${userRepresentation.id}/enable`, {});
   }
 
-  public disableUser(userRepresentation: User): Observable<void> {
-    return this.httpClient.patch<void>(`${this.baseUsersUrl}/${userRepresentation.id}/disable`, {});
+  public disableUser(userRepresentation: User): Observable<User> {
+    return this.httpClient.patch<User>(`${this.baseUsersUrl}/${userRepresentation.id}/disable`, {});
   }
 
   public createUser(createUserForm: CreateUserForm): Observable<CreateUserResponse> {
     return this.httpClient.post<CreateUserResponse>(`${this.baseUsersUrl}`, createUserForm);
   }
 
-  public syncUsers(): Observable<any> {
-    return this.httpClient.get<any>(`${this.baseUsersUrl}/sync`);
+  public syncUsers(): Observable<string> {
+    return this.httpClient.get<string>(`${this.baseUsersSyncUrl}/start`);
   }
 
   public getCurrentAuthData(): Observable<any> {
@@ -84,6 +129,10 @@ export class UsersManagementService {
 
   public editDashboardRoleForUser(userId: string, data: DashboardForUser): Observable<DashboardResponse> {
     return this.httpClient.patch<DashboardResponse>(`${this.baseUsersUrl}/${userId}/dashboards`, data);
+  }
+
+  public editSelectedLanguageForUser(userId: string, lang: string): Observable<any> {
+    return this.httpClient.patch<any>(`${this.baseUsersUrl}/${userId}/set-selected-lang/${lang}`, lang);
   }
 
   public getAvailableContexts(): Observable<ContextResponse> {
@@ -111,6 +160,10 @@ export class UsersManagementService {
     return this.httpClient.get<any>(`${this.baseUsersUrl}/search/${email}`);
   }
 
+  public getAdminEmails(): Observable<string[]> {
+    return this.httpClient.get<string[]>(`${this.baseUsersUrl}/admin-emails`);
+  }
+
   private convertMapToJson(map: Map<any, any>): any {
     const converted: any = {};
 
@@ -119,9 +172,5 @@ export class UsersManagementService {
     });
 
     return converted;
-  }
-
-  public getAdminEmails(): Observable<string[]> {
-    return this.httpClient.get<string[]>(`${this.baseUsersUrl}/admin-emails`);
   }
 }

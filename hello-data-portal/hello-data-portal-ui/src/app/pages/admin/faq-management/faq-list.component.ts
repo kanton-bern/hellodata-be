@@ -35,6 +35,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../store/faq/faq.action";
+import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 
 @Component({
   selector: 'app-faq-list',
@@ -43,10 +44,12 @@ import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../s
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;
+  selectedLanguage$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
     this.faq$ = this.store.select(selectAllFaq);
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     store.dispatch(loadFaq());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -78,4 +81,11 @@ export class FaqListComponent extends BaseComponent implements OnInit {
     return deleteFaq();
   }
 
+  getTitle(faq: Faq, selectedLanguage: any): string | undefined {
+    return faq?.messages?.[selectedLanguage.code]?.title;
+  }
+
+  getMessage(faq: Faq, selectedLanguage: any): string | undefined {
+    return faq?.messages?.[selectedLanguage.code]?.message;
+  }
 }

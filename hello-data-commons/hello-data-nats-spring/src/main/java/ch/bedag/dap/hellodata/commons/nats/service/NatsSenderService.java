@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.commons.nats.service;
 
 import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
-import ch.bedag.dap.hellodata.commons.nats.util.NatsUtil;
+import ch.bedag.dap.hellodata.commons.nats.util.NatsStreamUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
@@ -36,12 +36,13 @@ import io.nats.client.JetStreamApiException;
 import io.nats.client.PublishOptions;
 import io.nats.client.api.PublishAck;
 import io.nats.client.impl.NatsMessage;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Log4j2
 @Service
@@ -59,20 +60,33 @@ public class NatsSenderService {
 
     private <T> PublishAck publishMessageToJetStream(String streamName, String subjectName, T body) {
         try {
-            NatsUtil.createOrUpdateStream(connection.jetStreamManagement(), streamName, subjectName);
-            /* get a JetStream instance from the current nats connection*/
+            NatsStreamUtil.createOrUpdateStream(connection.jetStreamManagement(), streamName, subjectName);
             JetStream js = connection.jetStream();
+
             String message;
             if (body instanceof String) {
                 message = (String) body;
             } else {
                 message = objectMapper.writeValueAsString(body);
             }
-            /* publish a message to the stream */
-            log.debug("+=+=+=+= Publishing message {}, to the stream {} and subject {}", message, streamName, subjectName);
-            NatsMessage natsMessage = NatsMessage.builder().subject(subjectName).data(message.getBytes(StandardCharsets.UTF_8)).build();
-            PublishOptions.Builder pubOptsBuilder = PublishOptions.builder().stream(streamName).messageId(UUID.randomUUID().toString());
-            return js.publish(natsMessage, pubOptsBuilder.build());
+
+            log.trace("+=+=+=+= Publishing message {}, to the stream {} and subject {}", message, streamName, subjectName);
+            log.debug("+=+=+=+= Publishing message to the stream {} and subject {}", streamName, subjectName);
+
+            // Generate a MurmurHash3-based message ID
+//            String messageId = Hashing.murmur3_128().hashString(message, StandardCharsets.UTF_8).toString();
+            String messageId = UUID.randomUUID().toString();
+
+            NatsMessage natsMessage = NatsMessage.builder()
+                    .subject(subjectName)
+                    .data(message.getBytes(StandardCharsets.UTF_8))
+                    .build();
+            PublishOptions pubOpts = PublishOptions.builder()
+                    .stream(streamName)
+                    .messageId(messageId)
+                    .build();
+
+            return js.publish(natsMessage, pubOpts);
         } catch (JetStreamApiException | IOException ex) {
             throw new NatsException("Error publishing message", ex);
         }

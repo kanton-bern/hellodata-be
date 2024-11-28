@@ -26,7 +26,7 @@
 ///
 
 export interface Documentation {
-  text: string
+  texts: { [locale: string]: string }
 }
 
 export interface PipelineInstance {

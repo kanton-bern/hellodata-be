@@ -31,12 +31,13 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.service.resource.DbtDocsUserResourceProviderService;
-import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
 
 @Log4j2
@@ -49,19 +50,20 @@ public class DbtDocsCreateUserConsumer {
     private final UserRepository userRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate supersetUserCreate) {
+    @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
+    public void createUser(SubsystemUserUpdate supersetUserCreate) {
         log.info("------- Received dbt docs user creation request {}", supersetUserCreate);
         User user = userRepository.findByUserNameOrEmail(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
         if (user != null) {
-            log.info("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-            return null;//NOSONAR
+            log.debug("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
+            return;
         }
         log.info("Going to create new dbt docs user with email: {}", supersetUserCreate.getEmail());
         User dbtDocUser = toDbtDocUser(supersetUserCreate);
         userRepository.save(dbtDocUser);
-        userResourceProviderService.publishUsers();
-        return null;//NOSONAR
+        if (supersetUserCreate.isSendBackUsersList()) {
+            userResourceProviderService.publishUsers();
+        }
     }
 
     @NotNull

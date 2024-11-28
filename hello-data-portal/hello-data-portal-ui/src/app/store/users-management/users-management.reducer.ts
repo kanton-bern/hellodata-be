@@ -27,19 +27,30 @@
 
 import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
 import {
+  clearSubsystemUsersCache,
+  clearSubsystemUsersForDashboardsCache,
+  deleteUserInStore,
   hideUserPopupAction,
   loadAdminEmailsSuccess,
   loadAvailableContextRolesSuccess,
   loadAvailableContextsSuccess,
   loadDashboardsSuccess,
+  loadSubsystemUsers,
+  loadSubsystemUsersForDashboards,
+  loadSubsystemUsersForDashboardsSuccess,
+  loadSubsystemUsersSuccess,
+  loadSyncStatusSuccess,
   loadUserByIdSuccess,
   loadUserContextRolesSuccess,
+  loadUsers,
   loadUsersSuccess,
   navigateToUsersManagement,
   selectBusinessDomainRoleForEditedUser,
   selectDataDomainRoleForEditedUser,
   setSelectedDashboardForUser,
   showUserActionPopup,
+  syncUsersSuccess,
+  updateUserInStore,
   updateUserRoles,
   updateUserRolesSuccess
 } from "./users-management.action";
@@ -50,7 +61,13 @@ import {createReducer, on} from "@ngrx/store";
 
 export const usersManagementReducer = createReducer(
   initialUsersManagementState,
-  on(loadUsersSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+  on(loadUsers, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      usersLoading: true,
+    };
+  }),
+  on(loadUsersSuccess, (state: UsersManagementState, {users, totalElements}): UsersManagementState => {
     for (const key in sessionStorage) {
       if (key.startsWith('UM_')) {
         sessionStorage.removeItem(key);
@@ -58,13 +75,41 @@ export const usersManagementReducer = createReducer(
     }
     return {
       ...state,
-      users: payload,
+      users: users,
+      usersLoading: false,
+      usersTotalRecords: totalElements,
       allDashboardsWithMarkedUser: [],
       allDashboardsWithMarkedUserFetched: false,
       userContextRoles: [],
       selectedDataDomainRolesForEditedUser: [],
       selectedBusinessContextRoleForEditedUser: null,
       editedUser: null,
+    };
+  }),
+  on(loadSubsystemUsers, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsersLoading: true
+    };
+  }),
+  on(loadSubsystemUsersSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsers: payload,
+      subsystemUsersLoading: false
+    };
+  }),
+  on(loadSubsystemUsersForDashboards, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsersForDashboardsLoading: true
+    };
+  }),
+  on(loadSubsystemUsersForDashboardsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    return {
+      ...state,
+      subsystemUsersForDashboards: payload,
+      subsystemUsersForDashboardsLoading: false
     };
   }),
   on(showUserActionPopup, (state: UsersManagementState, {userActionForPopup}): UsersManagementState => {
@@ -192,6 +237,45 @@ export const usersManagementReducer = createReducer(
     return {
       ...state,
       userSaveButtonDisabled: false
+    };
+  }),
+  on(syncUsersSuccess, (state: UsersManagementState, {status}): UsersManagementState => {
+    return {
+      ...state,
+      syncStatus: status
+    };
+  }),
+  on(loadSyncStatusSuccess, (state: UsersManagementState, {status}): UsersManagementState => {
+    return {
+      ...state,
+      syncStatus: status
+    };
+  }),
+  on(updateUserInStore, (state: UsersManagementState, {userChanged}): UsersManagementState => {
+    return {
+      ...state,
+      users: state.users.map(user => user.email === userChanged.email ? {...userChanged} : user),
+      editedUser: state.editedUser ? userChanged : state.editedUser
+    };
+  }),
+  on(deleteUserInStore, (state: UsersManagementState, {userDeleted}): UsersManagementState => {
+    return {
+      ...state,
+      users: state.users.filter(user => user.email !== userDeleted.email),
+    };
+  }),
+  on(clearSubsystemUsersCache, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      // subsystemUsers: [],
+      subsystemUsersLoading: true
+    };
+  }),
+  on(clearSubsystemUsersForDashboardsCache, (state: UsersManagementState): UsersManagementState => {
+    return {
+      ...state,
+      // subsystemUsersForDashboards: [],
+      subsystemUsersForDashboardsLoading: true
     };
   }),
 );

@@ -30,10 +30,10 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEnt
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
-import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
 
 @Log4j2
@@ -44,10 +44,9 @@ public class PublishedDashboardResourcesConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_DASHBOARD_RESOURCES)
-    public CompletableFuture<Void> subscribe(DashboardResource dashboardResource) {
+    public void subscribe(DashboardResource dashboardResource) {
         log.info("------- Received dashboard resource {}", dashboardResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(dashboardResource);
         genericPublishedResourceConsumer.attachContext(dashboardResource, resource);
-        return null;
     }
 }

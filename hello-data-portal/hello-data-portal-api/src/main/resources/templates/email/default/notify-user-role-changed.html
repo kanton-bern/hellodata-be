@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- German -->
+<p>Hallo <span th:text="${#objects.nullSafe(AFFECTED_USER_FIRST_NAME, '_Unbekannt_')}"/></p>
+<p>
+    Der Administrator <span
+        th:text="${#objects.nullSafe(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE, '_Unbekannt_')}"/> hat in HelloDATA
+    in der Fachdomäne
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unbekannt_')}"/> Deine Rollen angepasst. Du hast folgende
+    Rollen zugewiesen.
+</p>
+<ul>
+    <li th:if="${BUSINESS_DOMAIN_ROLE_NAME != 'NONE'}">
+        Rolle Fachdomäne <span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unbekannt_') + ': ' + #objects.nullSafe(BUSINESS_DOMAIN_ROLE_NAME, '_Unbekannt_')}"></span>
+    </li>
+</ul>
+<div th:each="item : ${DATA_DOMAIN_ROLES}">
+    <ul th:if="${item.role.name != 'NONE'}">
+        <li>
+            Rolle Datendomäne <span th:text="${item.context.name + ': ' + item.role.name}"></span>
+        </li>
+    </ul>
+</div>
+<p>Link zu Fachdomäne
+    <a th:href="${#objects.nullSafe(link, '_Unbekannt_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unbekannt_')}"/></a>
+</p>
+<p>Freundliche Grüsse<br/>HelloDATA</p>
+
+<hr/>
+
+<!-- French -->
+<p>Bonjour <span th:text="${#objects.nullSafe(AFFECTED_USER_FIRST_NAME, '_Inconnu_')}"/></p>
+<p>
+    L'administrateur <span th:text="${#objects.nullSafe(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE, '_Inconnu_')}"/>
+    a ajusté vos rôles dans HelloDATA dans le domaine métier
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Inconnu_')}"/>. Les rôles suivants vous ont été
+    attribués.
+</p>
+<ul>
+    <li th:if="${BUSINESS_DOMAIN_ROLE_NAME != 'NONE'}">
+        Rôle du domaine métier <span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Inconnu_') + ': ' + #objects.nullSafe(BUSINESS_DOMAIN_ROLE_NAME, '_Inconnu_')}"></span>
+    </li>
+</ul>
+<div th:each="item : ${DATA_DOMAIN_ROLES}">
+    <ul th:if="${item.role.name != 'NONE'}">
+        <li>
+            Rôle du domaine de données <span th:text="${item.context.name + ': ' + item.role.name}"></span>
+        </li>
+    </ul>
+</div>
+<p>Lien vers le domaine métier
+    <a th:href="${#objects.nullSafe(link, '_Inconnu_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Inconnu_')}"/></a>
+</p>
+<p>Cordialement<br/>HelloDATA</p>
+
+<hr/>
+
+<!-- English -->
+<p>Hello <span th:text="${#objects.nullSafe(AFFECTED_USER_FIRST_NAME, '_Unknown_')}"/></p>
+<p>
+    The administrator <span th:text="${#objects.nullSafe(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE, '_Unknown_')}"/>
+    has adjusted your roles in HelloDATA in the business domain
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unknown_')}"/>. You have been assigned the following
+    roles.
+</p>
+<ul>
+    <li th:if="${BUSINESS_DOMAIN_ROLE_NAME != 'NONE'}">
+        Business Domain Role <span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unknown_') + ': ' + #objects.nullSafe(BUSINESS_DOMAIN_ROLE_NAME, '_Unknown_')}"></span>
+    </li>
+</ul>
+<div th:each="item : ${DATA_DOMAIN_ROLES}">
+    <ul th:if="${item.role.name != 'NONE'}">
+        <li>
+            Data Domain Role <span th:text="${item.context.name + ': ' + item.role.name}"></span>
+        </li>
+    </ul>
+</div>
+<p>Link to Business Domain
+    <a th:href="${#objects.nullSafe(link, '_Unknown_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unknown_')}"/></a>
+</p>
+<p>Kind regards<br/>HelloDATA</p>
+
+</body>
+</html>

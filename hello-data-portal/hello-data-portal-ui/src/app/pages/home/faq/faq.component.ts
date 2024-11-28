@@ -28,11 +28,12 @@
 import {Component, OnInit} from '@angular/core';
 import {combineLatest, map, Observable} from "rxjs";
 import {Faq} from "../../../store/faq/faq.model";
-import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
+import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {TranslateService} from "../../../shared/services/translate.service";
 
 @Component({
   selector: 'app-faq',
@@ -41,9 +42,33 @@ import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 })
 export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;
+  selectedLanguage$: Observable<any>;
+  defaultLanguage$: Observable<any>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.faq$ = this._getGroupedFaqs();
+    this.selectedLanguage$ = store.select(selectSelectedLanguage);
+    this.defaultLanguage$ = store.select(selectDefaultLanguage);
+  }
+
+  ngOnInit(): void {
+    this.store.dispatch(loadFaqStartPage());
+  }
+
+  getTitle(faq: Faq, selectedLanguage: string, defaultLanguage: any): string | undefined {
+    const title = faq?.messages?.[selectedLanguage]?.title;
+    if (!title) {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + faq?.messages?.[defaultLanguage]?.title
+    }
+    return title;
+  }
+
+  getMessage(faq: Faq, selectedLanguage: string, defaultLanguage: any): string | undefined {
+    const message = faq?.messages?.[selectedLanguage]?.message;
+    if (!message) {
+      return this.translateService.translate('@Translation not available, fallback to default', {default: defaultLanguage.slice(0, 2)?.toUpperCase()}) + '\n' + faq?.messages?.[defaultLanguage]?.message
+    }
+    return message;
   }
 
   private _getGroupedFaqs(): Observable<GroupedFaq[]> {
@@ -51,28 +76,24 @@ export class FaqComponent implements OnInit {
       this.store.select(selectFaq),
     ]).pipe(
       map(([faqs]) => {
-        const myDashboards: GroupedFaq[] = [];
+        const groupedFaqs: GroupedFaq[] = [];
         faqs.forEach(db => {
           const contextKey = db.contextKey ? db.contextKey : "ALL_DATA_DOMAINS";
           const contextName = db.contextName ? db.contextName : contextKey;
-          if (myDashboards.filter(d => d.contextKey == contextKey).length == 0) {
+          if (groupedFaqs.filter(d => d.contextKey == contextKey).length == 0) {
             const items = {contextKey: contextKey, contextName: contextName, faqs: []} as GroupedFaq;
-            myDashboards.push(items);
+            groupedFaqs.push(items);
           }
-          const faqGroup = myDashboards.find(element => {
+          const faqGroup = groupedFaqs.find(element => {
             return element.contextKey == contextKey;
           });
           if (faqGroup) {
             faqGroup.faqs.push(db);
           }
         });
-        return myDashboards;
+        return groupedFaqs;
       })
     )
-  }
-
-  ngOnInit(): void {
-    this.store.dispatch(loadFaqStartPage());
   }
 }
 

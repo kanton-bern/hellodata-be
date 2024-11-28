@@ -3,20 +3,20 @@
 ## 2024-08-28 Added new features
 - Added [Juypter Notebooks / Jupyter Hub](../architecture/data-stack.md) on the data stack page.
 - Added [Data Publisher](../concepts/data-publisher.md) to the concept page.
-- Updated user manual related to the new features.
+- Updated [User Manual](../manuals/user-manual.md) related to the new features.
 - Updated [Roadmap](../vision/roadmap.md).
 
 ## 2023-11-22 Concepts
-- Added *workspaces* on the concepts page.
-- Added *showcase* main category to explain the demo that comes with HD-BE
+- Added [workspaces](../concepts/workspaces.md) on the concepts page.
+- Added [showcase](../concepts/showcase.md) main category to explain the demo that comes with HD-BE
 ## 2023-11-20 Changed corporate design
 - Changed primary color to KAIO style guide: color red (#EE0F0F), and font: Roboto (was already default font)
 
 ## 2023-11-06 Switched architecture over
 
-- Switched [the architecture](/architecture/data-stack/) over to mkdocs
-- Updated [vision](/vision-and-goal)
-- Updated [user manual](/manuals/user-manual)
+- Switched [the architecture](../architecture/data-stack.md) over to mkdocs
+- Updated [vision](../vision/vision-and-goal.md)
+- Updated [user manual](../manuals/user-manual.md)
 
 ## 2023-09-29 Initial version
 

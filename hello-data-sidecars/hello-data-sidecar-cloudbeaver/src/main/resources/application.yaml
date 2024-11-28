@@ -37,7 +37,7 @@ hello-data:
     name: "Cloudbeaver Local"
     url: cloudbeaver.local
   sidecar:
-    publish-interval-seconds: 300
+    pubish-interval-minutes: 10
 
 spring:
   application:
@@ -47,6 +47,9 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
+      max-lifetime: 900000 #15min
   liquibase:
     url: "jdbc:postgresql://localhost:5432/hd_cloudbeaver"
     user: "postgres"

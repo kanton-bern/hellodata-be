@@ -34,13 +34,15 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.HDVersions;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource.URL_KEY;
 
 @Service
@@ -61,11 +63,11 @@ public class MetaInfoResourceService {
     @Transactional(readOnly = true)
     public <T extends HdResource> List<T> findAllByModuleTypeAndKind(ModuleType moduleType, String kind, Class<T> concreteClass) {
         return resourceRepository.findAllByModuleTypeAndKind(moduleType, kind)
-                                 .stream()
-                                 .map(MetaInfoResourceEntity::getMetainfo)
-                                 .filter(concreteClass::isInstance)
-                                 .map(concreteClass::cast)
-                                 .toList();
+                .stream()
+                .map(MetaInfoResourceEntity::getMetainfo)
+                .filter(concreteClass::isInstance)
+                .map(concreteClass::cast)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -78,6 +80,7 @@ public class MetaInfoResourceService {
         return resourceRepository.findAllByKind(kind);
     }
 
+    @Transactional(readOnly = true)
     public <T extends HdResource> T findByInstanceNameAndKind(String instanceName, String kind, Class<T> concreteClass) {
         MetaInfoResourceEntity metaInfoResourceEntity = resourceRepository.getByInstanceNameAndKind(instanceName, kind);
         if (metaInfoResourceEntity != null) {
@@ -89,6 +92,7 @@ public class MetaInfoResourceService {
         return null;
     }
 
+    @Transactional(readOnly = true)
     public <T extends HdResource> T findByModuleTypeInstanceNameAndKind(ModuleType moduleType, String instanceName, String kind, Class<T> concreteClass) {
         MetaInfoResourceEntity metaInfoResourceEntity = resourceRepository.getByModuleTypeAndInstanceNameAndKind(moduleType, instanceName, kind);
         if (metaInfoResourceEntity != null) {
@@ -105,6 +109,7 @@ public class MetaInfoResourceService {
         return resourceRepository.findAllByKind(kind).stream().map(MetaInfoResourceEntity::getMetainfo).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<HdResource> findAllByAppInfo(String apiVersion, String instanceName, ModuleType moduleType) {
         return resourceRepository.findAllFilteredByAppInfo(apiVersion, instanceName, moduleType).stream().map(MetaInfoResourceEntity::getMetainfo).toList();
     }
@@ -129,30 +134,31 @@ public class MetaInfoResourceService {
     @Transactional(readOnly = true)
     public String findSupersetInstanceNameByContextKey(String contextKey) {
         return findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_APP_INFO,
-                                          ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource.class).stream()
-                                                                                                                             .filter(appInfoResource ->
-                                                                                                                                             appInfoResource.getBusinessContextInfo()
-                                                                                                                                                            .getSubContext() !=
-                                                                                                                                             null)
-                                                                                                                             .filter(appInfoResource -> appInfoResource.getBusinessContextInfo()
-                                                                                                                                                                       .getSubContext()
-                                                                                                                                                                       .getKey()
-                                                                                                                                                                       .equalsIgnoreCase(
-                                                                                                                                                                               contextKey))
-                                                                                                                             .findFirst()
-                                                                                                                             .map(AppInfoResource::getInstanceName)
-                                                                                                                             .orElse(null);
+                ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource.class).stream()
+                .filter(appInfoResource ->
+                        appInfoResource.getBusinessContextInfo()
+                                .getSubContext() !=
+                                null)
+                .filter(appInfoResource -> appInfoResource.getBusinessContextInfo()
+                        .getSubContext()
+                        .getKey()
+                        .equalsIgnoreCase(
+                                contextKey))
+                .findFirst()
+                .map(AppInfoResource::getInstanceName)
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)
     public SubsystemUser findUserInInstance(String email, String instanceName) {
         return Optional.ofNullable(
-                               findByInstanceNameAndKind(instanceName, ModuleResourceKind.HELLO_DATA_USERS, ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource.class))
-                       .stream()
-                       .map(ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource::getData)
-                       .flatMap(Collection::stream)
-                       .filter(userResource -> userResource.getEmail().equalsIgnoreCase(email))
-                       .findFirst()
-                       .orElse(null);
+                        findByInstanceNameAndKind(instanceName, ModuleResourceKind.HELLO_DATA_USERS, ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource.class))
+                .stream()
+                .map(ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource::getData)
+                .flatMap(Collection::stream)
+                .filter(userResource -> userResource.getEmail().equalsIgnoreCase(email))
+                .findFirst()
+                .orElse(null);
     }
+
 }

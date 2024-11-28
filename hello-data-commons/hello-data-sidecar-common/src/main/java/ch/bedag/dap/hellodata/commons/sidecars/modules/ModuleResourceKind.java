@@ -26,10 +26,11 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.modules;
 
+import lombok.experimental.UtilityClass;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ModuleResourceKind {
@@ -39,10 +40,11 @@ public class ModuleResourceKind {
     public static final String HELLO_DATA_PERMISSIONS = "hellodata/Permissions";
     public static final String HELLO_DATA_USERS = "hellodata/Users";
     public static final String HELLO_DATA_PIPELINES = "hellodata/Pipelines";
+    public static final String HELLO_DATA_ARBITRAL = "hellodata/Arbitral";
 
     public static List<String> getAllKinds() {
         Field[] declaredFields = ModuleResourceKind.class.getDeclaredFields();
-        List<Field> staticFields = new ArrayList<Field>();
+        List<Field> staticFields = new ArrayList<>();
         for (Field field : declaredFields) {
             if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
                 staticFields.add(field);

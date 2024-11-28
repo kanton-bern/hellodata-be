@@ -26,12 +26,23 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
-import {CreateUserForm, DashboardForUser, User, UserActionForPopup} from "./users-management.model";
+import {
+  CreateUserForm,
+  DashboardForUser,
+  DashboardUsersResultDto,
+  SubsystemUsersResultDto,
+  User,
+  UserActionForPopup
+} from "./users-management.model";
 import {ContextResponse, Role} from "./context-role.model";
 
 export enum UsersManagementActionType {
   LOAD_USERS = '[USERS MANAGEMENT] Load Users',
   LOAD_USERS_SUCCESS = '[USERS MANAGEMENT] Load Users SUCCESS',
+  LOAD_SUBSYSTEM_USERS = '[USERS MANAGEMENT] Load Subsystem Users',
+  LOAD_SUBSYSTEM_USERS_SUCCESS = '[USERS MANAGEMENT] Load Subsystem Users SUCCESS',
+  LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS = '[USERS MANAGEMENT] Load Subsystem Users for dashboards',
+  LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS_SUCCESS = '[USERS MANAGEMENT] Load Subsystem Users for dashboards SUCCESS',
   SHOW_USER_ACTION_POP_UP = '[USERS MANAGEMENT] Show user action pop up',
   HIDE_USER_ACTION_POP_UP = '[USERS MANAGEMENT] Hide user action pop up',
   INVOKE_ACTION_FROM_USER_POPUP = '[USERS MANAGEMENT] Invoke User popup action',
@@ -59,16 +70,33 @@ export enum UsersManagementActionType {
   LOAD_USER_CONTEXT_ROLES_SUCCESS = '[USERS MANAGEMENT] Load user context roles SUCCESS',
   SET_SELECTED_DASHBOARD_FOR_USER = '[USERS MANAGEMENT] Set selected dashboard for user',
   LOAD_ADMIN_EMAILS = '[USERS MANAGEMENT] Load email addresses of all HD Administrators',
-  LOAD_ADMIN_EMAILS_SUCCESS = '[USERS MANAGEMENT] Load email addresses of all HD Administrators SUCCESS'
+  LOAD_ADMIN_EMAILS_SUCCESS = '[USERS MANAGEMENT] Load email addresses of all HD Administrators SUCCESS',
+  LOAD_SYNC_STATUS = '[USERS MANAGEMENT] Load sync status',
+  LOAD_SYNC_STATUS_SUCCESS = '[USERS MANAGEMENT] Load sync status SUCCESS',
+  UPDATE_USER_IN_STORE = '[USERS MANAGEMENT] Update user in store',
+  DELETE_USER_IN_STORE = '[USERS MANAGEMENT] Delete user in store',
+  CLEAR_SUBSYSTEM_USERS_CACHE = '[USERS MANAGEMENT] Clear subsystem users cache',
+  CLEAR_SUBSYSTEM_USERS_FOR_DASHBOARDS_CACHE = '[USERS MANAGEMENT] Clear subsystem users for dashboard cache',
 }
 
 export const loadUsers = createAction(
-  UsersManagementActionType.LOAD_USERS
+  UsersManagementActionType.LOAD_USERS,
+  props<{ page: number, size: number, sort: string, search: string }>()
 );
 
 export const loadUsersSuccess = createAction(
   UsersManagementActionType.LOAD_USERS_SUCCESS,
-  props<{ payload: User[] }>()
+  props<{ users: User[], totalElements: number, totalPages: number }>()
+);
+
+export const updateUserInStore = createAction(
+  UsersManagementActionType.UPDATE_USER_IN_STORE,
+  props<{ userChanged: User }>()
+);
+
+export const deleteUserInStore = createAction(
+  UsersManagementActionType.DELETE_USER_IN_STORE,
+  props<{ userDeleted: User }>()
 );
 
 export const showUserActionPopup = createAction(
@@ -104,7 +132,8 @@ export const syncUsers = createAction(
 );
 
 export const syncUsersSuccess = createAction(
-  UsersManagementActionType.SYNC_ALL_USERS_SUCCESS
+  UsersManagementActionType.SYNC_ALL_USERS_SUCCESS,
+  props<{ status: string }>()
 );
 
 export const navigateToUserEdition = createAction(
@@ -198,3 +227,37 @@ export const loadAdminEmailsSuccess = createAction(
   props<{ payload: string[] }>()
 );
 
+export const loadSubsystemUsers = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS
+);
+
+export const loadSubsystemUsersSuccess = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_SUCCESS,
+  props<{ payload: SubsystemUsersResultDto[] }>()
+);
+
+export const loadSubsystemUsersForDashboards = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS
+);
+
+export const loadSubsystemUsersForDashboardsSuccess = createAction(
+  UsersManagementActionType.LOAD_SUBSYSTEM_USERS_FOR_DASHBOARDS_SUCCESS,
+  props<{ payload: DashboardUsersResultDto[] }>()
+);
+
+export const loadSyncStatus = createAction(
+  UsersManagementActionType.LOAD_SYNC_STATUS
+);
+
+export const loadSyncStatusSuccess = createAction(
+  UsersManagementActionType.LOAD_SYNC_STATUS_SUCCESS,
+  props<{ status: string }>()
+);
+
+export const clearSubsystemUsersCache = createAction(
+  UsersManagementActionType.CLEAR_SUBSYSTEM_USERS_CACHE
+);
+
+export const clearSubsystemUsersForDashboardsCache = createAction(
+  UsersManagementActionType.CLEAR_SUBSYSTEM_USERS_FOR_DASHBOARDS_CACHE
+);

@@ -35,15 +35,15 @@ import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.RoleRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.service.resource.DbtDocsUserResourceProviderService;
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Service;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
 
 @Log4j2
@@ -55,34 +55,48 @@ public class DbtDocsUserContextRoleConsumer {
     private final RoleRepository roleRepository;
     private final DbtDocsUserResourceProviderService userResourceProviderService;
 
-    @NotNull
-    private static Set<String> getRelevantUserDataDomainContextKeys(UserContextRoleUpdate userContextRoleUpdate) {
-        return userContextRoleUpdate.getContextRoles()
-                                    .stream()
-                                    .filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN && contextRole.getRoleName() != HdRoleName.NONE)
-                                    .map(UserContextRoleUpdate.ContextRole::getContextKey)
-                                    .collect(Collectors.toSet());
-    }
-
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
-    public CompletableFuture<Void> subscribe(UserContextRoleUpdate userContextRoleUpdate) {
+    public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
+        User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        if (user == null) {
+            log.info("User {} not found, creating", userContextRoleUpdate.getUsername());
+            User dbtDocUser = toDbtDocUser(userContextRoleUpdate);
+            user = userRepository.saveAndFlush(dbtDocUser);
+        }
         Set<String> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
-            User user = userRepository.findByUserNameOrEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
-            if (user == null) {
-                throw new RuntimeException("Cannot update roles! User not found: " + userContextRoleUpdate.getEmail());
-            }
             log.info("Update roles for user: {}", user.getEmail());
             List<Role> userRoles = getUserRoles(user, userDataDomainKeys);
             user.setRoles(userRoles);
-            User updateUser = userRepository.save(user);
+        } else {
+            log.info("No roles assigned to user: {}", user.getEmail());
+            user.setRoles(new ArrayList<>());
+        }
+        userRepository.saveAndFlush(user);
+        if (userContextRoleUpdate.isSendBackUsersList()) {
             userResourceProviderService.publishUsers();
         }
-        return null;
     }
 
-    @NotNull
+    private User toDbtDocUser(UserContextRoleUpdate userContextRoleUpdate) {
+        User dbtDocUser = new User(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+        dbtDocUser.setRoles(new ArrayList<>());
+        dbtDocUser.setFirstName(userContextRoleUpdate.getFirstName());
+        dbtDocUser.setLastName(userContextRoleUpdate.getLastName());
+        dbtDocUser.setEnabled(true);
+        dbtDocUser.setSuperuser(false);
+        return dbtDocUser;
+    }
+
+    private Set<String> getRelevantUserDataDomainContextKeys(UserContextRoleUpdate userContextRoleUpdate) {
+        return userContextRoleUpdate.getContextRoles()
+                .stream()
+                .filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN && contextRole.getRoleName() != HdRoleName.NONE)
+                .map(UserContextRoleUpdate.ContextRole::getContextKey)
+                .collect(Collectors.toSet());
+    }
+
     private List<Role> getUserRoles(User user, Set<String> dataDomainContextKeys) {
         List<Role> allDocRoles = roleRepository.findAll();
         List<Role> newUserRoles = new ArrayList<>();

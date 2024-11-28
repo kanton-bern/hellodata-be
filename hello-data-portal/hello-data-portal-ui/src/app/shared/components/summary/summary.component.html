@@ -1,10 +1,10 @@
 <div *ngIf="(currentUserPermissions$ | async) as permissions" id="summaryComponent">
   <p-sidebar [(visible)]="overlaySidebarVisible" position="right" styleClass="w-30rem">
     <ng-template pTemplate="header">
-      <div class="font-semibold" id="summaryHeader"> {{'@Summary header' | transloco}}</div>
+      <div class="font-semibold" id="summaryHeader"> {{ '@Summary header' | transloco }}</div>
     </ng-template>
     <ng-template pTemplate="content">
-      <p-fieldset id="statusHeader" legend="Status" *ngIf="permissions.length !== 0">
+      <p-fieldset *ngIf="permissions.length !== 0" id="statusHeader" legend="Status">
         <p-accordion>
           <p-accordionTab header="Data pipelines">
             <p-dataView [value]="(pipelines$ | async)!" emptyMessage="{{ '@No data found' | transloco }}">
@@ -16,18 +16,29 @@
                   <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
                   <!--                          type="button">-->
                   <!--                  </button>-->
-                  <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}" placeholder="Left" style="font-size: 0.9rem; font-weight: 400"
-                         tooltipPosition="left">{{ pipeline.id | truncate: 20}}</label>
+                  <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}" placeholder="Left"
+                         style="font-size: 0.9rem; font-weight: 400"
+                         tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</label>
                 </div>
                 <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
-                  <span *ngIf="pipeline.lastInstance.startDate">{{pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss'}}</span>
+                  <span
+                    *ngIf="pipeline.lastInstance.startDate">{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
                 </div>
                 <div [ngSwitch]="pipeline.lastInstance.state" class="col-1">
-                  <span *ngSwitchCase="'queued'" class="align-items-end pi pi-hourglass" style="color: gray" [pTooltip]="pipeline.lastInstance.state"></span>
-                  <span *ngSwitchCase="'running'" class="align-items-end pi pi-spin pi-cog" style="color: green" [pTooltip]="pipeline.lastInstance.state"></span>
-                  <span *ngSwitchCase="'success'" class="align-items-end pi pi-check-circle" style="color: green" [pTooltip]="pipeline.lastInstance.state"></span>
-                  <span *ngSwitchCase="'failed'" class="align-items-end pi pi-exclamation-circle" style="color: red" [pTooltip]="pipeline.lastInstance.state"></span>
-                  <span *ngSwitchDefault class="align-items-end pi pi-question-circle" style="color: gray" [pTooltip]="'unknown'"></span>
+                  <span *ngSwitchCase="'queued'" [pTooltip]="pipeline.lastInstance.state"
+                        class="align-items-end pi pi-hourglass"
+                        style="color: gray"></span>
+                  <span *ngSwitchCase="'running'" [pTooltip]="pipeline.lastInstance.state"
+                        class="align-items-end pi pi-spin pi-cog"
+                        style="color: green"></span>
+                  <span *ngSwitchCase="'success'" [pTooltip]="pipeline.lastInstance.state"
+                        class="align-items-end pi pi-check-circle"
+                        style="color: green"></span>
+                  <span *ngSwitchCase="'failed'" [pTooltip]="pipeline.lastInstance.state"
+                        class="align-items-end pi pi-exclamation-circle"
+                        style="color: red"></span>
+                  <span *ngSwitchDefault [pTooltip]="'unknown'" class="align-items-end pi pi-question-circle"
+                        style="color: gray"></span>
                 </div>
               </ng-template>
             </p-dataView>
@@ -38,28 +49,36 @@
       <p-fieldset *ngIf="(documentation$ | async) as documentation">
         <ng-template pTemplate="header">
           <div>
-            <span>{{'@Documentation' | transloco}}</span>
-            <button (click)="editDocumentation()" *ngIf="permissions | contains: 'DOCUMENTATION_MANAGEMENT'" [pTooltip]="'@Edit' | transloco"
+            <span>{{ '@Documentation' | transloco }}</span>
+            <button (click)="editDocumentation()" *ngIf="permissions | contains: 'DOCUMENTATION_MANAGEMENT'"
+                    [pTooltip]="'@Edit' | transloco"
                     class="p-button-rounded p-button-success" icon="fas fa-light fa-pen-to-square"
                     id="editDocumentationBtnOvrl" pButton pRipple>
             </button>
           </div>
         </ng-template>
-        <p-editor [disabled]="true" [ngModel]="documentation" [readonly]="true">
-          <p-header hidden></p-header>
-        </p-editor>
+        <div *ngIf="(defaultLanguage$ | async) as defaultLanguage">
+          <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
+            <p-editor [disabled]="true" [ngModel]="getText(documentation, selectedLanguage.code, defaultLanguage)"
+                      [readonly]="true"
+                      class="p-editor-readonly">
+              <p-header hidden></p-header>
+            </p-editor>
+          </div>
+        </div>
       </p-fieldset>
 
-      <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}" *ngIf="permissions.length !== 0">
+      <p-fieldset *ngIf="permissions.length !== 0" id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}">
         <app-subscriptions></app-subscriptions>
       </p-fieldset>
 
-      <p-fieldset *ngIf="(storeSize$ | async) as storeSize" id="storageSizeHeader" legend="{{'@Storage size' | transloco}}">
+      <p-fieldset *ngIf="(storeSize$ | async) as storeSize" id="storageSizeHeader"
+                  legend="{{'@Storage size' | transloco}}">
         <div>
           <ul *ngFor="let storageSize of storeSize.storageSizes">
             <li>
-              {{storageSize.name + ' '}}
-              <b>{{storageSize.usedSize}}</b>
+              {{ storageSize.name + ' ' }}
+              <b>{{ storageSize.usedSize }}</b>
             </li>
           </ul>
         </div>
@@ -69,8 +88,8 @@
         <div>
           <ul *ngFor="let databaseSize of storeSize.databaseSizes">
             <li>
-              {{ databaseSize.name + ' '}}
-              <b>{{databaseSize.usedSize}}</b>
+              {{ databaseSize.name + ' ' }}
+              <b>{{ databaseSize.usedSize }}</b>
             </li>
           </ul>
         </div>
@@ -85,7 +104,7 @@
   <p-scrollPanel [style]="{ width: '100%', height: 'calc(100vh - 4rem)' }">
     <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
          class="summary-header">
-      {{'@Summary header' | transloco}}
+      {{ '@Summary header' | transloco }}
     </div>
   </p-scrollPanel>
 </div>

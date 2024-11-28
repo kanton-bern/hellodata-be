@@ -34,13 +34,13 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersRespons
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
 
 /**
@@ -56,25 +56,24 @@ public class SupersetDeleteUserConsumer {
     private final SupersetClientProvider supersetClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = DELETE_USER)
-    public CompletableFuture<Void> deleteUser(SubsystemUserDelete subsystemUserDelete) {
+    @JetStreamSubscribe(event = DELETE_USER, asyncRun = false)
+    public void deleteUser(SubsystemUserDelete subsystemUserDelete) {
         try {
             log.info("------- Received superset user deletion request {}", subsystemUserDelete);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-            SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserDelete.getEmail())).findFirst();
-            if (supersetUserResult.isEmpty()) {
+            SupersetUsersResponse response = supersetClient.getUser(subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
+            if (response == null || response.getResult().size() == 0) {
                 log.info("User {} doesn't exist in instance, omitting deletion", subsystemUserDelete.getEmail());
-                return null;//NOSONAR
+                return;
             }
+            SubsystemUser subsystemUser = response.getResult().get(0);
             log.info("Going to delete user with email: {}", subsystemUserDelete.getEmail());
             SupersetUserActiveUpdate supersetUserActiveUpdate = new SupersetUserActiveUpdate();
             supersetUserActiveUpdate.setActive(false);
-            supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, supersetUserResult.get().getId());
+            supersetClient.updateUsersActiveFlag(supersetUserActiveUpdate, subsystemUser.getId());
             userResourceProviderService.publishUsers();
         } catch (URISyntaxException | IOException e) {
             log.error("Could not delete user {}", subsystemUserDelete.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 }

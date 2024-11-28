@@ -49,6 +49,9 @@ services:
       - "shared_scripts:/srv/jupyterhub/shared_scripts:ro"
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
     environment:
       # This username will be a JupyterHub admin
       JUPYTERHUB_ADMIN: admin
@@ -70,7 +73,7 @@ services:
       OAUTH2_LOGIN_SERVICE: keycloak
       OAUTH2_USERNAME_KEY: preferred_username
       OAUTH2_USERDATA_PARAMS: state:state
-      OAUTH2_ALLOW_ALL: true
+      OAUTH2_ALLOW_ALL: 'true'
       HUB_IP: jupyterhub-default-data-domain
       JUPYTERHUB_CRYPT_KEY: GTxQ9tNJ3v5TA3ZrmFs4ZtW0yF3a2nLn+f6Pd8c+Z5E=
 
@@ -86,6 +89,9 @@ services:
       - jupyterhub-default-data-domain
     networks:
       - hello-data-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   # just to build an image
   jupyterhub-notebook-default-data-domain:
@@ -99,6 +105,9 @@ services:
     depends_on:
       - jupyterhub-default-data-domain
     command: echo "This service is only for building our custom image which will be spawned by jupyterhub"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
 
   hello-data-jupyterhub-gateway-default-data-domain:
     image: bedag/hello-data-jupyterhub-gateway
@@ -127,7 +136,7 @@ services:
     image: bedag/hello-data-sidecar-jupyterhub
     env_file: .env
     environment:
-      - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal
+      - HELLODATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal:35432/hellodata_product_development_default_data_domain_dwh
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:35432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
       - HELLO_DATA_INSTANCE_URL=http://localhost:8088/

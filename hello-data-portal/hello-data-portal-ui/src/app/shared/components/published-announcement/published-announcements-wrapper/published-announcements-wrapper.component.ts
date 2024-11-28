@@ -29,47 +29,51 @@ import {AfterViewInit, Component} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
-import {debounceTime, Observable, tap} from "rxjs";
+import {combineLatest, debounceTime, Observable, tap} from "rxjs";
 import {Announcement} from "../../../../store/announcement/announcement.model";
-import {loadPublishedAnnouncementsFiltered, markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
+import {
+  loadPublishedAnnouncementsFiltered,
+  markAnnouncementAsRead
+} from "../../../../store/announcement/announcement.action";
 import {DialogService, DynamicDialogRef} from "primeng/dynamicdialog";
-import {PublishedAnnouncementsPopupComponent} from "../published-announcements-popup/published-announcements-popup.component";
+import {
+  PublishedAnnouncementsPopupComponent
+} from "../published-announcements-popup/published-announcements-popup.component";
 import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-published-announcements.service";
+import {selectUrl} from "../../../../store/router/router.selectors";
+import {naviElements} from "../../../../app-navi-elements";
+import {take} from "rxjs/operators";
 
 @Component({
   providers: [DialogService],
   selector: 'app-published-announcements-wrapper',
-  templateUrl: './published-announcements-wrapper.component.html',
-  styleUrls: ['./published-announcements-wrapper.component.scss']
+  template: `
+    <div *ngIf="publishedAnnouncements$ | async">
+    </div>`,
 })
 export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
 
   publishedAnnouncements$: Observable<any>;
   ref: DynamicDialogRef | undefined;
 
-  constructor(private store: Store<AppState>, public dialogService: DialogService, private hideAllCurrentAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
-    this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements).pipe(
-      debounceTime(700),
-      tap(announcements => {
-        if (!this.ref && announcements && announcements.length > 0) {
-          this.ref = this.dialogService.open(PublishedAnnouncementsPopupComponent, {
-            header: '',
-            width: '90vw',
-            contentStyle: {overflow: 'auto'},
-            height: 'auto',
-          });
-          this.ref.onClose.subscribe(() => {
-            if (hideAllCurrentAnnouncementsService.hide) {
-              for (const announcement of announcements) {
-                this.hide(announcement);
-              }
-              this.hideAllCurrentAnnouncementsService.hide = false;
-            }
-          });
-        } else if (this.ref && announcements && announcements.length === 0) {
-          this.ref.close();
-        }
-      }));
+  constructor(private store: Store<AppState>,
+              public dialogService: DialogService,
+              private hideAllCurrentAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
+    this.publishedAnnouncements$ =
+      combineLatest([
+        this.store.select(selectPublishedAndFilteredAnnouncements),
+        this.store.select(selectUrl)
+      ]).pipe(
+        debounceTime(700),
+        tap(([announcements, currentUrl]) => {
+          const skipAnnouncementsPopup =
+            currentUrl.includes(naviElements.dataWarehouseViewer.path) || currentUrl.includes('advanced-analytics-viewer');
+          if (skipAnnouncementsPopup || this.ref && announcements && announcements.length === 0) {
+            this.ref?.close();
+          } else if (!this.ref && announcements && announcements.length > 0) {
+            this.openDialog(announcements);
+          }
+        }));
     store.dispatch(loadPublishedAnnouncementsFiltered());
   }
 
@@ -79,6 +83,32 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
 
   hide(announcement: Announcement): void {
     this.store.dispatch(markAnnouncementAsRead({announcement}));
+  }
+
+  private openDialog(announcements: Announcement[]) {
+    this.ref = this.dialogService.open(PublishedAnnouncementsPopupComponent, {
+      header: '',
+      width: '90vw',
+      contentStyle: {overflow: 'auto'},
+      height: 'auto',
+    });
+    this.ref.onClose.subscribe(_ => {
+      if (this.hideAllCurrentAnnouncementsService.hide) {
+        for (const announcement of announcements) {
+          this.hide(announcement);
+        }
+        this.hideAllCurrentAnnouncementsService.hide = false;
+      }
+    });
+    this.ref.onClose.pipe(take(1)).subscribe(() => {
+      if (this.hideAllCurrentAnnouncementsService.hide) {
+        for (const announcement of announcements) {
+          this.hide(announcement);
+        }
+        this.hideAllCurrentAnnouncementsService.hide = false;
+      }
+    });
+
   }
 
 }

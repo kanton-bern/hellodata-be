@@ -35,10 +35,6 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.AirflowClient;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.dag.AirflowDag;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.dag.AirflowDagsResponse;
 import io.kubernetes.client.openapi.models.V1Pod;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +42,12 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PIPELINE_RESOURCES;
 
 @Log4j2
@@ -67,30 +69,30 @@ public class AirflowPipelineResourceProviderService {
         this.instanceName = instanceName;
     }
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-seconds:300}", timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishPipelines() throws URISyntaxException, IOException {
         log.info("--> publishPipelines()");
         AirflowDagsResponse dags = apiClient.dags();
         var pipelines = new ArrayList<Pipeline>();
         for (AirflowDag dag : dags.getDags()) {
             var pipeline = Pipeline.builder()
-                                   .id(dag.getId())
-                                   .active(dag.isActive())
-                                   .paused(dag.isPaused())
-                                   .description(dag.getDescription())
-                                   .tags(dag.getTags().stream().map(AirflowDag.Tag::getName).toList())
-                                   .fileLocation(dag.getFileLocation())
-                                   .build();
+                    .id(dag.getId())
+                    .active(dag.isActive())
+                    .paused(dag.isPaused())
+                    .description(dag.getDescription())
+                    .tags(dag.getTags().stream().map(AirflowDag.Tag::getName).toList())
+                    .fileLocation(dag.getFileLocation())
+                    .build();
             var airflowDagRunsResponse = apiClient.dagRuns(dag.getId());
             if (!airflowDagRunsResponse.getDagRuns().isEmpty()) {
                 var lastRun = airflowDagRunsResponse.getDagRuns().get(0);
                 pipeline.setLastInstance(PipelineInstance.builder()
-                                                         .id(lastRun.getId())
-                                                         .dagId(lastRun.getDagId())
-                                                         .endDate(lastRun.getEndDate())
-                                                         .startDate(lastRun.getStartDate())
-                                                         .state(PipelineInstanceState.fromValue(lastRun.getState().getValue()))
-                                                         .build());
+                        .id(lastRun.getId())
+                        .dagId(lastRun.getDagId())
+                        .endDate(lastRun.getEndDate())
+                        .startDate(lastRun.getStartDate())
+                        .state(PipelineInstanceState.fromValue(lastRun.getState().getValue()))
+                        .build());
             } else {
                 pipeline.setLastInstance(new PipelineInstance());
             }

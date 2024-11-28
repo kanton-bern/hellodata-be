@@ -34,7 +34,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @EnableScheduling
-@SpringBootApplication(scanBasePackages = { "ch.bedag.dap.hellodata" })
+@SpringBootApplication(scanBasePackages = {"ch.bedag.dap.hellodata"})
 public class HellodataPortalApiApplication {
 
     public static void main(String[] args) {

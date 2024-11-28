@@ -27,19 +27,26 @@
 package ch.bedag.dap.hellodata.commons.nats.actuator;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
+import ch.bedag.dap.hellodata.commons.nats.util.NatsStreamUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
+import io.nats.client.JetStreamApiException;
 import io.nats.client.Message;
+import io.nats.client.api.StreamInfo;
 import jakarta.annotation.PostConstruct;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.Base64;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Base64;
+
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDStream.METAINFO_STREAM;
 
 @Log4j2
 public class NatsHealthIndicator extends AbstractHealthIndicator {
@@ -50,6 +57,10 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
     private String instanceName;
     private String subject;
     private String subjectBase64;
+
+    public NatsHealthIndicator(Connection natsConnection) {
+        this.natsConnection = natsConnection;
+    }
 
     /**
      * Generate subject and listen for connection messages within the request/reply pattern
@@ -67,26 +78,6 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
             msg.ack();
         });
         dispatcher.subscribe(subjectBase64);
-    }
-
-    public NatsHealthIndicator(Connection natsConnection) {
-        this.natsConnection = natsConnection;
-    }
-
-    @Override
-    protected void doHealthCheck(Health.Builder builder) {
-        String connectionName = natsConnection.getOptions().getConnectionName();
-        if (connectionName != null) {
-            builder.withDetail("name", connectionName);
-        }
-
-        builder.withDetail("status", natsConnection.getStatus());
-        switch (natsConnection.getStatus()) {
-            case CONNECTED -> checkRequestReplyConnection(builder);
-            case CONNECTING, RECONNECTING -> builder.outOfService();
-            default -> // CLOSED, DISCONNECTED
-                    builder.down();
-        }
     }
 
     /**
@@ -116,5 +107,28 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
         reply.ack();
         log.debug("[NATS connection check] Reply received: " + new String(reply.getData()));
         builder.up();
+    }
+
+    @Override
+    protected void doHealthCheck(Health.Builder builder) {
+        String connectionName = natsConnection.getOptions().getConnectionName();
+        if (connectionName != null) {
+            builder.withDetail("name", connectionName);
+        }
+
+        builder.withDetail("status", natsConnection.getStatus());
+        switch (natsConnection.getStatus()) {
+            case CONNECTED -> checkRequestReplyConnection(builder);
+            case CONNECTING, RECONNECTING -> builder.outOfService();
+            default -> // CLOSED, DISCONNECTED
+                    builder.down();
+        }
+        try {
+            StreamInfo streamInfoOrNull = NatsStreamUtil.getStreamInfoOrNull(natsConnection.jetStreamManagement(), METAINFO_STREAM.name());
+            log.debug("[NATS connection check] Stream info {}", streamInfoOrNull);
+        } catch (JetStreamApiException | IOException e) {
+            log.error("[[NATS connection check]] Connection error", e);
+            builder.down();
+        }
     }
 }

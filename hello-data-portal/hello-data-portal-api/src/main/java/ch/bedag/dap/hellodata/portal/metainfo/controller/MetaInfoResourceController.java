@@ -29,11 +29,13 @@ package ch.bedag.dap.hellodata.portal.metainfo.controller;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
+import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
+import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
-import java.util.List;
-import java.util.Set;
+import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +43,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Set;
+
 import static ch.bedag.dap.hellodata.commons.security.Permission.USER_MANAGEMENT;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
 
@@ -51,6 +57,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind
 public class MetaInfoResourceController {
 
     private final MetaInfoResourceService metaInfoResourceService;
+    private final MetaInfoUsersService metaInfoUsersService;
 
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/filtered/by-app-info")
@@ -72,4 +79,42 @@ public class MetaInfoResourceController {
         }
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot fetch data, not enough privileges");
     }
+
+    /**
+     * Fetches users with roles for all subsystems
+     *
+     * @return list of resources
+     */
+    @PreAuthorize("hasAnyAuthority('WORKSPACES')")
+    @GetMapping(value = "/resources/subsystem-users")
+    public List<SubsystemUsersResultDto> getAllUsersWithRoles() {
+        return metaInfoUsersService.getAllUsersWithRoles();
+    }
+
+    @CacheEvict(value = "subsystem_users")
+    @PreAuthorize("hasAnyAuthority('WORKSPACES')")
+    @GetMapping(value = "/resources/subsystem-users/clear-cache")
+    public void clearSubsystemUsersCache() {
+        log.info("Cleared up subsystem users cache by {}", SecurityUtils.getCurrentUserEmail());
+    }
+
+    /**
+     * Fetches users with dashboards for all superset subsystems
+     *
+     * @return list of resources
+     */
+    @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
+    @GetMapping(value = "/resources/users-dashboards-overview")
+    public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
+        return metaInfoUsersService.getAllUsersWithRolesForDashboards();
+    }
+
+    @CacheEvict(value = "users_with_dashboards")
+    @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
+    @GetMapping(value = "/resources/users-dashboards-overview/clear-cache")
+    public void clearUsersWithRolesForDashboardsCache() {
+        log.info("Cleared up users with dashboards cache by {}", SecurityUtils.getCurrentUserEmail());
+    }
+
+
 }

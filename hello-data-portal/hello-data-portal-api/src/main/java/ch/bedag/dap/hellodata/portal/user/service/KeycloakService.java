@@ -33,6 +33,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -43,11 +44,11 @@ import java.util.List;
 
 @Log4j2
 @Service
+@CacheConfig(cacheNames = "keycloak_users")
 @RequiredArgsConstructor
 public class KeycloakService {
 
     private final Keycloak keycloak;
-
     @Value("${hello-data.auth-server.realm}")
     private String realmName;
 
@@ -57,17 +58,12 @@ public class KeycloakService {
         }
     }
 
-    public boolean isUserDisabled(String userId) {
-        UserRepresentation user = keycloak.realm(realmName).users().get(userId).toRepresentation();
-        return !user.isEnabled();
-    }
-
     public UserResource getUserResourceById(String userId) {
         return keycloak.realm(realmName).users().get(userId);
     }
 
     public UserRepresentation getUserRepresentationById(String userId) {
-        UserResource userResource = keycloak.realm(realmName).users().get(userId);
+        UserResource userResource = getUserResourceById(userId); // Reuse cached UserResource
         if (userResource != null) {
             return userResource.toRepresentation();
         }
@@ -83,10 +79,14 @@ public class KeycloakService {
     }
 
     public List<UserRepresentation> getAllUsers() {
+        return getAllUsersInternal();
+    }
+
+    private List<UserRepresentation> getAllUsersInternal() {
         Integer userCount = keycloak.realm(realmName).users().count();
         if (userCount == null) {
             log.warn("Could not get current usercount from realm {}. Still trying to load users.", realmName);
-            userCount = 1000;
+            userCount = 10000;
         }
         return keycloak.realm(realmName).users().list(0, userCount);
     }

@@ -32,12 +32,6 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserR
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpHeaders;
@@ -48,12 +42,20 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+
 @UtilityClass
 public class AirflowApiRequestBuilder {
 
     private static final String USERS_API_ENDPOINT = "/api/v1/users";
     private static final String UPDATE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "/%s";
     private static final String DELETE_USER_API_ENDPOINT = USERS_API_ENDPOINT + "/%s";
+    private static final String GET_USER_API_ENDPOINT = USERS_API_ENDPOINT + "/%s";
     private static final String ROLES_API_ENDPOINT = "/api/v1/roles";
     private static final String PERMISSIONS_API_ENDPOINT = "/api/v1/permissions";
     private static final String DAGS_API_ENDPOINT = "/api/v1/dags";
@@ -72,41 +74,50 @@ public class AirflowApiRequestBuilder {
         URI apiUri = buildUri(host, port, endpoint, List.of(offsetParam, limitParam, orderByParam));
 
         return RequestBuilder.get() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
+    }
+
+    public static HttpUriRequest getUserRequest(String host, int port, String username, String password, String airflowUsername) throws URISyntaxException, IOException {
+        URI apiUri = buildUri(host, port, String.format(GET_USER_API_ENDPOINT, airflowUsername), null);
+        return RequestBuilder.get() //
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
     }
 
     public static HttpUriRequest getCreateUserRequest(String host, int port, String username, String password, AirflowUser airflowUser) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, USERS_API_ENDPOINT, null);
         String json = getObjectMapper().writeValueAsString(airflowUser);
         return RequestBuilder.post() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                .build();
     }
 
     public static HttpUriRequest getDeleteUserRequest(String host, int port, String username, String password, String userNameToUpdate) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, userNameToUpdate), Collections.emptyList());
         return RequestBuilder.delete() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
     }
 
     public static HttpUriRequest getCreateRoleRequest(String host, int port, String username, String password, AirflowRole airflowRole) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, ROLES_API_ENDPOINT, null);
         String json = getObjectMapper().writeValueAsString(airflowRole);
         return RequestBuilder.post() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                .build();
     }
 
     public static HttpUriRequest getUpdateUserRequest(String host, int port, String username, String password, AirflowUserRolesUpdate airflowUserRolesUpdate,
@@ -114,11 +125,11 @@ public class AirflowApiRequestBuilder {
         URI apiUri = buildUri(host, port, String.format(UPDATE_USER_API_ENDPOINT, userNameToUpdate), List.of(Pair.of("update_mask", "roles")));
         String json = getObjectMapper().writeValueAsString(airflowUserRolesUpdate);
         return RequestBuilder.patch() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .setEntity(new StringEntity(json, ContentType.APPLICATION_JSON)) //
+                .build();
     }
 
     public static HttpUriRequest getListRolesRequest(String host, int port, String username, String password) throws URISyntaxException {
@@ -136,10 +147,10 @@ public class AirflowApiRequestBuilder {
     public static HttpUriRequest getDagRunsRequest(String host, int port, String username, String password, String dagId, String orderBy, String limit) throws URISyntaxException {
         URI apiUri = buildUri(host, port, String.format(DAG_RUNS_API_ENDPOINT, dagId), List.of(Pair.of("order_by", orderBy), Pair.of("limit", limit)));
         return RequestBuilder.get() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
     }
 
     public static ObjectMapper getObjectMapper() {
@@ -152,10 +163,10 @@ public class AirflowApiRequestBuilder {
         URI apiUri = buildUri(host, port, endpoint, Collections.EMPTY_LIST);
 
         return RequestBuilder.get() //
-                             .setUri(apiUri) //
-                             .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
-                             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
-                             .build();
+                .setUri(apiUri) //
+                .setHeader(HttpHeaders.AUTHORIZATION, getBasicAuthenticationHeader(username, password)) //
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()) //
+                .build();
     }
 
     private static String getBasicAuthenticationHeader(String username, String password) {

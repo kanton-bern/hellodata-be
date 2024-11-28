@@ -1,9 +1,12 @@
-
-<div *ngIf="(currentUserPermissions$ | async) as permissions">
-  <div *ngIf="documentation$ | async">
-    <p-editor [(ngModel)]="documentation" [disabled]="true" [readonly]="true">
-      <p-header hidden></p-header>
-    </p-editor>
+<div *ngIf="(defaultLanguage$ | async) as defaultLanguage">
+  <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
+    <div *ngIf="(currentUserPermissions$ | async) as permissions">
+      <div *ngIf="(documentation$ | async) as documentation">
+        <p-editor [disabled]="true" [ngModel]="getText(documentation, selectedLanguage.code, defaultLanguage)"
+                  [readonly]="true" class="p-editor-readonly">
+          <p-header hidden></p-header>
+        </p-editor>
+      </div>
+    </div>
   </div>
 </div>
-

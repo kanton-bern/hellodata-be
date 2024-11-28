@@ -29,11 +29,27 @@ import {AppState} from "../app/app.state";
 import {createSelector} from "@ngrx/store";
 import {SummaryState} from "./summary.state";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
+import {AuthState} from "../auth/auth.state";
 
 const summaryState = (state: AppState) => state.summary;
+const authState = (state: AppState) => state.auth;
+
+export const selectDocumentationFilterEmpty = createSelector(
+  summaryState,
+  authState,
+  (state: SummaryState, authState: AuthState) => {
+    if (state.documentation && state.documentation.texts && Object.keys(state.documentation.texts).length > 0
+      && authState.defaultLanguage && state.documentation.texts[authState.defaultLanguage]) {
+      return state.documentation;
+    }
+    return null;
+  }
+);
+
 
 export const selectDocumentation = createSelector(
   summaryState,
+  authState,
   (state: SummaryState) => state.documentation
 );
 

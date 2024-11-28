@@ -29,8 +29,10 @@ import {AppState} from "../app/app.state";
 import {selectRouteParam} from "../router/router.selectors";
 import {createSelector} from "@ngrx/store";
 import {AnnouncementState} from "./announcement.state";
+import {AuthState} from "../auth/auth.state";
 
 const announcementsState = (state: AppState) => state.announcements;
+const authState = (state: AppState) => state.auth;
 
 export const selectParamAnnouncementId = selectRouteParam('announcementId');
 
@@ -41,21 +43,23 @@ export const selectAllAnnouncements = createSelector(
 
 export const selectAllAnnouncementsByPublishedFlag = (published: boolean) => createSelector(
   announcementsState,
-  (state: AnnouncementState) => [...state.allAnnouncements].filter(announcement => announcement.published === published).sort((a1, a2) => {
+  authState,
+  (state: AnnouncementState, authState: AuthState) => [...state.allAnnouncements].filter(announcement => announcement.published === published).sort((a1, a2) => {
     const firstPublishedDate = a1.publishedDate ? a1.publishedDate : 0;
     const secondPublishedDate = a2.publishedDate ? a2.publishedDate : 0;
     return secondPublishedDate - firstPublishedDate;
-  })
+  }).filter(a => a.messages && authState.defaultLanguage && a.messages[authState.defaultLanguage])
 );
 
 export const selectPublishedAndFilteredAnnouncements = createSelector(
   announcementsState,
-  (state: AnnouncementState) => {
+  authState,
+  (state: AnnouncementState, authState: AuthState) => {
     return [...state.publishedAnnouncementsFiltered].sort((a1, a2) => {
       const firstPublishedDate = a1.publishedDate ? a1.publishedDate : 0;
       const secondPublishedDate = a2.publishedDate ? a2.publishedDate : 0;
       return secondPublishedDate - firstPublishedDate;
-    })
+    }).filter(a => a.messages && authState.defaultLanguage && a.messages[authState.defaultLanguage])
   }
 );
 

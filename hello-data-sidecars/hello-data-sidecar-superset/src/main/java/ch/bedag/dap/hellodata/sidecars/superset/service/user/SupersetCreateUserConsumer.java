@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.ENABLE_USER;
@@ -60,8 +59,8 @@ public class SupersetCreateUserConsumer {
     private final SupersetClientProvider supersetClientProvider;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate supersetUserCreate) {
+    @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
+    public void createUser(SubsystemUserUpdate supersetUserCreate) {
         try {
             log.info("------- Received superset user creation request {}", supersetUserCreate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -71,39 +70,41 @@ public class SupersetCreateUserConsumer {
                     .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME))
                     .map(SupersetRole::getId)
                     .findFirst();
-            SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(supersetUserCreate.getEmail())).findFirst();
-            if (supersetUserResult.isPresent()) {
-                log.info("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
-                enableUser(supersetUserCreate, supersetUserResult.get(), supersetClient, aPublicRoleId);
+            SupersetUsersResponse response = supersetClient.getUser(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
+            if (response != null && response.getResult().size() > 0) {
+                SubsystemUser user = response.getResult().get(0);
+                log.debug("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
+                enableUser(supersetUserCreate, user, supersetClient, aPublicRoleId);
             } else {
                 createUser(supersetUserCreate, aPublicRoleId, supersetClient);
             }
-            userResourceProviderService.publishUsers();
+            if (supersetUserCreate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         } catch (URISyntaxException | IOException e) {
             log.error("Could not create/enable user {}", supersetUserCreate.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = ENABLE_USER)
-    public CompletableFuture<Void> enableUser(SubsystemUserUpdate subsystemUserUpdate) {
+    @JetStreamSubscribe(event = ENABLE_USER, asyncRun = false)
+    public void enableUser(SubsystemUserUpdate subsystemUserUpdate) {
         try {
             log.info("------- Received superset user enable request {}", subsystemUserUpdate);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-            SupersetUsersResponse users = supersetClient.users();
-            Optional<SubsystemUser> supersetUserResult = users.getResult().stream().filter(user -> user.getEmail().equalsIgnoreCase(subsystemUserUpdate.getEmail())).findFirst();
-            if (supersetUserResult.isPresent()) {
-                enableUser(subsystemUserUpdate, supersetUserResult.get(), supersetClient);
+            SupersetUsersResponse response = supersetClient.getUser(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
+            if (response != null && response.getResult().size() > 0) {
+                SubsystemUser user = response.getResult().get(0);
+                enableUser(subsystemUserUpdate, user, supersetClient);
             } else {
                 log.warn("Couldn't find user {}", subsystemUserUpdate.getEmail());
             }
-            userResourceProviderService.publishUsers();
+            if (subsystemUserUpdate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         } catch (URISyntaxException | IOException e) {
             log.error("Could not enable user {}", subsystemUserUpdate.getEmail(), e);
         }
-        return null;//NOSONAR
     }
 
     private void createUser(SubsystemUserUpdate supersetUserCreate, Optional<Integer> aPublicRoleId, SupersetClient supersetClient) throws URISyntaxException, IOException {

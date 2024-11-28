@@ -28,14 +28,12 @@ package ch.bedag.dap.hellodata.commons.nats;
 
 import ch.bedag.dap.hellodata.commons.nats.actuator.NatsHealthIndicator;
 import ch.bedag.dap.hellodata.commons.nats.bean.NatsConfigBeanPostProcessor;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import io.nats.spring.boot.autoconfigure.NatsAutoConfiguration;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -50,13 +48,13 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
 
     @Override
     public void connectionEvent(Connection cnctn, Events event) {
-        log.info("Connection Event:" + event);
+        log.debug("[NATS] Connection Event:" + event);
         switch (event) {
-            case CONNECTED -> log.info("CONNECTED to NATS!");
-            case DISCONNECTED -> log.warn("RECONNECTED to NATS!");
-            case RECONNECTED -> log.info("RECONNECTED to NATS!");
-            case RESUBSCRIBED -> log.info("RESUBSCRIBED!");
-            default -> log.info("Other event: {}", event);
+            case CONNECTED -> log.debug("[NATS] CONNECTED to NATS!");
+            case DISCONNECTED -> log.warn("[NATS] DISCONNECTED from NATS!");
+            case RECONNECTED -> log.debug("[NATS] RECONNECTED to NATS!");
+            case RESUBSCRIBED -> log.debug("[NATS] RESUBSCRIBED!");
+            default -> log.debug("[NATS] Other event: {}", event);
         }
     }
 
@@ -67,9 +65,8 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
     }
 
     @Bean
-    @ConditionalOnWebApplication
     public NatsHealthIndicator natsHealthIndicator(Connection auditNatsConnection) {
-        log.info("Creating NatsHealthIndicator.");
+        log.debug("[NATS] Creating NatsHealthIndicator.");
         return new NatsHealthIndicator(auditNatsConnection);
     }
 }

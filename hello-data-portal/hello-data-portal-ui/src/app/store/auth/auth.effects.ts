@@ -27,7 +27,7 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, tap} from "rxjs";
+import {catchError, EMPTY, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   authError,
   checkAuth,
@@ -38,7 +38,11 @@ import {
   fetchPermissionSuccess,
   login,
   loginComplete,
-  logout
+  logout,
+  setActiveTranslocoLanguage,
+  setAvailableLanguages,
+  setDefaultLanguage,
+  setSelectedLanguage
 } from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
@@ -47,6 +51,11 @@ import {loadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {loadAvailableDataDomains, loadMyDashboards} from "../my-dashboards/my-dashboards.action";
 import {loadDocumentation, loadPipelines, loadStorageSize} from "../summary/summary.actions";
+import {TranslateService} from "../../shared/services/translate.service";
+import {Store} from "@ngrx/store";
+import {AppState} from "../app/app.state";
+import {selectProfile, selectSelectedLanguage} from "./auth.selector";
+import {CloudbeaverService} from "./cloudbeaver.service";
 
 @Injectable()
 export class AuthEffects {
@@ -149,9 +158,13 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(fetchPermissionSuccess),
       switchMap((action) => {
+        const defaultLanguage = this._translateService.getDefaultLanguage();
+        const availableLangs = this._translateService.getAvailableLangs();
         const permissions = action.currentUserAuthData.permissions;
         if (!permissions || permissions.length === 0 || !permissions.includes('DASHBOARDS')) {
           return of(
+            setAvailableLanguages({langs: availableLangs}),
+            setDefaultLanguage({lang: defaultLanguage}),
             loadAvailableDataDomains(),
             loadAppInfoResources(),
             loadDocumentation(),
@@ -161,6 +174,8 @@ export class AuthEffects {
             loadStorageSize());
         }
         return of(
+          setAvailableLanguages({langs: availableLangs}),
+          setDefaultLanguage({lang: defaultLanguage}),
           loadAvailableDataDomains(),
           loadAppInfoResources(),
           loadMyDashboards(),
@@ -189,10 +204,63 @@ export class AuthEffects {
     )
   });
 
+  setSelectedLanguage$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setSelectedLanguage),
+      withLatestFrom(
+        this._store.select(selectProfile)
+      ),
+      switchMap(([action, profile]) => {
+        return this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang).pipe(
+          switchMap(() => {
+            // Reuse action.lang here
+            return this._cloudbeaverService.updateUserPreferences(action.lang);
+          })
+        );
+      }),
+      switchMap(() => {
+        return EMPTY;
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  setAvailableLanguages$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setAvailableLanguages),
+      switchMap(() => {
+        return of(setActiveTranslocoLanguage());
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+
+  setActiveTranslocoLanguage$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setActiveTranslocoLanguage),
+      withLatestFrom(
+        this._store.select(selectSelectedLanguage)
+      ),
+      tap(([_, selectedLanguage]) => {
+        if (selectedLanguage) {
+          this._translateService.setActiveLang(selectedLanguage.code as string);
+        }
+      }),
+      switchMap(() => {
+        return EMPTY;
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
   constructor(
     private _actions$: Actions,
+    private _store: Store<AppState>,
     private _authService: AuthService,
     private _usersManagementService: UsersManagementService,
+    private _translateService: TranslateService,
+    private _cloudbeaverService: CloudbeaverService
   ) {
   }
 }

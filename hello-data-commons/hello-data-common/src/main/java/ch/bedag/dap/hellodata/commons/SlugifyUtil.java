@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.commons;
 
-import java.text.Normalizer;
 import lombok.experimental.UtilityClass;
+
+import java.text.Normalizer;
 
 @UtilityClass
 public class SlugifyUtil {
@@ -36,6 +37,7 @@ public class SlugifyUtil {
     public static final String BI_VIEWER_ROLE_NAME = "BI_VIEWER";
     public static final String BI_EDITOR_ROLE_NAME = "BI_EDITOR";//temporary name
     public static final String DASHBOARD_ROLE_PREFIX = "D_";
+    public static final String ADMIN_ROLE_NAME = "Admin";
 
     public static String slugify(String value, int id) {
         return slugify(value) + "_" + id;
@@ -45,7 +47,7 @@ public class SlugifyUtil {
         return slugify(value, DASHBOARD_ROLE_PREFIX);
     }
 
-    public static String slugify(String value, String prefix){
+    public static String slugify(String value, String prefix) {
         String unaccented = Normalizer.normalize(value, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
         String lowercase = unaccented.toLowerCase();
         String removedQuotes = lowercase.replaceAll("[\"']", "");

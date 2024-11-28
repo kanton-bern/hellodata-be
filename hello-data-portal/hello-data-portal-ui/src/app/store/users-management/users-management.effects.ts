@@ -32,7 +32,12 @@ import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
 import {AppState} from "../app/app.state";
-import {selectDashboardsForUser, selectParamUserId, selectSelectedRolesForUser, selectUserForPopup} from "./users-management.selector";
+import {
+  selectDashboardsForUser,
+  selectParamUserId,
+  selectSelectedRolesForUser,
+  selectUserForPopup
+} from "./users-management.selector";
 import {Router} from "@angular/router";
 import {UserAction, UserActionForPopup} from "./users-management.model";
 import {CURRENT_EDITED_USER_ID} from "./users-management.reducer";
@@ -40,8 +45,11 @@ import {ContextRoleService} from "./context-role.service";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError, showSuccess} from "../app/app.action";
 import {
+  clearSubsystemUsersCache,
+  clearSubsystemUsersForDashboardsCache,
   createUser,
   createUserSuccess,
+  deleteUserInStore,
   hideUserPopupAction,
   invokeActionFromUserPopup,
   loadAdminEmails,
@@ -52,6 +60,12 @@ import {
   loadAvailableContextsSuccess,
   loadDashboards,
   loadDashboardsSuccess,
+  loadSubsystemUsers,
+  loadSubsystemUsersForDashboards,
+  loadSubsystemUsersForDashboardsSuccess,
+  loadSubsystemUsersSuccess,
+  loadSyncStatus,
+  loadSyncStatusSuccess,
   loadUserById,
   loadUserByIdSuccess,
   loadUserContextRoles,
@@ -62,6 +76,7 @@ import {
   navigateToUsersManagement,
   syncUsers,
   syncUsersSuccess,
+  updateUserInStore,
   updateUserRoles,
   updateUserRolesSuccess,
   userPopupActionSuccess
@@ -70,15 +85,39 @@ import {
 @Injectable()
 export class UsersManagementEffects {
 
-  loadUsers$ = createEffect(() => {
-    return this._actions$.pipe(
+  loadUsers$ = createEffect(() =>
+    this._actions$.pipe(
       ofType(loadUsers),
-      switchMap(() => this._usersManagementService.getUsers()),
-      switchMap(result => of(loadUsersSuccess({payload: result}))),
+      switchMap(({page, size, sort, search}) =>
+        this._usersManagementService.getUsers(page, size, sort, search).pipe(
+          map((response) => loadUsersSuccess({
+            users: response.content,
+            totalElements: response.totalElements,
+            totalPages: response.totalPages
+          })),
+          catchError(e => of(showError({error: e})))
+        )
+      )
+    )
+  );
+
+  loadSubsystemUsers$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadSubsystemUsers),
+      switchMap(() => this._usersManagementService.getSubsystemUsers()),
+      switchMap(result => of(loadSubsystemUsersSuccess({payload: result}))),
       catchError(e => of(showError({error: e})))
     )
   });
 
+  loadSubsystemUsersForDashboards$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadSubsystemUsersForDashboards),
+      switchMap(() => this._usersManagementService.getAllUsersWithRolesForDashboards()),
+      switchMap(result => of(loadSubsystemUsersForDashboardsSuccess({payload: result}))),
+      catchError(e => of(showError({error: e})))
+    )
+  });
 
   userPopupAction$ = createEffect(() => {
     return this._actions$.pipe(
@@ -88,17 +127,26 @@ export class UsersManagementEffects {
           switch (userActionForPopup!.action) {
             case (UserAction.DISABLE):
               return this._usersManagementService.disableUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
+                switchMap((user) => of(userPopupActionSuccess({
+                  email: userActionForPopup!.user.email,
+                  userActionForPopup: userActionForPopup as UserActionForPopup
+                }), updateUserInStore({userChanged: user}))),
                 catchError(e => of(showError({error: e})))
               );
             case (UserAction.ENABLE):
               return this._usersManagementService.enableUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
+                switchMap((user) => of(userPopupActionSuccess({
+                  email: userActionForPopup!.user.email,
+                  userActionForPopup: userActionForPopup as UserActionForPopup
+                }), updateUserInStore({userChanged: user}))),
                 catchError(e => of(showError({error: e})))
               );
             default:
               return this._usersManagementService.deleteUser(userActionForPopup!.user).pipe(
-                map(() => userPopupActionSuccess({email: userActionForPopup!.user.email, userActionForPopup: userActionForPopup as UserActionForPopup})),
+                switchMap(() => of(userPopupActionSuccess({
+                  email: userActionForPopup!.user.email,
+                  userActionForPopup: userActionForPopup as UserActionForPopup
+                }), deleteUserInStore({userDeleted: userActionForPopup!.user}))),
                 catchError(e => of(showError({error: e})))
               );
           }
@@ -125,7 +173,7 @@ export class UsersManagementEffects {
         } else if (action.userActionForPopup.actionFromUsersEdition) {
           return of(loadUserById(), hideUserPopupAction());
         }
-        return of(loadUsers(), hideUserPopupAction());
+        return of(hideUserPopupAction());
       })
     )
   });
@@ -190,17 +238,13 @@ export class UsersManagementEffects {
   );
 
   syncUsers$ = createEffect(() => {
-      return this._actions$.pipe(
-        ofType(syncUsers),
-        switchMap(action => {
-            return this._usersManagementService.syncUsers().pipe(
-              map((result) => syncUsersSuccess()),
-              catchError(e => of(showError({error: e})))
-            )
-          }
-        ))
-    }
-  );
+    return this._actions$.pipe(
+      ofType(syncUsers),
+      switchMap(() => this._usersManagementService.syncUsers()),
+      switchMap((status) => of(syncUsersSuccess({status}), loadSyncStatus())),
+      catchError(e => of(showError({error: e})))
+    )
+  });
 
   syncUsersSuccess$ = createEffect(() => {
       return this._actions$.pipe(
@@ -263,6 +307,33 @@ export class UsersManagementEffects {
       ofType(loadAdminEmails),
       switchMap(() => this._usersManagementService.getAdminEmails()),
       switchMap(result => of(loadAdminEmailsSuccess({payload: result}))),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  loadSyncStatus$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadSyncStatus),
+      switchMap(() => this._usersManagementService.getSyncStatus()),
+      switchMap(result => of(loadSyncStatusSuccess({status: result}))),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  clearSubsystemUsersCache$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(clearSubsystemUsersCache),
+      switchMap(() => this._usersManagementService.clearSubsystemUsersCache()),
+      switchMap(() => of(loadSubsystemUsers())),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  clearSubsystemUsersForDashboardsCache$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(clearSubsystemUsersForDashboardsCache),
+      switchMap(() => this._usersManagementService.clearAllUsersWithRolesForDashboardsCache()),
+      switchMap(() => of(loadSubsystemUsersForDashboards())),
       catchError(e => of(showError({error: e})))
     )
   });

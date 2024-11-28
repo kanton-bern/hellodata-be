@@ -28,8 +28,11 @@ package ch.bedag.dap.hellodata.portal.announcement.data;
 
 import lombok.Data;
 
+import java.util.Locale;
+import java.util.Map;
+
 @Data
 public class AnnouncementCreateDto {
-    private String message;
     private String published;
+    private Map<Locale, String> messages;
 }

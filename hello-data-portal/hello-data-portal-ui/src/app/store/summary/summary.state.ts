@@ -25,16 +25,16 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Pipeline, StorageMonitoringResult} from "./summary.model";
+import {Documentation, Pipeline, StorageMonitoringResult} from "./summary.model";
 
 export interface SummaryState {
-  documentation: string,
+  documentation: Documentation | null,
   pipelines: Pipeline[],
   storageMonitoringResult: StorageMonitoringResult | null
 }
 
 export const initialSummaryState: SummaryState = {
-  documentation: '',
+  documentation: null,
   pipelines: [],
   storageMonitoringResult: null
 }

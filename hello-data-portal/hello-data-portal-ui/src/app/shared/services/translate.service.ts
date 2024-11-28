@@ -26,20 +26,35 @@
 ///
 
 import {Injectable, OnDestroy} from "@angular/core";
-import {TranslocoEvents, TranslocoService} from "@ngneat/transloco";
-import {Observable, Subscription} from "rxjs";
+import {LangDefinition, Translation, TranslocoService} from "@ngneat/transloco";
+import {Observable, Subscription, switchMap, tap} from "rxjs";
 import {HashMap, TranslateParams, TranslocoScope} from "@ngneat/transloco/lib/types";
+import {filter} from "rxjs/operators";
+import {HttpClient} from "@angular/common/http";
+import {PrimeNGConfig} from "primeng/api";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TranslateService implements OnDestroy {
 
-  private readonly subscription: Subscription;
+  private readonly loadSub: Subscription;
+  private readonly eventSub: Subscription;
 
-  constructor(private translocoService: TranslocoService) {
+  constructor(private translocoService: TranslocoService, private http: HttpClient, private primengConfig: PrimeNGConfig) {
     const activeLang = translocoService.getActiveLang();
-    this.subscription = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
+    this.loadSub = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
+    this.eventSub = translocoService.events$.pipe(
+      filter(event => event.type === 'langChanged'),
+      switchMap(event => {
+        const timestamp = new Date().getTime();
+        const url = `./assets/i18n/primeng/${event.payload.langName}.json?ts=${timestamp}`;
+        return this.http.get<Translation>(url).pipe(
+          tap(primengTranslations => {
+            this.primengConfig.setTranslation(primengTranslations);
+          }));
+      })
+    ).subscribe();
   }
 
   public translate(key: TranslateParams, params?: HashMap, lang?: string): string {
@@ -50,13 +65,29 @@ export class TranslateService implements OnDestroy {
     return this.translocoService.selectTranslate(key, params, lang, _isObject);
   }
 
-  public events(): Observable<TranslocoEvents> {
-    return this.translocoService.events$;
+  public setActiveLang(lang: string) {
+    this.translocoService.setActiveLang(lang);
+  }
+
+  public getDefaultLanguage() {
+    return this.translocoService.getDefaultLang();
+  }
+
+  public getAvailableLangs(): string[] {
+    const availableLangs = [...this.translocoService.getAvailableLangs()];
+    if (Array.isArray(availableLangs) && typeof availableLangs[0] === 'string') {
+      return (availableLangs as string[]).sort((a, b) => a.localeCompare(b));
+    }
+
+    return (availableLangs as LangDefinition[]).map(langDef => langDef.label).sort((a, b) => a.localeCompare(b));
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.loadSub) {
+      this.loadSub.unsubscribe();
+    }
+    if (this.eventSub) {
+      this.eventSub.unsubscribe();
     }
   }
 }

@@ -37,4 +37,5 @@ export class BaseComponent implements OnInit {
   ngOnInit(): void {
     scrollToTop();
   }
+
 }

@@ -1,8 +1,9 @@
-<h2 class="content-block">{{'@Announcements management' | transloco}}</h2>
-<div class="card">
+<h2 class="content-block">{{ '@Announcements management' | transloco }}</h2>
+<div class="card" *ngIf="(selectedLanguage$ | async) as selectedLanguage">
   <p-toolbar styleClass="mb-4 gap-2">
     <ng-template pTemplate="left">
-      <button (click)="createAnnouncement()" class="p-button-success mr-2" icon="fas fa-circle-plus" label="{{'@Create announcement' | transloco }}" pButton pRipple></button>
+      <button (click)="createAnnouncement()" class="p-button-success mr-2" icon="fas fa-circle-plus"
+              label="{{'@Create announcement' | transloco }}" pButton pRipple></button>
     </ng-template>
   </p-toolbar>
 
@@ -21,13 +22,13 @@
         <tr>
           <th id="publishedHeader">&nbsp;</th>
           <th id="createdDateHeader">
-            {{'@Created date' | transloco}}
+            {{ '@Created date' | transloco }}
           </th>
           <th id="publishedDateHeader">
-            {{'@Published date' | transloco}}
+            {{ '@Published date' | transloco }}
           </th>
           <th id="msgEditor" style="min-width:30rem">
-            {{'@Message' | transloco}}
+            {{ '@Message' | transloco }}
           </th>
           <th id="actionHeader"></th>
         </tr>
@@ -36,20 +37,23 @@
         <tr>
           <td>
             <div *ngIf="!announcement.published">
-              <i class="fa-solid fa-circle" style="color: #ff0000;" pTooltip="{{'@Announcement unpublished' | transloco }}"></i>
+              <i class="fa-solid fa-circle" style="color: #ff0000;"
+                 pTooltip="{{'@Announcement unpublished' | transloco }}"></i>
             </div>
             <div *ngIf="announcement.published">
-              <i class="fa-solid fa-circle" style="color: #008000;" pTooltip="{{'@Announcement published' | transloco }}"></i>
+              <i class="fa-solid fa-circle" style="color: #008000;"
+                 pTooltip="{{'@Announcement published' | transloco }}"></i>
             </div>
           </td>
           <td style="vertical-align: top">
-            {{announcement.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}
+            {{ announcement.createdDate | date: 'dd.MM.yyyy HH:mm:ss' }}
           </td>
           <td style="vertical-align: top">
-            {{ announcement.publishedDate ? (announcement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss') : '-'}}
+            {{ announcement.publishedDate ? (announcement.publishedDate | date: 'dd.MM.yyyy HH:mm:ss') : '-' }}
           </td>
           <td>
-            <p-editor [(ngModel)]="announcement.message" [disabled]="true" [readonly]="true" [style]="{ height: '320px' }">
+            <p-editor [ngModel]="getMessage(announcement, selectedLanguage)" [disabled]="true" [readonly]="true"
+                      [style]="{ height: '320px' }">
               <p-header hidden></p-header>
             </p-editor>
           </td>

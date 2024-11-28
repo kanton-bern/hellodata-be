@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<body>
+<p>Bonjour <span th:text="${#objects.nullSafe(AFFECTED_USER_FIRST_NAME, '_Inconnu_')}"/></p>
+
+<p>
+    L'administrateur <span th:text="${#objects.nullSafe(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE, '_Inconnu_')}"/>
+    a désactivé votre compte utilisateur HelloDATA dans le domaine métier
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Inconnu_')}"/>.
+</p>
+
+<p>Lien vers le domaine métier
+    <a th:href="${#objects.nullSafe(link, '_Inconnu_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Inconnu_')}"/></a>
+</p>
+
+<p>Cordialement<br/>HelloDATA</p>
+
+</body>
+</html>

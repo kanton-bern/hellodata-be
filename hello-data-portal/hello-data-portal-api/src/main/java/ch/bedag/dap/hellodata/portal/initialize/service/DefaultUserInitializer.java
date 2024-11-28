@@ -34,10 +34,6 @@ import ch.bedag.dap.hellodata.portal.user.entity.DefaultUserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.DefaultUserRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -46,6 +42,10 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Log4j2
 @Component
@@ -81,12 +81,12 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
         if (userByEmail.isPresent() && userByUsername.isPresent() && !userByUsername.get().getId().equalsIgnoreCase(userByEmail.get().getId())) {
             log.info("Users fetched from the keycloak that apply to email {} or username {}:", email, username);
             allUsersFromKeycloak.stream()
-                                .filter(user -> user.getEmail().equalsIgnoreCase(email) || user.getUsername().equalsIgnoreCase(username))
-                                .forEach(userRepresentation -> log.info("Usr {}, username: {}, email: {}", userRepresentation.getId(), userRepresentation.getUsername(),
-                                                                        userRepresentation.getEmail()));
+                    .filter(user -> user.getEmail().equalsIgnoreCase(email) || user.getUsername().equalsIgnoreCase(username))
+                    .forEach(userRepresentation -> log.info("Usr {}, username: {}, email: {}", userRepresentation.getId(), userRepresentation.getUsername(),
+                            userRepresentation.getEmail()));
             throw new IllegalStateException(
                     String.format("There are already two different users in the keycloak for the provided username: %s and email: %s. Please change the configuration", username,
-                                  email));
+                            email));
         }
 
         // Check if the user has already been created in a previous run
@@ -95,7 +95,7 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
 
         if (!userAlreadyCreated && !userMarkedAsDefault) {
             defaultUsersInitiated = createDefaultAdmin(defaultAdminProperties.getUsername(), defaultAdminProperties.getFirstName(), defaultAdminProperties.getLastName(),
-                                                       defaultAdminProperties.getEmail());
+                    defaultAdminProperties.getEmail());
         } else if (!userMarkedAsDefault) {
             defaultUsersInitiated = markAsDefaultUser(defaultAdminProperties.getEmail());
         }
@@ -121,7 +121,7 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
         UserRepresentation user = generateUser(username, firstName, lastName, email);
         setDefaultAdminPassword(user);
         String userId = createUserInKeycloak(user);
-        UserEntity userEntity = saveUserToDatabase(userId);
+        UserEntity userEntity = saveUserToDatabase(userId, defaultAdminProperties.getEmail(), firstName, lastName);
         setAsHellodataAdmin(userEntity);
         updateDefaultUser(userEntity);
         return true;
@@ -154,11 +154,6 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
         DefaultUserEntity defaultUserEntity = new DefaultUserEntity();
         defaultUserEntity.setUser(userEntity);
         defaultUserRepository.saveAndFlush(defaultUserEntity);
-    }
-
-    @NotNull
-    private UserEntity saveUserToDatabase(String userId) {
-        return saveUserToDatabase(userId, defaultAdminProperties.getEmail());
     }
 
     private void setDefaultAdminPassword(UserRepresentation user) {

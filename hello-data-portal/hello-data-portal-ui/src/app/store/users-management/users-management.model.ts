@@ -47,7 +47,8 @@ export interface User {
   lastAccess: number | null;
   permissions: string[],
   invitationsCount: number,
-  superuser: boolean
+  superuser: boolean,
+  selectedLanguage: string | null
 }
 
 export interface CreateUserForm {
@@ -96,4 +97,25 @@ export interface AdUser {
   firstName: string,
   lastName: string
   label: string
+}
+
+export interface SubsystemUserDto {
+  name: string;
+  surname: string;
+  email: string;
+  username: string;
+  roles: string[];
+  subsystemName: string;
+  enabled: boolean
+}
+
+export interface SubsystemUsersResultDto {
+  instanceName: string;
+  users: SubsystemUserDto[]
+}
+
+export interface DashboardUsersResultDto {
+  contextName: string;
+  instanceName: string;
+  users: SubsystemUserDto[]
 }

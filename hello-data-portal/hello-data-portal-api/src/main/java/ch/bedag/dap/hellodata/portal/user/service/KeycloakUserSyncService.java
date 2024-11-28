@@ -28,13 +28,15 @@ package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -47,21 +49,24 @@ public class KeycloakUserSyncService {
     /**
      * Checks if any of keycloak users has a changed id (e.g: user removed directly in the keycloak and then added again)
      */
-    @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-seconds}", timeUnit = TimeUnit.SECONDS)
+    @Transactional
+    @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-hours}", timeUnit = TimeUnit.HOURS)
     public void syncUsers() {
+        log.debug("[sync-users-with-keycloak] Started");
         List<UserRepresentation> allUsers = keycloakService.getAllUsers();
         List<UserEntity> allPortalUsers = userRepository.findAll();
         for (UserRepresentation userRepresentation : allUsers) {
             UserEntity userEntity = allPortalUsers.stream().filter(user -> user.getEmail().equalsIgnoreCase(userRepresentation.getEmail())).findFirst().orElse(null);
             if (userEntity != null) {
-                if ((userEntity.getAuthId() == null && !userRepresentation.getId().equalsIgnoreCase(userEntity.getId().toString())) ||
-                    (userEntity.getAuthId() != null && !userRepresentation.getId().equalsIgnoreCase(userEntity.getAuthId()))) {
-
-                    userEntity.setAuthId(userRepresentation.getId());
-                    userRepository.saveAndFlush(userEntity);
-                    log.info("Updated auth id for user {}, user id: {}, user auth_id: {}", userEntity.getEmail(), userEntity.getId(), userRepresentation.getId());
-                }
+                userEntity.setAuthId(userRepresentation.getId());
+                userEntity.setEnabled(userRepresentation.isEnabled());
+                userEntity.setFirstName(userRepresentation.getFirstName());
+                userEntity.setLastName(userRepresentation.getLastName());
+                userEntity.setSuperuser(userEntity.getSuperuser());//set flag to not fetch lazy loading relations
             }
         }
+        userRepository.saveAll(allPortalUsers);
+        log.debug("[sync-users-with-keycloak] Completed");
     }
+
 }

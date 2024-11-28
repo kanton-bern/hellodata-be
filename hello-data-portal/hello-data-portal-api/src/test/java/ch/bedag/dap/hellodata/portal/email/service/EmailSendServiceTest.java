@@ -32,20 +32,19 @@ import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.user.KeycloakTestContainerTest;
 import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.AFFECTED_USER_FIRST_NAME_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.BUSINESS_DOMAIN_NAME_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.BUSINESS_DOMAIN_ROLE_NAME_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.DATA_DOMAIN_ROLES_PARAM;
-import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+import static ch.bedag.dap.hellodata.portal.email.model.EmailTemplateModelKeys.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Log4j2
@@ -58,6 +57,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     public void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_DEACTIVATED);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
@@ -87,9 +87,53 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     }
 
     @Test
+    public void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content_multilanguage() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_DEACTIVATED);
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        String businessDomain = "Fancy Business Domain";
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, businessDomain);
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.setSubjectParams(new Object[]{businessDomain});
+        String expectedHTML = """
+                <!doctype html>
+                <html xmlns="http://www.w3.org/1999/html">
+                 <head></head>
+                 <body>
+                  <!-- German -->
+                  <p>Hallo <span>John Doe</span></p>
+                  <p>Der Administrator <span>Darth Vader</span> hat dir deinen HelloDATA Benutzer*in in der Fachdomäne <span>Fancy Business Domain</span> deaktiviert.</p>
+                  <p>Link zu Fachdomäne <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
+                  <p>Freundliche Grüsse<br>HelloDATA</p>
+                  <hr><!-- French -->
+                  <p>Bonjour <span>John Doe</span></p>
+                  <p>L'administrateur <span>Darth Vader</span> a désactivé votre compte utilisateur HelloDATA dans le domaine métier <span>Fancy Business Domain</span>.</p>
+                  <p>Lien vers le domaine métier <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
+                  <p>Cordialement<br>HelloDATA</p>
+                  <hr><!-- English -->
+                  <p>Hello <span>John Doe</span></p>
+                  <p>The administrator <span>Darth Vader</span> has deactivated your HelloDATA user account in the business domain <span>Fancy Business Domain</span>.</p>
+                  <p>Link to Business Domain <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
+                  <p>Kind regards<br>HelloDATA</p>
+                 </body>
+                </html>""";
+        Document expectedDoc = Jsoup.parse(expectedHTML);
+
+        //when
+        SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then
+        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
+        assertThat(email.getSubject()).isEqualTo("Info HelloDATA Business Domain Fancy Business Domain");
+    }
+
+
+    @Test
     public void toSimpleMailMessage_when_user_activated_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACTIVATED);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
@@ -122,6 +166,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     public void toSimpleMailMessage_when_user_role_changed_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ROLE_CHANGED);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
@@ -169,6 +214,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     public void toSimpleMailMessage_when_user_account_created_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACCOUNT_CREATED);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");

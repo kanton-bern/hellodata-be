@@ -1,0 +1,69 @@
+<h2 class="content-block">{{ '@Subsystem users' | transloco }}</h2>
+<div *ngIf="(tableData$ | async) as tableData" class="card">
+  <div *ngIf="(columns$ | async) as columns">
+    <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData">
+      <ng-template pTemplate="caption">
+        <div class="flex">
+          <div style="text-align: left">
+            <p-button (onClick)="dt.exportCSV()"
+                      [disabled]="(dataLoading$ | async) ?? false"
+                      icon="pi pi-external-link"
+                      label="{{ '@Export' | transloco }}"/>
+          </div>
+          <div class="ml-1" style="text-align: left">
+            <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
+                      icon="pi pi-replay"
+                      label="{{ '@Reload' | transloco }}"
+                      styleClass="p-button-rounded p-button-success"/>
+          </div>
+          <div class="ml-1" style="text-align: left">
+            <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
+                      icon="pi pi-times-circle"
+                      label="{{ '@Clear cache' | transloco }}"
+                      styleClass="p-button-rounded p-button-help"/>
+          </div>
+          <div class="ml-auto">
+            <button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
+                    label="{{'@Clear' | transloco}}"
+                    pButton></button>
+            <span class="p-input-icon-left ml-auto">
+                  <i class="pi pi-search"></i>
+                  <input
+                    #filterInput
+                    (input)="dt.filterGlobal(applyFilter($event), 'contains')"
+                    pInputText
+                    placeholder="{{ '@Search' | transloco }}"
+                    type="text"/>
+              </span>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template let-columns pTemplate="header">
+        <tr>
+          <th *ngFor="let col of columns">{{ translateValue(col.header) }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template let-columns="columns" let-row pTemplate="body">
+        <tr>
+          <td *ngFor="let col of columns">
+            <ng-container *ngIf="shouldShowTag(row[col.field]); else singleValue">
+              <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"></p-tag>
+            </ng-container>
+            <ng-template #singleValue>
+              <ng-container *ngIf="row[col.field] === 'true'">
+                <i class="fa fa-check text-success"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] === 'false'">
+                <i class="fa fa-times text-danger"></i>
+              </ng-container>
+              <ng-container *ngIf="row[col.field] !== 'true' && row[col.field] !== 'false'">
+                {{ translateValue(row[col.field]) }}
+              </ng-container>
+            </ng-template>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

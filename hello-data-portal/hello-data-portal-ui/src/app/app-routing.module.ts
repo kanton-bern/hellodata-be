@@ -35,10 +35,16 @@ import {MyDashboardsComponent} from "./pages/my-dashboards/my-dashboards.compone
 import {SelectedWorkspaceComponent} from "./pages/admin/workspaces/selected-workspace/selected-workspace.component";
 import {UserEditComponent} from "./pages/admin/user-management/user-edit/user-edit.component";
 import {PortalRolesManagementComponent} from "./pages/admin/portal-roles-management/portal-roles-management.component";
-import {PortalRoleEditComponent} from "./pages/admin/portal-roles-management/portal-role-edit/portal-role-edit.component";
+import {
+  PortalRoleEditComponent
+} from "./pages/admin/portal-roles-management/portal-role-edit/portal-role-edit.component";
 import {AutoLoginPartialRoutesGuard} from "angular-auth-oidc-client";
-import {AnnouncementsManagementComponent} from "./pages/admin/announcements-management/announcements-management.component";
-import {AnnouncementEditComponent} from "./pages/admin/announcements-management/announcement-edit/announcement-edit.component";
+import {
+  AnnouncementsManagementComponent
+} from "./pages/admin/announcements-management/announcements-management.component";
+import {
+  AnnouncementEditComponent
+} from "./pages/admin/announcements-management/announcement-edit/announcement-edit.component";
 import {CallbackComponent} from "./callback/callback.component";
 import {PermissionsGuard} from "./auth/guards/permissions-guard.service";
 import {ForbiddenComponent} from "./shared/components/not-allowed/forbidden.component";
@@ -46,9 +52,13 @@ import {EmbedMyDashboardComponent} from "./pages/my-dashboards/embed-my-dashboar
 import {FaqListComponent} from "./pages/admin/faq-management/faq-list.component";
 import {FaqEditComponent} from "./pages/admin/faq-management/faq-edit/faq-edit.component";
 import {LogoutComponent} from "./pages/logout/logout.component";
-import {DocumentationManagementComponent} from "./pages/admin/documentation-management/documentation-management.component";
+import {
+  DocumentationManagementComponent
+} from "./pages/admin/documentation-management/documentation-management.component";
 import {ExternalDashboardsComponent} from "./pages/my-dashboards/external-dashboards/external-dashboards.component";
-import {ExternalDashboardEditComponent} from "./pages/my-dashboards/external-dashboards/external-dashboard-edit/external-dashboard-edit.component";
+import {
+  ExternalDashboardEditComponent
+} from "./pages/my-dashboards/external-dashboards/external-dashboard-edit/external-dashboard-edit.component";
 import {OrchestrationComponent} from "./pages/admin/orchestration/orchestration.component";
 import {EmbeddedOrchestrationComponent} from "./pages/orchestration/embedded-orchestration.component";
 import {EmbeddedDmViewerComponent} from "./pages/data-mart/embedded-dm-viewer.component";
@@ -61,6 +71,8 @@ import {DashboardImportExportComponent} from "./pages/admin/dashboard-import-exp
 import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
 import {AdvancedAnalyticsViewerComponent} from "./pages/advanced-analytics/advanced-analytics-viewer.component";
 import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
+import {SubsystemUsersComponent} from "./pages/admin/subsystem-users/subsystem-users.component";
+import {UsersOverviewComponent} from "./pages/admin/users-overview/users-overview.component";
 
 const routes: Routes = [
 
@@ -128,6 +140,40 @@ const routes: Routes = [
           requiredPermissions: ['USER_MANAGEMENT'],
         }
       },
+    ]
+  },
+  {
+    path: naviElements.subsystemUsers.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['USER_MANAGEMENT'],
+    },
+    children: [
+      {
+        path: '',
+        component: SubsystemUsersComponent,
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['USER_MANAGEMENT'],
+        }
+      }
+    ]
+  },
+  {
+    path: naviElements.usersOverview.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['USERS_OVERVIEW'],
+    },
+    children: [
+      {
+        path: '',
+        component: UsersOverviewComponent,
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['USERS_OVERVIEW'],
+        }
+      }
     ]
   },
   {

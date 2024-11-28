@@ -31,7 +31,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextReposi
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -137,22 +137,15 @@ public class UserServiceTest {
         userEntity.setPortalRoles(Collections.emptySet());
         UserRepresentation userRepresentation = mock(UserRepresentation.class, Mockito.RETURNS_DEEP_STUBS);
 
-        when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);
-        when(userRepresentation.getEmail()).thenReturn(email);
-        when(userRepresentation.getFirstName()).thenReturn(firstName);
-        when(userRepresentation.getLastName()).thenReturn(lastName);
-        when(userRepresentation.getId()).thenReturn(createdUserId);
-        when(userRepresentation.isEnabled()).thenReturn(true);
-        when(keycloakService.getUserRepresentationById(any())).thenReturn(userRepresentation);
+        when(userRepository.getUserEntitiesByEnabled(true)).thenReturn(List.of(userEntity));
         when(userRepository.existsByIdOrAuthId(any(UUID.class), any(String.class))).thenReturn(false);
-        when(userRepository.findAll()).thenReturn(List.of(userEntity));
         when(userRepository.saveAndFlush(any(UserEntity.class))).thenReturn(new UserEntity());
 
         // when
         userService.syncAllUsers();
 
         // then
-        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.CREATE_USER), any(SubsystemUserUpdate.class));
+        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.SYNC_USERS), any(UsersContextRoleUpdate.class));
     }
 
     @Test

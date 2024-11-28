@@ -31,12 +31,13 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.User;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource.CbUserResourceProviderService;
-import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
 
 @Log4j2
@@ -48,19 +49,20 @@ public class CbCreateUserConsumer {
     private final UserRepository userRepository;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = CREATE_USER)
-    public CompletableFuture<Void> createUser(SubsystemUserUpdate subsystemUserUpdate) {
+    @JetStreamSubscribe(event = CREATE_USER, asyncRun = false)
+    public void createUser(SubsystemUserUpdate subsystemUserUpdate) {
         log.info("------- Received cloudbeaver user creation request {}", subsystemUserUpdate);
         User user = userRepository.findByUserNameOrEmail(subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
         if (user != null) {
-            log.info("User {} already exists in instance, omitting creation. Email: {}", subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
+            log.debug("User {} already exists in instance, omitting creation. Email: {}", subsystemUserUpdate.getUsername(), subsystemUserUpdate.getEmail());
         } else {
             log.info("Going to create new cloudbeaver user with email: {}", subsystemUserUpdate.getEmail());
             User dbtDocUser = toCbUser(subsystemUserUpdate);
             userRepository.save(dbtDocUser);
-            userResourceProviderService.publishUsers();
+            if (subsystemUserUpdate.isSendBackUsersList()) {
+                userResourceProviderService.publishUsers();
+            }
         }
-        return null;//NOSONAR
     }
 
     @NotNull

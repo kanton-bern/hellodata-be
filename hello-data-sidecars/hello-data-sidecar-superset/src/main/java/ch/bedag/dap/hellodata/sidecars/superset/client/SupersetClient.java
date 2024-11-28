@@ -37,19 +37,13 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.IdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserByIdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.exception.BadReturnedValueException;
 import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -64,6 +58,15 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Optional;
+
 import static ch.bedag.dap.hellodata.sidecars.superset.client.SupersetApiRequestBuilder.getObjectMapper;
 
 /**
@@ -112,7 +115,7 @@ public class SupersetClient {
         }
         HttpUriRequest request = SupersetApiRequestBuilder.getAuthTokenRequest(host, port, username, password);
         ApiResponse resp = executeRequest(request);
-        log.info("Auth token request executed {}", resp);
+        log.debug("Auth token request executed {}", resp);
         JsonElement respBody = JsonParser.parseString(resp.getBody());
         this.authToken = respBody.getAsJsonObject().get("access_token").getAsString();
         this.host = host;
@@ -137,7 +140,6 @@ public class SupersetClient {
      * Updates user roles.
      *
      * @return an updated user.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -156,7 +158,6 @@ public class SupersetClient {
      * Updates user active flag (enable/disable user).
      *
      * @return an updated user.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -173,10 +174,41 @@ public class SupersetClient {
     }
 
     /**
+     * Get a user.
+     *
+     * @return a user.
+     * @throws URISyntaxException        If the Superset URL is invalid.
+     * @throws ClientProtocolException   If there was an error communicating with the
+     *                                   Superset server.
+     * @throws IOException               If there was an error communicating with the
+     *                                   Superset server.
+     * @throws BadReturnedValueException If query will return more than one user
+     */
+    public SupersetUsersResponse getUser(String username, String email) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getUserRequest(host, port, authToken, username, email);
+        try {
+            ApiResponse resp = executeRequest(request);
+            byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+            log.debug("getUser({}, {}) response json \n{}", username, email, new String(bytes));
+            SupersetUsersResponse supersetUsersResponse = getObjectMapper().readValue(bytes, SupersetUsersResponse.class);
+            if (supersetUsersResponse.getResult() != null && supersetUsersResponse.getResult().size() > 1) {
+                throw new BadReturnedValueException(String.format("Too many users returned for username %s and email %s. Should get list of 1 got %s",
+                        username, email, supersetUsersResponse.getResult()));
+            }
+            return supersetUsersResponse;
+        } catch (UnexpectedResponseException e) {
+            if (e.getCode() == 404) {
+                log.warn("User not found by email {} and username {}", email, username);
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    /**
      * Creates a user.
      *
      * @return a created user.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -195,7 +227,6 @@ public class SupersetClient {
      * Deletes a user.
      *
      * @return 200 if successfully deleted the user.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -215,7 +246,6 @@ public class SupersetClient {
      * Returns a list of available permissions for a given role.
      *
      * @return A JSON array containing a list of permissions.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -234,7 +264,6 @@ public class SupersetClient {
      * Returns a list of available users.
      *
      * @return A JSON array containing a list of users.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -253,7 +282,6 @@ public class SupersetClient {
      * Returns a list of available users.
      *
      * @return A JSON array containing a list of users.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -272,7 +300,6 @@ public class SupersetClient {
      * Returns a list of available roles.
      *
      * @return A JSON array containing a list of roles.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -291,7 +318,6 @@ public class SupersetClient {
      * Returns a list of available permissions.
      *
      * @return A JSON array containing a list of permissions.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -310,7 +336,6 @@ public class SupersetClient {
      * Returns a list of available dashboards.
      *
      * @return A JSON array containing a list of dashboards.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -329,7 +354,6 @@ public class SupersetClient {
      * Returns a list of available dashboards.
      *
      * @return A JSON array containing a list of dashboards.
-     *
      * @throws URISyntaxException      If the Superset URL is invalid.
      * @throws ClientProtocolException If there was an error communicating with the
      *                                 Superset server.
@@ -350,7 +374,6 @@ public class SupersetClient {
      * @param dashboardId the ID of the dashboard to export
      * @param destination the file to save the exported dashboard to
      * @return the downloaded file
-     *
      * @throws URISyntaxException      if there is an error in the URI syntax
      * @throws ClientProtocolException if there is an error in the HTTP protocol
      * @throws IOException             if there is an I/O error while sending or
@@ -383,7 +406,6 @@ public class SupersetClient {
      * Updates dashboards published flag (publish/un-publish dashboard).
      *
      * @return an updated dashboard.
-     *
      * @throws URISyntaxException If the Superset URL is invalid.
      * @throws IOException        If there was an error communicating with the
      *                            Superset server.

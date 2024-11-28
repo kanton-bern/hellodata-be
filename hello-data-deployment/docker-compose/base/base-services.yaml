@@ -53,6 +53,7 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: "${AIRFLOW__CORE__LOAD_EXAMPLES:-true}"
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW__WEBSERVER__UPDATE_FAB_PERMS: 'False'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     DB_HOST: postgres
     DB_NAME: airflow
@@ -167,7 +168,7 @@ services:
 
   nats:
     platform: ${HD_PLATFORM}
-    image: nats:2.7.2-alpine
+    image: nats:alpine3.20
     command: --name hello-data --http_port 8222 --js
     restart: on-failure
     ports:
@@ -187,6 +188,16 @@ services:
     # nats stream ls
     # nats stream view
 
+  nats-ui:
+    image: ghcr.io/nats-nui/nui:latest
+    container_name: nats-ui
+    ports:
+      - 31311:31311
+    depends_on:
+      - nats
+    environment:
+      - NATS_SERVER_URL=nats://nats:4222  # Connect to the NATS server within the network
+
   #   smtp dev server
   smtp4dev:
     platform: ${HD_PLATFORM}
@@ -194,7 +205,7 @@ services:
     restart: always
     ports:
       # port the web interface should be accessible on
-      - '8002:80'
+      - '8001:80'
       # port the SMTP server should be accessible on
       - '25025:25'
       # port the IMAP server should be accessible on
@@ -244,6 +255,7 @@ services:
       - SPRING_R2DBC_USERNAME=postgres
       - SPRING_R2DBC_PASSWORD=postgres
       - HELLO_DATA_AUTH_SERVER_REALM=hellodata
+      - HELLO_DATA_CORS_ALLOWED_ORIGINS=http://localhost:8080
     ports:
       - "8087:8087"
       - "8082:8082"
@@ -613,10 +625,8 @@ services:
       - postgres
       - keycloak
       - hello-data-portal-api
-      - airflow-webserver
       - cloudbeaver
     depends_on:
-      - airflow-webserver
       - cloudbeaver
       - postgres
       - keycloak

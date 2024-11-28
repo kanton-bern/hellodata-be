@@ -4,15 +4,16 @@ import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public abstract class AbstractUserInitializer {
@@ -40,7 +41,7 @@ public abstract class AbstractUserInitializer {
         return userId;
     }
 
-    protected UserEntity saveUserToDatabase(String userId, String email) {
+    protected UserEntity saveUserToDatabase(String userId, String email, String firstName, String lastName) {
         //update user
         UserEntity userEntity;
         Optional<UserEntity> resultSearch = userRepository.findById(UUID.fromString(userId));
@@ -50,7 +51,10 @@ public abstract class AbstractUserInitializer {
             userEntity = new UserEntity();
             userEntity.setId(UUID.fromString(userId));
             userEntity.setEmail(email);
+            userEntity.setFirstName(firstName);
+            userEntity.setLastName(lastName);
         }
+        userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
         return userRepository.getReferenceById(userEntity.getId());
     }

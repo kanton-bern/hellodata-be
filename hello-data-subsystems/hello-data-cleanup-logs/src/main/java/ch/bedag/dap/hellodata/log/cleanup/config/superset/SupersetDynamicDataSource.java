@@ -26,11 +26,15 @@
  */
 package ch.bedag.dap.hellodata.log.cleanup.config.superset;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.Data;
+
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
-import javax.sql.DataSource;
-import lombok.Data;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 @Data
 public class SupersetDynamicDataSource {
@@ -38,11 +42,14 @@ public class SupersetDynamicDataSource {
     private final Map<String, DataSource> dataSources = new HashMap<>();
 
     public void addDataSource(String jdbcUrl, String username, String password) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setUrl(jdbcUrl);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-        dataSources.put(jdbcUrl, dataSource);
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(jdbcUrl);
+        hikariConfig.setUsername(username);
+        hikariConfig.setPassword(password);
+        hikariConfig.setMaximumPoolSize(1);
+        hikariConfig.setMaxLifetime(MINUTES.toMillis(15));
+        HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
+        dataSources.put(jdbcUrl, hikariDataSource);
     }
 
     public DataSource getDataSource(String name) {

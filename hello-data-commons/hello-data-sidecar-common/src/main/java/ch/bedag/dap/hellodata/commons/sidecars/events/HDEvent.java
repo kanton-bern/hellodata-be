@@ -33,10 +33,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineRes
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.StorageMonitoringResult;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import lombok.Getter;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDStream.METAINFO_STREAM;
 
 @Getter
@@ -47,12 +46,15 @@ public enum HDEvent {
     PUBLISH_PERMISSION_RESOURCES(METAINFO_STREAM, "publish_resources.permission", PermissionResource.class),
     PUBLISH_PIPELINE_RESOURCES(METAINFO_STREAM, "publish_resources.pipeline", PipelineResource.class),
     PUBLISH_USER_RESOURCES(METAINFO_STREAM, "publish_resources.user", UserResource.class),
+    UPDATE_METAINFO_USERS_CACHE(METAINFO_STREAM, "user_cache_update", UserCacheUpdate.class),
     DISABLE_USER(METAINFO_STREAM, "disable_user", SubsystemUserUpdate.class),
     ENABLE_USER(METAINFO_STREAM, "enable_user", SubsystemUserUpdate.class),
     CREATE_USER(METAINFO_STREAM, "create_user", SubsystemUserUpdate.class),
     UPDATE_USER_CONTEXT_ROLE(METAINFO_STREAM, "update_user_context_role", UserContextRoleUpdate.class),
+    SYNC_USERS(METAINFO_STREAM, "sync_users", UsersContextRoleUpdate.class),
     UPDATE_STORAGE_MONITORING_RESULT(METAINFO_STREAM, "update_storage_monitoring_result", StorageMonitoringResult.class),
     DELETE_USER(METAINFO_STREAM, "delete_user", SubsystemUserDelete.class),
+    GET_ALL_USERS(METAINFO_STREAM, "users_refresh", SubsystemGetAllUsers.class),
     ;
     private final HDStream stream;
     private final String subject;

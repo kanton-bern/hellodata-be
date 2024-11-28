@@ -25,13 +25,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-hellodata:
+hello-data:
   auth-server:
     url: http://localhost:8080
     realm: hellodata
     client-id: frontend-client
     admin-client-id: admin-cli
     admin-client-secret: 0703e343-57db-4039-b1b6-be7082aff975
+  cache:
+    enabled: false
 keycloak:
   enabled: true
 spring:

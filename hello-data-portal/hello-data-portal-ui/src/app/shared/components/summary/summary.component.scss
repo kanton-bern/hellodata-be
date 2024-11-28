@@ -28,13 +28,14 @@
   border-bottom: none !important;
 }
 
-::ng-deep .p-editor-container .p-editor-toolbar.ql-snow {
-  border: none !important;
+::ng-deep .p-editor-readonly .p-editor-container .p-editor-toolbar.ql-snow {
+  border: none;
 }
 
-::ng-deep .ql-toolbar.ql-snow + .ql-container.ql-snow {
-  border: none !important;
+::ng-deep .p-editor-readonly .ql-toolbar.ql-snow + .ql-container.ql-snow {
+  border: none;
 }
+
 
 ::ng-deep #editDocumentationBtn, ::ng-deep #editDocumentationBtnOvrl {
   height: 1.3rem;

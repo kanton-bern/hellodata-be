@@ -34,5 +34,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+  cache:
+    enabled: false
 nats:
   enabled: false

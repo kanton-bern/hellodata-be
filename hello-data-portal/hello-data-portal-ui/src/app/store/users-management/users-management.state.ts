@@ -25,12 +25,21 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ContextDashboardsForUser, DashboardForUser, User, UserActionForPopup} from "./users-management.model";
+import {
+  ContextDashboardsForUser,
+  DashboardForUser,
+  DashboardUsersResultDto,
+  SubsystemUsersResultDto,
+  User,
+  UserActionForPopup
+} from "./users-management.model";
 import {Context, Role} from "./context-role.model";
 
 export interface UsersManagementState {
   permissionsForCurrentUser: string[],
   users: User[],
+  usersLoading: boolean,
+  usersTotalRecords: number,
   userForPopup: UserActionForPopup | null
   editedUser: User | null,
   allDashboardsWithMarkedUser: DashboardForUser[],
@@ -38,16 +47,23 @@ export interface UsersManagementState {
   allAvailableContextRoles: Role[],
   allAvailableContexts: Context[],
   userContextRoles: any[],
-  selectedBusinessContextRoleForEditedUser: Role | null
+  selectedBusinessContextRoleForEditedUser: Role | null,
   selectedDataDomainRolesForEditedUser: any[],
   selectedDashboardsForUser: ContextDashboardsForUser[],
-  adminEmails: string[];
-  userSaveButtonDisabled: boolean;
+  adminEmails: string[],
+  userSaveButtonDisabled: boolean,
+  subsystemUsers: SubsystemUsersResultDto[],
+  subsystemUsersLoading: boolean,
+  subsystemUsersForDashboards: DashboardUsersResultDto[],
+  subsystemUsersForDashboardsLoading: boolean,
+  syncStatus: string
 }
 
 export const initialUsersManagementState: UsersManagementState = {
   permissionsForCurrentUser: [],
   users: [],
+  usersLoading: false,
+  usersTotalRecords: 0,
   userForPopup: null,
   editedUser: null,
   allDashboardsWithMarkedUser: [],
@@ -59,5 +75,12 @@ export const initialUsersManagementState: UsersManagementState = {
   selectedDataDomainRolesForEditedUser: [],
   selectedDashboardsForUser: [],
   adminEmails: [],
-  userSaveButtonDisabled: false
+  userSaveButtonDisabled: false,
+  subsystemUsers: [],
+  subsystemUsersLoading: false,
+  subsystemUsersForDashboards: [],
+  subsystemUsersForDashboardsLoading: false,
+  syncStatus: 'COMPLETED'
 }
+
+

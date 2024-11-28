@@ -30,9 +30,9 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
-import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.RoleRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Role;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.RoleRepository;
 import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -63,7 +63,7 @@ public class CbRoleResourceProviderService {
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-seconds:300}", timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishRoles() {
         log.info("--> publishRoles()");
 

@@ -27,18 +27,29 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import java.io.Serializable;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.ToString;
+
+import java.io.Serializable;
+import java.util.List;
 
 
 @ToString
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserContextRoleUpdate implements Serializable {
     private String email;
     private String username;
+    @JsonProperty("first_name")
+    private String firstName;
+    @JsonProperty("last_name")
+    private String lastName;
+    private Boolean active;
     private List<ContextRole> contextRoles;
+    //technical - send user list pushback enabled by default
+    private boolean sendBackUsersList = true;
 
     @ToString
     @Data

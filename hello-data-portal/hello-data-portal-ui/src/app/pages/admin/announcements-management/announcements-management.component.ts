@@ -33,8 +33,14 @@ import {selectAllAnnouncements} from "../../../store/announcement/announcement.s
 import {Announcement} from "../../../store/announcement/announcement.model";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
+import {
+  deleteAnnouncement,
+  loadAllAnnouncements,
+  openAnnouncementEdition,
+  showDeleteAnnouncementPopup
+} from "../../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 
 @Component({
   selector: 'app-announcements-management',
@@ -44,10 +50,12 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 export class AnnouncementsManagementComponent extends BaseComponent implements OnInit {
 
   allAnnouncements$: Observable<any>;
+  selectedLanguage$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
     this.allAnnouncements$ = this.store.select(selectAllAnnouncements);
+    this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     store.dispatch(loadAllAnnouncements());
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -79,4 +87,7 @@ export class AnnouncementsManagementComponent extends BaseComponent implements O
     return deleteAnnouncement();
   }
 
+  getMessage(announcement: Announcement, selectedLanguage: any): string | undefined {
+    return announcement?.messages?.[selectedLanguage.code];
+  }
 }

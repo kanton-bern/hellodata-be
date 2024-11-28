@@ -46,7 +46,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
 import static ch.bedag.dap.hellodata.sidecars.airflow.service.user.AirflowUserUtil.*;
@@ -62,35 +61,33 @@ public class AirflowUserContextRoleConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
-    public CompletableFuture<Void> subscribe(UserContextRoleUpdate userContextRoleUpdate) {
+    public void subscribe(UserContextRoleUpdate userContextRoleUpdate) throws URISyntaxException, IOException {
         log.info("Update user context roles {}", userContextRoleUpdate);
         AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
+        List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
+        updateUserRoles(userContextRoleUpdate, airflowClient, allAirflowRoles);
+    }
+
+    public void updateUserRoles(UserContextRoleUpdate userContextRoleUpdate, AirflowClient airflowClient, List<AirflowRole> allAirflowRoles) {
         try {
-            List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
             List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles =
                     userContextRoleUpdate.getContextRoles().stream().filter(contextRole -> contextRole.getRoleName().getContextType() == HdContextType.DATA_DOMAIN).toList();
             AirflowUserResponse airflowUser = getAirflowUser(userContextRoleUpdate, airflowClient);
             if (!dataDomainContextRoles.isEmpty()) {
                 allAirflowRoles = createContextRolesIfNotExist(dataDomainContextRoles, allAirflowRoles, airflowClient);
-                if (airflowUser != null) {
-                    if (airflowUser.getRoles() == null) {
-                        airflowUser.setRoles(new ArrayList<>());
-                    }
-                    addOrRemoveAdminRole(userContextRoleUpdate, allAirflowRoles, airflowUser);
-                    updateBusinessContextRoleForUser(airflowUser, dataDomainContextRoles, allAirflowRoles, airflowClient);
-                } else {
-                    log.warn("User {} not found in airflow", userContextRoleUpdate.getEmail());
+                if (airflowUser.getRoles() == null) {
+                    airflowUser.setRoles(new ArrayList<>());
                 }
+                addOrRemoveAdminRole(userContextRoleUpdate, allAirflowRoles, airflowUser);
+                updateBusinessContextRoleForUser(airflowUser, dataDomainContextRoles, allAirflowRoles, airflowClient, userContextRoleUpdate);
             } else {
                 removeAllDataDomainRolesFromUser(airflowUser);
                 leavePublicRoleIfNoneOthersSet(airflowUser, allAirflowRoles);
-                updateUser(airflowUser, airflowClient, airflowUserResourceProviderService);
+                updateUser(airflowUser, airflowClient, airflowUserResourceProviderService, userContextRoleUpdate.isSendBackUsersList());
             }
         } catch (URISyntaxException | IOException e) {
             log.error("Could not update user {}", userContextRoleUpdate.getEmail(), e);
         }
-
-        return null;
     }
 
     private void addOrRemoveAdminRole(UserContextRoleUpdate userContextRoleUpdate, List<AirflowRole> allAirflowRoles, AirflowUserResponse airflowUser) {
@@ -103,6 +100,7 @@ public class AirflowUserContextRoleConsumer {
 
     private List<AirflowRole> createContextRolesIfNotExist(List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles, List<AirflowRole> roles,
                                                            AirflowClient airflowClient) throws URISyntaxException, IOException {
+        boolean roleCreated = false;
         for (UserContextRoleUpdate.ContextRole contextRole : dataDomainContextRoles) {
             Optional<AirflowRole> airflowRoleResult =
                     roles.stream().filter(airflowRole -> airflowRole.getName().equalsIgnoreCase(DATA_DOMAIN_ROLE_PREFIX + contextRole.getContextKey())).findFirst();
@@ -110,15 +108,18 @@ public class AirflowUserContextRoleConsumer {
                 AirflowRole role = new AirflowRole();
                 role.setName(DATA_DOMAIN_ROLE_PREFIX + contextRole.getContextKey());
                 airflowClient.createRole(role);
+                roleCreated = true;
             }
         }
-        airflowRoleResourceProviderService.publishRoles();
+        if (roleCreated) {
+            airflowRoleResourceProviderService.publishRoles();
+        }
         //fetch roles again
         return airflowClient.roles().getRoles();
     }
 
     private void updateBusinessContextRoleForUser(AirflowUserResponse airflowUser, List<UserContextRoleUpdate.ContextRole> dataDomainContextRoles,
-                                                  List<AirflowRole> allAirflowRoles, AirflowClient airflowClient) throws IOException, URISyntaxException {
+                                                  List<AirflowRole> allAirflowRoles, AirflowClient airflowClient, UserContextRoleUpdate userContextRoleUpdate) throws IOException, URISyntaxException {
         removeAllDataDomainRolesFromUser(airflowUser);
         for (UserContextRoleUpdate.ContextRole contextRole : dataDomainContextRoles) {
             String dataDomainRole = DATA_DOMAIN_ROLE_PREFIX + contextRole.getContextKey();
@@ -130,7 +131,7 @@ public class AirflowUserContextRoleConsumer {
         }
         removeRoleFromUser(airflowUser, VIEWER_ROLE_NAME, allAirflowRoles);
         leavePublicRoleIfNoneOthersSet(airflowUser, allAirflowRoles);
-        updateUser(airflowUser, airflowClient, airflowUserResourceProviderService);
+        updateUser(airflowUser, airflowClient, airflowUserResourceProviderService, userContextRoleUpdate.isSendBackUsersList());
     }
 
     private void leavePublicRoleIfNoneOthersSet(AirflowUserResponse airflowUser, List<AirflowRole> allAirflowRoles) {
