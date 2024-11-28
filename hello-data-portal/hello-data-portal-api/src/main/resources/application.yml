@@ -102,7 +102,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       max-lifetime: 900000 #15min
-      maximum-pool-size: 5
   jpa:
     show-sql: false
     hibernate:
