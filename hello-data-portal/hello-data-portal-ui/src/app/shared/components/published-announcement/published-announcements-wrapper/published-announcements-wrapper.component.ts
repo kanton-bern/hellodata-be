@@ -42,6 +42,7 @@ import {
 import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-published-announcements.service";
 import {selectUrl} from "../../../../store/router/router.selectors";
 import {naviElements} from "../../../../app-navi-elements";
+import {take} from "rxjs/operators";
 
 @Component({
   providers: [DialogService],
@@ -99,7 +100,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
         this.hideAllCurrentAnnouncementsService.hide = false;
       }
     });
-    const subscription = this.ref.onClose.subscribe(() => {
+    this.ref.onClose.pipe(take(1)).subscribe(() => {
       if (this.hideAllCurrentAnnouncementsService.hide) {
         for (const announcement of announcements) {
           this.hide(announcement);
@@ -108,11 +109,6 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
       }
     });
 
-    this.ref.onDestroy.subscribe(() => {
-      if (subscription) {
-        subscription.unsubscribe()
-      }
-    });
   }
 
 }
