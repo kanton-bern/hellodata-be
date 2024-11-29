@@ -121,7 +121,7 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
         UserRepresentation user = generateUser(username, firstName, lastName, email);
         setDefaultAdminPassword(user);
         String userId = createUserInKeycloak(user);
-        UserEntity userEntity = saveUserToDatabase(userId, defaultAdminProperties.getEmail(), firstName, lastName);
+        UserEntity userEntity = saveUserToDatabase(userId, defaultAdminProperties.getEmail(), firstName, lastName, username);
         setAsHellodataAdmin(userEntity);
         updateDefaultUser(userEntity);
         return true;
