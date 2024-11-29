@@ -22,9 +22,9 @@
                 </div>
                 <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
                   <span
-                    *ngIf="pipeline.lastInstance.startDate">{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+                    *ngIf="pipeline?.lastInstance?.startDate">{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
                 </div>
-                <div [ngSwitch]="pipeline.lastInstance.state" class="col-1">
+                <div *ngIf="pipeline?.lastInstance" [ngSwitch]="pipeline.lastInstance.state" class="col-1">
                   <span *ngSwitchCase="'queued'" [pTooltip]="pipeline.lastInstance.state"
                         class="align-items-end pi pi-hourglass"
                         style="color: gray"></span>
