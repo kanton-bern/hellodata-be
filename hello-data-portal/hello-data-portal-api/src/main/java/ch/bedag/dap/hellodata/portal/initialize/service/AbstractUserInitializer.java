@@ -41,7 +41,7 @@ public abstract class AbstractUserInitializer {
         return userId;
     }
 
-    protected UserEntity saveUserToDatabase(String userId, String email, String firstName, String lastName) {
+    protected UserEntity saveUserToDatabase(String userId, String email, String firstName, String lastName, String username) {
         //update user
         UserEntity userEntity;
         Optional<UserEntity> resultSearch = userRepository.findById(UUID.fromString(userId));
@@ -53,6 +53,7 @@ public abstract class AbstractUserInitializer {
             userEntity.setEmail(email);
             userEntity.setFirstName(firstName);
             userEntity.setLastName(lastName);
+            userEntity.setUsername(username);
         }
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);

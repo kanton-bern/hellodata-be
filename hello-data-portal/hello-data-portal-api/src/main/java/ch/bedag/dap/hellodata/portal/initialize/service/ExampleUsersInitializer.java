@@ -171,7 +171,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             ddViewerId = createUserInKeycloak(ddViewer);
         }
         if (!userRepository.existsByIdOrAuthId(UUID.fromString(ddViewerId), ddViewerId)) {
-            UserEntity ddViewerEntity = saveUserToDatabase(ddViewerId, ddViewerEmail, ddViewerFirstName, ddViewerLastName);
+            UserEntity ddViewerEntity = saveUserToDatabase(ddViewerId, ddViewerEmail, ddViewerFirstName, ddViewerLastName, ddViewerUsername);
             roleService.setBusinessDomainRoleForUser(ddViewerEntity, HdRoleName.NONE);
             ddViewerEntity = userRepository.getReferenceById(ddViewerEntity.getId());
             Optional<RoleDto> ddViewerRoleResult = allRoles.stream()
@@ -206,7 +206,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             ddEditorId = createUserInKeycloak(ddEditor);
         }
         if (!userRepository.existsByIdOrAuthId(UUID.fromString(ddEditorId), ddEditorId)) {
-            UserEntity ddEditorEntity = saveUserToDatabase(ddEditorId, ddEditorEmail, ddEditorFirstName, ddEditorLastName);
+            UserEntity ddEditorEntity = saveUserToDatabase(ddEditorId, ddEditorEmail, ddEditorFirstName, ddEditorLastName, ddEditorUsername);
             roleService.setBusinessDomainRoleForUser(ddEditorEntity, HdRoleName.NONE);
             ddEditorEntity = userRepository.getReferenceById(ddEditorEntity.getId());
             Optional<RoleDto> ddEditorRoleResult = allRoles.stream()
@@ -241,7 +241,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             ddAdminId = createUserInKeycloak(ddAdmin);
         }
         if (!userRepository.existsByIdOrAuthId(UUID.fromString(ddAdminId), ddAdminId)) {
-            UserEntity ddAdminEntity = saveUserToDatabase(ddAdminId, ddAdminEmail, ddAdminFirstName, ddAdminLastName);
+            UserEntity ddAdminEntity = saveUserToDatabase(ddAdminId, ddAdminEmail, ddAdminFirstName, ddAdminLastName, dataDomainAdminUsername);
             roleService.setBusinessDomainRoleForUser(ddAdminEntity, HdRoleName.NONE);
             ddAdminEntity = userRepository.getReferenceById(ddAdminEntity.getId());
             Optional<RoleDto> ddAdminRoleResult = allRoles.stream()
@@ -276,7 +276,7 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             userId = createUserInKeycloak(user);
         }
         if (!userRepository.existsByIdOrAuthId(UUID.fromString(userId), userId)) {
-            UserEntity bdAdminEntity = saveUserToDatabase(userId, email, firstName, lastName);
+            UserEntity bdAdminEntity = saveUserToDatabase(userId, email, firstName, lastName, adminUsername);
             roleService.setBusinessDomainRoleForUser(bdAdminEntity, HdRoleName.BUSINESS_DOMAIN_ADMIN);
             bdAdminEntity = userRepository.getReferenceById(bdAdminEntity.getId());
             roleService.setAllDataDomainRolesForUser(bdAdminEntity, HdRoleName.DATA_DOMAIN_ADMIN);
