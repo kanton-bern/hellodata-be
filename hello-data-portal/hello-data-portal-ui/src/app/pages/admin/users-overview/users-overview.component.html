@@ -14,13 +14,13 @@
             <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-replay"
                       label="{{ '@Reload' | transloco }}"
-                      styleClass="p-button-rounded p-button-success"/>
+                      styleClass="p-button-success"/>
           </div>
           <div class="ml-1" style="text-align: left">
             <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-times-circle"
                       label="{{ '@Clear cache' | transloco }}"
-                      styleClass="p-button-rounded p-button-help"/>
+                      styleClass="p-button-help"/>
           </div>
         </div>
       </ng-template>
@@ -46,7 +46,8 @@
           <td *ngFor="let col of columns">
             <ng-container
               *ngIf="shouldShowTag(row[col.field], row[col.field + NO_TAG]); else singleValue">
-              <p-tag *ngFor="let value of row[col.field].split(',')" [severity]="getTagSeverity(value)" [value]="value.trim()"
+              <p-tag *ngFor="let value of row[col.field].split(',')" [severity]="getTagSeverity(value)"
+                     [value]="value.trim()"
                      class="m-1"></p-tag>
             </ng-container>
             <ng-template #singleValue>
