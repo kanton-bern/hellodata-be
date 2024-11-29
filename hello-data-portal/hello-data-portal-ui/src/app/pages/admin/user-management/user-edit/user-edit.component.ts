@@ -193,6 +193,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   selectedDashboardsEvent(dashboards: DashboardForUser[], dataDomain: Context) {
+    console.log('selectedDashboardsEvent', dashboards);
     this.store.dispatch(setSelectedDashboardForUser({dashboards, contextKey: dataDomain.contextKey as string}));
   }
 

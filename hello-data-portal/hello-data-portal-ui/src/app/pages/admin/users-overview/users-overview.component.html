@@ -46,8 +46,8 @@
           <td *ngFor="let col of columns">
             <ng-container
               *ngIf="shouldShowTag(row[col.field], row[col.field + NO_TAG]); else singleValue">
-              <p-tag *ngFor="let value of row[col.field].split(',')" [value]="value.trim()" class="m-1"
-                     severity="{{getTagSeverity(value)}}"></p-tag>
+              <p-tag *ngFor="let value of row[col.field].split(',')" [severity]="getTagSeverity(value)" [value]="value.trim()"
+                     class="m-1"></p-tag>
             </ng-container>
             <ng-template #singleValue>
               <ng-container *ngIf="row[col.field] === 'true'">

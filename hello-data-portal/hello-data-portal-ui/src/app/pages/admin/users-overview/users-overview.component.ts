@@ -100,12 +100,12 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     return false;
   }
 
-  getTagSeverity(value: string) {
+  getTagSeverity(value: string): "success" | "secondary" | "info" | "warning" | "danger" | "contrast" | undefined {
     const valTrimmed = value.trim();
     if (valTrimmed.includes('Admin')) {
       return 'danger';
     }
-    return value.trim().startsWith('BI_') ? '' : 'success';
+    return value.trim().startsWith('BI_') ? undefined : 'success';
   }
 
   translateValue(value: string): string {
