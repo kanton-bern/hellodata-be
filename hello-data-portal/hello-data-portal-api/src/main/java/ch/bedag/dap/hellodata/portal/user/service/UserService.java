@@ -593,27 +593,21 @@ public class UserService {
         try {
             SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = new SupersetDashboardsForUserUpdate();
             UserEntity userEntity = getUserEntity(userId);
-            SubsystemUser userInInstance = metaInfoResourceService.findUserInInstance(userEntity.getEmail(), supersetInstanceName);
-            if (userInInstance != null) {
-                supersetDashboardsForUserUpdate.setSupersetUserId(userInInstance.getId());
-                supersetDashboardsForUserUpdate.setSupersetUserName(userInInstance.getUsername());
-                supersetDashboardsForUserUpdate.setSupersetUserEmail(userInInstance.getEmail());
-                supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
-                supersetDashboardsForUserUpdate.setSupersetFirstName(userInInstance.getFirstName());
-                supersetDashboardsForUserUpdate.setSupersetLastName(userInInstance.getLastName());
-                supersetDashboardsForUserUpdate.setActive(userInInstance.isActive());
-                String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
-                log.info("[updateDashboardRoleForUser] Sending request to subject: {}", subject);
-                Message reply =
-                        connection.request(subject, objectMapper.writeValueAsString(supersetDashboardsForUserUpdate).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
-                if (reply == null) {
-                    log.warn("Reply is null, please verify superset sidecar or nats connection");
-                } else {
-                    reply.ack();
-                    log.info("[updateDashboardRoleForUser] Response received: " + new String(reply.getData()));
-                }
+            supersetDashboardsForUserUpdate.setSupersetUserName(userEntity.getUsername());
+            supersetDashboardsForUserUpdate.setSupersetUserEmail(userEntity.getEmail());
+            supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
+            supersetDashboardsForUserUpdate.setSupersetFirstName(userEntity.getFirstName());
+            supersetDashboardsForUserUpdate.setSupersetLastName(userEntity.getLastName());
+            supersetDashboardsForUserUpdate.setActive(userEntity.isEnabled());
+            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
+            log.info("[updateDashboardRoleForUser] Sending request to subject: {}", subject);
+            Message reply =
+                    connection.request(subject, objectMapper.writeValueAsString(supersetDashboardsForUserUpdate).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
+            if (reply == null) {
+                log.warn("Reply is null, please verify superset sidecar or nats connection");
             } else {
-                log.error("User {} not found in superset instance {}!", userEntity.getEmail(), supersetInstanceName);
+                reply.ack();
+                log.info("[updateDashboardRoleForUser] Response received: " + new String(reply.getData()));
             }
         } catch (Exception e) {
             log.error("Error updating dashboard role for user", e);
