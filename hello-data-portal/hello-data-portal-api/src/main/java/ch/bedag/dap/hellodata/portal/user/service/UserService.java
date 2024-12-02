@@ -399,11 +399,7 @@ public class UserService {
         if (email == null || email.length() < 3) {
             return new ArrayList<>();
         }
-        return userLookupProviderManager.searchUserByEmail(email)
-                .stream()
-                .collect(Collectors.toCollection(LinkedHashSet::new))
-                .stream()
-                .collect(Collectors.toList());
+        return new ArrayList<>(new LinkedHashSet<>(userLookupProviderManager.searchUserByEmail(email)));
     }
 
     @Transactional(readOnly = true)
