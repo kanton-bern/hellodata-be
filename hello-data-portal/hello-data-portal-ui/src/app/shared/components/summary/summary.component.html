@@ -8,37 +8,39 @@
         <p-accordion>
           <p-accordionTab header="Data pipelines">
             <p-dataView [value]="(pipelines$ | async)!" emptyMessage="{{ '@No data found' | transloco }}">
-              <ng-template let-pipeline pTemplate="listItem">
-                <div class="col-8">
-                  <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
-                  <!--                          label="{{ pipeline.id | truncate: 30}}" placeholder="Left"-->
-                  <!--                          pButton tooltipPosition="left"-->
-                  <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
-                  <!--                          type="button">-->
-                  <!--                  </button>-->
-                  <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}" placeholder="Left"
-                         style="font-size: 0.9rem; font-weight: 400"
-                         tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</label>
-                </div>
-                <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
+              <ng-template let-pipelines pTemplate="list">
+                <div *ngFor="let pipeline of pipelines; let first = first" class="p-grid grid">
+                  <div class="col-8">
+                    <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
+                    <!--                          label="{{ pipeline.id | truncate: 30}}" placeholder="Left"-->
+                    <!--                          pButton tooltipPosition="left"-->
+                    <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
+                    <!--                          type="button">-->
+                    <!--                  </button>-->
+                    <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}" placeholder="Left"
+                           style="font-size: 0.9rem; font-weight: 400"
+                           tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</label>
+                  </div>
+                  <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
                   <span
-                    *ngIf="pipeline.lastInstance.startDate">{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
-                </div>
-                <div [ngSwitch]="pipeline.lastInstance.state" class="col-1">
+                    *ngIf="pipeline?.lastInstance?.startDate">{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+                  </div>
+                  <div *ngIf="pipeline?.lastInstance" [ngSwitch]="pipeline.lastInstance.state" class="col-1">
                   <span *ngSwitchCase="'queued'" [pTooltip]="pipeline.lastInstance.state"
                         class="align-items-end pi pi-hourglass"
                         style="color: gray"></span>
-                  <span *ngSwitchCase="'running'" [pTooltip]="pipeline.lastInstance.state"
-                        class="align-items-end pi pi-spin pi-cog"
-                        style="color: green"></span>
-                  <span *ngSwitchCase="'success'" [pTooltip]="pipeline.lastInstance.state"
-                        class="align-items-end pi pi-check-circle"
-                        style="color: green"></span>
-                  <span *ngSwitchCase="'failed'" [pTooltip]="pipeline.lastInstance.state"
-                        class="align-items-end pi pi-exclamation-circle"
-                        style="color: red"></span>
-                  <span *ngSwitchDefault [pTooltip]="'unknown'" class="align-items-end pi pi-question-circle"
-                        style="color: gray"></span>
+                    <span *ngSwitchCase="'running'" [pTooltip]="pipeline.lastInstance.state"
+                          class="align-items-end pi pi-spin pi-cog"
+                          style="color: green"></span>
+                    <span *ngSwitchCase="'success'" [pTooltip]="pipeline.lastInstance.state"
+                          class="align-items-end pi pi-check-circle"
+                          style="color: green"></span>
+                    <span *ngSwitchCase="'failed'" [pTooltip]="pipeline.lastInstance.state"
+                          class="align-items-end pi pi-exclamation-circle"
+                          style="color: red"></span>
+                    <span *ngSwitchDefault [pTooltip]="'unknown'" class="align-items-end pi pi-question-circle"
+                          style="color: gray"></span>
+                  </div>
                 </div>
               </ng-template>
             </p-dataView>

@@ -29,15 +29,22 @@ package ch.bedag.dap.hellodata.sidecars.cloudbeaver.service;
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Role;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.cbnative.AuthSubject;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.cbnative.Team;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.AuthSubjectRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.PrivilegeRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.RoleRepository;
-import java.util.Collection;
-import java.util.Set;
+import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.compress.utils.Sets;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Log4j2
@@ -46,6 +53,8 @@ public class SecurityService {
 
     private final RoleRepository roleRepository;
     private final PrivilegeRepository privilegeRepository;
+    private final AuthSubjectRepository authSubjectRepository;
+    private final TeamRepository teamRepository;
 
     @Transactional
     public void createDataDomainRoles(Set<String> contextKeys) {
@@ -57,10 +66,43 @@ public class SecurityService {
             createCbRole(contextKey, readOnDwhPrivilege);
             // create role for _LZN tables access
             createCbRole(contextKey, readOnLznPrivilege);
+            
+            // create teams + auth_subject_id entries
+            String cbAuthSubjectReadDM = contextKey + "_" + Privilege.READ_DM_PRIVILEGE;
+            createCbAuthSubjectIfNotFound(cbAuthSubjectReadDM);
+            createCbTeamIfNotFound(cbAuthSubjectReadDM, false, contextKey);
+            String cbAuthSubjectReadDWH = contextKey + "_" + Privilege.READ_DWH_PRIVILEGE;
+            createCbAuthSubjectIfNotFound(cbAuthSubjectReadDWH);
+            createCbTeamIfNotFound(cbAuthSubjectReadDWH, true, contextKey);
         });
 
         // create an admin user role
         createRoleIfNotFound(Role.ADMIN_ROLE_KEY, Role.ADMIN_ROLE_NAME, Sets.newHashSet(readOnDwhPrivilege, readOnLznPrivilege));
+    }
+
+    private void createCbTeamIfNotFound(String teamId, boolean dwh, String contextKey) {
+        List<Team> teams = teamRepository.findByTeamId(teamId);
+        if (teams.isEmpty()) {
+            Team team = new Team();
+            team.setTeamId(teamId);
+            team.setTeamName(teamId);
+            team.setTeamDescription(String.format("User to read on %s in %s", dwh ? "all tables" : "_dm", contextKey));
+            team.setCreateTime(LocalDateTime.now());
+            teamRepository.save(team);
+            log.info("Team with id {} not found, created {}", teamId, team);
+        }
+    }
+
+    private void createCbAuthSubjectIfNotFound(String cbAuthSubject) {
+        List<AuthSubject> authSubjects = authSubjectRepository.findBySubjectId(cbAuthSubject);
+        if (authSubjects.isEmpty()) {
+            AuthSubject authSubject = new AuthSubject();
+            authSubject.setSubjectType("R");
+            authSubject.setSubjectId(cbAuthSubject);
+            authSubject.setIsSecretStorage(true);
+            authSubjectRepository.saveAndFlush(authSubject);
+            log.info("Subject with id {} not found, created", cbAuthSubject);
+        }
     }
 
     private void createCbRole(String contextKey, Privilege privilege) {
