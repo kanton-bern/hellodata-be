@@ -397,9 +397,16 @@ public class UserService {
 
     public List<AdUserDto> searchUser(String email) {
         if (email == null || email.length() < 3) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
-        return new ArrayList<>(new LinkedHashSet<>(userLookupProviderManager.searchUserByEmail(email)));
+
+        List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
+        Set<String> uniqueEmails = new HashSet<>();
+
+        return users.stream()
+                .filter(Objects::nonNull)
+                .filter(user -> uniqueEmails.add(user.getEmail()))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
