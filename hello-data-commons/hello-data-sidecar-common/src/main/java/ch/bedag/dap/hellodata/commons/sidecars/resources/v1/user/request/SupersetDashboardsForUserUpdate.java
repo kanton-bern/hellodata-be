@@ -35,7 +35,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SupersetDashboardsForUserUpdate {
     List<DashboardForUserDto> dashboards;
-    private int supersetUserId;
     private String supersetUserName;
     private String supersetUserEmail;
     private String supersetFirstName;
