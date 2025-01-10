@@ -210,7 +210,7 @@ public class SftpGoService {
         vf.setName(createdFolder.getName());
         vf.setDescription(createdFolder.getDescription());
         vf.setMappedPath(createdFolder.getMappedPath());
-        vf.setVirtualPath("/" + groupName);
+        vf.setVirtualPath("/" + dataDomainName);
         vf.setId(createdFolder.getId());
         return vf;
     }
