@@ -98,9 +98,17 @@ public class SftpGoService {
         permissions.put("/", List.of(STAR));
         user.permissions(permissions);
 
+        UserFilters filters = new UserFilters();
+        filters.setWebClient(List.of(WebClientOptions.MFA_DISABLED));
+        user.setFilters(filters);
+
         User createdUser = usersApi.addUser(user, 0).block();
-        usersApi.disableUser2fa(username).block();
-        log.info("User {} created", username);
+        if (createdUser != null) {
+            usersApi.disableUser2fa(createdUser.getUsername()).block();
+            log.info("User {} created", username);
+        } else {
+            log.info("User {} not created", username);
+        }
         return createdUser;
     }
 
