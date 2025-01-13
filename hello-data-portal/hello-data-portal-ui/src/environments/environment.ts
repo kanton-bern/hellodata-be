@@ -45,7 +45,8 @@ export const environment: Environment = window.environment != undefined ? window
     authority: '',
     redirectUrl: '',
     postLogoutRedirectUri: '',
-    clientId: ''
+    clientId: '',
+    scope: 'openid profile email'
   },
   deploymentEnvironment: {
     showEnvironment: true,
