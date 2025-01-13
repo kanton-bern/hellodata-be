@@ -52,11 +52,11 @@ public class SftpGoUserResourceProviderService {
         List<SubsystemUser> subsystemUsers = toSubsystemUsers(allUsers);
         if (podUtils != null) {
             V1Pod current = podUtils.currentPod().get();
-            UserResource userResource = new UserResource(ModuleType.AIRFLOW, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
+            UserResource userResource = new UserResource(ModuleType.SFTPGO, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
             natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
         } else {
             //dummy info for tests
-            UserResource userResource = new UserResource(ModuleType.AIRFLOW, this.instanceName, "local", subsystemUsers);
+            UserResource userResource = new UserResource(ModuleType.SFTPGO, this.instanceName, "local", subsystemUsers);
             natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
         }
     }
