@@ -1,4 +1,3 @@
-
 <h2 class="content-block">Workspaces</h2>
 <div *ngIf="(appInfos$ | async) as appInfos" class="card">
   <div class="grid">
@@ -12,16 +11,23 @@
           </tr>
           <tr>
             <td style="text-align: center; padding: 5px; font-size: 1em">
-              {{item.instanceName}}<br>
+              {{ item.instanceName }}<br>
             </td>
           </tr>
           <tr>
             <td style="text-align: center">
-              <img *ngIf="item.moduleType === 'SUPERSET'" alt="Superset" class="logo" src="assets/workspaces/logos/superset.png"/>
-              <img *ngIf="item.moduleType === 'AIRFLOW'" alt="Airflow" class="logo" src="assets/workspaces/logos/airflow.png"/>
-              <img *ngIf="item.moduleType === 'DBT_DOCS'" alt="DBT Docs" class="logo" src="assets/workspaces/logos/dbt.svg"/>
-              <img *ngIf="item.moduleType === 'CLOUDBEAVER'" alt="Cloudbeaver" class="logo" src="assets/workspaces/logos/cloudbeaver.png"/>
-              <img *ngIf="item.moduleType === 'JUPYTERHUB'" alt="Jupyterhub" class="logo" src="assets/workspaces/logos/jupyterhub.png"/>
+              <img *ngIf="item.moduleType === 'SUPERSET'" alt="Superset" class="logo"
+                   src="assets/workspaces/logos/superset.png"/>
+              <img *ngIf="item.moduleType === 'AIRFLOW'" alt="Airflow" class="logo"
+                   src="assets/workspaces/logos/airflow.png"/>
+              <img *ngIf="item.moduleType === 'DBT_DOCS'" alt="DBT Docs" class="logo"
+                   src="assets/workspaces/logos/dbt.svg"/>
+              <img *ngIf="item.moduleType === 'CLOUDBEAVER'" alt="Cloudbeaver" class="logo"
+                   src="assets/workspaces/logos/cloudbeaver.png"/>
+              <img *ngIf="item.moduleType === 'JUPYTERHUB'" alt="Jupyterhub" class="logo"
+                   src="assets/workspaces/logos/jupyterhub.png"/>
+              <img *ngIf="item.moduleType === 'SFTPGO'" alt="SftpGO" class="logo"
+                   src="assets/workspaces/logos/sftpgo-logo.png"/>
             </td>
           </tr>
         </table>
