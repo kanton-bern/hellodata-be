@@ -60,7 +60,7 @@ RUN pip install --no-cache-dir pyaxis pygdaltools pyctuator
 RUN pip --no-cache-dir install apache-airflow-providers-sftp
 
 # upgrade cncf-kubernetes
-RUN pip install apache-airflow-providers-cncf-kubernetes==8.4.0
+RUN pip install --upgrade apache-airflow-providers-cncf-kubernetes
 
 #USER root
 # Copy config files to container's $AIRFLOW_HOME
