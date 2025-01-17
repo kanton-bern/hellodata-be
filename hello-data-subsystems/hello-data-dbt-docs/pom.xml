@@ -27,7 +27,6 @@
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <spring-cloud.version>2020.0.4</spring-cloud.version>
         <main.class>ch.bedag.dap.hellodata.docs.HelloDataDocsApplication</main.class>
         <docker.file>Dockerfile</docker.file>
         <liquibase.version>4.22.0</liquibase.version>
