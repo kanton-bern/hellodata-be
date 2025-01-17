@@ -38,7 +38,7 @@ sed -i "s/SHOWCASE_DWH_NAME/$SHOWCASE_DWH_NAME/g" "$DESTINATION_PATH/dbt/profile
 sed -i "s/CONNECTION_ID/$CONNECTION_ID/g" "$DESTINATION_PATH/dags/tierstatistik_elt_dag.py"
 sed -i "s/CONNECTION_ID/$CONNECTION_ID/g" "$DESTINATION_PATH/dags/install_common_data.py"
 
-chmod 777 /storage
+chmod -R 777 /storage
 
 # Run an infinite loop to keep the container running
 while true; do
