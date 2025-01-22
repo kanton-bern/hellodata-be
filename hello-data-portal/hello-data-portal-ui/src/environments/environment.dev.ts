@@ -46,7 +46,8 @@ export const environment: Environment = window.environment != undefined ? window
     authority: 'http://localhost:38080/realms/hellodata',
     redirectUrl: 'http://localhost:4200',
     postLogoutRedirectUri: 'http://localhost:4200',
-    clientId: 'frontend-client'
+    clientId: 'frontend-client',
+    scope: 'openid profile email'
   },
   deploymentEnvironment: {
     name: 'DEV',

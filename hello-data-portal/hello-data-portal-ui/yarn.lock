@@ -3291,10 +3291,10 @@ ajv@^8.0.0, ajv@^8.9.0:
     json-schema-traverse "^1.0.0"
     require-from-string "^2.0.2"
 
-angular-auth-oidc-client@^17.0.0:
-  version "17.1.0"
-  resolved "https://registry.npmjs.org/angular-auth-oidc-client/-/angular-auth-oidc-client-17.1.0.tgz#db701d39b74cfcc810685954b466f5b2d21ccacb"
-  integrity sha512-OxpRhvsggaZxHFkAbwA0zZyL/q3WeJUNlcpFpjrO2xix/lq5i0uCVhZndfRO0ebdq/omUo/4+WioLCt91WL0Yw==
+angular-auth-oidc-client@^19.0.0:
+  version "19.0.0"
+  resolved "https://registry.npmjs.org/angular-auth-oidc-client/-/angular-auth-oidc-client-19.0.0.tgz#a51def9cc5f6e56983badff62bf508b984a81d37"
+  integrity sha512-CloBjmHjG6CxbFFjYB1Ei+e172JUY1V3cK/v9pdbVuUz3OhiMC6CxBr331oB3Em2eWMmLi23jecl10lfiy9WUQ==
   dependencies:
     rfc4648 "^1.5.0"
     tslib "^2.3.0"

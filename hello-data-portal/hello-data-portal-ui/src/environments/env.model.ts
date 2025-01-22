@@ -55,6 +55,7 @@ export interface AuthConfig {
   clientId: string;
   redirectUrl: string;
   postLogoutRedirectUri: string;
+  scope: string;
 }
 
 export interface DeploymentConfig {

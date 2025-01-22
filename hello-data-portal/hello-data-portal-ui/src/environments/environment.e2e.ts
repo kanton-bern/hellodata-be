@@ -45,7 +45,8 @@ export const environment: Environment = window.environment != undefined ? window
     authority: 'http://hellodata-portal-keycloak:8080/realms/hellodata',
     redirectUrl: 'http://hellodata-portal-ui:80/',
     postLogoutRedirectUri: 'http://hellodata-portal-ui:80/',
-    clientId: 'frontend-client'
+    clientId: 'frontend-client',
+    scope: 'openid profile email'
   },
   deploymentEnvironment: {
     name: 'DEV'
