@@ -31,7 +31,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.Collection;
@@ -39,7 +38,6 @@ import java.util.Collection;
 @Entity(name = "dbt_user")
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class User extends BaseEntity {
 
     @Column(unique = true)
@@ -70,5 +68,10 @@ public class User extends BaseEntity {
 
     public User() {//NOSONAR
 
+    }
+
+    public User(String userName, String email) {
+        this.userName = userName;
+        this.email = email;
     }
 }
