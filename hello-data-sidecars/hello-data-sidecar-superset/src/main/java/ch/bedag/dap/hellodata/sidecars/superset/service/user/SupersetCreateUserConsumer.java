@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
@@ -68,10 +68,10 @@ public class SupersetCreateUserConsumer {
                     .getResult()
                     .stream()
                     .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME))
-                    .map(SupersetRole::getId)
+                    .map(SubsystemRole::getId)
                     .findFirst();
             SupersetUsersResponse response = supersetClient.getUser(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-            if (response != null && response.getResult().size() > 0) {
+            if (response != null && !response.getResult().isEmpty()) {
                 SubsystemUser user = response.getResult().get(0);
                 log.debug("User {} already exists in instance, omitting creation", supersetUserCreate.getEmail());
                 enableUser(supersetUserCreate, user, supersetClient, aPublicRoleId);

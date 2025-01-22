@@ -28,23 +28,25 @@ package ch.badag.dap.hellodata.commons.basemodel;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.MappedSuperclass;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.UUID;
-
 @Getter
 @Setter
 @ToString
 @MappedSuperclass
 @RequiredArgsConstructor
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @EntityListeners(TrackedEntityListener.class)
 public abstract class BaseEntity implements Trackable, Serializable {
     @Id
@@ -59,11 +61,6 @@ public abstract class BaseEntity implements Trackable, Serializable {
     }
 
     @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -73,5 +70,10 @@ public abstract class BaseEntity implements Trackable, Serializable {
         }
         BaseEntity that = (BaseEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -30,8 +30,8 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
@@ -84,7 +84,7 @@ public class SupersetUpdateUserContextRoleConsumer {
         if (dataDomainContextRole.isPresent()) {
             UserContextRoleUpdate.ContextRole contextRole = dataDomainContextRole.get();
             SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
-            supersetUserRolesUpdate.setRoles(supersetUser.getRoles().stream().map(SupersetRole::getId).toList());
+            supersetUserRolesUpdate.setRoles(supersetUser.getRoles().stream().map(SubsystemRole::getId).toList());
             removeBiRoles(allRoles, supersetUserRolesUpdate);
             assignAdminRoleIfSuperuser(userContextRoleUpdate, allRoles, supersetUserRolesUpdate);
             switch (contextRole.getRoleName()) {
@@ -128,7 +128,7 @@ public class SupersetUpdateUserContextRoleConsumer {
             subsystemUserUpdate.setLastName(userContextRoleUpdate.getLastName());
             subsystemUserUpdate.setPassword(userContextRoleUpdate.getFirstName());
 
-            List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).toList();
+            List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SubsystemRole::getId).toList();
             subsystemUserUpdate.setRoles(roles);
             IdResponse createdUser = supersetClient.createUser(subsystemUserUpdate);
             return supersetClient.user(createdUser.id).getResult();
@@ -152,7 +152,7 @@ public class SupersetUpdateUserContextRoleConsumer {
     }
 
     private void assignRoleToUser(String roleName, SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
-        List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SupersetRole::getId).toList();
+        List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SubsystemRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles();
         supersetUserRolesUpdate.setRoles(Stream.concat(roles.stream(), userRoles.stream()).toList());
     }

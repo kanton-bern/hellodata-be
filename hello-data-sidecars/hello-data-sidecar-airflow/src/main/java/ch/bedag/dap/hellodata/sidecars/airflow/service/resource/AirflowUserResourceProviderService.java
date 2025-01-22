@@ -29,9 +29,9 @@ package ch.bedag.dap.hellodata.sidecars.airflow.service.resource;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemGetAllUsers;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserRole;
@@ -121,12 +121,12 @@ public class AirflowUserResourceProviderService {
         return subsystemUser;
     }
 
-    private List<SupersetRole> toSupersetRoles(List<AirflowUserRole> airflowUserRoles) {
+    private List<SubsystemRole> toSupersetRoles(List<AirflowUserRole> airflowUserRoles) {
         return airflowUserRoles.stream().map(this::toSupersetRole).toList();
     }
 
-    private SupersetRole toSupersetRole(AirflowUserRole airflowUserRole) {
-        SupersetRole supersetRole = new SupersetRole();
+    private SubsystemRole toSupersetRole(AirflowUserRole airflowUserRole) {
+        SubsystemRole supersetRole = new SubsystemRole();
         supersetRole.setId(getRoleId(airflowUserRole));
         supersetRole.setName(airflowUserRole.getName());
         return supersetRole;

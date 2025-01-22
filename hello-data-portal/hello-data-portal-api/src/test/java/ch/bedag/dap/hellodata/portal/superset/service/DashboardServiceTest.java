@@ -35,8 +35,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
@@ -227,7 +227,7 @@ public class DashboardServiceTest {
     private SubsystemUser createAdminUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
-        SupersetRole adminRole = createSupersetRole(1, SlugifyUtil.BI_ADMIN_ROLE_NAME);
+        SubsystemRole adminRole = createSupersetRole(1, SlugifyUtil.BI_ADMIN_ROLE_NAME);
         subsystemUser.setRoles(List.of(adminRole));
         return subsystemUser;
     }
@@ -236,8 +236,8 @@ public class DashboardServiceTest {
     private SubsystemUser createViewerUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
-        SupersetRole viewerRole = createSupersetRole(1, SlugifyUtil.BI_VIEWER_ROLE_NAME);
-        SupersetRole dashboardRole = createSupersetRole(2, "D_dashboard-2"); // Specific Dashboard-Role
+        SubsystemRole viewerRole = createSupersetRole(1, SlugifyUtil.BI_VIEWER_ROLE_NAME);
+        SubsystemRole dashboardRole = createSupersetRole(2, "D_dashboard-2"); // Specific Dashboard-Role
         subsystemUser.setRoles(List.of(viewerRole, dashboardRole));
         return subsystemUser;
     }
@@ -246,14 +246,14 @@ public class DashboardServiceTest {
     private SubsystemUser createEditorUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
-        SupersetRole editorRole = createSupersetRole(1, SlugifyUtil.BI_EDITOR_ROLE_NAME);
+        SubsystemRole editorRole = createSupersetRole(1, SlugifyUtil.BI_EDITOR_ROLE_NAME);
         subsystemUser.setRoles(List.of(editorRole));
         return subsystemUser;
     }
 
     @NotNull
-    private static SupersetRole createSupersetRole(int id, String roleName) {
-        SupersetRole role = new SupersetRole();
+    private static SubsystemRole createSupersetRole(int id, String roleName) {
+        SubsystemRole role = new SubsystemRole();
         role.setId(id);
         role.setName(roleName);
         return role;

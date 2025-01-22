@@ -27,8 +27,8 @@
 package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import java.util.List;
 import java.util.Optional;
@@ -51,25 +51,25 @@ public class RoleUtil {
             supersetUserRolesUpdate.setRoles(allRoles.getResult()
                                                      .stream()
                                                      .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(SlugifyUtil.BI_VIEWER_ROLE_NAME))
-                                                     .map(SupersetRole::getId)
+                                                     .map(SubsystemRole::getId)
                                                      .toList());
         }
     }
 
     public static void removeAllDashboardRoles(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
-        List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().startsWith(SlugifyUtil.DASHBOARD_ROLE_PREFIX)).map(SupersetRole::getId).toList();
+        List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().startsWith(SlugifyUtil.DASHBOARD_ROLE_PREFIX)).map(SubsystemRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles().stream().filter(supersetRoleId -> !roles.contains(supersetRoleId)).toList();
         supersetUserRolesUpdate.setRoles(userRoles);
     }
 
     public static void removeRoleFromUser(String roleName, SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
-        List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SupersetRole::getId).toList();
+        List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SubsystemRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles().stream().filter(supersetRoleId -> !roles.contains(supersetRoleId)).toList();
         supersetUserRolesUpdate.setRoles(userRoles);
     }
 
     public static void removePublicRoleIfAdded(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
-        Optional<Integer> publicRole = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).findFirst();
+        Optional<Integer> publicRole = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SubsystemRole::getId).findFirst();
         publicRole.ifPresent(publicRoleId -> supersetUserRolesUpdate.setRoles(supersetUserRolesUpdate.getRoles().stream().filter(roleId -> !publicRoleId.equals(roleId)).toList()));
     }
 }

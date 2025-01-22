@@ -115,6 +115,7 @@ public class UserServiceTest {
         when(keycloakService.createUser(any())).thenReturn(createdUserId);
         when(userRepository.saveAndFlush(any(UserEntity.class))).thenReturn(new UserEntity());
         when(userRepresentation.getEmail()).thenReturn("some_email@example.com");
+        when(userRepresentation.getUsername()).thenReturn("username");
 
         // when
         String result = userService.createUser(email, firstName, lastName);
@@ -207,6 +208,7 @@ public class UserServiceTest {
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setEnabled(true);
         userRepresentation.setEmail("some_email@example.com");
+        userRepresentation.setUsername("username");
         UserEntity userEntity = new UserEntity();
         userEntity.setId(uuid);
 
@@ -248,6 +250,7 @@ public class UserServiceTest {
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setEnabled(false);
         userRepresentation.setEmail("some_email@example.com");
+        userRepresentation.setUsername("username");
         UserEntity userEntity = new UserEntity();
         userEntity.setId(uuid);
         when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);

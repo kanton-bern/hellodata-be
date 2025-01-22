@@ -29,9 +29,9 @@ package ch.bedag.dap.hellodata.sidecars.dbt.service.resource;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemGetAllUsers;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.Role;
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
@@ -120,12 +120,12 @@ public class DbtDocsUserResourceProviderService {
         return subsystemUser;
     }
 
-    private List<SupersetRole> toSupersetRoles(Collection<Role> dbtUserRoles) {
+    private List<SubsystemRole> toSupersetRoles(Collection<Role> dbtUserRoles) {
         return dbtUserRoles.stream().map(this::toSupersetRole).toList();
     }
 
-    private SupersetRole toSupersetRole(Role dbtRole) {
-        SupersetRole supersetRole = new SupersetRole();
+    private SubsystemRole toSupersetRole(Role dbtRole) {
+        SubsystemRole supersetRole = new SubsystemRole();
         supersetRole.setId(getRoleId(dbtRole));
         supersetRole.setName(dbtRole.getName());
         return supersetRole;

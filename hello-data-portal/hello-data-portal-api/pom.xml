@@ -261,7 +261,6 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
-                    <addResources>false</addResources>
                 </configuration>
             </plugin>
         </plugins>

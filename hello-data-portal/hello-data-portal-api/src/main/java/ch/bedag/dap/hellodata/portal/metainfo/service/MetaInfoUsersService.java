@@ -9,7 +9,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.RoleToDashboardName;
@@ -119,12 +119,12 @@ public class MetaInfoUsersService {
         return list;
     }
 
-    private SubsystemUserDto generateUserDto(String usersInstanceName, List<SupersetRole> subsystemUserRoles, UserDto portalUser,
+    private SubsystemUserDto generateUserDto(String usersInstanceName, List<SubsystemRole> subsystemUserRoles, UserDto portalUser,
                                              Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName) {
         List<RoleToDashboardName> roleToDashboardNameList = roleNameToDashboardNamesPerInstanceName.get(usersInstanceName);
         if (portalUser != null) {
             List<String> roles;
-            if (CollectionUtils.containsAny(subsystemUserRoles.stream().map(SupersetRole::getName).toList(), ADMIN_ROLE_NAME, BI_ADMIN_ROLE_NAME, BI_EDITOR_ROLE_NAME)) {
+            if (CollectionUtils.containsAny(subsystemUserRoles.stream().map(SubsystemRole::getName).toList(), ADMIN_ROLE_NAME, BI_ADMIN_ROLE_NAME, BI_EDITOR_ROLE_NAME)) {
                 // concat user roles and dashboard roles as these users have access to all dashboards in instance
                 roles = Stream.concat(roleNameToDashboardNamesPerInstanceName.get(usersInstanceName).stream().map(r -> r.roleName()), subsystemUserRoles.stream().map(r -> r.getName()))
                         .filter(r -> complies(r))
