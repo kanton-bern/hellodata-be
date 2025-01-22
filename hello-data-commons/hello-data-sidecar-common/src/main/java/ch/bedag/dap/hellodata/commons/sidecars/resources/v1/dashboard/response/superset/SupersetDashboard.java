@@ -26,13 +26,14 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
-import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -68,7 +69,7 @@ public class SupersetDashboard implements Serializable {
     private String positionJson;
     private boolean published;
 
-    private List<SupersetRole> roles;
+    private List<SubsystemRole> roles;
     private String slug;
     private String status;
     @JsonProperty("thumbnail_url")

@@ -30,7 +30,12 @@ import lombok.Getter;
 
 @Getter
 public enum ModuleType {
-    SUPERSET("superset"), AIRFLOW("airflow"), DBT_DOCS("dbt_docs"), CLOUDBEAVER("cloudbeaver"), JUPYTERHUB("jupyterhub");
+    SUPERSET("superset"),
+    AIRFLOW("airflow"),
+    DBT_DOCS("dbt_docs"),
+    CLOUDBEAVER("cloudbeaver"),
+    JUPYTERHUB("jupyterhub"),
+    SFTPGO("sftpgo");
 
     private final String moduleName;
 

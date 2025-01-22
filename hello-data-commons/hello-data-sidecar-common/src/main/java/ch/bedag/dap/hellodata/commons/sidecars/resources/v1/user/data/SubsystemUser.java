@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
@@ -39,7 +38,7 @@ import lombok.Data;
 @SuppressWarnings("java:S1948")
 public class SubsystemUser implements Serializable {
 
-    List<SupersetRole> roles;
+    List<SubsystemRole> roles;
     private int id;
     @JsonProperty("first_name")
     private String firstName;

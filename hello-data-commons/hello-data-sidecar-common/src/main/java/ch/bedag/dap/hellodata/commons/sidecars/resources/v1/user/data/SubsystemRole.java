@@ -24,13 +24,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response;
+package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
 import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class SupersetRole implements Serializable {
+public class SubsystemRole implements Serializable {
     private int id;
     private String name;
 }
