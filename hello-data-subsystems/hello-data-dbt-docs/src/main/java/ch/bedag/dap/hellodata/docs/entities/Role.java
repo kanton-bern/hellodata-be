@@ -27,17 +27,13 @@
 package ch.bedag.dap.hellodata.docs.entities;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
 
 @Entity
 @Getter
@@ -62,7 +58,7 @@ public class Role extends BaseEntity {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "roles_privileges", joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),
-               inverseJoinColumns = @JoinColumn(name = "privilege_id", referencedColumnName = "id"))
+            inverseJoinColumns = @JoinColumn(name = "privilege_id", referencedColumnName = "id"))
     private Collection<Privilege> privileges;
 
     public Role(String key, String name, boolean enabled) {

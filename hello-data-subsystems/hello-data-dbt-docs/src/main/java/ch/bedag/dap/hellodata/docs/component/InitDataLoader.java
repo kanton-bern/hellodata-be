@@ -30,8 +30,8 @@ import ch.bedag.dap.hellodata.docs.entities.Privilege;
 import ch.bedag.dap.hellodata.docs.entities.Role;
 import ch.bedag.dap.hellodata.docs.service.ProjectDocService;
 import ch.bedag.dap.hellodata.docs.service.SecurityService;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -66,7 +66,7 @@ public class InitDataLoader implements ApplicationListener<ContextRefreshedEvent
 
         List<Privilege> adminPrivileges = Arrays.asList(readPrivilege, writePrivilege);
         securityService.createRoleIfNotFound(Role.ADMIN_ROLE_KEY, "ROLE_ADMIN", adminPrivileges);
-        securityService.createRoleIfNotFound("TEST", "ROLE_USER", Arrays.asList(readPrivilege));
+        securityService.createRoleIfNotFound("TEST", "ROLE_USER", Collections.singletonList(readPrivilege));
         securityService.createOrUpdateAdminUser();
         Set<String> availableDataDomainKeys = projectDocService.getAvailableDataDomainKeys();
         securityService.createProjectRoles(Collections.singletonList(readPrivilege), availableDataDomainKeys);
