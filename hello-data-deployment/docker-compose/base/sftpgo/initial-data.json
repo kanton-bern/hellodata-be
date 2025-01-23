@@ -1,0 +1,445 @@
+{
+  "admins": [
+    {
+      "created_at": 1733405746972,
+      "email": "admin@hellodata.ch",
+      "filters": {
+        "preferences": {},
+        "require_two_factor": false,
+        "totp_config": {
+          "secret": {}
+        }
+      },
+      "id": 1,
+      "last_login": 1733743376155,
+      "password": "$2a$10$AyPknQmqGTvbgdzmX/Zv0eJP1vEJljes9qtkPq7QnXwXnfN/Xc3OS",
+      "permissions": [
+        "*"
+      ],
+      "status": 1,
+      "updated_at": 1733731838279,
+      "username": "admin"
+    }
+  ],
+  "api_keys": [],
+  "configs": {},
+  "event_actions": [],
+  "event_rules": [],
+  "folders": [
+    {
+      "filesystem": {
+        "azblobconfig": {},
+        "cryptconfig": {},
+        "gcsconfig": {},
+        "httpconfig": {},
+        "osconfig": {},
+        "provider": 0,
+        "s3config": {},
+        "sftpconfig": {}
+      },
+      "id": 1,
+      "last_quota_update": 1733740252101,
+      "mapped_path": "/storage",
+      "name": "gitsync",
+      "used_quota_files": 1,
+      "used_quota_size": 1800
+    },
+    {
+      "filesystem": {
+        "azblobconfig": {},
+        "cryptconfig": {},
+        "gcsconfig": {},
+        "httpconfig": {},
+        "osconfig": {},
+        "provider": 1,
+        "s3config": {
+          "access_key": "minioadmin",
+          "access_secret": {
+            "additional_data": "folder_Extra Data Domain",
+            "key": "eca7c0a56dff1bb9858ec672a7b874b42aebe83fe3502a7166aa65413db9a1ac",
+            "payload": "VQkoXQFALkfZAjuhODPyHtcRimdr1KO0bI4awzOMvt/M4ItN9uiaaQRz+QY6z2CALjw=",
+            "status": "Secretbox"
+          },
+          "bucket": "extra-data-domain",
+          "endpoint": "http://minio:9000",
+          "force_path_style": true,
+          "region": "test"
+        },
+        "sftpconfig": {}
+      },
+      "id": 3,
+      "last_quota_update": 0,
+      "name": "Extra Data Domain",
+      "used_quota_files": 0,
+      "used_quota_size": 0
+    },
+    {
+      "filesystem": {
+        "azblobconfig": {},
+        "cryptconfig": {},
+        "gcsconfig": {},
+        "httpconfig": {},
+        "osconfig": {},
+        "provider": 1,
+        "s3config": {
+          "access_key": "minioadmin",
+          "access_secret": {
+            "additional_data": "folder_Default Data Domain",
+            "key": "b3d84d48f666d9ea53dbeb59ea1ef160ce9917c95bf95712b02a66b193a13aaa",
+            "payload": "1RVQsDk7wgcsFm/VYTSTTv7JEwbUVetpWudvuwQ1oj13/MdhNiThHzjDiXJqwGgavgg=",
+            "status": "Secretbox"
+          },
+          "bucket": "default-data-domain",
+          "endpoint": "http://minio:9000",
+          "force_path_style": true,
+          "region": "test"
+        },
+        "sftpconfig": {}
+      },
+      "id": 2,
+      "last_quota_update": 1733740302364,
+      "name": "Default Data Domain",
+      "used_quota_files": 2,
+      "used_quota_size": 2236
+    }
+  ],
+  "groups": [],
+  "ip_lists": [],
+  "roles": [],
+  "shares": [],
+  "users": [
+    {
+      "created_at": 1733406129532,
+      "download_data_transfer": 0,
+      "filesystem": {
+        "azblobconfig": {
+          "account_key": {},
+          "sas_url": {}
+        },
+        "cryptconfig": {
+          "passphrase": {}
+        },
+        "gcsconfig": {
+          "credentials": {}
+        },
+        "httpconfig": {
+          "api_key": {},
+          "password": {}
+        },
+        "osconfig": {},
+        "provider": 0,
+        "s3config": {
+          "access_secret": {}
+        },
+        "sftpconfig": {
+          "key_passphrase": {},
+          "password": {},
+          "private_key": {}
+        }
+      },
+      "filters": {
+        "hooks": {
+          "check_password_disabled": false,
+          "external_auth_disabled": false,
+          "pre_login_disabled": false
+        },
+        "totp_config": {
+          "secret": {}
+        }
+      },
+      "first_download": 1733406254585,
+      "gid": 0,
+      "has_password": true,
+      "home_dir": "/srv/sftpgo/data/default-data-domain-viewer@hellodata.ch",
+      "id": 2,
+      "last_login": 1733406164162,
+      "last_password_change": 1733406129531,
+      "max_sessions": 0,
+      "password": "$2a$10$qxsqpn3OIYrRMbSQySu1O.csfGOdKAp9CMBGIt6gP95lqzAPDqeje",
+      "permissions": {
+        "/": [
+          "*"
+        ]
+      },
+      "quota_files": 0,
+      "quota_size": 0,
+      "status": 1,
+      "total_data_transfer": 0,
+      "uid": 0,
+      "updated_at": 1733406129532,
+      "upload_data_transfer": 0,
+      "username": "default-data-domain-viewer@hellodata.ch",
+      "virtual_folders": [
+        {
+          "filesystem": {
+            "azblobconfig": {},
+            "cryptconfig": {},
+            "gcsconfig": {},
+            "httpconfig": {},
+            "osconfig": {},
+            "provider": 0,
+            "s3config": {},
+            "sftpconfig": {}
+          },
+          "id": 1,
+          "last_quota_update": 1733740252101,
+          "mapped_path": "/storage",
+          "name": "gitsync",
+          "quota_files": -1,
+          "quota_size": -1,
+          "used_quota_files": 1,
+          "used_quota_size": 1800,
+          "virtual_path": "/gitsync"
+        }
+      ]
+    },
+    {
+      "created_at": 1733407926121,
+      "download_data_transfer": 0,
+      "filesystem": {
+        "azblobconfig": {
+          "account_key": {},
+          "sas_url": {}
+        },
+        "cryptconfig": {
+          "passphrase": {}
+        },
+        "gcsconfig": {
+          "credentials": {}
+        },
+        "httpconfig": {
+          "api_key": {},
+          "password": {}
+        },
+        "osconfig": {},
+        "provider": 0,
+        "s3config": {
+          "access_secret": {}
+        },
+        "sftpconfig": {
+          "key_passphrase": {},
+          "password": {},
+          "private_key": {}
+        }
+      },
+      "filters": {
+        "hooks": {
+          "check_password_disabled": false,
+          "external_auth_disabled": false,
+          "pre_login_disabled": false
+        },
+        "totp_config": {
+          "secret": {}
+        }
+      },
+      "first_download": 1733409839414,
+      "first_upload": 1733469407929,
+      "gid": 0,
+      "has_password": true,
+      "home_dir": "/srv/sftpgo/data/admin",
+      "id": 3,
+      "last_login": 1733740222496,
+      "last_password_change": 1733407926120,
+      "max_sessions": 0,
+      "password": "$2a$10$0OCe/foxHnlZNQBGukHMrOtADqO3IVqY3.Bi7bBuDs29Ic1pyPzYK",
+      "permissions": {
+        "/": [
+          "*"
+        ]
+      },
+      "quota_files": 0,
+      "quota_size": 0,
+      "status": 1,
+      "total_data_transfer": 0,
+      "uid": 0,
+      "updated_at": 1733469380877,
+      "upload_data_transfer": 0,
+      "username": "admin",
+      "virtual_folders": [
+        {
+          "filesystem": {
+            "azblobconfig": {},
+            "cryptconfig": {},
+            "gcsconfig": {},
+            "httpconfig": {},
+            "osconfig": {},
+            "provider": 1,
+            "s3config": {
+              "access_key": "minioadmin",
+              "access_secret": {
+                "additional_data": "folder_Default Data Domain",
+                "key": "b3d84d48f666d9ea53dbeb59ea1ef160ce9917c95bf95712b02a66b193a13aaa",
+                "payload": "1RVQsDk7wgcsFm/VYTSTTv7JEwbUVetpWudvuwQ1oj13/MdhNiThHzjDiXJqwGgavgg=",
+                "status": "Secretbox"
+              },
+              "bucket": "default-data-domain",
+              "endpoint": "http://minio:9000",
+              "force_path_style": true,
+              "region": "test"
+            },
+            "sftpconfig": {}
+          },
+          "id": 2,
+          "last_quota_update": 1733740302364,
+          "name": "Default Data Domain",
+          "quota_files": -1,
+          "quota_size": -1,
+          "used_quota_files": 2,
+          "used_quota_size": 2236,
+          "virtual_path": "/Default Data Domain"
+        },
+        {
+          "filesystem": {
+            "azblobconfig": {},
+            "cryptconfig": {},
+            "gcsconfig": {},
+            "httpconfig": {},
+            "osconfig": {},
+            "provider": 1,
+            "s3config": {
+              "access_key": "minioadmin",
+              "access_secret": {
+                "additional_data": "folder_Extra Data Domain",
+                "key": "eca7c0a56dff1bb9858ec672a7b874b42aebe83fe3502a7166aa65413db9a1ac",
+                "payload": "VQkoXQFALkfZAjuhODPyHtcRimdr1KO0bI4awzOMvt/M4ItN9uiaaQRz+QY6z2CALjw=",
+                "status": "Secretbox"
+              },
+              "bucket": "extra-data-domain",
+              "endpoint": "http://minio:9000",
+              "force_path_style": true,
+              "region": "test"
+            },
+            "sftpconfig": {}
+          },
+          "id": 3,
+          "last_quota_update": 0,
+          "name": "Extra Data Domain",
+          "quota_files": -1,
+          "quota_size": -1,
+          "used_quota_files": 0,
+          "used_quota_size": 0,
+          "virtual_path": "/Extra Data Domain"
+        },
+        {
+          "filesystem": {
+            "azblobconfig": {},
+            "cryptconfig": {},
+            "gcsconfig": {},
+            "httpconfig": {},
+            "osconfig": {},
+            "provider": 0,
+            "s3config": {},
+            "sftpconfig": {}
+          },
+          "id": 1,
+          "last_quota_update": 1733740252101,
+          "mapped_path": "/storage",
+          "name": "gitsync",
+          "quota_files": -1,
+          "quota_size": -1,
+          "used_quota_files": 1,
+          "used_quota_size": 1800,
+          "virtual_path": "/gitsync"
+        }
+      ]
+    },
+    {
+      "created_at": 1733480786988,
+      "download_data_transfer": 0,
+      "filesystem": {
+        "azblobconfig": {
+          "account_key": {},
+          "sas_url": {}
+        },
+        "cryptconfig": {
+          "passphrase": {}
+        },
+        "gcsconfig": {
+          "credentials": {}
+        },
+        "httpconfig": {
+          "api_key": {},
+          "password": {}
+        },
+        "osconfig": {},
+        "provider": 0,
+        "s3config": {
+          "access_secret": {}
+        },
+        "sftpconfig": {
+          "key_passphrase": {},
+          "password": {},
+          "private_key": {}
+        }
+      },
+      "filters": {
+        "hooks": {
+          "check_password_disabled": false,
+          "external_auth_disabled": false,
+          "pre_login_disabled": false
+        },
+        "totp_config": {
+          "secret": {}
+        }
+      },
+      "first_download": 1733490957394,
+      "first_upload": 1733490961144,
+      "gid": 0,
+      "has_password": true,
+      "home_dir": "/srv/sftpgo/data/user",
+      "id": 4,
+      "last_login": 1733740219691,
+      "last_password_change": 1733480786988,
+      "max_sessions": 0,
+      "password": "$2a$10$1bfU/tCy3j91b5D9LT1qbO4kn.9DBqcRKfCAfwLXjES6YuEXobvT6",
+      "permissions": {
+        "/": [
+          "*"
+        ]
+      },
+      "quota_files": 0,
+      "quota_size": 0,
+      "status": 1,
+      "total_data_transfer": 0,
+      "uid": 0,
+      "updated_at": 1733480786988,
+      "upload_data_transfer": 0,
+      "username": "user",
+      "virtual_folders": [
+        {
+          "filesystem": {
+            "azblobconfig": {},
+            "cryptconfig": {},
+            "gcsconfig": {},
+            "httpconfig": {},
+            "osconfig": {},
+            "provider": 1,
+            "s3config": {
+              "access_key": "minioadmin",
+              "access_secret": {
+                "additional_data": "folder_Default Data Domain",
+                "key": "b3d84d48f666d9ea53dbeb59ea1ef160ce9917c95bf95712b02a66b193a13aaa",
+                "payload": "1RVQsDk7wgcsFm/VYTSTTv7JEwbUVetpWudvuwQ1oj13/MdhNiThHzjDiXJqwGgavgg=",
+                "status": "Secretbox"
+              },
+              "bucket": "default-data-domain",
+              "endpoint": "http://minio:9000",
+              "force_path_style": true,
+              "region": "test"
+            },
+            "sftpconfig": {}
+          },
+          "id": 2,
+          "last_quota_update": 1733740302364,
+          "name": "Default Data Domain",
+          "quota_files": -1,
+          "quota_size": -1,
+          "used_quota_files": 2,
+          "used_quota_size": 2236,
+          "virtual_path": "/Default Data Domain"
+        }
+      ]
+    }
+  ],
+  "version": 16
+}
