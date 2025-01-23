@@ -363,6 +363,45 @@ services:
       timeout: 10s
       retries: 5
 
+  hello-data-sftpgo-sidecar:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-sidecar-sftpgo
+    env_file: .env
+    environment:
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8086/dbt-docs/
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      - HELLADATA_S3_CONNECTIONS_0_ACCESS_KEY=minio
+      - HELLADATA_S3_CONNECTIONS_0_ACCESS_SECRET=minio
+      - HELLADATA_S3_CONNECTIONS_0_BUCKET=myminio/default-data-domain
+      - HELLADATA_S3_CONNECTIONS_0_CONTEXT_KEY=Default_Data_Domain
+      - HELLADATA_S3_CONNECTIONS_0_ENDPOINT=minio:9000
+      - HELLADATA_S3_CONNECTIONS_0_FORCE_PATH_STYLE=true
+      - HELLADATA_S3_CONNECTIONS_0_REGION=test
+      - HELLADATA_S3_CONNECTIONS_1_ACCESS_KEY=minio
+      - HELLADATA_S3_CONNECTIONS_1_ACCESS_SECRET=minio
+      - HELLADATA_S3_CONNECTIONS_1_BUCKET=myminio/extra-data-domain
+      - HELLADATA_S3_CONNECTIONS_1_CONTEXT_KEY=Extra_Data_Domain
+      - HELLADATA_S3_CONNECTIONS_1_ENDPOINT=minio:9000
+      - HELLADATA_S3_CONNECTIONS_1_FORCE_PATH_STYLE=true
+      - HELLADATA_S3_CONNECTIONS_1_REGION=test
+    links:
+      - nats
+      - postgres
+      - keycloak
+      - hello-data-dbt-docs
+    depends_on:
+      - nats
+      - sftpgo
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health/liveness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   hello-data-dbt-docs:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-dbt-docs
