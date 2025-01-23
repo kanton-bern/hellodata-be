@@ -59,18 +59,20 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
     public static ServerWebExchange addCbAuthHeaders(ServerWebExchange exchange, JwtAuthenticationToken authenticationToken) {
         return exchange.mutate().request((r) -> {
             r.headers((httpHeaders) -> {
-                log.debug("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
-                log.debug("\taddCbAuthHeaders for user {}", authenticationToken);
-                log.debug("\temail: {}", authenticationToken.getToken().getClaims().get("email"));
-                log.debug("\tgiven_name: {}", authenticationToken.getToken().getClaims().get("given_name"));
-                log.debug("\tfamily_name: {}", authenticationToken.getToken().getClaims().get("family_name"));
-                log.debug("\tauthorities: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
+                log.warn("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
+                log.warn("\taddCbAuthHeaders for user {}", authenticationToken);
+                log.warn("\temail: {}", authenticationToken.getToken().getClaims().get("email"));
+                log.warn("\tgiven_name: {}", authenticationToken.getToken().getClaims().get("given_name"));
+                log.warn("\tfamily_name: {}", authenticationToken.getToken().getClaims().get("family_name"));
+                log.warn("\tauthorities: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
 
                 httpHeaders.add("X-User", (String) authenticationToken.getToken().getClaims().get("email"));
+                log.warn("\tX-User header: {}", authenticationToken.getToken().getClaims().get("email"));
                 httpHeaders.add("X-Role", toCbRolesHeader(authenticationToken.getAuthorities()));
+                log.warn("\tX-Role header: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
                 httpHeaders.add("X-First-name", (String) authenticationToken.getToken().getClaims().get("given_name"));
                 httpHeaders.add("X-Last-name", (String) authenticationToken.getToken().getClaims().get("family_name"));
-                log.info("Added headers to request {}", httpHeaders);
+                log.debug("Added headers to request {}", httpHeaders);
             });
         }).build();
     }
