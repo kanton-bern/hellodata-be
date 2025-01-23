@@ -44,7 +44,7 @@ RUN echo "window.environment = { \
               redirectUrl: 'http://localhost:8080/app/', \
               postLogoutRedirectUri: 'http://localhost:8080/app/', \
               clientId: 'frontend-client', \
-    		  scope: 'openid profile email' \
+    		  scope: 'openid profile email offline_access' \
             }, \
             domainNamespace: 'hellodata', \
             baseDomain: 'localhost', \

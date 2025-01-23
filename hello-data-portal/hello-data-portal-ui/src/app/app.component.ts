@@ -54,7 +54,7 @@ export class AppComponent implements OnInit {
               private title: Title) {
     setTimeout(() => {
       this.checkAuth = true;
-    }, 500);
+    }, 1500);
 
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated).pipe(
       tap(isAuthenticated => {
