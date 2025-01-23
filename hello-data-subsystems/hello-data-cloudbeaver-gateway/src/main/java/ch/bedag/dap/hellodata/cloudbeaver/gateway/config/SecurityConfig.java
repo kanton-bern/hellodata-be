@@ -33,19 +33,18 @@ import ch.bedag.dap.hellodata.cloudbeaver.gateway.filters.WebFluxLogFilter;
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.repository.UserRepository;
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.security.CbJwtAuthenticationConverter;
 import jakarta.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -62,9 +61,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
+
+import java.util.*;
 
 @Log4j2
 @EnableRetry
@@ -101,6 +102,44 @@ public class SecurityConfig {
         configureCors(http);
         http.headers(headerSpec -> headerSpec.frameOptions(ServerHttpSecurity.HeaderSpec.FrameOptionsSpec::disable)); // disabled to allow embedding into "portal"
         return http.build();
+    }
+
+    /**
+     * Map authorities (which are synced into the database) with the currently logged in user.
+     *
+     * @return a {@link ReactiveOAuth2UserService} that has the groups from the IdP.
+     */
+    @Bean
+    public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(UserRepository userRepository) {
+        final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
+
+        return userRequest ->
+                // Delegate to the default implementation for loading a user
+                delegate.loadUser(userRequest).flatMap(oidcUser -> {
+                    log.debug("Loading user {}", oidcUser == null ? "unknown" : oidcUser.getEmail());
+                    assert oidcUser != null;
+                    return userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail());
+                }).flatMap(dbUser -> {
+                    log.debug("--> Loaded roles ... {}", dbUser.getAuthorities());
+                    return Mono.just(dbUser.getAuthorities());
+                }).flatMap(rolesForUser -> {
+                    Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+                    log.debug("--> mapping authorities... {}", rolesForUser);
+                    for (String role : rolesForUser) {
+                        mappedAuthorities.add(new SimpleGrantedAuthority(role.toUpperCase(Locale.ENGLISH)));
+                    }
+                    return Mono.just(new DefaultOidcUser(mappedAuthorities, userRequest.getIdToken()));
+                });
+    }
+
+    @Bean
+    public WebFilter webFluxLogFilter() {
+        return new WebFluxLogFilter();
+    }
+
+    @Bean
+    public GlobalFilter loggingFilter() {
+        return new LoggingFilter();
     }
 
     private void configureCsrf(ServerHttpSecurity http) {
@@ -147,40 +186,28 @@ public class SecurityConfig {
     }
 
     /**
-     * Map authorities (which are synced into the database) with the currently logged in user.
+     * workaround for https://github.com/spring-projects/spring-security/issues/15989
+     * could be deleted in latest version
      *
-     * @return a {@link ReactiveOAuth2UserService} that has the groups from the IdP.
+     * @return
      */
     @Bean
-    public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService(UserRepository userRepository) {
-        final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
-
-        return userRequest ->
-                // Delegate to the default implementation for loading a user
-                delegate.loadUser(userRequest).flatMap(oidcUser -> {
-                    log.debug("Loading user {}", oidcUser == null ? "unknown" : oidcUser.getEmail());
-                    assert oidcUser != null;
-                    return userRepository.findOneWithPermissionsByEmail(oidcUser.getEmail());
-                }).flatMap(dbUser -> {
-                    log.debug("--> Loaded roles ... {}", dbUser.getAuthorities());
-                    return Mono.just(dbUser.getAuthorities());
-                }).flatMap(rolesForUser -> {
-                    Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-                    log.debug("--> mapping authorities... {}", rolesForUser);
-                    for (String role : rolesForUser) {
-                        mappedAuthorities.add(new SimpleGrantedAuthority(role.toUpperCase(Locale.ENGLISH)));
-                    }
-                    return Mono.just(new DefaultOidcUser(mappedAuthorities, userRequest.getIdToken()));
-                });
-    }
-
-    @Bean
-    public WebFilter webFluxLogFilter() {
-        return new WebFluxLogFilter();
-    }
-
-    @Bean
-    public GlobalFilter loggingFilter() {
-        return new LoggingFilter();
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    WebFilter writeableHeaders() {
+        return (exchange, chain) -> {
+            HttpHeaders writeableHeaders = HttpHeaders.writableHttpHeaders(
+                    exchange.getRequest().getHeaders());
+            ServerHttpRequestDecorator writeableRequest = new ServerHttpRequestDecorator(
+                    exchange.getRequest()) {
+                @Override
+                public HttpHeaders getHeaders() {
+                    return writeableHeaders;
+                }
+            };
+            ServerWebExchange writeableExchange = exchange.mutate()
+                    .request(writeableRequest)
+                    .build();
+            return chain.filter(writeableExchange);
+        };
     }
 }
