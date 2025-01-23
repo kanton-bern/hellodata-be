@@ -57,23 +57,28 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
     }
 
     public static ServerWebExchange addCbAuthHeaders(ServerWebExchange exchange, JwtAuthenticationToken authenticationToken) {
-        return exchange.mutate().request((r) -> {
-            r.headers((httpHeaders) -> {
+        return exchange.mutate().request((builder) -> {
+            builder.headers((httpHeaders) -> {
+                String email = (String) authenticationToken.getToken().getClaims().get("email");
+                Object givenName = authenticationToken.getToken().getClaims().get("given_name");
+                Object familyName = authenticationToken.getToken().getClaims().get("family_name");
+                String cbRolesHeader = toCbRolesHeader(authenticationToken.getAuthorities());
+
                 log.warn("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
                 log.warn("\taddCbAuthHeaders for user {}", authenticationToken);
-                log.warn("\temail: {}", authenticationToken.getToken().getClaims().get("email"));
-                log.warn("\tgiven_name: {}", authenticationToken.getToken().getClaims().get("given_name"));
-                log.warn("\tfamily_name: {}", authenticationToken.getToken().getClaims().get("family_name"));
-                log.warn("\tauthorities: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
+                log.warn("\temail: {}", email);
+                log.warn("\tgiven_name: {}", givenName);
+                log.warn("\tfamily_name: {}", familyName);
+                log.warn("\tauthorities: {}", cbRolesHeader);
 
-                httpHeaders.set("X-User", (String) authenticationToken.getToken().getClaims().get("email"));
-                log.warn("\tX-User header: {}", authenticationToken.getToken().getClaims().get("email"));
-                httpHeaders.set("X-Role", toCbRolesHeader(authenticationToken.getAuthorities()));
-                log.warn("\tX-Role header: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
-                httpHeaders.set("X-First-name", (String) authenticationToken.getToken().getClaims().get("given_name"));
-                httpHeaders.set("X-Last-name", (String) authenticationToken.getToken().getClaims().get("family_name"));
+                httpHeaders.set("X-User", email);
+                log.warn("\tX-User header: {}", email);
+                httpHeaders.set("X-Role", cbRolesHeader);
+                log.warn("\tX-Role header: {}", cbRolesHeader);
+                httpHeaders.set("X-First-name", (String) givenName);
+                httpHeaders.set("X-Last-name", (String) familyName);
                 log.debug("Added headers to request {}", httpHeaders);
-            });
+            }).build();
         }).build();
     }
 

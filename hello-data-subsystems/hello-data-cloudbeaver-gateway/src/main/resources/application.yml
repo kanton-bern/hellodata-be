@@ -121,10 +121,10 @@ server:
 management:
   endpoint:
     health:
-      enabled: true
+      access: read_only
     #      show-details: always #if we need some details
     info:
-      enabled: true
+      access: read_only
   endpoints:
     web:
       exposure:
@@ -157,7 +157,7 @@ management:
 
 logging:
   level:
-    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway: DEBUG
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: INFO
     org.springframework.web.HttpLogging: INFO
     reactor.netty.http.server: INFO
