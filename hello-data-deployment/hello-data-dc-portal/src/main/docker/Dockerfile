@@ -43,7 +43,7 @@ RUN echo "window.environment = { \
               authority: 'http://localhost:38080/realms/hellodata', \
               redirectUrl: 'http://localhost:8080/app/', \
               postLogoutRedirectUri: 'http://localhost:8080/app/', \
-              clientId: 'frontend-client' \
+              clientId: 'frontend-client', \
     		  scope: 'openid profile email' \
             }, \
             domainNamespace: 'hellodata', \

@@ -66,12 +66,12 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
                 log.warn("\tfamily_name: {}", authenticationToken.getToken().getClaims().get("family_name"));
                 log.warn("\tauthorities: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
 
-                httpHeaders.add("X-User", (String) authenticationToken.getToken().getClaims().get("email"));
+                httpHeaders.set("X-User", (String) authenticationToken.getToken().getClaims().get("email"));
                 log.warn("\tX-User header: {}", authenticationToken.getToken().getClaims().get("email"));
-                httpHeaders.add("X-Role", toCbRolesHeader(authenticationToken.getAuthorities()));
+                httpHeaders.set("X-Role", toCbRolesHeader(authenticationToken.getAuthorities()));
                 log.warn("\tX-Role header: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
-                httpHeaders.add("X-First-name", (String) authenticationToken.getToken().getClaims().get("given_name"));
-                httpHeaders.add("X-Last-name", (String) authenticationToken.getToken().getClaims().get("family_name"));
+                httpHeaders.set("X-First-name", (String) authenticationToken.getToken().getClaims().get("given_name"));
+                httpHeaders.set("X-Last-name", (String) authenticationToken.getToken().getClaims().get("family_name"));
                 log.debug("Added headers to request {}", httpHeaders);
             });
         }).build();

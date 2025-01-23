@@ -39,12 +39,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -61,7 +57,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
@@ -185,29 +180,4 @@ public class SecurityConfig {
         return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
     }
 
-    /**
-     * workaround for https://github.com/spring-projects/spring-security/issues/15989
-     * could be deleted in latest version
-     *
-     * @return
-     */
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    WebFilter writeableHeaders() {
-        return (exchange, chain) -> {
-            HttpHeaders writeableHeaders = HttpHeaders.writableHttpHeaders(
-                    exchange.getRequest().getHeaders());
-            ServerHttpRequestDecorator writeableRequest = new ServerHttpRequestDecorator(
-                    exchange.getRequest()) {
-                @Override
-                public HttpHeaders getHeaders() {
-                    return writeableHeaders;
-                }
-            };
-            ServerWebExchange writeableExchange = exchange.mutate()
-                    .request(writeableRequest)
-                    .build();
-            return chain.filter(writeableExchange);
-        };
-    }
 }
