@@ -157,7 +157,7 @@ management:
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: INFO
     org.springframework.web.HttpLogging: INFO
     reactor.netty.http.server: INFO

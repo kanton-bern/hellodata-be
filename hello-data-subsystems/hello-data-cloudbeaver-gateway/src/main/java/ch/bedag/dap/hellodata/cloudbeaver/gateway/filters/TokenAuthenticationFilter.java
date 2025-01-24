@@ -27,7 +27,6 @@
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.filters;
 
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.config.SecurityConfig;
-import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -36,6 +35,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 /**
  * This filter is used to propagate the auth.access_token cookie internally to the spring-cloud-gateway security filter as an Auth Header.
@@ -46,9 +47,9 @@ public class TokenAuthenticationFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        log.info("-->TokenAuthenticationFilter");
-        log.info("\tRequested URI Path: \n\t{}", exchange.getRequest().getURI().getPath());
-        log.info("\texisting cookies: \n\t{}", exchange.getRequest().getCookies().entrySet().stream().map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n").toList());
+        log.debug("-->TokenAuthenticationFilter");
+        log.debug("\tRequested URI Path: \n\t{}", exchange.getRequest().getURI().getPath());
+        log.debug("\texisting cookies: \n\t{}", exchange.getRequest().getCookies().entrySet().stream().map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n").toList());
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         ServerHttpRequest request = exchange.getRequest().mutate().headers(httpHeaders -> {
@@ -60,7 +61,7 @@ public class TokenAuthenticationFilter implements WebFilter {
                 }
             }
         }).build();
-        log.info("\tadded headers: " + exchange.getRequest().getHeaders().entrySet().stream().map(entry -> "\n\t" + entry.getValue() + "\n").toList());
+        log.debug("\tadded headers: " + exchange.getRequest().getHeaders().entrySet().stream().map(entry -> "\n\t" + entry.getValue() + "\n").toList());
         return chain.filter(exchange.mutate().request(request).build());
     }
 }
