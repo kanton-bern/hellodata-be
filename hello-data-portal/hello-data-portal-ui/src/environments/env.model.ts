@@ -69,6 +69,7 @@ export interface SubSystemsConfig {
   dbtDocs: SubSystemHost;
   dmViewer: SubSystemHost;
   dwhViewer: SubSystemHost;
+  filebrowser: SubSystemHost;
   advancedAnalyticsViewer: SubSystemHost;
   monitoringStatus: SubSystemHost;
   devToolsMailbox: SubSystemHost;

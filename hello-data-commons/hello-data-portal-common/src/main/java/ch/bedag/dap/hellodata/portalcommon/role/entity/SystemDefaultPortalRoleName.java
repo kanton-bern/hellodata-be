@@ -39,9 +39,9 @@ public enum SystemDefaultPortalRoleName {
     HELLODATA_ADMIN(Arrays.asList(Permission.values())),
     BUSINESS_DOMAIN_ADMIN(List.of(Permission.USER_MANAGEMENT, Permission.FAQ_MANAGEMENT, Permission.EXTERNAL_DASHBOARDS_MANAGEMENT, Permission.DOCUMENTATION_MANAGEMENT,
             Permission.ANNOUNCEMENT_MANAGEMENT, Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG,
-            Permission.DATA_JUPYTER, Permission.USERS_OVERVIEW)),
-    DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG, Permission.DATA_JUPYTER)),
-    DATA_DOMAIN_EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS)),
+            Permission.DATA_JUPYTER, Permission.USERS_OVERVIEW, Permission.DATA_FILEBROWSER)),
+    DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG, Permission.DATA_JUPYTER, Permission.DATA_FILEBROWSER)),
+    DATA_DOMAIN_EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_FILEBROWSER)),
     DATA_DOMAIN_VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE));
 
     private final List<Permission> permissions;

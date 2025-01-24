@@ -30,9 +30,17 @@ import {combineLatest, map, Observable, switchMap} from "rxjs";
 import {DataDomain, SupersetDashboard} from "../my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {selectCurrentContextRoles, selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../auth/auth.selector";
+import {
+  selectCurrentContextRoles,
+  selectCurrentUserPermissions,
+  selectCurrentUserPermissionsLoaded
+} from "../auth/auth.selector";
 import {filter, take} from "rxjs/operators";
-import {selectAvailableDataDomainItems, selectMyDashboards, selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
+import {
+  selectAvailableDataDomainItems,
+  selectMyDashboards,
+  selectSelectedDataDomain
+} from "../my-dashboards/my-dashboards.selector";
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
 import {TranslateService} from "../../shared/services/translate.service";
@@ -215,7 +223,12 @@ export class MenuService {
 
   private createLineageDocsSubNav(projectDocs: LineageDoc[], availableDataDomains: any[]) {
     const subMenuEntry: any[] = [];
-    subMenuEntry.push({id: 'lineageDocsList', text: '@List', routerLink: 'lineage-docs/list', requiredPermissions: ['DATA_LINEAGE']})
+    subMenuEntry.push({
+      id: 'lineageDocsList',
+      text: '@List',
+      routerLink: 'lineage-docs/list',
+      requiredPermissions: ['DATA_LINEAGE']
+    })
     const docsGroupedByContext = this.getLineageDocsGroupedByDataDomainContext(projectDocs, availableDataDomains);
     for (const [dataDomainContextName, lineageDocsInDomain] of docsGroupedByContext) {
       const lineageDocsMenuEntries = this.getLineageDocsSubMenuItemsForDataDomain(lineageDocsInDomain);
