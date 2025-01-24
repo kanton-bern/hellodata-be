@@ -33,7 +33,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rest-assured.version>5.2.0</rest-assured.version>
         <spring-boot-starter-kubernetes.version>3.1.0</spring-boot-starter-kubernetes.version>
-        <spring-boot.version>3.3.8</spring-boot.version>
+        <spring-boot.version>3.3.7</spring-boot.version>
         <spring-boot-admin-dependencies.version>3.2.3</spring-boot-admin-dependencies.version>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
         <spring-ws-test.version>4.0.2</spring-ws-test.version>
