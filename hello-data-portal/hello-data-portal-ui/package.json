@@ -80,6 +80,6 @@
   },
   "resolutions": {
     "vite": "^5.4.12",
-    "undici": "undici@^6.21.1"
+    "undici": "^6.21.1"
   }
 }
