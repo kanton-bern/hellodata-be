@@ -79,6 +79,7 @@
     "typescript": "~5.3.3"
   },
   "resolutions": {
-    "vite": "^5.4.12"
+    "vite": "^5.4.12",
+    "undici": "undici@^6.21.1"
   }
 }
