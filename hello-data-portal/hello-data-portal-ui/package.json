@@ -77,5 +77,8 @@
     "jest-sonar": "^0.2.16",
     "ts-jest": "^29.0.3",
     "typescript": "~5.3.3"
+  },
+  "resolutions": {
+    "vite": "^5.4.12"
   }
 }
