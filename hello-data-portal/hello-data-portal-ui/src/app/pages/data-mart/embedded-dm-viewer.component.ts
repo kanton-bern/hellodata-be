@@ -46,7 +46,7 @@ export class EmbeddedDmViewerComponent {
 
   constructor(private store: Store<AppState>) {
     const cookieName = 'cb-session-id';
-    document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     this.iframeUrl = this.baseUrl;
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
       if (selectedLang) {

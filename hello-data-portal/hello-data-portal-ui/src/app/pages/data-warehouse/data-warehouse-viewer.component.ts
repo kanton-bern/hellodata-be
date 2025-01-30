@@ -44,7 +44,7 @@ export class DataWarehouseViewerComponent extends BaseComponent {
   constructor(private store: Store<AppState>) {
     super();
     const cookieName = 'cb-session-id';
-    document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
