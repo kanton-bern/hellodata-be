@@ -31,11 +31,8 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {HttpClient} from "@angular/common/http";
 import {Observable, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
-import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
-import {navigate} from "../../store/app/app.action";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
@@ -44,10 +41,13 @@ import {navigate} from "../../store/app/app.action";
 export class EmbeddedDmViewerComponent {
   baseUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
-  iframeUrl = this.baseUrl;
+  iframeUrl = '';
   selectedLanguage$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
+    const cookieName = 'cb-session-id';
+    document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    this.iframeUrl = this.baseUrl;
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
       if (selectedLang) {
         this.updateIframeUrl(selectedLang.code as string);
