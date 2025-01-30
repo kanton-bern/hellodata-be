@@ -6,8 +6,8 @@ showcase_tierstatistik:
       threads: 1
       host: SHOWCASE_DWH_HOST
       port: SHOWCASE_DWH_PORT
-      user: "{{ env_var('SHOWCASE_DWH_U_MODELER') }}"
-      pass: "{{ env_var('SHOWCASE_DWH_U_MODELER_PASSWORD') }}"
+      user: "{{ env_var('DWH_MODELER_USER') }}"
+      pass: "{{ env_var('DWH_USER_MODELER_PASSWORD') }}"
       dbname: SHOWCASE_DWH_NAME
       schema: "udm"
 
