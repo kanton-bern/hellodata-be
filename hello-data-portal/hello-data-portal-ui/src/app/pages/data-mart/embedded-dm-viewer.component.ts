@@ -45,7 +45,7 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
     + environment.subSystemsConfig.dmViewer.domain;
   iframeUrl = '';
   selectedLanguage$: Observable<any>;
-  renewSessionInterval$ = interval(60000 * 9);
+  renewSessionInterval$ = interval(60000);
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private cloudbeaverService: CloudbeaverService) {
