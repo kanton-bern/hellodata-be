@@ -39,6 +39,7 @@ import {
   login,
   loginComplete,
   logout,
+  renewCloudbeaverSession,
   setActiveTranslocoLanguage,
   setAvailableLanguages,
   setDefaultLanguage,
@@ -220,6 +221,16 @@ export class AuthEffects {
       }),
       switchMap(() => {
         return EMPTY;
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
+  renewCloudbdaverSession = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(renewCloudbeaverSession),
+      switchMap(() => {
+        return this._cloudbeaverService.renewSession();
       }),
       catchError(e => of(showError({error: e})))
     )

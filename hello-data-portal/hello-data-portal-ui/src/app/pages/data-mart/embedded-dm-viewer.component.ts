@@ -33,7 +33,7 @@ import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {interval, Observable, Subject, takeUntil, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
-import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
+import {renewCloudbeaverSession} from "../../store/auth/auth.action";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
@@ -44,12 +44,10 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
     + environment.subSystemsConfig.dmViewer.domain;
   iframeUrl = '';
   selectedLanguage$: Observable<any>;
-  renewSessionInterval$ = interval(60000);
+  renewSessionInterval$ = interval(60000 * 5);
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private cloudbeaverService: CloudbeaverService) {
-    const cookieName = 'cb-session-id';
-    document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  constructor(private store: Store<AppState>) {
     this.iframeUrl = this.baseUrl;
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
       if (selectedLang) {
@@ -92,7 +90,7 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
     this.renewSessionInterval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.cloudbeaverService.renewSession()
+        this.store.dispatch(renewCloudbeaverSession());
       });
   }
 }

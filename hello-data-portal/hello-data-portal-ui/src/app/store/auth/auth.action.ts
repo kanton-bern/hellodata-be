@@ -44,6 +44,7 @@ export enum AuthActionType {
   SET_AVAILABLE_LANGUAGES = '[AUTH] Set available languages',
   SET_AVAILABLE_LANGUAGES_SUCCESS = '[AUTH] Set available languages success',
   SET_ACTIVE_TRANSLOCO_LANGUAGE = '[AUTH] Set active transloco language',
+  RENEW_CLOUDBEAVER_SESSION = '[AUTH] Renew cloudbeaver session',
 }
 
 export const login = createAction(
@@ -110,6 +111,6 @@ export const setAvailableLanguages = createAction(
   props<{ langs: string[] }>()
 );
 
-export const setAvailableLanguagesSuccess = createAction(
-  AuthActionType.SET_AVAILABLE_LANGUAGES_SUCCESS
+export const renewCloudbeaverSession = createAction(
+  AuthActionType.RENEW_CLOUDBEAVER_SESSION
 );

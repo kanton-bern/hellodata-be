@@ -82,7 +82,7 @@ export class CloudbeaverService {
     });
   }
 
-  renewSession(): void {
+  renewSession(): Observable<any> {
     console.debug('Renewing cloudbeaver session');
     const body = {
       query: `query sessionState {
@@ -103,12 +103,12 @@ export class CloudbeaverService {
       operationName: 'sessionState',
     };
 
-    this.http.post(this.apiUrl, body, {
+    return this.http.post(this.apiUrl, body, {
       headers: {
         'Content-Type': 'application/json',
         'accept': '*/*',
       },
       withCredentials: true,
-    }).subscribe();
+    });
   }
 }

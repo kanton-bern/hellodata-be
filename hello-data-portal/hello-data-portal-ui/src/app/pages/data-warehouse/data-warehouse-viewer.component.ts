@@ -32,8 +32,8 @@ import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
-import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
 import {interval, Subject, takeUntil} from "rxjs";
+import {renewCloudbeaverSession} from "../../store/auth/auth.action";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
@@ -42,13 +42,11 @@ import {interval, Subject, takeUntil} from "rxjs";
 export class DataWarehouseViewerComponent extends BaseComponent implements OnDestroy {
 
   url!: string;
-  renewSessionInterval$ = interval(60000 * 9);
+  renewSessionInterval$ = interval(60000 * 5);
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private cloudbeaverService: CloudbeaverService) {
+  constructor(private store: Store<AppState>) {
     super();
-    const cookieName = 'cb-session-id';
-    document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -57,7 +55,6 @@ export class DataWarehouseViewerComponent extends BaseComponent implements OnDes
       ]
     }));
   }
-
 
   override ngOnInit() {
     super.ngOnInit();
@@ -75,7 +72,7 @@ export class DataWarehouseViewerComponent extends BaseComponent implements OnDes
     this.renewSessionInterval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.cloudbeaverService.renewSession()
+        this.store.dispatch(renewCloudbeaverSession());
       });
   }
 }
