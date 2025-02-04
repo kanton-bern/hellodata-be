@@ -33,6 +33,7 @@ import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {Observable, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
+import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
@@ -44,7 +45,7 @@ export class EmbeddedDmViewerComponent {
   iframeUrl = '';
   selectedLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private cloudbeaverService: CloudbeaverService) {
     const cookieName = 'cb-session-id';
     document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     this.iframeUrl = this.baseUrl;
@@ -60,6 +61,9 @@ export class EmbeddedDmViewerComponent {
         }
       ]
     }));
+    setInterval(() => {
+      this.cloudbeaverService.renewSession();
+    }, 60000 * 9);
   }
 
   updateIframeUrl(language: string) {

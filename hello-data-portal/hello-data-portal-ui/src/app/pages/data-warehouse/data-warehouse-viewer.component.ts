@@ -32,6 +32,7 @@ import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
@@ -41,7 +42,7 @@ export class DataWarehouseViewerComponent extends BaseComponent {
 
   url!: string;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private cloudbeaverService: CloudbeaverService) {
     super();
     const cookieName = 'cb-session-id';
     document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
@@ -59,5 +60,8 @@ export class DataWarehouseViewerComponent extends BaseComponent {
     super.ngOnInit();
     this.url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain;
     console.debug("Data Warehouse Component initiated", this.url);
+    setInterval(() => {
+      this.cloudbeaverService.renewSession();
+    }, 60000 * 9);
   }
 }
