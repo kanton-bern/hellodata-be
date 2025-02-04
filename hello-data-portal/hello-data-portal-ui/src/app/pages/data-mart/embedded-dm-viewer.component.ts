@@ -25,25 +25,28 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, HostListener} from '@angular/core';
+import {Component, HostListener, OnDestroy} from '@angular/core';
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {Observable, tap} from "rxjs";
+import {interval, Observable, Subject, takeUntil, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
+import {map} from "rxjs/operators";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
   styleUrls: ['./embedded-dm-viewer.component.scss']
 })
-export class EmbeddedDmViewerComponent {
+export class EmbeddedDmViewerComponent implements OnDestroy {
   baseUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
   iframeUrl = '';
   selectedLanguage$: Observable<any>;
+  renewSessionInterval$ = interval(60000 * 9);
+  private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>, private cloudbeaverService: CloudbeaverService) {
     const cookieName = 'cb-session-id';
@@ -61,9 +64,7 @@ export class EmbeddedDmViewerComponent {
         }
       ]
     }));
-    setInterval(() => {
-      this.cloudbeaverService.renewSession();
-    }, 60000 * 9);
+    this.createInterval();
   }
 
   updateIframeUrl(language: string) {
@@ -80,6 +81,21 @@ export class EmbeddedDmViewerComponent {
         element.click();
       });
     }, 200);
+  }
+
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private createInterval(): void {
+    this.renewSessionInterval$
+      .pipe(
+        takeUntil(this.destroy$),
+        map(() => this.cloudbeaverService.renewSession())
+      )
+      .subscribe();
   }
 
 }
