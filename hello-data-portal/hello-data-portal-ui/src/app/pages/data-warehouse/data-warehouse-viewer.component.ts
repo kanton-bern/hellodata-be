@@ -33,7 +33,7 @@ import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
-import {interval, Subject, switchMap, takeUntil} from "rxjs";
+import {interval, Subject, takeUntil} from "rxjs";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
@@ -73,10 +73,9 @@ export class DataWarehouseViewerComponent extends BaseComponent implements OnDes
 
   private createInterval(): void {
     this.renewSessionInterval$
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap(() => this.cloudbeaverService.renewSession())
-      )
-      .subscribe();
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.cloudbeaverService.renewSession()
+      });
   }
 }

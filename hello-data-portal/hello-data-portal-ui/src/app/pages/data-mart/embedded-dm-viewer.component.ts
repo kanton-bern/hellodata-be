@@ -31,7 +31,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {interval, Observable, Subject, switchMap, takeUntil, tap} from "rxjs";
+import {interval, Observable, Subject, takeUntil, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {CloudbeaverService} from "../../store/auth/cloudbeaver.service";
 
@@ -90,11 +90,9 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
 
   private createInterval(): void {
     this.renewSessionInterval$
-      .pipe(
-        takeUntil(this.destroy$),
-        switchMap(() => this.cloudbeaverService.renewSession())
-      )
-      .subscribe();
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.cloudbeaverService.renewSession()
+      });
   }
-
 }
