@@ -90,8 +90,6 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
     this.renewSessionInterval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        const cookieName = 'cb-session-id';
-        document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
         this.store.dispatch(renewCloudbeaverSession());
       });
   }
