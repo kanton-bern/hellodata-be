@@ -36,7 +36,7 @@ export class CloudbeaverSessionService {
 
   private cookieExists(): boolean {
     const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
+    for (const cookie of cookies) {
       if (cookie.trim().startsWith(`${this.CLOUD_BEAVER_SESSION_COOKIE_NAME}=`)) {
         return true;
       }
