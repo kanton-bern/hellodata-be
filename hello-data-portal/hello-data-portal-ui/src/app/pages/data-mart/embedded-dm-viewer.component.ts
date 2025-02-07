@@ -25,29 +25,27 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, HostListener, OnDestroy} from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {interval, Observable, Subject, takeUntil, tap} from "rxjs";
+import {Observable, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
-import {prolongCBSession} from "../../store/auth/auth.action";
+import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
   styleUrls: ['./embedded-dm-viewer.component.scss']
 })
-export class EmbeddedDmViewerComponent implements OnDestroy {
+export class EmbeddedDmViewerComponent {
   baseUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
   iframeUrl = '';
   selectedLanguage$: Observable<any>;
-  renewSessionInterval$ = interval(60000 * 5);
-  private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private cloudbeaverSessionService: CloudbeaverSessionService) {
     this.iframeUrl = this.baseUrl;
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
       if (selectedLang) {
@@ -61,7 +59,7 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
         }
       ]
     }));
-    this.createInterval();
+    this.cloudbeaverSessionService.createInterval();
   }
 
   updateIframeUrl(language: string) {
@@ -80,19 +78,4 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
     }, 200);
   }
 
-
-  public ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    const cookieName = 'cb-session-id';
-    document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-  }
-
-  private createInterval(): void {
-    this.renewSessionInterval$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.store.dispatch(prolongCBSession());
-      });
-  }
 }
