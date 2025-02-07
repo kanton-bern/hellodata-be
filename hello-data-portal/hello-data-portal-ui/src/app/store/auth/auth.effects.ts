@@ -229,7 +229,12 @@ export class AuthEffects {
   prolongCloudBeaverSession$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(prolongCBSession),
-      switchMap(() => this._cloudbeaverService.renewSession()),
+      switchMap(() => this._cloudbeaverService.renewSession().pipe(
+        catchError(e => of(showError({error: e}))))
+      ),
+      switchMap(() => {
+        return EMPTY;
+      }),
       catchError(e => of(showError({error: e})))
     )
   });
