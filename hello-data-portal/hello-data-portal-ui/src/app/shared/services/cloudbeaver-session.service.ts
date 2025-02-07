@@ -2,7 +2,11 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {interval} from "rxjs";
 import {renewCloudbeaverSession} from "../../store/auth/auth.action";
+import {Injectable} from "@angular/core";
 
+@Injectable({
+  providedIn: 'root'
+})
 export class CloudbeaverSessionService {
 
   renewSessionInterval$ = interval(60000 * 5);
