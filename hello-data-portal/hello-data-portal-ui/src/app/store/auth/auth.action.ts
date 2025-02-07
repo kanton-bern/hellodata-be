@@ -112,5 +112,5 @@ export const setAvailableLanguages = createAction(
 );
 
 export const renewCloudbeaverSession = createAction(
-  AuthActionType.RENEW_CLOUDBEAVER_SESSION,
+  AuthActionType.RENEW_CLOUDBEAVER_SESSION
 );

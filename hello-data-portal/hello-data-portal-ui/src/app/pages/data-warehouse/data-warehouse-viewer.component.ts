@@ -25,24 +25,27 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
-import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
+import {interval, Subject, takeUntil} from "rxjs";
+import {renewCloudbeaverSession} from "../../store/auth/auth.action";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
   styleUrls: ['./data-warehouse-viewer.component.scss']
 })
-export class DataWarehouseViewerComponent extends BaseComponent {
+export class DataWarehouseViewerComponent extends BaseComponent implements OnDestroy {
 
   url!: string;
+  renewSessionInterval$ = interval(60000 * 5);
+  private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private cloudbeaverSessionService: CloudbeaverSessionService) {
+  constructor(private store: Store<AppState>) {
     super();
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -57,7 +60,21 @@ export class DataWarehouseViewerComponent extends BaseComponent {
     super.ngOnInit();
     this.url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain;
     console.debug("Data Warehouse Component initiated", this.url);
-    this.cloudbeaverSessionService.createInterval();
+    this.createInterval();
   }
 
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    const cookieName = 'cb-session-id';
+    document.cookie = cookieName + "=; path=/cloudbeaver/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  }
+
+  private createInterval(): void {
+    this.renewSessionInterval$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.store.dispatch(renewCloudbeaverSession());
+      });
+  }
 }
