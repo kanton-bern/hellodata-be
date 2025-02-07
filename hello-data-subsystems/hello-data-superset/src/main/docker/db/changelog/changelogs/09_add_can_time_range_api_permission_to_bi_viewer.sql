@@ -1,5 +1,5 @@
 --
--- Copyright © 2024, Kanton Bern
+-- Copyright © 2025, Kanton Bern
 -- All rights reserved.
 --
 -- Redistribution and use in source and binary forms, with or without
@@ -26,9 +26,7 @@
 --
 
 --
--- Adds all current BI_EDITORs as owners of all charts.
--- Deletes potential duplicate entries in the dashboard_user table.
--- This script is repeatable.
+-- Adds a permission to the BI_VIEWER role to allow time range selection in the API view.
 --
 
 with role_ as (
