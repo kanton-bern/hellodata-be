@@ -63,4 +63,7 @@
     <changeSet id="0008" author="hellodata" runAlways="true">
         <sqlFile path="changelogs/08_handle_owners_on_dashboards.sql" relativeToChangelogFile="true" splitStatements="false" />
     </changeSet>
+    <changeSet id="0009" author="hellodata" runAlways="true">
+        <sqlFile path="changelogs/09_add_can_time_range_api_permission_to_bi_viewer.sql" relativeToChangelogFile="true" splitStatements="false" />
+    </changeSet>
 </databaseChangeLog>
