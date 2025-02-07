@@ -39,7 +39,7 @@ import {
   login,
   loginComplete,
   logout,
-  renewCloudbeaverSession,
+  prolongCBSession,
   setActiveTranslocoLanguage,
   setAvailableLanguages,
   setDefaultLanguage,
@@ -226,12 +226,10 @@ export class AuthEffects {
     )
   });
 
-  renewCloudbdaverSession$ = createEffect(() => {
+  prolongCloudBeaverSession$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType(renewCloudbeaverSession),
-      switchMap(() => {
-        return this._cloudbeaverService.renewSession();
-      }),
+      ofType(prolongCBSession),
+      switchMap(() => this._cloudbeaverService.renewSession()),
       catchError(e => of(showError({error: e})))
     )
   });

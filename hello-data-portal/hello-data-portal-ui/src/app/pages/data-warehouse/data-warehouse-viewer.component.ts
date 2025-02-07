@@ -33,7 +33,7 @@ import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {interval, Subject, takeUntil} from "rxjs";
-import {renewCloudbeaverSession} from "../../store/auth/auth.action";
+import {prolongCBSession} from "../../store/auth/auth.action";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
@@ -74,7 +74,7 @@ export class DataWarehouseViewerComponent extends BaseComponent implements OnDes
     this.renewSessionInterval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.store.dispatch(renewCloudbeaverSession());
+        this.store.dispatch(prolongCBSession());
       });
   }
 }

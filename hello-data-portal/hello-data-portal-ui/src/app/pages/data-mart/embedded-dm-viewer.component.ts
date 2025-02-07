@@ -33,7 +33,7 @@ import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {interval, Observable, Subject, takeUntil, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
-import {renewCloudbeaverSession} from "../../store/auth/auth.action";
+import {prolongCBSession} from "../../store/auth/auth.action";
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
@@ -92,7 +92,7 @@ export class EmbeddedDmViewerComponent implements OnDestroy {
     this.renewSessionInterval$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.store.dispatch(renewCloudbeaverSession());
+        this.store.dispatch(prolongCBSession());
       });
   }
 }
