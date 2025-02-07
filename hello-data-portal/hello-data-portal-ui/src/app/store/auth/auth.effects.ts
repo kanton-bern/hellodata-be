@@ -228,7 +228,7 @@ export class AuthEffects {
     )
   });
 
-  renewCloudbdaverSession = createEffect(() => {
+  renewCloudbdaverSession$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(renewCloudbeaverSession),
       switchMap(() => {
