@@ -23,8 +23,7 @@ cp -R /showcase-src/* "$DESTINATION_PATH"
 
 rm -rf /showcase-src
 
-chown -R "${AIRFLOW_UID}:0" "$DESTINATION_PATH"
-
+chmod 777 -R "$DESTINATION_PATH"
 
 sed -i "s/SHOWCASE_DWH_HOST/$SHOWCASE_DWH_HOST/g" "$DESTINATION_PATH/dbt/profiles.yml"
 sed -i "s/SHOWCASE_DWH_PORT/$SHOWCASE_DWH_PORT/g" "$DESTINATION_PATH/dbt/profiles.yml"
@@ -39,6 +38,8 @@ for file in $dags_path; do
     echo "Processing $file"
     sed -i "s/DD_KEY/$DD_KEY/g" "$file"
 done
+
+
 
 # Run an infinite loop to keep the container running
 while true; do
