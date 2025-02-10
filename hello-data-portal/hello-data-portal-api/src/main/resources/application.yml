@@ -66,6 +66,7 @@ hello-data:
       email: mail
   cors:
     allowed-origins: ${hello-data.auth-server.redirect-url},${hello-data.auth-server.url} #can be comma separated
+  batch-users-file-location: /storage/batch-users-invitation
 
 #spring props
 spring:
