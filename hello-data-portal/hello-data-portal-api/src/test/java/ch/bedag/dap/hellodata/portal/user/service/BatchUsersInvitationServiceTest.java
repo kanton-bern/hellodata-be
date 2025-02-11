@@ -46,7 +46,8 @@ class BatchUsersInvitationServiceTest {
         assertNotNull(resource, "The test resources directory should exist in the classpath");
 
         String testResourcesPath = new File(resource.getFile()).getAbsolutePath();
-        BatchUsersInvitationService batchUsersInvitationService1 = new BatchUsersInvitationService(new ExcelParserService(), testResourcesPath);
+        BatchUsersInvitationService batchUsersInvitationService1 = new BatchUsersInvitationService(
+                new ExcelParserService(), null, null, null, testResourcesPath);
         List<BatchUpdateContextRolesForUserDto> parsedUsers = batchUsersInvitationService1.fetchUsersFile(false);
 
         assertEquals(parsedUsers.size(), 2);

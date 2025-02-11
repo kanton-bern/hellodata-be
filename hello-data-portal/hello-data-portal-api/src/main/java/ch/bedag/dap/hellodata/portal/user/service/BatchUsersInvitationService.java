@@ -26,29 +26,148 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.excel.service.ExcelParserService;
+import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
+import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
+import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.BatchUpdateContextRolesForUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
 public class BatchUsersInvitationService {
+    private static final String LOCAL_AD_REGEX = "\\b\\w+-\\d+\\b";
+
     private final ExcelParserService excelParserService;
+    private final UserService userService;
+    private final MetaInfoResourceService metaInfoResourceService;
+    private final RoleService roleService;
+
     private final String batchUsersFileLocation;
 
     public BatchUsersInvitationService(ExcelParserService excelParserService,
-                                       @Value("${hello-data.batch-users-file-location}") String batchUsersFileLocation) {
+                                       UserService userService, MetaInfoResourceService metaInfoResourceService, RoleService roleService,
+                                       @Value("${hello-data.batch-users-file.location}") String batchUsersFileLocation) {
         this.excelParserService = excelParserService;
+        this.userService = userService;
         this.batchUsersFileLocation = batchUsersFileLocation;
+        this.metaInfoResourceService = metaInfoResourceService;
+        this.roleService = roleService;
+    }
+
+    @Scheduled(fixedDelayString = "${hello-data.batch-users-file.scan-interval-seconds}", timeUnit = TimeUnit.SECONDS)
+    public void inviteUsers() throws InterruptedException {
+        List<BatchUpdateContextRolesForUserDto> users = fetchUsersFile(true);
+        String userEmails = users.stream()
+                .map(BatchUpdateContextRolesForUserDto::getEmail)
+                .collect(Collectors.joining(", "));
+        log.info("Inviting {} users: {}", users.size(), userEmails);
+
+        List<RoleDto> allRoles = roleService.getAll();
+        ContextsDto availableContexts = userService.getAvailableContexts();
+
+        Map<String, List<SupersetDashboard>> contextKeyToDashboardsMap = getContextKeyToDashboardsMap();
+        for (BatchUpdateContextRolesForUserDto user : users) {
+            Optional<AdUserDto> any = this.userService.searchUser(user.getEmail()).stream().findAny();
+            Optional<AdUserDto> firstAD = this.userService.searchUser(user.getEmail()).stream().filter(adUserDto -> !adUserDto.getFirstName().matches(LOCAL_AD_REGEX)).findFirst();
+            AdUserDto adUserDto = firstAD.orElseGet(any::orElseThrow);
+            String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
+            insertFullBusinessDomainRole(user, allRoles);
+            insertFullContextRoles(user, allRoles, availableContexts);
+            insertFullDashboards(user, contextKeyToDashboardsMap);
+            Thread.sleep(500L);
+            userService.updateContextRolesForUser(UUID.fromString(userId), user);
+        }
+    }
+
+    /**
+     * Inserts full context roles to the selection from the file. The selection from the file has only role name and context key.
+     *
+     * @param user
+     * @param allRoles
+     * @param availableContexts
+     */
+    private void insertFullContextRoles(BatchUpdateContextRolesForUserDto user, List<RoleDto> allRoles, ContextsDto availableContexts) {
+        List<UserContextRoleDto> dataDomainRoles = user.getDataDomainRoles().stream().map(dataDomainRole -> {
+            RoleDto role = allRoles.stream()
+                    .filter(roleDto -> roleDto.getName().equalsIgnoreCase(dataDomainRole.getRole().getName()))
+                    .findAny().orElseThrow(() -> new RuntimeException("Role not found"));
+            dataDomainRole.setRole(role);
+            dataDomainRole.setContext(availableContexts.getContexts().stream()
+                    .filter(contextDto -> contextDto.getContextKey().equalsIgnoreCase(dataDomainRole.getContext().getContextKey()))
+                    .findAny().orElseThrow(() -> new RuntimeException("Context not found")));
+            return dataDomainRole;
+        }).collect(Collectors.toList());
+        user.setDataDomainRoles(dataDomainRoles);
+    }
+
+    /**
+     * Inserts full business domain role to the selection from the file. The selection from the file has only name and context.
+     *
+     * @param user
+     * @param allRoles
+     */
+    private void insertFullBusinessDomainRole(BatchUpdateContextRolesForUserDto user, List<RoleDto> allRoles) {
+        RoleDto businessDomainRole = allRoles.stream()
+                .filter(roleDto -> roleDto.getName().equalsIgnoreCase(user.getBusinessDomainRole().getName()))
+                .findAny().orElseThrow(() -> new RuntimeException("Role not found"));
+        user.setBusinessDomainRole(businessDomainRole);
+    }
+
+    /**
+     * Inserts full dashboards to the selection from the file. The selection from the file has only id and title.
+     *
+     * @param user
+     * @param contextKeyToDashboardsMap
+     */
+    private void insertFullDashboards(BatchUpdateContextRolesForUserDto user, Map<String, List<SupersetDashboard>> contextKeyToDashboardsMap) {
+        Map<String, List<DashboardForUserDto>> selectedDashboardsForUser = user.getSelectedDashboardsForUser();
+        selectedDashboardsForUser.forEach((contextKey, dashboards) -> {
+            List<SupersetDashboard> dashboardsForContext = contextKeyToDashboardsMap.get(contextKey);
+            if (dashboardsForContext == null) {
+                log.warn("No dashboards found for context key: {}", contextKey);
+                return;
+            }
+
+            List<DashboardForUserDto> dashboardsForUser = dashboards.stream()
+                    .filter(dashboard -> dashboardsForContext.stream().anyMatch(d -> d.getId() == dashboard.getId() && d.getDashboardTitle().equalsIgnoreCase(dashboard.getTitle())))
+                    .collect(Collectors.toList());
+
+            user.getSelectedDashboardsForUser().put(contextKey, dashboardsForUser);
+        });
+    }
+
+    /**
+     * Fetches all dashboards from the meta info resources and maps them to their context key.
+     */
+    private Map<String, List<SupersetDashboard>> getContextKeyToDashboardsMap() {
+        Map<String, List<SupersetDashboard>> contextKeyToDashboardsMap = new HashMap<>();
+        List<MetaInfoResourceEntity> metaInfoResources = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_DASHBOARDS);
+        metaInfoResources.forEach(metaInfoResourceEntity -> {
+            DashboardResource dashboardResource = (DashboardResource) metaInfoResourceEntity.getMetainfo();
+            String contextKey = metaInfoResourceEntity.getContextKey();
+            contextKeyToDashboardsMap.put(contextKey, dashboardResource.getData());
+        });
+        return contextKeyToDashboardsMap;
     }
 
     private void deleteFile(File file) {
