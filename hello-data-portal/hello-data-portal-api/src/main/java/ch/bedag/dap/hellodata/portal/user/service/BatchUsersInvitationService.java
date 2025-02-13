@@ -32,7 +32,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.excel.service.ExcelParserService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -57,17 +56,17 @@ import java.util.stream.Collectors;
 public class BatchUsersInvitationService {
     private static final String LOCAL_AD_REGEX = "\\b\\w+-\\d+\\b";
 
-    private final ExcelParserService excelParserService;
+    //    private final ExcelParserService excelParserService;
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
     private final RoleService roleService;
 
     private final String batchUsersFileLocation;
 
-    public BatchUsersInvitationService(ExcelParserService excelParserService,
-                                       UserService userService, MetaInfoResourceService metaInfoResourceService, RoleService roleService,
-                                       @Value("${hello-data.batch-users-file.location}") String batchUsersFileLocation) {
-        this.excelParserService = excelParserService;
+    public BatchUsersInvitationService(
+            UserService userService, MetaInfoResourceService metaInfoResourceService, RoleService roleService,
+            @Value("${hello-data.batch-users-file.location}") String batchUsersFileLocation) {
+//        this.excelParserService = excelParserService;
         this.userService = userService;
         this.batchUsersFileLocation = batchUsersFileLocation;
         this.metaInfoResourceService = metaInfoResourceService;
@@ -194,7 +193,7 @@ public class BatchUsersInvitationService {
         List<BatchUpdateContextRolesForUserDto> allUsers = new ArrayList<>();
         for (File file : files) {
             try (FileInputStream fis = new FileInputStream(file)) {
-                List<BatchUpdateContextRolesForUserDto> users = excelParserService.transform(fis);
+                List<BatchUpdateContextRolesForUserDto> users = null;
                 allUsers.addAll(users);
                 if (removeFilesAfterFetch) {
                     deleteFile(file);

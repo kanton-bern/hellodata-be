@@ -135,11 +135,14 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Apache POI for Excel Handling -->
+        <!-- Apache Commons CSV for parsing CSV files -->
         <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>5.2.3</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
 
         <!-- Test Dependencies-->

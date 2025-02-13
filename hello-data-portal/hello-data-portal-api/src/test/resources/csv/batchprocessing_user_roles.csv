@@ -1,0 +1,8 @@
+﻿email;businessDomainRole;context;dataDomainRole;supersetRole
+john.doe@example.com;NONE;some_data_domain_key;DATA_DOMAIN_VIEWER;D_test_dashboard_6,D_example_dashboard_2,RLS_01
+jane.smith@example.com;NONE;some_data_domain_key;DATA_DOMAIN_VIEWER;D_test_dashboard_6,D_example_dashboard_2,RLS_03
+alice.johnson@example.com;NONE;some_data_domain_key;DATA_DOMAIN_VIEWER;D_test_dashboard_6,D_example_dashboard_2,RLS_04
+bob.williams@example.com;NONE;some_data_domain_key;DATA_DOMAIN_ADMIN;
+charlie.brown@example.com;NONE;some_data_domain_key;DATA_DOMAIN_VIEWER;D_test_dashboard_6,D_example_dashboard_2,RLS_05
+laura.anderson@example.com;HELLODATA_ADMIN;some_data_domain_key;DATA_DOMAIN_ADMIN;
+michael.taylor@example.com;NONE;some_data_domain_key;DATA_DOMAIN_VIEWER;D_test_dashboard_6,D_example_dashboard_2,RLS_06
