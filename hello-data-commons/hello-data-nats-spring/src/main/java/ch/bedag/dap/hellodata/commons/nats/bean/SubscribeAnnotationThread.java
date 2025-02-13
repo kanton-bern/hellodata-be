@@ -30,20 +30,18 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.util.NatsUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.nats.client.Connection;
-import io.nats.client.JetStream;
-import io.nats.client.JetStreamApiException;
-import io.nats.client.JetStreamSubscription;
-import io.nats.client.Message;
-import io.nats.client.PushSubscribeOptions;
+import io.nats.client.*;
 import io.nats.client.api.ConsumerConfiguration;
+import io.nats.client.api.ConsumerInfo;
+import lombok.extern.log4j.Log4j2;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import lombok.extern.log4j.Log4j2;
 
 /**
  * One stream subject configuration = one corresponding thread below to delegate messages to beans subscribing
@@ -72,6 +70,47 @@ public class SubscribeAnnotationThread extends Thread {
         return objectMapper;
     }
 
+    public void unsubscribe() {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe();
+        }
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                checkOrCreateConsumer();
+                log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                if (subscription != null) {
+                    Message message = subscription.nextMessage(Duration.ofSeconds(10L));
+                    if (message != null) {
+                        log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                        invoke(message);
+                    } else {
+                        log.debug("[NATS] ------- No message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                    }
+                } else {
+                    log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                }
+            } catch (IllegalStateException e) {
+                log.error("", e);
+                subscribe();
+            } catch (InterruptedException e) {
+                log.error("", e);
+                Thread.currentThread().interrupt(); // Re-interrupt the thread
+            }
+        }
+    }
+
+    public List<String> getSubscriptionIds() {
+        return beanWrappers.stream().map(BeanMethodWrapper::subscriptionId).toList();
+    }
+
+    public List<BeanMethodWrapper> getBeanWrappers() {
+        return beanWrappers;
+    }
+
     private void subscribe() {
         try {
             NatsUtil.createOrUpdateStream(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
@@ -85,31 +124,20 @@ public class SubscribeAnnotationThread extends Thread {
         }
     }
 
-    public void unsubscribe() {
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
-        }
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                log.debug("------- Run message fetch");
-                if (subscription != null) {
-                    Message message = subscription.nextMessage(0L);
-                    invoke(message);
-                } else {
-                    log.warn("Subscription to NATS is null. Please check if NATS is available.");
-                }
-            } catch (IllegalStateException e) {
-                log.error("", e);
-                //try to subscribe again
+    /**
+     * Checks if the consumer still exists and recreates it if missing.
+     */
+    private void checkOrCreateConsumer() {
+        try {
+            JetStreamManagement jsm = natsConnection.jetStreamManagement();
+            ConsumerInfo consumerInfo = jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
+            if (consumerInfo == null) {
+                log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing...", durableName, subscribeAnnotation.event().getStreamName());
                 subscribe();
-            } catch (InterruptedException e) {
-                log.error("", e);
-                Thread.currentThread().interrupt(); // Re-interrupt the thread
             }
+        } catch (JetStreamApiException | IOException e) {
+            log.error("[NATS] Error checking consumer status for stream {} and subject {}. Re-subscribing...", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), e);
+            subscribe();
         }
     }
 
@@ -129,13 +157,5 @@ public class SubscribeAnnotationThread extends Thread {
         } catch (IllegalAccessException | InvocationTargetException | CompletionException | IOException e) {
             log.error("Error invoking method", e);
         }
-    }
-
-    public List<String> getSubscriptionIds() {
-        return beanWrappers.stream().map(BeanMethodWrapper::subscriptionId).toList();
-    }
-
-    public List<BeanMethodWrapper> getBeanWrappers() {
-        return beanWrappers;
     }
 }
