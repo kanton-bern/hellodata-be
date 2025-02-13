@@ -1,6 +1,13 @@
 package ch.bedag.dap.hellodata.portal.csv.service;
 
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
 import ch.bedag.dap.hellodata.portal.csv.data.CsvUserRole;
+import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
+import ch.bedag.dap.hellodata.portal.user.data.BatchUpdateContextRolesForUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
+import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.csv.CSVFormat;
@@ -12,8 +19,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.DATA_DOMAIN_VIEWER;
 
@@ -30,7 +36,48 @@ public class CsvParserService {
     private static final char CSV_DELIMITER = ';';
     private static final String ROLE_DELIMITER = ",";
 
-    public List<CsvUserRole> parseCsvFile(InputStream inputStream) {
+    public List<BatchUpdateContextRolesForUserDto> transform(InputStream csvStream) {
+        List<CsvUserRole> parsedData = parseCsvFile(csvStream);
+        Map<String, BatchUpdateContextRolesForUserDto> usersMap = new LinkedHashMap<>();
+
+        for (CsvUserRole row : parsedData) {
+            String email = row.email();
+            String businessDomainRole = row.businessDomainRole();
+            String dataDomain = row.context();
+            String dataDomainRole = row.dataDomainRole();
+            List<String> supersetRoles = row.supersetRoles();
+
+            usersMap.putIfAbsent(email, new BatchUpdateContextRolesForUserDto());
+            BatchUpdateContextRolesForUserDto userDto = usersMap.get(email);
+
+            Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = userDto.getContextToModuleRoleNamesMap();
+            contextToModuleRoleNamesMap.computeIfAbsent(dataDomain, k -> new ArrayList<>()).add(new ModuleRoleNames(ModuleType.SUPERSET, supersetRoles));
+
+            userDto.setEmail(email);
+            userDto.setBusinessDomainRole(new RoleDto());
+            userDto.getBusinessDomainRole().setContextType(HdContextType.BUSINESS_DOMAIN);
+            userDto.getBusinessDomainRole().setName(businessDomainRole);
+            if (userDto.getDataDomainRoles() == null) {
+                userDto.setDataDomainRoles(new ArrayList<>());
+            }
+            Optional<UserContextRoleDto> alreadyAdded = userDto.getDataDomainRoles().stream().filter(userContextRoleDto ->
+                    userContextRoleDto.getContext().getContextKey().equals(dataDomain) && userContextRoleDto.getRole().getName().equals(dataDomainRole)).findFirst();
+            if (dataDomain != null && !dataDomain.isEmpty() && dataDomainRole != null && !dataDomainRole.isEmpty() && alreadyAdded.isEmpty()) {
+                UserContextRoleDto userContextRole = new UserContextRoleDto();
+                userContextRole.setRole(new RoleDto());
+                userContextRole.getRole().setName(dataDomainRole);
+                userContextRole.getRole().setContextType(HdContextType.DATA_DOMAIN);
+                ContextDto contextDto = new ContextDto();
+                contextDto.setContextKey(dataDomain);
+                userContextRole.setContext(contextDto);
+                userDto.getDataDomainRoles().add(userContextRole);
+            }
+
+        }
+        return new ArrayList<>(usersMap.values());
+    }
+
+    List<CsvUserRole> parseCsvFile(InputStream inputStream) {
         List<CsvUserRole> records = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 

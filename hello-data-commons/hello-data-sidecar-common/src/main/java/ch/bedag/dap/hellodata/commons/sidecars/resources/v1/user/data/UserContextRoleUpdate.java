@@ -27,10 +27,12 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
-import java.io.Serializable;
-import java.util.List;
 import lombok.Data;
 import lombok.ToString;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 
 @ToString
@@ -38,6 +40,7 @@ import lombok.ToString;
 public class UserContextRoleUpdate implements Serializable {
     private String email;
     private List<ContextRole> contextRoles;
+    private Map<String, List<ModuleRoleNames>> extraModuleRoles;
 
     @ToString
     @Data

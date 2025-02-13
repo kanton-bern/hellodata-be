@@ -26,12 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
-import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
+import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -56,17 +51,17 @@ import java.util.stream.Collectors;
 public class BatchUsersInvitationService {
     private static final String LOCAL_AD_REGEX = "\\b\\w+-\\d+\\b";
 
-    //    private final ExcelParserService excelParserService;
+    private final CsvParserService csvParserService;
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
     private final RoleService roleService;
 
     private final String batchUsersFileLocation;
 
-    public BatchUsersInvitationService(
-            UserService userService, MetaInfoResourceService metaInfoResourceService, RoleService roleService,
-            @Value("${hello-data.batch-users-file.location}") String batchUsersFileLocation) {
-//        this.excelParserService = excelParserService;
+    public BatchUsersInvitationService(CsvParserService csvParserService,
+                                       UserService userService, MetaInfoResourceService metaInfoResourceService, RoleService roleService,
+                                       @Value("${hello-data.batch-users-file.location}") String batchUsersFileLocation) {
+        this.csvParserService = csvParserService;
         this.userService = userService;
         this.batchUsersFileLocation = batchUsersFileLocation;
         this.metaInfoResourceService = metaInfoResourceService;
@@ -84,7 +79,6 @@ public class BatchUsersInvitationService {
         List<RoleDto> allRoles = roleService.getAll();
         ContextsDto availableContexts = userService.getAvailableContexts();
 
-        Map<String, List<SupersetDashboard>> contextKeyToDashboardsMap = getContextKeyToDashboardsMap();
         for (BatchUpdateContextRolesForUserDto user : users) {
             Optional<AdUserDto> any = this.userService.searchUser(user.getEmail()).stream().findAny();
             Optional<AdUserDto> firstAD = this.userService.searchUser(user.getEmail()).stream().filter(adUserDto -> !adUserDto.getFirstName().matches(LOCAL_AD_REGEX)).findFirst();
@@ -92,7 +86,6 @@ public class BatchUsersInvitationService {
             String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
             insertFullBusinessDomainRole(user, allRoles);
             insertFullContextRoles(user, allRoles, availableContexts);
-            insertFullDashboards(user, contextKeyToDashboardsMap);
             Thread.sleep(500L);
             userService.updateContextRolesForUser(UUID.fromString(userId), user);
         }
@@ -132,43 +125,6 @@ public class BatchUsersInvitationService {
         user.setBusinessDomainRole(businessDomainRole);
     }
 
-    /**
-     * Inserts full dashboards to the selection from the file. The selection from the file has only id and title.
-     *
-     * @param user
-     * @param contextKeyToDashboardsMap
-     */
-    private void insertFullDashboards(BatchUpdateContextRolesForUserDto user, Map<String, List<SupersetDashboard>> contextKeyToDashboardsMap) {
-        Map<String, List<DashboardForUserDto>> selectedDashboardsForUser = user.getSelectedDashboardsForUser();
-        selectedDashboardsForUser.forEach((contextKey, dashboards) -> {
-            List<SupersetDashboard> dashboardsForContext = contextKeyToDashboardsMap.get(contextKey);
-            if (dashboardsForContext == null) {
-                log.warn("No dashboards found for context key: {}", contextKey);
-                return;
-            }
-
-            List<DashboardForUserDto> dashboardsForUser = dashboards.stream()
-                    .filter(dashboard -> dashboardsForContext.stream().anyMatch(d -> d.getId() == dashboard.getId() && d.getDashboardTitle().equalsIgnoreCase(dashboard.getTitle())))
-                    .collect(Collectors.toList());
-
-            user.getSelectedDashboardsForUser().put(contextKey, dashboardsForUser);
-        });
-    }
-
-    /**
-     * Fetches all dashboards from the meta info resources and maps them to their context key.
-     */
-    private Map<String, List<SupersetDashboard>> getContextKeyToDashboardsMap() {
-        Map<String, List<SupersetDashboard>> contextKeyToDashboardsMap = new HashMap<>();
-        List<MetaInfoResourceEntity> metaInfoResources = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_DASHBOARDS);
-        metaInfoResources.forEach(metaInfoResourceEntity -> {
-            DashboardResource dashboardResource = (DashboardResource) metaInfoResourceEntity.getMetainfo();
-            String contextKey = metaInfoResourceEntity.getContextKey();
-            contextKeyToDashboardsMap.put(contextKey, dashboardResource.getData());
-        });
-        return contextKeyToDashboardsMap;
-    }
-
     private void deleteFile(File file) {
         if (file.delete()) {
             log.info("Batch users file successfully deleted: {}", file.getAbsolutePath());
@@ -184,16 +140,16 @@ public class BatchUsersInvitationService {
             return Collections.emptyList();
         }
 
-        File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".xlsx"));
+        File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
         if (files == null || files.length == 0) {
-            log.warn("No .xlsx files found in directory: {}", batchUsersFileLocation);
+            log.warn("No .csv files found in directory: {}", batchUsersFileLocation);
             return Collections.emptyList();
         }
 
         List<BatchUpdateContextRolesForUserDto> allUsers = new ArrayList<>();
         for (File file : files) {
             try (FileInputStream fis = new FileInputStream(file)) {
-                List<BatchUpdateContextRolesForUserDto> users = null;
+                List<BatchUpdateContextRolesForUserDto> users = csvParserService.transform(fis);
                 allUsers.addAll(users);
                 if (removeFilesAfterFetch) {
                     deleteFile(file);

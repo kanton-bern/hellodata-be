@@ -30,8 +30,10 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
@@ -39,19 +41,21 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateRe
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
-import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeAllDashboardRoles;
-import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removePublicRoleIfAdded;
-import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.removeRoleFromUser;
+import static ch.bedag.dap.hellodata.sidecars.superset.service.user.RoleUtil.*;
 
 @Log4j2
 @Service
@@ -81,8 +85,18 @@ public class SupersetUpdateUserContextRoleConsumer {
             SubsystemUser subsystemUser = supersetUserResult.get();
             List<SupersetRole> supersetUserRoles = subsystemUser.getRoles();
             SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
-            supersetUserRolesUpdate.setRoles(subsystemUser.getRoles().stream().map(SupersetRole::getId).toList());
-            removeBiRoles(allRoles, supersetUserRolesUpdate);
+
+            List<ModuleRoleNames> moduleRoleNamesList = new ArrayList<>(CollectionUtils.emptyIfNull(userContextRoleUpdate.getExtraModuleRoles().get(dataDomainKey)));
+            Optional<ModuleRoleNames> moduleExtraRoles = moduleRoleNamesList.stream().filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET).findFirst();
+            if (moduleExtraRoles.isPresent()) {
+                // reset all roles if extra roles present (here roles come from the csv file)
+                supersetUserRolesUpdate.setRoles(new ArrayList<>());
+                moduleExtraRoles.get().roleNames().forEach(roleName -> assignRoleToUser(roleName, allRoles, supersetUserRolesUpdate));
+            } else {
+                supersetUserRolesUpdate.setRoles(subsystemUser.getRoles().stream().map(SupersetRole::getId).toList());
+                removeBiRoles(allRoles, supersetUserRolesUpdate);
+            }
+
             assignAdminRoleIfSuperuser(userContextRoleUpdate, allRoles, supersetUserRolesUpdate);
             switch (contextRole.getRoleName()) {
                 case DATA_DOMAIN_ADMIN -> {
@@ -96,13 +110,15 @@ public class SupersetUpdateUserContextRoleConsumer {
                     assignRoleToUser(SlugifyUtil.BI_EDITOR_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SQL_LAB_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
-                case DATA_DOMAIN_VIEWER -> assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
+                case DATA_DOMAIN_VIEWER ->
+                        assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 case NONE -> {
                     removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
                 default -> log.debug("Irrelevant role name? {}", contextRole.getRoleName());
             }
+
             removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
             SupersetUserUpdateResponse updatedUser = supersetClientProvider.getSupersetClientInstance().updateUserRoles(supersetUserRolesUpdate, subsystemUser.getId());
             log.info("-=-=-=-= UPDATED USER ROLES: user: {}, role ids: {}", userContextRoleUpdate.getEmail(), updatedUser.getResult().getRoles());

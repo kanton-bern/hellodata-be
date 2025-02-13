@@ -33,4 +33,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class BatchUpdateContextRolesForUserDto extends UpdateContextRolesForUserDto {
     private String email;
+
 }
