@@ -91,13 +91,13 @@ public class BatchUsersInvitationService {
             String userId;
             try {
                 userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
+                Thread.sleep(500L); //wait for it to push to subsystems before proceeding to set context roles
             } catch (UserAlreadyExistsException e) {
                 log.info("User {} already exists, fetching id to update it", adUserDto.getEmail());
                 userId = allUsers.stream().filter(userDto -> userDto.getEmail().equalsIgnoreCase(adUserDto.getEmail())).findFirst().get().getId();
             }
             insertFullBusinessDomainRole(user, allRoles);
             insertFullContextRoles(user, allRoles, availableContexts);
-            Thread.sleep(500L);
             userService.updateContextRolesForUser(UUID.fromString(userId), user);
         }
     }
