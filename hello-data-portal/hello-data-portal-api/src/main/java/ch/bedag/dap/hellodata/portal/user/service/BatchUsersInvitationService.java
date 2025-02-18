@@ -154,7 +154,7 @@ public class BatchUsersInvitationService {
 
         File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
         if (files == null || files.length == 0) {
-            log.warn("No .csv files found in directory: {}", batchUsersFileLocation);
+            log.debug("No .csv files found in directory: {}", batchUsersFileLocation);
             return Collections.emptyList();
         }
 
