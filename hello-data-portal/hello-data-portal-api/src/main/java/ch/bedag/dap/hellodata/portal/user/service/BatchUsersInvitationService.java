@@ -98,6 +98,7 @@ public class BatchUsersInvitationService {
             }
             insertFullBusinessDomainRole(user, allRoles);
             insertFullContextRoles(user, allRoles, availableContexts);
+            user.setSelectedDashboardsForUser(new HashMap<>()); // prevent NPE
             userService.updateContextRolesForUser(UUID.fromString(userId), user);
         }
     }
