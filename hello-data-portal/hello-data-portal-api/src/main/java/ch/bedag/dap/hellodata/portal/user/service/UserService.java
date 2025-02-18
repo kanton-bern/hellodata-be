@@ -49,6 +49,7 @@ import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portal.user.repository.UserRepository;
@@ -394,7 +395,7 @@ public class UserService {
     private void validateEmail(String email) {
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
         if (userEntityByEmail.isPresent()) {
-            throw new RuntimeException("@User email already exists");
+            throw new UserAlreadyExistsException();
         }
     }
 

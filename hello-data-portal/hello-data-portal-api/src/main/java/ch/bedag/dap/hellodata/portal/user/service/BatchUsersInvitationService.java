@@ -30,14 +30,13 @@ import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
-import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.BatchUpdateContextRolesForUserDto;
-import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
-import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
+import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
+import ch.bedag.dap.hellodata.portal.user.data.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,16 +73,28 @@ public class BatchUsersInvitationService {
         String userEmails = users.stream()
                 .map(BatchUpdateContextRolesForUserDto::getEmail)
                 .collect(Collectors.joining(", "));
-        log.info("Inviting {} users: {}", users.size(), userEmails);
 
+        if (!CollectionUtils.isEmpty(users)) {
+            log.info("Inviting {} users: {}", users.size(), userEmails);
+        } else {
+            log.debug("No users were invited");
+            return;
+        }
         List<RoleDto> allRoles = roleService.getAll();
         ContextsDto availableContexts = userService.getAvailableContexts();
+        List<UserDto> allUsers = userService.getAllUsers();
 
         for (BatchUpdateContextRolesForUserDto user : users) {
             Optional<AdUserDto> any = this.userService.searchUser(user.getEmail()).stream().findAny();
             Optional<AdUserDto> firstAD = this.userService.searchUser(user.getEmail()).stream().filter(adUserDto -> !adUserDto.getFirstName().matches(LOCAL_AD_REGEX)).findFirst();
             AdUserDto adUserDto = firstAD.orElseGet(any::orElseThrow);
-            String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
+            String userId;
+            try {
+                userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
+            } catch (UserAlreadyExistsException e) {
+                log.info("User {} already exists, fetching id to update it", adUserDto.getEmail());
+                userId = allUsers.stream().filter(userDto -> userDto.getEmail().equalsIgnoreCase(adUserDto.getEmail())).findFirst().get().getId();
+            }
             insertFullBusinessDomainRole(user, allRoles);
             insertFullContextRoles(user, allRoles, availableContexts);
             Thread.sleep(500L);
