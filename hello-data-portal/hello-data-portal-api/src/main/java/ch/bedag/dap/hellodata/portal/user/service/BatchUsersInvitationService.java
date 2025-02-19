@@ -90,7 +90,7 @@ public class BatchUsersInvitationService {
             if (!CollectionUtils.isEmpty(users)) {
                 String importUsersMsg = "Inviting/updating %s users: %s".formatted(users.size(), userEmails);
                 log.info(importUsersMsg);
-                batchUsersCustomLogger.logMessage("\n------\n" + importUsersMsg);
+                batchUsersCustomLogger.logMessage(importUsersMsg);
             } else {
                 log.debug("No users were invited/updated");
                 return;
@@ -102,7 +102,7 @@ public class BatchUsersInvitationService {
             batchUsersCustomLogger.logMessage("Processed %s users successfully\n".formatted(users.size()));
         } catch (Exception e) {
             log.error("Error inviting/updating users", e);
-            batchUsersCustomLogger.logMessage("Error inviting users: " + e.getMessage() + "\n");
+            batchUsersCustomLogger.logMessage("Error inviting users: %s \n".formatted(e.getMessage()));
         }
     }
 
