@@ -31,11 +31,11 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.service.BatchUsersCustomLogger;
 import ch.bedag.dap.hellodata.portal.user.service.UpdateUserContextRoleConsumer;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.nats.client.Connection;
 import io.restassured.RestAssured;
-import javax.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -45,6 +45,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.wait.strategy.Wait;
+
+import javax.annotation.PostConstruct;
 
 @Log4j2
 @SuppressWarnings("unused")
@@ -56,9 +58,9 @@ public abstract class KeycloakTestContainerTest {
 
     static {
         KEYCLOAK_CONTAINER = new KeycloakContainer().withEnv("KEYCLOAK_USER", "admin")
-                                                    .withEnv("KEYCLOAK_PASSWORD", "admin")
-                                                    .withRealmImportFile("keycloak/realm.json")
-                                                    .waitingFor(Wait.forHttp("/"));
+                .withEnv("KEYCLOAK_PASSWORD", "admin")
+                .withRealmImportFile("keycloak/realm.json")
+                .waitingFor(Wait.forHttp("/"));
         KEYCLOAK_CONTAINER.start();
     }
 
@@ -78,6 +80,8 @@ public abstract class KeycloakTestContainerTest {
     private StorageSizeService storageSizeService;
     @MockBean
     private NatsHealthIndicator natsHealthIndicator;
+    @MockBean
+    private BatchUsersCustomLogger batchUsersCustomLogger;
 
     @DynamicPropertySource
     static void registerResourceServerIssuerProperty(DynamicPropertyRegistry registry) {
