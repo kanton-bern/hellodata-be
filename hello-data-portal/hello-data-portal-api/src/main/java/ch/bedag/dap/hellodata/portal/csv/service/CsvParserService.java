@@ -10,6 +10,7 @@ import ch.bedag.dap.hellodata.portal.user.data.BatchUpdateContextRolesForUserDto
 import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
 import ch.bedag.dap.hellodata.portal.user.data.UserContextRoleDto;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -17,10 +18,12 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.DATA_DOMAIN_VIEWER;
 import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.getByContextType;
@@ -31,6 +34,8 @@ import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.ge
 public class CsvParserService {
 
     private static final String EMAIL = "email";
+    private static final String EMAIL_VALIDATION_REGEX = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_VALIDATION_REGEX);
     private static final String BUSINESS_DOMAIN_ROLE = "businessDomainRole";
     private static final String CONTEXT = "context";
     private static final String DATA_DOMAIN_ROLE = "dataDomainRole";
@@ -38,6 +43,7 @@ public class CsvParserService {
     private static final char CSV_DELIMITER = ';';
     private static final String ROLE_DELIMITER = ",";
 
+    @SneakyThrows
     public List<BatchUpdateContextRolesForUserDto> transform(InputStream csvStream) {
         List<CsvUserRole> parsedData = parseCsvFile(csvStream);
         Map<String, BatchUpdateContextRolesForUserDto> usersMap = new LinkedHashMap<>();
@@ -79,14 +85,20 @@ public class CsvParserService {
         return new ArrayList<>(usersMap.values());
     }
 
-    private void verifyRoleName(String roleName, HdContextType contextType) {
-        List<HdRoleName> hdRoleNames = getByContextType(contextType);
-        if (hdRoleNames.stream().noneMatch(role -> role.name().equals(roleName))) {
-            throw new RuntimeException(String.format("Invalid %s role name: %s", contextType.getTypeName().toLowerCase(Locale.ROOT), roleName));
+    private void verifyEmail(String email) {
+        if (email == null || email.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
+            throw new RuntimeException("Email is not valid %s".formatted(email));
         }
     }
 
-    List<CsvUserRole> parseCsvFile(InputStream inputStream) {
+    private void verifyRoleName(String roleName, HdContextType contextType) {
+        List<HdRoleName> hdRoleNames = getByContextType(contextType);
+        if (hdRoleNames.stream().noneMatch(role -> role.name().equals(roleName))) {
+            throw new IllegalArgumentException(String.format("Invalid %s role name: %s", contextType.getTypeName().toLowerCase(Locale.ROOT), roleName));
+        }
+    }
+
+    List<CsvUserRole> parseCsvFile(InputStream inputStream) throws IOException {
         List<CsvUserRole> records = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
@@ -99,13 +111,13 @@ public class CsvParserService {
 
             for (CSVRecord csvRecord : csvParser) {
                 String email = csvRecord.get(EMAIL);
+                verifyEmail(email);
                 String businessDomainRole = csvRecord.get(BUSINESS_DOMAIN_ROLE);
                 verifyRoleName(businessDomainRole, HdContextType.BUSINESS_DOMAIN);
                 String context = csvRecord.get(CONTEXT);
                 String dataDomainRole = csvRecord.get(DATA_DOMAIN_ROLE);
                 verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
                 String supersetRoleRaw = csvRecord.get(SUPERSET_ROLE);
-
                 // Convert comma-separated Superset roles into a List
                 List<String> supersetRoles = supersetRoleRaw.isEmpty() ? List.of() : List.of(supersetRoleRaw.split(ROLE_DELIMITER));
 
@@ -115,10 +127,7 @@ public class CsvParserService {
 
                 records.add(record);
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Error reading CSV file: " + e.getMessage(), e);
         }
-
         return records;
     }
 }

@@ -26,6 +26,12 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
 import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
@@ -54,36 +60,52 @@ public class BatchUsersInvitationService {
     private final UserService userService;
     private final MetaInfoResourceService metaInfoResourceService;
     private final RoleService roleService;
+    private final BatchUsersCustomLogger batchUsersCustomLogger;
 
     private final String batchUsersFileLocation;
 
     public BatchUsersInvitationService(CsvParserService csvParserService,
-                                       UserService userService, MetaInfoResourceService metaInfoResourceService, RoleService roleService,
+                                       UserService userService,
+                                       MetaInfoResourceService metaInfoResourceService,
+                                       RoleService roleService,
+                                       BatchUsersCustomLogger batchUsersCustomLogger,
                                        @Value("${hello-data.batch-users-file.location}") String batchUsersFileLocation) {
         this.csvParserService = csvParserService;
         this.userService = userService;
         this.batchUsersFileLocation = batchUsersFileLocation;
         this.metaInfoResourceService = metaInfoResourceService;
         this.roleService = roleService;
+        this.batchUsersCustomLogger = batchUsersCustomLogger;
     }
 
     @Scheduled(fixedDelayString = "${hello-data.batch-users-file.scan-interval-seconds}", timeUnit = TimeUnit.SECONDS)
-    public void inviteUsers() throws InterruptedException {
-        List<BatchUpdateContextRolesForUserDto> users = fetchUsersFile(true);
-        String userEmails = users.stream()
-                .map(BatchUpdateContextRolesForUserDto::getEmail)
-                .collect(Collectors.joining(", "));
+    public void inviteUsers() {
+        try {
+            ContextsDto availableContexts = userService.getAvailableContexts();
+            List<BatchUpdateContextRolesForUserDto> users = fetchDataFromFile(true, availableContexts);
+            String userEmails = users.stream()
+                    .map(BatchUpdateContextRolesForUserDto::getEmail)
+                    .collect(Collectors.joining(", "));
 
-        if (!CollectionUtils.isEmpty(users)) {
-            log.info("Inviting {} users: {}", users.size(), userEmails);
-        } else {
-            log.debug("No users were invited");
-            return;
+            if (!CollectionUtils.isEmpty(users)) {
+                String importUsersMsg = "Inviting %s users: %s".formatted(users.size(), userEmails);
+                log.info(importUsersMsg);
+                batchUsersCustomLogger.logMessage("\n------" + importUsersMsg);
+            } else {
+                log.debug("No users were invited");
+                return;
+            }
+            List<RoleDto> allRoles = roleService.getAll();
+            List<UserDto> allUsers = userService.getAllUsers();
+
+            createOrUpdateUsers(users, allUsers, allRoles, availableContexts);
+        } catch (Exception e) {
+            log.error("Error inviting users", e);
+            batchUsersCustomLogger.logMessage("Error inviting users: " + e.getMessage());
         }
-        List<RoleDto> allRoles = roleService.getAll();
-        ContextsDto availableContexts = userService.getAvailableContexts();
-        List<UserDto> allUsers = userService.getAllUsers();
+    }
 
+    private void createOrUpdateUsers(List<BatchUpdateContextRolesForUserDto> users, List<UserDto> allUsers, List<RoleDto> allRoles, ContextsDto availableContexts) throws InterruptedException {
         for (BatchUpdateContextRolesForUserDto user : users) {
             Optional<AdUserDto> any = this.userService.searchUser(user.getEmail()).stream().findAny();
             Optional<AdUserDto> firstAD = this.userService.searchUser(user.getEmail()).stream().filter(adUserDto -> !adUserDto.getFirstName().matches(LOCAL_AD_REGEX)).findFirst();
@@ -93,7 +115,9 @@ public class BatchUsersInvitationService {
                 userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
                 Thread.sleep(500L); //wait for it to push to subsystems before proceeding to set context roles
             } catch (UserAlreadyExistsException e) {
-                log.info("User {} already exists, fetching id to update it", adUserDto.getEmail());
+                String errMsg = "User %s already exists, updating roles...".formatted(adUserDto.getEmail());
+                log.info(errMsg);
+                batchUsersCustomLogger.logMessage(errMsg);
                 userId = allUsers.stream().filter(userDto -> userDto.getEmail().equalsIgnoreCase(adUserDto.getEmail())).findFirst().get().getId();
             }
             insertFullBusinessDomainRole(user, allRoles);
@@ -145,7 +169,50 @@ public class BatchUsersInvitationService {
         }
     }
 
-    List<BatchUpdateContextRolesForUserDto> fetchUsersFile(boolean removeFilesAfterFetch) {
+    private void verifyContextKeys(List<BatchUpdateContextRolesForUserDto> users, Set<String> availableDataDomainKeys) {
+        for (BatchUpdateContextRolesForUserDto user : users) {
+            for (UserContextRoleDto dataDomainRole : user.getDataDomainRoles()) {
+                if (!availableDataDomainKeys.contains(dataDomainRole.getContext().getContextKey())) {
+                    throw new IllegalArgumentException("Context key not found: " + dataDomainRole.getContext().getContextKey());
+                }
+            }
+        }
+    }
+
+    private Set<String> getAvailableDataDomainKeys(ContextsDto availableContexts) {
+        return availableContexts.getContexts().stream()
+                .filter(contextDto -> contextDto.getType() == HdContextType.DATA_DOMAIN)
+                .map(ContextDto::getContextKey)
+                .collect(Collectors.toSet());
+    }
+
+    private Map<String, List<String>> getDataDomainKeyToExistingSupersetRolesMap() {
+        return metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES).stream()
+                .collect(Collectors.toMap(MetaInfoResourceEntity::getContextKey,
+                        metaInfoResourceEntity -> ((RoleResource) metaInfoResourceEntity.getMetainfo()).getData().stream()
+                                .map(RolePermissions::name).toList()));
+    }
+
+    private void verifySupersetRoles(List<BatchUpdateContextRolesForUserDto> users, Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap) {
+        for (BatchUpdateContextRolesForUserDto user : users) {
+            user.getContextToModuleRoleNamesMap().forEach((contextKey, moduleRoleNamesList) -> {
+                List<String> existingSupersetRoles = dataDomainKeyToExistingSupersetRolesMap.get(contextKey);
+                if (existingSupersetRoles != null) {
+                    moduleRoleNamesList.stream()
+                            .filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET)
+                            .findFirst()
+                            .ifPresent(supersetModule -> {
+                                List<String> proposedRoleNamesFromFile = supersetModule.roleNames();
+                                if (!new HashSet<>(existingSupersetRoles).containsAll(proposedRoleNamesFromFile)) {
+                                    throw new IllegalArgumentException("One of the following roles is not present in the superset from data domain %s, check role names: %s".formatted(contextKey, proposedRoleNamesFromFile));
+                                }
+                            });
+                }
+            });
+        }
+    }
+
+    List<BatchUpdateContextRolesForUserDto> fetchDataFromFile(boolean removeFilesAfterFetch, ContextsDto availableContexts) {
         File directory = new File(batchUsersFileLocation);
         if (!directory.exists() || !directory.isDirectory()) {
             log.warn("Batch users directory does not exist or is not a directory: {}", batchUsersFileLocation);
@@ -158,10 +225,15 @@ public class BatchUsersInvitationService {
             return Collections.emptyList();
         }
 
+        Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap = getDataDomainKeyToExistingSupersetRolesMap();
+
+        Set<String> availableDataDomainKeys = getAvailableDataDomainKeys(availableContexts);
         List<BatchUpdateContextRolesForUserDto> allUsers = new ArrayList<>();
         for (File file : files) {
             try (FileInputStream fis = new FileInputStream(file)) {
                 List<BatchUpdateContextRolesForUserDto> users = csvParserService.transform(fis);
+                verifyContextKeys(users, availableDataDomainKeys);
+                verifySupersetRoles(users, dataDomainKeyToExistingSupersetRolesMap);
                 allUsers.addAll(users);
                 if (removeFilesAfterFetch) {
                     deleteFile(file);
