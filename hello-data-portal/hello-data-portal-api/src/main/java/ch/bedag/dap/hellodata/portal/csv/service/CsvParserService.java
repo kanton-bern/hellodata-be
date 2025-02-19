@@ -87,7 +87,7 @@ public class CsvParserService {
 
     private void verifyEmail(String email) {
         if (email == null || email.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new RuntimeException("Email is not valid %s".formatted(email));
+            throw new IllegalArgumentException("Email is not valid %s".formatted(email));
         }
     }
 
