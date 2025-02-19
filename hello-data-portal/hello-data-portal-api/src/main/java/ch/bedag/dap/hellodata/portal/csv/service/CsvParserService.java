@@ -1,6 +1,7 @@
 package ch.bedag.dap.hellodata.portal.csv.service;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
 import ch.bedag.dap.hellodata.portal.csv.data.CsvUserRole;
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.DATA_DOMAIN_VIEWER;
+import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.getByContextType;
 
 @Log4j2
 @Service
@@ -77,6 +79,13 @@ public class CsvParserService {
         return new ArrayList<>(usersMap.values());
     }
 
+    private void verifyRoleName(String roleName, HdContextType contextType) {
+        List<HdRoleName> hdRoleNames = getByContextType(contextType);
+        if (hdRoleNames.stream().noneMatch(role -> role.name().equals(roleName))) {
+            throw new RuntimeException(String.format("Invalid %s role name: %s", contextType.getTypeName().toLowerCase(Locale.ROOT), roleName));
+        }
+    }
+
     List<CsvUserRole> parseCsvFile(InputStream inputStream) {
         List<CsvUserRole> records = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -91,8 +100,10 @@ public class CsvParserService {
             for (CSVRecord csvRecord : csvParser) {
                 String email = csvRecord.get(EMAIL);
                 String businessDomainRole = csvRecord.get(BUSINESS_DOMAIN_ROLE);
+                verifyRoleName(businessDomainRole, HdContextType.BUSINESS_DOMAIN);
                 String context = csvRecord.get(CONTEXT);
                 String dataDomainRole = csvRecord.get(DATA_DOMAIN_ROLE);
+                verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
                 String supersetRoleRaw = csvRecord.get(SUPERSET_ROLE);
 
                 // Convert comma-separated Superset roles into a List

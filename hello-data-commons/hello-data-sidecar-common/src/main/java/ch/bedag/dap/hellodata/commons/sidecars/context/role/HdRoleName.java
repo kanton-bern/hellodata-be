@@ -29,13 +29,21 @@ package ch.bedag.dap.hellodata.commons.sidecars.context.role;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * enum for context roles
  */
 @Getter
 public enum HdRoleName {
-    HELLODATA_ADMIN(HdContextType.BUSINESS_DOMAIN), BUSINESS_DOMAIN_ADMIN(HdContextType.BUSINESS_DOMAIN), DATA_DOMAIN_VIEWER(HdContextType.DATA_DOMAIN),
-    DATA_DOMAIN_EDITOR(HdContextType.DATA_DOMAIN), DATA_DOMAIN_ADMIN(HdContextType.DATA_DOMAIN), NONE();
+    HELLODATA_ADMIN(HdContextType.BUSINESS_DOMAIN),
+    BUSINESS_DOMAIN_ADMIN(HdContextType.BUSINESS_DOMAIN),
+    DATA_DOMAIN_VIEWER(HdContextType.DATA_DOMAIN),
+    DATA_DOMAIN_EDITOR(HdContextType.DATA_DOMAIN),
+    DATA_DOMAIN_ADMIN(HdContextType.DATA_DOMAIN),
+    NONE();
     private final HdContextType contextType;
 
     HdRoleName(HdContextType contextType) {
@@ -44,5 +52,11 @@ public enum HdRoleName {
 
     HdRoleName() {
         this.contextType = null;
+    }
+
+    public static List<HdRoleName> getByContextType(HdContextType type) {
+        return Arrays.stream(values())
+                .filter(role -> role.contextType == type || role.name().equals(NONE.name()))
+                .collect(Collectors.toList());
     }
 }
