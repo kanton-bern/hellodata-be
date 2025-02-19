@@ -32,8 +32,8 @@ class CsvParserServiceTest {
     @Test
     void testParseCsv() {
         String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
-                "user1@example.com;role1;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
-                "user2@example.com;role2;context2;otherRole;\n";
+                "user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
+                "user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;\n";
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
 
         List<CsvUserRole> result = csvParserService.parseCsvFile(inputStream);
@@ -43,16 +43,16 @@ class CsvParserServiceTest {
 
         CsvUserRole user1 = result.get(0);
         assertEquals("user1@example.com", user1.email());
-        assertEquals("role1", user1.businessDomainRole());
+        assertEquals("NONE", user1.businessDomainRole());
         assertEquals("context1", user1.context());
         assertEquals("DATA_DOMAIN_VIEWER", user1.dataDomainRole());
         assertEquals(List.of("roleA", "roleB"), user1.supersetRoles());
 
         CsvUserRole user2 = result.get(1);
         assertEquals("user2@example.com", user2.email());
-        assertEquals("role2", user2.businessDomainRole());
+        assertEquals("NONE", user2.businessDomainRole());
         assertEquals("context2", user2.context());
-        assertEquals("otherRole", user2.dataDomainRole());
+        assertEquals("DATA_DOMAIN_ADMIN", user2.dataDomainRole());
         assertTrue(user2.supersetRoles().isEmpty());
     }
 
