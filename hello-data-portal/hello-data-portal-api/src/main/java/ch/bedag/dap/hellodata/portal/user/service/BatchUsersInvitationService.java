@@ -79,7 +79,7 @@ public class BatchUsersInvitationService {
     }
 
     @Scheduled(fixedDelayString = "${hello-data.batch-users-file.scan-interval-seconds}", timeUnit = TimeUnit.SECONDS)
-    public void inviteUsers() {
+    public void inviteOrUpdateUsers() {
         try {
             ContextsDto availableContexts = userService.getAvailableContexts();
             List<BatchUpdateContextRolesForUserDto> users = fetchDataFromFile(true, availableContexts);
@@ -88,20 +88,21 @@ public class BatchUsersInvitationService {
                     .collect(Collectors.joining(", "));
 
             if (!CollectionUtils.isEmpty(users)) {
-                String importUsersMsg = "Inviting %s users: %s".formatted(users.size(), userEmails);
+                String importUsersMsg = "Inviting/updating %s users: %s".formatted(users.size(), userEmails);
                 log.info(importUsersMsg);
-                batchUsersCustomLogger.logMessage("\n------" + importUsersMsg);
+                batchUsersCustomLogger.logMessage("\n------\n" + importUsersMsg);
             } else {
-                log.debug("No users were invited");
+                log.debug("No users were invited/updated");
                 return;
             }
             List<RoleDto> allRoles = roleService.getAll();
             List<UserDto> allUsers = userService.getAllUsers();
 
             createOrUpdateUsers(users, allUsers, allRoles, availableContexts);
+            batchUsersCustomLogger.logMessage("Processed %s users successfully\n".formatted(users.size()));
         } catch (Exception e) {
-            log.error("Error inviting users", e);
-            batchUsersCustomLogger.logMessage("Error inviting users: " + e.getMessage());
+            log.error("Error inviting/updating users", e);
+            batchUsersCustomLogger.logMessage("Error inviting users: " + e.getMessage() + "\n");
         }
     }
 

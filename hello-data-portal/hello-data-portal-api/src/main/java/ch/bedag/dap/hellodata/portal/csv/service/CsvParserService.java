@@ -112,10 +112,10 @@ public class CsvParserService {
             for (CSVRecord csvRecord : csvParser) {
                 String email = csvRecord.get(EMAIL);
                 verifyEmail(email);
-                String businessDomainRole = csvRecord.get(BUSINESS_DOMAIN_ROLE);
+                String businessDomainRole = csvRecord.get(BUSINESS_DOMAIN_ROLE).toUpperCase(Locale.ROOT);
                 verifyRoleName(businessDomainRole, HdContextType.BUSINESS_DOMAIN);
                 String context = csvRecord.get(CONTEXT);
-                String dataDomainRole = csvRecord.get(DATA_DOMAIN_ROLE);
+                String dataDomainRole = csvRecord.get(DATA_DOMAIN_ROLE).toUpperCase(Locale.ROOT);
                 verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
                 String supersetRoleRaw = csvRecord.get(SUPERSET_ROLE);
                 // Convert comma-separated Superset roles into a List
