@@ -114,7 +114,7 @@ public class BatchUsersInvitationService {
             String userId;
             try {
                 userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
-                Thread.sleep(500L); //wait for it to push to subsystems before proceeding to set context roles
+                Thread.sleep(1000L); //wait for it to push to subsystems before proceeding to set context roles
             } catch (UserAlreadyExistsException e) {
                 String errMsg = "User %s already exists, updating roles...".formatted(adUserDto.getEmail());
                 log.info(errMsg);
