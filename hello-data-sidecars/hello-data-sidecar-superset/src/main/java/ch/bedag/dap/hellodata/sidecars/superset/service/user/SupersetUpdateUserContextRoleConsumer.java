@@ -124,7 +124,7 @@ public class SupersetUpdateUserContextRoleConsumer {
             log.info("-=-=-=-= UPDATED USER ROLES: user: {}, role ids: {}", userContextRoleUpdate.getEmail(), updatedUser.getResult().getRoles());
             userResourceProviderService.publishUsers();
         } else {
-            log.error("User not found or context role not found: user: {}, context role: {}", userContextRoleUpdate.getEmail(), dataDomainKey);
+            log.error("User not found or context role not found: {}", userContextRoleUpdate);
         }
         return null;
     }
