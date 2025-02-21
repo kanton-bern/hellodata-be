@@ -17,7 +17,7 @@ import static ch.bedag.dap.hellodata.portal.csv.service.CsvParserService.CSV_HEA
 import static org.junit.jupiter.api.Assertions.*;
 
 class CsvParserServiceTest {
-    private static final String TEST_FILE_PATH = "csv/batchprocessing_user_roles.csv";
+    private static final String TEST_FILE_PATH = "csv/many_users/batchprocessing_user_roles.csv";
     @InjectMocks
     private CsvParserService csvParserService;
 

@@ -58,7 +58,7 @@ class BatchUsersInvitationServiceTest {
 
     @Test
     void fetchDataFromFileTest() throws IOException {
-        URL resource = getClass().getClassLoader().getResource("./csv");
+        URL resource = getClass().getClassLoader().getResource("./csv/many_users");
         assertNotNull(resource, "The test resources directory should exist in the classpath");
         MetaInfoResourceEntity metaInfoResourceEntity = new MetaInfoResourceEntity();
         metaInfoResourceEntity.setContextKey("some_data_domain_key");
@@ -138,5 +138,81 @@ class BatchUsersInvitationServiceTest {
         assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey(), "some_data_domain_key");
 
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
+    }
+
+    @Test
+    void fetchDataFromFile_test_multiple_rows_for_one_user() throws IOException {
+        URL resource = getClass().getClassLoader().getResource("./csv/one_user");
+        assertNotNull(resource, "The test resources directory should exist in the classpath");
+        MetaInfoResourceEntity metaInfoResourceEntity = new MetaInfoResourceEntity();
+        metaInfoResourceEntity.setContextKey("data_domain_one_key");
+        metaInfoResourceEntity.setModuleType(ModuleType.SUPERSET);
+
+        MetaInfoResourceEntity metaInfoResourceEntity1 = new MetaInfoResourceEntity();
+        metaInfoResourceEntity1.setContextKey("data_domain_two_key");
+        metaInfoResourceEntity1.setModuleType(ModuleType.SUPERSET);
+
+
+        List<RolePermissions> existingRoles = List.of(
+                new RolePermissions(1, "D_test_dashboard_6", List.of()),
+                new RolePermissions(2, "D_example_dashboard_2", List.of()),
+                new RolePermissions(3, "RLS_01", List.of()),
+                new RolePermissions(3, "RLS_02", List.of()),
+                new RolePermissions(3, "RLS_03", List.of()),
+                new RolePermissions(3, "RLS_04", List.of()),
+                new RolePermissions(3, "RLS_05", List.of()),
+                new RolePermissions(3, "RLS_06", List.of()));
+        RoleResource roleResource = new RoleResource("superset instance1", "namespace", ModuleType.SUPERSET, existingRoles);
+        metaInfoResourceEntity.setMetainfo(roleResource);
+
+        List<RolePermissions> existingRoles1 = List.of(
+                new RolePermissions(1, "D_test_dashboard_6", List.of()),
+                new RolePermissions(2, "D_example_dashboard_2", List.of()),
+                new RolePermissions(3, "RLS_01", List.of()),
+                new RolePermissions(3, "RLS_02", List.of()),
+                new RolePermissions(3, "RLS_03", List.of()),
+                new RolePermissions(3, "RLS_04", List.of()),
+                new RolePermissions(3, "RLS_05", List.of()),
+                new RolePermissions(3, "RLS_06", List.of()));
+        RoleResource roleResource1 = new RoleResource("superset instance2", "namespace", ModuleType.SUPERSET, existingRoles1);
+        metaInfoResourceEntity1.setMetainfo(roleResource1);
+
+        List<MetaInfoResourceEntity> metaInfoResourceEntities = List.of(metaInfoResourceEntity, metaInfoResourceEntity1);
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES)).thenReturn(metaInfoResourceEntities);
+
+        String testResourcesPath = new File(resource.getFile()).getAbsolutePath();
+        BatchUsersInvitationService batchUsersInvitationService1 = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, testResourcesPath);
+
+        ContextsDto availableContexts = new ContextsDto();
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey("data_domain_one_key");
+        contextDto.setName("Some Data Domain");
+        contextDto.setType(HdContextType.DATA_DOMAIN);
+        ContextDto contextDto1 = new ContextDto();
+        contextDto1.setContextKey("data_domain_two_key");
+        contextDto1.setName("Some Data Domain");
+        contextDto1.setType(HdContextType.DATA_DOMAIN);
+        availableContexts.setContexts(List.of(contextDto, contextDto1));
+
+        List<BatchUpdateContextRolesForUserDto> parsedUsers = batchUsersInvitationService1.fetchDataFromFile(false, availableContexts);
+
+        assertEquals(1, parsedUsers.size());
+
+        //First user
+        BatchUpdateContextRolesForUserDto batchUpdateContextRolesForUserDto = parsedUsers.get(0);
+        assertEquals(batchUpdateContextRolesForUserDto.getEmail(), "john.doe@example.com");
+
+        assertEquals(batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName(), "NONE");
+
+        assertEquals(2, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
+        assertEquals("DATA_DOMAIN_VIEWER", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
+        assertEquals("data_domain_one_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
+
+        assertEquals("DATA_DOMAIN_ADMIN", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(1).getRole().getName());
+        assertEquals("data_domain_two_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(1).getContext().getContextKey());
+
+        assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
+
     }
 }
