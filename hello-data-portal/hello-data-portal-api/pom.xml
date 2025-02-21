@@ -139,7 +139,15 @@
             <version>20240325.1</version>
             <scope>runtime</scope>
         </dependency>
-
+        <!-- Apache Commons CSV for parsing CSV files -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
         <!-- Test Dependencies-->
         <dependency>
             <groupId>com.github.dasniko</groupId>

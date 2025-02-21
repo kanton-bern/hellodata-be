@@ -47,6 +47,7 @@ import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -54,7 +55,6 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
-import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -141,7 +141,7 @@ public class UserService {
     public void validateEmailAlreadyExists(String email) {
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
         if (userEntityByEmail.isPresent()) {
-            throw new EntityExistsException("@User email already exists");
+            throw new UserAlreadyExistsException();
         }
     }
 
@@ -283,7 +283,7 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
-        synchronizeContextRolesWithSubsystems(userEntity);
+        synchronizeContextRolesWithSubsystems(userEntity, new HashMap<>());
         emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail(), userEntity.getSelectedLanguage());
         return map(userEntity);
     }
@@ -323,7 +323,7 @@ public class UserService {
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
         UserEntity userEntity = getUserEntity(userId);
-        synchronizeContextRolesWithSubsystems(userEntity);
+        synchronizeContextRolesWithSubsystems(userEntity, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 
@@ -343,14 +343,15 @@ public class UserService {
     }
 
     @Transactional
-    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, boolean sendBackUsersList) {
+    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, boolean sendBackUsersList, Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap) {
         UserContextRoleUpdate userContextRoleUpdate = getUserContextRoleUpdate(userEntity, sendBackUsersList);
+        userContextRoleUpdate.setExtraModuleRoles(contextToModuleRoleNamesMap);
         natsSenderService.publishMessageToJetStream(HDEvent.UPDATE_USER_CONTEXT_ROLE, userContextRoleUpdate);
     }
 
     @Transactional
-    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity) {
-        synchronizeContextRolesWithSubsystems(userEntity, true);
+    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap) {
+        synchronizeContextRolesWithSubsystems(userEntity, true, contextToModuleRoleNamesMap);
     }
 
     @Transactional(readOnly = true)

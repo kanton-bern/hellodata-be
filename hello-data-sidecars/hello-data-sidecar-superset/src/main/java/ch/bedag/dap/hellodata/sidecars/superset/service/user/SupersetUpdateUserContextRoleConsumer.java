@@ -30,11 +30,9 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.IdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
@@ -44,10 +42,12 @@ import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourcePro
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -84,8 +84,18 @@ public class SupersetUpdateUserContextRoleConsumer {
         if (dataDomainContextRole.isPresent()) {
             UserContextRoleUpdate.ContextRole contextRole = dataDomainContextRole.get();
             SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
-            supersetUserRolesUpdate.setRoles(supersetUser.getRoles().stream().map(SubsystemRole::getId).toList());
-            removeBiRoles(allRoles, supersetUserRolesUpdate);
+
+            List<ModuleRoleNames> moduleRoleNamesList = new ArrayList<>(CollectionUtils.emptyIfNull(userContextRoleUpdate.getExtraModuleRoles().get(dataDomainKey)));
+            Optional<ModuleRoleNames> moduleExtraRoles = moduleRoleNamesList.stream().filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET).findFirst();
+            if (moduleExtraRoles.isPresent()) {
+                // reset all roles if extra roles present (here roles come from the csv file)
+                supersetUserRolesUpdate.setRoles(new ArrayList<>());
+                moduleExtraRoles.get().roleNames().forEach(roleName -> assignRoleToUser(roleName, allRoles, supersetUserRolesUpdate));
+            } else {
+                supersetUserRolesUpdate.setRoles(supersetUser.getRoles().stream().map(SubsystemRole::getId).toList());
+                removeBiRoles(allRoles, supersetUserRolesUpdate);
+            }
+
             assignAdminRoleIfSuperuser(userContextRoleUpdate, allRoles, supersetUserRolesUpdate);
             switch (contextRole.getRoleName()) {
                 case DATA_DOMAIN_ADMIN -> {

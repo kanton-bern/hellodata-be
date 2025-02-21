@@ -26,23 +26,12 @@
  */
 package ch.bedag.dap.hellodata.portal.user.data;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UpdateContextRolesForUserDto {
-    private RoleDto businessDomainRole;
-    private List<UserContextRoleDto> dataDomainRoles;
-    private Map<String, List<DashboardForUserDto>> selectedDashboardsForUser;
-    //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
-    private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
+@EqualsAndHashCode(callSuper = true)
+public class BatchUpdateContextRolesForUserDto extends UpdateContextRolesForUserDto {
+    private String email;
+
 }

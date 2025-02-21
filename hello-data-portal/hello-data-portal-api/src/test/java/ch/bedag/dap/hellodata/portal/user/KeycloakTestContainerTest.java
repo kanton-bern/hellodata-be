@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.portal.cache.service.CacheUpdateService;
 import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.service.BatchUsersCustomLogger;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.nats.client.Connection;
 import io.restassured.RestAssured;
@@ -79,6 +80,8 @@ public abstract class KeycloakTestContainerTest {
     private NatsHealthIndicator natsHealthIndicator;
     @MockBean
     private CacheUpdateService cacheUpdateService;
+    @MockBean
+    private BatchUsersCustomLogger batchUsersCustomLogger;
 
     @DynamicPropertySource
     static void registerResourceServerIssuerProperty(DynamicPropertyRegistry registry) {

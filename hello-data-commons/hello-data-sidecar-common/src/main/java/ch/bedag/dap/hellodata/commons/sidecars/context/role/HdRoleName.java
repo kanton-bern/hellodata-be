@@ -29,6 +29,10 @@ package ch.bedag.dap.hellodata.commons.sidecars.context.role;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * enum for context roles
  */
@@ -44,5 +48,11 @@ public enum HdRoleName {
 
     HdRoleName() {
         this.contextType = null;
+    }
+
+    public static List<HdRoleName> getByContextType(HdContextType type) {
+        return Arrays.stream(values())
+                .filter(role -> role.contextType == type || role.name().equals(NONE.name()))
+                .collect(Collectors.toList());
     }
 }
