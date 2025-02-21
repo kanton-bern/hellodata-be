@@ -47,7 +47,7 @@ USER airflow
 RUN python -m pip install --upgrade pip
 RUN pip install --upgrade pip  \
   &&  pip install --no-cache-dir psycopg2-binary Redis authlib==0.15.5 \
-  &&  pip install --no-cache-dir "apache-airflow[celery,postgres,kubernetes,statsd,mssql]==${AIRFLOW_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt" \
+  &&  pip install --no-cache-dir "apache-airflow[celery,postgres,kubernetes,statsd,mssql,sftp]==${AIRFLOW_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt" \
   &&  pip install --no-cache-dir virtualenv
 
 # dbt dependencies
