@@ -40,6 +40,7 @@ public class CsvParserService {
     private static final String CONTEXT = "context";
     private static final String DATA_DOMAIN_ROLE = "dataDomainRole";
     private static final String SUPERSET_ROLE = "supersetRole";
+    static final String[] CSV_HEADERS = {EMAIL, BUSINESS_DOMAIN_ROLE, CONTEXT, DATA_DOMAIN_ROLE, SUPERSET_ROLE};
     private static final char CSV_DELIMITER = ';';
     private static final String ROLE_DELIMITER = ",";
 
@@ -100,16 +101,28 @@ public class CsvParserService {
 
     List<CsvUserRole> parseCsvFile(InputStream inputStream) throws IOException {
         List<CsvUserRole> records = new ArrayList<>();
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
              CSVParser csvParser = new CSVParser(reader, CSVFormat.Builder.create()
                      .setDelimiter(CSV_DELIMITER)
-                     .setHeader(EMAIL, BUSINESS_DOMAIN_ROLE, CONTEXT, DATA_DOMAIN_ROLE, SUPERSET_ROLE)
-                     .setSkipHeaderRecord(true)
+                     .setHeader(CSV_HEADERS)
+                     .setSkipHeaderRecord(false)
                      .setTrim(true)
                      .build())) {
 
             for (CSVRecord csvRecord : csvParser) {
+                String[] headerNames = Arrays.stream(csvRecord.values())
+                        .map(s -> s.replace("\uFEFF", "").trim()) // Remove BOM character and trim
+                        .toArray(String[]::new);
+                if (csvRecord.getRecordNumber() == 1L) {
+                    log.info("Extracted Headers: {}", Arrays.toString(headerNames));
+                    log.info("Expected Headers: {}", Arrays.toString(CSV_HEADERS));
+                    if (!Arrays.equals(headerNames, CSV_HEADERS)) {
+                        throw new IllegalArgumentException("No proper headers found in the CSV file! Should have: " + Arrays.toString(CSV_HEADERS));
+                    }
+                    continue;
+                }
                 String email = csvRecord.get(EMAIL);
                 verifyEmail(email);
                 String businessDomainRole = csvRecord.get(BUSINESS_DOMAIN_ROLE).toUpperCase(Locale.ROOT);
@@ -127,6 +140,9 @@ public class CsvParserService {
 
                 records.add(record);
             }
+        }
+        if (records.isEmpty()) {
+            throw new IllegalArgumentException("No records found in the CSV file!");
         }
         return records;
     }

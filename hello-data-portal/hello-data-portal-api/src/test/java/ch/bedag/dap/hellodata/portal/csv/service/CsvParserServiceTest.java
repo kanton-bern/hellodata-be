@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ch.bedag.dap.hellodata.portal.csv.service.CsvParserService.CSV_HEADERS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CsvParserServiceTest {
@@ -87,6 +88,29 @@ class CsvParserServiceTest {
         assertThrows(IllegalArgumentException.class, () -> {
             csvParserService.parseCsvFile(inputStream);
         });
+    }
+
+    @Test
+    void testParseCsvFile_should_throw_exception_on_missing_value() {
+        String csvContent =
+                "email;businessDomainRole;context;dataDomainRole;supersetRole\n";
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> {
+            csvParserService.parseCsvFile(inputStream);
+        });
+
+        assertEquals("No records found in the CSV file!", illegalArgumentException.getMessage());
+    }
+
+    @Test
+    void testParseCsvFile_should_throw_exception_on_missing_header() throws IOException {
+        String csvContent =
+                "user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n";
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> {
+            csvParserService.parseCsvFile(inputStream);
+        });
+        assertEquals("No proper headers found in the CSV file! Should have: " + Arrays.toString(CSV_HEADERS), illegalArgumentException.getMessage());
     }
 
     @Test
