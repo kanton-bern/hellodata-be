@@ -31,9 +31,9 @@ import ch.bedag.dap.hellodata.docs.entities.Role;
 import ch.bedag.dap.hellodata.docs.entities.User;
 import ch.bedag.dap.hellodata.docs.service.SecurityService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -60,6 +60,14 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
         return "";
     }
 
+    private static String getProjectName(HttpServletRequest request) {
+        String[] parts = request.getRequestURI().split("/", 4);
+        if (request.getContextPath().isEmpty()) {
+            return parts.length > 1 ? parts[1] : "";
+        }
+        return parts.length > 2 ? parts[2] : "";
+    }
+
     @Override
     public AuthorizationDecision check(Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext context) {
         HttpServletRequest request = context.getRequest();
@@ -76,7 +84,7 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
             String preferredUsername = user.getUserName();
             String email = user.getEmail();
             log.info("Received Principal with username {} and email {}. Requesting Uri: {}", preferredUsername, email,
-                request.getRequestURI());
+                    request.getRequestURI());
             if (requestedEndpoint(request, GET_PROJECTS_DOCS_BY_PATH_URI)) {
                 String requestParameterPath = getRequestParameterPath(request);
                 String requestedProject = getRequestedProject(requestParameterPath);
@@ -95,6 +103,16 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
         return new AuthorizationDecision(false);
     }
 
+    public boolean isUserAuthorizedOnProject(User user, String projectName) {
+        if (user.getRoles().stream().anyMatch(r -> r.getKey().equals(Role.ADMIN_ROLE_KEY))) {
+            return true;
+        }
+        return user.getRoles()
+                .stream()
+                .filter(Role::isEnabled)
+                .anyMatch(r -> r.getKey().equalsIgnoreCase(projectName) && r.getPrivileges().stream().anyMatch(p -> p.getName().equals(Privilege.READ_PRIVILEGE)));
+    }
+
     private boolean requestedEndpoint(@NotNull HttpServletRequest request, String endpointPath) {
         Path endpointPathWithContextPath = Paths.get(request.getContextPath(), endpointPath);
         Path requestedUriPath = Paths.get(request.getRequestURI().toLowerCase());
@@ -104,14 +122,6 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
         return requestedUriPath.startsWith(endpointPathWithContextPath);
     }
 
-    private static String getProjectName(HttpServletRequest request) {
-        String[] parts = request.getRequestURI().split("/", 4);
-        if (request.getContextPath().isEmpty()) {
-            return parts.length > 1 ? parts[1] : "";
-        }
-        return parts.length > 2 ? parts[2] : "";
-    }
-
     @NotNull
     private AuthorizationDecision authorizeRequestedProject(User user, String projectName) {
         if (ObjectUtils.isEmpty(projectName)) {
@@ -119,16 +129,6 @@ public class DocsAuthorizationManager implements AuthorizationManager<RequestAut
         }
         boolean isAuthorized = isUserAuthorizedOnProject(user, projectName);
         return new AuthorizationDecision(isAuthorized);
-    }
-
-    public boolean isUserAuthorizedOnProject(User user, String projectName) {
-        if (user.getRoles().stream().anyMatch(r -> r.getKey().equals(Role.ADMIN_ROLE_KEY))) {
-            return true;
-        }
-        return user.getRoles()
-            .stream()
-            .filter(Role::isEnabled)
-            .anyMatch(r -> r.getKey().equalsIgnoreCase(projectName) && r.getPrivileges().stream().anyMatch(p -> p.getName().equals(Privilege.READ_PRIVILEGE)));
     }
 
     private String getRequestedProject(@NotNull String path) {

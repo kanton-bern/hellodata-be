@@ -43,7 +43,7 @@ export class AuthConfigService {
       redirectUrl: `${environment.authConfig.redirectUrl}/callback`,
       postLogoutRedirectUri: environment.authConfig.postLogoutRedirectUri,
       clientId: environment.authConfig.clientId,
-      scope: 'openid profile email offline_access',
+      scope: environment.authConfig.scope ? environment.authConfig.scope : 'openid profile email',
       responseType: 'code',
       silentRenew: true,
       silentRenewUrl: `${window.location.origin}/silent-renew.html`,

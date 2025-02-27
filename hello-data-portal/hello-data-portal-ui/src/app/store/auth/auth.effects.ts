@@ -39,6 +39,7 @@ import {
   login,
   loginComplete,
   logout,
+  prolongCBSession,
   setActiveTranslocoLanguage,
   setAvailableLanguages,
   setDefaultLanguage,
@@ -56,6 +57,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectProfile, selectSelectedLanguage} from "./auth.selector";
 import {CloudbeaverService} from "./cloudbeaver.service";
+import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 
 @Injectable()
 export class AuthEffects {
@@ -70,6 +72,7 @@ export class AuthEffects {
   logout$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(logout),
+      tap(() => this._cloudbeaverSessionService.destroyTimerCookie()),
       switchMap(() => this._authService.signOut()),
       catchError(e => of(authError(e)))
     )
@@ -225,6 +228,19 @@ export class AuthEffects {
     )
   });
 
+  prolongCloudBeaverSession$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(prolongCBSession),
+      switchMap(() => this._cloudbeaverService.renewSession().pipe(
+        catchError(e => of(showError({error: e}))))
+      ),
+      switchMap(() => {
+        return EMPTY;
+      }),
+      catchError(e => of(showError({error: e})))
+    )
+  });
+
   setAvailableLanguages$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(setAvailableLanguages),
@@ -260,7 +276,8 @@ export class AuthEffects {
     private _authService: AuthService,
     private _usersManagementService: UsersManagementService,
     private _translateService: TranslateService,
-    private _cloudbeaverService: CloudbeaverService
+    private _cloudbeaverService: CloudbeaverService,
+    private _cloudbeaverSessionService: CloudbeaverSessionService
   ) {
   }
 }

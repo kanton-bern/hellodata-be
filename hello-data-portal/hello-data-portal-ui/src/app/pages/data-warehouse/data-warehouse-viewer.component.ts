@@ -32,6 +32,7 @@ import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
+import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
@@ -41,7 +42,7 @@ export class DataWarehouseViewerComponent extends BaseComponent {
 
   url!: string;
 
-  constructor(private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private cloudbeaverSessionService: CloudbeaverSessionService) {
     super();
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -52,10 +53,11 @@ export class DataWarehouseViewerComponent extends BaseComponent {
     }));
   }
 
-
   override ngOnInit() {
     super.ngOnInit();
     this.url = environment.subSystemsConfig.dwhViewer.protocol + environment.subSystemsConfig.dwhViewer.host + environment.subSystemsConfig.dwhViewer.domain;
     console.debug("Data Warehouse Component initiated", this.url);
+    this.cloudbeaverSessionService.createInterval();
   }
+
 }

@@ -34,6 +34,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 
 @ToString
@@ -50,6 +51,7 @@ public class UserContextRoleUpdate implements Serializable {
     private List<ContextRole> contextRoles;
     //technical - send user list pushback enabled by default
     private boolean sendBackUsersList = true;
+    private Map<String, List<ModuleRoleNames>> extraModuleRoles;
 
     @ToString
     @Data

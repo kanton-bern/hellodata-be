@@ -53,9 +53,10 @@ export const myDashboardsReducer = createReducer(
       },
       ...payload
     ]
+    const selectedDataDomain = uniqueDataDomains.find(dataDomain => dataDomain.id === state.selectedDataDomain?.id)
     return {
       ...state,
-      selectedDataDomain: uniqueDataDomains[0],
+      selectedDataDomain: selectedDataDomain ? selectedDataDomain : uniqueDataDomains[0],
       availableDataDomains: uniqueDataDomains,
     }
   }),

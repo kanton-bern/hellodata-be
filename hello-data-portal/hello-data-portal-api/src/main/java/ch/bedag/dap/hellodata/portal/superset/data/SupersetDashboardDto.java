@@ -27,9 +27,10 @@
 package ch.bedag.dap.hellodata.portal.superset.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import java.util.List;
 import java.util.UUID;
+
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -42,7 +43,7 @@ public class SupersetDashboardDto {
     private String dashboardUrlPath;
     private boolean published;
 
-    private List<SupersetRole> roles;
+    private List<SubsystemRole> roles;
     private String slug;
     private String status;
 

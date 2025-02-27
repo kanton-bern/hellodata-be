@@ -45,7 +45,8 @@ export const environment: Environment = window.environment != undefined ? window
     authority: '',
     redirectUrl: '',
     postLogoutRedirectUri: '',
-    clientId: ''
+    clientId: '',
+    scope: 'openid profile email'
   },
   deploymentEnvironment: {
     showEnvironment: true,
@@ -59,6 +60,7 @@ export const environment: Environment = window.environment != undefined ? window
     dbtDocs: {protocol: 'https://', host: 'dbt-docs', domain: ''},
     dmViewer: {protocol: 'https://', host: 'dm-db', domain: ''},
     dwhViewer: {protocol: 'https://', host: 'dwh-db', domain: ''},
+    filebrowser: {protocol: 'https://', host: 'fs', domain: ''},
     advancedAnalyticsViewer: {protocol: 'https://', host: 'jupyterhub', domain: ''},
     monitoringStatus: {protocol: 'https://', host: 'status', domain: ''},
     devToolsMailbox: {protocol: 'https://', host: 'mb', domain: ''},

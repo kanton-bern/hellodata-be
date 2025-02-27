@@ -30,8 +30,8 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
@@ -85,7 +85,7 @@ public class UpdateDashboardUserRolesListener {
                 SupersetRolesResponse allRoles = supersetClient.roles();
 
                 SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
-                supersetUserRolesUpdate.setRoles(user.getRoles().stream().map(SupersetRole::getId).toList());
+                supersetUserRolesUpdate.setRoles(user.getRoles().stream().map(SubsystemRole::getId).toList());
                 removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);
                 List<DashboardForUserDto> dashboards = supersetDashboardsForUserUpdate.getDashboards();
                 SupersetDashboardResponse dashboardsFromSuperset = supersetClient.dashboards();
@@ -117,7 +117,7 @@ public class UpdateDashboardUserRolesListener {
         if (response == null || response.getResult().isEmpty()) {
             log.warn("[Couldn't find user by email: {} and username: {}, creating...]", supersetDashboardsForUserUpdate.getSupersetUserEmail(), supersetDashboardsForUserUpdate.getSupersetUserName());
             SupersetRolesResponse allRoles = supersetClient.roles();
-            List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SupersetRole::getId).toList();
+            List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SubsystemRole::getId).toList();
             SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(supersetDashboardsForUserUpdate, roles);
             IdResponse createdUser = supersetClient.createUser(subsystemUserUpdate);
             return supersetClient.user(createdUser.id).getResult();
@@ -143,7 +143,7 @@ public class UpdateDashboardUserRolesListener {
             return;
         }
         log.debug("\tAssigning dashboard roles {} to user {}", dashboard.getRoles(), user.getEmail());
-        List<Integer> rolesFromDashboard = CollectionUtils.emptyIfNull(dashboard.getRoles()).stream().map(SupersetRole::getId).toList();
+        List<Integer> rolesFromDashboard = CollectionUtils.emptyIfNull(dashboard.getRoles()).stream().map(SubsystemRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles();
         List<Integer> userRolesPlusDashboardRoles = Stream.concat(rolesFromDashboard.stream(), userRoles.stream()).distinct().toList();
         supersetUserRolesUpdate.setRoles(userRolesPlusDashboardRoles);

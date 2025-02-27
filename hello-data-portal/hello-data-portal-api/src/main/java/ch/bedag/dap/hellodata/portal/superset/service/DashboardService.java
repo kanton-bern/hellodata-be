@@ -37,8 +37,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
@@ -112,8 +112,8 @@ public class DashboardService {
                 CollectionUtils.emptyIfNull(userResource.getData()).stream().filter(u -> u.getEmail().equalsIgnoreCase(currentUserEmail)).findFirst();
         if (subsystemUserFound.isPresent()) {
             SubsystemUser assignedUser = subsystemUserFound.get();
-            List<SupersetRole> userRoles = assignedUser.getRoles();
-            Set<String> rolesOfCurrentUser = userRoles.stream().map(SupersetRole::getName).collect(Collectors.toSet());
+            List<SubsystemRole> userRoles = assignedUser.getRoles();
+            Set<String> rolesOfCurrentUser = userRoles.stream().map(SubsystemRole::getName).collect(Collectors.toSet());
             boolean isAdmin = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_ADMIN_ROLE_NAME));
             boolean isEditor = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_EDITOR_ROLE_NAME));
             String instanceUrl = metaInfoResourceService.findInstanceUrl(ModuleType.SUPERSET, dashboardResource.getInstanceName());
@@ -126,7 +126,7 @@ public class DashboardService {
                                                             DashboardResource dashboardResource, List<SupersetDashboard> dashboards, Set<String> rolesOfCurrentUser,
                                                             boolean isAdmin, boolean isEditor, String instanceUrl) {
         for (SupersetDashboard dashboard : dashboards) {
-            Set<String> dashboardRoles = dashboard.getRoles().stream().map(SupersetRole::getName).collect(Collectors.toSet());
+            Set<String> dashboardRoles = dashboard.getRoles().stream().map(SubsystemRole::getName).collect(Collectors.toSet());
             log.debug(String.format("Instance: '%s', Dashboard: '%s', requires any of following roles: %s", dashboardResource.getInstanceName(), dashboard.getDashboardTitle(),
                                     dashboardRoles));
             checkRBACRoles(dashboardsWithAccess, metaInfoResource, dashboardResource, rolesOfCurrentUser, isAdmin, isEditor, instanceUrl, dashboard, dashboardRoles);
@@ -209,7 +209,7 @@ public class DashboardService {
         }
         if (currentUserFromSuperset.isPresent()) {
             SubsystemUser subsystemUser = currentUserFromSuperset.get();
-            List<SupersetRole> userRoles = CollectionUtils.emptyIfNull(subsystemUser.getRoles()).stream().toList();
+            List<SubsystemRole> userRoles = CollectionUtils.emptyIfNull(subsystemUser.getRoles()).stream().toList();
             boolean isAdmin = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_ADMIN_ROLE_NAME));
             boolean isEditor = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_EDITOR_ROLE_NAME));
             if (isAdmin || isEditor) {

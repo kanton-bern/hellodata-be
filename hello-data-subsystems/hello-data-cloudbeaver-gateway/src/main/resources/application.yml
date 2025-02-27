@@ -121,10 +121,10 @@ server:
 management:
   endpoint:
     health:
-      enabled: true
+      access: read_only
     #      show-details: always #if we need some details
     info:
-      enabled: true
+      access: read_only
   endpoints:
     web:
       exposure:

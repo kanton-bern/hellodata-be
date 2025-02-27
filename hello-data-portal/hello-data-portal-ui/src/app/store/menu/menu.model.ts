@@ -57,7 +57,7 @@ export const ALL_MENU_ITEMS: any[] = [
     text: '@Data Eng',
     icon: 'fas fa-light fa-dice-d6',
     requiresAuthentication: true,
-    requiredPermissions: ['DATA_DWH', 'DATA_ENG', 'DATA_JUPYTER'],
+    requiredPermissions: ['DATA_DWH', 'DATA_ENG', 'DATA_JUPYTER', 'DATA_FILEBROWSER'],
     items: [
       {
         id: 'dataEngViewerMenu',
@@ -72,6 +72,13 @@ export const ALL_MENU_ITEMS: any[] = [
         routerLink: '/embedded-orchestration',
         requiredPermissions: ['DATA_ENG']
       },
+      {
+        id: 'filebrowserMenu',
+        text: '@Filebrowser',
+        url: environment.subSystemsConfig.filebrowser.protocol + environment.subSystemsConfig.filebrowser.host + environment.subSystemsConfig.filebrowser.domain,
+        target: '_blank',
+        requiredPermissions: ['DATA_FILEBROWSER']
+      }
     ]
   },
   {

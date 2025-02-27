@@ -28,11 +28,13 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.respo
 
 import ch.bedag.dap.hellodata.commons.sidecars.base.BaseSupersetResponse;
 import java.util.List;
+
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class SupersetRolesResponse extends BaseSupersetResponse {
-    List<SupersetRole> result;//NOSONAR
+    List<SubsystemRole> result;//NOSONAR
 }

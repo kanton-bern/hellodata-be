@@ -14,10 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Log4j2
@@ -77,7 +74,7 @@ public class UserRoleSyncService {
                 log.debug("User {} is not an admin, setting missing role to NONE", userEntity.getEmail());
                 roleService.addContextRoleToUser(userEntity, dataDomainKeyNotFoundInUserRole, HdRoleName.NONE);
             }
-            userService.synchronizeContextRolesWithSubsystems(userEntity);
+            userService.synchronizeContextRolesWithSubsystems(userEntity, new HashMap<>());
         }
     }
 

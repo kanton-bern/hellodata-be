@@ -28,6 +28,7 @@
 version: "3.7"
 
 volumes:
+  minio-data:
   shared-data:
     driver: local
   #jupyterhub-data:

@@ -1,0 +1,133 @@
+#
+# Copyright © 2024, Kanton Bern
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+#custom props
+hello-data:
+  #    code: 'type | key | name'
+  business-context: 'Business Domain | HelloDATA_Product_Development | HelloDATA Product Development'
+  instance:
+    name: "SFTPGo File Browser"
+    url: filebrowser.local
+  sftpgo:
+    base-url: http://localhost:8090
+    admin-username: admin
+    admin-password: admin
+  s3-connections:
+    - context-key: Default_Data_Domain
+      endpoint: http://minio:9000
+      bucket: default-data-domain #lower case context key, dashes only
+      region: eu-central-2
+      access-key: minioadmin
+      access-secret: minioadmin
+      force-path-style: true
+    - context-key: Extra_Data_Domain
+      endpoint: http://minio:9000
+      bucket: extra-data-domain #lower case context key, dashes only
+      region: eu-central-2
+      access-key: minioadmin
+      access-secret: minioadmin
+      force-path-style: true
+  admin-virtual-folder: /storage
+  sidecar:
+    pubish-interval-minutes: 10
+
+spring:
+  application:
+    name: HelloDATA Sidecar for SFTPGo
+  cloud:
+    kubernetes:
+      discovery:
+        enabled: false
+  boot:
+    admin:
+      client:
+        url: http://localhost:9090
+        username: "user"       #These two are needed so that the client
+        password: "password"   #can register at the protected server api
+        instance:
+          metadata:
+            user.name: "user"         #These two are needed so that the server
+            user.password: "password" #can access the protected client endpoints
+
+nats:
+  spring:
+    server: nats://0.0.0.0:4222
+
+#swagger props
+springdoc:
+  show-actuator: true
+  packagesToScan: ch.bedag.dap.hellodata.sidecars
+  paths-to-match: /**
+  swagger-ui:
+    oauth:
+      clientId: ${hello-data.auth-server.client-id}
+
+
+management:
+  endpoint:
+    health:
+      access: read_only
+    #      show-details: always #if we need some details
+    info:
+      access: read_only
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+  health:
+    nats:
+      enabled: false
+    mail:
+      enabled: false
+    kubernetes:
+      enabled: false
+    ldap:
+      enabled: false # Disable this when not using ldap connection
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    kubernetes:
+      enabled: false
+  metrics:
+    distribution:
+      percentiles-histogram:
+        spring.data.repository.invocations: true
+        http.server.requests: true
+  server:
+    port: 8082
+
+#server props
+server:
+  port: 8093
+
+logging:
+  level:
+    reactor.netty.http.client.HttpClient: INFO # change that to DEBUG to see request/response body, headers and status

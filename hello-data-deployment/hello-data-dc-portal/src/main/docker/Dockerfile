@@ -43,7 +43,8 @@ RUN echo "window.environment = { \
               authority: 'http://localhost:38080/realms/hellodata', \
               redirectUrl: 'http://localhost:8080/app/', \
               postLogoutRedirectUri: 'http://localhost:8080/app/', \
-              clientId: 'frontend-client' \
+              clientId: 'frontend-client', \
+    		  scope: 'openid profile email offline_access' \
             }, \
             domainNamespace: 'hellodata', \
             baseDomain: 'localhost', \
@@ -58,6 +59,7 @@ RUN echo "window.environment = { \
               dmViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
               dwhViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
               advancedAnalyticsViewer: {protocol: 'http://', host: 'localhost', domain: ':8088'}, \
+              filebrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'}, \
               monitoringStatus: {protocol: 'http://', host: 'localhost', domain: ':5099'}, \
               devToolsMailbox: {protocol: 'http://', host: 'localhost', domain: ':8001'}, \
               devToolsFileBrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'} \

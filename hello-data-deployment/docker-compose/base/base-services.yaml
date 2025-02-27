@@ -79,6 +79,43 @@ version: "3.7"
 
 services:
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  createbuckets:
+    image: minio/mc
+    restart: on-failure
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/bash -c "
+      set -e;
+      echo 'Wait until MinIO is ready';
+      for i in {1..30}; do
+        mc alias set myminio http://minio:9000 minioadmin minioadmin && break || sleep 1;
+      done;
+      mc mb myminio/default-data-domain || true;
+      mc anonymous set public myminio/default-data-domain || true;
+      mc mb myminio/extra-data-domain || true;
+      mc anonymous set public myminio/extra-data-domain || true;
+      exit 0;
+      "
+
   showcase-files-default-data-domain:
     platform: ${HD_PLATFORM}
     image: bedag/hello-data-showcase
@@ -120,8 +157,8 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_MAX_CONNECTIONS: 200
-    #    volumes:
-    #      - postgres-volume:/var/lib/postgresql/data
+    volumes:
+      - ./base/postgres/init-scripts/create_db_sftpgo.sql:/docker-entrypoint-initdb.d/create_db_sftpgo.sql
     healthcheck:
       test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 5s
@@ -288,13 +325,82 @@ services:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
 
-  filebrowser:
-    image: filebrowser/filebrowser
-    restart: always
+  sftpgo:
+    image: drakkan/sftpgo
+    container_name: sftpgo
+    environment:
+      SFTPGO_HTTPD__BINDINGS__0__PORT: 8080
+      SFTPGO_DATA_PROVIDER__DRIVER: postgresql
+      SFTPGO_DATA_PROVIDER__NAME: sftpgo
+      SFTPGO_DATA_PROVIDER__HOST: postgres
+      SFTPGO_DATA_PROVIDER__PORT: 5432
+      SFTPGO_DATA_PROVIDER__USERNAME: postgres
+      SFTPGO_DATA_PROVIDER__PASSWORD: postgres
+
+      #keycloak
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__CLIENT_ID: "frontend-client"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__CLIENT_SECRET: "not needed"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__CONFIG_URL: "http://keycloak.localhost:38080/realms/hellodata"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__REDIRECT_BASE_URL: "http://localhost:8090"
+      SFTPGO_HTTPD__BINDINGS__0__OIDC__USERNAME_FIELD: "preferred_username"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
     ports:
-      - 8090:80
+      - "2022:2022"
+      - "8090:8080"
     volumes:
-      - shared-data:/srv
+      - shared-data:/storage
+      - ./base/sftpgo/initial-data.json:/tmp/initial-data.json:ro
+    command: sftpgo serve --loaddata-from /tmp/initial-data.json --loaddata-mode 0
+    extra_hosts:
+      - "keycloak.localhost:host-gateway"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8090/api/v1/ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  hello-data-sftpgo-sidecar:
+    platform: ${HD_PLATFORM}
+    image: bedag/hello-data-sidecar-sftpgo
+    env_file: .env
+    environment:
+      - HELLO_DATA_INSTANCE_URL=http://localhost:8086/dbt-docs/
+      - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      - HELLADATA_S3_CONNECTIONS_0_ACCESS_KEY=minio
+      - HELLADATA_S3_CONNECTIONS_0_ACCESS_SECRET=minio
+      - HELLADATA_S3_CONNECTIONS_0_BUCKET=myminio/default-data-domain
+      - HELLADATA_S3_CONNECTIONS_0_CONTEXT_KEY=Default_Data_Domain
+      - HELLADATA_S3_CONNECTIONS_0_ENDPOINT=minio:9000
+      - HELLADATA_S3_CONNECTIONS_0_FORCE_PATH_STYLE=true
+      - HELLADATA_S3_CONNECTIONS_0_REGION=test
+      - HELLADATA_S3_CONNECTIONS_1_ACCESS_KEY=minio
+      - HELLADATA_S3_CONNECTIONS_1_ACCESS_SECRET=minio
+      - HELLADATA_S3_CONNECTIONS_1_BUCKET=myminio/extra-data-domain
+      - HELLADATA_S3_CONNECTIONS_1_CONTEXT_KEY=Extra_Data_Domain
+      - HELLADATA_S3_CONNECTIONS_1_ENDPOINT=minio:9000
+      - HELLADATA_S3_CONNECTIONS_1_FORCE_PATH_STYLE=true
+      - HELLADATA_S3_CONNECTIONS_1_REGION=test
+    links:
+      - nats
+      - postgres
+      - keycloak
+      - hello-data-dbt-docs
+    depends_on:
+      - nats
+      - sftpgo
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "keycloak.localhost:host-gateway"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health/liveness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   hello-data-dbt-docs:
     platform: ${HD_PLATFORM}

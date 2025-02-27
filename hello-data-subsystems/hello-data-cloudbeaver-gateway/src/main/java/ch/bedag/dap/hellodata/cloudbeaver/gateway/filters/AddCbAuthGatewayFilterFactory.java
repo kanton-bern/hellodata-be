@@ -27,18 +27,20 @@
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.filters;
 
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.config.SecurityConfig;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.logging.Level;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.logging.Level;
 
 @Log4j2
 @Component
@@ -56,21 +58,29 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
     }
 
     public static ServerWebExchange addCbAuthHeaders(ServerWebExchange exchange, JwtAuthenticationToken authenticationToken) {
-        return exchange.mutate().request((r) -> {
-            r.headers((httpHeaders) -> {
-                log.warn("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
-                log.warn("\taddCbAuthHeaders for user {}", authenticationToken);
-                log.warn("\temail: {}", authenticationToken.getToken().getClaims().get("email"));
-                log.warn("\tgiven_name: {}", authenticationToken.getToken().getClaims().get("given_name"));
-                log.warn("\tfamily_name: {}", authenticationToken.getToken().getClaims().get("family_name"));
-                log.warn("\tauthorities: {}", toCbRolesHeader(authenticationToken.getAuthorities()));
+        String email = (String) authenticationToken.getToken().getClaims().get("email");
+        Object givenName = authenticationToken.getToken().getClaims().get("given_name");
+        Object familyName = authenticationToken.getToken().getClaims().get("family_name");
+        String cbRolesHeader = toCbRolesHeader(authenticationToken.getAuthorities());
 
-                httpHeaders.add("X-User", (String) authenticationToken.getToken().getClaims().get("email"));
-                httpHeaders.add("X-Role", toCbRolesHeader(authenticationToken.getAuthorities()));
-                httpHeaders.add("X-First-name", (String) authenticationToken.getToken().getClaims().get("given_name"));
-                httpHeaders.add("X-Last-name", (String) authenticationToken.getToken().getClaims().get("family_name"));
-            });
-        }).build();
+        log.debug("Requested URI Path: {}", exchange.getRequest().getURI().getPath());
+        log.debug("\taddCbAuthHeaders for user {}", authenticationToken);
+        log.debug("\temail: {}", email);
+        log.debug("\tgiven_name: {}", givenName);
+        log.debug("\tfamily_name: {}", familyName);
+        log.debug("\tauthorities: {}", cbRolesHeader);
+
+        log.debug("\tX-User header: {}", email);
+        log.debug("\tX-Role header: {}", cbRolesHeader);
+        ServerHttpRequest serverHttpRequest = exchange.getRequest()
+                .mutate()
+                .header("X-User", email)
+                .header("X-Role", cbRolesHeader)
+                .header("X-First-name", (String) givenName)
+                .header("X-Last-name", (String) familyName)
+                .build();
+        ServerWebExchange serverWebExchange = exchange.mutate().request(serverHttpRequest).build();
+        return serverWebExchange;
     }
 
     public static ServerWebExchange removeAuthorizationHeader(ServerWebExchange exchange) {
@@ -84,12 +94,10 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
     public GatewayFilter apply(Object config) {
         return (exchange, chain) -> {
             Mono<ServerWebExchange> webExchange = exchange.getPrincipal()
-                                                          .log("auth-gateway-filter-factory", Level.INFO)
-                                                          .filter((principal) -> principal instanceof JwtAuthenticationToken)
-                                                          .cast(JwtAuthenticationToken.class)
-                                                          .map((token) -> addCbAuthHeaders(exchange, token))
-                                                          .map((token) -> removeAuthorizationHeader(exchange))
-                                                          .defaultIfEmpty(exchange);
+                    .log("auth-gateway-filter-factory", Level.INFO)
+                    .filter((principal) -> principal instanceof JwtAuthenticationToken)
+                    .cast(JwtAuthenticationToken.class)
+                    .map((token) -> addCbAuthHeaders(exchange, token));
             Objects.requireNonNull(chain);
             return webExchange.flatMap(chain::filter);
         };

@@ -66,7 +66,7 @@ public class SecurityService {
             createCbRole(contextKey, readOnDwhPrivilege);
             // create role for _LZN tables access
             createCbRole(contextKey, readOnLznPrivilege);
-            
+
             // create teams + auth_subject_id entries
             String cbAuthSubjectReadDM = contextKey + "_" + Privilege.READ_DM_PRIVILEGE;
             createCbAuthSubjectIfNotFound(cbAuthSubjectReadDM);
@@ -99,7 +99,7 @@ public class SecurityService {
             AuthSubject authSubject = new AuthSubject();
             authSubject.setSubjectType("R");
             authSubject.setSubjectId(cbAuthSubject);
-            authSubject.setIsSecretStorage(true);
+            authSubject.setIsSecretStorage("Y");
             authSubjectRepository.saveAndFlush(authSubject);
             log.info("Subject with id {} not found, created", cbAuthSubject);
         }

@@ -81,4 +81,34 @@ export class CloudbeaverService {
       withCredentials: true,
     });
   }
+
+  renewSession(): Observable<any> {
+    console.debug('Renewing cloudbeaver session');
+    const body = {
+      query: `query sessionState {
+        sessionState {
+          ...SessionState
+        }
+      }
+
+      fragment SessionState on SessionInfo {
+        createTime
+        lastAccessTime
+        cacheExpired
+        locale
+        actionParameters
+        valid
+        remainingTime
+      }`,
+      operationName: 'sessionState',
+    };
+
+    return this.http.post(this.apiUrl, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': '*/*',
+      },
+      withCredentials: true,
+    });
+  }
 }

@@ -20,7 +20,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <main.class>ch.bedag.dap.hellodata.portal.HellodataPortalApiApplication</main.class>
-        <spring-ldap-core.version>3.1.1</spring-ldap-core.version>
+        <spring-ldap-core.version>3.2.8</spring-ldap-core.version>
         <lombok-version>1.18.28</lombok-version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     </properties>
@@ -136,10 +136,18 @@
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
             <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>20220608.1</version>
+            <version>20240325.1</version>
             <scope>runtime</scope>
         </dependency>
-
+        <!-- Apache Commons CSV for parsing CSV files -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
         <!-- Test Dependencies-->
         <dependency>
             <groupId>com.github.dasniko</groupId>
@@ -261,7 +269,6 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
-                    <addResources>false</addResources>
                 </configuration>
             </plugin>
         </plugins>

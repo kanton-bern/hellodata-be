@@ -46,7 +46,8 @@ export const environment: Environment = window.environment != undefined ? window
     authority: 'http://localhost:38080/realms/hellodata',
     redirectUrl: 'http://localhost:4200',
     postLogoutRedirectUri: 'http://localhost:4200',
-    clientId: 'frontend-client'
+    clientId: 'frontend-client',
+    scope: 'openid profile email'
   },
   deploymentEnvironment: {
     name: 'DEV',
@@ -61,6 +62,7 @@ export const environment: Environment = window.environment != undefined ? window
     dbtDocs: {protocol: 'http://', host: 'dbt-docs', domain: '.cluster.local'},
     dmViewer: {protocol: 'http://', host: 'dm-db', domain: '.cluster.local'},
     dwhViewer: {protocol: 'http://', host: 'dwh-db', domain: '.cluster.local'},
+    filebrowser: {protocol: 'http://', host: 'fs', domain: '.cluster.local'},
     advancedAnalyticsViewer: {protocol: 'http://', host: 'jupyterhub', domain: '.cluster.local'},
     monitoringStatus: {protocol: 'http://', host: 'status', domain: '.cluster.local'},
     devToolsMailbox: {protocol: 'http://', host: 'mb', domain: '.cluster.local'},

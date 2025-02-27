@@ -16,5 +16,5 @@ public class AuthSubject {
     @Id
     private String subjectId;
     private String subjectType;
-    private Boolean isSecretStorage;
+    private String isSecretStorage;
 }

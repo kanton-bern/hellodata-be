@@ -36,15 +36,11 @@ import ch.bedag.dap.hellodata.docs.repository.PrivilegeRepository;
 import ch.bedag.dap.hellodata.docs.repository.RoleRepository;
 import ch.bedag.dap.hellodata.docs.repository.UserRepository;
 import ch.bedag.dap.hellodata.docs.security.exception.NotAuthorizedException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Log4j2
 @Service
@@ -95,14 +91,6 @@ public class SecurityService {
         userRepository.save(adminUser);
     }
 
-    @NotNull
-    private List<Role> getAdminRoles() {
-        Role adminRole = roleRepository.findByKeyIgnoreCase(Role.ADMIN_ROLE_KEY);
-        List<Role> roleList = new ArrayList<>();
-        roleList.add(adminRole);
-        return roleList;
-    }
-
     /**
      * If there is a ProjectDoc with the name of the value of Role.ADMIN_KEY no new role will get created.
      * Do we need to change this?
@@ -134,13 +122,6 @@ public class SecurityService {
             return;
         }
         log.debug("Roles didn't change. Nothing to do.");
-    }
-
-    @NotNull
-    private List<Role> getAllRolesMinusAdminRole() {
-        List<Role> currentRoles = getAllRoles();
-        currentRoles.removeIf(r -> r.getKey().equals(Role.ADMIN_ROLE_KEY));
-        return currentRoles;
     }
 
     @Transactional
@@ -176,9 +157,9 @@ public class SecurityService {
         log.debug("User {} requested a list of all project-docs.", user.getUserName());
         Collection<Role> userRoles = user.getRoles();
         return allProjectsDocs.stream()
-                              .filter(projectDoc -> canAccessProject(userRoles, projectDoc.contextKey()))
-                              .sorted((a, b) -> a.contextKey().compareToIgnoreCase(b.contextKey()))
-                              .toList();
+                .filter(projectDoc -> canAccessProject(userRoles, projectDoc.contextKey()))
+                .sorted((a, b) -> a.contextKey().compareToIgnoreCase(b.contextKey()))
+                .toList();
     }
 
     public void validateUserIsAllowedOnProjectDoc(User loggedInUser, String projectName) {
@@ -190,8 +171,8 @@ public class SecurityService {
 
     public boolean canAccessProject(Collection<Role> userRoles, String dataDomainKey) {
         return userRoles.stream()
-                        .anyMatch(ur -> ur.getKey().equals(Role.ADMIN_ROLE_KEY) || (ur.isEnabled() && ur.getKey().equalsIgnoreCase(dataDomainKey) &&
-                                                                                    ur.getPrivileges().stream().anyMatch(p -> p.getName().equals(Privilege.READ_PRIVILEGE))));
+                .anyMatch(ur -> ur.getKey().equals(Role.ADMIN_ROLE_KEY) || (ur.isEnabled() && ur.getKey().equalsIgnoreCase(dataDomainKey) &&
+                        ur.getPrivileges().stream().anyMatch(p -> p.getName().equals(Privilege.READ_PRIVILEGE))));
     }
 
     /**
@@ -204,5 +185,18 @@ public class SecurityService {
             throw new RuntimeException("Could not find a project for path " + path);
         }
         validateUserIsAllowedOnProjectDoc(loggedInUser, requestedProjectDoc.name());
+    }
+
+    private List<Role> getAdminRoles() {
+        Role adminRole = roleRepository.findByKeyIgnoreCase(Role.ADMIN_ROLE_KEY);
+        List<Role> roleList = new ArrayList<>();
+        roleList.add(adminRole);
+        return roleList;
+    }
+
+    private List<Role> getAllRolesMinusAdminRole() {
+        List<Role> currentRoles = getAllRoles();
+        currentRoles.removeIf(r -> r.getKey().equals(Role.ADMIN_ROLE_KEY));
+        return currentRoles;
     }
 }

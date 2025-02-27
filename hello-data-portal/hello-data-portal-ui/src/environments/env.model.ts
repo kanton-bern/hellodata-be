@@ -55,6 +55,7 @@ export interface AuthConfig {
   clientId: string;
   redirectUrl: string;
   postLogoutRedirectUri: string;
+  scope: string;
 }
 
 export interface DeploymentConfig {
@@ -68,6 +69,7 @@ export interface SubSystemsConfig {
   dbtDocs: SubSystemHost;
   dmViewer: SubSystemHost;
   dwhViewer: SubSystemHost;
+  filebrowser: SubSystemHost;
   advancedAnalyticsViewer: SubSystemHost;
   monitoringStatus: SubSystemHost;
   devToolsMailbox: SubSystemHost;
