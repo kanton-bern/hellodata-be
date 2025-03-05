@@ -71,13 +71,6 @@ export const ALL_MENU_ITEMS: any[] = [
         text: '@Orchestration',
         routerLink: '/embedded-orchestration',
         requiredPermissions: ['DATA_ENG']
-      },
-      {
-        id: 'filebrowserMenu',
-        text: '@Filebrowser',
-        url: environment.subSystemsConfig.filebrowser.protocol + environment.subSystemsConfig.filebrowser.host + environment.subSystemsConfig.filebrowser.domain,
-        target: '_blank',
-        requiredPermissions: ['DATA_FILEBROWSER']
       }
     ]
   },
