@@ -128,6 +128,16 @@ export class MenuService {
             menuItem.items = this.createDataMartsSubNav(availableDomainItems);
           }
           if (menuItem.id === 'dataEngMenu') {
+            const sftpgo = appInfos.filter(appInfo => appInfo.moduleType === "SFTPGO");
+            if (sftpgo && sftpgo.length > 0) {
+              menuItem.items.push({
+                id: 'filebrowserMenu',
+                text: '@Filebrowser',
+                url: environment.subSystemsConfig.filebrowser.protocol + environment.subSystemsConfig.filebrowser.host + environment.subSystemsConfig.filebrowser.domain,
+                target: '_blank',
+                requiredPermissions: ['DATA_FILEBROWSER']
+              });
+            }
             const jupyterhubSubNavs = this.createJupyterhubSubNav(appInfos, contextRoles, selectedDataDomain);
             for (const jupyterhubSubNav of jupyterhubSubNavs) {
               menuItem.items.push(jupyterhubSubNav);
