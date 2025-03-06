@@ -33,6 +33,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,9 +50,9 @@ public class UserContextRoleUpdate implements Serializable {
     private String lastName;
     private Boolean active;
     private List<ContextRole> contextRoles;
+    private Map<String, List<ModuleRoleNames>> extraModuleRoles = new HashMap<>();
     //technical - send user list pushback enabled by default
     private boolean sendBackUsersList = true;
-    private Map<String, List<ModuleRoleNames>> extraModuleRoles;
 
     @ToString
     @Data

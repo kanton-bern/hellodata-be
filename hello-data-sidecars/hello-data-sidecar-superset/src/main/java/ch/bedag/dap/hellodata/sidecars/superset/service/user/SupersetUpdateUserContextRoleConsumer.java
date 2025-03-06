@@ -43,12 +43,14 @@ import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRo
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -85,7 +87,8 @@ public class SupersetUpdateUserContextRoleConsumer {
             UserContextRoleUpdate.ContextRole contextRole = dataDomainContextRole.get();
             SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
 
-            List<ModuleRoleNames> moduleRoleNamesList = new ArrayList<>(CollectionUtils.emptyIfNull(userContextRoleUpdate.getExtraModuleRoles().get(dataDomainKey)));
+            Map<String, List<ModuleRoleNames>> extraModuleRoles = MapUtils.emptyIfNull(userContextRoleUpdate.getExtraModuleRoles());
+            List<ModuleRoleNames> moduleRoleNamesList = new ArrayList<>(CollectionUtils.emptyIfNull(extraModuleRoles.get(dataDomainKey)));
             Optional<ModuleRoleNames> moduleExtraRoles = moduleRoleNamesList.stream().filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET).findFirst();
             if (moduleExtraRoles.isPresent()) {
                 // reset all roles if extra roles present (here roles come from the csv file)
