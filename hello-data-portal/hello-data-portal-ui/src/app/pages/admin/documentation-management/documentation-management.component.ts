@@ -60,7 +60,7 @@ export class DocumentationManagementComponent extends BaseComponent implements O
     this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
     this.store.dispatch(loadDocumentation());
     this.initForm$ = combineLatest([
-      this.store.select(selectDocumentation),
+      this.store.select(selectDocumentation).pipe(take(2)),
       this.store.select(selectSupportedLanguages).pipe(take(1))
     ]).pipe(
       tap(([doc, supportedLanguages]) => {
