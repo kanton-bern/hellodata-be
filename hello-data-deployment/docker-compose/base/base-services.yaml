@@ -368,7 +368,7 @@ services:
     image: bedag/hello-data-sidecar-sftpgo
     env_file: .env
     environment:
-      - HELLO_DATA_INSTANCE_URL=http://localhost:8086/dbt-docs/
+      - HELLO_DATA_SFTPGO_BASE_URL=http://sftpgo:8080
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
       - HELLADATA_S3_CONNECTIONS_0_ACCESS_KEY=minio
       - HELLADATA_S3_CONNECTIONS_0_ACCESS_SECRET=minio
