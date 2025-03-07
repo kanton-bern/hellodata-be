@@ -713,6 +713,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+    volumes:
+      - shared-data:/storage
 
   hello-data-portal-sidecar:
     platform: ${HD_PLATFORM}
