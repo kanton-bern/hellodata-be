@@ -10,7 +10,8 @@
           <i [ngClass]="item.icon"></i>
           <span class="link_name">{{ item.text | transloco }}</span>
         </a>
-        <a *ngIf="!item.routerLink" [attr.href]="item.url" [attr.target]="item.target" [id]="item.id">
+        <a *ngIf="!item.routerLink && item.items && item.items.length > 0" [attr.href]="item.url"
+           [attr.target]="item.target" [id]="item.id">
           <i [ngClass]="item.icon"></i>
           <span class="link_name">{{ item.text | transloco }}</span>
         </a>
