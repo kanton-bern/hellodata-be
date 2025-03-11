@@ -38,6 +38,7 @@ import jakarta.ws.rs.ClientErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -68,6 +69,9 @@ public class UserController {
     public CreateUserResponseDto createUser(@RequestBody @Valid @NotNull CreateUserRequestDto createUserRequestDto) {
         try {
             String email = createUserRequestDto.getUser().getEmail();
+            if (!EmailValidator.getInstance().isValid(email)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email");
+            }
             String firstName = createUserRequestDto.getUser().getFirstName();
             String lastName = createUserRequestDto.getUser().getLastName();
             String userId = userService.createUser(email, firstName, lastName);
