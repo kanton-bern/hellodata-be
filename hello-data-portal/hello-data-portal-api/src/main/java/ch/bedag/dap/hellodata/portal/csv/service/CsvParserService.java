@@ -15,6 +15,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -23,7 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.DATA_DOMAIN_VIEWER;
 import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.getByContextType;
@@ -34,8 +34,6 @@ import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.ge
 public class CsvParserService {
 
     private static final String EMAIL = "email";
-    private static final String EMAIL_VALIDATION_REGEX = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_VALIDATION_REGEX);
     private static final String BUSINESS_DOMAIN_ROLE = "businessDomainRole";
     private static final String CONTEXT = "context";
     private static final String DATA_DOMAIN_ROLE = "dataDomainRole";
@@ -87,9 +85,13 @@ public class CsvParserService {
     }
 
     private void verifyEmail(String email) {
-        if (email == null || email.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
+        if (email == null || email.isEmpty() || !isValidEmail(email)) {
             throw new IllegalArgumentException("Email is not valid %s".formatted(email));
         }
+    }
+
+    private boolean isValidEmail(String email) {
+        return EmailValidator.getInstance().isValid(email);
     }
 
     private void verifyRoleName(String roleName, HdContextType contextType) {

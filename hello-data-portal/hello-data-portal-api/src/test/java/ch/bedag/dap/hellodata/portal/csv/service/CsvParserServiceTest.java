@@ -69,6 +69,17 @@ class CsvParserServiceTest {
     }
 
     @Test
+    void testParseCsvFile_should_throw_exception_on_bad_email_without_domain() {
+        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
+                "user1@example;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
+                "user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;\n";
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        assertThrows(IllegalArgumentException.class, () -> {
+            csvParserService.parseCsvFile(inputStream);
+        });
+    }
+
+    @Test
     void testParseCsvFile_should_throw_exception_on_bad_business_domain_role() {
         String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
                 "user1@example.com;NONEaaa;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
