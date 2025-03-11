@@ -80,6 +80,20 @@ class CsvParserServiceTest {
     }
 
     @Test
+    void testParseCsvFile_should_throw_exception_on_bad_email_without_tld() {
+        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
+                "lore@dana;NONE;dd02;DATA_DOMAIN_EDITOR;\n" +
+                "lore@dana;NONE;dd01;DATA_DOMAIN_VIEWER;\n" +
+                "sanda@ccc.com;HELLODATA_ADMIN;dd01;DATA_DOMAIN_ADMIN;\n" +
+                "cori@na.ch;BUSINESS_Domain_ADMIN;dd02;DATA_DOMAIN_ADMIN;";
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> {
+            csvParserService.parseCsvFile(inputStream);
+        });
+        assertEquals("Email is not valid lore@dana", illegalArgumentException.getMessage());
+    }
+
+    @Test
     void testParseCsvFile_should_throw_exception_on_bad_business_domain_role() {
         String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
                 "user1@example.com;NONEaaa;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
