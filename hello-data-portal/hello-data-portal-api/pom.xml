@@ -148,6 +148,10 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+        </dependency>
         <!-- Test Dependencies-->
         <dependency>
             <groupId>com.github.dasniko</groupId>
