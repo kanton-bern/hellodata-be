@@ -43,7 +43,7 @@ public class LdapConfigProperties {
     private final String username;
     private final String password;
     @NotNull
-    private FieldMapping fieldMapping;
+    private final FieldMapping fieldMapping;
 
     @Data
     @Validated
