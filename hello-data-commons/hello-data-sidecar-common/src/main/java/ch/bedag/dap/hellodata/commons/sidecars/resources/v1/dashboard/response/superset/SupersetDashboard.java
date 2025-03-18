@@ -65,8 +65,6 @@ public class SupersetDashboard implements Serializable {
     @JsonProperty("json_metadata")
     private String jsonMetadata;
     private List<SubsystemUser> owners;
-    @JsonProperty("position_json")
-    private String positionJson;
     private boolean published;
 
     private List<SubsystemRole> roles;
