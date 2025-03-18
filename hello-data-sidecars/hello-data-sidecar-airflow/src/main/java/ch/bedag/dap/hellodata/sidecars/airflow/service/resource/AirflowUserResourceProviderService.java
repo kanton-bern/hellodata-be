@@ -39,10 +39,10 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsers
 import ch.bedag.dap.hellodata.sidecars.airflow.service.cloud.PodUtilsProvider;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
 import io.kubernetes.client.openapi.models.V1Pod;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;

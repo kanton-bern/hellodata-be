@@ -30,20 +30,11 @@ import ch.bedag.dap.hellodata.docs.service.ProjectDocService;
 import ch.bedag.dap.hellodata.docs.service.StorageTraverseService;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.restassured.RestAssured;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.metamodel.EntityType;
 import jakarta.persistence.metamodel.Metamodel;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.PostConstruct;
+import jakarta.servlet.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -86,9 +77,15 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
+
 @Log4j2
 @ActiveProfiles("test-containers")
-@Import({ AbstractKeycloakTestContainers.OverrideBean.class })
+@Import({AbstractKeycloakTestContainers.OverrideBean.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -144,12 +141,12 @@ public abstract class AbstractKeycloakTestContainers {
             formData.put("password", Collections.singletonList(password));
 
             String result = webclient.post()
-                                     .uri(authorizationURI)
-                                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                                     .body(BodyInserters.fromFormData(formData))
-                                     .retrieve()
-                                     .bodyToMono(String.class)
-                                     .block();
+                    .uri(authorizationURI)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(BodyInserters.fromFormData(formData))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
 
             JacksonJsonParser jsonParser = new JacksonJsonParser();
 
@@ -186,31 +183,13 @@ public abstract class AbstractKeycloakTestContainers {
         });
     }
 
-    protected String getAdminBearer() {
-        String userName = "admin";
-        String password = "admin";
-        return getUserBearerToken(userName, password);
-    }
-
-    protected String getMomiUserBearer() {
-        String userName = "momi-user";
-        String password = "momi-user";
-        return getUserBearerToken(userName, password);
-    }
-
-    protected String getNoRolesUserBearer() {
-        String userName = "user-no-roles";
-        String password = "user-no-roles";
-        return getUserBearerToken(userName, password);
-    }
-
     @TestConfiguration
     public static class OverrideBean {
         //FIXME temporary solution: https://stackoverflow.com/questions/77715151/spring-boot3-2-1-spring-security-config6-2-1-upgrade-issue-error-creating-b
         @Bean
         static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
             return registry -> registry.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
-                                       .setBeanClassName(CompositeFilterChainProxy.class.getName());
+                    .setBeanClassName(CompositeFilterChainProxy.class.getName());
         }
 
         @Bean
@@ -224,6 +203,7 @@ public abstract class AbstractKeycloakTestContainers {
         public ProjectDocService projectDocService() {
             return Mockito.mock(ProjectDocService.class);
         }
+
         static class CompositeFilterChainProxy extends FilterChainProxy {
 
             private final Filter doFilterDelegate;
@@ -298,5 +278,23 @@ public abstract class AbstractKeycloakTestContainers {
                 this.springSecurityFilterChain.setRequestRejectedHandler(requestRejectedHandler);
             }
         }
+    }
+
+    protected String getAdminBearer() {
+        String userName = "admin";
+        String password = "admin";
+        return getUserBearerToken(userName, password);
+    }
+
+    protected String getMomiUserBearer() {
+        String userName = "momi-user";
+        String password = "momi-user";
+        return getUserBearerToken(userName, password);
+    }
+
+    protected String getNoRolesUserBearer() {
+        String userName = "user-no-roles";
+        String password = "user-no-roles";
+        return getUserBearerToken(userName, password);
     }
 }
