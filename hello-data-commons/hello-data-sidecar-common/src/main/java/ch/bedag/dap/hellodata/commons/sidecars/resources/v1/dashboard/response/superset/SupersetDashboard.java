@@ -62,8 +62,6 @@ public class SupersetDashboard implements Serializable {
     private String css;
     @JsonProperty("is_managed_externally")
     private boolean isManagedExternally;
-    @JsonProperty("json_metadata")
-    private String jsonMetadata;
     private List<SubsystemUser> owners;
     private boolean published;
 
