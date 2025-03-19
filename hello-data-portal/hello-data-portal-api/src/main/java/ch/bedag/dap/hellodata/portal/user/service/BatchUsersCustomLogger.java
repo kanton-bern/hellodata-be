@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +29,10 @@ public class BatchUsersCustomLogger {
     public void init() {
         logFilePath = logDirectory + File.separator + FILE_NAME;
         try {
-            Files.createDirectories(Paths.get(logDirectory)); // Ensure directory exists
+            Path dir = Paths.get(logDirectory);
+            if (!Files.exists(dir)) {
+                Files.createDirectories(dir); // Ensure directory exists
+            }
         } catch (IOException e) {
             throw new RuntimeException("Failed to create log directory: " + logDirectory, e);
         }

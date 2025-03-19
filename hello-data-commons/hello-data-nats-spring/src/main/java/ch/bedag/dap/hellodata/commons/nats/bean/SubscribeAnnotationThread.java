@@ -105,6 +105,8 @@ public class SubscribeAnnotationThread extends Thread {
             } catch (InterruptedException e) {
                 log.error("", e);
                 Thread.currentThread().interrupt(); // Re-interrupt the thread
+            } catch (Exception e) {
+                log.error("", e);
             }
         }
     }
@@ -181,8 +183,7 @@ public class SubscribeAnnotationThread extends Thread {
             subscription = jetStream.subscribe(subscribeAnnotation.event().getSubject(), pushSubscribeOptions);
             log.info("[NATS] Subscribed to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         } catch (IOException | JetStreamApiException exception) {
-            unsubscribe();
-            throw new RuntimeException(exception);
+            log.error("[NATS] Error subscribing to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), exception);
         }
     }
 
