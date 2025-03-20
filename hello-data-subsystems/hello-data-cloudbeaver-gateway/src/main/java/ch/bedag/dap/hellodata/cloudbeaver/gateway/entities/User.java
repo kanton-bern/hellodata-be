@@ -27,26 +27,25 @@
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 @Table(name = "hd_user")
 @Getter
 @Setter
-@RequiredArgsConstructor
 @EqualsAndHashCode
 public class User implements Persistable<UUID> {
 
@@ -81,10 +80,6 @@ public class User implements Persistable<UUID> {
     @JsonIgnore
     @Transient
     private Set<String> authorities = new HashSet<>();
-
-    public User() { //NOSONAR
-        // empty
-    }
 
     @Override
     public boolean isNew() {

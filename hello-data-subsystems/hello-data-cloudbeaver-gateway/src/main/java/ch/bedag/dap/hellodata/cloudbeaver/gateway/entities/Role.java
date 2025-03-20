@@ -29,14 +29,15 @@ package ch.bedag.dap.hellodata.cloudbeaver.gateway.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.UUID;
 
 @Table(name = "hd_role")
 @Getter

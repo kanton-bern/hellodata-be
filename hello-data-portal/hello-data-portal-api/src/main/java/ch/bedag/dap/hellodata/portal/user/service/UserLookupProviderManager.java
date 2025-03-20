@@ -27,10 +27,10 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 

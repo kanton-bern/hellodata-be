@@ -36,6 +36,7 @@ import ch.bedag.dap.hellodata.portal.user.service.BatchUsersCustomLogger;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.nats.client.Connection;
 import io.restassured.RestAssured;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -45,8 +46,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.wait.strategy.Wait;
-
-import javax.annotation.PostConstruct;
 
 @Log4j2
 @SuppressWarnings("unused")

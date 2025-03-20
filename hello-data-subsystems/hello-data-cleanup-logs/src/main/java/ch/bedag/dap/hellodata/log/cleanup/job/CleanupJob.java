@@ -27,20 +27,19 @@
 package ch.bedag.dap.hellodata.log.cleanup.job;
 
 import ch.bedag.dap.hellodata.log.cleanup.service.LogCleanupService;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 @Log4j2
 @Component
 public class CleanupJob {
 
+    private final LogCleanupService logCleanupService;
     @Value("${hello-data.log-cleanup.cron-expression:* * * * */12 *}")
     private String cronExpression;
-    private final LogCleanupService logCleanupService;
 
     public CleanupJob(LogCleanupService logCleanupService) {
         this.logCleanupService = logCleanupService;

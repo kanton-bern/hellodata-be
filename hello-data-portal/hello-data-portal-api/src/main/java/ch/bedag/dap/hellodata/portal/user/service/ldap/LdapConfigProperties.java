@@ -27,8 +27,8 @@
 package ch.bedag.dap.hellodata.portal.user.service.ldap;
 
 import ch.bedag.dap.hellodata.portal.profiles.LdapUserLookupProfile;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -43,7 +43,7 @@ public class LdapConfigProperties {
     private final String username;
     private final String password;
     @NotNull
-    private FieldMapping fieldMapping;
+    private final FieldMapping fieldMapping;
 
     @Data
     @Validated

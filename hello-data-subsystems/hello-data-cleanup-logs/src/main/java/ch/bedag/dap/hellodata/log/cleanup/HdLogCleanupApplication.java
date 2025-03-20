@@ -30,15 +30,13 @@ import ch.bedag.dap.hellodata.log.cleanup.config.superset.SupersetDatasourceConf
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@EnableDiscoveryClient
 @EnableScheduling
 @ComponentScan("ch.bedag.dap.hellodata")
-@EnableConfigurationProperties({ SupersetDatasourceConfigurationProperties.class })
-@SpringBootApplication(scanBasePackages = { "ch.bedag.dap.hellodata" })
+@EnableConfigurationProperties({SupersetDatasourceConfigurationProperties.class})
+@SpringBootApplication(scanBasePackages = {"ch.bedag.dap.hellodata"})
 public class HdLogCleanupApplication {
 
     public static void main(String[] args) {

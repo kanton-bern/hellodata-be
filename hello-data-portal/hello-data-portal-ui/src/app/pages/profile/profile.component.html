@@ -1,49 +1,44 @@
-
-<h2 class="content-block">{{'@Profile' | transloco}}</h2>
+<h2 class="content-block">{{ '@Profile' | transloco }}</h2>
 
 <div *ngIf="(userDetails$ | async) as userDetails" class="card">
   <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="id">Id</label>
+    <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
     <div class="col-12 md:col-10">
-      <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-             disabled id="id" type="text"
-             value="{{userDetails.sub}}">
+      <input
+        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+        disabled id="firstName" type="text"
+        value="{{userDetails.given_name}}">
     </div>
   </div>
   <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{'@First name' | transloco}}</label>
+    <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
     <div class="col-12 md:col-10">
-      <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-             disabled id="firstName" type="text"
-             value="{{userDetails.given_name}}">
+      <input
+        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+        disabled id="lastName" type="text"
+        value="{{userDetails.family_name}}">
     </div>
   </div>
   <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{'@Last name' | transloco}}</label>
+    <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
     <div class="col-12 md:col-10">
-      <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-             disabled id="lastName" type="text"
-             value="{{userDetails.family_name}}">
+      <input
+        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+        disabled id="email" type="text"
+        value="{{userDetails.email}}">
     </div>
   </div>
   <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{'@E-mail' | transloco}}</label>
+    <label class="col-12 mb-2 md:col-2 md:mb-0" for="selectedLanguage">{{ '@Selected language' | transloco }}</label>
     <div class="col-12 md:col-10">
-      <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-             disabled id="email" type="text"
-             value="{{userDetails.email}}">
-    </div>
-  </div>
-  <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="selectedLanguage">{{'@Selected language' | transloco}}</label>
-    <div class="col-12 md:col-10">
-      <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-             disabled id="selectedLanguage" type="text"
-             [value]="(selectedLanguage$ | async)?.code + ' ' + ((selectedLanguage$ | async)?.typeTranslationKey | transloco)"/>
+      <input
+        [value]="(selectedLanguage$ | async)?.code + ' ' + ((selectedLanguage$ | async)?.typeTranslationKey | transloco)"
+        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" disabled id="selectedLanguage"
+        type="text"/>
     </div>
   </div>
   <div *ngIf="(userContextRoles$ | async) as roles" class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{'@Roles' | transloco}}</label>
+    <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@Roles' | transloco }}</label>
     <div class="col-12 md:col-10">
       <p-table
         [multiSortMeta]="[{field: 'context.type', order: 1}, {field: 'role.name', order: 1}]"

@@ -27,25 +27,24 @@
 package ch.bedag.dap.hellodata.jupyterhub.gateway.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
+
 @Table(name = "user_")
 @Getter
 @Setter
-@RequiredArgsConstructor
 @EqualsAndHashCode
 public class User implements Persistable<UUID> {
 
@@ -64,10 +63,6 @@ public class User implements Persistable<UUID> {
     @JsonIgnore
     @Transient
     private Set<String> portalPermissions;
-
-    public User() { //NOSONAR
-        // empty
-    }
 
     @Override
     public boolean isNew() {

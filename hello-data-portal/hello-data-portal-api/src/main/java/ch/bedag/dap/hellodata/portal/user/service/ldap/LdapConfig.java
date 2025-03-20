@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.user.service.ldap;
 
 import ch.bedag.dap.hellodata.portal.profiles.LdapUserLookupProfile;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
@@ -34,8 +35,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.LdapClient;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
-
-import javax.annotation.PostConstruct;
 
 @Log4j2
 @Configuration
@@ -48,7 +47,7 @@ public class LdapConfig {
     @PostConstruct
     public void logSettings() {
         log.info("LDAP-Field-Mappings: Email={}, Firstname={}, Lastname={}", properties.getFieldMapping().getEmail(),
-            properties.getFieldMapping().getFirstName(), properties.getFieldMapping().getLastName());
+                properties.getFieldMapping().getFirstName(), properties.getFieldMapping().getLastName());
     }
 
     @Bean

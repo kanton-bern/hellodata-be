@@ -29,13 +29,14 @@ package ch.bedag.dap.hellodata.portal.user.service.local;
 import ch.bedag.dap.hellodata.portal.profiles.LocalUserLookupProfile;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.service.UserLookupProvider;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
