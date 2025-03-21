@@ -178,9 +178,9 @@ public class UserService {
 
         // Proceed with publishing the partitions
         for (List<UserContextRoleUpdate> batch : partition) {
-            UsersContextRoleUpdate usersContextRoleUpdate = new UsersContextRoleUpdate();
-            usersContextRoleUpdate.setUserContextRoleUpdates(batch);
-            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, usersContextRoleUpdate);
+            AllUsersContextRoleUpdate allUsersContextRoleUPdate = new AllUsersContextRoleUpdate();
+            allUsersContextRoleUPdate.setUserContextRoleUpdates(batch);
+            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, allUsersContextRoleUPdate);
             log.info("[syncUsers] Synchronized batch of {} users.", batch.size());
         }
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());

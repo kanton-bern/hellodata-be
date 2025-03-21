@@ -1,8 +1,8 @@
 package ch.bedag.dap.hellodata.sidecars.dbt.listener;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UsersContextRoleUpdate;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.StopWatch;
@@ -20,11 +20,11 @@ public class DbtDocsSyncUsersConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L)
-    public void subscribe(UsersContextRoleUpdate usersContextRoleUpdate) {
+    public void subscribe(AllUsersContextRoleUpdate allUsersContextRoleUPdate) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         log.info("[SYNC_USERS] Started users synchronization");
-        List<UserContextRoleUpdate> userContextRoleUpdates = usersContextRoleUpdate.getUserContextRoleUpdates();
+        List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
         for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
             try {
                 dbtDocsUserContextRoleConsumer.processContextRoleUpdate(userContextRoleUpdate);
