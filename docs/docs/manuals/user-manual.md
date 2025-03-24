@@ -345,4 +345,4 @@ use[SFTPGo](https://github.com/drakkan/sftpgo)here. Please use with care, as som
     - [SFTPGo Documentation](https://docs.sftpgo.com/2.6/)
 
 Find further important references, know-how, and best practices
-on[HelloDATA Know-How](https://confluence.bedag.ch/x/4wHXE).
+on [HelloDATA Know-How](https://confluence.bedag.ch/x/4wHXE).
