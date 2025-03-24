@@ -80,7 +80,7 @@ public class CbUserContextRoleConsumer {
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
-        log.debug("--> processing UserContextRoleUpdate: {}", userContextRoleUpdate.toString());
+        log.info("--> processing UserContextRoleUpdate: {}", userContextRoleUpdate.toString());
         User user = userRepository.findByUserNameAndEmail(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
         if (user == null) {
             log.info("User {} not found, creating...", userContextRoleUpdate.getUsername());
