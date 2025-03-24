@@ -395,17 +395,20 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<AdUserDto> searchUser(String email) {
         if (email == null || email.length() < 3) {
             return Collections.emptyList();
         }
 
+        List<String> usersAlreadyAdded = userRepository.findAllEmails();
         List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
         Set<String> uniqueEmails = new HashSet<>();
 
         return users.stream()
                 .filter(Objects::nonNull)
                 .filter(user -> uniqueEmails.add(user.getEmail()))
+                .filter(user -> !usersAlreadyAdded.contains(user.getEmail()))
                 .collect(Collectors.toList());
     }
 
