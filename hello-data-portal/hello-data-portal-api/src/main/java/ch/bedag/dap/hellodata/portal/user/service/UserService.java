@@ -424,7 +424,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserEntity> findHelloDataAdminUsers() {
-        return userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN).stream().filter(userEntity -> userEntity.isEnabled()).toList();
+        return userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN).stream().filter(UserEntity::isEnabled).toList();
     }
 
     @Transactional
