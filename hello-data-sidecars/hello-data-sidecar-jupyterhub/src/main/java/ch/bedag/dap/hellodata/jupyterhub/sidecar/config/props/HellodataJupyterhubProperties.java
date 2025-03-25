@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "hellodata.jupyterhub")
+@ConfigurationProperties(prefix = "hello-data.jupyterhub")
 public class HellodataJupyterhubProperties {
     private int tempUserPasswordValidInDays;
     private String dwhAdminUsername;

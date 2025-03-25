@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-hellodata:
+hello-data:
   #    code: 'type | key | name'
   business-context: 'Business Domain | HelloDATA_Product_Development | HelloDATA Product Development'
   #    code: 'type | key | name | extra(optional, default == false)'
