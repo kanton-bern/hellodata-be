@@ -65,7 +65,7 @@ public class UsersSyncService {
                 }
             }
         } else {
-            log.info("[syncAllUsers] Another instance is already synchronizing users.");
+            log.debug("[syncAllUsers] Another instance is already synchronizing users.");
         }
     }
 
