@@ -133,11 +133,14 @@ public class UserController {
             UUID currentUserId = SecurityUtils.getCurrentUserId();
             if (currentUserId != null) {
                 userService.updateLastAccess(currentUserId.toString());
+                return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
+                        helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
+                        userService.isUserDisabled(currentUserId.toString()), userService.getSelectedLanguage(currentUserId.toString())
+                );
             }
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
                     helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
-                    userService.isUserDisabled(currentUserId.toString()), userService.getSelectedLanguage(currentUserId.toString())
-            );
+                    false, Locale.ROOT);
         } catch (ClientErrorException e) {
             log.error("Error on getting user sessions", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));
