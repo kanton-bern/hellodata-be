@@ -11,8 +11,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
 
 @Log4j2
 @Component
@@ -31,7 +35,10 @@ public class BatchUsersCustomLogger {
         try {
             Path dir = Paths.get(logDirectory);
             if (!Files.exists(dir)) {
-                Files.createDirectories(dir); // Ensure directory exists
+                // Set permissions for read and write for everyone
+                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-");
+                FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
+                Files.createDirectories(dir, attrs); // Ensure directory exists
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to create log directory: " + logDirectory, e);
