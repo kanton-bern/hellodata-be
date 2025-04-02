@@ -63,6 +63,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -100,6 +101,12 @@ public class UserService {
     private final RoleService roleService;
     private final EmailNotificationService emailNotificationService;
     private final UserLookupProviderManager userLookupProviderManager;
+
+    /**
+     * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
+     */
+    @Value("${hello-data.auth-server.delete-user-in-provider}")
+    private boolean deleteUsersInProvider;
 
     @Transactional
     public String createUser(String email, String firstName, String lastName) {
@@ -224,7 +231,9 @@ public class UserService {
         UserRepresentation userRepresentation = userResource.toRepresentation();
         subsystemUserDelete.setEmail(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
         subsystemUserDelete.setUsername(userRepresentation.getUsername());
-        userResource.remove();
+        if (deleteUsersInProvider) {
+            userResource.remove();
+        }
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }
 
