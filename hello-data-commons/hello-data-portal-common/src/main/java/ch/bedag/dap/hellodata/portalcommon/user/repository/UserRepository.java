@@ -79,4 +79,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     Page<UserEntity> findAll(Pageable pageable);
 
     List<UserEntity> getUserEntitiesByEnabled(boolean enabled);
+
+    @Query("SELECT u.email FROM user_ u")
+    List<String> findAllEmails();
 }

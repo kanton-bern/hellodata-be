@@ -185,9 +185,9 @@ public class UserService {
 
         // Proceed with publishing the partitions
         for (List<UserContextRoleUpdate> batch : partition) {
-            UsersContextRoleUpdate usersContextRoleUpdate = new UsersContextRoleUpdate();
-            usersContextRoleUpdate.setUserContextRoleUpdates(batch);
-            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, usersContextRoleUpdate);
+            AllUsersContextRoleUpdate allUsersContextRoleUPdate = new AllUsersContextRoleUpdate();
+            allUsersContextRoleUPdate.setUserContextRoleUpdates(batch);
+            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, allUsersContextRoleUPdate);
             log.info("[syncUsers] Synchronized batch of {} users.", batch.size());
         }
         log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
@@ -404,17 +404,20 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<AdUserDto> searchUser(String email) {
         if (email == null || email.length() < 3) {
             return Collections.emptyList();
         }
 
+        List<String> usersAlreadyAdded = userRepository.findAllEmails();
         List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
         Set<String> uniqueEmails = new HashSet<>();
 
         return users.stream()
                 .filter(Objects::nonNull)
                 .filter(user -> uniqueEmails.add(user.getEmail()))
+                .filter(user -> !usersAlreadyAdded.contains(user.getEmail()))
                 .collect(Collectors.toList());
     }
 
@@ -430,7 +433,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserEntity> findHelloDataAdminUsers() {
-        return userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN).stream().filter(userEntity -> userEntity.isEnabled()).toList();
+        return userRepository.findUsersByHdRoleName(HdRoleName.BUSINESS_DOMAIN_ADMIN).stream().filter(UserEntity::isEnabled).toList();
     }
 
     @Transactional

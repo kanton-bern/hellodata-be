@@ -2,8 +2,8 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.user;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import lombok.AllArgsConstructor;
@@ -25,11 +25,11 @@ public class SupersetSyncUsersConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L)
-    public void subscribe(UsersContextRoleUpdate usersContextRoleUpdate) {
+    public void subscribe(AllUsersContextRoleUpdate allUsersContextRoleUPdate) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         log.info("[SYNC_USERS] Started users synchronization");
-        List<UserContextRoleUpdate> userContextRoleUpdates = usersContextRoleUpdate.getUserContextRoleUpdates();
+        List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
         for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();

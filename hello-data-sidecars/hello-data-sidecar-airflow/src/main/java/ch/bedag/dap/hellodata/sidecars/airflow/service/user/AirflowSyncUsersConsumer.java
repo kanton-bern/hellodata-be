@@ -1,8 +1,8 @@
 package ch.bedag.dap.hellodata.sidecars.airflow.service.user;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserContextRoleUpdate;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.AirflowClient;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRole;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
@@ -25,11 +25,11 @@ public class AirflowSyncUsersConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L)
-    public void subscribe(UsersContextRoleUpdate usersContextRoleUpdate) {
+    public void subscribe(AllUsersContextRoleUpdate allUsersContextRoleUPdate) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         log.info("[SYNC_USERS] Started users synchronization");
-        List<UserContextRoleUpdate> userContextRoleUpdates = usersContextRoleUpdate.getUserContextRoleUpdates();
+        List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
         for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
             try {
                 AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();

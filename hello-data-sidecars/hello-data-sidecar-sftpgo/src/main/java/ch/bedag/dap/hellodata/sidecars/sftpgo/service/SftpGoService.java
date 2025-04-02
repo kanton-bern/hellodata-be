@@ -45,6 +45,8 @@ public class SftpGoService {
 
     @PostConstruct
     public void init() {
+        log.info("Initializing SFTP Go API, username {}", sftpGoAdminUsername);
+        log.info("Initializing SFTP Go API, pass [first 3 letters] {}", sftpGoAdminPassword.substring(0, 3));
         initAdminGroup();
     }
 
