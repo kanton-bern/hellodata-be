@@ -106,7 +106,7 @@ public class SftpGoService {
 
         User createdUser = usersApi.addUser(user, 0).block();
         if (createdUser != null) {
-            usersApi.disableUser2fa(createdUser.getUsername()).block();
+//            usersApi.disableUser2fa(createdUser.getUsername()).block(); // FIXME getting 400 error
             log.info("User {} created", username);
         } else {
             log.info("User {} not created", username);
