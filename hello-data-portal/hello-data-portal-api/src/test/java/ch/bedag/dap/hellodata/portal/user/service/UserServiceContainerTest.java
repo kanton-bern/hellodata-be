@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.portal.user.KeycloakTestContainerTest;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,7 +47,7 @@ class UserServiceContainerTest extends KeycloakTestContainerTest {
         String firstName = "testFirstName";
         String lastName = "testLastName";
         //when
-        String userId = userService.createUser(email, firstName, lastName);
+        String userId = userService.createUser(email, firstName, lastName, AdUserOrigin.LOCAL);
         //then
         assertThat(userId, is(notNullValue()));
     }

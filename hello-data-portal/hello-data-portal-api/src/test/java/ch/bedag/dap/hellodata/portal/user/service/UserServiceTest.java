@@ -35,6 +35,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersCo
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
 import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -118,7 +119,7 @@ public class UserServiceTest {
         when(userRepresentation.getUsername()).thenReturn("username");
 
         // when
-        String result = userService.createUser(email, firstName, lastName);
+        String result = userService.createUser(email, firstName, lastName, AdUserOrigin.LOCAL);
 
         // then
         assertEquals(createdUserId, result);
