@@ -26,6 +26,11 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
+import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
+import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
+import ch.bedag.dap.hellodata.portal.initialize.event.SyncAllUsersEvent;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -45,6 +50,8 @@ public class KeycloakUserSyncService {
 
     private final KeycloakService keycloakService;
     private final UserRepository userRepository;
+    private final UserService userService;
+    private final NatsSenderService natsSenderService;
 
     /**
      * Checks if any of keycloak users has a changed id (e.g: user removed directly in the keycloak and then added again)
@@ -56,16 +63,21 @@ public class KeycloakUserSyncService {
         List<UserRepresentation> allUsers = keycloakService.getAllUsers();
         List<UserEntity> allPortalUsers = userRepository.findAll();
         for (UserRepresentation userRepresentation : allUsers) {
-            UserEntity userEntity = allPortalUsers.stream().filter(user -> user.getEmail().equalsIgnoreCase(userRepresentation.getEmail())).findFirst().orElse(null);
+            UserEntity userEntity = allPortalUsers.stream().filter(user ->
+                    user.getEmail().equalsIgnoreCase(userRepresentation.getEmail())).findFirst().orElse(null);
             if (userEntity != null) {
                 userEntity.setAuthId(userRepresentation.getId());
                 userEntity.setEnabled(userRepresentation.isEnabled());
                 userEntity.setFirstName(userRepresentation.getFirstName());
                 userEntity.setLastName(userRepresentation.getLastName());
                 userEntity.setSuperuser(userEntity.getSuperuser());//set flag to not fetch lazy loading relations
+                List<AdUserDto> adUserDtos = userService.searchUser(userEntity.getEmail());
+                userEntity.setFederated(adUserDtos.stream().anyMatch(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP));
             }
         }
         userRepository.saveAll(allPortalUsers);
+        userRepository.flush();
+        natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, new SyncAllUsersEvent());
         log.debug("[sync-users-with-keycloak] Completed");
     }
 

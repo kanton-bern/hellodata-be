@@ -63,7 +63,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -79,8 +78,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.commons.SlugifyUtil.DASHBOARD_ROLE_PREFIX;
@@ -103,14 +102,8 @@ public class UserService {
     private final EmailNotificationService emailNotificationService;
     private final UserLookupProviderManager userLookupProviderManager;
 
-    /**
-     * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
-     */
-    @Value("${hello-data.auth-server.delete-user-in-provider}")
-    private boolean deleteUsersInProvider;
-
     @Transactional
-    public String createUser(String email, String firstName, String lastName) {
+    public String createUser(String email, String firstName, String lastName, AdUserOrigin origin) {
         email = email.toLowerCase(Locale.ROOT);
         log.info("Creating user. Email: {}, first name: {}, last name {}", email, firstName, lastName);
         validateEmailAlreadyExists(email);
@@ -138,6 +131,7 @@ public class UserService {
         userEntity.setLastName(userFoundInKeycloak == null ? lastName : userFoundInKeycloak.getLastName());
         userEntity.setEnabled(true);
         userEntity.setSuperuser(false);
+        userEntity.setFederated(origin != AdUserOrigin.LOCAL);
         userRepository.saveAndFlush(userEntity);
         roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
         roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);
@@ -222,9 +216,16 @@ public class UserService {
         }
         UserResource userResource = getUserResource(userId);
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
-        userEntityResult.ifPresentOrElse(userRepository::delete, () -> {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found");//NOSONAR
-        });
+        AtomicBoolean isUserFederated = new AtomicBoolean(false);
+        userEntityResult.ifPresentOrElse(
+                (userEntity) -> {
+                    isUserFederated.set(userEntity.isFederated());
+                    userRepository.delete(userEntity);
+                },
+                () -> {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found");//NOSONAR
+                }
+        );
         if (userResource == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
         }
@@ -232,7 +233,7 @@ public class UserService {
         UserRepresentation userRepresentation = userResource.toRepresentation();
         subsystemUserDelete.setEmail(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
         subsystemUserDelete.setUsername(userRepresentation.getUsername());
-        if (deleteUsersInProvider) {
+        if (!isUserFederated.get()) {
             userResource.remove();
         }
         natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
@@ -412,7 +413,7 @@ public class UserService {
         }
         List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
         Map<String, AdUserDto> emailToUserDto = users.stream().collect(Collectors.toMap(AdUserDto::getEmail, user -> user, (existing, replacement) -> {
-            if (Pattern.matches(".*-0|-1$", existing.getFirstName())) {
+            if (existing.getOrigin() == AdUserOrigin.LOCAL && replacement.getOrigin() != AdUserOrigin.LOCAL) {
                 return replacement;
             }
             return existing;

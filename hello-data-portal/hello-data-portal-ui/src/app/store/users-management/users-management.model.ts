@@ -95,8 +95,9 @@ export interface ContextDashboardsForUser {
 export interface AdUser {
   email: string,
   firstName: string,
-  lastName: string
-  label: string
+  lastName: string,
+  label: string,
+  origin: string
 }
 
 export interface SubsystemUserDto {

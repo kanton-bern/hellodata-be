@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.user.service.ldap;
 
 import ch.bedag.dap.hellodata.portal.profiles.LdapUserLookupProfile;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
 import ch.bedag.dap.hellodata.portal.user.service.UserLookupProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -66,10 +67,10 @@ public class LdapUserLookupProvider implements UserLookupProvider {
         log.info("Search for email {}", encodedEmail);
         ContainerCriteria query = query().where("objectclass").is("person").and("mail").like(encodedEmail + "*");
         return ldapTemplate.search(query,
-            (AttributesMapper<AdUserDto>) attrs -> {
-                log.debug("Attributes: {}", attrs);
-                return toAdUserDto(attrs);
-            });
+                (AttributesMapper<AdUserDto>) attrs -> {
+                    log.debug("Attributes: {}", attrs);
+                    return toAdUserDto(attrs);
+                });
     }
 
     private AdUserDto toAdUserDto(Attributes attrs) throws NamingException {
@@ -77,6 +78,7 @@ public class LdapUserLookupProvider implements UserLookupProvider {
         user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()));
         user.setFirstName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getFirstName()));
         user.setLastName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getLastName()));
+        user.setOrigin(AdUserOrigin.LDAP);
         return user;
     }
 
