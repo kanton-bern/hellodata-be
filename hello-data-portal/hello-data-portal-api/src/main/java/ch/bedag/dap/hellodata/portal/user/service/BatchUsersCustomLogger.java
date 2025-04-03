@@ -35,10 +35,17 @@ public class BatchUsersCustomLogger {
         try {
             Path dir = Paths.get(logDirectory);
             if (!Files.exists(dir)) {
+                log.info("Initializing log directory at {}", logDirectory);
                 // Set permissions for read and write for everyone
                 Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-");
                 FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
                 Files.createDirectories(dir, attrs); // Ensure directory exists
+                File file = dir.toFile();
+                boolean readable = file.setReadable(true, false);
+                boolean writable = file.setWritable(true, false);
+                log.info("Log directory at {} created. Is readable {}, is writable {}", logFilePath, readable, writable);
+            } else {
+                log.info("Log directory already exists at {}", logDirectory);
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to create log directory: " + logDirectory, e);
