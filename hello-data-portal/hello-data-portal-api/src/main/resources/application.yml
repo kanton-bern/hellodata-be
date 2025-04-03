@@ -38,6 +38,7 @@ hello-data:
     admin-client-id: admin-cli
     admin-client-secret: LiLlI86eFxXNWXUWqov4eyG1ocgWwPEq
     sync-users-schedule-hours: 1
+    delete-user-in-provider: false
   default-admin:
     email: admin@hellodata.ch
     username: admin
