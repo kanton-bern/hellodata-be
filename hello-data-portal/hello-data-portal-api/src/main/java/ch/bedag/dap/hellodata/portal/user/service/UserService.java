@@ -80,6 +80,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.commons.SlugifyUtil.DASHBOARD_ROLE_PREFIX;
@@ -409,16 +410,26 @@ public class UserService {
         if (email == null || email.length() < 3) {
             return Collections.emptyList();
         }
+        List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
+        Map<String, AdUserDto> emailToUserDto = users.stream().collect(Collectors.toMap(AdUserDto::getEmail, user -> user, (existing, replacement) -> {
+            if (Pattern.matches(".*-0|-1$", existing.getFirstName())) {
+                return replacement;
+            }
+            return existing;
+        }));
 
         List<String> usersAlreadyAdded = userRepository.findAllEmails();
-        List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
         Set<String> uniqueEmails = new HashSet<>();
 
-        return users.stream()
-                .filter(Objects::nonNull)
-                .filter(user -> uniqueEmails.add(user.getEmail()))
-                .filter(user -> !usersAlreadyAdded.contains(user.getEmail()))
-                .collect(Collectors.toList());
+        List<AdUserDto> uniqueUsers = new ArrayList<>();
+        for (Map.Entry<String, AdUserDto> entry : emailToUserDto.entrySet()) {
+            String emailKey = entry.getKey();
+            AdUserDto user = entry.getValue();
+            if (uniqueEmails.add(emailKey) && !usersAlreadyAdded.contains(emailKey)) {
+                uniqueUsers.add(user);
+            }
+        }
+        return uniqueUsers;
     }
 
     @Transactional(readOnly = true)
