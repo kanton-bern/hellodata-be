@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.user.service.local;
 
 import ch.bedag.dap.hellodata.portal.profiles.LocalUserLookupProfile;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
+import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
 import ch.bedag.dap.hellodata.portal.user.service.UserLookupProvider;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,7 @@ public class LocalUserLookupProvider implements UserLookupProvider {
             String firstName = getFirstName(email);
             user.setFirstName(firstName + "-" + index);
             user.setLastName(getLastName(email) + "-" + index);
+            user.setOrigin(AdUserOrigin.LOCAL);
             return user;
         }).toList();
     }

@@ -74,7 +74,8 @@ public class UserController {
             }
             String firstName = createUserRequestDto.getUser().getFirstName();
             String lastName = createUserRequestDto.getUser().getLastName();
-            String userId = userService.createUser(email, firstName, lastName);
+            AdUserOrigin origin = createUserRequestDto.getUser().getOrigin();
+            String userId = userService.createUser(email, firstName, lastName, origin);
             return CreateUserResponseDto.builder().userId(userId).build();
         } catch (ClientErrorException e) {
             log.error("Error on user creation", e);

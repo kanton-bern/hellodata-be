@@ -78,7 +78,7 @@ class UserControllerTest extends HDControllerTest {
         createUserRequestDto.setUser(adUserDto);
         UUID currentUserId = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
-        when(userService.createUser("test@test.com", "Test", "User")).thenReturn(userId.toString());
+        when(userService.createUser("test@test.com", "Test", "User", AdUserOrigin.LOCAL)).thenReturn(userId.toString());
 
         // when then
         mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId)).contentType(MediaType.APPLICATION_JSON).content(asJsonString(createUserRequestDto)))
@@ -93,11 +93,12 @@ class UserControllerTest extends HDControllerTest {
         adUserDto.setEmail("test@test.com");
         adUserDto.setFirstName("Test");
         adUserDto.setLastName("User");
+        adUserDto.setOrigin(AdUserOrigin.LOCAL);
         createUserRequestDto.setUser(adUserDto);
 
         UUID currentUserId = UUID.randomUUID();
         UUID createdUserId = UUID.randomUUID();
-        when(userService.createUser("test@test.com", "Test", "User")).thenReturn(createdUserId.toString());
+        when(userService.createUser("test@test.com", "Test", "User", AdUserOrigin.LOCAL)).thenReturn(createdUserId.toString());
 
         // when then
         mockMvc.perform(post("/users").header("authorization", generateToken(currentUserId, Set.of("USER_MANAGEMENT")))

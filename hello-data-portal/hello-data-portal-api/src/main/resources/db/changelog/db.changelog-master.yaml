@@ -108,3 +108,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/39_create_user_sync_lock_table.xml
   - include:
       file: db/changelog/changelogs/40_add_more_columns_to_user.xml
+  - include:
+      file: db/changelog/changelogs/41_add_is_federated_column.xml

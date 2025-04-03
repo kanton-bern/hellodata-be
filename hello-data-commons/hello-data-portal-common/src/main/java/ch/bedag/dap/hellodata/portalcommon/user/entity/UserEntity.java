@@ -75,6 +75,8 @@ public class UserEntity extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserPortalRoleEntity> portalRoles;
 
+    private boolean isFederated;
+
     public Boolean getSuperuser() {
         if (this.getPortalRoles() == null) {
             return false;

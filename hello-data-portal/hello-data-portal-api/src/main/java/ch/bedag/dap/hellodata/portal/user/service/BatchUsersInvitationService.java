@@ -54,7 +54,6 @@ import java.util.stream.Collectors;
 @Log4j2
 @Service
 public class BatchUsersInvitationService {
-    private static final String LOCAL_AD_REGEX = "\\b\\w+-\\d+\\b";
 
     private final CsvParserService csvParserService;
     private final UserService userService;
@@ -108,12 +107,13 @@ public class BatchUsersInvitationService {
 
     private void createOrUpdateUsers(List<BatchUpdateContextRolesForUserDto> users, List<UserDto> allUsers, List<RoleDto> allRoles, ContextsDto availableContexts) throws InterruptedException {
         for (BatchUpdateContextRolesForUserDto user : users) {
-            Optional<AdUserDto> any = this.userService.searchUser(user.getEmail()).stream().findAny();
-            Optional<AdUserDto> firstAD = this.userService.searchUser(user.getEmail()).stream().filter(adUserDto -> !adUserDto.getFirstName().matches(LOCAL_AD_REGEX)).findFirst();
+            List<AdUserDto> usersSearched = this.userService.searchUser(user.getEmail());
+            Optional<AdUserDto> any = usersSearched.stream().findAny();
+            Optional<AdUserDto> firstAD = usersSearched.stream().filter(adUserDto -> adUserDto.getOrigin() != AdUserOrigin.LOCAL).findFirst();
             AdUserDto adUserDto = firstAD.orElseGet(any::orElseThrow);
             String userId;
             try {
-                userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName());
+                userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin());
                 Thread.sleep(1000L); //wait for it to push to subsystems before proceeding to set context roles
             } catch (UserAlreadyExistsException e) {
                 String errMsg = "User %s already exists, updating roles...".formatted(adUserDto.getEmail());
