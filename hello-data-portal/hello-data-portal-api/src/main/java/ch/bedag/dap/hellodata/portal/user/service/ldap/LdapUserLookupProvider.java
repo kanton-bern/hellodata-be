@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import java.util.List;
+import java.util.Locale;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
@@ -75,7 +76,7 @@ public class LdapUserLookupProvider implements UserLookupProvider {
 
     private AdUserDto toAdUserDto(Attributes attrs) throws NamingException {
         var user = new AdUserDto();
-        user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()));
+        user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()).toLowerCase(Locale.ROOT));
         user.setFirstName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getFirstName()));
         user.setLastName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getLastName()));
         user.setOrigin(AdUserOrigin.LDAP);
