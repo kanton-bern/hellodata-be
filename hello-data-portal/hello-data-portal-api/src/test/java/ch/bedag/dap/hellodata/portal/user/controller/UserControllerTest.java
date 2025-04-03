@@ -93,6 +93,7 @@ class UserControllerTest extends HDControllerTest {
         adUserDto.setEmail("test@test.com");
         adUserDto.setFirstName("Test");
         adUserDto.setLastName("User");
+        adUserDto.setOrigin(AdUserOrigin.LOCAL);
         createUserRequestDto.setUser(adUserDto);
 
         UUID currentUserId = UUID.randomUUID();

@@ -30,7 +30,7 @@
 
     <changeSet id="41-add-is-federated-column" author="slawomir.wieczorek">
         <addColumn tableName="user_">
-            <column name="if_federated" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="is_federated" type="BOOLEAN" defaultValueBoolean="false"/>
         </addColumn>
     </changeSet>
 
