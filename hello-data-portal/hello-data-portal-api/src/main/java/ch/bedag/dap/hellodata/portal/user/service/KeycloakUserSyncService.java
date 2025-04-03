@@ -26,8 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
-import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
-import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.portal.initialize.event.SyncAllUsersEvent;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
@@ -36,6 +34,7 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +50,7 @@ public class KeycloakUserSyncService {
     private final KeycloakService keycloakService;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final NatsSenderService natsSenderService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * Checks if any of keycloak users has a changed id (e.g: user removed directly in the keycloak and then added again)
@@ -72,13 +71,16 @@ public class KeycloakUserSyncService {
                 userEntity.setLastName(userRepresentation.getLastName());
                 userEntity.setSuperuser(userEntity.getSuperuser());//set flag to not fetch lazy loading relations
                 List<AdUserDto> adUserDtos = userService.searchUser(userEntity.getEmail());
-                userEntity.setFederated(adUserDtos.stream().anyMatch(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP));
+                log.debug("[sync-users-with-keycloak] Found users from providers: {}", adUserDtos);
+                boolean isFederated = adUserDtos.stream().anyMatch(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP);
+                log.debug("[sync-users-with-keycloak] Is user {} federated: {}", userEntity.getEmail(), isFederated);
+                userEntity.setFederated(isFederated);
             }
         }
         userRepository.saveAll(allPortalUsers);
         userRepository.flush();
-        natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, new SyncAllUsersEvent());
-        log.debug("[sync-users-with-keycloak] Completed");
+        applicationEventPublisher.publishEvent(new SyncAllUsersEvent());
+        log.debug("[sync-users-with-keycloak] Completed, starting users with subsystems sync....");
     }
 
 }
