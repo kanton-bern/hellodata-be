@@ -194,11 +194,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
 
   filterMails($event: any) {
     const searchQuery = $event.query;
-    if (this.inviteForm.controls['user'].valid) {
-      this.searchSubject.next(searchQuery?.trim());
-    } else {
-      this.suggestedAdUsers = [];
-    }
+    this.searchSubject.next(searchQuery?.trim());
     this.inviteForm.get('firstName')?.reset();
     this.inviteForm.get('lastName')?.reset();
   }

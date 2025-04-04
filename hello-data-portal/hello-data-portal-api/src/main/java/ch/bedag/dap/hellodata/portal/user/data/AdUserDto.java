@@ -27,18 +27,33 @@
 package ch.bedag.dap.hellodata.portal.user.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.EqualsAndHashCode;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Objects;
 
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AdUserDto {
-    @EqualsAndHashCode.Include
+    @Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     private String email;
     private String firstName;
     private String lastName;
     private AdUserOrigin origin;
+
+    @Override
+    public int hashCode() {
+        return email != null ? Objects.hash(email.toLowerCase()) : 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AdUserDto adUserDto = (AdUserDto) o;
+        return email != null && adUserDto.email != null &&
+                email.equalsIgnoreCase(adUserDto.email);
+    }
 }
