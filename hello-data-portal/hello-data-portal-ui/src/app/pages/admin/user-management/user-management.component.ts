@@ -200,9 +200,10 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   onSelectEmail($event: any) {
+    console.debug("onSelectEmail", $event);
     this.inviteForm.get('firstName')?.setValue($event.value.firstName);
     this.inviteForm.get('lastName')?.setValue($event.value.lastName);
-    this.inviteForm.get('user')?.setErrors(null);
+    // this.inviteForm.get('user')?.setErrors(null);
   }
 
   loadUsers(event: TableLazyLoadEvent) {
