@@ -46,4 +46,5 @@ public class UserDto {
     private Boolean superuser;
     private List<String> permissions;
     private int invitationsCount;
+    private boolean isFederated;
 }
