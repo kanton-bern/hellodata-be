@@ -427,12 +427,11 @@ public class UserService {
             return existing;
         }));
 
-        List<String> usersAlreadyAdded = userRepository.findAllEmails();
+        List<String> usersAlreadyAdded = userRepository.findAllEmails().stream().map(eMail -> eMail.toLowerCase(Locale.ROOT)).toList();
         Set<String> uniqueEmails = new HashSet<>();
-
         List<AdUserDto> uniqueUsers = new ArrayList<>();
         for (Map.Entry<String, AdUserDto> entry : emailToUserDto.entrySet()) {
-            String emailKey = entry.getKey();
+            String emailKey = entry.getKey().toLowerCase(Locale.ROOT);
             AdUserDto user = entry.getValue();
             if (uniqueEmails.add(emailKey) && !usersAlreadyAdded.contains(emailKey) && isValidEmail(user.getEmail())) {
                 uniqueUsers.add(user);
