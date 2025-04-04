@@ -75,7 +75,7 @@ public class KeycloakUserSyncService {
                 boolean isFederated = adUserDtos.stream().anyMatch(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP);
                 log.debug("[sync-users-with-keycloak] Is user {} federated: {}", userEntity.getEmail(), isFederated);
                 log.debug("[sync-users-with-keycloak] Is user {} federated in keycloak: {}", userEntity.getEmail(), userRepresentation.getFederationLink());
-                userEntity.setFederated(isFederated);
+                userEntity.setFederated(isFederated || userRepresentation.getFederationLink() != null);
             }
         }
         userRepository.saveAll(allPortalUsers);
