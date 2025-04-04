@@ -60,6 +60,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
@@ -433,7 +434,7 @@ public class UserService {
         for (Map.Entry<String, AdUserDto> entry : emailToUserDto.entrySet()) {
             String emailKey = entry.getKey();
             AdUserDto user = entry.getValue();
-            if (uniqueEmails.add(emailKey) && !usersAlreadyAdded.contains(emailKey)) {
+            if (uniqueEmails.add(emailKey) && !usersAlreadyAdded.contains(emailKey) && isValidEmail(user.getEmail())) {
                 uniqueUsers.add(user);
             }
         }
@@ -474,6 +475,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public Locale getSelectedLanguageByEmail(String email) {
         return userRepository.findSelectedLanguageByEmail(email);
+    }
+
+    private boolean isValidEmail(String email) {
+        return EmailValidator.getInstance().isValid(email);
     }
 
     /**
@@ -682,6 +687,7 @@ public class UserService {
             userDto.setInvitationsCount(userEntity.getInvitationsCount());
             userDto.setFirstName(userEntity.getFirstName());
             userDto.setLastName(userEntity.getLastName());
+            userDto.setFederated(userEntity.isFederated());
             if (userEntity.getLastAccess() != null) {
                 ZonedDateTime zdt = ZonedDateTime.of(userEntity.getLastAccess(), ZoneId.systemDefault());
                 userDto.setLastAccess(zdt.toInstant().toEpochMilli());
