@@ -59,12 +59,10 @@ public class KeycloakUserSyncService {
     @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-hours}", timeUnit = TimeUnit.HOURS)
     public void syncUsers() {
         log.debug("[sync-users-with-keycloak] Started");
-        List<UserRepresentation> allUsers = keycloakService.getAllUsers();
         List<UserEntity> allPortalUsers = userRepository.findAll();
-        for (UserRepresentation userRepresentation : allUsers) {
-            UserEntity userEntity = allPortalUsers.stream().filter(user ->
-                    user.getEmail().equalsIgnoreCase(userRepresentation.getEmail())).findFirst().orElse(null);
-            if (userEntity != null) {
+        for (UserEntity userEntity : allPortalUsers) {
+            UserRepresentation userRepresentation = keycloakService.getUserRepresentationByEmail(userEntity.getEmail());
+            if (userRepresentation != null) {
                 userEntity.setAuthId(userRepresentation.getId());
                 userEntity.setEnabled(userRepresentation.isEnabled());
                 userEntity.setFirstName(userRepresentation.getFirstName());
