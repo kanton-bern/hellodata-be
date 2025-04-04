@@ -37,7 +37,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.IntStream;
 
 @Component
@@ -53,7 +52,7 @@ public class LocalUserLookupProvider implements UserLookupProvider {
         }
         return IntStream.range(0, 1).mapToObj(index -> {
             AdUserDto user = new AdUserDto();
-            user.setEmail(email.toLowerCase(Locale.ROOT));
+            user.setEmail(email);
             String firstName = getFirstName(email);
             user.setFirstName(firstName + "-" + index);
             user.setLastName(getLastName(email) + "-" + index);

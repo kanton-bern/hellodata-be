@@ -222,7 +222,7 @@ public class UserController {
     @GetMapping("search/{email}")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public List<AdUserDto> searchUser(@PathVariable String email) {
-        return userService.searchUser(email.toLowerCase(Locale.ROOT));
+        return userService.searchUser(email);
     }
 
     /**
