@@ -40,6 +40,7 @@ public class LdapConfigProperties {
 
     private final String url;
     private final String base;
+    private final String username;
     private final String password;
     @NotNull
     private final FieldMapping fieldMapping;
