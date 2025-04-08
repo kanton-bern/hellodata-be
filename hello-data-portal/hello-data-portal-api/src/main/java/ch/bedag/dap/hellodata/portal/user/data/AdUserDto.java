@@ -41,6 +41,7 @@ public class AdUserDto {
     private String email;
     private String firstName;
     private String lastName;
+    private String username;
     private AdUserOrigin origin;
 
     @Override
