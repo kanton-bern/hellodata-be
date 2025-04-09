@@ -56,7 +56,6 @@ public class LocalUserLookupProvider implements UserLookupProvider {
             String firstName = getFirstName(email);
             user.setFirstName(firstName + "-" + index);
             user.setLastName(getLastName(email) + "-" + index);
-            user.setUsername(email);
             user.setOrigin(AdUserOrigin.LOCAL);
             return user;
         }).toList();

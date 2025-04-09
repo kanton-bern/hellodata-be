@@ -78,7 +78,6 @@ public class LdapUserLookupProvider implements UserLookupProvider {
         user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()));
         user.setFirstName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getFirstName()));
         user.setLastName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getLastName()));
-        user.setUsername(getFieldOrDefault(attrs, configProperties.getFieldMapping().getUserPrincipalName()));
         user.setOrigin(AdUserOrigin.LDAP);
         return user;
     }

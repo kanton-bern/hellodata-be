@@ -52,7 +52,6 @@ public class LdapConfigProperties {
         private String firstName;
         private String lastName;
         private String email;
-        private String userPrincipalName;
     }
 
 }
