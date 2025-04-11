@@ -35,7 +35,7 @@ USER root
 # install drivers to take screenshots
 RUN apt-get update && \
     # deps for superset
-    apt-get install --no-install-recommends -y firefox-esr wget gcc && \
+    apt-get install --no-install-recommends -y firefox-esr wget gcc g++ && \
     # deps for liquibase
     apt-get install --no-install-recommends -y openjdk-17-jre-headless ca-certificates-java gnupg unzip postgresql-client
 
