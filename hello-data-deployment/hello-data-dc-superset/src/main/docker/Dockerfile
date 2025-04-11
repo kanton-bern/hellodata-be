@@ -39,6 +39,8 @@ RUN ls -la /app/docker/pythonpath_dev
 #CORS https://superset.apache.org/docs/installation/networking-settings/
 RUN pip install apache_superset[cors]
 
+RUN pip install psycopg2
+
 RUN apt-get update && \
     # deps for superset
     apt-get install -y dos2unix
