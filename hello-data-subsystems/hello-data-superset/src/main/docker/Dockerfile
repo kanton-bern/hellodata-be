@@ -37,7 +37,7 @@ RUN apt-get update && \
     # deps for superset
     apt-get install --no-install-recommends -y firefox-esr wget gcc g++ && \
     # deps for liquibase
-    apt-get install --no-install-recommends -y openjdk-17-jre-headless ca-certificates-java gnupg unzip postgresql-client
+    apt-get install --no-install-recommends -y openjdk-17-jre-headless ca-certificates-java gnupg unzip psycopg2-binary postgresql-client
 
 ENV GECKODRIVER_VERSION=0.34.0
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
