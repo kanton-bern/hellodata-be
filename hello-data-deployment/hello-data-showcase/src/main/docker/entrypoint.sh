@@ -39,7 +39,7 @@ for file in $dags_path; do
     sed -i "s/DD_KEY/$DD_KEY/g" "$file"
 done
 
-
+chmod 777 -R "$DESTINATION_PATH"
 
 # Run an infinite loop to keep the container running
 while true; do
