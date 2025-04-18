@@ -25,13 +25,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-#custom props
-hello-data:
-  auth-server:
-    url: http://localhost:38080
-    realm: hellodata
-    client-id: frontend-client
-
 spring:
   application:
     name: HelloDATA Sidecar for Portal
@@ -53,22 +46,6 @@ spring:
     redis:
       host: localhost
       port: 6379
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: ${hello-data.auth-server.client-id}
-            authorization-grant-type: authorization_code
-            scope:
-              - openid
-        provider:
-          keycloak:
-            issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
-            user-name-attribute: preferred_username
-      resourceserver:
-        jwt:
-          issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
   boot:
     admin:
       client:

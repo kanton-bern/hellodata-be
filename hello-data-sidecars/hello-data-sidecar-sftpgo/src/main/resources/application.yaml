@@ -82,10 +82,6 @@ springdoc:
   show-actuator: true
   packagesToScan: ch.bedag.dap.hellodata.sidecars
   paths-to-match: /**
-  swagger-ui:
-    oauth:
-      clientId: ${hello-data.auth-server.client-id}
-
 
 management:
   endpoint:
