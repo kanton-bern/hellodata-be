@@ -132,11 +132,13 @@ public class UserController {
     public CurrentUserDto getPermissionsForCurrentUser() {
         try {
             UUID currentUserId = SecurityUtils.getCurrentUserId();
+            log.debug("Current user id {}", currentUserId);
             if (currentUserId != null) {
-                userService.updateLastAccess(currentUserId.toString());
+                String currentUserIdStr = currentUserId.toString();
+                userService.updateLastAccess(currentUserIdStr);
                 return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
                         helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
-                        userService.isUserDisabled(currentUserId.toString()), userService.getSelectedLanguage(currentUserId.toString())
+                        userService.isUserDisabled(currentUserIdStr), userService.getSelectedLanguage(currentUserIdStr)
                 );
             }
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
