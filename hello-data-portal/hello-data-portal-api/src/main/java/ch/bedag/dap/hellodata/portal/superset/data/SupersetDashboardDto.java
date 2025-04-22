@@ -31,10 +31,11 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class SupersetDashboardDto {
 
@@ -52,8 +53,9 @@ public class SupersetDashboardDto {
     private String instanceName;
     private String instanceUrl;
     private String contextName;
-    private String contextKey;
     private UUID contextId;
+    private String contextKey;
+    @EqualsAndHashCode.Include
     private String compositeId;
 
     public SupersetDashboardDto(SupersetDashboard d, String instanceName, String instanceUrl, String contextName, UUID contextId, String contextKey) {
