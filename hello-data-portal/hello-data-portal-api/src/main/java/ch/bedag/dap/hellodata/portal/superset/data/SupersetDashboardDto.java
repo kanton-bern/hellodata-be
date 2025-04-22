@@ -38,13 +38,15 @@ import lombok.*;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class SupersetDashboardDto {
-
+    @EqualsAndHashCode.Include
     private int id;
+    @EqualsAndHashCode.Include
     private String dashboardTitle;
     private String dashboardUrlPath;
     private boolean published;
 
     private List<SubsystemRole> roles;
+    @EqualsAndHashCode.Include
     private String slug;
     private String status;
 
@@ -54,6 +56,7 @@ public class SupersetDashboardDto {
     private String instanceUrl;
     private String contextName;
     private UUID contextId;
+    @EqualsAndHashCode.Include
     private String contextKey;
     @EqualsAndHashCode.Include
     private String compositeId;
