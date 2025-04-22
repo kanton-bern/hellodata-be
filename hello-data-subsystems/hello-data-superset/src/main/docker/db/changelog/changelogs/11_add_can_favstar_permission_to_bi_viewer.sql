@@ -28,6 +28,9 @@
 --
 -- Adds a permission to the BI_VIEWER role to allow time range selection in the API view.
 --
+INSERT INTO ab_permission (id, name)
+VALUES (NEXTVAL('ab_permission_id_seq'), 'can_favstar')
+    ON CONFLICT DO NOTHING;
 
 with role_ as (
 	select id from ab_role where "name" = 'BI_VIEWER'
