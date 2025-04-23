@@ -678,6 +678,10 @@ services:
       - "keycloak.localhost:host-gateway"
     ports:
       - 8080:80
+    links:
+      - hello-data-portal-api
+    depends_on:
+      - hello-data-portal-api
 
   hello-data-portal-api:
     platform: ${HD_PLATFORM}
@@ -728,15 +732,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hd_metainfo
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
     links:
-      - nats
-      - redis
-      - postgres
-      - keycloak
       - hello-data-portal-api
       - cloudbeaver
+      - hello-data-dbt-docs-sidecar
     depends_on:
+      - hello-data-portal-api
       - cloudbeaver
-      - postgres
-      - keycloak
-      - redis
-      - nats
+      - hello-data-dbt-docs-sidecar
