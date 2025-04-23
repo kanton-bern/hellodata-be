@@ -23,6 +23,9 @@ public class UsernameInitializer {
         for (UserEntity userEntity : allByUsernameIsNull) {
             log.info("Initializing username for {}", userEntity.getEmail());
             UserRepresentation userRepresentationByEmail = keycloakService.getUserRepresentationByEmail(userEntity.getEmail());
+            if (userRepresentationByEmail == null) {
+                throw new RuntimeException("User %s not found in the keycloak!".formatted(userEntity.getEmail()));
+            }
             userEntity.setUsername(userRepresentationByEmail.getUsername());
             userRepository.save(userEntity);
         }
