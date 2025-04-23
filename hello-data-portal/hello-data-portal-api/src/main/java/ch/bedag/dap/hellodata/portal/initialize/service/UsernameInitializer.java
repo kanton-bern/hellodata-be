@@ -21,6 +21,7 @@ public class UsernameInitializer {
     public void initUsernames() {
         List<UserEntity> allByUsernameIsNull = userRepository.findAllByUsernameIsNull();
         for (UserEntity userEntity : allByUsernameIsNull) {
+            log.info("Initializing username for {}", userEntity.getEmail());
             UserRepresentation userRepresentationByEmail = keycloakService.getUserRepresentationByEmail(userEntity.getEmail());
             userEntity.setUsername(userRepresentationByEmail.getUsername());
             userRepository.save(userEntity);
