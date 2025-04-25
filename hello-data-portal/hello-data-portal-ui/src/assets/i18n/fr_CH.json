@@ -35,7 +35,7 @@
   "@Dalete faq": "Supprimer la FAQ",
   "@Dashboard": "Tableau de bord",
   "@Dashboard Overview": "Aperçu du tableau de bord",
-  "@Dashboard export started": "L'exportation du tableau de bord a commencé",
+  "@Dashboard export started": "L'exportation du tableau de bord a commencé. Veuillez patienter…",
   "@Dashboard import-export": "Import-export de tableaux de bord",
   "@Dashboard metadata updated": "Métadonnées du tableau de bord mises à jour",
   "@Dashboard permissions updated": "Autorisations du tableau de bord mises à jour",

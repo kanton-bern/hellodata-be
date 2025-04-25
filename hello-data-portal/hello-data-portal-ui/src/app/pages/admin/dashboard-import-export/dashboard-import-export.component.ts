@@ -61,6 +61,8 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   baseUrl = `${environment.portalApi}/superset/upload-dashboards/`;
 
+  instance: SubsystemIframeComponent;
+
   constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
@@ -74,6 +76,10 @@ export class DashboardImportExportComponent extends BaseComponent {
         }
       ]
     }));
+    const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+    this.instance = componentRef.instance;
+    this.instance.style = {"display": 'none'};
+    this.instance.delay = 600;
   }
 
   override ngOnInit(): void {
@@ -107,14 +113,12 @@ export class DashboardImportExportComponent extends BaseComponent {
     console.debug('Export dashboards', contextKey)
     const dashboards = this.selectedDashboardsMap.get(contextKey);
     if (dashboards) {
-      const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-      const instance = componentRef.instance;
-      instance.style = {"display": 'none'};
-      instance.delay = 600;
+      this.instance.style = {"display": 'none'};
+      this.instance.delay = 600;
       const idsString = dashboards.map(dashboard => dashboard.id).join(',');
       console.debug('ids?', idsString)
       const instanceUrl = dashboards[0].instanceUrl;
-      instance.url = `${instanceUrl}login/keycloak?next=${instanceUrl}api/v1/dashboard/export?q=!(${idsString})`;
+      this.instance.url = `${instanceUrl}login/keycloak?next=${instanceUrl}api/v1/dashboard/export?q=!(${idsString})`;
       this.store.dispatch(showInfo({message: '@Dashboard export started'}))
     }
   }
