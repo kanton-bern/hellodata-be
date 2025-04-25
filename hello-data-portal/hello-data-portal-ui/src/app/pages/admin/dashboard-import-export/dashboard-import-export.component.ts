@@ -38,8 +38,13 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {FileSelectEvent, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
-import {loadMyDashboards, uploadDashboardsError, uploadDashboardsSuccess} from "../../../store/my-dashboards/my-dashboards.action";
+import {
+  loadMyDashboards,
+  uploadDashboardsError,
+  uploadDashboardsSuccess
+} from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
+import {showInfo} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -110,6 +115,7 @@ export class DashboardImportExportComponent extends BaseComponent {
       console.debug('ids?', idsString)
       const instanceUrl = dashboards[0].instanceUrl;
       instance.url = `${instanceUrl}login/keycloak?next=${instanceUrl}api/v1/dashboard/export?q=!(${idsString})`;
+      this.store.dispatch(showInfo({message: '@Dashboard export started'}))
     }
   }
 

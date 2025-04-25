@@ -35,6 +35,7 @@
   "@Dalete faq": "Delete FAQ",
   "@Dashboard": "Dashboard",
   "@Dashboard Overview": "Dashboard overview",
+  "@Dashboard export started": "Dashboard export started",
   "@Dashboard import-export": "Dashboards import-export",
   "@Dashboard metadata updated": "Dashboard metadata updated",
   "@Dashboard permissions updated": "Dashboard permissions updated",
