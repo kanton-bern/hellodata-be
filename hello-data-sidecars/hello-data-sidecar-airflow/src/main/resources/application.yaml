@@ -39,7 +39,7 @@ hello-data:
     # enforce to be set on k8s externally
     name: "Airflow"
   sidecar:
-    pubish-interval-minutes: 10
+    publish-interval-minutes: 10
 
 spring:
   application:
