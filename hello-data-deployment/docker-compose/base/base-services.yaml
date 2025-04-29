@@ -748,5 +748,3 @@ services:
         condition: service_started
       hello-data-dbt-docs-sidecar:
         condition: service_started
-      hello-data-dbt-docs-sidecar:
-        condition: service_started
