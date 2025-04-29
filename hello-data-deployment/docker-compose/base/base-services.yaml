@@ -320,6 +320,7 @@ services:
       - postgres
       - keycloak
       - cloudbeaver
+      - hello-data-cloudbeaver-gateway
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -747,4 +748,6 @@ services:
       cloudbeaver:
         condition: service_started
       hello-data-dbt-docs-sidecar:
+        condition: service_started
+      hello-data-sidecar-cloudbeaver:
         condition: service_started
