@@ -706,10 +706,16 @@ services:
       - keycloak
       - smtp4dev
     depends_on:
-      - postgres
-      - keycloak
-      - redis
-      - nats
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      redis:
+        condition: service_started
+      nats:
+        condition: service_started
+      showcase-files-default-data-domain:
+        condition: service_started
     ports:
       - 8081:8081
     healthcheck:
@@ -736,6 +742,9 @@ services:
       - cloudbeaver
       - hello-data-dbt-docs-sidecar
     depends_on:
-      - hello-data-portal-api
-      - cloudbeaver
-      - hello-data-dbt-docs-sidecar
+      hello-data-portal-api:
+        condition: service_started
+      cloudbeaver:
+        condition: service_started
+      hello-data-dbt-docs-sidecar:
+        condition: service_started
