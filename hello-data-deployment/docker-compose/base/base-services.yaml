@@ -276,7 +276,8 @@ services:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     links:
       - postgres
     ports:
@@ -297,9 +298,12 @@ services:
       - "8087:8087"
       - "8082:8082"
     depends_on:
-      - postgres
-      - keycloak
-      - cloudbeaver
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      cloudbeaver:
+        condition: service_healthy
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -317,10 +321,14 @@ services:
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_CONTEXTS_1=Data Domain | Extra_Data_Domain | Extra Data Domain | true
     depends_on:
-      - postgres
-      - keycloak
-      - cloudbeaver
-      - hello-data-cloudbeaver-gateway
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      cloudbeaver:
+        condition: service_healthy
+      hello-data-cloudbeaver-gateway:
+        condition: service_started
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -391,8 +399,10 @@ services:
       - keycloak
       - hello-data-dbt-docs
     depends_on:
-      - nats
-      - sftpgo
+      nats:
+        condition: service_healthy
+      sftpgo:
+        condition: service_healthy
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -416,13 +426,20 @@ services:
       - postgres
       - keycloak
     depends_on:
-      - postgres
-      - keycloak
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
     volumes:
       - shared-data:/storage
     ports:
       - 8086:8086
     restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health/liveness" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
@@ -441,10 +458,14 @@ services:
       - keycloak
       - hello-data-dbt-docs
     depends_on:
-      - nats
-      - postgres
-      - keycloak
-      - hello-data-dbt-docs
+      nats:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      hello-data-dbt-docs:
+        condition: service_healthy
     restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -649,11 +670,12 @@ services:
       - keycloak
       - airflow-webserver
     depends_on:
-      - postgres
-      - keycloak
-      - redis
-      - nats
-      - airflow-webserver
+      redis:
+        condition: service_started
+      nats:
+        condition: service_started
+      airflow-webserver:
+        condition: service_healthy
 
   hello-data-monitoring-storage:
     platform: ${HD_PLATFORM}
@@ -682,7 +704,8 @@ services:
     links:
       - hello-data-portal-api
     depends_on:
-      - hello-data-portal-api
+      hello-data-portal-api:
+        condition: service_healthy
 
   hello-data-portal-api:
     platform: ${HD_PLATFORM}
@@ -708,9 +731,9 @@ services:
       - smtp4dev
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
       keycloak:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_started
       nats:
@@ -744,9 +767,9 @@ services:
       - hello-data-dbt-docs-sidecar
     depends_on:
       hello-data-portal-api:
-        condition: service_started
+        condition: service_healthy
       cloudbeaver:
-        condition: service_started
+        condition: service_healthy
       hello-data-dbt-docs-sidecar:
         condition: service_started
       hello-data-sidecar-cloudbeaver:
