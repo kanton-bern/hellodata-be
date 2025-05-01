@@ -115,36 +115,65 @@ public class UserService {
         email = email.toLowerCase(Locale.ROOT);
         log.info("Creating user. Email: {}, first name: {}, last name {}", email, firstName, lastName);
         validateEmailAlreadyExists(email);
+        boolean isFederated = origin != AdUserOrigin.LOCAL;
+        return handleUserCreation(email, firstName, lastName, isFederated);
+    }
+
+    @Transactional(readOnly = true)
+    public String handleUserCreation(String email, String firstName, String lastName, boolean isFederated) {
         String keycloakUserId;
         UserRepresentation userFoundInKeycloak = keycloakService.getUserRepresentationByEmail(email);
+        // If it is a local user we can create a new user in keycloak. Federated users are not created in keycloak
         if (userFoundInKeycloak == null) {
-            log.info("User {} doesn't not exist in the keycloak, creating", email);
-            UserRepresentation user = new UserRepresentation();
-            user.setUsername(email);
-            user.setEmail(email);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEnabled(true);
-            user.setRequiredActions(REQUIRED_ACTIONS);
-            keycloakUserId = keycloakService.createUser(user);
+            if (!isFederated) {
+                log.info("User {} doesn't not exist in the keycloak, creating", email);
+                UserRepresentation user = new UserRepresentation();
+                user.setUsername(email);
+                user.setEmail(email);
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+                user.setEnabled(true);
+                user.setRequiredActions(REQUIRED_ACTIONS);
+                keycloakUserId = keycloakService.createUser(user);
+            } else {
+                //For federated users that are not in keycloak yet, we will just fake the keycloak id for now
+                keycloakUserId = UUID.randomUUID().toString();
+            }
         } else {
+            //If the user already exists in keycloak, we will just use the id from keycloak
             log.info("User {} already exists in the keycloak, creating only in portal", userFoundInKeycloak.getId());
             keycloakUserId = userFoundInKeycloak.getId();
         }
+
+        String username_ = userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername();
+        String firstname_ = userFoundInKeycloak == null ? firstName : userFoundInKeycloak.getFirstName();
+        String lastname_ = userFoundInKeycloak == null ? lastName : userFoundInKeycloak.getLastName();
+
+        createPortalUserWithRoles(email, username_, firstname_, lastname_, isFederated, keycloakUserId);
+
+        if(isFederated){
+            createUserInSubsystems(keycloakUserId);
+        }
+        else {
+            createFederatedUserInSubsystems(email, username_, firstname_, lastname_);
+        }
+        return keycloakUserId;
+    }
+
+    private void createPortalUserWithRoles(String email, String username, String firstName, String lastName,
+                                           boolean isFederated, String keycloakUserId) {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(UUID.fromString(keycloakUserId));
         userEntity.setEmail(email);
-        userEntity.setUsername(userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername());
-        userEntity.setFirstName(userFoundInKeycloak == null ? firstName : userFoundInKeycloak.getFirstName());
-        userEntity.setLastName(userFoundInKeycloak == null ? lastName : userFoundInKeycloak.getLastName());
+        userEntity.setUsername(username);
+        userEntity.setFirstName(firstName);
+        userEntity.setLastName(lastName);
         userEntity.setEnabled(true);
         userEntity.setSuperuser(false);
-        userEntity.setFederated(origin != AdUserOrigin.LOCAL);
+        userEntity.setFederated(isFederated);
         userRepository.saveAndFlush(userEntity);
         roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
         roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);
-        createUserInSubsystems(keycloakUserId);
-        return keycloakUserId;
     }
 
     @Transactional(readOnly = true)
@@ -263,6 +292,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public void createUserInSubsystems(String userId) {
         SubsystemUserUpdate createUser = getSubsystemUserUpdate(userId);
+        createUser.setSendBackUsersList(false);
+        natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
+    }
+
+    @Transactional(readOnly = true)
+    public void createFederatedUserInSubsystems(String email, String userName, String firstName, String lastName) {
+        SubsystemUserUpdate createUser = getSubsystemUserUpdate(firstName, lastName, email, userName);
         createUser.setSendBackUsersList(false);
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
@@ -540,6 +576,16 @@ public class UserService {
     private SubsystemUserUpdate getSubsystemUserUpdate(String userId) {
         UserRepresentation representation = getUserRepresentation(userId);
         return getSubsystemUserUpdate(representation);
+    }
+
+    private SubsystemUserUpdate getSubsystemUserUpdate(String email, String username, String firstname, String lastname) {
+        SubsystemUserUpdate createUser = new SubsystemUserUpdate();
+        createUser.setFirstName(firstname);
+        createUser.setLastName(lastname);
+        createUser.setUsername(username);
+        createUser.setEmail(email);
+        createUser.setActive(true);
+        return createUser;
     }
 
     private void updateContextRoles(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
