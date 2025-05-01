@@ -82,7 +82,6 @@ public class CbUserResourceProviderService {
     public void publishUsers() {
         log.info("--> publishUsers()");
         PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
-        //ToDo: Remove this conversion to SupersetUsers, should use a generic interface
         List<User> users = userRepository.findAll();
         List<SubsystemUser> cbUsers = toSubsystemSetUser(users);
         if (podUtils != null) {
