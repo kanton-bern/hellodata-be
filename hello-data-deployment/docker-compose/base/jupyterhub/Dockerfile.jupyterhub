@@ -1,4 +1,4 @@
-ARG JUPYTERHUB_VERSION
+ARG JUPYTERHUB_VERSION=latest
 FROM quay.io/jupyterhub/jupyterhub:$JUPYTERHUB_VERSION
 
 # Install additional packages
