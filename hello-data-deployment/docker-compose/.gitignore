@@ -8,6 +8,7 @@ logs/
 /base/dags/
 /base/plugins/
 /base/smtp4dev-data/database.db
+/base/jupyterhub/data/
 /base/shared/Default_Data_Domain/dags/dbt_run/
 /base/shared/Default_Data_Domain/files/
 /base/shared/Default_Data_Domain/docs/compiled/showcase_tierstatistik/
