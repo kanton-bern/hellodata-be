@@ -53,7 +53,7 @@ c.JupyterHub.hub_ip = os.environ.get("HUB_IP", "jupyterhub")
 c.JupyterHub.hub_port = 8080
 
 # Persist hub data on volume mounted inside container
-c.JupyterHub.cookie_secret_file = "/data/jupyterhub_cookie_secret"
+c.JupyterHub.cookie_secret_file = "/srv/jupyterhub/shared_scripts/jupyterhub_cookie_secret"
 c.JupyterHub.db_url = "sqlite:////data/jupyterhub.sqlite"
 
 # Authenticate users with Native Authenticator

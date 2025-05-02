@@ -36,17 +36,16 @@ services:
         JUPYTERHUB_VERSION: latest
     restart: always
     container_name: jupyterhub-default-data-domain
-    networks:
-      - hello-data-network
     volumes:
       # The JupyterHub configuration file
       - "./base/jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro"
       # Bind Docker socket on the host, so we can connect to the daemon from
       # within the container
       - "/var/run/docker.sock:/var/run/docker.sock:rw"
-      # Bind Docker volume on host for JupyterHub database and cookie secrets
-      #- "jupyterhub-data:/data"
-      - "shared_scripts:/srv/jupyterhub/shared_scripts:ro"
+      # Bind Docker volume on host for cookie secrets
+      - "shared_scripts:/srv/jupyterhub/shared_scripts"
+      # mount folder for jupyterhub sqlite database
+      - "./base/jupyterhub/data:/data"
     ports:
       - "8000:8000"
     extra_hosts:
