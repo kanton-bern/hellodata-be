@@ -52,6 +52,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
+    links:
+      - keycloak
     environment:
       # This username will be a JupyterHub admin
       JUPYTERHUB_ADMIN: admin
