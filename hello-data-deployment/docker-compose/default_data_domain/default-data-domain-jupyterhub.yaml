@@ -78,6 +78,10 @@ services:
       OAUTH2_ALLOW_ALL: 'true'
       HUB_IP: jupyterhub-default-data-domain
       JUPYTERHUB_CRYPT_KEY: GTxQ9tNJ3v5TA3ZrmFs4ZtW0yF3a2nLn+f6Pd8c+Z5E=
+      DB_URL: postgres:5432/hd_metainfo
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      CONTEXT_KEY: Default_Data_Domain
 
   jupyterhub-proxy-default-data-domain:
     image: jupyterhub/configurable-http-proxy:latest

@@ -15,6 +15,7 @@ RUN python3 -m pip install --no-cache-dir \
     dockerspawner \
     oauthenticator \
     pyjwt \
+    psycopg2-binary \
     cryptography \
     jupyterlab-language-pack-de-DE \
     jupyterlab-language-pack-fr-FR

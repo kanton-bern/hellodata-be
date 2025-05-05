@@ -10,10 +10,32 @@ from jupyterhub.handlers import BaseHandler
 from oauthenticator.generic import GenericOAuthenticator
 from tornado import web
 from traitlets import default
+import sys
+
+from jupyterhub.utils import url_path_join
+from tornado.httpclient import AsyncHTTPClient
+import logging
+from tornado import web
+from jupyterhub.handlers import BaseHandler
+import jwt
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from tornado.ioloop import IOLoop
+from functools import partial
+import time
+from sqlalchemy.exc import OperationalError
+
+
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+# load the config object (satisfies linters)
 c = get_config()  # noqa: F821
+
+# Make sure that modules placed in the same directory as the jupyterhub config are added to the pythonpath
+configuration_directory = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, configuration_directory)
+
 
 # We rely on environment variables to configure JupyterHub so that we
 # avoid having to rebuild the JupyterHub container every time we change a
@@ -56,9 +78,6 @@ c.JupyterHub.hub_port = 8080
 c.JupyterHub.cookie_secret_file = "/srv/jupyterhub/shared_scripts/jupyterhub_cookie_secret"
 c.JupyterHub.db_url = "sqlite:////data/jupyterhub.sqlite"
 
-# Authenticate users with Native Authenticator
-# c.JupyterHub.authenticator_class = "nativeauthenticator.NativeAuthenticator"
-
 # Allow anyone to sign-up without approval
 c.NativeAuthenticator.open_signup = True
 
@@ -89,8 +108,14 @@ key_der_base64 = req.json()["public_key"]
 key_der = b64decode(key_der_base64.encode())
 public_key = serialization.load_der_public_key(key_der)
 
+# Database configuration
+db_conn_url = 'postgresql://' + os.environ['DB_USERNAME'] + ':' + os.environ['DB_PASSWORD'] + '@' + os.environ['DB_URL']
+engine = create_engine(db_conn_url)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-class BearerTokenAuthenticator(GenericOAuthenticator):
+
+
+class HelloDataBearerTokenAuthenticator(GenericOAuthenticator):
 
     async def authenticate(self, handler, data=None):
         logging.info('===> Authorization process started')
@@ -107,12 +132,15 @@ class BearerTokenAuthenticator(GenericOAuthenticator):
             # Decode the token
             decoded_token = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience='account')
         except jwt.exceptions.ExpiredSignatureError:
+            logging.error('!!!> Token has expired')
             raise web.HTTPError(401, "Token has expired")
         except jwt.exceptions.InvalidTokenError:
+            logging.error('!!!> Invalid token')
             raise web.HTTPError(403, "Invalid token")
 
         user_info = self.user_info_from_token_payload(decoded_token)
         if not user_info:
+            logging.error('!!!> Failed to fetch user info from token payload')
             raise web.HTTPError(403, "Failed to fetch user info from token payload")
 
         return user_info
@@ -121,6 +149,7 @@ class BearerTokenAuthenticator(GenericOAuthenticator):
         # Extract the username and any other necessary information from the token payload
         # Customize this method according to your token structure
         username = payload.get("preferred_username")
+        logging.info(f'!!!> Username: {username}')
         if not username:
             return None
 
@@ -132,81 +161,138 @@ class BearerTokenAuthenticator(GenericOAuthenticator):
             },
         }
 
+    async def check_user_authorization(self, email):
+        if not email:
+            return False
+        # Run database query in a separate thread to avoid blocking
+        loop = IOLoop.current()
+        authorized = await loop.run_in_executor(None, partial(self._db_check_authorization, email))
+        return authorized
 
-c.JupyterHub.authenticator_class = BearerTokenAuthenticator
+    def _db_check_authorization(self, email, retries=3):
+        for attempt in range(retries):
+            try:
+                logging.info(f'!!!> Attempt {attempt + 1} to check user authorization for email: {email}')
+                with SessionLocal() as session:
+                    query = text("""
+                        SELECT pr.permissions
+                        FROM user_ u
+                        JOIN user_portal_role upr ON u.id = upr.user_id
+                        JOIN portal_role pr ON pr.id = upr.portal_role_id
+                        WHERE u.email = :email
+                        AND upr.context_key = :context_key
+                    """)
+                    result = session.execute(query, {"email": email, "context_key": os.environ['CONTEXT_KEY']})
+
+                    # Convert the entire result to a string and check for 'DATA_JUPYTER'
+                    result_str = str(result.fetchall())
+                    logging.info(f'!!!> Result: {result_str}')
+                    return 'DATA_JUPYTER' in result_str
+            except OperationalError as e:
+                if attempt < retries - 1:
+                    time.sleep(2)  # Wait before retrying
+                    continue
+                else:
+                    raise e  # Reraise after max retries
+
+
+c.JupyterHub.authenticator_class = HelloDataBearerTokenAuthenticator
 
 
 # autologin handler
 class AutoLoginHandler(BaseHandler):
     async def get(self):
+        logging.info('===> AutoLoginHandler called')
         user = await self.get_current_user()
         if user:
+            logging.info(f'!!!> User {user.name} is already logged in')
             self.redirect(self.get_next_url(user))
         else:
+            logging.info('!!!> User not logged in, checking for token')
             token = self.get_cookie("auth.access_token")
             if token:
+                logging.info('!!!> Token found in cookie')
                 user = await self.login_user(token)
                 if user:
+                    logging.info(f'!!!> User {user.name} logged in successfully')
                     self.redirect(self.get_next_url(user))
                 else:
+                    logging.error('!!!> Unauthorized')
                     raise web.HTTPError(401, "Unauthorized")
             authorization_header = self.request.headers.get("Authorization")
+            logging.info(f'!!!> Authorization header: {authorization_header}')
             if authorization_header and authorization_header.startswith("Bearer "):
                 token = authorization_header.split(" ", 1)[1]
                 user = await self.login_user(token)
                 if user:
+                    logging.info(f'!!!> User {user.name} logged in successfully')
                     self.redirect(self.get_next_url(user))
                 else:
+                    logging.error('!!!> Unauthorized')
                     raise web.HTTPError(401, "Unauthorized")
             else:
+                logging.error('!!!> Authorization cookie missing')
                 raise web.HTTPError(401, "Authorization cookie missing")
 
     async def login_user(self, token):
         try:
             decoded_token = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience='account')
             user_info = self.authenticator.user_info_from_token_payload(decoded_token)
+            # Check user authorization in the database for DATA_JUPYTER permission
+            logging.info(f'!!! user_info: {user_info}')
+            is_authorized = await self.authenticator.check_user_authorization(
+                user_info['auth_state']['user_info']['email'])
+            logging.info(f'!!!> User {user_info["name"]} authorization status: {is_authorized}')
+            if not is_authorized:
+                logging.error(f'!!!> User {user_info["name"]} is not authorized')
+                raise web.HTTPError(403, "User is not authorized")
             user = await self.auth_to_user(user_info)
             self.set_login_cookie(user)
             return user
         except jwt.exceptions.ExpiredSignatureError:
+            logging.error('!!!> Token has expired')
             raise web.HTTPError(401, "Token has expired")
         except jwt.exceptions.InvalidTokenError:
+            logging.error('!!!> Invalid token')
             raise web.HTTPError(403, "Invalid token")
 
 
-def patch_handlers(jupyterhub_app):
-    web_app = jupyterhub_app.web_app
-    handlers = web_app.handlers[0][1]
-    for idx, handler in enumerate(handlers):
-        if handler[0].endswith('/login'):
-            handlers[idx] = (handler[0], AutoLoginHandler)
-            break
-    web_app.handlers[0] = (web_app.handlers[0][0], handlers)
-    logging.info("Patched handlers to use AutoLoginHandler")
+# # Update the patch_handlers function to use the new AutoLoginHandler
+# def patch_handlers(jupyterhub_app):
+#     logging.info("--------------------->>>>>>>>>>Patching handlers to use AutoLoginHandler")
+#     web_app = jupyterhub_app.web_app
+#     handlers = web_app.handlers[0][1]
+#     for idx, handler in enumerate(handlers):
+#         if handler[0].endswith('/login'):
+#             handlers[idx] = (handler[0], AutoLoginHandler)
+#             break
+#     web_app.handlers[0] = (web_app.handlers[0][0], handlers)
+#     logging.info("Patched handlers to use AutoLoginHandler with database check")
+#
+#
+# def on_jupyterhub_init(hub_app):
+#     logging.info(f'!!!> Hub-App: {hub_app}')
+#     patch_handlers(hub_app)
 
 
-def on_jupyterhub_init(hub_app):
-    setup_patches(hub_app)
+# Add an event hook to patch handlers after JupyterHub initializes
+# class CustomJupyterHub(JupyterHub):
+#     @default('config_file')
+#     def _default_config_file(self):
+#         return '/srv/jupyterhub/jupyterhub_config.py'
+#
+#     def init_hub(self):
+#         super().init_hub()
+#         on_jupyterhub_init(self)
+#
+#
+# if __name__ == "__main__":
+#     CustomJupyterHub.launch_instance()
 
 
 c.JupyterHub.extra_handlers = [
     (r'/custom/login', AutoLoginHandler),
 ]
-
-
-# Add an event hook to patch handlers after JupyterHub initializes
-class CustomJupyterHub(JupyterHub):
-    @default('config_file')
-    def _default_config_file(self):
-        return '/srv/jupyterhub/jupyterhub_config.py'
-
-    def init_hub(self):
-        super().init_hub()
-        on_jupyterhub_init(self)
-
-
-if __name__ == "__main__":
-    CustomJupyterHub.launch_instance()
 
 # CSP config
 c.JupyterHub.tornado_settings = {
