@@ -59,7 +59,6 @@ public class SupersetDashboard implements Serializable {
     private SubsystemUser createdBy;
     @JsonProperty("created_on_delta_humanized")
     private String createdOnDeltaHumanized;
-    private String css;
     @JsonProperty("is_managed_externally")
     private boolean isManagedExternally;
     private List<SubsystemUser> owners;

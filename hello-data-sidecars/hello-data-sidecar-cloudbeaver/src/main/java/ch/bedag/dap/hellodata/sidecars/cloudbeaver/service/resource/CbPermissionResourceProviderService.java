@@ -59,7 +59,7 @@ public class CbPermissionResourceProviderService {
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishPermissions() {
         log.info("--> publishPermissions()");
         PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();

@@ -36,37 +36,17 @@ hello-data:
     name: "Default superset instance"
     url: superset.local
   dashboard-export-check-script-location: '/app/export_check.py'
-  auth-server:
-    url: http://localhost:38080
-    realm: hellodata
-    client-id: frontend-client
   superset:
     host: localhost
     port: 8088
     admin-username: local-admin
     admin-password: local-admin
   sidecar:
-    pubish-interval-minutes: 10
+    publish-interval-minutes: 10
 
 spring:
   application:
     name: HelloDATA Sidecar for Superset
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: ${hello-data.auth-server.client-id}
-            authorization-grant-type: authorization_code
-            scope:
-              - openid
-        provider:
-          keycloak:
-            issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
-            user-name-attribute: preferred_username
-      resourceserver:
-        jwt:
-          issuer-uri: ${hello-data.auth-server.url}/realms/${hello-data.auth-server.realm}
   cloud:
     kubernetes:
       discovery:

@@ -6,6 +6,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardU
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.nats.client.Connection;
@@ -27,10 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +80,7 @@ public class UploadDashboardsFileListener {
                     return;
                 }
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
-                log.info("Passwords parameter send to API {}", new Gson().toJson(passwordsObject));
+                log.debug("Passwords parameter send to API ");
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 ackMessage(msg);
@@ -99,18 +97,61 @@ public class UploadDashboardsFileListener {
     }
 
     private JsonObject getPasswordsObject(File destinationFile) throws IOException {
-        JsonObject jsonElement = new JsonObject();
+        JsonObject jsonObject = new JsonObject();
         try (ZipFile zipFile = new ZipFile(destinationFile)) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 String name = zipEntry.getName();
-                if (name.contains("/databases/")) {
-                    jsonElement.addProperty(name.substring(name.indexOf("databases/")), "dummy");
+                if (name.contains("/databases/") && !zipEntry.isDirectory()) {
+                    log.info("Reading database entry: {}", name);
+                    try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+                        Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+                        fetchSqlAlchemyUriUser(parsed, name, jsonObject);
+                    }
                 }
             }
         }
-        return jsonElement;
+        return jsonObject;
+    }
+
+    private void fetchSqlAlchemyUriUser(Map<String, Object> parsed, String name, JsonObject jsonObject) {
+        Object uriObj = parsed.get("sqlalchemy_uri");
+        if (uriObj instanceof String sqlalchemyUri) {
+            String username = extractUsernameFromSqlalchemyUri(sqlalchemyUri);
+            if (username != null) {
+                String envVarName = username.toUpperCase() + "_PASSWORD";
+                //take password from environmental variable - has to be prepared earlier
+                String password = System.getenv(envVarName);
+                String databasePath = name.substring(name.indexOf("databases/"));
+                if (password != null) {
+                    log.info("Using password from env var '{}' for database '{}'", envVarName, name);
+                    jsonObject.addProperty(databasePath, password);
+                } else {
+                    log.warn("Environment variable '{}' not set, skipping database '{}'", envVarName, name);
+                    jsonObject.addProperty(databasePath, "dummy");
+                }
+            } else {
+                log.warn("Could not extract username from URI: {}", sqlalchemyUri);
+            }
+        }
+    }
+
+    private String extractUsernameFromSqlalchemyUri(String uri) {
+        try {
+            String afterProtocol = uri.substring(uri.indexOf("://") + 3);
+            int colonIndex = afterProtocol.indexOf(':');
+            int atIndex = afterProtocol.indexOf('@');
+
+            if (colonIndex != -1 && atIndex != -1 && colonIndex < atIndex) {
+                return afterProtocol.substring(0, colonIndex);
+            }
+        } catch (Exception e) {
+            log.error("Failed to parse sqlalchemy_uri: {}", uri, e);
+        }
+        return null;
     }
 
     private void ackMessage(Message msg) {

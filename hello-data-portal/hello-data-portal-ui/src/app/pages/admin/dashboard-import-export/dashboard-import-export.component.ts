@@ -38,8 +38,13 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {FileSelectEvent, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
-import {loadMyDashboards, uploadDashboardsError, uploadDashboardsSuccess} from "../../../store/my-dashboards/my-dashboards.action";
+import {
+  loadMyDashboards,
+  uploadDashboardsError,
+  uploadDashboardsSuccess
+} from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
+import {showError, showInfo, showSuccess} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -99,18 +104,57 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   exportDashboards(contextKey: string) {
-    console.debug('Export dashboards', contextKey)
+    console.debug('Export dashboards', contextKey);
     const dashboards = this.selectedDashboardsMap.get(contextKey);
-    if (dashboards) {
-      const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-      const instance = componentRef.instance;
-      instance.style = {"display": 'none'};
-      instance.delay = 600;
-      const idsString = dashboards.map(dashboard => dashboard.id).join(',');
-      console.debug('ids?', idsString)
-      const instanceUrl = dashboards[0].instanceUrl;
-      instance.url = `${instanceUrl}login/keycloak?next=${instanceUrl}api/v1/dashboard/export?q=!(${idsString})`;
+    console.debug('dashboards selected?', dashboards);
+
+    if (!dashboards || dashboards.length === 0) {
+      return;
     }
+
+    const idsString = dashboards.map(d => d.id).join(',');
+    const instanceUrl = dashboards[0].instanceUrl;
+    const exportApiUrl = `${instanceUrl}api/v1/dashboard/export?q=!(${idsString})`;
+
+    // Dispatch loader start
+    this.store.dispatch(showInfo({message: '@Dashboard export started'}));
+
+    // Fetch with cookies (if logged in)
+    fetch(exportApiUrl, {
+      method: 'GET',
+      credentials: 'include' // include cookies for auth
+    })
+      .then(async response => {
+        if (!response.ok) {
+          throw new Error(`Export failed with status ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const formatDateForFilename = (): string => {
+          const now = new Date();
+          const pad = (n: number): string => n.toString().padStart(2, '0');
+          return `${now.getFullYear()}_${pad(now.getMonth() + 1)}_${pad(now.getDate())}_${pad(now.getHours())}_${pad(now.getMinutes())}_${pad(now.getSeconds())}`;
+        };
+        const fileName = `dashboards_export_${formatDateForFilename()}.zip`;
+
+        const objectUrl: string = URL.createObjectURL(blob);
+        const a: HTMLAnchorElement = document.createElement('a') as HTMLAnchorElement;
+
+        a.href = objectUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+
+        document.body.removeChild(a);
+        URL.revokeObjectURL(objectUrl);
+
+        this.store.dispatch(showSuccess({ message: '@Dashboard export completed' }));
+
+      })
+      .catch(err => {
+        console.error('Dashboard export error:', err);
+        this.store.dispatch(showError({ error: 'Dashboard export failed' }));
+      });
   }
 
   toggleImportVisible(contextKey: string) {

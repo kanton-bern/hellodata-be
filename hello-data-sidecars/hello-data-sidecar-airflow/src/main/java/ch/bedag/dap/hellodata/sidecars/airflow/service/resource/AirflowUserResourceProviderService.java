@@ -76,7 +76,7 @@ public class AirflowUserResourceProviderService {
         publishUsers();
     }
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishUsers() throws URISyntaxException, IOException {
         log.info("--> publishUsers()");
         AirflowUsersResponse response = airflowClientProvider.getAirflowClientInstance().users();
