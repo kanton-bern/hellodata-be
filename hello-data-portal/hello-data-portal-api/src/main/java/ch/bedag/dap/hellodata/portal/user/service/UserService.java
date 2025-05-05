@@ -310,37 +310,55 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(false);
         userRepository.save(userEntity);
-        String authUserId = getAuthUserId(userId);
-        UserResource userResource = keycloakService.getUserResourceById(authUserId);
-        UserRepresentation representation = userResource.toRepresentation();
-        representation.setEnabled(false);
-        userResource.update(representation);
-        userResource.logout();
-        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
+        disableKeycloakUser(userId);
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
-        emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail(), getSelectedLanguageByEmail(representation.getEmail()));
+        emailNotificationService.notifyAboutUserDeactivation(userEntity.getFirstName(), userEntity.getEmail(), getSelectedLanguageByEmail(userEntity.getEmail()));
         return map(userEntity);
+    }
+
+    private void disableKeycloakUser(String userId) {
+        String authUserId = getAuthUserId(userId);
+        try {
+            UserResource userResource = keycloakService.getUserResourceById(authUserId);
+            UserRepresentation representation = userResource.toRepresentation();
+            representation.setEnabled(false);
+            userResource.update(representation);
+            userResource.logout();
+        }
+        catch (NotFoundException nfe) {
+            log.warn("User {} not found in keycloak, skipping keycloak-deactivation.", userId);
+        }
     }
 
     @Transactional
     public UserDto enableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
-        String authUserId = getAuthUserId(userId);
-        UserResource userResource = keycloakService.getUserResourceById(authUserId);
-        UserRepresentation representation = userResource.toRepresentation();
-        representation.setEnabled(true);
-        userResource.update(representation);
-        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
-        subsystemUserUpdate.setActive(true);
-        natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
+        enableKeycloakUser(userId);
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
+        subsystemUserUpdate.setActive(true);
+        natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
         synchronizeContextRolesWithSubsystems(userEntity, new HashMap<>());
-        emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail(), userEntity.getSelectedLanguage());
+        emailNotificationService.notifyAboutUserActivation(userEntity.getFirstName(), userEntity.getEmail(), userEntity.getSelectedLanguage());
         return map(userEntity);
+    }
+
+    private void enableKeycloakUser(String userId) {
+        String authUserId = getAuthUserId(userId);
+        try {
+            UserResource userResource = keycloakService.getUserResourceById(authUserId);
+            UserRepresentation representation = userResource.toRepresentation();
+            representation.setEnabled(true);
+            userResource.update(representation);
+        }
+        catch (NotFoundException nfe) {
+            log.warn("User {} not found in keycloak, skipping keycloak-activation.", userId);
+        }
     }
 
     @Transactional(readOnly = true)
