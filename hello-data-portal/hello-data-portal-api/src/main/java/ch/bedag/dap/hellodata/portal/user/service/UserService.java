@@ -631,14 +631,13 @@ public class UserService {
 
     private void notifyUserViaEmail(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         UserEntity userEntity = getUserEntity(userId);
-        UserRepresentation representation = getUserRepresentation(userId.toString());
         List<UserContextRoleDto> adminContextRoles = getAdminContextRoles(userEntity);
         if (!userEntity.isCreationEmailSent()) {
-            emailNotificationService.notifyAboutUserCreation(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
+            emailNotificationService.notifyAboutUserCreation(userEntity.getFirstName(), userEntity.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
             userEntity.setCreationEmailSent(true);
             userRepository.save(userEntity);
         } else {
-            emailNotificationService.notifyAboutUserRoleChanged(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
+            emailNotificationService.notifyAboutUserRoleChanged(userEntity.getFirstName(), userEntity.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
         }
     }
 
