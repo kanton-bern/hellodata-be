@@ -121,23 +121,16 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public String handleUserCreation(String email, String firstName, String lastName, boolean isFederated) {
-        String keycloakUserId;
         UserRepresentation userFoundInKeycloak = keycloakService.getUserRepresentationByEmail(email);
+        String keycloakUserId;
         // If it is a local user we can create a new user in keycloak. Federated users are not created in keycloak
-        if (userFoundInKeycloak == null) {
-            if (!isFederated) {
-                log.info("User {} doesn't not exist in the keycloak, creating", email);
-                UserRepresentation user = new UserRepresentation();
-                user.setUsername(email);
-                user.setEmail(email);
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                user.setEnabled(true);
-                user.setRequiredActions(REQUIRED_ACTIONS);
-                keycloakUserId = keycloakService.createUser(user);
-            } else {
-                //For federated users that are not in keycloak yet, we will just fake the keycloak id for now
+        if (null == userFoundInKeycloak) {
+            if (isFederated) {
+                //For federated users that are not in keycloak yet, we will just fake the keycloak id
                 keycloakUserId = UUID.randomUUID().toString();
+            } else {
+                log.info("User {} doesn't not exist in the keycloak, creating", email);
+                keycloakUserId = createKeycloakUser(email, firstName, lastName);
             }
         } else {
             //If the user already exists in keycloak, we will just use the id from keycloak
@@ -152,11 +145,24 @@ public class UserService {
         createPortalUserWithRoles(email, username_, firstname_, lastname_, isFederated, keycloakUserId);
 
         if(isFederated){
-            createUserInSubsystems(keycloakUserId);
-        }
-        else {
             createFederatedUserInSubsystems(email, username_, firstname_, lastname_);
         }
+        else {
+            createUserInSubsystems(keycloakUserId);
+        }
+        return keycloakUserId;
+    }
+
+    private String createKeycloakUser(String email, String firstName, String lastName) {
+        String keycloakUserId;
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(email);
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEnabled(true);
+        user.setRequiredActions(REQUIRED_ACTIONS);
+        keycloakUserId = keycloakService.createUser(user);
         return keycloakUserId;
     }
 
@@ -326,6 +332,7 @@ public class UserService {
             representation.setEnabled(false);
             userResource.update(representation);
             userResource.logout();
+            log.debug("User {} disabled and logged out from keycloak", userId);
         }
         catch (NotFoundException nfe) {
             log.warn("User {} not found in keycloak, skipping keycloak-deactivation.", userId);
@@ -355,6 +362,7 @@ public class UserService {
             UserRepresentation representation = userResource.toRepresentation();
             representation.setEnabled(true);
             userResource.update(representation);
+            log.debug("User {} enabled in keycloak", userId);
         }
         catch (NotFoundException nfe) {
             log.warn("User {} not found in keycloak, skipping keycloak-activation.", userId);
