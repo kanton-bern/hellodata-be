@@ -149,7 +149,7 @@ class HelloDataBearerTokenAuthenticator(GenericOAuthenticator):
         # Extract the username and any other necessary information from the token payload
         # Customize this method according to your token structure
         username = payload.get("preferred_username")
-        logging.info(f'!!!> Username: {username}')
+        logging.debug(f'!!!> Username: {username}')
         if not username:
             return None
 
@@ -172,7 +172,7 @@ class HelloDataBearerTokenAuthenticator(GenericOAuthenticator):
     def _db_check_authorization(self, email, retries=3):
         for attempt in range(retries):
             try:
-                logging.info(f'!!!> Attempt {attempt + 1} to check user authorization for email: {email}')
+                logging.debug(f'!!!> Attempt {attempt + 1} to check user authorization for email: {email}')
                 with SessionLocal() as session:
                     query = text("""
                         SELECT pr.permissions
@@ -186,7 +186,7 @@ class HelloDataBearerTokenAuthenticator(GenericOAuthenticator):
 
                     # Convert the entire result to a string and check for 'DATA_JUPYTER'
                     result_str = str(result.fetchall())
-                    logging.info(f'!!!> Result: {result_str}')
+                    logging.debug(f'!!!> Result: {result_str}')
                     return 'DATA_JUPYTER' in result_str
             except OperationalError as e:
                 if attempt < retries - 1:
@@ -205,22 +205,22 @@ class AutoLoginHandler(BaseHandler):
         logging.info('===> AutoLoginHandler called')
         user = await self.get_current_user()
         if user:
-            logging.info(f'!!!> User {user.name} is already logged in')
+            logging.debug(f'!!!> User {user.name} is already logged in')
             self.redirect(self.get_next_url(user))
         else:
-            logging.info('!!!> User not logged in, checking for token')
+            logging.debug('!!!> User not logged in, checking for token')
             token = self.get_cookie("auth.access_token")
             if token:
-                logging.info('!!!> Token found in cookie')
+                logging.debug('!!!> Token found in cookie')
                 user = await self.login_user(token)
                 if user:
-                    logging.info(f'!!!> User {user.name} logged in successfully')
+                    logging.debug(f'!!!> User {user.name} logged in successfully')
                     self.redirect(self.get_next_url(user))
                 else:
                     logging.error('!!!> Unauthorized')
                     raise web.HTTPError(401, "Unauthorized")
             authorization_header = self.request.headers.get("Authorization")
-            logging.info(f'!!!> Authorization header: {authorization_header}')
+            logging.debug(f'!!!> Authorization header: {authorization_header}')
             if authorization_header and authorization_header.startswith("Bearer "):
                 token = authorization_header.split(" ", 1)[1]
                 user = await self.login_user(token)
@@ -239,10 +239,10 @@ class AutoLoginHandler(BaseHandler):
             decoded_token = jwt.decode(token, public_key, algorithms=['HS256', 'RS256'], audience='account')
             user_info = self.authenticator.user_info_from_token_payload(decoded_token)
             # Check user authorization in the database for DATA_JUPYTER permission
-            logging.info(f'!!! user_info: {user_info}')
+            logging.debug(f'!!! user_info: {user_info}')
             is_authorized = await self.authenticator.check_user_authorization(
                 user_info['auth_state']['user_info']['email'])
-            logging.info(f'!!!> User {user_info["name"]} authorization status: {is_authorized}')
+            logging.debug(f'!!!> User {user_info["name"]} authorization status: {is_authorized}')
             if not is_authorized:
                 logging.error(f'!!!> User {user_info["name"]} is not authorized')
                 raise web.HTTPError(403, "User is not authorized")
@@ -255,39 +255,6 @@ class AutoLoginHandler(BaseHandler):
         except jwt.exceptions.InvalidTokenError:
             logging.error('!!!> Invalid token')
             raise web.HTTPError(403, "Invalid token")
-
-
-# # Update the patch_handlers function to use the new AutoLoginHandler
-# def patch_handlers(jupyterhub_app):
-#     logging.info("--------------------->>>>>>>>>>Patching handlers to use AutoLoginHandler")
-#     web_app = jupyterhub_app.web_app
-#     handlers = web_app.handlers[0][1]
-#     for idx, handler in enumerate(handlers):
-#         if handler[0].endswith('/login'):
-#             handlers[idx] = (handler[0], AutoLoginHandler)
-#             break
-#     web_app.handlers[0] = (web_app.handlers[0][0], handlers)
-#     logging.info("Patched handlers to use AutoLoginHandler with database check")
-#
-#
-# def on_jupyterhub_init(hub_app):
-#     logging.info(f'!!!> Hub-App: {hub_app}')
-#     patch_handlers(hub_app)
-
-
-# Add an event hook to patch handlers after JupyterHub initializes
-# class CustomJupyterHub(JupyterHub):
-#     @default('config_file')
-#     def _default_config_file(self):
-#         return '/srv/jupyterhub/jupyterhub_config.py'
-#
-#     def init_hub(self):
-#         super().init_hub()
-#         on_jupyterhub_init(self)
-#
-#
-# if __name__ == "__main__":
-#     CustomJupyterHub.launch_instance()
 
 
 c.JupyterHub.extra_handlers = [
