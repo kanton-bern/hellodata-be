@@ -81,8 +81,20 @@ logging.getLogger(__name__).setLevel(logging.DEBUG)
 logging.getLogger('flask_appbuilder.security.manager').setLevel(logging.DEBUG)
 logging.getLogger('flask_appbuilder.security').setLevel(logging.DEBUG)
 
-LETTERS_AND_DIGITS = string.ascii_letters + string.digits
-OIDC_ISSUER = 'http://keycloak:8080/realms/hellodata'
+
+keycloak_metadata_url = os.getenv('KEYCLOAK_SERVER_METADATA_URL',
+                                  'http://keycloak.localhost:38080/realms/hellodata/.well-known/openid-configuration')
+api_base_url = os.getenv('KEYCLOAK_API_BASE_URL', 'http://keycloak.localhost:38080/realms/hellodata/protocol/')
+
+log.info('keycloak_metadata_url')
+log.info(keycloak_metadata_url)
+log.info('api_base_url')
+log.info(api_base_url)
+
+# Custom security manager
+# ---------------------------------------------------
+
+OIDC_ISSUER = 'http://keycloak.localhost:38080/realms/hellodata'
 req = requests.get(OIDC_ISSUER)
 key_der_base64 = req.json()["public_key"]
 key_der = b64decode(key_der_base64.encode())
@@ -102,6 +114,9 @@ def FLASK_APP_MUTATOR(app):
         registration_url="http://monitoring-sba:8080/instances",
         registration_auth=BasicAuth("user", "password")
     )
+
+
+LETTERS_AND_DIGITS = string.ascii_letters + string.digits
 
 
 def generate_random_string(length=30):
@@ -126,7 +141,7 @@ class HdAuthOAuthView(AuthView):
             if decoded_token is not None:
                 ab_security_manager = self.appbuilder.sm
                 userinfo = {
-                    "username": decoded_token.get("preferred_username"),
+                    "username": decoded_token.get("email"),
                     "email": decoded_token.get("email"),
                     "first_name": decoded_token.get("given_name"),
                     "last_name": decoded_token.get("family_name"),
@@ -191,6 +206,13 @@ class HdAuthOAuthView(AuthView):
         try:
             self.appbuilder.sm.set_oauth_session(provider, resp)
             userinfo = self.appbuilder.sm.oauth_user_info(provider, resp)
+            log.info("-------------------------> User info: {0}".format(userinfo))
+            username = userinfo.get("username")
+            email = userinfo.get("email")
+            log.info("-------------------------> User name: {0}".format(username))
+            log.info("-------------------------> User email: {0}".format(email))
+            userinfo["username"] = email
+            log.info("-------------------------> User info: {0}".format(userinfo))
         except Exception as e:
             log.error("Error returning OAuth user info: {0}".format(e))
             user = None
@@ -256,14 +278,7 @@ AUTH_TYPE = AUTH_OAUTH
 
 logging.getLogger('flask_appbuilder.security.manager').setLevel(logging.DEBUG)
 
-keycloak_metadata_url = os.getenv('KEYCLOAK_SERVER_METADATA_URL',
-                                  'http://keycloak:8080/realms/hellodata/.well-known/openid-configuration')
-api_base_url = os.getenv('KEYCLOAK_API_BASE_URL', 'http://keycloak:8080/realms/hellodata/protocol/')
 
-log.info('keycloak_metadata_url')
-log.info(keycloak_metadata_url)
-log.info('api_base_url')
-log.info(api_base_url)
 
 OAUTH_PROVIDERS = [
     {
@@ -289,9 +304,15 @@ AUTH_USER_REGISTRATION = True
 # The default user self registration role
 AUTH_USER_REGISTRATION_ROLE_JMESPATH = "contains(['admin@hellodata.ch'], email) && 'Admin' || 'BI_VIEWER'"
 FAB_ADD_SECURITY_API = True
+SESSION_REFRESH_EACH_REQUEST = True
+
+
+# --Enable these to add custom Securitymanager---------------------
 SECURITY_MANAGER_CLASS = HdSecurityManager
 CUSTOM_SECURITY_MANAGER = HdSecurityManager
-SESSION_REFRESH_EACH_REQUEST = True
+# --Enable these to add custom Securitymanager---------------------
+
+
 
 TALISMAN_ENABLED = False
 TALISMAN_CONFIG = {
