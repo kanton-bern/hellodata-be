@@ -46,32 +46,32 @@ RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRI
     rm geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
 
 # Install requirements for superset
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && uv pip install --no-cache authlib==1.5.2 psycopg2-binary==2.9.10 redis==5.2.1 jmespath==1.0.1 gevent
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && pip install --no-cache authlib==1.5.2 psycopg2-binary==2.9.10 redis==5.2.1 jmespath==1.0.1 gevent
 
 # install additional drivers
 # Find which driver you need based on the analytics database you want to connect to here:
 # https://superset.apache.org/installation.html#database-dependencies
 # SqlServer
-RUN uv pip install pymssql
+RUN pip install pymssql
 # psycopg2
-RUN uv pip install psycopg2
+RUN pip install psycopg2
 # oracle
-RUN uv pip install cx_Oracle
+RUN pip install cx_Oracle
 # statsd
-RUN uv pip install statsd
+RUN pip install statsd
 
 # Flower is a web based tool for monitoring the Celery cluster
-RUN uv pip install flower
+RUN pip install flower
 
 # Monitoring service with https://github.com/SolarEdgeTech/pyctuator
-RUN uv pip install pyctuator
+RUN pip install pyctuator
 
 # CSP https://superset.apache.org/docs/security/
 # https://pypi.org/project/flask-talisman/
-RUN uv pip install flask-talisman
+RUN pip install flask-talisman
 
 # CORS
-RUN uv pip install flask-cors
+RUN pip install flask-cors
 
 ##################### Add Liquibase to manage custom database scripts ######################
 # Make /liquibase directory and change owner to superset
