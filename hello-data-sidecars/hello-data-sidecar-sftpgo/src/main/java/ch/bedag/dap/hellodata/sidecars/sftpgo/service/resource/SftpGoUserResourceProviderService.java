@@ -43,7 +43,7 @@ public class SftpGoUserResourceProviderService {
         publishUsers();
     }
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishUsers() {
         log.info("--> publishUsers()");
         List<User> allUsers = sftpGoService.getAllUsers();

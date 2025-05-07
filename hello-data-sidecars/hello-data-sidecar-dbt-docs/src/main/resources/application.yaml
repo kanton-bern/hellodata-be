@@ -32,7 +32,7 @@ hello-data:
     name: "Default dbt docs instance"
     url: dbt-docs.local
   sidecar:
-    pubish-interval-minutes: 10
+    publish-interval-minutes: 10
 spring:
   application:
     name: HelloDATA Sidecar for dbt docs

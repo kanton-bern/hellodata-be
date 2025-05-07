@@ -77,7 +77,7 @@ public class CbUserResourceProviderService {
         publishUsers();
     }
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     @Transactional(readOnly = true)
     public void publishUsers() {
         log.info("--> publishUsers()");
