@@ -141,8 +141,8 @@ export class AuthEffects {
         if (currentUserAuthData && !currentUserAuthData.userDisabled) {
           return of(fetchPermissionSuccess({currentUserAuthData}))
         }
-        console.debug("User disabled, logging out!")
-        return of(logout())
+        console.error("!!! User disabled, logging out !!!");
+        return of(logout());
       }),
       catchError(e => of(authError(e)))
     )
@@ -151,8 +151,7 @@ export class AuthEffects {
   loginComplete$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loginComplete),
-      switchMap(() => this._usersManagementService.getCurrentAuthData()),
-      switchMap((currentUserAuthData) => of(fetchPermissionSuccess({currentUserAuthData}))),
+      switchMap(() => of(checkProfile())),
       catchError(e => of(authError(e)))
     )
   });
