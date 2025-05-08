@@ -43,7 +43,8 @@ import {
   setActiveTranslocoLanguage,
   setAvailableLanguages,
   setDefaultLanguage,
-  setSelectedLanguage
+  setSelectedLanguage,
+  userForbidden
 } from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
@@ -142,7 +143,7 @@ export class AuthEffects {
           return of(fetchPermissionSuccess({currentUserAuthData}))
         }
         console.error("!!! User disabled !!!");
-        return of(navigate({url: 'forbidden'}));
+        return of(userForbidden());
       }),
       catchError(e => of(authError(e)))
     )
