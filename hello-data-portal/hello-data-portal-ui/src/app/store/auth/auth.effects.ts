@@ -141,8 +141,8 @@ export class AuthEffects {
         if (currentUserAuthData && !currentUserAuthData.userDisabled) {
           return of(fetchPermissionSuccess({currentUserAuthData}))
         }
-        console.error("!!! User disabled, logging out !!!");
-        return of(logout());
+        console.error("!!! User disabled !!!");
+        return of(navigate({url: 'forbidden'}));
       }),
       catchError(e => of(authError(e)))
     )
