@@ -33,7 +33,8 @@ import {
   logout,
   setAvailableLanguages,
   setDefaultLanguage,
-  setSelectedLanguage
+  setSelectedLanguage,
+  userForbidden
 } from "./auth.action";
 import {createReducer, on} from "@ngrx/store";
 
@@ -93,6 +94,15 @@ export const authReducer = createReducer(
     return {
       ...state,
       contextRoles: contextRoles
+    };
+  }),
+  on(userForbidden, (state: AuthState): AuthState => {
+    return {
+      ...state,
+      contextRoles: [],
+      permissions: [],
+      isSuperuser: false,
+      userDisabled: true
     };
   }),
 );
