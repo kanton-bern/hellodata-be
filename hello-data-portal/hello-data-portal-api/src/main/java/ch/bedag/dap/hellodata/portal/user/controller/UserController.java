@@ -224,7 +224,7 @@ public class UserController {
     @GetMapping("search/{email}")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public List<AdUserDto> searchUser(@PathVariable String email) {
-        return userService.searchUser(email);
+        return userService.searchUserOmitCreated(email);
     }
 
     /**
