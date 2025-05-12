@@ -108,6 +108,7 @@ public class BatchUsersInvitationService {
     private void createOrUpdateUsers(List<BatchUpdateContextRolesForUserDto> users, List<UserDto> allUsers, List<RoleDto> allRoles, ContextsDto availableContexts) throws InterruptedException {
         for (BatchUpdateContextRolesForUserDto user : users) {
             List<AdUserDto> usersSearched = this.userService.searchUser(user.getEmail());
+            log.info("Found {} user(s) by email {}: {}", usersSearched.size(), user.getEmail(), usersSearched);
             Optional<AdUserDto> any = usersSearched.stream().findAny();
             Optional<AdUserDto> firstAD = usersSearched.stream().filter(adUserDto -> adUserDto.getOrigin() != AdUserOrigin.LOCAL).findFirst();
             AdUserDto adUserDto = firstAD.orElseGet(any::orElseThrow);
