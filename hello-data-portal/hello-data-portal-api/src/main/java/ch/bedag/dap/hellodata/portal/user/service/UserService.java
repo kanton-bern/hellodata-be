@@ -567,10 +567,11 @@ public class UserService {
         return partition;
     }
 
+    //ToDo: Fix Http 401 when accessing Superset API (due to username now being email-address)
     private UserContextRoleUpdate getUserContextRoleUpdate(UserEntity userEntity, boolean sendBackUsersList) {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
         userContextRoleUpdate.setEmail(userEntity.getEmail());
-        userContextRoleUpdate.setUsername(userEntity.getUsername());
+        userContextRoleUpdate.setUsername(userEntity.getEmail());
         userContextRoleUpdate.setFirstName(userEntity.getFirstName());
         userContextRoleUpdate.setLastName(userEntity.getLastName());
         userContextRoleUpdate.setActive(userEntity.isEnabled());
@@ -593,7 +594,7 @@ public class UserService {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
         createUser.setFirstName(representation.getFirstName());
         createUser.setLastName(representation.getLastName());
-        createUser.setUsername(representation.getUsername().toLowerCase(Locale.ROOT));
+        createUser.setUsername(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setEmail(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setActive(representation.isEnabled());
         return createUser;
@@ -608,7 +609,7 @@ public class UserService {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
         createUser.setFirstName(firstname);
         createUser.setLastName(lastname);
-        createUser.setUsername(username);
+        createUser.setUsername(email);
         createUser.setEmail(email);
         createUser.setActive(true);
         return createUser;
@@ -698,7 +699,7 @@ public class UserService {
         try {
             SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = new SupersetDashboardsForUserUpdate();
             UserEntity userEntity = getUserEntity(userId);
-            supersetDashboardsForUserUpdate.setSupersetUserName(userEntity.getUsername());
+            supersetDashboardsForUserUpdate.setSupersetUserName(userEntity.getEmail());
             supersetDashboardsForUserUpdate.setSupersetUserEmail(userEntity.getEmail());
             supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
             supersetDashboardsForUserUpdate.setSupersetFirstName(userEntity.getFirstName());
