@@ -34,7 +34,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 public class SupersetDashboardWithMetadataDto extends SupersetDashboardDto {
 
     private boolean isCurrentUserAdmin;
@@ -56,4 +55,13 @@ public class SupersetDashboardWithMetadataDto extends SupersetDashboardDto {
         this.isCurrentUserEditor = isCurrentUserEditor;
         this.isCurrentUserViewer = isCurrentUserViewer;
     }
+
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

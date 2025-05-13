@@ -31,13 +31,14 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class SupersetDashboardDto {
-
+    @EqualsAndHashCode.Include
     private int id;
     private String dashboardTitle;
     private String dashboardUrlPath;
