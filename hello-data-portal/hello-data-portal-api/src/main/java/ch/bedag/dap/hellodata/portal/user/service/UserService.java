@@ -275,7 +275,7 @@ public class UserService {
         SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
         UserRepresentation userRepresentation = userResource.toRepresentation();
         subsystemUserDelete.setEmail(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
-        subsystemUserDelete.setUsername(userRepresentation.getUsername());
+        subsystemUserDelete.setUsername(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
         if (deleteUsersInProvider && !isUserFederated.get()) {
             userResource.remove();
         }
