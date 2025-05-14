@@ -62,8 +62,7 @@ public class UpdateUserContextRoleConsumer {
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
     public void subscribe(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("Update user context role received {}", userContextRoleUpdate);
-        Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCaseAndUsernameIgnoreCase(userContextRoleUpdate.getEmail(),
-                userContextRoleUpdate.getUsername());
+        Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(userContextRoleUpdate.getEmail());
         List<UserContextRoleUpdate.ContextRole> domainContextRoles = userContextRoleUpdate.getContextRoles(); // Filter by context necessary? Only BD is available here
         if (userEntityByEmail.isPresent()) {
             UserEntity userEntity = userEntityByEmail.get();
