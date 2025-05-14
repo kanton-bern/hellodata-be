@@ -45,6 +45,7 @@ public class SupersetDashboardDto {
     private boolean published;
 
     private List<SubsystemRole> roles;
+    @EqualsAndHashCode.Include
     private String slug;
     private String status;
 
@@ -53,6 +54,8 @@ public class SupersetDashboardDto {
     private String instanceName;
     private String instanceUrl;
     private String contextName;
+
+    @EqualsAndHashCode.Include
     private String contextKey;
     private UUID contextId;
     private String compositeId;
@@ -72,5 +75,18 @@ public class SupersetDashboardDto {
         this.contextId = contextId;
         this.contextKey = contextKey;
         this.compositeId = this.contextName + "_" + this.instanceName + "_" + this.dashboardTitle + "_" + this.id;
+    }
+
+    @Override
+    public String toString() {
+        return "SupersetDashboardDto{" +
+                "id=" + id +
+                ", dashboardTitle='" + dashboardTitle + '\'' +
+                ", published=" + published +
+                ", slug='" + slug + '\'' +
+                ", status='" + status + '\'' +
+                ", instanceName='" + instanceName + '\'' +
+                ", contextKey='" + contextKey + '\'' +
+                '}';
     }
 }
