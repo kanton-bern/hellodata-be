@@ -55,6 +55,7 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -257,7 +258,6 @@ public class UserService {
         if (SecurityUtils.getCurrentUserId() == null || userId.equals(SecurityUtils.getCurrentUserId().toString())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
         }
-        UserResource userResource = getUserResource(userId);
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
         AtomicBoolean isUserFederated = new AtomicBoolean(false);
         userEntityResult.ifPresentOrElse(
@@ -269,17 +269,27 @@ public class UserService {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found");//NOSONAR
                 }
         );
+        deleteKeycloakUser(userEntityResult.get(), isUserFederated.get());
+        SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
+        String email = userEntityResult.get().getEmail().toLowerCase(Locale.ROOT);
+        subsystemUserDelete.setEmail(email);
+        subsystemUserDelete.setUsername(email);
+        natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
+    }
+
+    private void deleteKeycloakUser(UserEntity userEntity, boolean isUserFederated) {
+        UserResource userResource = getUserResource(userEntity);
         if (userResource == null) {
+            if(isUserFederated) {
+                return;
+            }
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
         }
-        SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
-        UserRepresentation userRepresentation = userResource.toRepresentation();
-        subsystemUserDelete.setEmail(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
-        subsystemUserDelete.setUsername(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
-        if (deleteUsersInProvider && !isUserFederated.get()) {
-            userResource.remove();
+        else{
+            if (deleteUsersInProvider && !isUserFederated) {
+                userResource.remove();
+            }
         }
-        natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }
 
     @Transactional(readOnly = true)
@@ -804,8 +814,8 @@ public class UserService {
         return result;
     }
 
-    private UserResource getUserResource(String userId) {
-        String authUserId = getAuthUserId(userId);
+    private UserResource getUserResource(@NotNull UserEntity userEntity) {
+        String authUserId = userEntity.getAuthId() == null ? userEntity.getId().toString() : userEntity.getAuthId();
         return keycloakService.getUserResourceById(authUserId);
     }
 
