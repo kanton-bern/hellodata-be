@@ -30,7 +30,7 @@ public class AirflowSyncUsersConsumer {
         stopWatch.start();
         log.info("[SYNC_USERS] Started users synchronization");
         List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
-        userContextRoleUpdates.parallelStream().forEach(userContextRoleUpdate -> {
+        for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
             try {
                 AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
                 List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
@@ -39,7 +39,7 @@ public class AirflowSyncUsersConsumer {
             } catch (Exception e) {
                 log.error("Could not synchronize username {}, email {}", userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail(), e);
             }
-        });
+        }
         log.info("[SYNC_USERS] Finished users synchronization. Operation took {}", stopWatch.formatTime());
     }
 }
