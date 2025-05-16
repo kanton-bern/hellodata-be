@@ -43,6 +43,7 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
                             Permission.RENAME,
                             Permission.OVERWRITE,
                             Permission.RENAME_DIRS,
+                            Permission.UPLOAD,
                             Permission.COPY,
                             Permission.CREATE_DIRS));
             sftpGoService.createGroup(dataDomainKey, subContext.getName(), groupName + VIEWER_GROUP_POSTFIX,
