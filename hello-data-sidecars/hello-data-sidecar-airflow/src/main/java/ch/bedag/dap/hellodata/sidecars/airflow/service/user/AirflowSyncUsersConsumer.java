@@ -13,6 +13,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.SYNC_USERS;
 
@@ -25,21 +26,30 @@ public class AirflowSyncUsersConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L)
-    public void subscribe(AllUsersContextRoleUpdate allUsersContextRoleUPdate) {
+    public void subscribe(AllUsersContextRoleUpdate allUsersContextRoleUpdate) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         log.info("[SYNC_USERS] Started users synchronization");
-        List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
-        for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
-            try {
-                AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
-                List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
-                log.info("Update user context roles {}", userContextRoleUpdate);
-                airflowUserContextRoleConsumer.updateUserRoles(userContextRoleUpdate, airflowClient, allAirflowRoles);
-            } catch (Exception e) {
-                log.error("Could not synchronize username {}, email {}", userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail(), e);
-            }
-        }
+
+        List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUpdate.getUserContextRoleUpdates();
+
+        // Run all tasks in parallel
+        List<CompletableFuture<Void>> futures = userContextRoleUpdates.stream()
+                .map(userContextRoleUpdate -> CompletableFuture.runAsync(() -> {
+                    try {
+                        AirflowClient airflowClient = airflowClientProvider.getAirflowClientInstance();
+                        List<AirflowRole> allAirflowRoles = CollectionUtils.emptyIfNull(airflowClient.roles().getRoles()).stream().toList();
+                        log.info("Update user context roles {}", userContextRoleUpdate);
+                        airflowUserContextRoleConsumer.updateUserRoles(userContextRoleUpdate, airflowClient, allAirflowRoles);
+                    } catch (Exception e) {
+                        log.error("Could not synchronize username {}, email {}", userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail(), e);
+                    }
+                }))
+                .toList();
+
+        // Wait for all tasks to complete
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
         log.info("[SYNC_USERS] Finished users synchronization. Operation took {}", stopWatch.formatTime());
     }
 }
