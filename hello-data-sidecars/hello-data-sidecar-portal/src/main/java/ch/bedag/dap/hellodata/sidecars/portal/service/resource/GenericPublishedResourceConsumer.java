@@ -70,7 +70,7 @@ public class GenericPublishedResourceConsumer {
         }
         log.info("Resource saved: {}", resource);
         if(hdResource instanceof UserResource ur) {
-            log.info("User resource saved: {}", ur);
+            log.info("User resource saved. Subsystemusers: {}", ur.getData());
         }
         return saveEntity(resource);
     }
