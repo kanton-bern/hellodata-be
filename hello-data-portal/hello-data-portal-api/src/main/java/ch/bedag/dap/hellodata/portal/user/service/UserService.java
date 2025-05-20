@@ -314,7 +314,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public void createFederatedUserInSubsystems(String email, String userName, String firstName, String lastName) {
-        SubsystemUserUpdate createUser = getSubsystemUserUpdate(firstName, lastName, email, userName);
+        SubsystemUserUpdate createUser = getSubsystemUserUpdate(email, userName, firstName, lastName);
         createUser.setSendBackUsersList(false);
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
@@ -616,6 +616,7 @@ public class UserService {
     }
 
     private SubsystemUserUpdate getSubsystemUserUpdate(String email, String username, String firstname, String lastname) {
+        log.info("Creating user in subsystem. Email: {}, first name: {}, last name: {} (username: {})", email, firstname, lastname, username);
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
         createUser.setFirstName(firstname);
         createUser.setLastName(lastname);
