@@ -92,9 +92,11 @@ public class UpdateUserContextRoleConsumer {
             HdRoleName roleName = contextRole.getRoleName();
             String contextKey = contextRole.getContextKey();
             SystemDefaultPortalRoleName portalRoleName = getSystemDefaultPortalRoleName(roleName);
+            log.info("Updating user {} with context role {} for context {}", userEntity.getEmail(), roleName, contextKey);
             if (portalRoleName != null) {
                 Optional<PortalRoleEntity> role = portalRoleRepository.findByName(portalRoleName.name());
                 if (role.isPresent()) {
+                    log.info("Found portal role {}", role.get().getName());
                     UserPortalRoleEntity userPortalRoleEntity = new UserPortalRoleEntity();
                     userPortalRoleEntity.setRole(role.get());
                     userPortalRoleEntity.setUser(userEntity);
