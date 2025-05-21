@@ -8,7 +8,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResou
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.Permission;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +19,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_APP
 
 @Log4j2
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SftpGoPublishedAppInfoResourcesConsumer {
 
     public static final String ADMIN_GROUP_POSTFIX = "-admin";
@@ -25,6 +27,9 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
     public static final String VIEWER_GROUP_POSTFIX = "-viewer";
 
     private final SftpGoService sftpGoService;
+
+    @Value("${hello-data.sftpgo.viewer-disabled}")
+    private boolean viewerDisabled;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_APP_INFO_RESOURCES)

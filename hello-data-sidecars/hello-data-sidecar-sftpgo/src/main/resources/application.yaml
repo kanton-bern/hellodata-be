@@ -36,6 +36,7 @@ hello-data:
     base-url: http://localhost:8090
     admin-username: admin
     admin-password: admin
+    viewer-disabled: true
   s3-connections:
     - context-key: Default_Data_Domain
       endpoint: http://minio:9000
