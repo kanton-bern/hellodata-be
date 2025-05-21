@@ -384,7 +384,7 @@ services:
     extra_hosts:
       - "keycloak.localhost:host-gateway"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8090/api/v1/ping" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8090/healthz" ]
       interval: 30s
       timeout: 10s
       retries: 5
