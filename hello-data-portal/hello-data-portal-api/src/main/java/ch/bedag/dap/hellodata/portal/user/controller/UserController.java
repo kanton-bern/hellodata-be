@@ -103,7 +103,15 @@ public class UserController {
             if (sortParams.length == 2) {
                 String sortField = sortParams[0];
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
-                sorting = Sort.by(direction, sortField);
+                if (sortField.equals("lastAccess")) {
+                    if (direction == Sort.Direction.DESC) {
+                        sorting = Sort.by(Sort.Order.desc(sortField).nullsLast());
+                    } else {
+                        sorting = Sort.by(Sort.Order.asc(sortField).nullsFirst());
+                    }
+                } else {
+                    sorting = Sort.by(direction, sortField);
+                }
             }
         }
         Pageable pageable = PageRequest.of(page, size, sorting);
