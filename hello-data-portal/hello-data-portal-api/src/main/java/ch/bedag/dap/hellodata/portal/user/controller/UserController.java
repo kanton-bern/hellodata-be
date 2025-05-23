@@ -105,9 +105,9 @@ public class UserController {
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
                 if (sortField.equals("lastAccess")) {
                     if (direction == Sort.Direction.DESC) {
-                        sorting = Sort.by(Sort.Order.desc(sortField).nullsLast());
+                        sorting = Sort.by(new Order(Direction.DESC, sortField, new Date(Long.MIN_VALUE)))
                     } else {
-                        sorting = Sort.by(Sort.Order.asc(sortField).nullsFirst());
+                        sorting = Sort.by(new Order(Direction.ASC, sortField, new Date(Long.MAX_VALUE)));
                     }
                 } else {
                     sorting = Sort.by(direction, sortField);
