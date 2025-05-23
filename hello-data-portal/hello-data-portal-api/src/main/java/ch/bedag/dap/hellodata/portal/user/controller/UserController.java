@@ -43,6 +43,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -105,9 +106,9 @@ public class UserController {
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
                 if (sortField.equals("lastAccess")) {
                     if (direction == Sort.Direction.DESC) {
-                        sorting = Sort.by(new Order(Direction.DESC, sortField, new Date(Long.MIN_VALUE)));
+                        sorting = JpaSort.unsafe("CASE WHEN " + sortField + " IS NULL THEN 1 ELSE 0 END, " + sortField + " DESC");
                     } else {
-                        sorting = Sort.by(new Order(Direction.ASC, sortField, new Date(Long.MAX_VALUE)));
+                        sorting = JpaSort.unsafe("CASE WHEN " + sortField + " IS NULL THEN 0 ELSE 1 END, " + sortField + " ASC");
                     }
                 } else {
                     sorting = Sort.by(direction, sortField);
