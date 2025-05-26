@@ -44,7 +44,7 @@ public class SftpGoUpdateUserContextRoleConsumer {
         checkBusinessContextRole(userContextRoleUpdate, user);
         checkDataDomainRoles(userContextRoleUpdate, user);
         sftpGoService.updateUser(user);
-        log.info("Updated user {}", user);
+        log.debug("Updated user {}", user);
         if (userContextRoleUpdate.isSendBackUsersList()) {
             sftpGoUserResourceProviderService.publishUsers();
         }
