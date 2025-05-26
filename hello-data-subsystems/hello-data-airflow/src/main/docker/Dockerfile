@@ -64,6 +64,8 @@ COPY airflow.cfg $AIRFLOW_HOME/airflow.cfg
 
 #COPY settings.py /home/airflow/.local/lib/python3.10/site-packages/airflow/settings.py
 
+RUN --mount=type=secret,id=FURY_AUTH,env=FURY_AUTH \
+    pip install --index-url https://${FURY_AUTH}@pypi.fury.io/datenstreambedag/ hellodata_bedag_airflow_pod_operator_params==0.2.1
 
 ##################### Add Liquibase to manage custom database scripts ######################
 USER root
