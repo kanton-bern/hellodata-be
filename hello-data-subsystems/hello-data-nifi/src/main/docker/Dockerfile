@@ -1,7 +1,7 @@
 FROM apache/nifi:2.3.0
 
-COPY ./postgresql-42.7.5.jar /opt/nifi/nifi-current/lib/postgresql-42.7.5.jar
-COPY ./mssql-jdbc-12.8.1.jre11.jar /opt/nifi/nifi-current/lib/mssql-jdbc-12.8.1.jre11.jar
+COPY postgresql-42.7.5.jar /opt/nifi/nifi-current/lib/postgresql-42.7.5.jar
+COPY mssql-jdbc-12.8.1.jre11.jar /opt/nifi/nifi-current/lib/mssql-jdbc-12.8.1.jre11.jar
 
 # Prepare the flowfile directory
 RUN mkdir -p /opt/nifi/nifi-current/flowfile_config

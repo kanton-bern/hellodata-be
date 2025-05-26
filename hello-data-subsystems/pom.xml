@@ -21,6 +21,7 @@
         <module>hello-data-monitoring</module>
         <module>hello-data-cleanup-logs</module>
         <module>hello-data-jupyterhub-gateway</module>
+        <module>hello-data-nifi</module>
     </modules>
 
     <properties>
