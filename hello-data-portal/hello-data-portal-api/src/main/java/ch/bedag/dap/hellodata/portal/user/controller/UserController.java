@@ -104,7 +104,8 @@ public class UserController {
             if (sortParams.length == 2) {
                 String sortField = sortParams[0];
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
-                if (sortField.equals("lastAccess")) {
+                sorting = Sort.by(direction, sortField);
+                /*if (sortField.equals("lastAccess")) {
                     if (direction == Sort.Direction.DESC) {
                         sorting = JpaSort.unsafe("CASE WHEN " + sortField + " IS NULL THEN 1 ELSE 0 END, " + sortField + " DESC");
                     } else {
@@ -112,7 +113,7 @@ public class UserController {
                     }
                 } else {
                     sorting = Sort.by(direction, sortField);
-                }
+                }*/
             }
         }
         Pageable pageable = PageRequest.of(page, size, sorting);
