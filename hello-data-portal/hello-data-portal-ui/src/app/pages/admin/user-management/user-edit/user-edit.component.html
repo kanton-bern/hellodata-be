@@ -111,7 +111,8 @@
                       [options]="availableDataDomainRoles"
                       formControlName="{{dataDomain.contextKey}}"
                       id="dataDomain"
-                      optionLabel="name"></p-dropdown>
+                      optionLabel="name"
+                      [style]="{'width': '100%'}"></p-dropdown>
                   </div>
                   <div *ngIf="dashboardTableVisibility.get(dataDomain.contextKey)" class="col-12 md:col-6">
                     <app-dashboard-viewer-permissions (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
