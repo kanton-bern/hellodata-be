@@ -132,8 +132,8 @@ public class UserController {
     public CurrentUserDto getPermissionsForCurrentUser() {
         try {
             UUID currentUserId = SecurityUtils.getCurrentUserId();
-            log.debug("Current user id {}", currentUserId);
             if (currentUserId != null) {
+                log.debug("Current user id {}", currentUserId);
                 String currentUserIdStr = currentUserId.toString();
                 userService.updateLastAccess(currentUserIdStr);
                 return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
