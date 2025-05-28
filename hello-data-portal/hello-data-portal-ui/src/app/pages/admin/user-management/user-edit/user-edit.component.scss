@@ -27,3 +27,8 @@
 .disabled * {
   cursor: not-allowed !important;
 }
+
+:host ::ng-deep .p-multiselect-label {
+  max-width: none !important;
+  width: 100% !important;
+}
