@@ -44,6 +44,7 @@ export enum AuthActionType {
   SET_AVAILABLE_LANGUAGES = '[AUTH] Set available languages',
   SET_ACTIVE_TRANSLOCO_LANGUAGE = '[AUTH] Set active transloco language',
   PROLONG_CB_SESSION = '[AUTH] Prolong the Cloudbeaver session',
+  USER_FORBIDDEN = '[AUTH] User forbidden',
 }
 
 export const login = createAction(
@@ -112,4 +113,8 @@ export const setAvailableLanguages = createAction(
 
 export const prolongCBSession = createAction(
   AuthActionType.PROLONG_CB_SESSION
+);
+
+export const userForbidden = createAction(
+  AuthActionType.USER_FORBIDDEN
 );

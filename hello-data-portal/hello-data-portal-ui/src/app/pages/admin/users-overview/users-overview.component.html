@@ -1,7 +1,7 @@
 <h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
 <div *ngIf="(tableData$ | async) as tableData" class="card">
   <div *ngIf="(columns$ | async) as columns">
-    <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData">
+    <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData" [scrollable]="true" scrollDirection="horizontal" scrollHeight="flex">
       <ng-template pTemplate="caption">
         <div class="flex">
           <div style="text-align: left">

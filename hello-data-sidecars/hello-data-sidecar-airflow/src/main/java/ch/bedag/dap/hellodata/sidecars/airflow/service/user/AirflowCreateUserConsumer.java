@@ -67,9 +67,10 @@ public class AirflowCreateUserConsumer {
                 return;
             }
 
-            log.info("Going to create new user with email: {}", supersetUserCreate.getEmail());
+            log.debug("Going to create new user with email: {}", supersetUserCreate.getEmail());
             AirflowUser airflowUser = toAirflowUser(supersetUserCreate);
             airflowClient.createUser(airflowUser);
+            log.info("User {} created", supersetUserCreate.getEmail());
             if (supersetUserCreate.isSendBackUsersList()) {
                 userResourceProviderService.publishUsers();
             }

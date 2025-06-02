@@ -324,7 +324,7 @@ accounts are updated.|
 #### FileBrowser
 
 Here you can browse all the documentation or code from the git repos as file browser. We
-use[SFTPGo](https://github.com/drakkan/sftpgo)here. Please use with care, as some of the folder are system relevant.
+use [SFTPGo](https://github.com/drakkan/sftpgo) here. Please use with care, as some of the folder are system relevant.
 
 !!! note "Log in"
 

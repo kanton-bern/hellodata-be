@@ -114,6 +114,7 @@ public class DashboardService {
             SubsystemUser assignedUser = subsystemUserFound.get();
             List<SubsystemRole> userRoles = assignedUser.getRoles();
             Set<String> rolesOfCurrentUser = userRoles.stream().map(SubsystemRole::getName).collect(Collectors.toSet());
+            log.debug("Roles for current user: {}, role: {}", currentUserEmail, rolesOfCurrentUser);
             boolean isAdmin = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_ADMIN_ROLE_NAME));
             boolean isEditor = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_EDITOR_ROLE_NAME));
             String instanceUrl = metaInfoResourceService.findInstanceUrl(ModuleType.SUPERSET, dashboardResource.getInstanceName());
@@ -138,6 +139,8 @@ public class DashboardService {
                                 Set<String> rolesOfCurrentUser, boolean isAdmin, boolean isEditor, String instanceUrl, SupersetDashboard dashboard, Set<String> dashboardRoles) {
         for (String dashboardRole : dashboardRoles) {
             boolean isViewer = rolesOfCurrentUser.contains(dashboardRole);
+            log.debug("Checking RBAC roles, dashboard role: {}", dashboardRole);
+            log.debug("Checking RBAC roles, isAdmin: {}, isEditor: {}, isViewer: {}", isAdmin, isEditor, isViewer);
             if (isAdmin || isEditor || isViewer) { // ensure only RBAC roles are allowed (starting with D_ ...)
                 HdContextEntity context = contextRepository.getByContextKey(metaInfoResource.getContextKey()).orElse(null);
                 String contextName = context != null ? context.getName() : null;
@@ -147,6 +150,7 @@ public class DashboardService {
                         new SupersetDashboardWithMetadataDto(dashboard, dashboardResource.getInstanceName(), instanceUrl, isAdmin, isEditor, isViewer, contextName, contextId,
                                                              contextKey);
                 fetchMetadata(dashboardResource.getInstanceName(), dashboard, dashboardDto);
+                log.debug("Adding dashboard {}", dashboardDto);
                 dashboardsWithAccess.add(dashboardDto);
             }
         }

@@ -121,20 +121,20 @@ public class MetaInfoUsersService {
 
     private SubsystemUserDto generateUserDto(String usersInstanceName, List<SubsystemRole> subsystemUserRoles, UserDto portalUser,
                                              Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName) {
-        List<RoleToDashboardName> roleToDashboardNameList = roleNameToDashboardNamesPerInstanceName.get(usersInstanceName);
+        List<RoleToDashboardName> roleToDashboardNameList = CollectionUtils.emptyIfNull(roleNameToDashboardNamesPerInstanceName.get(usersInstanceName)).stream().toList();
         if (portalUser != null) {
             List<String> roles;
             if (CollectionUtils.containsAny(subsystemUserRoles.stream().map(SubsystemRole::getName).toList(), ADMIN_ROLE_NAME, BI_ADMIN_ROLE_NAME, BI_EDITOR_ROLE_NAME)) {
                 // concat user roles and dashboard roles as these users have access to all dashboards in instance
-                roles = Stream.concat(roleNameToDashboardNamesPerInstanceName.get(usersInstanceName).stream().map(r -> r.roleName()), subsystemUserRoles.stream().map(r -> r.getName()))
-                        .filter(r -> complies(r))
+                roles = Stream.concat(roleNameToDashboardNamesPerInstanceName.get(usersInstanceName).stream().map(RoleToDashboardName::roleName), subsystemUserRoles.stream().map(SubsystemRole::getName))
+                        .filter(this::complies)
                         .sorted()
                         .map(r -> mapRoleNameToDashboardName(r, roleToDashboardNameList))
                         .toList();
             } else {
                 roles = subsystemUserRoles.stream()
-                        .map(r -> r.getName())
-                        .filter(r -> complies(r))
+                        .map(SubsystemRole::getName)
+                        .filter(this::complies)
                         .sorted()
                         .map(r -> mapRoleNameToDashboardName(r, roleToDashboardNameList))
                         .toList();

@@ -10,7 +10,9 @@ import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.User;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.resource.SftpGoUserResourceProviderService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -24,12 +26,15 @@ import static ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService.ADMIN
 
 @Log4j2
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SftpGoUpdateUserContextRoleConsumer {
 
     private final SftpGoService sftpGoService;
     private final SftpGoUserResourceProviderService sftpGoUserResourceProviderService;
     private final HelloDataContextConfig helloDataContextConfig;
+
+    @Value("${hello-data.sftpgo.viewer-disabled}")
+    private boolean viewerDisabled;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = UPDATE_USER_CONTEXT_ROLE)
@@ -39,7 +44,7 @@ public class SftpGoUpdateUserContextRoleConsumer {
         checkBusinessContextRole(userContextRoleUpdate, user);
         checkDataDomainRoles(userContextRoleUpdate, user);
         sftpGoService.updateUser(user);
-        log.info("Updated user {}", user);
+        log.debug("Updated user {}", user);
         if (userContextRoleUpdate.isSendBackUsersList()) {
             sftpGoUserResourceProviderService.publishUsers();
         }
@@ -68,8 +73,11 @@ public class SftpGoUpdateUserContextRoleConsumer {
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + ADMIN_GROUP_POSTFIX, user);
                         case DATA_DOMAIN_EDITOR ->
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + EDITOR_GROUP_POSTFIX, user);
-                        case DATA_DOMAIN_VIEWER ->
+                        case DATA_DOMAIN_VIEWER -> {
+                            if (!viewerDisabled) {
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + VIEWER_GROUP_POSTFIX, user);
+                            }
+                        }
                     }
                 });
     }

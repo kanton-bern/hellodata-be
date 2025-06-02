@@ -36,8 +36,8 @@
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <docker.namespace>bedag</docker.namespace>
-        <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.9</jacoco-maven-plugin.version>
+        <docker-maven-plugin.version>0.45.0</docker-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <build.number>local-build</build.number>
     </properties>
 

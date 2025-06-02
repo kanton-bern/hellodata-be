@@ -487,11 +487,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<AdUserDto> searchUser(String email) {
-        if (email == null || email.length() < 3) {
-            return Collections.emptyList();
-        }
-        List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
+    public List<AdUserDto> searchUserOmitCreated(String email) {
+        List<AdUserDto> users = searchUser(email);
         Map<String, AdUserDto> emailToUserDto = users.stream().collect(Collectors.toMap(AdUserDto::getEmail, user -> user, (existing, replacement) -> {
             if (existing.getOrigin() == AdUserOrigin.LOCAL && replacement.getOrigin() != AdUserOrigin.LOCAL) {
                 return replacement;
@@ -510,6 +507,14 @@ public class UserService {
             }
         }
         return uniqueUsers;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdUserDto> searchUser(String email) {
+        if (email == null || email.length() < 3) {
+            return Collections.emptyList();
+        }
+        return userLookupProviderManager.searchUserByEmail(email);
     }
 
     @Transactional(readOnly = true)
