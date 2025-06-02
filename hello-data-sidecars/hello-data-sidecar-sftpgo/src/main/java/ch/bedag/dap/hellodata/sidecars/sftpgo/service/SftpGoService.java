@@ -74,8 +74,8 @@ public class SftpGoService {
     public void updateUser(User user) {
         refreshToken();
         UsersApi usersApi = new UsersApi(sftpGoApiClient);
-        usersApi.updateUser(user.getUsername(), user, 1).block();
-        log.info("User {} updated", user.getUsername());
+        usersApi.updateUser(user.getEmail(), user, 1).block();
+        log.info("User {} updated", user.getEmail());
     }
 
     public void enableUser(String username) {
