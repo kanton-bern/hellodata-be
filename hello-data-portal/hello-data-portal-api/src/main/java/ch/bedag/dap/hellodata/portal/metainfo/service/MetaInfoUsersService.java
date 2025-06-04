@@ -99,7 +99,7 @@ public class MetaInfoUsersService {
             List<SubsystemUserDto> subsystemUserDtos = new ArrayList<>();
             List<SubsystemUser> subsystemUsers = (List<SubsystemUser>) userPacksForSubsystem.getMetainfo().getData();
             for (UserDto portalUser : allPortalUsers) {
-                SubsystemUser subsystemUser = subsystemUsers.stream().filter(u -> u.getEmail().equals(portalUser.getEmail())).findFirst().orElse(null);
+                SubsystemUser subsystemUser = subsystemUsers.stream().filter(u -> u.getEmail().equalsIgnoreCase(portalUser.getEmail())).findFirst().orElse(null);
                 SubsystemUserDto applied;
                 if (subsystemUser == null) {
                     applied = generateUserDto(userPacksForSubsystem.getInstanceName(), List.of(), portalUser, roleNameToDashboardNamesPerInstanceName);

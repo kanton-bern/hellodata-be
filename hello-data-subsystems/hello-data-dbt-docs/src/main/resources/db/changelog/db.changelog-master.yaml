@@ -32,3 +32,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/1_initial_schema.xml
   - include:
       file: db/changelog/changelogs/2_add_superuser_flag_to_user.xml
+  - include:
+      file: db/changelog/changelogs/3_hd_user_user_name.sql

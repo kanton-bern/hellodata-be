@@ -47,13 +47,6 @@ from pyctuator.auth import BasicAuth
 from pyctuator.pyctuator import Pyctuator
 from werkzeug.wrappers import Response as WerkzeugResponse
 
-LETTERS_AND_DIGITS = string.ascii_letters + string.digits
-
-
-def generate_random_string(length=30):
-    rand = SystemRandom()
-    return "".join(rand.choice(LETTERS_AND_DIGITS) for _ in range(length))
-
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 logging.getLogger('airflow.www.fab_security').setLevel(logging.DEBUG)
@@ -113,6 +106,13 @@ key_der = b64decode(key_der_base64.encode())
 public_key = serialization.load_der_public_key(key_der)
 
 
+LETTERS_AND_DIGITS = string.ascii_letters + string.digits
+
+def generate_random_string(length=30):
+    rand = SystemRandom()
+    return "".join(rand.choice(LETTERS_AND_DIGITS) for _ in range(length))
+
+
 class HdAuthOAuthView(AuthView):
     login_template = "appbuilder/general/security/login_oauth.html"
 
@@ -131,7 +131,7 @@ class HdAuthOAuthView(AuthView):
             if decoded_token is not None:
                 ab_security_manager = self.appbuilder.sm
                 userinfo = {
-                    "username": decoded_token.get("preferred_username"),
+                    "username": decoded_token.get("email"),
                     "email": decoded_token.get("email"),
                     "first_name": decoded_token.get("given_name"),
                     "last_name": decoded_token.get("family_name"),
@@ -195,6 +195,13 @@ class HdAuthOAuthView(AuthView):
         try:
             self.appbuilder.sm.set_oauth_session(provider, resp)
             userinfo = self.appbuilder.sm.oauth_user_info(provider, resp)
+            log.info("-------------------------> User info: {0}".format(userinfo))
+            username = userinfo.get("username")
+            email = userinfo.get("email")
+            log.info("-------------------------> User name: {0}".format(username))
+            log.info("-------------------------> User email: {0}".format(email))
+            userinfo["username"] = email
+            log.info("-------------------------> User info: {0}".format(userinfo))
         except Exception as e:
             log.error("Error returning OAuth user info: {0}".format(e))
             user = None

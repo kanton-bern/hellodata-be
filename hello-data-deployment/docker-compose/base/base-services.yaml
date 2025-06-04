@@ -234,6 +234,8 @@ services:
       - nats
     environment:
       - NATS_SERVER_URL=nats://nats:4222  # Connect to the NATS server within the network
+    volumes:
+      - ./base/nats-nui/db:/db
 
   #   smtp dev server
   smtp4dev:
