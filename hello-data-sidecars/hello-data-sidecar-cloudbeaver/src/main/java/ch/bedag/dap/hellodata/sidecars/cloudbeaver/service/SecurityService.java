@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -68,10 +69,10 @@ public class SecurityService {
             createCbRole(contextKey, readOnLznPrivilege);
 
             // create teams + auth_subject_id entries
-            String cbAuthSubjectReadDM = contextKey + "_" + Privilege.READ_DM_PRIVILEGE;
+            String cbAuthSubjectReadDM = contextKey.toUpperCase(Locale.ROOT) + "_" + Privilege.READ_DM_PRIVILEGE;
             createCbAuthSubjectIfNotFound(cbAuthSubjectReadDM);
             createCbTeamIfNotFound(cbAuthSubjectReadDM, false, contextKey);
-            String cbAuthSubjectReadDWH = contextKey + "_" + Privilege.READ_DWH_PRIVILEGE;
+            String cbAuthSubjectReadDWH = contextKey.toUpperCase(Locale.ROOT) + "_" + Privilege.READ_DWH_PRIVILEGE;
             createCbAuthSubjectIfNotFound(cbAuthSubjectReadDWH);
             createCbTeamIfNotFound(cbAuthSubjectReadDWH, true, contextKey);
         });
