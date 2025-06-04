@@ -40,10 +40,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
@@ -121,15 +118,18 @@ public class CbUserContextRoleConsumer {
         allCbRoles.forEach(role -> dataDomainContexts.forEach(dataDomainContext -> {
             if (dataDomainContext.getRoleName() == HdRoleName.HELLODATA_ADMIN && role.getKey().equalsIgnoreCase(Role.ADMIN_ROLE_KEY)) {
                 newDistinctUserRoles.add(role);
-            } else if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_ADMIN &&
-                role.getKey().equalsIgnoreCase(dataDomainContext.getContextKey() + "_" + Privilege.READ_DWH_PRIVILEGE)) {
-                newDistinctUserRoles.add(role);
-            } else if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_ADMIN &&
-                role.getKey().equalsIgnoreCase(dataDomainContext.getContextKey() + "_" + Privilege.READ_DM_PRIVILEGE)) {
-                newDistinctUserRoles.add(role);
-            } else if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_EDITOR &&
-                role.getKey().equalsIgnoreCase(dataDomainContext.getContextKey() + "_" + Privilege.READ_DM_PRIVILEGE)) {
-                newDistinctUserRoles.add(role);
+            } else {
+                String contextKeyUppercase = dataDomainContext.getContextKey().toUpperCase(Locale.ROOT);
+                if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_ADMIN &&
+                    role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DWH_PRIVILEGE)) {
+                    newDistinctUserRoles.add(role);
+                } else if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_ADMIN &&
+                    role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DM_PRIVILEGE)) {
+                    newDistinctUserRoles.add(role);
+                } else if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_EDITOR &&
+                    role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DM_PRIVILEGE)) {
+                    newDistinctUserRoles.add(role);
+                }
             }
         }));
         return new ArrayList<>(newDistinctUserRoles);
