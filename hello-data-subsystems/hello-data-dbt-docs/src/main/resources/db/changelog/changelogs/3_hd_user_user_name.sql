@@ -27,4 +27,15 @@
 
 --liquibase formatted sql
 -- changeset HelloDATA:1688336156734-3 runAlways:false
+
+WITH ranked_users AS (
+    SELECT id, email,
+           ROW_NUMBER() OVER (PARTITION BY email ORDER BY id) AS rn
+    FROM "users"
+)
+DELETE FROM "users"
+WHERE id IN (
+    SELECT id FROM ranked_users WHERE rn > 1
+);
+
 UPDATE dbt_user SET user_name = email;

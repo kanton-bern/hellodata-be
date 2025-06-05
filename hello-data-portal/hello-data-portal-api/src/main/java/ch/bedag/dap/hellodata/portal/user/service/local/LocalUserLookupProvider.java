@@ -46,7 +46,7 @@ import java.util.stream.IntStream;
 public class LocalUserLookupProvider implements UserLookupProvider {
     @Override
     public List<AdUserDto> searchUserByEmail(String email) {
-        log.info("[local] Looking up users with email: {}", email);
+        log.debug("[local] Looking up users with email: {}", email);
         if (null == email || email.length() < 3 || email.length() > 255) {
             return new ArrayList<>();
         }
@@ -57,7 +57,7 @@ public class LocalUserLookupProvider implements UserLookupProvider {
         user.setFirstName(firstName + "-" + 0);
         user.setLastName(getLastName(email) + "-" + 0);
         user.setOrigin(AdUserOrigin.LOCAL);
-        log.info("[local] Found user: {}", user.getEmail());
+        log.debug("[local] Found user: {}", user.getEmail());
         return List.of(user);
     }
 

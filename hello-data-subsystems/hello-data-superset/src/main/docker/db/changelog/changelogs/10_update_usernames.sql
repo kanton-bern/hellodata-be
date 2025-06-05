@@ -28,5 +28,14 @@
 --
 -- Update usernames in airflow subsystem to be the email-address of the user
 --
+WITH ranked_users AS (
+    SELECT id, email,
+           ROW_NUMBER() OVER (PARTITION BY email ORDER BY id) AS rn
+    FROM "users"
+)
+DELETE FROM "users"
+WHERE id IN (
+    SELECT id FROM ranked_users WHERE rn > 1
+);
 
 UPDATE ab_user SET username = email;
