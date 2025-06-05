@@ -31,9 +31,9 @@
 WITH ranked_users AS (
     SELECT id, email,
            ROW_NUMBER() OVER (PARTITION BY email ORDER BY id) AS rn
-    FROM "users"
+    FROM "dbt_user"
 )
-DELETE FROM "users"
+DELETE FROM "dbt_user"
 WHERE id IN (
     SELECT id FROM ranked_users WHERE rn > 1
 );
