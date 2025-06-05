@@ -98,7 +98,7 @@ public class SftpGoUpdateUserContextRoleConsumer {
         User user = null;
         try {
             user = sftpGoService.getUser(userContextRoleUpdate.getUsername());
-            log.info("User {} already created", user);
+            log.debug("User {} already created", user);
         } catch (WebClientResponseException.NotFound notFound) {
             log.debug("", notFound);
             user = sftpGoService.createUser(userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername(), UUID.randomUUID().toString());
