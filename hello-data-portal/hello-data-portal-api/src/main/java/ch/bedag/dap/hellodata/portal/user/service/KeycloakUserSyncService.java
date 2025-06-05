@@ -67,7 +67,7 @@ public class KeycloakUserSyncService {
             if (userRepresentation != null) {
                 userEntity.setAuthId(userRepresentation.getId());
                 userEntity.setEnabled(userRepresentation.isEnabled());
-                userEntity.setUsername(userRepresentation.getUsername());
+                userEntity.setUsername(userRepresentation.getEmail());
                 userEntity.setFirstName(userRepresentation.getFirstName());
                 userEntity.setLastName(userRepresentation.getLastName());
                 userEntity.setSuperuser(userEntity.getSuperuser());//set flag to not fetch lazy loading relations
