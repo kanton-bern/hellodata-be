@@ -35,6 +35,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ public class KeycloakUserSyncService {
     /**
      * Checks if any of keycloak users has a changed id (e.g: user removed directly in the keycloak and then added again)
      */
+    @Async
     @Transactional
     @Scheduled(fixedDelayString = "${hello-data.auth-server.sync-users-schedule-hours}", timeUnit = TimeUnit.HOURS)
     public void syncUsers() {
@@ -65,10 +67,11 @@ public class KeycloakUserSyncService {
             if (userRepresentation != null) {
                 userEntity.setAuthId(userRepresentation.getId());
                 userEntity.setEnabled(userRepresentation.isEnabled());
+                userEntity.setUsername(userRepresentation.getEmail());
                 userEntity.setFirstName(userRepresentation.getFirstName());
                 userEntity.setLastName(userRepresentation.getLastName());
                 userEntity.setSuperuser(userEntity.getSuperuser());//set flag to not fetch lazy loading relations
-                List<AdUserDto> adUserDtos = userService.searchUser(userEntity.getEmail());
+                List<AdUserDto> adUserDtos = userService.searchUserOmitCreated(userEntity.getEmail());
                 log.debug("[sync-users-with-keycloak] Found users from providers: {}", adUserDtos);
                 boolean isFederated = adUserDtos.stream().anyMatch(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP);
                 log.debug("[sync-users-with-keycloak] Is user {} federated: {}", userEntity.getEmail(), isFederated);

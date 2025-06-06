@@ -37,7 +37,7 @@ hello-data:
     name: "Cloudbeaver Local"
     url: cloudbeaver.local
   sidecar:
-    pubish-interval-minutes: 10
+    publish-interval-minutes: 10
 
 spring:
   application:

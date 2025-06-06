@@ -42,7 +42,7 @@ hello-data:
     admin-username: local-admin
     admin-password: local-admin
   sidecar:
-    pubish-interval-minutes: 10
+    publish-interval-minutes: 10
 
 spring:
   application:

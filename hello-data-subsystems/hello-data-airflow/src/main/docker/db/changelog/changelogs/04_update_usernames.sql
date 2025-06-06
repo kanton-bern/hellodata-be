@@ -1,5 +1,5 @@
 --
--- Copyright © 2025, Kanton Bern
+-- Copyright © 2024, Kanton Bern
 -- All rights reserved.
 --
 -- Redistribution and use in source and binary forms, with or without
@@ -26,23 +26,16 @@
 --
 
 --
--- Adds a permission to the BI_VIEWER role to allow time range selection in the API view.
+-- Update usernames in airflow subsystem to be the email-address of the user
 --
-
-with role_ as (
-	select id from ab_role where "name" = 'BI_VIEWER'
-),
-permission_view_ as (
-	select pv.id from ab_permission_view pv
-		join ab_permission p on
-			pv.permission_id = p.id
-		join ab_view_menu vm on
-			pv.view_menu_id = vm.id
-	where
-		p."name" = 'can_fave_dashboards' and
-		vm."name" = 'Superset'
+WITH ranked_users AS (
+    SELECT id, email,
+           ROW_NUMBER() OVER (PARTITION BY email ORDER BY id) AS rn
+    FROM "ab_user"
 )
-insert into ab_permission_view_role
-(id, permission_view_id, role_id) values
-(nextval('ab_permission_view_role_id_seq'), (select id from permission_view_ limit 1), (select id from role_ limit 1))
-on conflict do nothing;
+DELETE FROM "ab_user"
+WHERE id IN (
+    SELECT id FROM ranked_users WHERE rn > 1
+);
+
+UPDATE ab_user SET username = email;

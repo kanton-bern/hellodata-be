@@ -39,6 +39,9 @@ for file in $dags_path; do
     sed -i "s/DD_KEY/$DD_KEY/g" "$file"
 done
 
+ROOT_PATH=$(echo "$DESTINATION_PATH" | cut -d/ -f1-2)
+mkdir -p "$ROOT_PATH/batch-users-processing"
+chmod 777 -R "$ROOT_PATH"
 
 
 # Run an infinite loop to keep the container running

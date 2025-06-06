@@ -35,6 +35,8 @@
   "@Dalete faq": "FAQ löschen",
   "@Dashboard": "Dashboard",
   "@Dashboard Overview": "Dashboards",
+  "@Dashboard export completed": "Dashboard-Export abgeschlossen",
+  "@Dashboard export started": "Dashboard-Export gestartet. Bitte warten...",
   "@Dashboard import-export": "Dashboard Import/Export",
   "@Dashboard metadata updated": "Metadaten des Dashboards aktualisiert",
   "@Dashboard permissions updated": "Dashboard-Berechtigungen aktualisiert",

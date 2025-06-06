@@ -31,19 +31,21 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class SupersetDashboardDto {
-
+    @EqualsAndHashCode.Include
     private int id;
     private String dashboardTitle;
     private String dashboardUrlPath;
     private boolean published;
 
     private List<SubsystemRole> roles;
+    @EqualsAndHashCode.Include
     private String slug;
     private String status;
 
@@ -52,6 +54,8 @@ public class SupersetDashboardDto {
     private String instanceName;
     private String instanceUrl;
     private String contextName;
+
+    @EqualsAndHashCode.Include
     private String contextKey;
     private UUID contextId;
     private String compositeId;
@@ -71,5 +75,18 @@ public class SupersetDashboardDto {
         this.contextId = contextId;
         this.contextKey = contextKey;
         this.compositeId = this.contextName + "_" + this.instanceName + "_" + this.dashboardTitle + "_" + this.id;
+    }
+
+    @Override
+    public String toString() {
+        return "SupersetDashboardDto{" +
+                "id=" + id +
+                ", dashboardTitle='" + dashboardTitle + '\'' +
+                ", published=" + published +
+                ", slug='" + slug + '\'' +
+                ", status='" + status + '\'' +
+                ", instanceName='" + instanceName + '\'' +
+                ", contextKey='" + contextKey + '\'' +
+                '}';
     }
 }

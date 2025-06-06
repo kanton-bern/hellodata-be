@@ -119,9 +119,14 @@ services:
       - keycloak
       - superset-app-extra-data-domain
     depends_on:
-      - postgres
-      - keycloak
-      - redis
-      - nats
-      - superset-app-extra-data-domain
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      nats:
+        condition: service_started
+      superset-app-extra-data-domain:
+        condition: service_healthy
     restart: on-failure

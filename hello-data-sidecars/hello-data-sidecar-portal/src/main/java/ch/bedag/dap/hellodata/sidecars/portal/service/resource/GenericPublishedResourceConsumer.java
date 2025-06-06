@@ -34,6 +34,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import java.time.LocalDateTime;
 import java.util.Optional;
+
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -67,6 +69,9 @@ public class GenericPublishedResourceConsumer {
             resource.setInstanceName(hdResource.getMetadata().instanceName());
         }
         log.info("Resource saved: {}", resource);
+        if(hdResource instanceof UserResource ur) {
+            log.info("User resource saved. Subsystemusers: {}", ur.getData());
+        }
         return saveEntity(resource);
     }
 

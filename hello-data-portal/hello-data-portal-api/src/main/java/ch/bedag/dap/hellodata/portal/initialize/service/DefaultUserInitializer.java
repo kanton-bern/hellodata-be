@@ -135,6 +135,7 @@ public class DefaultUserInitializer extends AbstractUserInitializer {
             UserEntity userEntity = new UserEntity();
             userEntity.setId(UUID.fromString(userRepresentation.getId()));
             userEntity.setEmail(userRepresentation.getEmail());
+            userEntity.setEnabled(true);
             UserEntity savedUser = userRepository.save(userEntity);
             setAsHellodataAdmin(savedUser);
             //mark as default user

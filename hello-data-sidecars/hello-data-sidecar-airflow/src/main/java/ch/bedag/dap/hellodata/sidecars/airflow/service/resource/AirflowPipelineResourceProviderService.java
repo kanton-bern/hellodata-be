@@ -69,7 +69,7 @@ public class AirflowPipelineResourceProviderService {
         this.instanceName = instanceName;
     }
 
-    @Scheduled(fixedDelayString = "${hello-data.sidecar.pubish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
+    @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishPipelines() throws URISyntaxException, IOException {
         log.info("--> publishPipelines()");
         AirflowDagsResponse dags = apiClient.dags();

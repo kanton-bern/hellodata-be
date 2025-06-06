@@ -58,9 +58,10 @@ public class DbtDocsCreateUserConsumer {
             log.debug("User {} already exists in instance, omitting creation. Email: {}", supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
             return;
         }
-        log.info("Going to create new dbt docs user with email: {}", supersetUserCreate.getEmail());
+        log.debug("Going to create new dbt docs user with email: {}", supersetUserCreate.getEmail());
         User dbtDocUser = toDbtDocUser(supersetUserCreate);
         userRepository.save(dbtDocUser);
+        log.info("User {} created", supersetUserCreate.getEmail());
         if (supersetUserCreate.isSendBackUsersList()) {
             userResourceProviderService.publishUsers();
         }

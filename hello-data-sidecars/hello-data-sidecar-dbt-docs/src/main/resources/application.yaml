@@ -32,7 +32,7 @@ hello-data:
     name: "Default dbt docs instance"
     url: dbt-docs.local
   sidecar:
-    pubish-interval-minutes: 10
+    publish-interval-minutes: 10
 spring:
   application:
     name: HelloDATA Sidecar for dbt docs
@@ -58,6 +58,12 @@ spring:
         #  metadata:
         #    user.name: "user"         #These two are needed so that the server
         #    user.password: "password" #can access the protected client endpoints
+
+#swagger props
+springdoc:
+  show-actuator: true
+  packagesToScan: ch.bedag.dap.hellodata.sidecars.portal
+  paths-to-match: /**
 
 server:
   port: 8084

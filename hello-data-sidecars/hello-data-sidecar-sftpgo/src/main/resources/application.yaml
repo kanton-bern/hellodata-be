@@ -36,6 +36,7 @@ hello-data:
     base-url: http://localhost:8090
     admin-username: admin
     admin-password: admin
+    viewer-disabled: true
   s3-connections:
     - context-key: Default_Data_Domain
       endpoint: http://minio:9000
@@ -53,7 +54,7 @@ hello-data:
       force-path-style: true
   admin-virtual-folder: /storage
   sidecar:
-    pubish-interval-minutes: 10
+    publish-interval-minutes: 10
 
 spring:
   application:
