@@ -84,6 +84,7 @@ import {DashboardImportExportModule} from "./pages/admin/dashboard-import-export
 import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
 import {AdvancedAnalyticsModule} from "./pages/advanced-analytics/advanced-analytics.module";
 import {SubsystemUsersModule} from "./pages/admin/subsystem-users/subsystem-users.module";
+import {MatomoModule, MatomoRouterModule} from 'ngx-matomo-client';
 
 registerLocaleData(localeDECH);
 
@@ -146,6 +147,12 @@ registerLocaleData(localeDECH);
     UnsavedChangesModule,
     RedirectModule,
     DashboardImportExportModule,
+    MatomoModule.forRoot({
+      disabled: !environment.matomoConfig.enabled,
+      siteId: environment.matomoConfig.siteId,
+      trackerUrl: environment.matomoConfig.trackerUrl,
+    }),
+    MatomoRouterModule,
   ],
   providers: [
     ScreenService,
