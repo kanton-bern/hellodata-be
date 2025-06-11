@@ -107,16 +107,18 @@ public class BatchUsersInvitationService {
 
     private void createOrUpdateUsers(List<BatchUpdateContextRolesForUserDto> users, List<UserDto> allUsers, List<RoleDto> allRoles, ContextsDto availableContexts) throws InterruptedException {
         for (BatchUpdateContextRolesForUserDto user : users) {
+            batchUsersCustomLogger.logMessage(String.format("Processing user %s", user.getEmail()));
             List<AdUserDto> usersSearched = this.userService.searchUser(user.getEmail());
             log.info("Found {} user(s) by email {}: {}", usersSearched.size(), user.getEmail(), usersSearched);
             Optional<AdUserDto> any = usersSearched.stream().findAny();
             log.info("Found any? {}", any.isPresent());
             Optional<AdUserDto> firstAD = usersSearched.stream().filter(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP).findFirst();
-            AdUserDto adUserDto = firstAD.orElseGet(any::orElseThrow);
+            AdUserDto adUserDto = firstAD.orElseGet(() -> any.orElseThrow(() -> new NoSuchElementException("User not found: " + user.getEmail())));
             String userId;
             try {
                 userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin());
                 Thread.sleep(1000L); //wait for it to push to subsystems before proceeding to set context roles
+                batchUsersCustomLogger.logMessage(String.format("Created user %s", user.getEmail()));
             } catch (UserAlreadyExistsException e) {
                 String errMsg = "User %s already exists, updating roles...".formatted(adUserDto.getEmail());
                 log.info(errMsg);
