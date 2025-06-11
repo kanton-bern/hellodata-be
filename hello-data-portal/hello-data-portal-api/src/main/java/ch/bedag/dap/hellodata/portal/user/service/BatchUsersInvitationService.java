@@ -207,7 +207,7 @@ public class BatchUsersInvitationService {
                             .ifPresent(supersetModule -> {
                                 List<String> proposedRoleNamesFromFile = supersetModule.roleNames();
                                 if (!new HashSet<>(existingSupersetRoles).containsAll(proposedRoleNamesFromFile)) {
-                                    throw new IllegalArgumentException("One of the following roles is not present in the superset from data domain %s, check role names: %s".formatted(contextKey, proposedRoleNamesFromFile));
+                                    throw new IllegalArgumentException("The following role(s) is not present in the Superset %s, please check it: %s".formatted(contextKey, proposedRoleNamesFromFile));
                                 }
                             });
                 }
