@@ -218,7 +218,7 @@ public class UserController {
     @PatchMapping("/{userId}/context-roles")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void updateContextRolesForUser(@PathVariable UUID userId, @NotNull @Valid @RequestBody UpdateContextRolesForUserDto updateContextRolesForUserDto) {
-        userService.updateContextRolesForUser(userId, updateContextRolesForUserDto);
+        userService.updateContextRolesForUser(userId, updateContextRolesForUserDto, true);
     }
 
     @GetMapping("search/{email}")
