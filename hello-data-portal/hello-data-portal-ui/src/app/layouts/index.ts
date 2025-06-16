@@ -25,4 +25,5 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
+export * from './mobile/mobile.component';
 export * from './side-nav-outer-toolbar/side-nav-outer-toolbar.component';

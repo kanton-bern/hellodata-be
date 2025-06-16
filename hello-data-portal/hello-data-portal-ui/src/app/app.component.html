@@ -1,7 +1,10 @@
-<ng-container>
-  <app-side-nav-outer-toolbar title="{{appInfo.title}}">
+<ng-container >
+  <app-side-nav-outer-toolbar title="{{appInfo.title}}" *ngIf="(isMobile$ | async) === false">
     <router-outlet></router-outlet>
   </app-side-nav-outer-toolbar>
+  <mobile *ngIf="isMobile$ | async">
+    <router-outlet></router-outlet>
+  </mobile>
 </ng-container>
 
 <div *ngIf="(businessDomain$ | async)" style="display: none"></div>

@@ -10,7 +10,7 @@
       </div>
       <div *ngIf="(businessDomain$ | async) as businessDomain"
            class="flex align-items-center justify-content-center m-1 px-1 py-1 font-medium text-xl">
-        <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item"
+        <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item hide-on-small"
            tooltipPosition="bottom">{{ businessDomain }}</p>
       </div>
       <div class="flex-auto flex align-items-center m-1 px-1 py-1"
@@ -43,7 +43,7 @@
              <a (click)="menu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button"
                 id="userMenu">
                <i class="fas fa-light fa-user" style="cursor: pointer"></i>
-               <span class="pl-2" style="cursor: pointer">{{ userData.email }}</span>
+               <span class="pl-2 hide-on-small" style="cursor: pointer">{{ userData.email }}</span>
              </a>
            </span>
          </span>

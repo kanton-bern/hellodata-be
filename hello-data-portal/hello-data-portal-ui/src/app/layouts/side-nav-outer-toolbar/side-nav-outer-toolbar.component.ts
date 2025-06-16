@@ -58,6 +58,9 @@ export class SideNavOuterToolbarComponent {
   constructor(private store: Store<AppState>) {
     this.navItems$ = this.store.select(selectNavItems);
     this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
+    const intervalId = setInterval(() => {
+      console.log('SideNavOuterToolbarModule Runs every 3 seconds');
+    }, 3000);
   }
 
 }

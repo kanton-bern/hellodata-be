@@ -1,0 +1,31 @@
+<div class="w-full bg-white shadow-1 border-b border-gray-200 flex items-center h-14 fixed top-0 left-0 z-50">
+  <button
+    type="button"
+    class="p-button p-button-text"
+    (click)="showSidebar = true"
+    aria-label="Open menu"
+  >
+    <i class="pi pi-bars text-2xl text-black"></i>
+  </button>
+</div>
+
+<p-sidebar
+  [(visible)]="showSidebar"
+  position="left"
+  [modal]="true"
+  styleClass="w-64"
+  [baseZIndex]="10000"
+>
+</p-sidebar>
+
+<div class="pt-14 bg-gray-50 min-h-screen">
+  <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}" id="mainContentDiv">
+    <ng-content ng-style="width: 100%"></ng-content>
+    <p-scrollTop [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}" [threshold]="10" icon="fas fa-arrow-up"
+                 target="parent"></p-scrollTop>
+  </div>
+</div>
+
+
+<p-toast></p-toast>
+<app-unsaved-changes-dialog></app-unsaved-changes-dialog>
