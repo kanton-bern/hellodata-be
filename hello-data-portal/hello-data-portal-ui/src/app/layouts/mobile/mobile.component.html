@@ -68,23 +68,36 @@
   styleClass="p-4"
   [fullScreen]="false"
   [style]="{'height': 'auto'}">
-  <div class="flex flex-column gap-3 text-900">
-    <hr class="m-0 border-top-1 surface-border" />
-    <a (click)="navigateToProfile()"
-      class="cursor-pointer hover:underline"
-      style="color: black;">
-      {{ '@Profile' | transloco}}
-    </a>
+  <ng-template pTemplate="header">
+     <span class="mr-3 top-menu-item" *ngIf="(languages$ | async) as languages">
+        <ng-template [ngForOf]="supportedLanguages" let-i="index" let-last="last" let-item ngFor>
+          <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
+             (click)="onLanguageChange(item.code)">
+            {{ item.label }}
+          </a>
+          <span *ngIf="!last">|</span>
+        </ng-template>
+    </span>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="flex flex-column gap-3 text-900">
+      <hr class="m-0 border-top-1 surface-border" />
+      <a (click)="navigateToProfile()"
+         class="cursor-pointer hover:underline"
+         style="color: black;">
+        {{ '@Profile' | transloco}}
+      </a>
 
-    <hr class="m-0 border-top-1 surface-border" />
+      <hr class="m-0 border-top-1 surface-border" />
 
-    <a (click)="logout()"
-      class="cursor-pointer hover:underline"
-      style="color: black;">
-      {{ '@Logout' | transloco}}
-    </a>
-    <hr class="m-0 border-top-1 surface-border" />
-  </div>
+      <a (click)="logout()"
+         class="cursor-pointer hover:underline"
+         style="color: black;">
+        {{ '@Logout' | transloco}}
+      </a>
+      <hr class="m-0 border-top-1 surface-border" />
+    </div>
+  </ng-template>
 </p-sidebar>
 
 <!--Data Domain menu-->

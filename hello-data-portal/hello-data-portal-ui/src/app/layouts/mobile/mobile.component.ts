@@ -34,7 +34,7 @@ import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
 import {SidebarModule} from "primeng/sidebar";
 import {MenuModule} from "primeng/menu";
-import {Observable, tap} from "rxjs";
+import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {TranslateService} from "../../shared/services/translate.service";
@@ -49,6 +49,8 @@ import {DataDomain, SupersetDashboard} from "../../store/my-dashboards/my-dashbo
 import {AnimateModule} from "primeng/animate";
 import {Ripple} from "primeng/ripple";
 import {map} from "rxjs/operators";
+import {selectSelectedLanguage, selectSupportedLanguages} from "../../store/auth/auth.selector";
+import {setSelectedLanguage} from "../../store/auth/auth.action";
 
 @Component({
   selector: 'mobile',
@@ -61,9 +63,13 @@ export class MobileComponent {
   showUserMenu = false;
   showDataDomainMenu = false;
   dataDomainSelectionItems: any[] = [];
+  supportedLanguages: any[] = [];
+  selectedLanguage: string | null = null;
+
   availableDataDomains$: Observable<DataDomain[]>;
   selectedDataDomain$: Observable<DataDomain | null>;
-  groupedDashboards$: Observable<Map<string, any[]>>
+  groupedDashboards$: Observable<Map<string, any[]>>;
+  languages$: Observable<any[]>;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
@@ -91,6 +97,7 @@ export class MobileComponent {
         })
       }
     }));
+    this.languages$ = this.getSupportedLanguages();
   }
 
   onDataDomainClicked(item: any) {
@@ -115,13 +122,36 @@ export class MobileComponent {
     this.showDashboardMenu = false;
   }
 
-  public createDashboardLink(db: SupersetDashboard): string {
+  createDashboardLink(db: SupersetDashboard): string {
     const instanceName = db.instanceName;
     if (db.slug) {
       return MobileComponent.MY_DASHBOARDS_DETAIL + instanceName + '/' + db.slug;
     } else {
       return MobileComponent.MY_DASHBOARDS_DETAIL + instanceName + '/' + db.id;
     }
+  }
+
+  private getSupportedLanguages() {
+    return combineLatest([
+      this.store.select(selectSelectedLanguage),
+      this.store.select(selectSupportedLanguages)
+    ]).pipe(tap(([selectedLanguage, supportedLanguages]) => {
+      this.selectedLanguage = selectedLanguage.code;
+      const languagesLocal: any = [];
+      for (const language of supportedLanguages) {
+        languagesLocal.push({
+          code: language,
+          label: language.slice(0, 2)?.toUpperCase(),
+          selected: this.selectedLanguage === language
+        });
+      }
+      this.supportedLanguages = languagesLocal;
+    }))
+  }
+
+  onLanguageChange(langCode: any) {
+    this.translateService.setActiveLang(langCode);
+    this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 
 }
