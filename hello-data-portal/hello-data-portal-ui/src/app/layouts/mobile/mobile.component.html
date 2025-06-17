@@ -96,17 +96,22 @@
   styleClass="p-4"
   [fullScreen]="false"
   [style]="{'height': 'auto'}">
-  <div class="flex flex-column gap-3 text-900">
-    <hr class="m-0 border-top-1 surface-border" />
-    <ng-container *ngFor="let item of dataDomainSelectionItems">
-      <a class="cursor-pointer hover:underline"
-        style="color: black;"
-        (click)="onDataDomainClicked(item)">
-        {{ item.label }}
-      </a>
+  <ng-template pTemplate="header">
+    <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Data Domain' | transloco }}</div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="flex flex-column gap-3 text-900">
       <hr class="m-0 border-top-1 surface-border" />
-    </ng-container>
-  </div>
+      <ng-container *ngFor="let item of dataDomainSelectionItems">
+        <a class="cursor-pointer hover:underline"
+           style="color: black;"
+           (click)="onDataDomainClicked(item)">
+          {{ item.label }}
+        </a>
+        <hr class="m-0 border-top-1 surface-border" />
+      </ng-container>
+    </div>
+  </ng-template>
 </p-sidebar>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
