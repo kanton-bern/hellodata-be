@@ -40,13 +40,22 @@
   [modal]="true"
   [baseZIndex]="10000">
   <ng-template pTemplate="header">
-    <div [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
-      <img alt="logo" (click)="navigateHome()" src="/assets/img/hd.png" style="cursor: pointer; height: 3rem; margin-right: 1rem"/>
-      <span (click)="navigateHome()" style="cursor: pointer;">{{ '@HelloDATA' | transloco }}</span>
-    </div>
+
   </ng-template>
   <ng-template pTemplate="content">
-    TODO dashboard list
+    <div class="flex flex-column gap-3 text-900" *ngIf="groupedDashboards$ | async as groupedDashboards">
+      <ng-container *ngFor="let context of groupedDashboards.keys()">
+        <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
+        <ng-container *ngFor="let dash of groupedDashboards.get(context)">
+          <a
+            class="cursor-pointer hover:underline ml-2 text-black"
+            (click)="openDashboard(dash)">
+            {{ dash.dashboardTitle }}
+          </a>
+          <hr class="my-1 border-top-1 surface-border" />
+        </ng-container>
+      </ng-container>
+    </div>
   </ng-template>
 </p-sidebar>
 
