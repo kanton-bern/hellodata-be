@@ -1,9 +1,8 @@
-<ng-container *ngIf="translationsLoaded$ | async"></ng-container>
 <ng-container *ngIf="availableDataDomains$ | async"></ng-container>
 <!-- Top Bar -->
 <div class="grid w-full bg-white surface-border border-bottom-1 fixed top-0 left-0 z-5" style="height: 4rem;">
   <div class="col-12 flex pt-1">
-    <div class="col-4 flex align-items-center justify-content-start h-full">
+    <div class="col-2 flex align-items-center justify-content-start h-full">
       <button
         type="button" pAnimate pRipple
         class="p-button p-button-text h-full flex align-items-center justify-content-center"
@@ -14,9 +13,9 @@
       </button>
     </div>
 
-    <div class="col-4 flex align-items-center justify-content-start h-full">
+    <div class="col-6 flex align-items-center justify-content-start h-full">
       <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
-          <a (click)="selectedDataDomainMenu.toggle($event)"  style="cursor: pointer"
+          <a (click)="selectedDataDomainMenu.toggle($event)"  style="cursor: pointer; font-size: 0.7rem"
              class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
             <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
             <i class="fas fa-chevron-down p-1"></i>
@@ -30,7 +29,7 @@
         class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
         aria-label="User Profile"
       >
-        <i class="pi pi-user text-2xl" (click)="menu.toggle($event)" style="color: black"></i>
+        <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
       </button>
     </div>
   </div>
@@ -43,18 +42,50 @@
   styleClass="w-64"
   [baseZIndex]="10000"
 >
+  <ng-template pTemplate="header">
+    <div [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
+      <img alt="logo" routerLink="/home" src="/assets/img/hd.png" style="cursor: pointer; height: 3rem; margin-right: 1rem"/>
+      <span routerLink="/home" style="cursor: pointer;">{{ '@HelloDATA' | transloco }}</span>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    TODO dashboard list
+  </ng-template>
+</p-sidebar>
+
+<p-sidebar
+  [(visible)]="showUserMenu"
+  position="bottom"
+  [modal]="true"
+  [baseZIndex]="10000"
+  styleClass="p-4"
+  [fullScreen]="false"
+  [style]="{'height': '300px'}"
+>
+<div class="flex flex-column gap-3 text-900">
+  <a routerLink="/profile"
+    class="cursor-pointer hover:underline"
+    style="color: black;">
+    {{ '@Profile' | transloco}}
+  </a>
+
+  <hr class="m-0 border-top-1 surface-border" />
+
+  <a routerLink="/logout"
+    class="cursor-pointer hover:underline"
+    style="color: black;">
+    {{ '@Logout' | transloco}}
+  </a>
+</div>
 </p-sidebar>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
   <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}" id="mainContentDiv">
     <ng-content ng-style="width: 100%"></ng-content>
-    <p-scrollTop [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}" [threshold]="10" icon="fas fa-arrow-up"
-                 target="parent"></p-scrollTop>
   </div>
 </div>
 
 
-<p-toast></p-toast>
+<!--<p-toast></p-toast>-->
 <app-unsaved-changes-dialog></app-unsaved-changes-dialog>
-<p-menu #menu [model]="userMenuItems" [popup]="true"></p-menu>
 <p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true"></p-menu>

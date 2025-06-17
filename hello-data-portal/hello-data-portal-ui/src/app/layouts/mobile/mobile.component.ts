@@ -1,15 +1,10 @@
 import {Component, NgModule} from "@angular/core";
-import {HeaderModule, SummaryModule} from "../../shared/components";
 import {CommonModule} from "@angular/common";
 import {RouterLink, RouterOutlet} from "@angular/router";
-import {ScrollPanelModule} from "primeng/scrollpanel";
 import {TranslocoModule} from "@ngneat/transloco";
-import {TooltipModule} from "primeng/tooltip";
-import {DividerModule} from "primeng/divider";
 import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {SideNavOuterToolbarComponent} from "../side-nav-outer-toolbar/side-nav-outer-toolbar.component";
 import {SidebarModule} from "primeng/sidebar";
 import {MenuModule} from "primeng/menu";
 import {combineLatest, Observable, tap} from "rxjs";
@@ -32,38 +27,13 @@ import {Ripple} from "primeng/ripple";
 })
 export class MobileComponent {
   showSidebar = false;
-  translationsLoaded$: Observable<any>;
-  userMenuItems: MenuItem[] = [];
+  showUserMenu = false;
   dataDomainSelectionItems: any[] = [];
   availableDataDomains$: Observable<DataDomain[]>;
   selectedDataDomain$: Observable<DataDomain | null>;
 
   constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
-    this.translationsLoaded$ = combineLatest([
-      this.translateService.selectTranslate('@Profile'),
-      this.translateService.selectTranslate('@Logout'),
-      this.store.select(selectDisableLogout)
-    ]).pipe(tap(([profileTranslation, logoutTranslation, disableLogout]) => {
-      this.userMenuItems = [
-        {
-          label: profileTranslation,
-          icon: 'fas fa-light fa-user',
-          command: () => {
-            this.store.dispatch(navigate({url: '/profile'}));
-          }
-        },
-      ];
-      if (!disableLogout) {
-        this.userMenuItems.push({
-          label: logoutTranslation,
-          icon: 'fas fa-light fa-power-off',
-          command: () => {
-            this.store.dispatch(navigate({url: '/logout'}));
-          }
-        })
-      }
-    }));
     this.availableDataDomains$= this.store.select(selectAvailableDataDomains).pipe(tap(availableDataDomains => {
       this.dataDomainSelectionItems = [];
       for (const availableDataDomain of availableDataDomains) {
