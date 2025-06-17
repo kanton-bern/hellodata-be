@@ -1,19 +1,17 @@
 import {Component, NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {RouterLink, RouterOutlet} from "@angular/router";
+import {RouterOutlet} from "@angular/router";
 import {TranslocoModule} from "@ngneat/transloco";
 import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
 import {SidebarModule} from "primeng/sidebar";
 import {MenuModule} from "primeng/menu";
-import {combineLatest, Observable, tap} from "rxjs";
+import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {TranslateService} from "../../shared/services/translate.service";
-import {selectDisableLogout} from "../../store/auth/auth.selector";
 import {navigate} from "../../store/app/app.action";
-import {MenuItem} from "primeng/api";
 import {selectAvailableDataDomains, selectSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.selector";
 import {setSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.action";
 import {DataDomain} from "../../store/my-dashboards/my-dashboards.model";
@@ -26,7 +24,7 @@ import {Ripple} from "primeng/ripple";
   styleUrls: ['./mobile.component.scss']
 })
 export class MobileComponent {
-  showSidebar = false;
+  showDashboardMenu = false;
   showUserMenu = false;
   showDataDomainMenu = false;
   dataDomainSelectionItems: any[] = [];
@@ -49,6 +47,21 @@ export class MobileComponent {
   onDataDomainClicked(item: any) {
     this.store.dispatch(setSelectedDataDomain({dataDomain: item.data}));
     this.showDataDomainMenu = false;
+  }
+
+  navigateToProfile() {
+    this.showUserMenu = false;
+    this.store.dispatch(navigate({url: 'profile'}));
+  }
+
+  logout() {
+    this.showUserMenu = false;
+    this.store.dispatch(navigate({url: 'logout'}));
+  }
+
+  navigateHome() {
+    this.showDashboardMenu = false;
+    this.store.dispatch(navigate({url: 'home'}));
   }
 }
 

@@ -6,14 +6,14 @@
       <button
         type="button" pAnimate pRipple
         class="p-button p-button-text h-full flex align-items-center justify-content-center"
-        (click)="showSidebar = true"
+        (click)="showDashboardMenu = true"
         aria-label="Open menu"
       >
         <i class="pi pi-bars text-2xl" style="color: black"></i>
       </button>
     </div>
 
-    <div class="col-6 flex align-items-center justify-content-start h-full">
+    <div class="col-8 flex align-items-center justify-content-center h-full">
       <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
           <a (click)="showDataDomainMenu = true"  style="cursor: pointer; font-size: 0.8rem"
              class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
@@ -23,7 +23,7 @@
        </span>
     </div>
 
-    <div class="col-4 flex align-items-center justify-content-end h-full">
+    <div class="col-2 flex align-items-center justify-content-end h-full">
       <button pAnimate pRipple
         type="button"
         class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
@@ -35,17 +35,17 @@
   </div>
 </div>
 
+<!--Dashboard menu-->
 <p-sidebar
-  [(visible)]="showSidebar"
+  [(visible)]="showDashboardMenu"
   position="left"
   [modal]="true"
-  styleClass="w-64"
   [baseZIndex]="10000"
 >
   <ng-template pTemplate="header">
     <div [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
-      <img alt="logo" routerLink="/home" src="/assets/img/hd.png" style="cursor: pointer; height: 3rem; margin-right: 1rem"/>
-      <span routerLink="/home" style="cursor: pointer;">{{ '@HelloDATA' | transloco }}</span>
+      <img alt="logo" (click)="navigateHome()" src="/assets/img/hd.png" style="cursor: pointer; height: 3rem; margin-right: 1rem"/>
+      <span (click)="navigateHome()" style="cursor: pointer;">{{ '@HelloDATA' | transloco }}</span>
     </div>
   </ng-template>
   <ng-template pTemplate="content">
@@ -53,6 +53,7 @@
   </ng-template>
 </p-sidebar>
 
+<!--User menu-->
 <p-sidebar
   [(visible)]="showUserMenu"
   position="top"
@@ -62,25 +63,26 @@
   [fullScreen]="false"
   [style]="{'height': 'auto'}"
 >
-<div class="flex flex-column gap-3 text-900">
-  <hr class="m-0 border-top-1 surface-border" />
-  <a routerLink="/profile"
-    class="cursor-pointer hover:underline"
-    style="color: black;">
-    {{ '@Profile' | transloco}}
-  </a>
+  <div class="flex flex-column gap-3 text-900">
+    <hr class="m-0 border-top-1 surface-border" />
+    <a (click)="navigateToProfile()"
+      class="cursor-pointer hover:underline"
+      style="color: black;">
+      {{ '@Profile' | transloco}}
+    </a>
 
-  <hr class="m-0 border-top-1 surface-border" />
+    <hr class="m-0 border-top-1 surface-border" />
 
-  <a routerLink="/logout"
-    class="cursor-pointer hover:underline"
-    style="color: black;">
-    {{ '@Logout' | transloco}}
-  </a>
-  <hr class="m-0 border-top-1 surface-border" />
-</div>
+    <a (click)="logout()"
+      class="cursor-pointer hover:underline"
+      style="color: black;">
+      {{ '@Logout' | transloco}}
+    </a>
+    <hr class="m-0 border-top-1 surface-border" />
+  </div>
 </p-sidebar>
 
+<!--Data Domain menu-->
 <p-sidebar
   [(visible)]="showDataDomainMenu"
   position="top"
