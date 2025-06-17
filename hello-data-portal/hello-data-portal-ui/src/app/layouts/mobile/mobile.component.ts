@@ -56,6 +56,7 @@ import {map} from "rxjs/operators";
   styleUrls: ['./mobile.component.scss']
 })
 export class MobileComponent {
+  private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
   showDashboardMenu = false;
   showUserMenu = false;
   showDataDomainMenu = false;
@@ -109,7 +110,20 @@ export class MobileComponent {
 
   openDashboard(dash: any) {
     console.log('open dashboard', dash);
+    const link = this.createDashboardLink(dash);
+    this.store.dispatch(navigate({url: link}));
+    this.showDashboardMenu = false;
   }
+
+  public createDashboardLink(db: SupersetDashboard): string {
+    const instanceName = db.instanceName;
+    if (db.slug) {
+      return MobileComponent.MY_DASHBOARDS_DETAIL + instanceName + '/' + db.slug;
+    } else {
+      return MobileComponent.MY_DASHBOARDS_DETAIL + instanceName + '/' + db.id;
+    }
+  }
+
 }
 
 @NgModule({
