@@ -56,7 +56,7 @@ import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
 
 @Component({
-  selector: 'mobile',
+  selector: 'app-mobile',
   templateUrl: './mobile.component.html',
   styleUrls: ['./mobile.component.scss']
 })
