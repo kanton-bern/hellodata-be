@@ -51,6 +51,9 @@ import {Ripple} from "primeng/ripple";
 import {map} from "rxjs/operators";
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../store/auth/auth.selector";
 import {setSelectedLanguage} from "../../store/auth/auth.action";
+import {FooterModule} from "../../shared/components";
+import {AppInfoService} from "../../shared/services";
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'mobile',
@@ -66,12 +69,17 @@ export class MobileComponent {
   supportedLanguages: any[] = [];
   selectedLanguage: string | null = null;
 
+  openSourceDataPlatformUrl = environment.footerConfig.openSourceDataPlatformUrl;
+  licenseUrl = environment.footerConfig.licenseUrl;
+  githubUrl = environment.footerConfig.githubUrl;
+  versionLink = environment.footerConfig.versionLink;
+
   availableDataDomains$: Observable<DataDomain[]>;
   selectedDataDomain$: Observable<DataDomain | null>;
   groupedDashboards$: Observable<Map<string, any[]>>;
   languages$: Observable<any[]>;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService, public appInfo: AppInfoService) {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.groupedDashboards$ = this.store.select(selectMyDashboards).pipe(
       map((dashboards: any[]) => {
@@ -167,7 +175,8 @@ export class MobileComponent {
     MenuModule,
     AnimateModule,
     Ripple,
-    TranslocoModule
+    TranslocoModule,
+    FooterModule
   ],
   exports: [MobileComponent],
   declarations: [MobileComponent]

@@ -95,8 +95,23 @@
          style="color: black;">
         {{ '@Logout' | transloco}}
       </a>
+
       <hr class="m-0 border-top-1 surface-border" />
+
+      <a routerLink="/home">{{ '@HelloDATA' | transloco }}</a>
+      <a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">
+        OpenSource Data Platform  {{appInfo.currentYear}}
+      </a>
+
+      <a href="{{licenseUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">License</a>
+      <a href="{{githubUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">GitHub</a>
+      <a href="{{versionLink}}" rel="noopener" target="_blank" style="font-size: 0.9em; color: black">
+        <b>{{ '@Version' | transloco}}:</b>{{' '}}{{appInfo.buildInfo}}
+      </a>
     </div>
+
+
+
   </ng-template>
 </p-sidebar>
 
