@@ -28,6 +28,7 @@ import {Ripple} from "primeng/ripple";
 export class MobileComponent {
   showSidebar = false;
   showUserMenu = false;
+  showDataDomainMenu = false;
   dataDomainSelectionItems: any[] = [];
   availableDataDomains$: Observable<DataDomain[]>;
   selectedDataDomain$: Observable<DataDomain | null>;
@@ -39,17 +40,15 @@ export class MobileComponent {
       for (const availableDataDomain of availableDataDomains) {
         this.dataDomainSelectionItems.push({
           label: this.translateService.translate(availableDataDomain.name),
-          command: (event: any) => {
-            this.onDataDomainChanged(event);
-          },
           data: availableDataDomain
         })
       }
     }));
   }
 
-  onDataDomainChanged($event: any) {
-    this.store.dispatch(setSelectedDataDomain({dataDomain: $event.item.data}));
+  onDataDomainClicked(item: any) {
+    this.store.dispatch(setSelectedDataDomain({dataDomain: item.data}));
+    this.showDataDomainMenu = false;
   }
 }
 

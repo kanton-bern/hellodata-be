@@ -15,7 +15,7 @@
 
     <div class="col-6 flex align-items-center justify-content-start h-full">
       <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
-          <a (click)="selectedDataDomainMenu.toggle($event)"  style="cursor: pointer; font-size: 0.7rem"
+          <a (click)="showDataDomainMenu = true"  style="cursor: pointer; font-size: 0.8rem"
              class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
             <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
             <i class="fas fa-chevron-down p-1"></i>
@@ -55,14 +55,15 @@
 
 <p-sidebar
   [(visible)]="showUserMenu"
-  position="bottom"
+  position="top"
   [modal]="true"
   [baseZIndex]="10000"
   styleClass="p-4"
   [fullScreen]="false"
-  [style]="{'height': '300px'}"
+  [style]="{'height': 'auto'}"
 >
 <div class="flex flex-column gap-3 text-900">
+  <hr class="m-0 border-top-1 surface-border" />
   <a routerLink="/profile"
     class="cursor-pointer hover:underline"
     style="color: black;">
@@ -76,7 +77,30 @@
     style="color: black;">
     {{ '@Logout' | transloco}}
   </a>
+  <hr class="m-0 border-top-1 surface-border" />
 </div>
+</p-sidebar>
+
+<p-sidebar
+  [(visible)]="showDataDomainMenu"
+  position="top"
+  [modal]="true"
+  [baseZIndex]="10000"
+  styleClass="p-4"
+  [fullScreen]="false"
+  [style]="{'height': 'auto'}"
+>
+  <div class="flex flex-column gap-3 text-900">
+    <hr class="m-0 border-top-1 surface-border" />
+    <ng-container *ngFor="let item of dataDomainSelectionItems">
+      <a class="cursor-pointer hover:underline"
+        style="color: black;"
+        (click)="onDataDomainClicked(item)">
+        {{ item.label }}
+      </a>
+      <hr class="m-0 border-top-1 surface-border" />
+    </ng-container>
+  </div>
 </p-sidebar>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
@@ -87,5 +111,4 @@
 
 
 <!--<p-toast></p-toast>-->
-<app-unsaved-changes-dialog></app-unsaved-changes-dialog>
-<p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true"></p-menu>
+<!--<app-unsaved-changes-dialog></app-unsaved-changes-dialog>-->
