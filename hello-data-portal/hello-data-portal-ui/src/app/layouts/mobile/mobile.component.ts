@@ -138,7 +138,7 @@ export class MobileComponent {
     }
   }
 
-  private getSupportedLanguages() {
+  getSupportedLanguages() {
     return combineLatest([
       this.store.select(selectSelectedLanguage),
       this.store.select(selectSupportedLanguages)
@@ -158,6 +158,11 @@ export class MobileComponent {
 
   onLanguageChange(langCode: any) {
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
+  }
+
+  navigateToHome() {
+    this.showUserMenu = false;
+    this.store.dispatch(navigate({url: 'home'}));
   }
 
 }

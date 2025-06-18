@@ -98,7 +98,7 @@
 
       <hr class="m-0 border-top-1 surface-border" />
 
-      <a routerLink="/home">{{ '@HelloDATA' | transloco }}</a>
+      <a (click)="navigateToHome()">{{ '@HelloDATA' | transloco }}</a>
       <a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">
         OpenSource Data Platform  {{appInfo.currentYear}}
       </a>
