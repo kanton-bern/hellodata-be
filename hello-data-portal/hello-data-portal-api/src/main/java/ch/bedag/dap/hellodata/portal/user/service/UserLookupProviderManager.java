@@ -57,9 +57,9 @@ public class UserLookupProviderManager {
 
         ArrayList<AdUserDto> adUserDtos = new ArrayList<>();
         for (UserLookupProvider provider : providers) {
-            log.info("Searching for users in {}.", provider.getClass());
+            log.debug("Searching for users in {}.", provider.getClass());
             List<AdUserDto> users = provider.searchUserByEmail(email);
-            log.info("Found {} users.", users.size());
+            log.debug("Found {} users. {}", users.size(), users);
             adUserDtos.addAll(users);
         }
         return adUserDtos;

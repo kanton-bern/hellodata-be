@@ -20,18 +20,22 @@ public class CbSyncUsersConsumer {
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = SYNC_USERS, timeoutMinutes = 15L)
-    public void subscribe(AllUsersContextRoleUpdate allUsersContextRoleUPdate) {
+    public void subscribe(AllUsersContextRoleUpdate allUsersContextRoleUpdate) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         log.info("[SYNC_USERS] Started users synchronization");
-        List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUPdate.getUserContextRoleUpdates();
+        log.info("[SYNC_USERS] Received {} user context role updates", allUsersContextRoleUpdate.getUserContextRoleUpdates().size());
+        List<UserContextRoleUpdate> userContextRoleUpdates = allUsersContextRoleUpdate.getUserContextRoleUpdates();
         for (UserContextRoleUpdate userContextRoleUpdate : userContextRoleUpdates) {
+            log.info("[SYNC_USERS] Processing user {}, {}", userContextRoleUpdate.getEmail(), userContextRoleUpdate.getUsername());
             try {
                 cbUserContextRoleConsumer.processContextRoleUpdate(userContextRoleUpdate);
             } catch (Exception e) {
                 log.error("Could not synchronize user {}", userContextRoleUpdate.getEmail(), e);
             }
         }
+        //ToDo: add flag to publish users only if there are changes
+        //userResourceProviderService.publishUsers();
         log.info("[SYNC_USERS] Finished users synchronization. Operation took {}", stopWatch.formatTime());
     }
 }

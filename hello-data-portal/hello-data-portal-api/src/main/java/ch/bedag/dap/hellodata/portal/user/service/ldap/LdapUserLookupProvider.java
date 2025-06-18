@@ -56,15 +56,15 @@ public class LdapUserLookupProvider implements UserLookupProvider {
 
     @Override
     public List<AdUserDto> searchUserByEmail(String email) {
-        log.info("Looking up users in LDAP with email: {}", email);
+        log.debug("Looking up users in LDAP with email: {}", email);
         List<AdUserDto> adUsers = adLookup(email);
-        log.info("Found {} users matching adUsers criteria.", adUsers.size());
+        log.debug("Found {} users matching adUsers criteria.", adUsers.size());
         return adUsers;
     }
 
     public List<AdUserDto> adLookup(String email) {
         String encodedEmail = LdapEncoder.filterEncode(email);
-        log.info("Search for email {}", encodedEmail);
+        log.debug("Search for email {}", encodedEmail);
         ContainerCriteria query = query().where("objectclass").is("person").and("mail").like(encodedEmail + "*");
         return ldapTemplate.search(query,
                 (AttributesMapper<AdUserDto>) attrs -> {

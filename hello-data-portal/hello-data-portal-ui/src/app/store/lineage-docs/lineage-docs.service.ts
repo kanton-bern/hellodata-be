@@ -27,9 +27,13 @@
 
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {LineageDoc} from "./lineage-docs.model";
 import {environment} from "../../../environments/environment";
+import {selectCurrentUserPermissions} from "../auth/auth.selector";
+import {Store} from "@ngrx/store";
+import {AppState} from "../app/app.state";
+import {switchMap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -39,12 +43,22 @@ export class LineageDocsService {
   dbtDocsCfg = environment.subSystemsConfig.dbtDocs;
   url = this.dbtDocsCfg.protocol + this.dbtDocsCfg.host + this.dbtDocsCfg.domain;
   baseDocsUrl = `${this.url}/api/projects-docs`;
+  currentUserPermissions$: Observable<any>;
 
-  constructor(protected httpClient: HttpClient) {
+  constructor(protected httpClient: HttpClient, private store: Store<AppState>) {
+    this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
 
   public getProjectDocs(): Observable<LineageDoc[]> {
-    return this.httpClient.get<LineageDoc[]>(`${this.baseDocsUrl}`);
+    return this.currentUserPermissions$.pipe(
+      switchMap(permissions => {
+        if (!permissions || permissions.length === 0) {
+          return of([]);
+        } else {
+          return this.httpClient.get<LineageDoc[]>(`${this.baseDocsUrl}`);
+        }
+      })
+    );
   }
 
   public getProjectPathUrl(uriComponentEncodedProjectPath: string): string {

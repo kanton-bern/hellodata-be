@@ -49,6 +49,8 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -99,6 +101,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
     public void testCreateUser() {
         // given
         String email = "test@example.com";

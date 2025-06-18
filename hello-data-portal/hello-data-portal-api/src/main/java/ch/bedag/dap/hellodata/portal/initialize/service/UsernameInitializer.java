@@ -26,7 +26,7 @@ public class UsernameInitializer {
             if (userRepresentationByEmail == null) {
                 throw new IllegalStateException("User %s not found in the keycloak!".formatted(userEntity.getEmail()));
             }
-            userEntity.setUsername(userRepresentationByEmail.getUsername());
+            userEntity.setUsername(userRepresentationByEmail.getEmail());
             userRepository.save(userEntity);
         }
     }

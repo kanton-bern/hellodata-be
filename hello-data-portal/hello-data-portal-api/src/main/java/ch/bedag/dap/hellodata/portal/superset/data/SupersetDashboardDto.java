@@ -40,7 +40,6 @@ import lombok.*;
 public class SupersetDashboardDto {
     @EqualsAndHashCode.Include
     private int id;
-    @EqualsAndHashCode.Include
     private String dashboardTitle;
     private String dashboardUrlPath;
     private boolean published;
@@ -55,10 +54,10 @@ public class SupersetDashboardDto {
     private String instanceName;
     private String instanceUrl;
     private String contextName;
-    private UUID contextId;
+
     @EqualsAndHashCode.Include
     private String contextKey;
-    @EqualsAndHashCode.Include
+    private UUID contextId;
     private String compositeId;
 
     public SupersetDashboardDto(SupersetDashboard d, String instanceName, String instanceUrl, String contextName, UUID contextId, String contextKey) {
@@ -76,5 +75,18 @@ public class SupersetDashboardDto {
         this.contextId = contextId;
         this.contextKey = contextKey;
         this.compositeId = this.contextName + "_" + this.instanceName + "_" + this.dashboardTitle + "_" + this.id;
+    }
+
+    @Override
+    public String toString() {
+        return "SupersetDashboardDto{" +
+                "id=" + id +
+                ", dashboardTitle='" + dashboardTitle + '\'' +
+                ", published=" + published +
+                ", slug='" + slug + '\'' +
+                ", status='" + status + '\'' +
+                ", instanceName='" + instanceName + '\'' +
+                ", contextKey='" + contextKey + '\'' +
+                '}';
     }
 }
