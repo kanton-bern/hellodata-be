@@ -79,7 +79,7 @@ export class MobileComponent {
   groupedDashboards$: Observable<Map<string, any[]>>;
   languages$: Observable<any[]>;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService, public appInfo: AppInfoService) {
+  constructor(private store: Store<AppState>, public appInfo: AppInfoService, public translateService: TranslateService) {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.groupedDashboards$ = this.store.select(selectMyDashboards).pipe(
       map((dashboards: any[]) => {
@@ -100,7 +100,7 @@ export class MobileComponent {
       this.dataDomainSelectionItems = [];
       for (const availableDataDomain of availableDataDomains) {
         this.dataDomainSelectionItems.push({
-          label: this.translateService.translate(availableDataDomain.name),
+          label: availableDataDomain.name,
           data: availableDataDomain
         })
       }
@@ -124,7 +124,6 @@ export class MobileComponent {
   }
 
   openDashboard(dash: any) {
-    console.log('open dashboard', dash);
     const link = this.createDashboardLink(dash);
     this.store.dispatch(navigate({url: link}));
     this.showDashboardMenu = false;
@@ -158,7 +157,6 @@ export class MobileComponent {
   }
 
   onLanguageChange(langCode: any) {
-    this.translateService.setActiveLang(langCode);
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 
