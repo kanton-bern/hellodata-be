@@ -190,7 +190,6 @@ export class HeaderComponent {
   }
 
   onLanguageChange(langCode: any) {
-    this.translateService.setActiveLang(langCode);
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 }

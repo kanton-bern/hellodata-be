@@ -24,53 +24,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-p-menu {
-  left: 0;
-  position: fixed;
-  top: 0;
-}
-
-.top-menu-item {
-  margin-top: 10px;
-}
-
-.data-domain-selection-item {
-  z-index: 9999;
-}
-
-.env-col-1 {
-  flex: 0 0 auto;
-  padding-left: 0.95rem;
-  width: 8.3333%;
-}
-
-.glow {
-  text-shadow: 0 0 7px #fff,
-  0 0 10px #fff,
-  0 0 21px #fff,
-  0 0 42px #0fa,
-  0 0 82px #0fa,
-  0 0 92px #0fa,
-  0 0 102px #0fa,
-  0 0 151px #0fa;
-}
-
-app-breadcrumb {
-  z-index: 999; /* Adjust the value if needed */
-}
-
-.breadcrumb-container, .published-announcements-container {
-  position: relative;
-  z-index: -1;
-}
 
 .selected-language {
   font-weight: bold;
   text-decoration: underline;
-}
-
-@media (max-width: 1034px) {
-  .hide-on-small {
-    display: none;
-  }
 }

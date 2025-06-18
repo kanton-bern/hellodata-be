@@ -183,6 +183,7 @@
   "@Scheduled": "Mise à jour",
   "@Search": "Recherche",
   "@Select a Dashboard": "Sélectionner le tableau de bord",
+  "@Select a Data Domain": "Sélectionner le domaine de données ",
   "@Selected Data Domain": "Domaine de données choisi",
   "@Selected language": "Langue choisie",
   "@Set permissions": "Définir les autorisations",
