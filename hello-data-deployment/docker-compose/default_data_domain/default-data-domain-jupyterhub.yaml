@@ -36,29 +36,31 @@ services:
         JUPYTERHUB_VERSION: latest
     restart: always
     container_name: jupyterhub-default-data-domain
-    networks:
-      - hello-data-network
     volumes:
       # The JupyterHub configuration file
       - "./base/jupyterhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro"
       # Bind Docker socket on the host, so we can connect to the daemon from
       # within the container
       - "/var/run/docker.sock:/var/run/docker.sock:rw"
-      # Bind Docker volume on host for JupyterHub database and cookie secrets
-      #- "jupyterhub-data:/data"
-      - "shared_scripts:/srv/jupyterhub/shared_scripts:ro"
+      # Bind Docker volume on host for cookie secrets
+      - "shared_scripts:/srv/jupyterhub/shared_scripts"
+      # mount folder for jupyterhub sqlite database
+      - "./base/jupyterhub/data:/data"
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     ports:
       - "8000:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
+    links:
+      - keycloak
     environment:
       # This username will be a JupyterHub admin
       JUPYTERHUB_ADMIN: admin
       # All containers will join this network
-      DOCKER_NETWORK_NAME: hello-data-network
+      DOCKER_NETWORK_NAME: hellodata_default
       # JupyterHub will spawn this Notebook image for users
-      DOCKER_NOTEBOOK_IMAGE: hello-data-base-notebook:latest
+      DOCKER_NOTEBOOK_IMAGE: hellodata-jupyterhub-notebook-default-data-domain:latest
       # Notebook directory inside user image
       DOCKER_NOTEBOOK_DIR: /home/jovyan/work
       JUPYTERHUB_LOG_LEVEL: DEBUG
@@ -76,6 +78,10 @@ services:
       OAUTH2_ALLOW_ALL: 'true'
       HUB_IP: jupyterhub-default-data-domain
       JUPYTERHUB_CRYPT_KEY: GTxQ9tNJ3v5TA3ZrmFs4ZtW0yF3a2nLn+f6Pd8c+Z5E=
+      DB_URL: postgres:5432/hd_metainfo
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      CONTEXT_KEY: Default_Data_Domain
 
   jupyterhub-proxy-default-data-domain:
     image: jupyterhub/configurable-http-proxy:latest
@@ -87,8 +93,6 @@ services:
       - "8002:8001"
     depends_on:
       - jupyterhub-default-data-domain
-    networks:
-      - hello-data-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
@@ -100,8 +104,6 @@ services:
       dockerfile: Dockerfile.base_notebook
     environment:
       - JUPYTER_ENABLE_LAB=yes
-    networks:
-      - hello-data-network
     depends_on:
       - jupyterhub-default-data-domain
     command: echo "This service is only for building our custom image which will be spawned by jupyterhub"
@@ -129,8 +131,6 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "keycloak.localhost:host-gateway"
-    networks:
-      - hello-data-network
 
   hello-data-sidecar-jupyterhub-default-data-domain:
     image: bedag/hello-data-sidecar-jupyterhub

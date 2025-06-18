@@ -55,8 +55,14 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent implements O
     }));
     this.currentJupyterhubLink$ = this.store.select(selectCurrentJupyterhubLink).pipe(tap(url => {
       if (url) {
-        this.url = url + '/hub/custom/login';
-        this.openedSubsystemsService.rememberOpenedSubsystem(url + '/hub/logout')
+        if(url.endsWith('/')) {
+          this.url = url + 'hub/custom/login';
+          this.openedSubsystemsService.rememberOpenedSubsystem(url + 'hub/logout')
+        }
+        else {
+          this.url = url + '/hub/custom/login';
+          this.openedSubsystemsService.rememberOpenedSubsystem(url + '/hub/logout')
+        }
       }
     }));
   }

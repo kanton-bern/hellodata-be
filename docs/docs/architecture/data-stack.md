@@ -119,3 +119,24 @@ What [Jupyter Hub](https://jupyter.org/hub) adds on top:
 ## Storage Layer - Postgres
 
 Let's start with the storage layer. We use Postgres, the currently [most used and loved database](https://survey.stackoverflow.co/2023/#section-most-popular-technologies-databases). Postgres is versatile and simple to use. It's a **relational database** that can be customized and scaled extensively.
+
+
+## S3 and SFTP
+
+### SFTP Access Architecture (S3 Integration)
+
+The HelloDATA BE platform integrates secure file access and browsing through a modular architecture built on **SFTPGo** and **Amazon S3** (or any other S3 alternative, like the **MinIO**).
+
+- **SFTPGo** is deployed as a core component responsible for handling SFTP connections from users. It provides a secure and standards-compliant interface for accessing data.
+- An **SFTPGo sidecar container** is deployed alongside each SFTPGo instance. This sidecar dynamically configures virtual folders based on the authenticated user’s **data domain access**, retrieved from HelloDATA's access control system.
+- These virtual folders are mounted from backend **object storage**, such as **Amazon S3** or **MinIO**, abstracting the storage layer from the user.
+- The integration ensures that:
+    - Each user only sees folders and files relevant to their permissions.
+    - All data is accessed securely through the SFTP protocol.
+    - Underlying storage remains scalable, cloud-native, and cost-effective.
+
+This architecture enables a consistent and user-specific file browsing experience within HelloDATA BE while maintaining secure, centralized data governance.
+
+
+![](../images/sftpgo-arch.png)
+

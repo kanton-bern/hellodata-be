@@ -95,10 +95,13 @@ export class AppComponent implements OnInit {
       setTimeout(() => clearInterval(clearRedirectInterval), 5000);
     }, 500);
 
-    setInterval(() => {
-      console.debug("Check profile start")
-      this.store.dispatch(checkProfile());
-    }, 30000)
+    this.checkProfile();
   }
 
+  private checkProfile() {
+    setInterval(() => {
+      console.debug("Check profile")
+      this.store.dispatch(checkProfile());
+    }, 30000);
+  }
 }

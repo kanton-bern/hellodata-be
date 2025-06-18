@@ -71,11 +71,19 @@ public class SftpGoService {
         log.info("User {} disabled", username);
     }
 
+    public void deleteUser(String username) {
+        refreshToken();
+        UsersApi usersApi = new UsersApi(sftpGoApiClient);
+        usersApi.deleteUser(username).block();
+        log.info("User {} deleted", username);
+    }
+
+
     public void updateUser(User user) {
         refreshToken();
         UsersApi usersApi = new UsersApi(sftpGoApiClient);
-        usersApi.updateUser(user.getUsername(), user, 1).block();
-        log.info("User {} updated", user.getUsername());
+        usersApi.updateUser(user.getEmail(), user, 1).block();
+        log.info("User {} updated", user.getEmail());
     }
 
     public void enableUser(String username) {

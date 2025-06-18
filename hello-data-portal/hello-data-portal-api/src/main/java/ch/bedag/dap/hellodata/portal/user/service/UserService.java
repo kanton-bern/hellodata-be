@@ -55,6 +55,7 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -115,36 +116,71 @@ public class UserService {
         email = email.toLowerCase(Locale.ROOT);
         log.info("Creating user. Email: {}, first name: {}, last name {}", email, firstName, lastName);
         validateEmailAlreadyExists(email);
-        String keycloakUserId;
+        boolean isFederated = origin != AdUserOrigin.LOCAL;
+        return handleUserCreation(email, firstName, lastName, isFederated);
+    }
+
+    @Transactional(readOnly = true)
+    public String handleUserCreation(String email, String firstName, String lastName, boolean isFederated) {
         UserRepresentation userFoundInKeycloak = keycloakService.getUserRepresentationByEmail(email);
-        if (userFoundInKeycloak == null) {
-            log.info("User {} doesn't not exist in the keycloak, creating", email);
-            UserRepresentation user = new UserRepresentation();
-            user.setUsername(email);
-            user.setEmail(email);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEnabled(true);
-            user.setRequiredActions(REQUIRED_ACTIONS);
-            keycloakUserId = keycloakService.createUser(user);
+        String keycloakUserId;
+        // If it is a local user we can create a new user in keycloak. Federated users are not created in keycloak
+        if (null == userFoundInKeycloak) {
+            if (isFederated) {
+                //For federated users that are not in keycloak yet, we will just fake the keycloak id
+                keycloakUserId = UUID.randomUUID().toString();
+            } else {
+                log.info("User {} doesn't not exist in the keycloak, creating", email);
+                keycloakUserId = createKeycloakUser(email, firstName, lastName);
+            }
         } else {
+            //If the user already exists in keycloak, we will just use the id from keycloak
             log.info("User {} already exists in the keycloak, creating only in portal", userFoundInKeycloak.getId());
             keycloakUserId = userFoundInKeycloak.getId();
         }
+
+        String username_ = userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername();
+        String firstname_ = userFoundInKeycloak == null ? firstName : userFoundInKeycloak.getFirstName();
+        String lastname_ = userFoundInKeycloak == null ? lastName : userFoundInKeycloak.getLastName();
+
+        createPortalUserWithRoles(email, username_, firstname_, lastname_, isFederated, keycloakUserId);
+
+        if(isFederated){
+            createFederatedUserInSubsystems(email, username_, firstname_, lastname_);
+        }
+        else {
+            createUserInSubsystems(keycloakUserId);
+        }
+        return keycloakUserId;
+    }
+
+    private String createKeycloakUser(String email, String firstName, String lastName) {
+        String keycloakUserId;
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(email);
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEnabled(true);
+        user.setRequiredActions(REQUIRED_ACTIONS);
+        keycloakUserId = keycloakService.createUser(user);
+        return keycloakUserId;
+    }
+
+    private void createPortalUserWithRoles(String email, String username, String firstName, String lastName,
+                                           boolean isFederated, String keycloakUserId) {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(UUID.fromString(keycloakUserId));
         userEntity.setEmail(email);
-        userEntity.setUsername(userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername());
-        userEntity.setFirstName(userFoundInKeycloak == null ? firstName : userFoundInKeycloak.getFirstName());
-        userEntity.setLastName(userFoundInKeycloak == null ? lastName : userFoundInKeycloak.getLastName());
+        userEntity.setUsername(username);
+        userEntity.setFirstName(firstName);
+        userEntity.setLastName(lastName);
         userEntity.setEnabled(true);
         userEntity.setSuperuser(false);
-        userEntity.setFederated(origin != AdUserOrigin.LOCAL);
+        userEntity.setFederated(isFederated);
         userRepository.saveAndFlush(userEntity);
         roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
         roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);
-        createUserInSubsystems(keycloakUserId);
-        return keycloakUserId;
     }
 
     @Transactional(readOnly = true)
@@ -222,7 +258,6 @@ public class UserService {
         if (SecurityUtils.getCurrentUserId() == null || userId.equals(SecurityUtils.getCurrentUserId().toString())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
         }
-        UserResource userResource = getUserResource(userId);
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
         AtomicBoolean isUserFederated = new AtomicBoolean(false);
         userEntityResult.ifPresentOrElse(
@@ -234,17 +269,27 @@ public class UserService {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found");//NOSONAR
                 }
         );
+        deleteKeycloakUser(userEntityResult.get(), isUserFederated.get());
+        SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
+        String email = userEntityResult.get().getEmail().toLowerCase(Locale.ROOT);
+        subsystemUserDelete.setEmail(email);
+        subsystemUserDelete.setUsername(email);
+        natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
+    }
+
+    private void deleteKeycloakUser(UserEntity userEntity, boolean isUserFederated) {
+        UserResource userResource = getUserResource(userEntity);
         if (userResource == null) {
+            if(isUserFederated) {
+                return;
+            }
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
         }
-        SubsystemUserDelete subsystemUserDelete = new SubsystemUserDelete();
-        UserRepresentation userRepresentation = userResource.toRepresentation();
-        subsystemUserDelete.setEmail(userRepresentation.getEmail().toLowerCase(Locale.ROOT));
-        subsystemUserDelete.setUsername(userRepresentation.getUsername());
-        if (deleteUsersInProvider && !isUserFederated.get()) {
-            userResource.remove();
+        else{
+            if (deleteUsersInProvider && !isUserFederated) {
+                userResource.remove();
+            }
         }
-        natsSenderService.publishMessageToJetStream(HDEvent.DELETE_USER, subsystemUserDelete);
     }
 
     @Transactional(readOnly = true)
@@ -267,6 +312,13 @@ public class UserService {
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
 
+    @Transactional(readOnly = true)
+    public void createFederatedUserInSubsystems(String email, String userName, String firstName, String lastName) {
+        SubsystemUserUpdate createUser = getSubsystemUserUpdate(email, userName, firstName, lastName);
+        createUser.setSendBackUsersList(false);
+        natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
+    }
+
     @Transactional
     public UserDto disableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
@@ -274,37 +326,57 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(false);
         userRepository.save(userEntity);
-        String authUserId = getAuthUserId(userId);
-        UserResource userResource = keycloakService.getUserResourceById(authUserId);
-        UserRepresentation representation = userResource.toRepresentation();
-        representation.setEnabled(false);
-        userResource.update(representation);
-        userResource.logout();
-        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
+        disableKeycloakUser(userId);
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
-        emailNotificationService.notifyAboutUserDeactivation(representation.getFirstName(), representation.getEmail(), getSelectedLanguageByEmail(representation.getEmail()));
+        emailNotificationService.notifyAboutUserDeactivation(userEntity.getFirstName(), userEntity.getEmail(), getSelectedLanguageByEmail(userEntity.getEmail()));
         return map(userEntity);
+    }
+
+    private void disableKeycloakUser(String userId) {
+        String authUserId = getAuthUserId(userId);
+        try {
+            UserResource userResource = keycloakService.getUserResourceById(authUserId);
+            UserRepresentation representation = userResource.toRepresentation();
+            representation.setEnabled(false);
+            userResource.update(representation);
+            userResource.logout();
+            log.debug("User {} disabled and logged out from keycloak", userId);
+        }
+        catch (NotFoundException nfe) {
+            log.warn("User {} not found in keycloak, skipping keycloak-deactivation.", userId);
+        }
     }
 
     @Transactional
     public UserDto enableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
-        String authUserId = getAuthUserId(userId);
-        UserResource userResource = keycloakService.getUserResourceById(authUserId);
-        UserRepresentation representation = userResource.toRepresentation();
-        representation.setEnabled(true);
-        userResource.update(representation);
-        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(representation);
-        subsystemUserUpdate.setActive(true);
-        natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
+        enableKeycloakUser(userId);
+        SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
+        subsystemUserUpdate.setActive(true);
+        natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
         synchronizeContextRolesWithSubsystems(userEntity, new HashMap<>());
-        emailNotificationService.notifyAboutUserActivation(representation.getFirstName(), representation.getEmail(), userEntity.getSelectedLanguage());
+        emailNotificationService.notifyAboutUserActivation(userEntity.getFirstName(), userEntity.getEmail(), userEntity.getSelectedLanguage());
         return map(userEntity);
+    }
+
+    private void enableKeycloakUser(String userId) {
+        String authUserId = getAuthUserId(userId);
+        try {
+            UserResource userResource = keycloakService.getUserResourceById(authUserId);
+            UserRepresentation representation = userResource.toRepresentation();
+            representation.setEnabled(true);
+            userResource.update(representation);
+            log.debug("User {} enabled in keycloak", userId);
+        }
+        catch (NotFoundException nfe) {
+            log.warn("User {} not found in keycloak, skipping keycloak-activation.", userId);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -338,11 +410,11 @@ public class UserService {
     }
 
     @Transactional
-    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
+    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
         UserEntity userEntity = getUserEntity(userId);
-        synchronizeContextRolesWithSubsystems(userEntity, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
+        synchronizeContextRolesWithSubsystems(userEntity, sendBackUserList, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 
@@ -415,11 +487,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<AdUserDto> searchUser(String email) {
-        if (email == null || email.length() < 3) {
-            return Collections.emptyList();
-        }
-        List<AdUserDto> users = userLookupProviderManager.searchUserByEmail(email);
+    public List<AdUserDto> searchUserOmitCreated(String email) {
+        List<AdUserDto> users = searchUser(email);
         Map<String, AdUserDto> emailToUserDto = users.stream().collect(Collectors.toMap(AdUserDto::getEmail, user -> user, (existing, replacement) -> {
             if (existing.getOrigin() == AdUserOrigin.LOCAL && replacement.getOrigin() != AdUserOrigin.LOCAL) {
                 return replacement;
@@ -438,6 +507,14 @@ public class UserService {
             }
         }
         return uniqueUsers;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdUserDto> searchUser(String email) {
+        if (email == null || email.length() < 3) {
+            return Collections.emptyList();
+        }
+        return userLookupProviderManager.searchUserByEmail(email);
     }
 
     @Transactional(readOnly = true)
@@ -505,10 +582,11 @@ public class UserService {
         return partition;
     }
 
+    //ToDo: Fix Http 401 when accessing Superset API (due to username now being email-address)
     private UserContextRoleUpdate getUserContextRoleUpdate(UserEntity userEntity, boolean sendBackUsersList) {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
         userContextRoleUpdate.setEmail(userEntity.getEmail());
-        userContextRoleUpdate.setUsername(userEntity.getUsername());
+        userContextRoleUpdate.setUsername(userEntity.getEmail());
         userContextRoleUpdate.setFirstName(userEntity.getFirstName());
         userContextRoleUpdate.setLastName(userEntity.getLastName());
         userContextRoleUpdate.setActive(userEntity.isEnabled());
@@ -531,7 +609,7 @@ public class UserService {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();
         createUser.setFirstName(representation.getFirstName());
         createUser.setLastName(representation.getLastName());
-        createUser.setUsername(representation.getUsername().toLowerCase(Locale.ROOT));
+        createUser.setUsername(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setEmail(representation.getEmail().toLowerCase(Locale.ROOT));
         createUser.setActive(representation.isEnabled());
         return createUser;
@@ -540,6 +618,17 @@ public class UserService {
     private SubsystemUserUpdate getSubsystemUserUpdate(String userId) {
         UserRepresentation representation = getUserRepresentation(userId);
         return getSubsystemUserUpdate(representation);
+    }
+
+    private SubsystemUserUpdate getSubsystemUserUpdate(String email, String username, String firstname, String lastname) {
+        log.info("Creating user in subsystem. Email: {}, first name: {}, last name: {} (username: {})", email, firstname, lastname, username);
+        SubsystemUserUpdate createUser = new SubsystemUserUpdate();
+        createUser.setFirstName(firstname);
+        createUser.setLastName(lastname);
+        createUser.setUsername(email);
+        createUser.setEmail(email);
+        createUser.setActive(true);
+        return createUser;
     }
 
     private void updateContextRoles(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
@@ -585,14 +674,13 @@ public class UserService {
 
     private void notifyUserViaEmail(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         UserEntity userEntity = getUserEntity(userId);
-        UserRepresentation representation = getUserRepresentation(userId.toString());
         List<UserContextRoleDto> adminContextRoles = getAdminContextRoles(userEntity);
         if (!userEntity.isCreationEmailSent()) {
-            emailNotificationService.notifyAboutUserCreation(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
+            emailNotificationService.notifyAboutUserCreation(userEntity.getFirstName(), userEntity.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
             userEntity.setCreationEmailSent(true);
             userRepository.save(userEntity);
         } else {
-            emailNotificationService.notifyAboutUserRoleChanged(representation.getFirstName(), representation.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
+            emailNotificationService.notifyAboutUserRoleChanged(userEntity.getFirstName(), userEntity.getEmail(), updateContextRolesForUserDto, adminContextRoles, userEntity.getSelectedLanguage());
         }
     }
 
@@ -627,7 +715,7 @@ public class UserService {
         try {
             SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = new SupersetDashboardsForUserUpdate();
             UserEntity userEntity = getUserEntity(userId);
-            supersetDashboardsForUserUpdate.setSupersetUserName(userEntity.getUsername());
+            supersetDashboardsForUserUpdate.setSupersetUserName(userEntity.getEmail());
             supersetDashboardsForUserUpdate.setSupersetUserEmail(userEntity.getEmail());
             supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
             supersetDashboardsForUserUpdate.setSupersetFirstName(userEntity.getFirstName());
@@ -732,8 +820,8 @@ public class UserService {
         return result;
     }
 
-    private UserResource getUserResource(String userId) {
-        String authUserId = getAuthUserId(userId);
+    private UserResource getUserResource(@NotNull UserEntity userEntity) {
+        String authUserId = userEntity.getAuthId() == null ? userEntity.getId().toString() : userEntity.getAuthId();
         return keycloakService.getUserResourceById(authUserId);
     }
 

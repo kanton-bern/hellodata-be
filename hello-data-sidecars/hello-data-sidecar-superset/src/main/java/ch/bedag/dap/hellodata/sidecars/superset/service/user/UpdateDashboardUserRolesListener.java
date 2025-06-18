@@ -80,8 +80,9 @@ public class UpdateDashboardUserRolesListener {
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = objectMapper.readValue(msg.getData(), SupersetDashboardsForUserUpdate.class);
-                log.info("-=-=-= RECEIVED DASHBOARD ROLES UPDATE {}", supersetDashboardsForUserUpdate);
+                log.debug("-=-=-= RECEIVED DASHBOARD ROLES UPDATE {}", supersetDashboardsForUserUpdate);
                 SubsystemUser user = getSupersetUser(supersetClient, supersetDashboardsForUserUpdate);
+                log.debug("\tCurrent user roles, email {}, roles: {}", user.getEmail(), user.getRoles());
                 SupersetRolesResponse allRoles = supersetClient.roles();
 
                 SupersetUserRolesUpdate supersetUserRolesUpdate = new SupersetUserRolesUpdate();
@@ -100,7 +101,8 @@ public class UpdateDashboardUserRolesListener {
 
                 RoleUtil.leaveOnlyBiViewerRoleIfNoneAttached(allRoles, supersetUserRolesUpdate);
 
-                log.debug("Roles that user {} should now have: {}", user.getEmail(), supersetUserRolesUpdate.getRoles());
+                List<SubsystemRole> usersRoles = allRoles.getResult().stream().filter(role -> supersetUserRolesUpdate.getRoles().contains(role.getId())).toList();
+                log.debug("\tRoles that user {} should now have: {}", user.getEmail(), usersRoles);
                 SupersetUserUpdateResponse updatedUser = supersetClient.updateUserRoles(supersetUserRolesUpdate, user.getId());
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 natsConnection.publish(msg.getReplyTo(), objectMapper.writeValueAsBytes(updatedUser));
