@@ -40,7 +40,7 @@
   [modal]="true"
   [baseZIndex]="10000">
   <ng-template pTemplate="header">
-
+    <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Dashboard' | transloco }}</div>
   </ng-template>
   <ng-template pTemplate="content">
     <div class="flex flex-column gap-3 text-900" *ngIf="groupedDashboards$ | async as groupedDashboards">
