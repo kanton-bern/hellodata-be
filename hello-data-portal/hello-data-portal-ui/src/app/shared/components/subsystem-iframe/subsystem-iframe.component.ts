@@ -49,7 +49,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
   accessTokenSub!: Subscription;
 
-  constructor(private authService: AuthService, private elementRef: ElementRef, private renderer: Renderer2) {
+  constructor(private authService: AuthService) {
   }
 
   ngOnInit(): void {

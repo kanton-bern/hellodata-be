@@ -27,6 +27,8 @@
 
 import { Output, Injectable, EventEmitter } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import {map} from "rxjs/operators";
+import {Observable} from "rxjs";
 
 @Injectable()
 export class ScreenService {
@@ -52,5 +54,11 @@ export class ScreenService {
       'screen-medium': this.breakpointObserver.isMatched(Breakpoints.Medium),
       'screen-large': this.isLargeScreen(),
     };
+  }
+
+  public get isMobile(): Observable<boolean> {
+    return this.breakpointObserver
+      .observe([Breakpoints.Handset, Breakpoints.Small, Breakpoints.XSmall, Breakpoints.HandsetLandscape, Breakpoints.HandsetPortrait])
+      .pipe(map(result => result.matches));
   }
 }

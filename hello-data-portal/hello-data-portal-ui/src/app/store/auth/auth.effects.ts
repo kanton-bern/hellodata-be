@@ -214,6 +214,7 @@ export class AuthEffects {
         this._store.select(selectProfile)
       ),
       switchMap(([action, profile]) => {
+        this._translateService.setActiveLang(action.lang);
         return this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang).pipe(
           switchMap(() => {
             // Reuse action.lang here

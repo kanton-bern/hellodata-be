@@ -410,11 +410,11 @@ public class UserService {
     }
 
     @Transactional
-    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
+    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
         UserEntity userEntity = getUserEntity(userId);
-        synchronizeContextRolesWithSubsystems(userEntity, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
+        synchronizeContextRolesWithSubsystems(userEntity, sendBackUserList, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 

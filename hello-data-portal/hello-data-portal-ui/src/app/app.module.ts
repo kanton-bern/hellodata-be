@@ -28,7 +28,7 @@
 import {LOCALE_ID, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
-import {SideNavOuterToolbarModule} from './layouts';
+import {MobileModule, SideNavOuterToolbarModule} from './layouts';
 import {FooterModule, SummaryModule} from './shared/components';
 import {AppInfoService, ScreenService} from './shared/services';
 import {AppRoutingModule} from './app-routing.module';
@@ -147,6 +147,7 @@ registerLocaleData(localeDECH);
     UnsavedChangesModule,
     RedirectModule,
     DashboardImportExportModule,
+    MobileModule,
     MatomoModule.forRoot({
       disabled: !environment.matomoConfig.enabled,
       siteId: environment.matomoConfig.siteId,

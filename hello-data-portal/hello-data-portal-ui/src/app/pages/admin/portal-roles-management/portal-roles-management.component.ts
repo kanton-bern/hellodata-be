@@ -80,10 +80,6 @@ export class PortalRolesManagementComponent extends BaseComponent implements OnI
     super.ngOnInit();
   }
 
-  createRole() {
-    this.store.dispatch(openPortalRoleEdition({role: {}}));
-  }
-
   showRoleDeletionPopup(data: PortalRole) {
     this.store.dispatch(showDeletePortalRolePopup({role: data}));
   }

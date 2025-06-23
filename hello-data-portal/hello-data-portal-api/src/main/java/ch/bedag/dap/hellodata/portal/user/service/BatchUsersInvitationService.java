@@ -39,6 +39,7 @@ import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -106,6 +108,7 @@ public class BatchUsersInvitationService {
     }
 
     private void createOrUpdateUsers(List<BatchUpdateContextRolesForUserDto> users, List<UserDto> allUsers, List<RoleDto> allRoles, ContextsDto availableContexts) throws InterruptedException {
+        int i = 0;
         for (BatchUpdateContextRolesForUserDto user : users) {
             batchUsersCustomLogger.logMessage(String.format("Processing user %s", user.getEmail()));
             List<AdUserDto> usersSearched = this.userService.searchUser(user.getEmail());
@@ -128,7 +131,9 @@ public class BatchUsersInvitationService {
             insertFullBusinessDomainRole(user, allRoles);
             insertFullContextRoles(user, allRoles, availableContexts);
             user.setSelectedDashboardsForUser(new HashMap<>()); // prevent NPE
-            userService.updateContextRolesForUser(UUID.fromString(userId), user);
+            boolean isLast = i == users.size() - 1;
+            userService.updateContextRolesForUser(UUID.fromString(userId), user, isLast);
+            i++;
         }
     }
 
@@ -200,21 +205,25 @@ public class BatchUsersInvitationService {
 
     private void verifySupersetRoles(List<BatchUpdateContextRolesForUserDto> users, Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap) {
         for (BatchUpdateContextRolesForUserDto user : users) {
-            user.getContextToModuleRoleNamesMap().forEach((contextKey, moduleRoleNamesList) -> {
-                List<String> existingSupersetRoles = dataDomainKeyToExistingSupersetRolesMap.get(contextKey);
-                if (existingSupersetRoles != null) {
-                    moduleRoleNamesList.stream()
-                            .filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET)
-                            .findFirst()
-                            .ifPresent(supersetModule -> {
-                                List<String> proposedRoleNamesFromFile = supersetModule.roleNames();
-                                if (!new HashSet<>(existingSupersetRoles).containsAll(proposedRoleNamesFromFile)) {
-                                    throw new IllegalArgumentException("The following role(s) is not present in the Superset %s, please check it: %s".formatted(contextKey, proposedRoleNamesFromFile));
-                                }
-                            });
-                }
-            });
+            verifySupersetRoleExists(dataDomainKeyToExistingSupersetRolesMap, user);
         }
+    }
+
+    private static void verifySupersetRoleExists(Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap, BatchUpdateContextRolesForUserDto user) {
+        user.getContextToModuleRoleNamesMap().forEach((contextKey, moduleRoleNamesList) -> {
+            List<String> existingSupersetRoles = dataDomainKeyToExistingSupersetRolesMap.get(contextKey);
+            if (existingSupersetRoles != null) {
+                moduleRoleNamesList.stream()
+                        .filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET)
+                        .findFirst()
+                        .ifPresent(supersetModule -> {
+                            List<String> proposedRoleNamesFromFile = supersetModule.roleNames();
+                            if (!new HashSet<>(existingSupersetRoles).containsAll(proposedRoleNamesFromFile)) {
+                                throw new IllegalArgumentException("The following role(s) is not present in the Superset %s, please check it: %s".formatted(contextKey, proposedRoleNamesFromFile));
+                            }
+                        });
+            }
+        });
     }
 
     List<BatchUpdateContextRolesForUserDto> fetchDataFromFile(boolean removeFilesAfterFetch, ContextsDto availableContexts) {
@@ -236,7 +245,9 @@ public class BatchUsersInvitationService {
         List<BatchUpdateContextRolesForUserDto> allUsers = new ArrayList<>();
         for (File file : files) {
             try (FileInputStream fis = new FileInputStream(file)) {
+                log.debug("File {} content \n{}", file.getAbsolutePath(), FileUtils.readFileToString(file, StandardCharsets.UTF_8));
                 List<BatchUpdateContextRolesForUserDto> users = csvParserService.transform(fis);
+                log.debug("Batch users file successfully read: {}", users);
                 verifyContextKeys(users, availableDataDomainKeys);
                 verifySupersetRoles(users, dataDomainKeyToExistingSupersetRolesMap);
                 allUsers.addAll(users);

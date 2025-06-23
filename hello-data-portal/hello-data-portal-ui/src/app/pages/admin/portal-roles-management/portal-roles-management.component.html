@@ -1,12 +1,6 @@
 
 <h2 class="content-block">{{'@Portal roles management' | transloco}}</h2>
 <div class="card">
-  <p-toolbar styleClass="mb-4 gap-2">
-    <ng-template pTemplate="left">
-      <button (click)="createRole()" class="p-button-success mr-2" icon="fas fa-circle-plus" label="{{'@Create role' | transloco }}" pButton pRipple></button>
-    </ng-template>
-  </p-toolbar>
-
   <div *ngIf="(roles$ | async) as roles">
     <p-table
       #dt
