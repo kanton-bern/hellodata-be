@@ -70,5 +70,10 @@ export const environment: Environment = window.environment != undefined ? window
     licenseUrl: '--configure me--',
     githubUrl: '--configure me--',
     versionLink: '--configure me--'
+  },
+  matomoConfig: {
+    enabled: false,
+    siteId: 1, // <-- Replace with your real Site ID
+    trackerUrl: 'http://localhost:8081/' // <-- Replace with your real Matomo URL
   }
 };
