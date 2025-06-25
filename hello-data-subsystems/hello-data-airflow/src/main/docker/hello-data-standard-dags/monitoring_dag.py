@@ -42,7 +42,6 @@ def detect_changes(**context):
                 current_state[dag.dag_id][1] = False
     #session.close()
 
-### Da der Aufbau vom Json-File geändert wurde, kann dies zu Fehlern führen. Darum sollte das Json-File zuerst gelöscht werden oder hier im DAG ein leerer Dictionary als 'previous_state' initialisiert werden. ###
     previous_state = load_previous_state()
     
     # 1. Pause state changes
