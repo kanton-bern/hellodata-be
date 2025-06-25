@@ -107,5 +107,9 @@ RUN dos2unix /db/wait-and-migrate.sh && apt-get --purge remove -y dos2unix && rm
 
 # Switching back to using the `airflow` user
 USER airflow
+
+RUN mkdir -p /opt/airflow/dags/hello-data-standard-dags/
+COPY ./hello-data-standard-dags/* /opt/airflow/dags/hello-data-standard-dags/
+
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]
