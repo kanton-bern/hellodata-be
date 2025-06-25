@@ -176,11 +176,10 @@ def notify_if_any_changes(**context):
     deleted_dags = ti.xcom_pull(key='deleted_dags', task_ids='check_dag_states')
     last_run_info = ti.xcom_pull(key='last_run_info', task_ids='check_dag_states')
     soll_run_info = ti.xcom_pull(key='soll_run_info', task_ids='check_dag_states')
-    monitored_fail_detected = ti.xcom_pull(key='monitored_fail_detected', task_ids='check_dag_states')
 
 
     msg_lines = []
-    msg_lines.append("<b>Good Morning!</b>")
+    msg_lines.append("<b>Hi!</b>")
 
 # Table with the last run info of monitored DAGs    
     msg_lines.append("<br><br><h2><u>Monitored DAGs</u></h2>")
@@ -375,13 +374,13 @@ def notify_if_any_changes(**context):
     msg_lines.append("<br><br>Have a nice day!<br><br>")
 
 
-        
-    html_content = "".join(msg_lines)
+
+    html_content = "<html><body>" + "".join(msg_lines) + "</body></html>"
 
     email = EmailOperator(
         task_id='send_notification_email',
         to=NOTIFY_EMAIL,
-        subject=f"{INSTANCE_NAME}, {pendulum.now('Europe/Zurich').strftime('%d.%m.%Y %H:%M')} - Airflow Overnight Report",
+        subject=f"{INSTANCE_NAME} monitoring, {pendulum.now().strftime('%d.%m.%Y %H:%M')} - Airflow Overnight Report",
         html_content=html_content,
     )
     email.execute(context=context)
@@ -391,7 +390,7 @@ with DAG(
     schedule_interval=THIS_DAG_RUNTIME_SCHEDULE,
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=['monitoring', 'test'],
+    tags=['monitoring'],
 ) as dag:
 
     check_dag_states = PythonOperator(
