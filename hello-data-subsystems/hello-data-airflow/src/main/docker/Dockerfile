@@ -117,8 +117,8 @@ USER airflow
 # This is done to enable mounting a k8s PVC in the /opt/airflow/dags directory
 # and still have the standard DAGs available in the image. Otherwise, the
 # mounted directory would overwrite the standard DAGs.
-RUN mkdir -p /opt/airflow/dags/hello-data-standard-dags/
-COPY ./hellodata-standard-dags/* /tmp/hellodata-standard-dags/
+RUN mkdir -p /opt/airflow/dags/hellodata-standard-dags/
+COPY ./hellodatastandard-dags/* /tmp/hellodata-standard-dags/
 
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]
