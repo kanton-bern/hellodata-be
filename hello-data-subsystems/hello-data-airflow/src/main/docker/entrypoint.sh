@@ -56,9 +56,11 @@ fi
 # Copy airflow standard DAGs to the DAGs folder
 if [ ! -d "/opt/airflow/dags" ]; then
     mkdir -p /opt/airflow/dags
+    echo "[ENTRYPOINT]: Created missing directory /opt/airflow/dags"
 fi
 
 cp -r /tmp/hellodata-standard-dags /opt/airflow/dags
+echo "[ENTRYPOINT]: Copied standard DAGs to /opt/airflow/dags/hellodata-standard-dags"
 
 # Execute the entrypoint command for Airflow
 exec /entrypoint "${@}"
