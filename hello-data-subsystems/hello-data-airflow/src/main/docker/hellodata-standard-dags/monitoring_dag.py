@@ -69,6 +69,7 @@ def detect_changes(**context):
     i = 0
     last_check_time = session.query(DagRun).filter(DagRun.dag_id==THIS_DAG_ID,DagRun.state=='success').order_by(DagRun.execution_date.desc()).first()
     for dag_id in current_state.keys():
+        last_run = []
         if last_check_time:
             last_run = (
                 session.query(DagRun)
