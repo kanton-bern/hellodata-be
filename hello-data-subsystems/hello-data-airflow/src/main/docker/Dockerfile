@@ -118,7 +118,7 @@ USER airflow
 # and still have the standard DAGs available in the image. Otherwise, the
 # mounted directory would overwrite the standard DAGs.
 RUN mkdir -p /opt/airflow/dags/hellodata-standard-dags/
-COPY ./hellodatastandard-dags/* /tmp/hellodata-standard-dags/
+COPY ./hellodata-standard-dags/* /tmp/hellodata-standard-dags/
 
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]
