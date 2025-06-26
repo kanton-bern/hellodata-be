@@ -42,7 +42,6 @@ import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.sel
 })
 export class DashboardsComponent implements OnInit{
   dashboards$: Observable<SupersetDashboard[]>;
-  dashboard!: SupersetDashboardWithMetadata;
   filterValue = '';
 
   constructor(private route: ActivatedRoute, private store: Store<AppState>, private menuService: MenuService) {

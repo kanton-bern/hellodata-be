@@ -28,7 +28,7 @@
 import {LOCALE_ID, NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
-import {SideNavOuterToolbarModule} from './layouts';
+import {MobileModule, SideNavOuterToolbarModule} from './layouts';
 import {FooterModule, SummaryModule} from './shared/components';
 import {AppInfoService, ScreenService} from './shared/services';
 import {AppRoutingModule} from './app-routing.module';
@@ -84,6 +84,7 @@ import {DashboardImportExportModule} from "./pages/admin/dashboard-import-export
 import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
 import {AdvancedAnalyticsModule} from "./pages/advanced-analytics/advanced-analytics.module";
 import {SubsystemUsersModule} from "./pages/admin/subsystem-users/subsystem-users.module";
+import {MatomoModule, MatomoRouterModule} from 'ngx-matomo-client';
 
 registerLocaleData(localeDECH);
 
@@ -146,6 +147,13 @@ registerLocaleData(localeDECH);
     UnsavedChangesModule,
     RedirectModule,
     DashboardImportExportModule,
+    MobileModule,
+    MatomoModule.forRoot({
+      disabled: !environment.matomoConfig.enabled,
+      siteId: environment.matomoConfig.siteId,
+      trackerUrl: environment.matomoConfig.trackerUrl,
+    }),
+    MatomoRouterModule,
   ],
   providers: [
     ScreenService,

@@ -183,6 +183,7 @@
   "@Scheduled": "Scheduled",
   "@Search": "Search",
   "@Select a Dashboard": "Select a Dashboard",
+  "@Select a Data Domain": "Select a Data Domain",
   "@Selected Data Domain": "Selected Data Domain",
   "@Selected language": "Selected language",
   "@Set permissions": "Set permissions",

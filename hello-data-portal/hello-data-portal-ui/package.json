@@ -39,6 +39,7 @@
     "angular-auth-oidc-client": "^17.0.0",
     "angular-build-info": "^2.0.1",
     "axios": "^1.6.5",
+    "ngx-matomo-client": "^6.4.1",
     "ngx-pipes": "^3.2.2",
     "primeflex": "^3.3.1",
     "primeicons": "^6.0.1",

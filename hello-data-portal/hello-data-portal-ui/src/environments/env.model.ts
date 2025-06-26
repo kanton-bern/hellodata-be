@@ -40,6 +40,7 @@ export interface Environment {
   subSystemsConfig: SubSystemsConfig;
   locale: string;
   footerConfig: FooterConfig;
+  matomoConfig: MatomoConfig;
 }
 
 export interface FooterConfig {
@@ -80,4 +81,10 @@ export interface SubSystemHost {
   protocol: 'https://' | 'http://'; // the protocol
   host: string; // the host name
   domain: string; // the domain name
+}
+
+export interface MatomoConfig {
+  enabled: boolean;
+  siteId: number;
+  trackerUrl: string;
 }

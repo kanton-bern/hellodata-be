@@ -1,0 +1,151 @@
+<ng-container *ngIf="availableDataDomains$ | async"></ng-container>
+<!-- Top Bar -->
+<div class="grid w-full bg-white surface-border border-bottom-1 fixed top-0 left-0 z-5" style="height: 4rem;">
+  <div class="col-12 flex pt-1">
+    <div class="col-2 flex align-items-center justify-content-start h-full">
+      <button
+        type="button" pAnimate pRipple
+        class="p-button p-button-text h-full flex align-items-center justify-content-center"
+        (click)="showDashboardMenu = true"
+        aria-label="Open menu">
+        <i class="pi pi-bars text-2xl" style="color: black"></i>
+      </button>
+    </div>
+
+    <div class="col-8 flex align-items-center justify-content-center h-full">
+      <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
+          <a (click)="showDataDomainMenu = true"  style="cursor: pointer; font-size: 0.9rem"
+             class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
+            <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
+            <i class="fas fa-chevron-down p-1"></i>
+          </a>
+       </span>
+    </div>
+
+    <div class="col-2 flex align-items-center justify-content-end h-full">
+      <button pAnimate pRipple
+        type="button"
+        class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
+        aria-label="User Profile">
+        <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!--Dashboard menu-->
+<p-sidebar
+  [(visible)]="showDashboardMenu"
+  position="left"
+  [modal]="true"
+  [baseZIndex]="10000">
+  <ng-template pTemplate="header">
+    <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Dashboard' | transloco }}</div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="flex flex-column gap-3 text-900" *ngIf="groupedDashboards$ | async as groupedDashboards">
+      <ng-container *ngFor="let context of groupedDashboards.keys()">
+        <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
+        <ng-container *ngFor="let dash of groupedDashboards.get(context)">
+          <a
+            class="cursor-pointer hover:underline ml-2 text-black"
+            (click)="openDashboard(dash)">
+            {{ dash.dashboardTitle }}
+          </a>
+          <hr class="my-1 border-top-1 surface-border" />
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-template>
+</p-sidebar>
+
+<!--User menu-->
+<p-sidebar
+  [(visible)]="showUserMenu"
+  position="top"
+  [modal]="true"
+  [baseZIndex]="10000"
+  styleClass="p-4"
+  [fullScreen]="false"
+  [style]="{'height': 'auto'}">
+  <ng-template pTemplate="header">
+     <span class="mr-3 top-menu-item" *ngIf="(languages$ | async) as languages">
+        <ng-template [ngForOf]="supportedLanguages" let-i="index" let-last="last" let-item ngFor>
+          <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
+             (click)="onLanguageChange(item.code)">
+            {{ item.label }}
+          </a>
+          <span *ngIf="!last">|</span>
+        </ng-template>
+    </span>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="flex flex-column gap-3 text-900">
+      <hr class="m-0 border-top-1 surface-border" />
+      <a (click)="navigateToProfile()"
+         class="cursor-pointer hover:underline"
+         style="color: black;">
+        {{ '@Profile' | transloco}}
+      </a>
+
+      <hr class="m-0 border-top-1 surface-border" />
+
+      <a (click)="logout()"
+         class="cursor-pointer hover:underline"
+         style="color: black;">
+        {{ '@Logout' | transloco}}
+      </a>
+
+      <hr class="m-0 border-top-1 surface-border" />
+
+      <a (click)="navigateToHome()">{{ '@HelloDATA' | transloco }}</a>
+      <a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">
+        OpenSource Data Platform  {{appInfo.currentYear}}
+      </a>
+
+      <a href="{{licenseUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">License</a>
+      <a href="{{githubUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">GitHub</a>
+      <a href="{{versionLink}}" rel="noopener" target="_blank" style="font-size: 0.9em; color: black">
+        <b>{{ '@Version' | transloco}}:</b>{{' '}}{{appInfo.buildInfo}}
+      </a>
+    </div>
+
+  </ng-template>
+</p-sidebar>
+
+<!--Data Domain menu-->
+<p-sidebar
+  [(visible)]="showDataDomainMenu"
+  position="top"
+  [modal]="true"
+  [baseZIndex]="10000"
+  styleClass="p-4"
+  [fullScreen]="false"
+  [style]="{'height': 'auto'}">
+  <ng-template pTemplate="header">
+    <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Data Domain' | transloco }}</div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <div class="flex flex-column gap-3 text-900">
+      <hr class="m-0 border-top-1 surface-border" />
+      <ng-container *ngFor="let item of dataDomainSelectionItems">
+        <a class="cursor-pointer hover:underline"
+           style="color: black;"
+           (click)="onDataDomainClicked(item)">
+          {{ item.label | transloco }}
+        </a>
+        <hr class="m-0 border-top-1 surface-border" />
+      </ng-container>
+    </div>
+  </ng-template>
+</p-sidebar>
+
+<div class="pt-14 bg-gray-50 min-h-screen">
+  <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}" id="mainContentDiv">
+    <ng-content ng-style="width: 100%"></ng-content>
+  </div>
+</div>
+
+
+<!--<p-toast></p-toast>-->
+<!--<app-unsaved-changes-dialog></app-unsaved-changes-dialog>-->
