@@ -60,7 +60,7 @@ if [ ! -d "/opt/airflow/dags" ]; then
 fi
 
 cp -r /tmp/hellodata-standard-dags /opt/airflow/dags
-echo "[ENTRYPOINT]: Copied standard DAGs to /opt/airflow/dags/hellodata-standard-dags"
+echo "[ENTRYPOINT]: Copied standard DAGs to /opt/airflow/dags"
 
 # Execute the entrypoint command for Airflow
 exec /entrypoint "${@}"
