@@ -7024,7 +7024,7 @@ __metadata:
     jest-mock-extended: "npm:^3.0.5"
     jest-preset-angular: "npm:^13.1.5"
     jest-sonar: "npm:^0.2.16"
-    ngx-matomo-client: "npm:6.4.1"
+    ngx-matomo-client: "npm:^6.4.1"
     ngx-pipes: "npm:^3.2.2"
     primeflex: "npm:^3.3.1"
     primeicons: "npm:^6.0.1"
@@ -9334,7 +9334,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ngx-matomo-client@npm:6.4.1":
+"ngx-matomo-client@npm:^6.4.1":
   version: 6.4.1
   resolution: "ngx-matomo-client@npm:6.4.1"
   dependencies:
