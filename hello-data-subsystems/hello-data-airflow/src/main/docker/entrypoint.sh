@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # Copyright © 2024, Kanton Bern
 # All rights reserved.
