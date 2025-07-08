@@ -252,10 +252,10 @@ def notify_if_any_changes(**context):
 
 
 # Shows all the changes in the DAGs, like new DAGs, deleted DAGs, state changes and tag changes. 
-    msg_lines.append("<br><br><h2><u>Changes DAGs</u></h2>")
+    msg_lines.append("<br><br><h2><u>Changes to DAGs</u></h2>")
 
     # Create lists for each type of change
-    msg_lines.append("<br><br><b>Pause/Unpause Changes:</b>")
+    msg_lines.append("<b>Pause/Unpause Changes:</b>")
     if not state_changes:
         msg_lines.append("<br>There are no changes in pause/unpause state.<br>")
     else:
@@ -319,7 +319,7 @@ def notify_if_any_changes(**context):
     msg_lines.append("<br><br><h2><u>General Overview</u></h2>")
 
     # Create a table for the last run info
-    msg_lines.append("<br><br><b>DAG-Run Summary:</b>")
+    msg_lines.append("<b>DAG-Run Summary:</b>")
     msg_lines.append("<br>Here is how the DAG-runs since the last Mail went.")
     msg_lines.append("<table width='80%' border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse;'>" \
     "<tr>" \
@@ -361,10 +361,10 @@ def notify_if_any_changes(**context):
 
 # Information Text about this DAG and the Controling in general
     msg_lines.append("<br><br><h2><u>Documentation</u></h2>")
-    msg_lines.append("<br>This is an automated E-Mail. It should be sent to you every morning. If this Mail ever doesn't show in your inbox, \
+    msg_lines.append("This is an automated E-Mail. It should be sent to you every morning. If this Mail ever doesn't show in your inbox, \
         something went wrong and there are probably several failed DAGs that need your attention. Otherwise this Mail will show you all the changes made in Airflow since the last time. \
         It also shows you what DAGs ran in the meantime and if those DAGs ended successfully.")
-    msg_lines.append("<br>If you ever want to check the DAGs manually, you just need to run the DAG <i>{THIS_DAG_ID}</i> in Airflow. This DAG will check the state of all DAGs and send you a Mail with all the changes.")
+    msg_lines.append(f"<br>If you ever want to check the DAGs manually, you just need to run the DAG <i>{THIS_DAG_ID}</i> in Airflow. This DAG will check the state of all DAGs and send you a Mail with all the changes.")
     msg_lines.append("<br>In the section <b>Monitored DAGs</b> you can see all the DAGs that are monitored by this DAG. \
         If a DAG is monitored, it will be checked every time this DAG runs. If the DAG fails, you will get a notification Mail with the information about the failure.")
     msg_lines.append("<br>If you want to monitor a DAG, please add the tag <i>monitored</i> to said DAG in Airflow. If you want to stop monitoring a DAG, just remove the tag.")
@@ -381,7 +381,7 @@ def notify_if_any_changes(**context):
     email = EmailOperator(
         task_id='send_notification_email',
         to=NOTIFY_EMAIL,
-        subject=f"{INSTANCE_NAME} monitoring, {pendulum.now().strftime('%d.%m.%Y %H:%M')} - Airflow Overnight Report",
+        subject=f"{INSTANCE_NAME} monitoring, {pendulum.now().strftime('%d.%m.%Y %H:%M')} - DAG monitoring report",
         html_content=html_content,
     )
     email.execute(context=context)

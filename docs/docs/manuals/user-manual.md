@@ -105,7 +105,7 @@ Please find all setting and features in the [CloudBeaver Documentation](https://
 #### Orchestration
 
 The orchestrator is your task manager. You
-tell[Airflow](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&Concepts-TaskOrchestration-Airflow),
+tell [Airflow](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&Concepts-TaskOrchestration-Airflow),
 our orchestrator, in which order the task will run. This is usually done ahead of time, and in the portal, you can see
 the latest runs and their status (successful, failed, etc.).
 
@@ -118,6 +118,28 @@ the latest runs and their status (successful, failed, etc.).
 
 ![](../images/1068204596.png)
 ![](../images/1068204607.png)
+
+##### Default DAG: HelloDATA Monitoring
+
+This is a DAG provided by us that can provide you with a summary of DAG runs. It will report to you through Email which DAGs have
+failed since the monitoring DAG has previously run, which have run successfully, which have not run and which are still running.
+
+![Screenshot of the monitoring DAG Email](../images/monitoring-dag-email.png)
+
+The email has 3 sections:
+1. Monitored DAGs - A table with an overview over DAG runs with the tag `monitored`
+2. Changes to DAGs - Lists which DAGs have been paused/unpaused, are new, deleted, newly monitored (have been added the tag `monitored`) and newly unmonitored
+3. General overview - A table with all DAG runs
+
+The behaviour of the DAG can be modified through environment variables on the airflow worker:
+
+| Variable name                   | Default value                                                                 | Effect                                                                                                                                                                                                                       |
+|----------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `MONITORING_DAG_STATE_FILE`      | `/opt/airflow/dag_state_cache.json`                                          | Path to a file where the state can be saved. On Kubernetes, this could be on a PVC to ensure it doesn't disappear after a restart of the pod.                                         |
+| `MONITORING_DAG_NOTIFY_EMAIL`    | `moiraine@tarvalon.org,rand.althor@aielwaste.net`                           | Comma-separated list of email addresses where the mail should be sent. Airflow's mail server properties will be used to send the email.                                               |
+| `MONITORING_DAG_AIRFLOW_LINK`    | `your administrator has forgotten to set the MONITORING_DAG_AIRFLOW_LINK env variable` | Value used to generate direct links to the DAG runs.                                                                                                                                  |
+| `MONITORING_DAG_INSTANCE_NAME`   | `HelloDATA`                                                                 | Used to generate the title of the email: `<MONITORING_DAG_INSTANCE_NAME> monitoring, <date and time> - DAG monitoring report Report`                                                                           |
+| `MONITORING_DAG_RUNTIME_SCHEDULE`| `0 5 * * *`                                                                 | [Cron expression](https://en.wikipedia.org/wiki/Cron) for when to run the DAG.                                                                                                        |
 
 #### Jupyter Notebooks (Jupyter Hub)
 
