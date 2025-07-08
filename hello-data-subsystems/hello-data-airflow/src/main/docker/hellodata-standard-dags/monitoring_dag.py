@@ -391,7 +391,7 @@ with DAG(
     schedule_interval=THIS_DAG_RUNTIME_SCHEDULE,
     start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=['monitoring'],
+    tags=['monitoring', 'HelloDATA_standard'],
 ) as dag:
 
     check_dag_states = PythonOperator(
