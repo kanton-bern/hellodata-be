@@ -111,5 +111,14 @@ RUN dos2unix /db/wait-and-migrate.sh && apt-get --purge remove -y dos2unix && rm
 
 # Switching back to using the `airflow` user
 USER airflow
+
+# Copy standard DAGs to the image
+# Have a look at entrypoint.sh to see how the DAGs are copied to the right place
+# This is done to enable mounting a k8s PVC in the /opt/airflow/dags directory
+# and still have the standard DAGs available in the image. Otherwise, the
+# mounted directory would overwrite the standard DAGs.
+RUN mkdir -p /opt/airflow/dags/hellodata-standard-dags/
+COPY ./hellodata-standard-dags/* /tmp/hellodata-standard-dags/
+
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]
