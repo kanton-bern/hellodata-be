@@ -23,7 +23,7 @@
         <start-class>ch.bedag.dap.hellodata.monitoring.sba.SBAdminApplication</start-class>
         <spring-version>3.4.5</spring-version>
         <spring-cloud-starter-kubernetes-client-all-version>3.3.0</spring-cloud-starter-kubernetes-client-all-version>
-        <spring-boot-admin-version>3.3.3</spring-boot-admin-version>
+        <spring-boot-admin-version>3.3.4</spring-boot-admin-version>
         <docker.namespace>bedag</docker.namespace>
     </properties>
 
