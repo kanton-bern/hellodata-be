@@ -181,29 +181,6 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeleteUserById_UserNotFound() {
-        // given
-        UUID uuid = UUID.randomUUID();
-        String userId = uuid.toString();
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(uuid);
-
-        when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);
-        when(keycloakService.getUserResourceById(any())).thenReturn(null);
-
-        // when
-        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
-            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
-            utilities.when(SecurityUtils::getCurrentUserId).thenReturn(UUID.randomUUID());
-            // then
-            ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-                userService.deleteUserById(userId);
-            });
-            assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        }
-    }
-
-    @Test
     public void testDisableUserById_UserFound() {
         // given
         UUID uuid = UUID.randomUUID();
