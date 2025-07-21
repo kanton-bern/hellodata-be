@@ -48,11 +48,19 @@ if [ -n "$DB_HOST" ] && [ -n "$DB_NAME" ] && [ -n "$DB_PORT" ] && [ -n "$DB_USER
     else
         echo "[ENTRYPOINT]: wait-and-migrate.sh executed successfully"
         airflow db upgrade
-        # Execute entrypoint only if wait-and-migrate.sh succeeded
-        exec /entrypoint "${@}"
     fi
 else
     echo "[ENTRYPOINT]: Missing one or more required environment variables (DB_HOST, DB_NAME, DB_PORT, DB_USER, DB_PASS). Skipping wait-and-migrate.sh."
-    # Execute entrypoint directly
-    exec /entrypoint "${@}"
 fi
+
+# Copy airflow standard DAGs to the DAGs folder
+if [ ! -d "/opt/airflow/dags" ]; then
+    mkdir -p /opt/airflow/dags
+    echo "[ENTRYPOINT]: Created missing directory /opt/airflow/dags"
+fi
+
+cp -r /tmp/hellodata-standard-dags /opt/airflow/dags
+echo "[ENTRYPOINT]: Copied standard DAGs to /opt/airflow/dags"
+
+# Execute the entrypoint command for Airflow
+exec /entrypoint "${@}"
