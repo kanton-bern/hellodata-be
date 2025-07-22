@@ -33,6 +33,7 @@ import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
 import {AppState} from "../app/app.state";
 import {
+  selectCurrentPagination,
   selectDashboardsForUser,
   selectParamUserId,
   selectSelectedRolesForUser,
@@ -122,31 +123,46 @@ export class UsersManagementEffects {
   userPopupAction$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(invokeActionFromUserPopup),
-      concatLatestFrom(() => this._store.select(selectUserForPopup)),
-      switchMap(([action, userActionForPopup]) => {
+      concatLatestFrom(() => [this._store.select(selectUserForPopup), this._store.select(selectCurrentPagination)]),
+      switchMap(([action, userActionForPopup, currentPagination]) => {
           switch (userActionForPopup!.action) {
             case (UserAction.DISABLE):
               return this._usersManagementService.disableUser(userActionForPopup!.user).pipe(
-                switchMap((user) => of(userPopupActionSuccess({
-                  email: userActionForPopup!.user.email,
-                  userActionForPopup: userActionForPopup as UserActionForPopup
-                }), updateUserInStore({userChanged: user}))),
+                switchMap((user) => of(
+                  userPopupActionSuccess({
+                    email: userActionForPopup!.user.email,
+                    userActionForPopup: userActionForPopup as UserActionForPopup
+                  }),
+                  updateUserInStore({userChanged: user}))
+                ),
                 catchError(e => of(showError({error: e})))
               );
             case (UserAction.ENABLE):
               return this._usersManagementService.enableUser(userActionForPopup!.user).pipe(
-                switchMap((user) => of(userPopupActionSuccess({
-                  email: userActionForPopup!.user.email,
-                  userActionForPopup: userActionForPopup as UserActionForPopup
-                }), updateUserInStore({userChanged: user}))),
+                switchMap((user) => of(
+                  userPopupActionSuccess({
+                    email: userActionForPopup!.user.email,
+                    userActionForPopup: userActionForPopup as UserActionForPopup
+                  }),
+                  updateUserInStore({userChanged: user}))
+                ),
                 catchError(e => of(showError({error: e})))
               );
             default:
               return this._usersManagementService.deleteUser(userActionForPopup!.user).pipe(
-                switchMap(() => of(userPopupActionSuccess({
-                  email: userActionForPopup!.user.email,
-                  userActionForPopup: userActionForPopup as UserActionForPopup
-                }), deleteUserInStore({userDeleted: userActionForPopup!.user}))),
+                switchMap(() => of(
+                  userPopupActionSuccess({
+                    email: userActionForPopup!.user.email,
+                    userActionForPopup: userActionForPopup as UserActionForPopup
+                  }),
+                  deleteUserInStore({userDeleted: userActionForPopup!.user}),
+                  loadUsers({
+                    page: currentPagination.page,
+                    size: currentPagination.size,
+                    sort: currentPagination.sort,
+                    search: currentPagination.search
+                  })
+                )),
                 catchError(e => of(showError({error: e})))
               );
           }

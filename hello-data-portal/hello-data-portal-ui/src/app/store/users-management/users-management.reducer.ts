@@ -61,10 +61,13 @@ import {createReducer, on} from "@ngrx/store";
 
 export const usersManagementReducer = createReducer(
   initialUsersManagementState,
-  on(loadUsers, (state: UsersManagementState): UsersManagementState => {
+  on(loadUsers, (state: UsersManagementState, {page, size, sort, search}): UsersManagementState => {
     return {
       ...state,
       usersLoading: true,
+      currentPagination: {
+        page, size, sort, search
+      }
     };
   }),
   on(loadUsersSuccess, (state: UsersManagementState, {users, totalElements}): UsersManagementState => {

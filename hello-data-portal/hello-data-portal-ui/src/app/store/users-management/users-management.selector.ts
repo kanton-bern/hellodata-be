@@ -210,4 +210,9 @@ export const selectSubsystemUsersForDashboardsLoading = createSelector(
   (state: UsersManagementState) => state.subsystemUsersForDashboardsLoading
 );
 
+export const selectCurrentPagination = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.currentPagination
+);
+
 
