@@ -5,13 +5,11 @@
       <div *ngIf="(dashboards$ | async) as dashboards">
         <div *ngIf="dataDomain.data">
           <h3>{{dataDomain.data.name}}</h3>
-          <p-table [filterDelay]="0"
-                   [selection]="getSelectedDashboards(dataDomain.data.key)"
-                   (selectionChange)="onSelectionChange($event, dataDomain.data.key)"
+          <p-table (selectionChange)="onSelectionChange($event, dataDomain.data.key)"
                    [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
                    [paginator]="true"
                    [rowHover]="true"
-                   [rows]="10"
+                   [rows]="50"
                    [selectionPageOnly]="true"
                    [showCurrentPageReport]="true"
                    [tableStyle]="{ 'min-width': '50rem' }"
@@ -41,7 +39,7 @@
                             (onError)="onError($event)"
                             (onSelect)="onSelect($event)"
                             [styleClass]="'mt-2'"
-                            accept=".zip,.json"
+                            accept=".zip"
                             [maxFileSize]="5000000000">
               </p-fileUpload>
             </ng-template>
