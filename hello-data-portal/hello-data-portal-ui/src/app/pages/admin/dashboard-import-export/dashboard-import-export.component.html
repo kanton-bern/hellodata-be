@@ -33,7 +33,7 @@
                         pRipple></button>
               </div>
               <p-fileUpload name="file"
-                            url="{{baseUrl}}{{dataDomain.data.key}}"
+                            url="{{uploadDashboardsUrl}}{{dataDomain.data.key}}"
                             *ngIf="uploadVisible(dataDomain.data.key)"
                             (onUpload)="onUploadCompleted($event)"
                             (onError)="onError($event)"

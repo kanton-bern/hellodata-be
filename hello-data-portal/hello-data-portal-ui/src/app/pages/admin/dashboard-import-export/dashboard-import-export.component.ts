@@ -42,6 +42,7 @@ import {
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "../../../store/my-dashboards/my-dashboards.action";
+import {environment} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -55,6 +56,8 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
   showUploadForContextMap = new Map<string, boolean>();
+
+  uploadDashboardsUrl = `${environment.portalApi}/superset/upload-dashboards/`;
 
   constructor(private store: Store<AppState>) {
     super();
