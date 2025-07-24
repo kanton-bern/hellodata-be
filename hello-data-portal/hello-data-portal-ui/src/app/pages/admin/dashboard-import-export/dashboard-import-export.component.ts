@@ -42,7 +42,6 @@ import {
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "../../../store/my-dashboards/my-dashboards.action";
-import {environment} from "../../../../environments/environment";
 
 @Component({
   selector: 'app-dashboard-import-export',
