@@ -104,7 +104,7 @@ export class DashboardImportExportComponent extends BaseComponent {
     try {
       const archive = await ZipArchive.from_blob($event.files[0]);
       const paths: string[] = [];
-      let iterator = archive.files();
+      const iterator = archive.files();
       let next = iterator.next();
       while (!next.done) {
         const [path, _entry] = next.value;
@@ -209,20 +209,16 @@ export class DashboardImportExportComponent extends BaseComponent {
     // Attach the .zip file
     formData.append('file', file, file.name);
     // Attach JSON fields (as strings)
-    let newVar = this.forms.get(contextKey);
-    console.log('Form wrapper', newVar?.form.getRawValue());
-    // formData.append('passwords', JSON.stringify({
-    //   'databases/BI_Editor.yaml': 'mypassword'
-    // }));
-    // this.http.post(`${this.uploadDashboardsUrl}${contextKey}`, formData).subscribe({
-    //   next: res => {
-    //     console.log('Upload successful', res);
-    //   },
-    //   error: err => {
-    //     console.error('Upload failed', err);
-    //     console.error('Upload failed', err.message);
-    //     this.store.dispatch(uploadDashboardsError({error: err.message}));
-    //   }
-    // });
+    const rawForm = this.forms.get(contextKey);
+    formData.append('passwords', this.forms.get(contextKey)?.form.getRawValue());
+    this.http.post(`${this.uploadDashboardsUrl}${contextKey}`, formData).subscribe({
+      next: res => {
+        console.log('Upload successful', res);
+      },
+      error: err => {
+        console.error('Upload failed', err);
+        this.store.dispatch(uploadDashboardsError({error: err.message}));
+      }
+    });
   }
 }
