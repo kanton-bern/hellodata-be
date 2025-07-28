@@ -207,7 +207,7 @@ export class DashboardImportExportComponent extends BaseComponent {
     const file: File = event.files[0];  // Only supporting single upload
     const formData = new FormData();
     // Attach the .zip file
-    formData.append('file', file, file.name);
+    formData.append('formData', file, file.name);
     // Attach JSON fields (as strings)
     const rawForm = this.forms.get(contextKey);
     formData.append('passwords', this.forms.get(contextKey)?.form.getRawValue());
