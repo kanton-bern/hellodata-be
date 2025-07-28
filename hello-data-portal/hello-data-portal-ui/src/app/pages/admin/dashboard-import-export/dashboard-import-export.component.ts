@@ -36,7 +36,7 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {selectAvailableDataDomainItems, selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
-import {FileSelectEvent, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
+import {FileSelectEvent, FileUploadErrorEvent, FileUploadEvent, FileUploadHandlerEvent} from "primeng/fileupload";
 import {
   loadMyDashboards,
   uploadDashboardsError,
@@ -46,6 +46,7 @@ import {environment} from "../../../../environments/environment";
 import { ZipArchive } from "@shortercode/webzip";
 import {FormBuilder, FormGroup} from "@angular/forms";
 import {take} from "rxjs/operators";
+import {HttpClient} from "@angular/common/http";
 
 
 export interface FormWrapper {
@@ -70,7 +71,7 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   forms = new Map<string, FormWrapper>();
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor(private store: Store<AppState>, private fb: FormBuilder, private http: HttpClient) {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET')).pipe(delay(200), take(1));
     this.dashboards$ = this.store.select(selectMyDashboards).pipe(delay(200), take(1));
@@ -205,4 +206,24 @@ export class DashboardImportExportComponent extends BaseComponent {
     return path.replace(/[^a-zA-Z0-9]/g, '_');
   }
 
+  uploadDashboards(event: FileUploadHandlerEvent, contextKey: string) {
+    console.log('Uploading dashboards', event, contextKey);
+    const file: File = event.files[0];  // Only supporting single upload
+    const formData = new FormData();
+    // Attach the .zip file
+    formData.append('formData', file, file.name);
+    // Attach JSON fields (as strings)
+    formData.append('overwrite', 'true');
+    formData.append('passwords', JSON.stringify({
+      'databases/BI_Editor.yaml': 'mypassword'
+    }));
+    this.http.post(`${this.uploadDashboardsUrl}${contextKey}`, formData).subscribe({
+      next: res => {
+        console.log('Upload successful', res);
+      },
+      error: err => {
+        console.error('Upload failed1', err);
+      }
+    });
+  }
 }
