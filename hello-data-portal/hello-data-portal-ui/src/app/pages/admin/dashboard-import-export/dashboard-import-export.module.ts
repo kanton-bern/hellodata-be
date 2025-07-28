@@ -37,6 +37,8 @@ import {TableModule} from "primeng/table";
 import {TooltipModule} from "primeng/tooltip";
 import {NgArrayPipesModule} from "ngx-pipes";
 import {FileUploadModule} from "primeng/fileupload";
+import {ReactiveFormsModule} from "@angular/forms";
+import {FloatLabelModule} from "primeng/floatlabel";
 
 @NgModule({
   declarations: [
@@ -52,7 +54,9 @@ import {FileUploadModule} from "primeng/fileupload";
     TableModule,
     TooltipModule,
     NgArrayPipesModule,
-    FileUploadModule
+    FileUploadModule,
+    ReactiveFormsModule,
+    FloatLabelModule
   ]
 })
 export class DashboardImportExportModule {

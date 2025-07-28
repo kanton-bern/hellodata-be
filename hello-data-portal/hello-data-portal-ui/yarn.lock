@@ -3001,6 +3001,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shortercode/webzip@npm:1.1.1-0":
+  version: 1.1.1-0
+  resolution: "@shortercode/webzip@npm:1.1.1-0"
+  checksum: 10c0/8fbb3483838351261d2039d15e56feeeebb7b418e3685ccb130e54d0548309524c07468b9394991867fe84c6c39f8de31bbced555f350b14871a220c4af70969
+  languageName: node
+  linkType: hard
+
 "@sigstore/bundle@npm:^2.3.2":
   version: 2.3.2
   resolution: "@sigstore/bundle@npm:2.3.2"
@@ -7014,6 +7021,7 @@ __metadata:
     "@ngrx/router-store": "npm:^17.0.1"
     "@ngrx/store": "npm:^17.0.1"
     "@ngrx/store-devtools": "npm:^17.0.1"
+    "@shortercode/webzip": "npm:1.1.1-0"
     "@testing-library/angular": "npm:^14.3.0"
     "@testing-library/dom": "npm:^9.3.3"
     "@types/jasmine": "npm:^4.3.6"

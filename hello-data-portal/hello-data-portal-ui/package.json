@@ -36,6 +36,7 @@
     "@ngrx/router-store": "^17.0.1",
     "@ngrx/store": "^17.0.1",
     "@ngrx/store-devtools": "^17.0.1",
+    "@shortercode/webzip": "1.1.1-0",
     "angular-auth-oidc-client": "^17.0.0",
     "angular-build-info": "^2.0.1",
     "axios": "^1.11.0",

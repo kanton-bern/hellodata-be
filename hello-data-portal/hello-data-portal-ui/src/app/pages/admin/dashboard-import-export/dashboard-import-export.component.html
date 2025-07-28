@@ -1,3 +1,4 @@
+<div style="display: none">{{ supersetInfos$ | async }}</div>
 <h2 class="content-block">{{'@Dashboard import-export' | transloco}}</h2>
 <div class="card">
   <div *ngIf="(availableDataDomains$ | async) as dataDomains">
@@ -37,11 +38,30 @@
                             *ngIf="uploadVisible(dataDomain.data.key)"
                             (onUpload)="onUploadCompleted($event)"
                             (onError)="onError($event)"
-                            (onSelect)="onSelect($event)"
+                            (onSelect)="onSelect($event, dataDomain.data.key)"
+                            (onRemove)="clear(dataDomain.data.key)"
+                            (onRemoveUploadedFile)="clear(dataDomain.data.key)"
+                            (abort)="clear(dataDomain.data.key)"
+                            (emptied)="clear(dataDomain.data.key)"
+                            (onClear)="clear(dataDomain.data.key)"
+                            (ended)="clear(dataDomain.data.key)"
+                            (change)="clear(dataDomain.data.key)"
                             [styleClass]="'mt-2'"
                             accept=".zip"
                             [maxFileSize]="5000000000">
               </p-fileUpload>
+              <div *ngIf="formCreated(dataDomain.data.key) && uploadVisible(dataDomain.data.key)">
+                <form [formGroup]="getForm(dataDomain.data.key)" class="mt-2">
+                  <div class="mb-2">{{ '@Passwords' | transloco }}{{ ':' }}</div>
+                  <div *ngFor="let key of getPaths(dataDomain.data.key)">
+                    <div class="flex flex-column gap-2">
+                      <label for="{{ key }}"><small>{{ key }}</small></label>
+                      <input pInputText id="{{ key }}" class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+                             type="text"  [formControlName]="toSafeKey(key)"/>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </ng-template>
             <ng-template pTemplate="header">
               <tr>

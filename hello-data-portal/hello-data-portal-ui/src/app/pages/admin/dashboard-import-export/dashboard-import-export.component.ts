@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ViewContainerRef} from '@angular/core';
-import {Observable} from "rxjs";
+import {Component} from '@angular/core';
+import {concatMap, delay, Observable, tap} from "rxjs";
 import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resource.model";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -43,6 +43,14 @@ import {
   uploadDashboardsSuccess
 } from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
+import { ZipArchive } from "@shortercode/webzip";
+import {FormBuilder, FormGroup} from "@angular/forms";
+
+
+export interface FormWrapper {
+  normalizedPaths: string[];
+  form: FormGroup
+}
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -59,7 +67,9 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   uploadDashboardsUrl = `${environment.portalApi}/superset/upload-dashboards/`;
 
-  constructor(private store: Store<AppState>) {
+  forms = new Map<string, FormWrapper>();
+
+  constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
     this.dashboards$ = this.store.select(selectMyDashboards);
@@ -80,12 +90,43 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   filterDashboardsByContext(dashboards: SupersetDashboard[], contextKey: string): SupersetDashboard[] {
-    console.log('filterDashboardsByContext', contextKey, dashboards);
     return dashboards.filter(dashboard => dashboard.contextKey === contextKey);
   }
 
-  onSelect($event: FileSelectEvent) {
-    console.debug('on dashboard select', $event.files)
+  async onSelect($event: FileSelectEvent, contextKey: string) {
+    console.debug('on dashboard select', $event);
+    if( !$event.files || $event.files.length === 0) {
+      this.clear(contextKey);
+      return;
+    }
+    try {
+      const archive = await ZipArchive.from_blob($event.files[0]);
+      const paths: string[] = [];
+      let iterator = archive.files();
+      let next = iterator.next();
+      while (!next.done) {
+        const [path, _entry] = next.value;
+        paths.push(path);
+        next = iterator.next();
+      }
+      const rootFolder = this.getRootFolderIfExists(paths);
+      const normalizedPaths = paths.map(p =>
+        rootFolder ? p.replace(`${rootFolder}/`, '') : p
+      ).filter(p => p.startsWith('databases/'));
+      const formGroupConfig = Object.fromEntries(normalizedPaths.map(p => [p, ['']]));
+      const form = this.fb.group(formGroupConfig);
+      this.forms.set(contextKey, {normalizedPaths, form});
+    } catch (error) {
+      console.error('Error reading zip file:', error);
+    }
+  }
+
+  private getRootFolderIfExists(paths: string[]): string | null {
+    if (paths.length === 0) return null;
+    const first = paths[0];
+    const firstPrefix = first.split('/')[0];
+    const allHavePrefix = paths.every(p => p.startsWith(`${firstPrefix}/`));
+    return allHavePrefix ? firstPrefix : null;
   }
 
   onSelectionChange(dashboards: SupersetDashboard[], contextKey: string) {
@@ -95,7 +136,6 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   getSelectedDashboards(contextKey: string): SupersetDashboard[] {
-    console.log('getSelectedDashboards', contextKey);
     const dashboards = this.selectedDashboardsMap.get(contextKey);
     if (dashboards) {
       return dashboards;
@@ -125,6 +165,7 @@ export class DashboardImportExportComponent extends BaseComponent {
     const visible = this.showUploadForContextMap.get(contextKey);
     if (visible) {
       this.showUploadForContextMap.set(contextKey, false);
+      this.forms.delete(contextKey);
     } else {
       this.showUploadForContextMap.set(contextKey, true);
     }
@@ -141,5 +182,25 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   onError($event: FileUploadErrorEvent) {
     this.store.dispatch(uploadDashboardsError({error: $event.error}));
+  }
+
+  getForm(contextKey: string) {
+    return this.forms.get(contextKey)?.form as FormGroup;
+  }
+
+  getPaths(contextKey: string) {
+    return this.forms.get(contextKey)?.normalizedPaths || [];
+  }
+
+  formCreated(contextKey: string) {
+    return this.forms.get(contextKey);
+  }
+
+  clear(contextKey: string) {
+    this.forms.delete(contextKey);
+  }
+
+  toSafeKey(path: string): string {
+    return path.replace(/[^a-zA-Z0-9]/g, '_');
   }
 }
