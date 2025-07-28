@@ -227,7 +227,7 @@ public class DashboardService {
         }
     }
 
-    public void uploadDashboardsFile(MultipartFile file, String contextKey) {
+    public void uploadDashboardsFile(MultipartFile file, String passwordsJson, String contextKey) {
         try (InputStream inputStream = file.getInputStream()) {
             String fileName = file.getName();
 
@@ -243,7 +243,7 @@ public class DashboardService {
                 bytesReadTotal += bytesRead;
                 boolean isLastChunk = bytesReadTotal == file.getSize();
                 log.info("Sending file to superset, bytes read total: {}, file size: {}", bytesReadTotal, file.getSize());
-                DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize());
+                DashboardUpload dashboardUpload = new DashboardUpload(Arrays.copyOf(buffer, bytesRead), ++chunkNumber, fileName, binaryFileId, isLastChunk, file.getSize(), passwordsJson);
                 sendToSidecar(dashboardUpload, subject);
             }
         } catch (InterruptedException e) {
