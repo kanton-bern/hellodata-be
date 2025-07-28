@@ -29,9 +29,13 @@ package ch.bedag.dap.hellodata.portal.superset.controller;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -71,10 +75,15 @@ public class SupersetDashboardController {
         dashboardService.updateDashboard(instanceName, subsystemId, updateSupersetDashboardMetadataDto);
     }
 
-    @PostMapping(value = "/upload-dashboards/{contextKey}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(value = "/upload-dashboards/{contextKey}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
     @ResponseStatus(HttpStatus.CREATED)
-    public void uploadFile(@RequestParam MultipartFile file, @PathVariable String contextKey) throws IOException {
-        dashboardService.uploadDashboardsFile(file, contextKey);
+    public void uploadFile(
+            @RequestParam("formData") MultipartFile file,
+            @RequestParam(name = "overwrite", defaultValue = "false") boolean overwrite,
+            @RequestParam(name = "passwords", required = false) String passwordsJson,
+            @PathVariable String contextKey
+    ) throws IOException {
+        dashboardService.uploadDashboardsFile(file, overwrite, passwordsJson, contextKey);
     }
 }

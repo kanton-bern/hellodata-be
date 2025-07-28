@@ -17,4 +17,5 @@ public class DashboardUpload implements Serializable {
     private String binaryFileId;
     private boolean lastChunk;
     private long fileSize;
+    private String passwordsJson;
 }

@@ -108,7 +108,8 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(uploadDashboardsError),
       switchMap((payload) => {
-        return of(showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'}))
+        console.log('uploadDashboardsFileError', payload);
+        return of(showError({error: {message: payload.error}}), navigate({url: 'redirect/dashboard-import-export'}))
       }),
       catchError(e => of(showError({error: e})))
     )

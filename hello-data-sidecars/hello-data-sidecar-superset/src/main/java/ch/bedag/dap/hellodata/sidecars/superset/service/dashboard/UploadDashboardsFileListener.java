@@ -5,9 +5,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
@@ -79,11 +79,11 @@ public class UploadDashboardsFileListener {
                     ackMessage(msg);
                     return;
                 }
-                JsonObject passwordsObject = getPasswordsObject(destinationFile);
+                JsonObject passwordsObject = getPasswordsObject(destinationFile, dashboardUpload.getPasswordsJson());
                 log.debug("Passwords parameter send to API ");
+                ackMessage(msg);
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
-                ackMessage(msg);
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error uploading dashboards", e);
                 natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
@@ -96,25 +96,41 @@ public class UploadDashboardsFileListener {
         dispatcher.subscribe(supersetSidecarSubject);
     }
 
-    private JsonObject getPasswordsObject(File destinationFile) throws IOException {
+    private JsonObject getPasswordsObject(File destinationFile, String passwordsJson) throws IOException {
+        Map<String, String> passwords = Collections.emptyMap();
+        if (passwordsJson != null && !passwordsJson.isBlank()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            passwords = objectMapper.readValue(passwordsJson, new TypeReference<>() {});
+        }
         JsonObject jsonObject = new JsonObject();
         try (ZipFile zipFile = new ZipFile(destinationFile)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 String name = zipEntry.getName();
-                if (name.contains("/databases/") && !zipEntry.isDirectory()) {
-                    log.info("Reading database entry: {}", name);
-                    try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
-                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-                        Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
-                        fetchSqlAlchemyUriUser(parsed, name, jsonObject);
-                    }
-                }
+                fetchDatabasePasswords(name, zipEntry, zipFile, passwords, jsonObject);
             }
         }
         return jsonObject;
+    }
+
+    private void fetchDatabasePasswords(String name, ZipEntry zipEntry, ZipFile zipFile, Map<String, String> passwords, JsonObject jsonObject) throws IOException {
+        if (name.contains("/databases/") && !zipEntry.isDirectory()) {
+            log.info("Reading database entry: {}", name);
+            try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+                String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+                Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+
+                String database = name.substring(1);
+                if(passwords.containsKey(database)) {
+                    log.info("Using password from passwords.json for database '{}'", database);
+                    jsonObject.addProperty(database, passwords.get(database));
+                } else {
+                    fetchSqlAlchemyUriUser(parsed, name, jsonObject);
+                }
+            }
+        }
     }
 
     private void fetchSqlAlchemyUriUser(Map<String, Object> parsed, String name, JsonObject jsonObject) {

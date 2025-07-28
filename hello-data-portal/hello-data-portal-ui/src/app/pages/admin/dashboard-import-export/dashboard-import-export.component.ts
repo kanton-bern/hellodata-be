@@ -115,7 +115,7 @@ export class DashboardImportExportComponent extends BaseComponent {
       const normalizedPaths = paths.map(p =>
         rootFolder ? p.replace(`${rootFolder}/`, '') : p
       ).filter(p => p.startsWith('databases/'));
-      const formGroupConfig = Object.fromEntries(normalizedPaths.map(p => [this.toSafeKey(p), ['']]));
+      const formGroupConfig = Object.fromEntries(normalizedPaths.map(p => [p, [null]]));
       const form = this.fb.group(formGroupConfig);
       this.forms.set(contextKey, {normalizedPaths, form});
     } catch (error) {
@@ -202,28 +202,27 @@ export class DashboardImportExportComponent extends BaseComponent {
     this.forms.delete(contextKey);
   }
 
-  toSafeKey(path: string): string {
-    return path.replace(/[^a-zA-Z0-9]/g, '_');
-  }
-
   uploadDashboards(event: FileUploadHandlerEvent, contextKey: string) {
     console.log('Uploading dashboards', event, contextKey);
     const file: File = event.files[0];  // Only supporting single upload
     const formData = new FormData();
     // Attach the .zip file
-    formData.append('formData', file, file.name);
+    formData.append('file', file, file.name);
     // Attach JSON fields (as strings)
-    formData.append('overwrite', 'true');
-    formData.append('passwords', JSON.stringify({
-      'databases/BI_Editor.yaml': 'mypassword'
-    }));
-    this.http.post(`${this.uploadDashboardsUrl}${contextKey}`, formData).subscribe({
-      next: res => {
-        console.log('Upload successful', res);
-      },
-      error: err => {
-        console.error('Upload failed1', err);
-      }
-    });
+    let newVar = this.forms.get(contextKey);
+    console.log('Form wrapper', newVar?.form.getRawValue());
+    // formData.append('passwords', JSON.stringify({
+    //   'databases/BI_Editor.yaml': 'mypassword'
+    // }));
+    // this.http.post(`${this.uploadDashboardsUrl}${contextKey}`, formData).subscribe({
+    //   next: res => {
+    //     console.log('Upload successful', res);
+    //   },
+    //   error: err => {
+    //     console.error('Upload failed', err);
+    //     console.error('Upload failed', err.message);
+    //     this.store.dispatch(uploadDashboardsError({error: err.message}));
+    //   }
+    // });
   }
 }
