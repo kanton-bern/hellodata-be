@@ -45,6 +45,7 @@ import {
 import {environment} from "../../../../environments/environment";
 import { ZipArchive } from "@shortercode/webzip";
 import {FormBuilder, FormGroup} from "@angular/forms";
+import {take} from "rxjs/operators";
 
 
 export interface FormWrapper {
@@ -71,9 +72,9 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   constructor(private store: Store<AppState>, private fb: FormBuilder) {
     super();
-    this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
-    this.dashboards$ = this.store.select(selectMyDashboards);
-    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
+    this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET')).pipe(delay(200), take(1));
+    this.dashboards$ = this.store.select(selectMyDashboards).pipe(delay(200), take(1));
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems).pipe(delay(200), take(2));
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -113,7 +114,7 @@ export class DashboardImportExportComponent extends BaseComponent {
       const normalizedPaths = paths.map(p =>
         rootFolder ? p.replace(`${rootFolder}/`, '') : p
       ).filter(p => p.startsWith('databases/'));
-      const formGroupConfig = Object.fromEntries(normalizedPaths.map(p => [p, ['']]));
+      const formGroupConfig = Object.fromEntries(normalizedPaths.map(p => [this.toSafeKey(p), ['']]));
       const form = this.fb.group(formGroupConfig);
       this.forms.set(contextKey, {normalizedPaths, form});
     } catch (error) {
@@ -203,4 +204,5 @@ export class DashboardImportExportComponent extends BaseComponent {
   toSafeKey(path: string): string {
     return path.replace(/[^a-zA-Z0-9]/g, '_');
   }
+
 }
