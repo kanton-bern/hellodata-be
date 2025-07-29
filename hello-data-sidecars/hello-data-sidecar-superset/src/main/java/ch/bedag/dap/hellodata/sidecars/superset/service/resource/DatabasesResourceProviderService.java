@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DATABASE_RESOURCES;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PERMISSION_RESOURCES;
 
 @Log4j2
@@ -42,11 +43,11 @@ public class DatabasesResourceProviderService {
         if (podUtils != null) {
             V1Pod current = podUtils.currentPod().get();
             DatabaseResource permissionResource = new DatabaseResource(ModuleType.SUPERSET, this.instanceName, current.getMetadata().getNamespace(), response.getResult());
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
+            natsSenderService.publishMessageToJetStream(PUBLISH_DATABASE_RESOURCES, permissionResource);
         } else {
             //dummy info for tests
             DatabaseResource permissionResource = new DatabaseResource(ModuleType.SUPERSET, this.instanceName, "local", response.getResult());
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
+            natsSenderService.publishMessageToJetStream(PUBLISH_DATABASE_RESOURCES, permissionResource);
         }
     }
 }

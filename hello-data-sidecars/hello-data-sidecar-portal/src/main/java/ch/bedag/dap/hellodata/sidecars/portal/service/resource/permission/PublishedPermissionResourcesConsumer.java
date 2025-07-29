@@ -42,7 +42,6 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PER
 @AllArgsConstructor
 public class PublishedPermissionResourcesConsumer {
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
-    private final ResourceRepository resourceRepository;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_PERMISSION_RESOURCES)
