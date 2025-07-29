@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
+import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DATABASE_RESOURCES;
 
 @Log4j2
 @Service
@@ -18,7 +19,7 @@ public class PublishedDatabaseResourcesConsumer {
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
 
     @SuppressWarnings("unused")
-    @JetStreamSubscribe(event = PUBLISH_DASHBOARD_RESOURCES)
+    @JetStreamSubscribe(event = PUBLISH_DATABASE_RESOURCES)
     public void subscribe(DatabaseResource databaseResource) {
         log.info("------- Received database resource {}", databaseResource);
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(databaseResource);
