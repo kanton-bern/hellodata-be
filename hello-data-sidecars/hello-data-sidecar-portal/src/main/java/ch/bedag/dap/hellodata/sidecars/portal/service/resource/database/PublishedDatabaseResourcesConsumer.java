@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DASHBOARD_RESOURCES;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_DATABASE_RESOURCES;
 
 @Log4j2
