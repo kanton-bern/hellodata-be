@@ -81,9 +81,9 @@ public class UploadDashboardsFileListener {
                 }
                 JsonObject passwordsObject = getPasswordsObject(destinationFile, dashboardUpload.getPasswordsJson());
                 log.debug("Passwords parameter send to API ");
-                ackMessage(msg);
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
                 log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
+                ackMessage(msg);
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error uploading dashboards", e);
                 natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));

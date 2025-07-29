@@ -209,11 +209,12 @@ export class DashboardImportExportComponent extends BaseComponent {
     // Attach the .zip file
     formData.append('formData', file, file.name);
     // Attach JSON fields (as strings)
-    const rawForm = this.forms.get(contextKey);
-    formData.append('passwords', this.forms.get(contextKey)?.form.getRawValue());
+    formData.append('passwords', JSON.stringify(this.forms.get(contextKey)?.form.getRawValue()));
+    console.log('Form data to upload:', formData);
     this.http.post(`${this.uploadDashboardsUrl}${contextKey}`, formData).subscribe({
       next: res => {
         console.log('Upload successful', res);
+        this.store.dispatch(uploadDashboardsSuccess());
       },
       error: err => {
         console.error('Upload failed', err);
