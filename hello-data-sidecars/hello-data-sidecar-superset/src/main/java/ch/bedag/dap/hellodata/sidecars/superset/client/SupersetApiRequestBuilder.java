@@ -70,6 +70,7 @@ public class SupersetApiRequestBuilder {
     private static final String CSRF_TOKEN_API_ENDPOINT = "/api/v1/security/csrf_token/";
     private static final String LIST_ROLES_API_ENDPOINT = "/api/v1/security/roles/";
     private static final String LIST_PERMISSIONS_API_ENDPOINT = "/api/v1/security/permissions/";
+    private static final String LIST_DATABASE_API_ENDPOINT = "/api/v1/database/";
     private static final String USERS_API_ENDPOINT = "/api/v1/security/users/";
     private static final String LIST_ROLE_PERMISSIONS_API_ENDPOINT = "/api/v1/security/roles/%d/permissions/";
     private static final String LIST_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/";
@@ -166,6 +167,10 @@ public class SupersetApiRequestBuilder {
     }
 
     public static HttpUriRequest getListPermissionsRequest(String host, int port, String authToken) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_DATABASE_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getListDatabasesRequest(String host, int port, String authToken) throws URISyntaxException {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_PERMISSIONS_API_ENDPOINT);
     }
 

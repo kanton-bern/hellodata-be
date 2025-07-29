@@ -44,6 +44,7 @@ public enum HDEvent {
     PUBLISH_DASHBOARD_RESOURCES(METAINFO_STREAM, "publish_resources.dashboard", DashboardResource.class),
     PUBLISH_ROLE_RESOURCES(METAINFO_STREAM, "publish_resources.role", RoleResource.class),
     PUBLISH_PERMISSION_RESOURCES(METAINFO_STREAM, "publish_resources.permission", PermissionResource.class),
+    PUBLISH_DATABASE_RESOURCES(METAINFO_STREAM, "publish_resources.database", PermissionResource.class),
     PUBLISH_PIPELINE_RESOURCES(METAINFO_STREAM, "publish_resources.pipeline", PipelineResource.class),
     PUBLISH_USER_RESOURCES(METAINFO_STREAM, "publish_resources.user", UserResource.class),
     UPDATE_METAINFO_USERS_CACHE(METAINFO_STREAM, "user_cache_update", UserCacheUpdate.class),

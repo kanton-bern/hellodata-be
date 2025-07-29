@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.sidecars.superset.client;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardByIdResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.database.response.superset.SupersetDatabaseResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermissionResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolePermissionsResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
@@ -330,6 +331,24 @@ public class SupersetClient {
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("permissions() response json \n{}", new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetPermissionResponse.class);
+    }
+
+    /**
+     * Returns a list of available databases.
+     *
+     * @return A JSON array containing a list of databases.
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public SupersetDatabaseResponse databases() throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListPermissionsRequest(host, port, authToken);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("databases() response json \n{}", new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetDatabaseResponse.class);
     }
 
     /**
