@@ -84,6 +84,6 @@ public class SupersetDashboardController {
             @RequestParam(name = "passwords", required = false) String passwordsJson,
             @PathVariable String contextKey
     ) throws IOException {
-        dashboardService.uploadDashboardsFile(file, passwordsJson, contextKey);
+        dashboardService.uploadDashboardsFile(file, passwordsJson, overwrite, contextKey);
     }
 }
