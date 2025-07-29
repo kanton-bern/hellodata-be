@@ -64,9 +64,6 @@ public class UploadDashboardsFileListener {
             String binaryFileId = null;
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-
-                supersetClient.dashboards()
-
                 DashboardUpload dashboardUpload = objectMapper.readValue(msg.getData(), DashboardUpload.class);
                 saveChunk(dashboardUpload);
                 File destinationFile;
