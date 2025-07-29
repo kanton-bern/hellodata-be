@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.database.DatabaseResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
@@ -45,7 +46,7 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = UserResource.class, name = ModuleResourceKind.HELLO_DATA_USERS),
         @JsonSubTypes.Type(value = PermissionResource.class, name = ModuleResourceKind.HELLO_DATA_PERMISSIONS),
         @JsonSubTypes.Type(value = RoleResource.class, name = ModuleResourceKind.HELLO_DATA_ROLES),
-        @JsonSubTypes.Type(value = RoleResource.class, name = ModuleResourceKind.HELLO_DATA_DATABASES),
+        @JsonSubTypes.Type(value = DatabaseResource.class, name = ModuleResourceKind.HELLO_DATA_DATABASES),
         @JsonSubTypes.Type(value = PipelineResource.class, name = ModuleResourceKind.HELLO_DATA_PIPELINES)})
 public interface HdResource extends Serializable {
 
