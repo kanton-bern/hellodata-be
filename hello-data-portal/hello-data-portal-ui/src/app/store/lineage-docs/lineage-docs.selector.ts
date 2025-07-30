@@ -57,7 +57,7 @@ export const selectMyLineageDocsFiltered = createSelector(
   selectSelectedDataDomain,
   selectFilteredBy,
   (state: LineageDocsState, selectedDataDomain, filteredByParam) => {
-    let lineageDocs = [...state.myLineageDocs].sort((a, b) => a.name.localeCompare(b.name));;
+    let lineageDocs = [...state.myLineageDocs].sort((a, b) => a.name.localeCompare(b.name));
     if (filteredByParam) {
       lineageDocs = lineageDocs.filter(lineageDoc => lineageDoc.contextKey === filteredByParam);
     }
