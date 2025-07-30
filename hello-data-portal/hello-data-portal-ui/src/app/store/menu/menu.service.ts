@@ -192,9 +192,13 @@ export class MenuService {
       }
       groupedByInstance.get(contextName)?.push(db)
     });
+    const sortedByKey = new Map(
+      [...groupedByInstance.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+    );
+
     let dashboardEntries: any[] = [];
 
-    for (const [instanceName, dashboards] of groupedByInstance) {
+    for (const [instanceName, dashboards] of sortedByKey) {
       dashboardEntries = [];
       if (this.displaySupersetLink(instanceName, contextRoles)) {
         dashboardEntries.push({
@@ -240,7 +244,11 @@ export class MenuService {
       requiredPermissions: ['DATA_LINEAGE']
     })
     const docsGroupedByContext = this.getLineageDocsGroupedByDataDomainContext(projectDocs, availableDataDomains);
-    for (const [dataDomainContextName, lineageDocsInDomain] of docsGroupedByContext) {
+    const sortedByKey = new Map(
+      [...docsGroupedByContext.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+    );
+
+    for (const [dataDomainContextName, lineageDocsInDomain] of sortedByKey) {
       const lineageDocsMenuEntries = this.getLineageDocsSubMenuItemsForDataDomain(lineageDocsInDomain);
       subMenuEntry.push({id: 'lineageDocsEntries', text: dataDomainContextName, items: lineageDocsMenuEntries});
     }

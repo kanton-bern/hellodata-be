@@ -44,7 +44,7 @@ export const selectMyLineageDocs = createSelector(
   myLineageDocsState,
   selectSelectedDataDomain,
   (state: LineageDocsState, selectedDataDomain) => {
-    const lineageDocs = [...state.myLineageDocs];
+    const lineageDocs = [...state.myLineageDocs].sort((a, b) => a.name.localeCompare(b.name));
     if (selectedDataDomain === null || selectedDataDomain.id === '') {
       return lineageDocs;
     }
@@ -57,7 +57,7 @@ export const selectMyLineageDocsFiltered = createSelector(
   selectSelectedDataDomain,
   selectFilteredBy,
   (state: LineageDocsState, selectedDataDomain, filteredByParam) => {
-    let lineageDocs = [...state.myLineageDocs];
+    let lineageDocs = [...state.myLineageDocs].sort((a, b) => a.name.localeCompare(b.name));;
     if (filteredByParam) {
       lineageDocs = lineageDocs.filter(lineageDoc => lineageDoc.contextKey === filteredByParam);
     }
