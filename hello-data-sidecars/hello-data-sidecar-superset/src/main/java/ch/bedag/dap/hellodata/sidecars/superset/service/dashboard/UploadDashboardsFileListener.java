@@ -28,9 +28,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
@@ -56,6 +59,9 @@ public class UploadDashboardsFileListener {
     @Value("${hello-data.dashboard-export-check-script-location}")
     private String pythonExportCheckScriptLocation;
 
+    @Value("${hello-data.dashboard-import-default-sql-alchemy}")
+    private String defaultSqlAlchemyUri;
+
     @PostConstruct
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
@@ -79,6 +85,7 @@ public class UploadDashboardsFileListener {
                     ackMessage(msg);
                     return;
                 }
+                useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
                 log.debug("Passwords parameter send to API ");
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
@@ -94,6 +101,58 @@ public class UploadDashboardsFileListener {
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);
+    }
+
+    private void useDefaultSqlAlchemyUri(DashboardUpload dashboardUpload, File destinationFile) throws IOException {
+        File tempZip = File.createTempFile("modified-", dashboardUpload.getFilename());
+        replaceSqlalchemyUrisInZip(destinationFile, tempZip, defaultSqlAlchemyUri);
+        Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private void replaceSqlalchemyUrisInZip(File sourceZip, File targetZip, String newSqlalchemyUri) throws IOException {
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+
+        try (
+                ZipFile zipFile = new ZipFile(sourceZip);
+                FileOutputStream fos = new FileOutputStream(targetZip);
+                ZipOutputStream zos = new ZipOutputStream(fos, StandardCharsets.UTF_8)
+        ) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                    if (entryName.contains("/databases/") && !entry.isDirectory()) {
+                        log.info("Replacing sqlalchemy_uri in: {}", entryName);
+
+                        // Read and parse YAML
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+
+                        // Replace sqlalchemy_uri
+                        parsed.put("sqlalchemy_uri", newSqlalchemyUri);
+
+                        // Convert back to YAML
+                        String updatedYaml = yamlMapper.writeValueAsString(parsed);
+
+                        // Add to output zip
+                        ZipEntry newEntry = new ZipEntry(entryName);
+                        zos.putNextEntry(newEntry);
+                        zos.write(updatedYaml.getBytes(StandardCharsets.UTF_8));
+                        zos.closeEntry();
+
+                    } else {
+                        // Copy other files as-is
+                        ZipEntry newEntry = new ZipEntry(entryName);
+                        zos.putNextEntry(newEntry);
+                        inputStream.transferTo(zos);
+                        zos.closeEntry();
+                    }
+                }
+            }
+        }
     }
 
     private JsonObject getPasswordsObject(File destinationFile) throws IOException {
