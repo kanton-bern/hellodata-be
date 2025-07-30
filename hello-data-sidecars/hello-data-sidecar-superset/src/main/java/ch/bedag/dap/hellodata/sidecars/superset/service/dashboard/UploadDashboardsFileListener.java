@@ -5,6 +5,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
+import ch.bedag.dap.hellodata.sidecars.superset.service.resource.DashboardResourceProviderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.gson.Gson;
@@ -52,6 +53,7 @@ public class UploadDashboardsFileListener {
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
     private final ObjectMapper objectMapper;
+    private final DashboardResourceProviderService dashboardResourceProviderService;
 
     @Value("${hello-data.instance.name}")
     private String instanceName;
@@ -67,6 +69,7 @@ public class UploadDashboardsFileListener {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
         log.debug("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
         Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
+            log.debug("\t-=-=-=-= Received message from NATS: {}", new String(msg.getData()));
             String binaryFileId = null;
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -89,8 +92,8 @@ public class UploadDashboardsFileListener {
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
                 log.debug("Passwords parameter send to API ");
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
-                log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 ackMessage(msg);
+                dashboardResourceProviderService.publishDashboards();
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error uploading dashboards", e);
                 natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
