@@ -30,6 +30,7 @@ import {createSelector} from "@ngrx/store";
 import {SummaryState} from "./summary.state";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 import {AuthState} from "../auth/auth.state";
+import {StorageMonitoringResult} from "./summary.model";
 
 const summaryState = (state: AppState) => state.summary;
 const authState = (state: AppState) => state.auth;
@@ -58,7 +59,7 @@ export const selectPipelines = createSelector(
   selectSelectedDataDomain,
   (state: SummaryState, selectedDataDomain) => {
     if (selectedDataDomain === null || selectedDataDomain.id === '') {
-      return state.pipelines
+      return state.pipelines;
     }
     return state.pipelines.filter(pipeline => pipeline.contextKey === selectedDataDomain.key);
   }
@@ -66,7 +67,15 @@ export const selectPipelines = createSelector(
 
 export const selectStorageSize = createSelector(
   summaryState,
-  (state: SummaryState) => state.storageMonitoringResult
+  (state: SummaryState) => {
+    if(state.storageMonitoringResult) {
+      const storageMonitoringResult = {
+        storageSizes: [... state.storageMonitoringResult.storageSizes].sort((a, b) => a.name.localeCompare(b.name)),
+        databaseSizes: [... state.storageMonitoringResult.databaseSizes].sort((a, b) => a.name.localeCompare(b.name)),
+        createdDate: state.storageMonitoringResult.createdDate,
+      };
+      return storageMonitoringResult;
+    }
+    return state.storageMonitoringResult
+  }
 );
-
-

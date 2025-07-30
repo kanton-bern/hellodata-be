@@ -28,6 +28,7 @@
 import {initialSummaryState, SummaryState} from "./summary.state";
 import {loadDocumentationSuccess, loadPipelinesSuccess, loadStorageSizeSuccess} from "./summary.actions";
 import {createReducer, on} from "@ngrx/store";
+import {DatabaseSize} from "./summary.model";
 
 export const summaryReducer = createReducer(
   initialSummaryState,
