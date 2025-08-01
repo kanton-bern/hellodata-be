@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(SupersetController.class)
 @ContextConfiguration(classes = {SupersetController.class})
-class SupersetDashboardControllerTest extends HDControllerTest {
+class SupersetControllerTest extends HDControllerTest {
 
     @MockBean
     private DashboardService dashboardService;

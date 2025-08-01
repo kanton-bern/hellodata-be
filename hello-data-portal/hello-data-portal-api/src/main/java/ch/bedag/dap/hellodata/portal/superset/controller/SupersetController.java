@@ -78,6 +78,7 @@ public class SupersetController {
     @GetMapping(value = "/queries/{contextKey}")
     public ResponseEntity<Object> fetchQueries(@PathVariable String contextKey) {
         Object queries = queryService.fetchQueries(contextKey);
+        log.info("Fetched queries {} for contextKey: {}", queries, contextKey);
         return ResponseEntity.ok(queries);
     }
 

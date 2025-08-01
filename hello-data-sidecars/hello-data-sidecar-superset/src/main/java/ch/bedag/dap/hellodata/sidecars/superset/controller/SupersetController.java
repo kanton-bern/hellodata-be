@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
+@Deprecated(forRemoval = true) //not used
 public class SupersetController {
 
     /***
