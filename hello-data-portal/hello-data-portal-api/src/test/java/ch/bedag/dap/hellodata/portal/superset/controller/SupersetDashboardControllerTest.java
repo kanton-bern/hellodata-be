@@ -31,6 +31,7 @@ import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
+import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -52,6 +53,8 @@ class SupersetDashboardControllerTest extends HDControllerTest {
 
     @MockBean
     private DashboardService dashboardService;
+    @MockBean
+    private QueryService queryService;
 
     @Test
     void fetchMyDashboards() throws Exception {
