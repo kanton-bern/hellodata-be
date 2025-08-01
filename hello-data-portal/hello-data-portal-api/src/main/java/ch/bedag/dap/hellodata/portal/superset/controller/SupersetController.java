@@ -74,10 +74,11 @@ public class SupersetController {
         dashboardService.uploadDashboardsFile(file, contextKey);
     }
 
-    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    @GetMapping(value = "/my-dashboards/{contextKey}")
+    @PreAuthorize("hasAnyAuthority('QUERIES')")
+    @GetMapping(value = "/queries/{contextKey}")
     public ResponseEntity<Object> fetchQueries(@PathVariable String contextKey) {
         Object queries = queryService.fetchQueries(contextKey);
         return ResponseEntity.ok(queries);
     }
+
 }
