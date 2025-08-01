@@ -23,7 +23,7 @@ public class QueryService {
     public Object fetchQueries(String contextKey) {
         try {
             String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
-            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
+            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.GET_QUERY_LIST.getSubject());
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
             Message reply = connection.request(subject, "".getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
             String responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
