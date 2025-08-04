@@ -1,10 +1,10 @@
-<h2 class="content-block">{{'@Dashboard import-export' | transloco}}</h2>
+<h2 class="content-block">{{ '@Dashboard import-export' | transloco }}</h2>
 <div class="card">
   <div *ngIf="(availableDataDomains$ | async) as dataDomains">
     <div *ngFor="let dataDomain of dataDomains | orderBy: 'data.name' ">
       <div *ngIf="(dashboards$ | async) as dashboards">
         <div *ngIf="dataDomain.data">
-          <h3>{{dataDomain.data.name}}</h3>
+          <h3>{{ dataDomain.data.name }}</h3>
           <p-table (selectionChange)="onSelectionChange($event, dataDomain.data.key)"
                    [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
                    [paginator]="true"
@@ -48,22 +48,23 @@
                 <th style="width: 4rem" id="tableHeaderCheckbox">
                   <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                 </th>
-                <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{'@Dashboard' | transloco}}
+                <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
                   <p-sortIcon field="dashboardTitle"></p-sortIcon>
                 </th>
-                <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
+                <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
                   <p-sortIcon field="contextName"></p-sortIcon>
                 </th>
-                <th id="businessProcessHeader" pSortableColumn="businessProcess">{{'@Business process' | transloco}}
+                <th id="businessProcessHeader" pSortableColumn="businessProcess">{{ '@Business process' | transloco }}
                   <p-sortIcon field="businessProcess"></p-sortIcon>
                 </th>
-                <th id="departmentHeader" pSortableColumn="department">{{'@Department' | transloco}}
+                <th id="departmentHeader" pSortableColumn="department">{{ '@Department' | transloco }}
                   <p-sortIcon field="department"></p-sortIcon>
                 </th>
-                <th id="responsibilityHeader" pSortableColumn="responsibility">{{'@Professional responsibility' | transloco}}
+                <th id="responsibilityHeader"
+                    pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
                   <p-sortIcon field="responsibility"></p-sortIcon>
                 </th>
-                <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{'@Data analyst' | transloco}}
+                <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{ '@Data analyst' | transloco }}
                   <p-sortIcon field="dataAnalyst"></p-sortIcon>
                 </th>
               </tr>
@@ -74,10 +75,10 @@
                   <p-tableCheckbox [value]="dashboard"></p-tableCheckbox>
                 </td>
                 <td>
-                  {{dashboard.dashboardTitle}}
+                  {{ dashboard.dashboardTitle }}
                 </td>
                 <td>
-                  {{dashboard.contextName}}
+                  {{ dashboard.contextName }}
                 </td>
                 <td>
                   {{ dashboard.businessProcess }}
@@ -95,7 +96,7 @@
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="9">{{'@No dashboards found' | transloco}}</td>
+                <td colspan="9">{{ '@No dashboards found' | transloco }}</td>
               </tr>
             </ng-template>
           </p-table>
@@ -104,4 +105,7 @@
       </div>
     </div>
   </div>
+</div>
+<div style="display: none">
+  <app-silent-login></app-silent-login>
 </div>

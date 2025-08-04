@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component} from '@angular/core';
 import {Observable} from "rxjs";
 import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resource.model";
 import {Store} from "@ngrx/store";
@@ -63,6 +63,7 @@ export class DashboardImportExportComponent extends BaseComponent {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
     this.dashboards$ = this.store.select(selectMyDashboards);
+    this.dashboards$ = this.store.select(selectMyDashboards);
     this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -80,7 +81,6 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   filterDashboardsByContext(dashboards: SupersetDashboard[], contextKey: string): SupersetDashboard[] {
-    console.log('filterDashboardsByContext', contextKey, dashboards);
     return dashboards.filter(dashboard => dashboard.contextKey === contextKey);
   }
 
@@ -95,7 +95,6 @@ export class DashboardImportExportComponent extends BaseComponent {
   }
 
   getSelectedDashboards(contextKey: string): SupersetDashboard[] {
-    console.log('getSelectedDashboards', contextKey);
     const dashboards = this.selectedDashboardsMap.get(contextKey);
     if (dashboards) {
       return dashboards;
