@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component} from '@angular/core';
 import {Observable} from "rxjs";
 import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resource.model";
 import {Store} from "@ngrx/store";
@@ -64,6 +64,7 @@ export class DashboardImportExportComponent extends BaseComponent {
   constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
+    this.dashboards$ = this.store.select(selectMyDashboards);
     this.dashboards$ = this.store.select(selectMyDashboards);
     this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
     this.store.dispatch(createBreadcrumbs({
