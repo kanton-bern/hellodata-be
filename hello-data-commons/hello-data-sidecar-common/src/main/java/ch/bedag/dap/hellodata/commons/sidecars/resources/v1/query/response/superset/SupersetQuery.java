@@ -7,7 +7,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -31,5 +31,5 @@ public class SupersetQuery implements Serializable {
     @JsonProperty("executed_sql")
     private String executedSql;
     @JsonProperty("changed_on")
-    private OffsetDateTime changedOn;
+    private LocalDateTime changedOn;
 }
