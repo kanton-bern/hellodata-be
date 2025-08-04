@@ -119,16 +119,105 @@ the latest runs and their status (successful, failed, etc.).
 ![](../images/1068204596.png)
 ![](../images/1068204607.png)
 
+##### Helper Library for Scheduling Jobs on Kubernetes
+
+To unlock the full power of airflow on kubernetes, you will need to run your jobs in containers on the cluster.
+To make this a bit easier, we provide a (preinstalled helper library)[https://github.com/bedag/hellodata-be-airflow-pod-operator-params] for you to use.
+
+###### Library description
+
+The helper library consists mainly of a function, that returns properly formatted parameters to use with (airflows kubernetes pod operator)[https://airflow.apache.org/docs/apache-airflow/1.10.10/_api/airflow/contrib/operators/kubernetes_pod_operator/index.html].
+It is named `hellodata_be_airflow_pod_operator_params` and can be imported with `import hellodata_be_airflow_pod_operator_params`.
+The two public objects are the function `get_pod_operator_params` and the class `EphemeralVolume`.
+
+Call the function `get_pod_operator_params` to get a dictionary with parameters to be passed to `kubernetes_pod_operator`.
+
+| Parameter                       | Type                      | Default                | Description                                                                                                   |
+|----------------------------------|---------------------------|------------------------|---------------------------------------------------------------------------------------------------------------|
+| `image`                         | `str`                     | _required_             | The Docker image to use for the pod.                                                                          |
+| `namespace`                     | `str`                     | _required_             | The Kubernetes namespace in which to create the pod.                                                          |
+| `secret_names`                  | `Optional[List[str]]`     | `None`                 | List of Kubernetes secret names to mount in the pod as environment variables.                                 |
+| `configmap_names`               | `Optional[List[str]]`     | `None`                 | List of Kubernetes configmap names to mount in the pod as environment variables.                              |
+| `cpus`                          | `float`                   | `1.0`                  | Number of CPU cores to allocate to the pod.                                                                   |
+| `memory_in_Gi`                  | `float`                   | `1.0`                  | Amount of memory (in GiB) to allocate to the pod.                                                             |
+| `mount_storage_hellodata_pvc`   | `bool`                    | `True`                 | Whether to mount the `storage-hellodata` volume under `/mnt/storage-hellodata`.                               |
+| `local_ephemeral_storage_in_Gi` | `float`                   | `1.0`                  | Amount of local ephemeral storage (in GiB) to allocate to the pod.                                            |
+| `startup_timeout_in_seconds`    | `int`                     | `120`                  | Timeout in seconds for the pod to start up.                                                                   |
+| `large_ephemeral_storage_volume`| `Optional[EphemeralVolume]`| `None`                | Large ephemeral storage volume to allocate to the pod.                                                        |
+| `env_vars`                      | `Optional[Dict[str, str]]`| `None`                 | Additional environment variables to set in the pod.                                                           |
+
+The class `EphemeralVolume` takes the following arguments for it's constructor:
+
+| Parameter      | Type    | Description                                                      |
+|----------------|---------|------------------------------------------------------------------|
+| `name`         | `str`   | The name of the ephemeral volume.                                |
+| `size_in_Gi`   | `float` | The size of the volume in GiB (Gibibytes).                       |
+| `mount_path`   | `str`   | The file system path inside the pod where the volume is mounted.  |
+| `storage_class`| `str`   | The Kubernetes storage class to use for provisioning the volume.  |
+
+###### Example usage
+
+The following python code contains an Airflow DAG that makes full usage of the library to schedule a pod on airflow.
+
+```python
+import sys
+import os
+from datetime import timedelta
+from pendulum import datetime
+from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
+from hellodata_be_airflow_pod_operator_params import get_pod_operator_params, EphemeralVolume # library import
+
+operator_params = get_pod_operator_params(
+    'my-image:latest',
+    ['my-secret-to-mount-as-env-vars'],
+    ['my-configmap-to-mount-as-env-vars'],
+    cpus=8, 
+    memory_in_Gi=10, 
+    local_ephemeral_storage_in_Gi=6,
+    startup_timeout_in_seconds=10 * 60 ,
+    large_ephemeral_storage_volume=EphemeralVolume('my-storage', 50, '/app/large_ephemeral_storage', 'default'),
+    env_vars={'key': 'value'}
+)
+
+default_args = {
+    'owner': 'airflow',
+    'depend_on_past': False,
+    "start_date": datetime(2025, 8, 1, tz="Europe/Zurich"),
+}
+
+with DAG(
+    dag_id='run-container-on-kubernetes',
+    schedule='@once',
+    default_args=default_args,
+    max_active_runs=1,
+    dagrun_timeout=timedelta(minutes=60*5),
+) as dag:
+
+    my_task = KubernetesPodOperator(
+        **operator_params,
+        name='my_task',
+        task_id='my_task',
+        arguments=[
+'''
+echo "I run as a cluster and have the following env vars" &&
+printenv
+'''
+        ],
+    )
+```
+
+
 ##### Default DAG: HelloDATA Monitoring
 
 This is a DAG provided by us that gives you a summary of DAG runs. It will send you an email reporting which DAGs
-have failed since the monitoring DAG last ran, which have run successfully, which have not run, and which are still running.
+have failed since the monitoring DAG last ran, which have run successfully, which have not run and which are still running.
 
 ![Screenshot of the monitoring DAG Email](../images/monitoring-dag-email.png)
 
 The email contains three sections:
 1. **Monitored DAGs** – A table with an overview of DAG runs tagged as `monitored`.
-2. **Changes to DAGs** – Lists DAGs that have been paused/unpaused, are new, deleted, newly monitored (added the `monitored` tag), or newly unmonitored.
+2. **Changes to DAGs** – Lists DAGs that have been paused/unpaused, are new, deleted, newly monitored (added the `monitored` tag) or newly unmonitored.
 3. **General Overview** – A table with all DAG runs.
 
 You can modify the behavior of the DAG using environment variables on the Airflow worker:
