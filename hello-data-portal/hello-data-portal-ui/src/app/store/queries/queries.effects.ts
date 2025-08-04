@@ -4,6 +4,8 @@ import {catchError, of, switchMap} from "rxjs";
 import {showError} from "../app/app.action";
 import {loadQueries, loadQueriesSuccess} from "./queries.action";
 import {QueriesService} from "./queries.service";
+import {Store} from "@ngrx/store";
+import {AppState} from "../app/app.state";
 
 @Injectable()
 export class QueriesEffects {
@@ -18,7 +20,8 @@ export class QueriesEffects {
 
   constructor(
     private _actions$: Actions,
-    private _queriesService: QueriesService
+    private _queriesService: QueriesService,
+    private _store: Store<AppState>
   ) {
   }
 }
