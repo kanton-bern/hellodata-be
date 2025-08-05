@@ -32,4 +32,7 @@ public class SupersetQuery implements Serializable {
     private String executedSql;
     @JsonProperty("changed_on")
     private LocalDateTime changedOn;
+    private SupersetQueryDatabase database;
+    @JsonProperty("tab_name")
+    private String tabName;
 }

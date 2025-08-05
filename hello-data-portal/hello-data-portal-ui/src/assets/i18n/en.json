@@ -175,6 +175,7 @@
   "@Profile": "Profile",
   "@Published": "Published",
   "@Published date": "Published on",
+  "@Queries": "Queries",
   "@Reload": "Reload",
   "@Resent invitation": "Resend invitation",
   "@Role": "Role",

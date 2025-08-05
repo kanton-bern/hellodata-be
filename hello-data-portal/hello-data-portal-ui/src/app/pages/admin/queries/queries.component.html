@@ -1,1 +1,53 @@
 <div style="display: none">{{ paramContextKey$ | async }}</div>
+<div class="card">
+  <div *ngIf="(queries$ | async) as queries">
+    <p-table [value]="queries" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template pTemplate="header">
+        <tr>
+          <th></th>
+          <th>Time</th>
+          <th>Duration</th>
+          <th>Schema</th>
+          <th>Tables</th>
+          <th>User</th>
+          <th>SQL</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-query>
+        <tr [ngSwitch]="query.status">
+          <td>
+            <span *ngSwitchCase="'failed'" [pTooltip]="query.status" class="align-items-end pi pi-exclamation-circle"
+                  style="color: red"></span>
+            <span *ngSwitchCase="'success'" [pTooltip]="query.status" class="align-items-end pi pi-check-circle"
+                  style="color: green"></span>
+          </td>
+          <td>{{ formatChangedOn(query.changed_on) }}</td>
+          <td>
+            <p-tag *ngSwitchCase="'failed'" severity="danger"
+                   [value]="formatDuration(query.end_time - query.start_time)"></p-tag>
+            <p-tag *ngSwitchCase="'success'" severity="success"
+                   [value]="formatDuration(query.end_time - query.start_time)"></p-tag>
+          </td>
+          <td>{{ query.schema }}</td>
+          <td>
+            <ng-container *ngFor="let table of query.sql_tables; let last = last">
+              {{ table.table }}<span *ngIf="!last">, </span>
+            </ng-container>
+          </td>
+          <td>{{ query.user.first_name + ' ' + query.user.last_name }}</td>
+          <td>
+            <textarea
+              variant="filled"
+              [disabled]="true"
+              rows="5"
+              cols="30"
+              pInputTextarea
+              [(ngModel)]="query.sql">
+            </textarea>
+          </td>
+        </tr>
+
+      </ng-template>
+    </p-table>
+  </div>
+</div>
