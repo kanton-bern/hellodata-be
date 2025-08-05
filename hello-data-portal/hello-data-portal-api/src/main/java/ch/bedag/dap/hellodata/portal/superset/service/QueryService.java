@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Collections;
 
 @Log4j2
 @Service
@@ -26,7 +27,12 @@ public class QueryService {
             String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.GET_QUERY_LIST.getSubject());
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
             Message reply = connection.request(subject, "".getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
-            String responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
+            Object responseContent;
+            if (reply.getData() != null || reply.getData() != null) {
+                responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
+            } else {
+                responseContent = Collections.emptyList();
+            }
             reply.ack();
             return responseContent;
         } catch (InterruptedException e) {
