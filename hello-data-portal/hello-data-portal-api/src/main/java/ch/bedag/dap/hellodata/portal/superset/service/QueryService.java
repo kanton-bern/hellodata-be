@@ -27,14 +27,14 @@ public class QueryService {
             String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.GET_QUERY_LIST.getSubject());
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
             Message reply = connection.request(subject, "".getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
-            Object responseContent;
-            if (reply.getData() != null || reply.getData() != null) {
-                responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
-            } else {
-                responseContent = Collections.emptyList();
+            if (reply != null && reply.getData() != null) {
+                reply.ack();
+                return new String(reply.getData(), StandardCharsets.UTF_8);
             }
-            reply.ack();
-            return responseContent;
+            if (reply != null) {
+                reply.ack();
+            }
+            return Collections.emptyList();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Error fetching queries from the superset instance " + contextKey, e); //NOSONAR

@@ -7,6 +7,8 @@
           <th></th>
           <th>Time</th>
           <th>Duration</th>
+          <th>Tab name</th>
+          <th>Database</th>
           <th>Schema</th>
           <th>Tables</th>
           <th>User</th>
@@ -28,6 +30,8 @@
             <p-tag *ngSwitchCase="'success'" severity="success"
                    [value]="formatDuration(query.end_time - query.start_time)"></p-tag>
           </td>
+          <td>{{ query.tab_name }}</td>
+          <td>{{ query.database.name }}</td>
           <td>{{ query.schema }}</td>
           <td>
             <ng-container *ngFor="let table of query.sql_tables; let last = last">
