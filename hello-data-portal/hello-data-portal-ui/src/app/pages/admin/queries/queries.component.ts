@@ -18,7 +18,9 @@ export class QueriesComponent extends BaseComponent implements OnInit {
   constructor(private store: Store<AppState>) {
     super();
     this.paramContextKey$ = this.store.select(selectParamContextKey).pipe(tap(contextKey => {
-      this.store.dispatch(loadQueries({contextKey: contextKey as string}));
+      if (contextKey) {
+        this.store.dispatch(loadQueries({contextKey: contextKey as string}));
+      }
     }));
   }
 
