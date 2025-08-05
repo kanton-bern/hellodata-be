@@ -2,7 +2,7 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
 import {Component, OnInit} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {loadQueries} from "../../../store/queries/queries.action";
+import {loadQueries, resetQueriesState} from "../../../store/queries/queries.action";
 import {selectAllQueries, selectParamContextKey} from "../../../store/queries/queries.selector";
 import {Observable, tap} from "rxjs";
 
@@ -20,6 +20,8 @@ export class QueriesComponent extends BaseComponent implements OnInit {
     this.paramContextKey$ = this.store.select(selectParamContextKey).pipe(tap(contextKey => {
       if (contextKey) {
         this.store.dispatch(loadQueries({contextKey: contextKey as string}));
+      } else {
+        this.store.dispatch(resetQueriesState());
       }
     }));
   }
