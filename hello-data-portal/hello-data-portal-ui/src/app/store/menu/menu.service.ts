@@ -48,6 +48,7 @@ import {ALL_MENU_ITEMS} from "./menu.model";
 import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {
+  BUSINESS_DOMAIN_ADMIN_ROLE,
   DATA_DOMAIN_ADMIN_ROLE,
   DATA_DOMAIN_EDITOR_ROLE,
   HELLODATA_ADMIN_ROLE
@@ -117,7 +118,6 @@ export class MenuService {
     ]).pipe(
       map(([myDashboards, myDocs,
              appInfos, contextRoles, availableDomainItems, selectedDataDomain]) => {
-
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
           if (item.routerLink && !(/^\//.test(item.routerLink))) {
@@ -152,10 +152,32 @@ export class MenuService {
               menuItem.items.push(jupyterhubSubNav);
             }
           }
+          if (menuItem.id === 'administrationMenu') {
+            if (this.displayQueries(contextRoles)) {
+              const queriesMenu = menuItem.items.filter((item: {
+                id: string;
+              }) => item.id === 'queriesMenu')[0];
+              queriesMenu.items = this.createQueriesSubNav(menuItem, availableDomainItems);
+            }
+          }
           return menuItem;
         });
       })
     )
+  }
+
+  private createQueriesSubNav(menuItem: any[], availableDomainItems: any[]) {
+    const result: any[] = [];
+    const dataDomains = availableDomainItems.map(item => item.data).sort((a, b) => a!.key.toLowerCase().localeCompare(b!.key.toLowerCase()));
+    for (const dataDomain of dataDomains) {
+      result.push({
+        id: 'queries_' + dataDomain!.key,
+        text: dataDomain!.name,
+        routerLink: this.createQueryLink(dataDomain!.key),
+        requiredPermissions: ['QUERIES']
+      });
+    }
+    return result;
   }
 
   private filterNavigationByPermissions(navigationElements: any[], currentUserPermissions: string[]) {
@@ -214,14 +236,6 @@ export class MenuService {
           requiredPermissions: ['DATA_ENG']
         });
       }
-      if (this.displayQueries(contextRoles)) {
-        dashboardEntries.push({
-          id: 'queries_' + instanceName,
-          text: "@Queries",
-          routerLink: this.createQueryLink(dashboards[0].contextKey),
-          requiredPermissions: ['HELLODATA_ADMIN_ROLE']
-        });
-      }
       dashboards.forEach((db: SupersetDashboard) => {
         dashboardEntries.push({
           id: 'dashboardMenu' + db.id,
@@ -241,7 +255,7 @@ export class MenuService {
   }
 
   private displayQueries(contextRoles: any[]) {
-    return contextRoles.find(contextRole => contextRole.role.name === HELLODATA_ADMIN_ROLE);
+    return contextRoles.find(contextRole => contextRole.role.name === HELLODATA_ADMIN_ROLE || contextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
   }
 
   private displaySupersetLink(instanceName: string, contextRoles: any[]) {
