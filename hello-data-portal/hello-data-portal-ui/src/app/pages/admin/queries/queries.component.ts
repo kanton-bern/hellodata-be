@@ -4,9 +4,9 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/queries.action";
 import {
-  selectAllQueries,
-  selectParamContextKey,
-  selectQueriesTotalRecords
+    selectAllQueries,
+    selectParamContextKey,
+    selectQueriesTotalRecords
 } from "../../../store/queries/queries.selector";
 import {combineLatest, Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
@@ -24,6 +24,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
     paramContextKey$: Observable<any>;
     queries$: Observable<any>;
     queriesTotalRecords = 0;
+    componentInitiated = false;
 
     constructor(private store: Store<AppState>) {
         super();
@@ -34,12 +35,17 @@ export class QueriesComponent extends BaseComponent implements OnInit {
             ]).pipe(
                 map(([contextKey, availableDataDomains]) => {
                     const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
-                    if (contextKey) {
+                    if (contextKey && dataDomain) {
                         this.createBreadcrumbs(dataDomain.name);
+                        if (this.componentInitiated) {
+                            this.store.dispatch(loadQueriesPaginated({
+                                page: 0, size: 10, sort: '', search: '', contextKey
+                            }));
+                        }
                     } else {
                         this.store.dispatch(resetQueriesState());
                     }
-                    return dataDomain.key;
+                    return dataDomain?.key ? dataDomain.key : '';
                 }),
             );
 
@@ -62,6 +68,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
             search: event.globalFilter ? event.globalFilter as string : '',
             contextKey
         }));
+        this.componentInitiated = true;
     }
 
     formatChangedOn(changedOn: string[]) {

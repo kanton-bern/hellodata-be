@@ -4,13 +4,13 @@ import {loadQueriesPaginated, loadQueriesSuccess, resetQueriesState} from "./que
 
 export const queriesReducer = createReducer(
   initialQueriesState,
-  on(loadQueriesPaginated, (state: QueriesState, {page, size, sort, search}): QueriesState => {
+  on(loadQueriesPaginated, (state: QueriesState, {page, size, sort, search, contextKey}): QueriesState => {
+    const newCurrentPagination = {...state.currentQueryPaginationByContextKey}
+    newCurrentPagination[contextKey] = {page, size, sort, search};
     return {
       ...state,
       queriesLoading: true,
-      currentPagination: {
-        page, size, sort, search
-      }
+      currentQueryPaginationByContextKey: newCurrentPagination
     };
   }),
   on(loadQueriesSuccess, (state: QueriesState, {queries, totalElements, totalPages}): QueriesState => {
@@ -25,6 +25,7 @@ export const queriesReducer = createReducer(
     return {
       ...state,
       queries: [],
+      queriesLoading: false,
     };
   })
 );
