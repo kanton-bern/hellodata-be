@@ -98,7 +98,12 @@ export const selectAllBusinessDomains = createSelector(
 
 export const selectAllDataDomains = createSelector(
   usersManagementState,
-  (state: UsersManagementState) => state.allAvailableContexts.filter(context => context.type === DATA_DOMAIN_CONTEXT_TYPE)
+  (state: UsersManagementState) => state.allAvailableContexts.filter(context => context.type === DATA_DOMAIN_CONTEXT_TYPE).sort((a, b) => {
+    if (a.name && b.name) {
+      return a.name?.localeCompare(b.name)
+    }
+    return 0;
+  })
 );
 
 export const selectUserContextRoles = createSelector(
