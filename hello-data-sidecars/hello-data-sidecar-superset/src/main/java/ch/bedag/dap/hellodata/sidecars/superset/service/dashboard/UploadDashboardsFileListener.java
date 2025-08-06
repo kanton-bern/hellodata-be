@@ -8,22 +8,19 @@ import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientPro
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.DashboardResourceProviderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Message;
 import jakarta.annotation.PostConstruct;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -34,13 +31,6 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
@@ -79,7 +69,7 @@ public class UploadDashboardsFileListener {
                 if (dashboardUpload.isLastChunk()) {
                     destinationFile =
                             File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), //NOSONAR
-                                                ""); //NOSONAR
+                                    ""); //NOSONAR
                     log.debug("Created temp file for chunk {}", destinationFile);
                     binaryFileId = dashboardUpload.getBinaryFileId();
                     assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
@@ -114,7 +104,7 @@ public class UploadDashboardsFileListener {
 
     private void replaceSqlalchemyUrisInZip(File sourceZip, File targetZip, String newSqlalchemyUri) throws IOException {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-
+        log.info("new sqlalchemy_uri: {}", newSqlalchemyUri);
         try (
                 ZipFile zipFile = new ZipFile(sourceZip);
                 FileOutputStream fos = new FileOutputStream(targetZip);
@@ -256,7 +246,7 @@ public class UploadDashboardsFileListener {
         if (chunks.isEmpty() || chunks.size() != totalChunks || validateChunkSizeWrong(fileSize, chunks)) {
             String errMsg =
                     "Chunks list empty? - " + chunks.isEmpty() + " Chunk size different than total size? - " + (chunks.size() != totalChunks) + " Chunk size different? - " +
-                    validateChunkSizeWrong(fileSize, chunks);
+                            validateChunkSizeWrong(fileSize, chunks);
             throw new UploadDashboardsFileException("Chunks validation failed. Upload canceled. " + errMsg);
         }
         writeChunksToFile(destinationPath, chunks);
@@ -265,7 +255,7 @@ public class UploadDashboardsFileListener {
 
     private void validateZipFile(Path destinationPath) throws IOException {
         // Command to execute Python script
-        String[] cmd = { "python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString() };
+        String[] cmd = {"python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString()};
         log.info("Python cmd {}", StringUtils.join(cmd, " "));
 
         // Create ProcessBuilder
