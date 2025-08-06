@@ -111,7 +111,7 @@ export const naviElements: any = {
   },
   query: {
     path: 'queries/list/:contextKey',
-    label: '@Query'
+    label: '@Queries'
   },
   externalDashboards: {
     path: 'external-dashboards',

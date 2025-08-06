@@ -4,7 +4,10 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueries, resetQueriesState} from "../../../store/queries/queries.action";
 import {selectAllQueries, selectParamContextKey} from "../../../store/queries/queries.selector";
-import {Observable, tap} from "rxjs";
+import {combineLatest, Observable, tap} from "rxjs";
+import {naviElements} from "../../../app-navi-elements";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {selectAvailableDataDomains} from "../../../store/my-dashboards/my-dashboards.selector";
 
 @Component({
   templateUrl: 'queries.component.html',
@@ -12,18 +15,26 @@ import {Observable, tap} from "rxjs";
 })
 export class QueriesComponent extends BaseComponent implements OnInit {
 
-  paramContextKey$: Observable<string | undefined>;
+  paramContextKey$: Observable<any>;
   queries$ = this.store.select(selectAllQueries);
 
   constructor(private store: Store<AppState>) {
     super();
-    this.paramContextKey$ = this.store.select(selectParamContextKey).pipe(tap(contextKey => {
-      if (contextKey) {
-        this.store.dispatch(loadQueries({contextKey: contextKey as string}));
-      } else {
-        this.store.dispatch(resetQueriesState());
-      }
-    }));
+    this.paramContextKey$ =
+      combineLatest([
+        this.store.select(selectParamContextKey),
+        this.store.select(selectAvailableDataDomains)
+      ]).pipe(
+        tap(([contextKey, availableDataDomains]) => {
+          if (contextKey) {
+            this.store.dispatch(loadQueries({contextKey: contextKey}));
+            const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
+            this.createBreadcrumbs(dataDomain.name);
+          } else {
+            this.store.dispatch(resetQueriesState());
+          }
+        })
+      );
   }
 
   formatChangedOn(changedOn: string[]) {
@@ -48,6 +59,19 @@ export class QueriesComponent extends BaseComponent implements OnInit {
     const pad = (n: number, width = 2) => String(n).padStart(width, '0');
 
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(millis, 3)}`;
+  }
+
+  private createBreadcrumbs(dataDomainName: string): void {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.query.label,
+        },
+        {
+          label: dataDomainName,
+        }
+      ]
+    }));
   }
 
 }
