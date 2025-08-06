@@ -9,6 +9,11 @@ const queriesState = (state: AppState) => state.queries;
 
 
 export const selectAllQueries = createSelector(
-  queriesState,
-  (state: QueriesState) => state.queries
+    queriesState,
+    (state: QueriesState) => state.queries
+);
+
+export const selectQueriesTotalRecords = createSelector(
+    queriesState,
+    (state: QueriesState) => state.queriesTotalRecords
 );

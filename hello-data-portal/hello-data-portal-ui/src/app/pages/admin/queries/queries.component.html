@@ -1,7 +1,20 @@
-<div style="display: none">{{ paramContextKey$ | async }}</div>
-<div class="card">
+<div class="card" *ngIf="(paramContextKey$ | async) as contextKey">
   <div *ngIf="(queries$ | async) as queries">
-    <p-table [value]="queries" [tableStyle]="{ 'min-width': '50rem' }">
+    <p-table #dt
+             [lazy]="true"
+             (onLazyLoad)="loadQueries($event, contextKey)"
+             [value]="queries"
+             [paginator]="true"
+             [rowHover]="true"
+             [rowsPerPageOptions]="[5, 10, 20]"
+             [rows]="10"
+             [totalRecords]="queriesTotalRecords"
+             dataKey="id"
+             id="queries_table_{{ contextKey }}"
+             stateKey="portal-queries-table-{{ contextKey }}"
+             stateStorage="session"
+             styleClass="p-datatable-striped"
+             [tableStyle]="{ 'min-width': '50rem' }">
       <ng-template pTemplate="header">
         <tr>
           <th></th>

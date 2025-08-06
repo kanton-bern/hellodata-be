@@ -1,7 +1,13 @@
 export interface QueriesState {
-  queries: any[]
+  queries: any[],
+  currentPagination: any,
+  queriesLoading: boolean,
+  queriesTotalRecords: number,
 }
 
 export const initialQueriesState: QueriesState = {
-  queries: []
+  queries: [],
+  currentPagination: null,
+  queriesLoading: false,
+  queriesTotalRecords: 0,
 }
