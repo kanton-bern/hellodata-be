@@ -104,7 +104,6 @@ public class UploadDashboardsFileListener {
 
     private void replaceSqlalchemyUrisInZip(File sourceZip, File targetZip, String newSqlalchemyUri) throws IOException {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
-        log.info("new sqlalchemy_uri: {}", newSqlalchemyUri);
         try (
                 ZipFile zipFile = new ZipFile(sourceZip);
                 FileOutputStream fos = new FileOutputStream(targetZip);
@@ -118,7 +117,7 @@ public class UploadDashboardsFileListener {
 
                 try (InputStream inputStream = zipFile.getInputStream(entry)) {
                     if (entryName.contains("/databases/") && !entry.isDirectory()) {
-                        log.info("Replacing sqlalchemy_uri in: {}", entryName);
+                        log.info("Replacing sqlalchemy_uri in: {} to {}", entryName, newSqlalchemyUri.substring(0, 30));
 
                         // Read and parse YAML
                         String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
