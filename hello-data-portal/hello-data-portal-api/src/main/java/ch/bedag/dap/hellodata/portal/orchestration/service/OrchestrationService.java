@@ -31,7 +31,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
-import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;

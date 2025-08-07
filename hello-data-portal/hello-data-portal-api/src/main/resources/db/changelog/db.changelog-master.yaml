@@ -112,3 +112,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/41_add_is_federated_column.xml
   - include:
       file: db/changelog/changelogs/42_username_is_email.sql
+  - include:
+      file: db/changelog/changelogs/43_create_sql_lab_queries.xml

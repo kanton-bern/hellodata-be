@@ -24,13 +24,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.metainfomodel.repositories;
+package ch.bedag.dap.hellodata.commons.metainfomodel.repository;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

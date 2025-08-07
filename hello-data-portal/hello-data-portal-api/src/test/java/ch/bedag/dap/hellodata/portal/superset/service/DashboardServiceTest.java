@@ -27,9 +27,9 @@
 package ch.bedag.dap.hellodata.portal.superset.service;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
@@ -38,11 +38,12 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.repository.DashboardMetadataRepository;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,6 +66,7 @@ import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -169,7 +171,7 @@ public class DashboardServiceTest {
         //Then
         assertThat(supersetDashboardDtos).hasSize(dashboardResource.getData().size());
         assertThat(supersetDashboardDtos.stream()
-                                        .allMatch(d -> d instanceof SupersetDashboardWithMetadataDto && ((SupersetDashboardWithMetadataDto) d).isCurrentUserEditor())).isTrue();
+                .allMatch(d -> d instanceof SupersetDashboardWithMetadataDto && ((SupersetDashboardWithMetadataDto) d).isCurrentUserEditor())).isTrue();
     }
 
     @Test
@@ -191,7 +193,7 @@ public class DashboardServiceTest {
         //Then
         assertThat(supersetDashboardDtos).hasSize(1);
         assertThat(supersetDashboardDtos.stream()
-                                        .allMatch(d -> d instanceof SupersetDashboardWithMetadataDto && ((SupersetDashboardWithMetadataDto) d).isCurrentUserViewer())).isTrue();
+                .allMatch(d -> d instanceof SupersetDashboardWithMetadataDto && ((SupersetDashboardWithMetadataDto) d).isCurrentUserViewer())).isTrue();
     }
 
     @Test
@@ -218,461 +220,461 @@ public class DashboardServiceTest {
     public void fetchMyDashboards_HELLODATA_2159() throws JsonProcessingException {
         //Given
         String data = """
-            {
-                        "apiVersion": "v1",
-                        "data": [
-                            {
-                                "certification_details": null,
-                                "certified_by": null,
-                                "changed_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 14,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "changed_by_name": "User User",
-                                "changed_by_url": null,
-                                "changed_on_delta_humanized": "21 days ago",
-                                "changed_on_utc": "2025-03-31T18:54:41.780549+0000",
-                                "created_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 1,
-                                    "last_login": null,
-                                    "last_name": "Neidhart",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "created_on_delta_humanized": "4 months ago",
-                                "dashboard_title": "Operative Übersicht: Auslastung und Vollzugstage im Fokus",
-                                "id": 1,
-                                "published": true,
-                                "is_managed_externally": false,
-                                "roles": [
+                    {
+                                "apiVersion": "v1",
+                                "data": [
                                     {
-                                        "id": 8,
-                                        "name": "BI_VIEWER"
-                                    },
-                                    {
-                                        "id": 7,
-                                        "name": "BI_EDITOR"
-                                    },
-                                    {
-                                        "id": 6,
-                                        "name": "BI_ADMIN"
-                                    },
-                                    {
-                                        "id": 13,
-                                        "name": "D_eingewiesenen-personen-insights_5"
-                                    },
-                                    {
-                                        "id": 12,
-                                        "name": "D_auslastung-und-vollzugstage-im-fokus_4"
-                                    },
-                                    {
-                                        "id": 16,
-                                        "name": "D_finanzergebnis_8"
-                                    }
-                                ],
-                                "slug": null,
-                                "status": "published",
-                                "thumbnail_url": "/api/v1/dashboard/1/thumbnail/9d9aeb185e14cde1b230601206ebe279/",
-                                "url": "/superset/dashboard/1/"
-                            },
-                            {
-                                "certification_details": "",
-                                "certified_by": "",
-                                "changed_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 14,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "changed_by_name": "User User",
-                                "changed_by_url": null,
-                                "changed_on_delta_humanized": "22 days ago",
-                                "changed_on_utc": "2025-03-30T18:53:16.494447+0000",
-                                "created_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 20,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "created_on_delta_humanized": "a month ago",
-                                "dashboard_title": "Finanzergebnis",
-                                "published": true,
-                                "id": 8,
-                                "is_managed_externally": false,
-                                "roles": [
-                                    {
-                                        "id": 13,
-                                        "name": "D_eingewiesenen-personen-insights_5"
-                                    },
-                                    {
-                                        "id": 12,
-                                        "name": "D_auslastung-und-vollzugstage-im-fokus_4"
-                                    },
-                                    {
-                                        "id": 7,
-                                        "name": "BI_EDITOR"
-                                    },
-                                    {
-                                        "id": 16,
-                                        "name": "D_finanzergebnis_8"
-                                    },
-                                    {
-                                        "id": 8,
-                                        "name": "BI_VIEWER"
-                                    },
-                                    {
-                                        "id": 6,
-                                        "name": "BI_ADMIN"
-                                    }
-                                ],
-                                "slug": null,
-                                "status": "published",
-                                "thumbnail_url": "/api/v1/dashboard/8/thumbnail/31ed3f5f85f3216db524a7b869abca25/",
-                                "url": "/superset/dashboard/8/"
-                            },
-                            {
-                                "certification_details": "",
-                                "certified_by": "",
-                                "changed_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 14,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "changed_by_name": "User User",
-                                "changed_by_url": null,
-                                "changed_on_delta_humanized": "24 days ago",
-                                "changed_on_utc": "2025-03-28T17:21:57.249952+0000",
-                                "created_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 20,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "created_on_delta_humanized": "a month ago",
-                                "css": "",
-                                "dashboard_title": "Investitionen",
-                                "id": 7,
-                                "is_managed_externally": false,
-                                "published": true,
-                                "roles": [
-                                    {
-                                        "id": 15,
-                                        "name": "D_investitionen_7"
-                                    },
-                                    {
-                                        "id": 13,
-                                        "name": "D_eingewiesenen-personen-insights_5"
-                                    },
-                                    {
-                                        "id": 6,
-                                        "name": "BI_ADMIN"
-                                    },
-                                    {
-                                        "id": 12,
-                                        "name": "D_auslastung-und-vollzugstage-im-fokus_4"
-                                    },
-                                    {
-                                        "id": 8,
-                                        "name": "BI_VIEWER"
-                                    },
-                                    {
-                                        "id": 7,
-                                        "name": "BI_EDITOR"
-                                    }
-                                ],
-                                "slug": null,
-                                "status": "published",
-                                "thumbnail_url": "/api/v1/dashboard/7/thumbnail/8206123f4985393fb5575a84b78cbfce/",
-                                "url": "/superset/dashboard/7/"
-                            },
-                            {
-                                "certification_details": "",
-                                "certified_by": "",
-                                "changed_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 14,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "changed_by_name": "User User",
-                                "changed_by_url": null,
-                                "changed_on_delta_humanized": "24 days ago",
-                                "changed_on_utc": "2025-03-28T15:52:53.634831+0000",
-                                "created_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 20,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "created_on_delta_humanized": "a month ago",
-                                "dashboard_title": "Zeitguthaben",
-                                "id": 10,
-                                "is_managed_externally": false,
-                                "published": true,
-                                "roles": [
-                                    {
-                                        "id": 18,
-                                        "name": "D_zeitguthaben_10"
-                                    },
-                                    {
-                                        "id": 13,
-                                        "name": "D_eingewiesenen-personen-insights_5"
-                                    },
-                                    {
-                                        "id": 8,
-                                        "name": "BI_VIEWER"
-                                    },
-                                    {
-                                        "id": 12,
-                                        "name": "D_auslastung-und-vollzugstage-im-fokus_4"
-                                    },
-                                    {
-                                        "id": 7,
-                                        "name": "BI_EDITOR"
-                                    },
-                                    {
-                                        "id": 6,
-                                        "name": "BI_ADMIN"
-                                    }
-                                ],
-                                "slug": null,
-                                "status": "published",
-                                "thumbnail_url": "/api/v1/dashboard/10/thumbnail/00e1abdea313d895fcaba0d46db471ea/",
-                                "url": "/superset/dashboard/10/"
-                            },
-                            {
-                                "certification_details": null,
-                                "certified_by": null,
-                                "changed_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 14,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "changed_by_name": "User User",
-                                "changed_by_url": null,
-                                "changed_on_delta_humanized": "25 days ago",
-                                "changed_on_utc": "2025-03-28T08:07:38.858364+0000",
-                                "created_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 20,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "created_on_delta_humanized": "a month ago",
-                                "dashboard_title": "Eingewiesenen Personen Insights",
-                                "id": 5,
-                                "is_managed_externally": false,
-                                "published": true,
-                                "roles": [
-                                    {
-                                        "id": 15,
-                                        "name": "D_investitionen_7"
-                                    },
-                                    {
+                                        "certification_details": null,
+                                        "certified_by": null,
+                                        "changed_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 14,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "changed_by_name": "User User",
+                                        "changed_by_url": null,
+                                        "changed_on_delta_humanized": "21 days ago",
+                                        "changed_on_utc": "2025-03-31T18:54:41.780549+0000",
+                                        "created_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 1,
+                                            "last_login": null,
+                                            "last_name": "Neidhart",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "created_on_delta_humanized": "4 months ago",
+                                        "dashboard_title": "Operative Übersicht: Auslastung und Vollzugstage im Fokus",
                                         "id": 1,
-                                        "name": "Admin"
+                                        "published": true,
+                                        "is_managed_externally": false,
+                                        "roles": [
+                                            {
+                                                "id": 8,
+                                                "name": "BI_VIEWER"
+                                            },
+                                            {
+                                                "id": 7,
+                                                "name": "BI_EDITOR"
+                                            },
+                                            {
+                                                "id": 6,
+                                                "name": "BI_ADMIN"
+                                            },
+                                            {
+                                                "id": 13,
+                                                "name": "D_eingewiesenen-personen-insights_5"
+                                            },
+                                            {
+                                                "id": 12,
+                                                "name": "D_auslastung-und-vollzugstage-im-fokus_4"
+                                            },
+                                            {
+                                                "id": 16,
+                                                "name": "D_finanzergebnis_8"
+                                            }
+                                        ],
+                                        "slug": null,
+                                        "status": "published",
+                                        "thumbnail_url": "/api/v1/dashboard/1/thumbnail/9d9aeb185e14cde1b230601206ebe279/",
+                                        "url": "/superset/dashboard/1/"
                                     },
                                     {
+                                        "certification_details": "",
+                                        "certified_by": "",
+                                        "changed_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 14,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "changed_by_name": "User User",
+                                        "changed_by_url": null,
+                                        "changed_on_delta_humanized": "22 days ago",
+                                        "changed_on_utc": "2025-03-30T18:53:16.494447+0000",
+                                        "created_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 20,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "created_on_delta_humanized": "a month ago",
+                                        "dashboard_title": "Finanzergebnis",
+                                        "published": true,
                                         "id": 8,
-                                        "name": "BI_VIEWER"
+                                        "is_managed_externally": false,
+                                        "roles": [
+                                            {
+                                                "id": 13,
+                                                "name": "D_eingewiesenen-personen-insights_5"
+                                            },
+                                            {
+                                                "id": 12,
+                                                "name": "D_auslastung-und-vollzugstage-im-fokus_4"
+                                            },
+                                            {
+                                                "id": 7,
+                                                "name": "BI_EDITOR"
+                                            },
+                                            {
+                                                "id": 16,
+                                                "name": "D_finanzergebnis_8"
+                                            },
+                                            {
+                                                "id": 8,
+                                                "name": "BI_VIEWER"
+                                            },
+                                            {
+                                                "id": 6,
+                                                "name": "BI_ADMIN"
+                                            }
+                                        ],
+                                        "slug": null,
+                                        "status": "published",
+                                        "thumbnail_url": "/api/v1/dashboard/8/thumbnail/31ed3f5f85f3216db524a7b869abca25/",
+                                        "url": "/superset/dashboard/8/"
                                     },
                                     {
-                                        "id": 12,
-                                        "name": "D_auslastung-und-vollzugstage-im-fokus_4"
-                                    },
-                                    {
+                                        "certification_details": "",
+                                        "certified_by": "",
+                                        "changed_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 14,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "changed_by_name": "User User",
+                                        "changed_by_url": null,
+                                        "changed_on_delta_humanized": "24 days ago",
+                                        "changed_on_utc": "2025-03-28T17:21:57.249952+0000",
+                                        "created_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 20,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "created_on_delta_humanized": "a month ago",
+                                        "css": "",
+                                        "dashboard_title": "Investitionen",
                                         "id": 7,
-                                        "name": "BI_EDITOR"
+                                        "is_managed_externally": false,
+                                        "published": true,
+                                        "roles": [
+                                            {
+                                                "id": 15,
+                                                "name": "D_investitionen_7"
+                                            },
+                                            {
+                                                "id": 13,
+                                                "name": "D_eingewiesenen-personen-insights_5"
+                                            },
+                                            {
+                                                "id": 6,
+                                                "name": "BI_ADMIN"
+                                            },
+                                            {
+                                                "id": 12,
+                                                "name": "D_auslastung-und-vollzugstage-im-fokus_4"
+                                            },
+                                            {
+                                                "id": 8,
+                                                "name": "BI_VIEWER"
+                                            },
+                                            {
+                                                "id": 7,
+                                                "name": "BI_EDITOR"
+                                            }
+                                        ],
+                                        "slug": null,
+                                        "status": "published",
+                                        "thumbnail_url": "/api/v1/dashboard/7/thumbnail/8206123f4985393fb5575a84b78cbfce/",
+                                        "url": "/superset/dashboard/7/"
                                     },
                                     {
-                                        "id": 9,
-                                        "name": "D_operative-ubersicht-auslastung-und-vollzugstage-i_1"
+                                        "certification_details": "",
+                                        "certified_by": "",
+                                        "changed_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 14,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "changed_by_name": "User User",
+                                        "changed_by_url": null,
+                                        "changed_on_delta_humanized": "24 days ago",
+                                        "changed_on_utc": "2025-03-28T15:52:53.634831+0000",
+                                        "created_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 20,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "created_on_delta_humanized": "a month ago",
+                                        "dashboard_title": "Zeitguthaben",
+                                        "id": 10,
+                                        "is_managed_externally": false,
+                                        "published": true,
+                                        "roles": [
+                                            {
+                                                "id": 18,
+                                                "name": "D_zeitguthaben_10"
+                                            },
+                                            {
+                                                "id": 13,
+                                                "name": "D_eingewiesenen-personen-insights_5"
+                                            },
+                                            {
+                                                "id": 8,
+                                                "name": "BI_VIEWER"
+                                            },
+                                            {
+                                                "id": 12,
+                                                "name": "D_auslastung-und-vollzugstage-im-fokus_4"
+                                            },
+                                            {
+                                                "id": 7,
+                                                "name": "BI_EDITOR"
+                                            },
+                                            {
+                                                "id": 6,
+                                                "name": "BI_ADMIN"
+                                            }
+                                        ],
+                                        "slug": null,
+                                        "status": "published",
+                                        "thumbnail_url": "/api/v1/dashboard/10/thumbnail/00e1abdea313d895fcaba0d46db471ea/",
+                                        "url": "/superset/dashboard/10/"
+                                    },
+                                    {
+                                        "certification_details": null,
+                                        "certified_by": null,
+                                        "changed_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 14,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "changed_by_name": "User User",
+                                        "changed_by_url": null,
+                                        "changed_on_delta_humanized": "25 days ago",
+                                        "changed_on_utc": "2025-03-28T08:07:38.858364+0000",
+                                        "created_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 20,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "created_on_delta_humanized": "a month ago",
+                                        "dashboard_title": "Eingewiesenen Personen Insights",
+                                        "id": 5,
+                                        "is_managed_externally": false,
+                                        "published": true,
+                                        "roles": [
+                                            {
+                                                "id": 15,
+                                                "name": "D_investitionen_7"
+                                            },
+                                            {
+                                                "id": 1,
+                                                "name": "Admin"
+                                            },
+                                            {
+                                                "id": 8,
+                                                "name": "BI_VIEWER"
+                                            },
+                                            {
+                                                "id": 12,
+                                                "name": "D_auslastung-und-vollzugstage-im-fokus_4"
+                                            },
+                                            {
+                                                "id": 7,
+                                                "name": "BI_EDITOR"
+                                            },
+                                            {
+                                                "id": 9,
+                                                "name": "D_operative-ubersicht-auslastung-und-vollzugstage-i_1"
+                                            }
+                                        ],
+                                        "slug": "EPC",
+                                        "status": "published",
+                                        "thumbnail_url": "/api/v1/dashboard/5/thumbnail/41d73d94f8e7ba44178ce687b8ee2851/",
+                                        "url": "/superset/dashboard/EPC/"
+                                    },
+                                    {
+                                        "certification_details": null,
+                                        "certified_by": null,
+                                        "changed_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 14,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "changed_by_name": "User User",
+                                        "changed_by_url": null,
+                                        "changed_on_delta_humanized": "25 days ago",
+                                        "changed_on_utc": "2025-03-28T08:05:37.196278+0000",
+                                        "created_by": {
+                                            "active": false,
+                                            "changed_by": null,
+                                            "changed_on": null,
+                                            "created_by": null,
+                                            "created_on": null,
+                                            "email": null,
+                                            "fail_login_count": 0,
+                                            "first_name": "User",
+                                            "id": 14,
+                                            "last_login": null,
+                                            "last_name": "User",
+                                            "login_count": 0,
+                                            "roles": null,
+                                            "username": null
+                                        },
+                                        "created_on_delta_humanized": "a month ago",
+                                        "dashboard_title": "Auslastung und Vollzugstage im Fokus",
+                                        "id": 4,
+                                        "is_managed_externally": false,
+                                        "published": true,
+                                        "roles": [
+                                            {
+                                                "id": 16,
+                                                "name": "D_finanzergebnis_8"
+                                            },
+                                            {
+                                                "id": 6,
+                                                "name": "BI_ADMIN"
+                                            },
+                                            {
+                                                "id": 8,
+                                                "name": "BI_VIEWER"
+                                            }
+                                        ],
+                                        "slug": "abc",
+                                        "status": "published",
+                                        "thumbnail_url": "/api/v1/dashboard/4/thumbnail/db8ea793888ecb8e65bbe1aeadae6382/",
+                                        "url": "/superset/dashboard/abc/"
                                     }
                                 ],
-                                "slug": "EPC",
-                                "status": "published",
-                                "thumbnail_url": "/api/v1/dashboard/5/thumbnail/41d73d94f8e7ba44178ce687b8ee2851/",
-                                "url": "/superset/dashboard/EPC/"
-                            },
-                            {
-                                "certification_details": null,
-                                "certified_by": null,
-                                "changed_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 14,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "changed_by_name": "User User",
-                                "changed_by_url": null,
-                                "changed_on_delta_humanized": "25 days ago",
-                                "changed_on_utc": "2025-03-28T08:05:37.196278+0000",
-                                "created_by": {
-                                    "active": false,
-                                    "changed_by": null,
-                                    "changed_on": null,
-                                    "created_by": null,
-                                    "created_on": null,
-                                    "email": null,
-                                    "fail_login_count": 0,
-                                    "first_name": "User",
-                                    "id": 14,
-                                    "last_login": null,
-                                    "last_name": "User",
-                                    "login_count": 0,
-                                    "roles": null,
-                                    "username": null
-                                },
-                                "created_on_delta_humanized": "a month ago",
-                                "dashboard_title": "Auslastung und Vollzugstage im Fokus",
-                                "id": 4,
-                                "is_managed_externally": false,
-                                "published": true,
-                                "roles": [
-                                    {
-                                        "id": 16,
-                                        "name": "D_finanzergebnis_8"
+                                "instanceName": "bd01",
+                                "kind": "hellodata/Dashboards",
+                                "metadata": {
+                                    "instanceName": "bd01",
+                                    "labels": {
+                                        "hellodata/module": "superset"
                                     },
-                                    {
-                                        "id": 6,
-                                        "name": "BI_ADMIN"
-                                    },
-                                    {
-                                        "id": 8,
-                                        "name": "BI_VIEWER"
-                                    }
-                                ],
-                                "slug": "abc",
-                                "status": "published",
-                                "thumbnail_url": "/api/v1/dashboard/4/thumbnail/db8ea793888ecb8e65bbe1aeadae6382/",
-                                "url": "/superset/dashboard/abc/"
+                                    "namespace": "test"
+                                },
+                                "moduleType": "SUPERSET"
                             }
-                        ],
-                        "instanceName": "bd01",
-                        "kind": "hellodata/Dashboards",
-                        "metadata": {
-                            "instanceName": "bd01",
-                            "labels": {
-                                "hellodata/module": "superset"
-                            },
-                            "namespace": "test"
-                        },
-                        "moduleType": "SUPERSET"
-                    }
-        """;
+                """;
 
         ObjectMapper objectMapper = new ObjectMapper();
         DashboardResource dashboardResource = objectMapper.readValue(data, DashboardResource.class);
@@ -696,7 +698,7 @@ public class DashboardServiceTest {
         given(metaInfoResourceService.findByModuleTypeInstanceNameAndKind(ModuleType.SUPERSET, instanceName, ModuleResourceKind.HELLO_DATA_USERS, UserResource.class)).willReturn(
                 userResources);
         given(metaInfoResourceService.findByModuleTypeInstanceNameAndKind(ModuleType.SUPERSET, instanceName, ModuleResourceKind.HELLO_DATA_DASHBOARDS,
-                                                                          DashboardResource.class)).willReturn(dashboardResource);
+                DashboardResource.class)).willReturn(dashboardResource);
     }
 
     @NotNull

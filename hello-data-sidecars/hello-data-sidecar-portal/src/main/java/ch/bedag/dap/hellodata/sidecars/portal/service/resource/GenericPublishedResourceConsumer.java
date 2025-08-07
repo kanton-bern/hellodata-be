@@ -26,12 +26,13 @@
  */
 package ch.bedag.dap.hellodata.sidecars.portal.service.resource;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.ResourceRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.ResourceRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -40,6 +41,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
 
 @Log4j2
@@ -54,7 +56,7 @@ public class GenericPublishedResourceConsumer {
     public MetaInfoResourceEntity persistResource(HdResource hdResource) {
         Optional<MetaInfoResourceEntity> found =
                 resourceRepository.findByApiVersionAndModuleTypeAndKindAndInstanceName(hdResource.getApiVersion(), hdResource.getModuleType(), hdResource.getKind(),
-                                                                                       hdResource.getInstanceName());
+                        hdResource.getInstanceName());
         MetaInfoResourceEntity resource;
         if (found.isPresent()) {
             resource = found.get();
@@ -69,7 +71,7 @@ public class GenericPublishedResourceConsumer {
             resource.setInstanceName(hdResource.getMetadata().instanceName());
         }
         log.info("Resource saved: {}", resource);
-        if(hdResource instanceof UserResource ur) {
+        if (hdResource instanceof UserResource ur) {
             log.info("User resource saved. Subsystemusers: {}", ur.getData());
         }
         return saveEntity(resource);

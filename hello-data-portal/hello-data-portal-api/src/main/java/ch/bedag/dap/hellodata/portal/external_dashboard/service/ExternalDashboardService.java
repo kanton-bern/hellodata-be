@@ -26,8 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal.external_dashboard.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.CreateExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.ExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.UpdateExternalDashboardDto;

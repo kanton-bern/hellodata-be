@@ -114,12 +114,12 @@ public class SupersetApiRequestBuilder {
         JsonObject usernameFilter = new JsonObject();
         usernameFilter.addProperty("col", "username");
         usernameFilter.addProperty("opr", "eq");
-        usernameFilter.addProperty("value", URLEncoder.encode(StringEscapeUtils.escapeJava(username), "UTF-8"));
+        usernameFilter.addProperty("value", URLEncoder.encode(StringEscapeUtils.escapeJava(username), StandardCharsets.UTF_8));
 
         JsonObject emailFilter = new JsonObject();
         emailFilter.addProperty("col", "email");
         emailFilter.addProperty("opr", "eq");
-        emailFilter.addProperty("value", URLEncoder.encode(email, "UTF-8"));
+        emailFilter.addProperty("value", URLEncoder.encode(email, StandardCharsets.UTF_8));
 
         filtersArray.add(usernameFilter);
         filtersArray.add(emailFilter);
@@ -180,6 +180,10 @@ public class SupersetApiRequestBuilder {
 
     public static HttpUriRequest getListQueriesRequest(String host, int port, String authToken) throws URISyntaxException {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_QUERY_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT);
     }
 
     public static ObjectMapper getObjectMapper() {

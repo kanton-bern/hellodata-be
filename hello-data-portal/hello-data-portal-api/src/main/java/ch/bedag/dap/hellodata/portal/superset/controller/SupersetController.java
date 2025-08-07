@@ -28,16 +28,15 @@ package ch.bedag.dap.hellodata.portal.superset.controller;
 
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
+import ch.bedag.dap.hellodata.portal.superset.data.SupersetQueryDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
-import ch.bedag.dap.hellodata.portal.user.data.UserDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,7 +46,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 @Log4j2
@@ -82,7 +80,7 @@ public class SupersetController {
 
     @PreAuthorize("hasAnyAuthority('QUERIES')")
     @GetMapping(value = "/queries/{contextKey}")
-    public ResponseEntity<Page<UserDto>> fetchQueries(
+    public ResponseEntity<Page<SupersetQueryDto>> fetchQueries(
             @PathVariable String contextKey,
             @RequestParam int page,
             @RequestParam int size,
@@ -90,10 +88,8 @@ public class SupersetController {
             @RequestParam(required = false) String search) {
 
         Pageable pageable = PageUtil.createPageable(page, size, sort, search);
-        List<Object> queries = queryService.fetchQueries(contextKey);
-        log.info("Fetched queries {} for contextKey: {}", queries, contextKey);
-        Page result = new PageImpl(queries, pageable, queries.size());
-        return ResponseEntity.ok(result);
+        Page<SupersetQueryDto> queries = queryService.fetchQueries(contextKey, pageable);
+        return ResponseEntity.ok(queries);
     }
 
 }
