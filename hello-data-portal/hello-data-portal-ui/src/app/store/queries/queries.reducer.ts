@@ -26,6 +26,7 @@ export const queriesReducer = createReducer(
       ...state,
       queries: [],
       queriesLoading: false,
+      queriesTotalRecords: 0
     };
   })
 );
