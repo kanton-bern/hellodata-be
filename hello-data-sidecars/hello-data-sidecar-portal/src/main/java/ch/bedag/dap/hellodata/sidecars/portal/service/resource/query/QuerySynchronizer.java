@@ -18,6 +18,7 @@ import io.nats.client.Connection;
 import io.nats.client.Message;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Log4j2
 @Service
@@ -40,6 +42,7 @@ public class QuerySynchronizer {
     private final Connection connection;
     private final ObjectMapper objectMapper;
 
+    @Scheduled(fixedDelayString = "${hello-data.synchronize-query-in-minutes}", timeUnit = TimeUnit.MINUTES)
     @Transactional
     public void synchronizeQueriesFromSupersets() {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
