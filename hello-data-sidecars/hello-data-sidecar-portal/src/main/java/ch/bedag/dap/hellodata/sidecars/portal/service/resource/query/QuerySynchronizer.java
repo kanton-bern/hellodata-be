@@ -91,8 +91,8 @@ public class QuerySynchronizer {
                 changedOnFilter.addProperty("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
                 filter.add(changedOnFilter);
             }
-
-            Message reply = connection.request(subject, filter.getAsString().getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(60));
+            byte[] filterBytes = filter.size() > 0 ? filter.getAsString().getBytes(StandardCharsets.UTF_8) : null;
+            Message reply = connection.request(subject, filterBytes, Duration.ofSeconds(60));
             if (reply != null && reply.getData() != null) {
                 reply.ack();
                 return objectMapper.readValue(new String(reply.getData(), StandardCharsets.UTF_8), new TypeReference<>() {
