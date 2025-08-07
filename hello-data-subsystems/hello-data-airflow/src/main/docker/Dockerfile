@@ -56,7 +56,7 @@ RUN pip install --no-cache-dir dbt-core==1.5.0 dbt-postgres==1.5.0
 # add additional python requirements
 RUN pip install --no-cache-dir pyaxis pygdaltools pyctuator
 
-# 
+# add helloDATA dependencies
 RUN pip install \
     --extra-index-url https://pypi.fury.io/datenstreambedag/ \
     hellodata_be_airflow_pod_operator_params==1.0.0 \
