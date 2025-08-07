@@ -207,7 +207,6 @@ printenv
     )
 ```
 
-
 ##### Default DAG: HelloDATA Monitoring
 
 This is a DAG provided by us that gives you a summary of DAG runs. It will send you an email reporting which DAGs
@@ -229,6 +228,90 @@ You can modify the behavior of the DAG using environment variables on the Airflo
 | `MONITORING_DAG_AIRFLOW_LINK`    | `your administrator has forgotten to set the MONITORING_DAG_AIRFLOW_LINK env variable` | Value used to generate direct links to the DAG runs.                                                                                                                                  |
 | `MONITORING_DAG_INSTANCE_NAME`   | `HelloDATA`                                                                 | Used to generate the email title: `<MONITORING_DAG_INSTANCE_NAME> monitoring, <date and time> - DAG monitoring report`.                                                               |
 | `MONITORING_DAG_RUNTIME_SCHEDULE`| `0 5 * * *`                                                                 | [Cron expression](https://en.wikipedia.org/wiki/Cron) for when to run the DAG.                                                                                                        |
+
+#### Prebuilt Mechanism for logging DAG runs
+
+HelloDATA offers an easy way to log your DAG run stats to your DWH database through the `log_dag_run` function in the
+preinstalled python package `hellodata_be_dag_logs`.
+
+##### `log_dag_run` function
+
+The `log_dag_run` function logs statistics for all tasks in the current Airflow DAG run,
+excluding any specified task IDs, and inserts this data into a database table.
+This helps in monitoring and analyzing DAG performance over time.
+
+**Return type:** `None`
+The function does not return a value; it performs logging and database insertion as side effects.
+
+These are the input parameters.
+
+| Parameter         | Type             | Default Value         | Usage                                                                                      |
+|-------------------|------------------|-----------------------|--------------------------------------------------------------------------------------------|
+| `kwargs`          | `dict[str, Any]` | *required*            | Airflow context dictionary containing information about the current DAG run.               |
+| `exclude_task_ids`| `list[str]`      | `[]`                  | List of task IDs to exclude from logging and database insertion.                           |
+| `connection_id`   | `str`            | `"default_connection"`| Airflow connection ID used to connect to the target database.                              |
+| `schema_name`     | `str`            | `"public"`            | Name of the database schema where the task statistics table resides.                       |
+| `table_name`      | `str`            | `"dag_runs_stats"`    | Name of the table where task statistics will be inserted.                                  |
+
+###### Notes
+
+- Ensure your Airflow connection (`connection_id`) is correctly configured for your database.
+- The function should be called after the DAG run to capture accurate statistics.
+- Adjust parameters as needed for your environment.
+- You might want to ignore the task that logs the stats for the logs (see parameter `exclude_task_ids`)
+
+###### Example usage
+
+The following example demonstrates how to use the `log_dag_run` function within an Airflow DAG. It defines several simple tasks and a logging task that records DAG run statistics to a database. The logging task is configured to run after the main tasks, ensuring that all relevant information is captured.
+
+```python
+import pendulum
+from airflow.decorators import dag, task
+from hellodata_be_dag_logs import log_dag_run
+
+@dag(
+    schedule=None,
+    start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
+    catchup=False,
+    tags=["example"],
+)
+def tutorial_taskflow_api():
+    @task(task_id="dt1")
+    def dt1():
+        return "Some dummy task 1"
+
+    @task(task_id="dt2")
+    def dt2():
+        return "Some dummy task 2"
+
+    @task(task_id="dt3")
+    def dt3():
+        return "Some dummy task 3"
+
+    @task(task_id="dt4")
+    def dt4():
+        return "Some dummy task 4"
+
+    @task(task_id="hd_log_dag_run", provide_context=True)
+    def log_stats(**kwargs):
+        log_dag_run(
+            kwargs,
+            connection_id="your-connection-id",
+            schema_name="udm",
+            table_name="dag_run_stats",
+            exclude_task_ids=["hd_log_dag_run"],
+        )
+
+    dt1_task = dt1()
+    dt2_task = dt2()
+    dt3_task = dt3()
+    dt4_task = dt4()
+    print_context_task = log_stats()
+    dt1_task >> dt2_task
+    [dt2_task, dt3_task] >> print_context_task
+
+tutorial_taskflow_api()
+```
 
 #### Jupyter Notebooks (Jupyter Hub)
 
