@@ -232,7 +232,8 @@ You can modify the behavior of the DAG using environment variables on the Airflo
 #### Prebuilt Mechanism for logging DAG runs
 
 HelloDATA offers an easy way to log your DAG run stats to your DWH database through the `log_dag_run` function in the
-preinstalled python package `hellodata_be_dag_logs`.
+preinstalled python package `hellodata_be_dag_logs`. The library is opensource, of course. You can have a look at the code
+on [GitHub](https://github.com/bedag/hellodata-be-dag-logs).
 
 ##### `log_dag_run` function
 
