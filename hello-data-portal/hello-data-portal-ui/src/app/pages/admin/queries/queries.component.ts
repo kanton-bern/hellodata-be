@@ -6,6 +6,7 @@ import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/qu
 import {
     selectAllQueries,
     selectParamContextKey,
+    selectQueriesLoading,
     selectQueriesTotalRecords
 } from "../../../store/queries/queries.selector";
 import {combineLatest, Observable, tap} from "rxjs";
@@ -25,6 +26,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
     queries$: Observable<any>;
     queriesTotalRecords = 0;
     componentInitiated = false;
+    queriesLoading$ = this.store.select(selectQueriesLoading);
 
     constructor(private store: Store<AppState>) {
         super();

@@ -3,6 +3,7 @@
     <p-table #dt
              [lazy]="true"
              (onLazyLoad)="loadQueries($event, contextKey)"
+             [loading]="(queriesLoading$ | async) ?? false"
              [value]="queries"
              [paginator]="true"
              [rowHover]="true"

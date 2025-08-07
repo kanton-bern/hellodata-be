@@ -17,3 +17,8 @@ export const selectQueriesTotalRecords = createSelector(
     queriesState,
     (state: QueriesState) => state.queriesTotalRecords
 );
+
+export const selectQueriesLoading = createSelector(
+    queriesState,
+    (state: QueriesState) => state.queriesLoading
+);
