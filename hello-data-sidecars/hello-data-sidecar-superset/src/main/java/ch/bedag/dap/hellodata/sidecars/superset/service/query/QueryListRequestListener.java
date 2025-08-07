@@ -7,6 +7,8 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import jakarta.annotation.PostConstruct;
@@ -38,7 +40,15 @@ public class QueryListRequestListener {
         Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
             log.debug("\t-=-=-=-= Received message from NATS: {}", new String(msg.getData()));
             try {
-                JsonArray filter = objectMapper.readerFor(JsonArray.class).readValue(msg.getData());
+                String jsonString = new String(msg.getData(), StandardCharsets.UTF_8);
+                JsonElement jsonElement = JsonParser.parseString(jsonString);
+                JsonArray filter;
+                if (jsonElement.isJsonArray()) {
+                    filter = jsonElement.getAsJsonArray();
+                } else {
+                    throw new IllegalStateException("Expected a JSON array but received: " + jsonString);
+                }
+
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 SupersetQueryResponse queries = supersetClient.queriesFiltered(filter);
                 String result = objectMapper.writeValueAsString(queries.getResult());
