@@ -14,7 +14,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {selectAvailableDataDomains} from "../../../store/my-dashboards/my-dashboards.selector";
 import {TableLazyLoadEvent} from "primeng/table";
-import {map} from "rxjs/operators";
+import {map, take} from "rxjs/operators";
 
 @Component({
     templateUrl: 'queries.component.html',
@@ -33,7 +33,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
         this.paramContextKey$ =
             combineLatest([
                 this.store.select(selectParamContextKey),
-                this.store.select(selectAvailableDataDomains)
+                this.store.select(selectAvailableDataDomains).pipe(take(1))
             ]).pipe(
                 map(([contextKey, availableDataDomains]) => {
                     const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
