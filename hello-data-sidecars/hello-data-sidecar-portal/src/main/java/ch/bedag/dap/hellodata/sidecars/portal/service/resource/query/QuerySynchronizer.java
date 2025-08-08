@@ -64,7 +64,11 @@ public class QuerySynchronizer {
                         queryEntity.setStatus(supersetQuery.getStatus());
                         queryEntity.setStartTime(supersetQuery.getStartTime());
                         queryEntity.setEndTime(supersetQuery.getEndTime());
-                        queryEntity.setSqlTables(supersetQuery.getSqlTables());
+                        try {
+                            queryEntity.setSqlTables(objectMapper.writeValueAsString(supersetQuery.getSqlTables()));
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException("Could not parse json string", e);
+                        }
                         queryEntity.setSql(supersetQuery.getSql());
                         queryEntity.setSchema(supersetQuery.getSchema());
                         queryEntity.setRows(supersetQuery.getRows());
