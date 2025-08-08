@@ -1,13 +1,13 @@
 package ch.bedag.dap.hellodata.portalcommon.query.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -76,9 +76,8 @@ public class QueryEntity extends BaseEntity {
     @Column(name = "tmp_schema_name", length = 256)
     private String tmpSchemaName;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Basic(fetch = FetchType.EAGER)
-    @Column(columnDefinition = "json", name = "sql_tables")
-    private Object sqlTables;
+    @Lob
+    @Column(name = "executed_sql")
+    private String sqlTables;
 
 }

@@ -59,7 +59,7 @@
             <column name="end_time" type="numeric(20,6)"/>
             <column name="tracking_url" type="text"/>
             <column name="tmp_schema_name" type="varchar(256)"/>
-            <column name="sql_tables" type="jsonb"/>
+            <column name="sql_tables" type="text"/>
 
             <column name="created_date" type="timestamp"/>
             <column name="created_by" type="varchar(150)"/>
