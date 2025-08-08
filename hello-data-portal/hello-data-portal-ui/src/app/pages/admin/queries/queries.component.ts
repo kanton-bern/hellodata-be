@@ -34,7 +34,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
     this.paramContextKey$ =
       combineLatest([
         this.store.select(selectParamContextKey),
-        this.store.select(selectAvailableDataDomains).pipe(take(1))
+        this.store.select(selectAvailableDataDomains).pipe(take(2))
       ]).pipe(
         map(([contextKey, availableDataDomains]) => {
           const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
