@@ -37,9 +37,6 @@ public class QueryEntity extends BaseEntity {
     @Column(name = "tab_name", length = 256)
     private String tabName;
 
-    @Column(name = "sql_editor_id", length = 256)
-    private String sqlEditorId;
-
     @Column(name = "user_fullname", length = 256, nullable = false)
     private String userFullname;
 

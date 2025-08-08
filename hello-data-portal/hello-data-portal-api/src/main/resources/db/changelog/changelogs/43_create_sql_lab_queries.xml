@@ -47,7 +47,6 @@
             </column>
             <column name="tmp_table_name" type="varchar(256)"/>
             <column name="tab_name" type="varchar(256)"/>
-            <column name="sql_editor_id" type="varchar(256)"/>
             <column name="user_fullname" type="varchar(256)"/>
             <column name="username" type="varchar(256)"/>
             <column name="status" type="varchar(16)"/>
