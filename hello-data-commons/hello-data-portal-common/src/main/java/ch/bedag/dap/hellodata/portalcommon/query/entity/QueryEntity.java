@@ -77,7 +77,7 @@ public class QueryEntity extends BaseEntity {
     private String tmpSchemaName;
 
     @Lob
-    @Column(name = "executed_sql")
+    @Column(name = "sql_tables")
     private String sqlTables;
 
 }
