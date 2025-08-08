@@ -54,7 +54,7 @@ public class QuerySynchronizer {
                         log.debug("Processing query: {}", supersetQuery);
                         QueryEntity queryEntity = new QueryEntity();
                         queryEntity.setContextKey(contextEntity.getContextKey());
-                        queryEntity.setChangedOn(OffsetDateTime.parse(supersetQuery.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
+                        queryEntity.setChangedOn(OffsetDateTime.parse(supersetQuery.getChangedOn().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
                         queryEntity.setDatabaseName(supersetQuery.getDatabase().getDatabaseName());
                         queryEntity.setTrackingUrl(supersetQuery.getTrackingUrl());
                         queryEntity.setTmpTableName(supersetQuery.getTmpTableName());
