@@ -47,7 +47,7 @@ public class QuerySynchronizer {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         log.debug("Synchronizing queries from data domains {}", String.join(" : ", dataDomains.stream().map(dd -> dd.getName()).toList()));
         for (HdContextEntity contextEntity : dataDomains) {
-            log.info("Synchronizing queries for data domain {}", contextEntity.getName());
+            log.info("Started synchronizing queries for data domain {}", contextEntity.getName());
             fetchQueries(contextEntity.getContextKey())
                     .forEach(supersetQuery -> {
                         log.debug("Processing query: {}", supersetQuery);
@@ -77,6 +77,7 @@ public class QuerySynchronizer {
                         queryEntity.setTabName(supersetQuery.getTabName());
                         queryRepository.save(queryEntity);
                     });
+            log.info("Finished synchronizing queries for data domain {}", contextEntity.getName());
 
         }
     }
