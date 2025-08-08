@@ -4,10 +4,10 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/queries.action";
 import {
-    selectAllQueries,
-    selectParamContextKey,
-    selectQueriesLoading,
-    selectQueriesTotalRecords
+  selectAllQueries,
+  selectParamContextKey,
+  selectQueriesLoading,
+  selectQueriesTotalRecords
 } from "../../../store/queries/queries.selector";
 import {combineLatest, Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
@@ -17,97 +17,94 @@ import {TableLazyLoadEvent} from "primeng/table";
 import {map, take} from "rxjs/operators";
 
 @Component({
-    templateUrl: 'queries.component.html',
-    styleUrls: ['./queries.component.scss']
+  templateUrl: 'queries.component.html',
+  styleUrls: ['./queries.component.scss']
 })
 export class QueriesComponent extends BaseComponent implements OnInit {
 
-    paramContextKey$: Observable<any>;
-    queries$: Observable<any>;
-    queriesTotalRecords = 0;
-    componentInitiated = false;
-    queriesLoading$ = this.store.select(selectQueriesLoading);
+  paramContextKey$: Observable<any>;
+  queries$: Observable<any>;
+  queriesTotalRecords = 0;
+  componentInitiated = false;
+  queriesLoading$ = this.store.select(selectQueriesLoading);
 
-    constructor(private store: Store<AppState>) {
-        super();
-        this.paramContextKey$ =
-            combineLatest([
-                this.store.select(selectParamContextKey),
-                this.store.select(selectAvailableDataDomains).pipe(take(1))
-            ]).pipe(
-                map(([contextKey, availableDataDomains]) => {
-                    const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
-                    if (contextKey && dataDomain) {
-                        this.createBreadcrumbs(dataDomain.name);
-                        if (this.componentInitiated) {
-                            this.store.dispatch(loadQueriesPaginated({
-                                page: 0, size: 10, sort: '', search: '', contextKey
-                            }));
-                        }
-                    } else {
-                        this.store.dispatch(resetQueriesState());
-                    }
-                    return dataDomain?.key ? dataDomain.key : '';
-                }),
-            );
+  constructor(private store: Store<AppState>) {
+    super();
+    this.paramContextKey$ =
+      combineLatest([
+        this.store.select(selectParamContextKey),
+        this.store.select(selectAvailableDataDomains).pipe(take(1))
+      ]).pipe(
+        map(([contextKey, availableDataDomains]) => {
+          const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
+          if (contextKey && dataDomain) {
+            this.createBreadcrumbs(dataDomain.name);
+            if (this.componentInitiated) {
+              this.store.dispatch(loadQueriesPaginated({
+                page: 0, size: 10, sort: '', search: '', contextKey
+              }));
+            }
+          } else {
+            this.store.dispatch(resetQueriesState());
+          }
+          return dataDomain?.key ? dataDomain.key : '';
+        }),
+      );
 
-        this.queries$ = combineLatest([
-            this.store.select(selectAllQueries),
-            this.store.select(selectQueriesTotalRecords)
-        ]).pipe(
-            tap(([_, usersTotalRecords]) => {
-                this.queriesTotalRecords = usersTotalRecords;
-            }),
-            map(([queries, _]) => queries),
-        );
-    }
+    this.queries$ = combineLatest([
+      this.store.select(selectAllQueries),
+      this.store.select(selectQueriesTotalRecords)
+    ]).pipe(
+      tap(([_, usersTotalRecords]) => {
+        this.queriesTotalRecords = usersTotalRecords;
+      }),
+      map(([queries, _]) => queries),
+    );
+  }
 
-    loadQueries(event: TableLazyLoadEvent, contextKey: string) {
-        this.store.dispatch(loadQueriesPaginated({
-            page: event.first as number / (event.rows as number),
-            size: event.rows as number,
-            sort: event.sortField ? `${event.sortField}, ${event.sortOrder ? event.sortOrder > 0 ? 'asc' : 'desc' : ''}` : '',
-            search: event.globalFilter ? event.globalFilter as string : '',
-            contextKey
-        }));
-        this.componentInitiated = true;
-    }
+  loadQueries(event: TableLazyLoadEvent, contextKey: string) {
+    this.store.dispatch(loadQueriesPaginated({
+      page: event.first as number / (event.rows as number),
+      size: event.rows as number,
+      sort: event.sortField ? `${event.sortField}, ${event.sortOrder ? event.sortOrder > 0 ? 'asc' : 'desc' : ''}` : '',
+      search: event.globalFilter ? event.globalFilter as string : '',
+      contextKey
+    }));
+    this.componentInitiated = true;
+  }
 
-    formatChangedOn(changedOn: string[]) {
-        const date = new Date(
-            Number(changedOn[0]),                        // year
-            Number(changedOn[1]) - 1,                    // month (0-based in JS)
-            Number(changedOn[2]),                        // day
-            Number(changedOn[3]),                        // hour
-            Number(changedOn[4]),                        // minute
-            Number(changedOn[5]),                        // second
-            Math.floor(Number(changedOn[6]) / 1_000_000) // nanoseconds to milliseconds
-        );
-        return date.toLocaleString();
-    }
+  formatChangedOn(changedOn: number) {
+    // Convert to milliseconds and create Date object
+    const date = new Date(changedOn * 1000);
 
-    formatDuration(ms: number): string {
-        const hours = Math.floor(ms / 3600000);
-        const minutes = Math.floor((ms % 3600000) / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        const millis = Math.floor(ms % 1000);
+    // Format to human-readable string
+    const humanReadable = date.toLocaleString();
+    return date.toLocaleString();
+  }
 
-        const pad = (n: number, width = 2) => String(n).padStart(width, '0');
+  formatDuration(ms: number): string {
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const millis = Math.floor(ms % 1000);
 
-        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(millis, 3)}`;
-    }
+    const pad = (n: number, width = 2) => String(n).padStart(width, '0');
 
-    private createBreadcrumbs(dataDomainName: string): void {
-        this.store.dispatch(createBreadcrumbs({
-            breadcrumbs: [
-                {
-                    label: naviElements.query.label,
-                },
-                {
-                    label: dataDomainName,
-                }
-            ]
-        }));
-    }
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(millis, 3)}`;
+  }
 
+  private createBreadcrumbs(dataDomainName: string): void {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.query.label,
+        },
+        {
+          label: dataDomainName,
+        }
+      ]
+    }));
+  }
+
+  protected readonly JSON = JSON;
 }

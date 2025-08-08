@@ -75,6 +75,7 @@ public class QuerySynchronizer {
                         queryEntity.setSubsystemId(supersetQuery.getId());
                         queryEntity.setExecutedSql(supersetQuery.getExecutedSql());
                         queryEntity.setTabName(supersetQuery.getTabName());
+                        queryEntity.setUserFullname(supersetQuery.getUser().getFirstName() + " " + supersetQuery.getUser().getLastName());
                         queryRepository.save(queryEntity);
                     });
             log.info("Finished synchronizing queries for data domain {}", contextEntity.getName());

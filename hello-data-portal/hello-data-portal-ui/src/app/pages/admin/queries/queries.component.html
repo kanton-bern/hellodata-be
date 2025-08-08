@@ -37,22 +37,22 @@
             <span *ngSwitchCase="'success'" [pTooltip]="query.status" class="align-items-end pi pi-check-circle"
                   style="color: green"></span>
           </td>
-          <td>{{ formatChangedOn(query.changed_on) }}</td>
+          <td>{{ formatChangedOn(query.changedOn) }}</td>
           <td>
             <p-tag *ngSwitchCase="'failed'" severity="danger"
-                   [value]="formatDuration(query.end_time - query.start_time)"></p-tag>
+                   [value]="formatDuration(query.endTime - query.startTime)"></p-tag>
             <p-tag *ngSwitchCase="'success'" severity="success"
-                   [value]="formatDuration(query.end_time - query.start_time)"></p-tag>
+                   [value]="formatDuration(query.endTime - query.startTime)"></p-tag>
           </td>
-          <td>{{ query.tab_name }}</td>
-          <td>{{ query.database.database_name }}</td>
+          <td>{{ query.tabName }}</td>
+          <td>{{ query.databaseName }}</td>
           <td>{{ query.schema }}</td>
           <td>
-            <ng-container *ngFor="let table of query.sql_tables; let last = last">
+            <ng-container *ngFor="let table of JSON.parse(query.sqlTables); let last = last">
               {{ table.table }}<span *ngIf="!last">, </span>
             </ng-container>
           </td>
-          <td>{{ query.user.first_name + ' ' + query.user.last_name }}</td>
+          <td>{{ query.userFullname }}</td>
           <td>
             <textarea
               variant="filled"
