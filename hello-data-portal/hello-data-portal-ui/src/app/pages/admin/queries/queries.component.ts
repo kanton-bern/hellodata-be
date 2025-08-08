@@ -28,6 +28,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
   queriesTotalRecords = 0;
   componentInitiated = false;
   queriesLoading$ = this.store.select(selectQueriesLoading);
+  expandedRows = {};
 
   constructor(private store: Store<AppState>) {
     super();
@@ -48,6 +49,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
           } else {
             this.store.dispatch(resetQueriesState());
           }
+          // this.expandedRows = {};
           return dataDomain?.key ? dataDomain.key : '';
         }),
       );

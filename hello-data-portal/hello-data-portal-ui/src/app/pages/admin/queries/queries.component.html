@@ -10,12 +10,14 @@
              [rowsPerPageOptions]="[5, 10, 20]"
              [rows]="10"
              [totalRecords]="queriesTotalRecords"
+             [expandedRowKeys]="expandedRows"
              dataKey="id"
              id="queries_table_{{ contextKey }}"
              stateKey="portal-queries-table-{{ contextKey }}"
              stateStorage="session"
              styleClass="p-datatable-striped"
              [tableStyle]="{ 'min-width': '50rem' }">
+
       <ng-template pTemplate="header">
         <tr>
           <th></th>
@@ -26,10 +28,11 @@
           <th>Schema</th>
           <th>Tables</th>
           <th>User</th>
-          <th>SQL</th>
+          <th></th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-query>
+
+      <ng-template pTemplate="body" let-query let-expanded="expanded">
         <tr [ngSwitch]="query.status">
           <td>
             <span *ngSwitchCase="'failed'" [pTooltip]="query.status" class="align-items-end pi pi-exclamation-circle"
@@ -54,17 +57,31 @@
           </td>
           <td>{{ query.userFullname }}</td>
           <td>
+            <p-button type="button" pRipple [pRowToggler]="query" [text]="true" [rounded]="true"
+                      [plain]="true" pTooltip="SQL"
+                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="rowexpansion" let-query>
+        <tr>
+          <td colspan="9">
+            <div class="p-3">
             <textarea
               variant="filled"
               [disabled]="true"
-              rows="5"
               cols="30"
+              rows="5"
               pInputTextarea
+              variant="filled"
+              [autoResize]="true"
+              style="width: 100%"
               [(ngModel)]="query.sql">
             </textarea>
+            </div>
           </td>
         </tr>
-
       </ng-template>
     </p-table>
   </div>
