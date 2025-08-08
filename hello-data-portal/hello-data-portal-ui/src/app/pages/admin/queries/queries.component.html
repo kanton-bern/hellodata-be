@@ -11,6 +11,7 @@
              [rows]="10"
              [totalRecords]="queriesTotalRecords"
              [expandedRowKeys]="expandedRows"
+             [globalFilterFields]="['status','changedOn','tabName','databaseName', 'schema', 'table', 'userFullname', 'sql']"
              dataKey="id"
              id="queries_table_{{ contextKey }}"
              stateKey="portal-queries-table-{{ contextKey }}"
@@ -18,16 +19,49 @@
              styleClass="p-datatable-striped"
              [tableStyle]="{ 'min-width': '50rem' }">
 
+      <ng-template pTemplate="caption">
+        <div>
+          <div id="searchBox">
+          <span class="p-input-icon-left p-ml-auto">
+          <i class="pi pi-search"></i>
+          <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                 placeholder="{{'@Search' | transloco}}" type="text"/>
+          </span>
+          </div>
+        </div>
+        <br><br><br>
+      </ng-template>
+
       <ng-template pTemplate="header">
         <tr>
-          <th></th>
-          <th>Time</th>
+          <th id="statusHeader" pSortableColumn="status" style="max-width:5rem">
+            <p-sortIcon field="status"></p-sortIcon>
+          </th>
+          <th id="changedOnHeader" pSortableColumn="changedOn" style="max-width:5rem">
+            Time
+            <p-sortIcon field="changedOn"></p-sortIcon>
+          </th>
           <th>Duration</th>
-          <th>Tab name</th>
-          <th>Database</th>
-          <th>Schema</th>
-          <th>Tables</th>
-          <th>User</th>
+          <th id="tabNameHeader" pSortableColumn="tabName" style="max-width:5rem">
+            Tab name
+            <p-sortIcon field="tabName"></p-sortIcon>
+          </th>
+          <th id="databaseNameHeader" pSortableColumn="databaseName" style="max-width:5rem">
+            Database
+            <p-sortIcon field="databaseName"></p-sortIcon>
+          </th>
+          <th id="schemaHeader" pSortableColumn="schema" style="max-width:5rem">
+            Schema
+            <p-sortIcon field="schema"></p-sortIcon>
+          </th>
+          <th id="sqlTablesHeader" pSortableColumn="sqlTables" style="max-width:5rem">
+            Tables
+            <p-sortIcon field="sqlTables"></p-sortIcon>
+          </th>
+          <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
+            User
+            <p-sortIcon field="userFullname"></p-sortIcon>
+          </th>
           <th></th>
         </tr>
       </ng-template>

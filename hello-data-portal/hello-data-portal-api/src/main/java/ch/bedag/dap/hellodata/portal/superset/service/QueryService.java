@@ -20,8 +20,8 @@ public class QueryService {
     private final ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
-    public Page<SupersetQueryDto> fetchQueries(String contextKey, Pageable pageable) {
-        Page<QueryEntity> allByContextKeyPageable = queryRepository.findAllByContextKey(pageable, contextKey);
+    public Page<SupersetQueryDto> fetchQueries(String contextKey, Pageable pageable, String search) {
+        Page<QueryEntity> allByContextKeyPageable = queryRepository.findAll(pageable, search, contextKey);
         log.info("Fetched queries {} for contextKey: {}", allByContextKeyPageable, contextKey);
         return allByContextKeyPageable.map(userEntity -> modelMapper.map(userEntity, SupersetQueryDto.class));
     }

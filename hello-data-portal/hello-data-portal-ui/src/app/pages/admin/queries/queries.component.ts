@@ -29,6 +29,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
   componentInitiated = false;
   queriesLoading$ = this.store.select(selectQueriesLoading);
   expandedRows = {};
+  filterValue = '';
 
   constructor(private store: Store<AppState>) {
     super();
@@ -49,7 +50,6 @@ export class QueriesComponent extends BaseComponent implements OnInit {
           } else {
             this.store.dispatch(resetQueriesState());
           }
-          // this.expandedRows = {};
           return dataDomain?.key ? dataDomain.key : '';
         }),
       );
@@ -78,10 +78,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
   }
 
   formatChangedOn(changedOn: number) {
-    // Convert to milliseconds and create Date object
     const date = new Date(changedOn * 1000);
-
-    // Format to human-readable string
     const humanReadable = date.toLocaleString();
     return date.toLocaleString();
   }
