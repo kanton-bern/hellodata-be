@@ -23,8 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +53,11 @@ public class QuerySynchronizer {
                         log.debug("Processing query: {}", supersetQuery);
                         QueryEntity queryEntity = new QueryEntity();
                         queryEntity.setContextKey(contextEntity.getContextKey());
-                        queryEntity.setChangedOn(OffsetDateTime.from(supersetQuery.getChangedOn()));
+                        LocalDateTime localDateTime = supersetQuery.getChangedOn();
+                        ZoneId zoneId = ZoneId.systemDefault();
+                        ZoneOffset offset = zoneId.getRules().getOffset(localDateTime);
+                        OffsetDateTime offsetDateTime = localDateTime.atOffset(offset);
+                        queryEntity.setChangedOn(offsetDateTime);
                         queryEntity.setDatabaseName(supersetQuery.getDatabase().getDatabaseName());
                         queryEntity.setTrackingUrl(supersetQuery.getTrackingUrl());
                         queryEntity.setTmpTableName(supersetQuery.getTmpTableName());
