@@ -15,6 +15,7 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {selectAvailableDataDomains} from "../../../store/my-dashboards/my-dashboards.selector";
 import {TableLazyLoadEvent} from "primeng/table";
 import {map, take} from "rxjs/operators";
+import {scrollToTop} from "../../../shared/services/view-helpers";
 
 @Component({
   templateUrl: 'queries.component.html',
@@ -71,6 +72,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
       contextKey
     }));
     this.componentInitiated = true;
+    scrollToTop();
   }
 
   formatChangedOn(changedOn: number) {
