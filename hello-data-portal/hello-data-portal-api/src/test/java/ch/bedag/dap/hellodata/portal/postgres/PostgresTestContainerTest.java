@@ -33,7 +33,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.portal.base.config.PersistenceConfig;
-import ch.bedag.dap.hellodata.portalcommon.query.repository.QueryRepository;
 import io.nats.client.Connection;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
@@ -65,8 +64,6 @@ public class PostgresTestContainerTest {
     private SecurityFilterChain securityFilterChain;
     @MockBean
     private Connection connection;
-    @MockBean
-    private QueryRepository queryRepository;
 
     @Test
     void should_save_metainfo_to_metainfo_DB() {

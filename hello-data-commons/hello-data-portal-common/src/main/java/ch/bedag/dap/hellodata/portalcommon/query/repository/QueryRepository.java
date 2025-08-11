@@ -16,16 +16,16 @@ public interface QueryRepository extends JpaRepository<QueryEntity, UUID> {
 
     Page<QueryEntity> findAllByContextKey(Pageable pageable, String contextKey);
 
-    @Query(nativeQuery = true, value = "SELECT q FROM query q WHERE " +
-            "q.context_key = :contextKey " +
+    @Query(value = "SELECT q FROM query q WHERE " +
+            "q.contextKey = :contextKey " +
             "AND (LOWER(q.status) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(q.database_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(q.databaseName) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(q.schema) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(q.sql_tables) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(q.user_fullname) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(q.executed_sql) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(q.tab_name) LIKE LOWER(CONCAT('%', :search, '%')))")
-    Page<QueryEntity> findAll(Pageable pageable, @Param("search") String search, @Param("contextKey") String contextKey);
+            "OR LOWER(CAST(q.sqlTables as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(q.userFullname) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(CAST(q.executedSql as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(q.tabName) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<QueryEntity> findAll(Pageable pageable, @Param("contextKey") String contextKey, @Param("search") String search);
 
     long countAllByContextKey(String contextKey);
 
