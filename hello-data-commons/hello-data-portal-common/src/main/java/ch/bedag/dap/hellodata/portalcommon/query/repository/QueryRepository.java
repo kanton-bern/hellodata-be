@@ -23,6 +23,7 @@ public interface QueryRepository extends JpaRepository<QueryEntity, UUID> {
             "OR LOWER(q.schema) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(CAST(q.sqlTables as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(q.userFullname) LIKE LOWER(CONCAT('%', :search, '%')) " +
+            "OR LOWER(CAST(q.sql as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(CAST(q.executedSql as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(q.tabName) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<QueryEntity> findAll(Pageable pageable, @Param("contextKey") String contextKey, @Param("search") String search);

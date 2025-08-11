@@ -112,7 +112,7 @@
               variant="filled"
               [autoResize]="true"
               style="width: 100%"
-              [(ngModel)]="query.sql">
+              [(ngModel)]="query.executedSql ? query.executedSql : query.sql">
             </textarea>
             </div>
           </td>
