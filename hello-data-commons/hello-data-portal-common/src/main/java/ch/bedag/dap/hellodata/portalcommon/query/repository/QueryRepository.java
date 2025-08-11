@@ -16,7 +16,7 @@ public interface QueryRepository extends JpaRepository<QueryEntity, UUID> {
 
     Page<QueryEntity> findAllByContextKey(Pageable pageable, String contextKey);
 
-    @Query("SELECT q FROM query q WHERE " +
+    @Query(nativeQuery = true, value = "SELECT q FROM query q WHERE " +
             "q.contextKey = :contextKey " +
             "AND (LOWER(q.status) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(q.changedOn) LIKE LOWER(CONCAT('%', :search, '%')) " +

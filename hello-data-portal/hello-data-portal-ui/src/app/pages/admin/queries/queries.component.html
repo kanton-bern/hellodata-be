@@ -21,12 +21,13 @@
 
       <ng-template pTemplate="caption">
         <div>
+          <h3>{{ '@Queries' | transloco }}</h3>
           <div id="searchBox">
-          <span class="p-input-icon-left p-ml-auto">
-          <i class="pi pi-search"></i>
-          <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                 placeholder="{{'@Search' | transloco}}" type="text"/>
-          </span>
+            <span class="p-input-icon-left p-ml-auto">
+              <i class="pi pi-search"></i>
+              <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
+            </span>
           </div>
         </div>
         <br><br><br>
