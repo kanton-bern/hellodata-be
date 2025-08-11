@@ -19,7 +19,6 @@ public interface QueryRepository extends JpaRepository<QueryEntity, UUID> {
     @Query(nativeQuery = true, value = "SELECT q FROM query q WHERE " +
             "q.context_key = :contextKey " +
             "AND (LOWER(q.status) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(q.changed_on) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(q.database_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(q.schema) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(q.sql_tables) LIKE LOWER(CONCAT('%', :search, '%')) " +
