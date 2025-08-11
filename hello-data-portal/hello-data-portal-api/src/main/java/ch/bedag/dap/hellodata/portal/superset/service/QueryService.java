@@ -21,10 +21,10 @@ public class QueryService {
     private final ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
-    public Page<SupersetQueryDto> fetchQueries(String contextKey, Pageable pageable, String search) {
+    public Page<SupersetQueryDto> findQueries(String contextKey, Pageable pageable, String search) {
         Page<QueryEntity> allByContextKeyPageable;
         if (StringUtils.isNotBlank(search)) {
-            allByContextKeyPageable = queryRepository.findAll(pageable, search, contextKey);
+            allByContextKeyPageable = queryRepository.findAll(pageable, contextKey, search);
         } else {
             allByContextKeyPageable = queryRepository.findAllByContextKey(pageable, contextKey);
         }

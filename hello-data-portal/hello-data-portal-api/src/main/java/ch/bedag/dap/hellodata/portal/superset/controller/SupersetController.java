@@ -88,7 +88,7 @@ public class SupersetController {
             @RequestParam(required = false) String search) {
 
         Pageable pageable = PageUtil.createPageable(page, size, sort, search);
-        Page<SupersetQueryDto> queries = queryService.fetchQueries(contextKey, pageable, search);
+        Page<SupersetQueryDto> queries = queryService.findQueries(contextKey, pageable, search);
         return ResponseEntity.ok(queries);
     }
 
