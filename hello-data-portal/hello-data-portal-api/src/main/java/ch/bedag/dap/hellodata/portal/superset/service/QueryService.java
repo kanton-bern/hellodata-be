@@ -28,7 +28,7 @@ public class QueryService {
         } else {
             allByContextKeyPageable = queryRepository.findAllByContextKey(pageable, contextKey);
         }
-        log.info("Fetched queries {} for contextKey: {}", allByContextKeyPageable, contextKey);
+        log.info("Fetched queries {} for contextKey: {} and search: {}", allByContextKeyPageable, contextKey, search);
         return allByContextKeyPageable.map(userEntity -> modelMapper.map(userEntity, SupersetQueryDto.class));
     }
 
