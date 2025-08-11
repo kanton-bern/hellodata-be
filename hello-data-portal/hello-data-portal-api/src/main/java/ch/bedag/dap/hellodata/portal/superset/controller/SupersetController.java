@@ -26,55 +26,70 @@
  */
 package ch.bedag.dap.hellodata.portal.superset.controller;
 
+import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
+import ch.bedag.dap.hellodata.portal.superset.data.SupersetQueryDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
+import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Set;
 
 @Log4j2
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/superset")
-@PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-public class SupersetDashboardController {
+public class SupersetController {
 
     private final DashboardService dashboardService;
+    private final QueryService queryService;
 
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @GetMapping(value = "/my-dashboards")
     public ResponseEntity<Set<SupersetDashboardDto>> fetchMyDashboards() {
         Set<SupersetDashboardDto> dashboardsWithAccess = dashboardService.fetchMyDashboards();
         return ResponseEntity.ok(dashboardsWithAccess);
     }
 
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @PatchMapping(value = "/dashboards/{instanceName}/{subsystemId}")
     public void updateDashboard(@PathVariable String instanceName, @PathVariable int subsystemId,
                                 @NotNull @Valid @RequestBody UpdateSupersetDashboardMetadataDto updateSupersetDashboardMetadataDto) {
         dashboardService.updateDashboard(instanceName, subsystemId, updateSupersetDashboardMetadataDto);
     }
 
-    @PostMapping(value = "/upload-dashboards/{contextKey}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(value = "/upload-dashboards/{contextKey}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
     @ResponseStatus(HttpStatus.CREATED)
     public void uploadFile(@RequestParam MultipartFile file, @PathVariable String contextKey) throws IOException {
         dashboardService.uploadDashboardsFile(file, contextKey);
     }
+
+    @PreAuthorize("hasAnyAuthority('QUERIES')")
+    @GetMapping(value = "/queries/{contextKey}")
+    public ResponseEntity<Page<SupersetQueryDto>> fetchQueries(
+            @PathVariable String contextKey,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String search) {
+
+        Pageable pageable = PageUtil.createPageable(page, size, sort, search);
+        Page<SupersetQueryDto> queries = queryService.findQueries(contextKey, pageable, search);
+        return ResponseEntity.ok(queries);
+    }
+
 }

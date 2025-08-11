@@ -73,6 +73,7 @@ public class SupersetApiRequestBuilder {
     private static final String USERS_API_ENDPOINT = "/api/v1/security/users/";
     private static final String LIST_ROLE_PERMISSIONS_API_ENDPOINT = "/api/v1/security/roles/%d/permissions/";
     private static final String LIST_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/";
+    private static final String LIST_QUERY_API_ENDPOINT = "/api/v1/query/";
     private static final String DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/%d";
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
@@ -113,12 +114,12 @@ public class SupersetApiRequestBuilder {
         JsonObject usernameFilter = new JsonObject();
         usernameFilter.addProperty("col", "username");
         usernameFilter.addProperty("opr", "eq");
-        usernameFilter.addProperty("value", URLEncoder.encode(StringEscapeUtils.escapeJava(username), "UTF-8"));
+        usernameFilter.addProperty("value", URLEncoder.encode(StringEscapeUtils.escapeJava(username), StandardCharsets.UTF_8));
 
         JsonObject emailFilter = new JsonObject();
         emailFilter.addProperty("col", "email");
         emailFilter.addProperty("opr", "eq");
-        emailFilter.addProperty("value", URLEncoder.encode(email, "UTF-8"));
+        emailFilter.addProperty("value", URLEncoder.encode(email, StandardCharsets.UTF_8));
 
         filtersArray.add(usernameFilter);
         filtersArray.add(emailFilter);
@@ -175,6 +176,14 @@ public class SupersetApiRequestBuilder {
 
     public static HttpUriRequest getListDashboardsRequest(String host, int port, String authToken) throws URISyntaxException {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_DASHBOARD_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getListQueriesRequest(String host, int port, String authToken) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, null, LIST_QUERY_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT);
     }
 
     public static ObjectMapper getObjectMapper() {

@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.portal.user.controller;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
+import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -37,12 +38,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.ClientErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -94,19 +92,7 @@ public class UserController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String search) {
 
-        sort = StringUtils.defaultIfEmpty(sort, null);
-        search = StringUtils.defaultIfEmpty(search, null);
-
-        Sort sorting = Sort.by(Sort.Direction.ASC, "id");
-        if (sort != null && !sort.isEmpty()) {
-            String[] sortParams = sort.split(",");
-            if (sortParams.length == 2) {
-                String sortField = sortParams[0];
-                Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
-                sorting = Sort.by(direction, sortField);
-            }
-        }
-        Pageable pageable = PageRequest.of(page, size, sorting);
+        Pageable pageable = PageUtil.createPageable(page, size, sort, search);
         Page<UserDto> usersPage = userService.getAllUsersPageable(pageable, search);
         return ResponseEntity.ok(usersPage);
     }

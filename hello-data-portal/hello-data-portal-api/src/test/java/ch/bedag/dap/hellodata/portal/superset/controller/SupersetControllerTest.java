@@ -31,25 +31,30 @@ import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
-import java.util.HashSet;
-import java.util.Set;
+import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(SupersetDashboardController.class)
-@ContextConfiguration(classes = { SupersetDashboardController.class })
-class SupersetDashboardControllerTest extends HDControllerTest {
+@WebMvcTest(SupersetController.class)
+@ContextConfiguration(classes = {SupersetController.class})
+class SupersetControllerTest extends HDControllerTest {
 
     @MockBean
     private DashboardService dashboardService;
+    @MockBean
+    private QueryService queryService;
 
     @Test
     void fetchMyDashboards() throws Exception {
@@ -68,45 +73,45 @@ class SupersetDashboardControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(get("/superset/my-dashboards").header("authorization",
-                generateToken(Set.of(Permission.DASHBOARDS.name()))))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("""
-                                                 [
-                                                     {
-                                                         "compositeId": null,
-                                                         "contextId": null,
-                                                         "contextKey": null,
-                                                         "contextName": null,
-                                                         "dashboardTitle": "Dashboard2",
-                                                         "dashboardUrlPath": null,
-                                                         "id": 2,
-                                                         "instanceName": null,
-                                                         "instanceUrl": null,
-                                                         "published": false,
-                                                         "roles": null,
-                                                         "slug": null,
-                                                         "status": null,
-                                                         "thumbnailPath": null
-                                                     },
-                                                     {
-                                                         "compositeId": null,
-                                                         "contextId": null,
-                                                         "contextKey": null,
-                                                         "contextName": null,
-                                                         "dashboardTitle": "Dashboard1",
-                                                         "dashboardUrlPath": null,
-                                                         "id": 1,
-                                                         "instanceName": null,
-                                                         "instanceUrl": null,
-                                                         "published": false,
-                                                         "roles": null,
-                                                         "slug": null,
-                                                         "status": null,
-                                                         "thumbnailPath": null
-                                                     }
-                                                 ]
-                                                 """));
+                        generateToken(Set.of(Permission.DASHBOARDS.name()))))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("""
+                        [
+                            {
+                                "compositeId": null,
+                                "contextId": null,
+                                "contextKey": null,
+                                "contextName": null,
+                                "dashboardTitle": "Dashboard2",
+                                "dashboardUrlPath": null,
+                                "id": 2,
+                                "instanceName": null,
+                                "instanceUrl": null,
+                                "published": false,
+                                "roles": null,
+                                "slug": null,
+                                "status": null,
+                                "thumbnailPath": null
+                            },
+                            {
+                                "compositeId": null,
+                                "contextId": null,
+                                "contextKey": null,
+                                "contextName": null,
+                                "dashboardTitle": "Dashboard1",
+                                "dashboardUrlPath": null,
+                                "id": 1,
+                                "instanceName": null,
+                                "instanceUrl": null,
+                                "published": false,
+                                "roles": null,
+                                "slug": null,
+                                "status": null,
+                                "thumbnailPath": null
+                            }
+                        ]
+                        """));
     }
 
     @Test
@@ -119,8 +124,8 @@ class SupersetDashboardControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(patch("/superset/dashboards/{instanceName}/{subsystemId}", instanceName, subsystemId).header("authorization", generateToken(Set.of(Permission.DASHBOARDS.name())))
-                                                                                                             .contentType(MediaType.APPLICATION_JSON)
-                                                                                                             .content(asJsonString(updateDto))).andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateDto))).andExpect(status().isOk());
     }
 }
 

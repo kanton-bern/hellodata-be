@@ -79,7 +79,7 @@ export const ALL_MENU_ITEMS: any[] = [
     text: '@Administration',
     icon: 'fas fa-light fa-gear',
     //requiredPermissions must have the same set of permissions as each of sub-items
-    requiredPermissions: ['USER_MANAGEMENT', 'ROLE_MANAGEMENT', 'ANNOUNCEMENT_MANAGEMENT', 'FAQ_MANAGEMENT', 'DOCUMENTATION_MANAGEMENT', 'USERS_OVERVIEW'],
+    requiredPermissions: ['USER_MANAGEMENT', 'ROLE_MANAGEMENT', 'ANNOUNCEMENT_MANAGEMENT', 'FAQ_MANAGEMENT', 'DOCUMENTATION_MANAGEMENT', 'USERS_OVERVIEW', 'QUERIES'],
     items: [
       {
         id: 'userManagementMenu',
@@ -92,6 +92,12 @@ export const ALL_MENU_ITEMS: any[] = [
         text: '@Users overview',
         routerLink: '/users-overview',
         requiredPermissions: ['USERS_OVERVIEW']
+      },
+      {
+        id: 'queriesMenu',
+        text: '@Queries',
+        requiredPermissions: ['QUERIES'],
+        items: []
       },
       {
         id: 'portalRoleManagementMenu',
@@ -122,7 +128,7 @@ export const ALL_MENU_ITEMS: any[] = [
         text: '@Dashboard import-export',
         routerLink: '/dashboard-import-export',
         requiredPermissions: ['DASHBOARD_IMPORT_EXPORT']
-      }
+      },
     ]
   },
   {

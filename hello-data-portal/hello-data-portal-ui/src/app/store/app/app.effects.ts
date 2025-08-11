@@ -51,6 +51,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "./app.state";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "./app.constants";
+import {QueriesEffects} from "../queries/queries.effects";
 
 @Injectable()
 export class AppEffects {
@@ -120,5 +121,21 @@ export class AppEffects {
 }
 
 export const appEffects: Array<Type<unknown> | Record<string, FunctionalEffect>> =
-  [AppEffects, AuthEffects, RouterEffects, MetaInfoResourceEffects, UsersManagementEffects, PortalRolesManagementEffects, AnnouncementEffects,
-    MyDashboardsEffects, MenuEffects, StartPageEffects, FaqEffects, SummaryEffects, ExternalDashboardsEffects, LineageDocsEffects, UnsavedChangesEffects]
+  [
+    AppEffects,
+    AuthEffects,
+    RouterEffects,
+    MetaInfoResourceEffects,
+    UsersManagementEffects,
+    PortalRolesManagementEffects,
+    AnnouncementEffects,
+    MyDashboardsEffects,
+    MenuEffects,
+    StartPageEffects,
+    FaqEffects,
+    SummaryEffects,
+    ExternalDashboardsEffects,
+    LineageDocsEffects,
+    UnsavedChangesEffects,
+    QueriesEffects
+  ]

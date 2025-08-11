@@ -73,6 +73,7 @@ import {AdvancedAnalyticsViewerComponent} from "./pages/advanced-analytics/advan
 import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
 import {SubsystemUsersComponent} from "./pages/admin/subsystem-users/subsystem-users.component";
 import {UsersOverviewComponent} from "./pages/admin/users-overview/users-overview.component";
+import {QueriesComponent} from "./pages/admin/queries/queries.component";
 
 const routes: Routes = [
 
@@ -326,6 +327,23 @@ const routes: Routes = [
         path: naviElements.myDashboardDetail.path,
         component: EmbedMyDashboardComponent,
         canActivate: [AutoLoginPartialRoutesGuard],
+      },
+    ]
+  },
+  {
+    path: naviElements.query.path,
+    canActivate: [AutoLoginPartialRoutesGuard],
+    data: {
+      requiredPermissions: []
+    },
+    children: [
+      {
+        path: '',
+        component: QueriesComponent,
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: []
+        }
       },
     ]
   },

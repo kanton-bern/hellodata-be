@@ -47,7 +47,12 @@ import {TranslateService} from "../../shared/services/translate.service";
 import {ALL_MENU_ITEMS} from "./menu.model";
 import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
-import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
+import {
+  BUSINESS_DOMAIN_ADMIN_ROLE,
+  DATA_DOMAIN_ADMIN_ROLE,
+  DATA_DOMAIN_EDITOR_ROLE,
+  HELLODATA_ADMIN_ROLE
+} from "../users-management/users-management.model";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 import {environment} from "../../../environments/environment";
@@ -57,6 +62,7 @@ import {environment} from "../../../environments/environment";
 })
 export class MenuService {
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
+  private static readonly QUERY_LIST = '/queries/list/';
   private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
   dbMenuItemPrefix = ' > ';
 
@@ -87,6 +93,10 @@ export class MenuService {
     );
   }
 
+  public createQueryLink(contextKey: string): string {
+    return MenuService.QUERY_LIST + contextKey;
+  }
+
   public createDashboardLink(db: SupersetDashboard): string {
     const instanceName = db.instanceName;
     if (db.slug) {
@@ -108,7 +118,6 @@ export class MenuService {
     ]).pipe(
       map(([myDashboards, myDocs,
              appInfos, contextRoles, availableDomainItems, selectedDataDomain]) => {
-
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
           if (item.routerLink && !(/^\//.test(item.routerLink))) {
@@ -143,10 +152,32 @@ export class MenuService {
               menuItem.items.push(jupyterhubSubNav);
             }
           }
+          if (menuItem.id === 'administrationMenu') {
+            if (this.displayQueries(contextRoles)) {
+              const queriesMenu = menuItem.items.filter((item: {
+                id: string;
+              }) => item.id === 'queriesMenu')[0];
+              queriesMenu.items = this.createQueriesSubNav(menuItem, availableDomainItems);
+            }
+          }
           return menuItem;
         });
       })
     )
+  }
+
+  private createQueriesSubNav(menuItem: any[], availableDomainItems: any[]) {
+    const result: any[] = [];
+    const dataDomains = availableDomainItems.map(item => item.data).sort((a, b) => a!.key.toLowerCase().localeCompare(b!.key.toLowerCase()));
+    for (const dataDomain of dataDomains) {
+      result.push({
+        id: 'queries_' + dataDomain!.key,
+        text: dataDomain!.name,
+        routerLink: this.createQueryLink(dataDomain!.key),
+        requiredPermissions: ['QUERIES']
+      });
+    }
+    return result;
   }
 
   private filterNavigationByPermissions(navigationElements: any[], currentUserPermissions: string[]) {
@@ -224,6 +255,10 @@ export class MenuService {
       requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
     })
     return myDashboards;
+  }
+
+  private displayQueries(contextRoles: any[]) {
+    return contextRoles.find(contextRole => contextRole.role.name === HELLODATA_ADMIN_ROLE || contextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
   }
 
   private displaySupersetLink(instanceName: string, contextRoles: any[]) {

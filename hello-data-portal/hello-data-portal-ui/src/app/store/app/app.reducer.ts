@@ -42,6 +42,7 @@ import {externalDashboardsReducer} from "../external-dashboards/external-dashboa
 import {myLineageDocsReducer} from "../lineage-docs/lineage-docs.reducer";
 import {breadcrumbReducer} from "../breadcrumb/breadcrumb.reducer";
 import {unsavedChangesReducer} from "../unsaved-changes/unsaved-changes.reducer";
+import {queriesReducer} from "../queries/queries.reducer";
 
 export const appReducers: ActionReducerMap<AppState, any> = {
   auth: authReducer,
@@ -58,5 +59,6 @@ export const appReducers: ActionReducerMap<AppState, any> = {
   externalDashboards: externalDashboardsReducer,
   myLineageDocs: myLineageDocsReducer,
   breadcrumbs: breadcrumbReducer,
-  unsavedChanges: unsavedChangesReducer
+  unsavedChanges: unsavedChangesReducer,
+  queries: queriesReducer,
 };

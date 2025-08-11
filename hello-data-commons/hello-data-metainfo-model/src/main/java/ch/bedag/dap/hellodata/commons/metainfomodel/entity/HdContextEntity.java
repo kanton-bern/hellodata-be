@@ -24,55 +24,42 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.metainfomodel.entities;
+package ch.bedag.dap.hellodata.commons.metainfomodel.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import jakarta.persistence.Basic;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.hibernate.validator.constraints.Length;
+import org.hibernate.annotations.NaturalId;
 
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Entity(name = "resource")
-public class MetaInfoResourceEntity extends BaseEntity {
-    @NotBlank
-    @Length(max = 55)
-    private String apiVersion;
+@Entity(name = "context")
+public class HdContextEntity extends BaseEntity {
+
+    private String name;
+
+    @NaturalId
+    @Column(unique = true, name = "context_key")
+    private String contextKey;
+
+    @Column(unique = true, name = "parent_key")
+    private String parentContextKey;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "module_type", columnDefinition = "VARCHAR")
-    private ModuleType moduleType;
-
-    @NotBlank
-    @Length(max = 55)
-    private String kind;
-
-    @NotBlank
-    @Length(max = 255)
-    private String instanceName;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Basic(fetch = FetchType.EAGER)
-    @Column(columnDefinition = "json", name = "metainfo")
-    private HdResource metainfo;
+    @Column(name = "type", columnDefinition = "VARCHAR")
+    private HdContextType type;
 
     /**
-     * mapping to context entity
+     * used mostly for extra Data Domain
      */
-    private String contextKey;
+    private boolean extra;
 }
