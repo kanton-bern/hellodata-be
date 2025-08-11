@@ -33,12 +33,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.portal.base.config.PersistenceConfig;
+import ch.bedag.dap.hellodata.portalcommon.query.repository.QueryRepository;
 import io.nats.client.Connection;
 import jakarta.persistence.EntityManager;
-
-import java.util.List;
-import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -47,6 +44,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -65,6 +65,8 @@ public class PostgresTestContainerTest {
     private SecurityFilterChain securityFilterChain;
     @MockBean
     private Connection connection;
+    @MockBean
+    private QueryRepository queryRepository;
 
     @Test
     void should_save_metainfo_to_metainfo_DB() {
