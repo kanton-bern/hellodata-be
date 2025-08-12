@@ -44,6 +44,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DashboardResource implements HdResource {
     @EqualsAndHashCode.Include
+    private final String apiVersion = "v1";
+    @EqualsAndHashCode.Include
     private final ModuleType moduleType = ModuleType.SUPERSET;
     @EqualsAndHashCode.Include
     private final String kind = ModuleResourceKind.HELLO_DATA_DASHBOARDS;

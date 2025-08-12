@@ -42,6 +42,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AppInfoResource implements HdResource {
     @EqualsAndHashCode.Include
+    private final String apiVersion = "v1";
+    @EqualsAndHashCode.Include
     private final String kind = ModuleResourceKind.HELLO_DATA_APP_INFO;
     @EqualsAndHashCode.Include
     private ModuleType moduleType;

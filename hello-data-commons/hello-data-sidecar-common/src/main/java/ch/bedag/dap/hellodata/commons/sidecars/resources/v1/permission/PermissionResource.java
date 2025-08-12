@@ -43,6 +43,8 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PermissionResource implements HdResource {
     @EqualsAndHashCode.Include
+    private final String apiVersion = "v1";
+    @EqualsAndHashCode.Include
     private ModuleType moduleType;
     @EqualsAndHashCode.Include
     private final String kind = ModuleResourceKind.HELLO_DATA_PERMISSIONS;

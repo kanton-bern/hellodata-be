@@ -44,6 +44,8 @@ import java.util.Map;
 public class RoleResource implements HdResource {
 
     @EqualsAndHashCode.Include
+    private final String apiVersion = "v1";
+    @EqualsAndHashCode.Include
     private ModuleType moduleType;
     @EqualsAndHashCode.Include
     private String instanceName;
