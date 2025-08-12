@@ -32,12 +32,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.Permissio
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermission;
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.Privilege;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.PrivilegeRepository;
-import ch.bedag.dap.hellodata.sidecars.dbt.service.cloud.PodUtilsProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -55,25 +52,16 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PER
 public class DbtDocsPermissionResourceProviderService {
     private final PrivilegeRepository privilegeRepository;
     private final NatsSenderService natsSenderService;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
     public void publishPermissions() {
         log.info("--> publishPermissions()");
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
         List<Privilege> privileges = privilegeRepository.findAll();
         List<SupersetPermission> supersetPermissions = toSupersetPermissions(privileges);
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            PermissionResource permissionResource = new PermissionResource(ModuleType.DBT_DOCS, this.instanceName, current.getMetadata().getNamespace(), supersetPermissions);
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
-        } else {
-            //dummy info for tests
-            PermissionResource permissionResource = new PermissionResource(ModuleType.DBT_DOCS, this.instanceName, "local", supersetPermissions);
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
-        }
+        PermissionResource permissionResource = new PermissionResource(ModuleType.DBT_DOCS, this.instanceName, supersetPermissions);
+        natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
     }
 
     private List<SupersetPermission> toSupersetPermissions(List<Privilege> airflowPermissions) {

@@ -28,12 +28,12 @@ import java.util.*;
         WebDAVServiceStatus.JSON_PROPERTY_IS_ACTIVE,
         WebDAVServiceStatus.JSON_PROPERTY_BINDINGS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
 public class WebDAVServiceStatus {
     public static final String JSON_PROPERTY_IS_ACTIVE = "is_active";
     public static final String JSON_PROPERTY_BINDINGS = "bindings";
     private Boolean isActive;
-    private JsonNullable<List<WebDAVBinding>> bindings = JsonNullable.<List<WebDAVBinding>>undefined();
+    private JsonNullable<List<WebDAVBinding>> bindings = JsonNullable.undefined();
 
     public WebDAVServiceStatus() {
     }
@@ -75,14 +75,14 @@ public class WebDAVServiceStatus {
     }
 
     public WebDAVServiceStatus bindings(List<WebDAVBinding> bindings) {
-        this.bindings = JsonNullable.<List<WebDAVBinding>>of(bindings);
+        this.bindings = JsonNullable.of(bindings);
 
         return this;
     }
 
     public WebDAVServiceStatus addBindingsItem(WebDAVBinding bindingsItem) {
         if (this.bindings == null || !this.bindings.isPresent()) {
-            this.bindings = JsonNullable.<List<WebDAVBinding>>of(new ArrayList<>());
+            this.bindings = JsonNullable.of(new ArrayList<>());
         }
         try {
             this.bindings.get().add(bindingsItem);
@@ -105,7 +105,7 @@ public class WebDAVServiceStatus {
     }
 
     public void setBindings(List<WebDAVBinding> bindings) {
-        this.bindings = JsonNullable.<List<WebDAVBinding>>of(bindings);
+        this.bindings = JsonNullable.of(bindings);
     }
 
     @JsonProperty(JSON_PROPERTY_BINDINGS)
@@ -140,12 +140,11 @@ public class WebDAVServiceStatus {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class WebDAVServiceStatus {\n");
-        sb.append("    isActive: ").append(toIndentedString(isActive)).append("\n");
-        sb.append("    bindings: ").append(toIndentedString(bindings)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        String sb = "class WebDAVServiceStatus {\n" +
+                "    isActive: " + toIndentedString(isActive) + "\n" +
+                "    bindings: " + toIndentedString(bindings) + "\n" +
+                "}";
+        return sb;
     }
 
     /**

@@ -9,7 +9,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -18,7 +17,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJetStream
 @EnableScheduling
 @SpringBootApplication
-@EnableDiscoveryClient
 @ConfigurationPropertiesScan
 @ComponentScan("ch.bedag.dap.hellodata")
 @EnableConfigurationProperties({HelloDataContextConfig.class, S3ConnectionsConfig.class})

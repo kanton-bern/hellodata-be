@@ -29,13 +29,13 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.Metadata;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermission;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -48,20 +48,17 @@ public class PermissionResource implements HdResource {
     private final String kind = ModuleResourceKind.HELLO_DATA_PERMISSIONS;
     @EqualsAndHashCode.Include
     private String instanceName;
-    private Metadata metadata;
     private List<SupersetPermission> data;
 
     /**
      * @param instanceName instance name
-     * @param namespace    namespace
      * @param data         superset users information
      */
-    public PermissionResource(ModuleType  moduleType, String instanceName, String namespace, List<SupersetPermission> data) {
+    public PermissionResource(ModuleType moduleType, String instanceName, List<SupersetPermission> data) {
         this.moduleType = moduleType;
         this.instanceName = instanceName;
         Map<String, Object> labels = new HashMap<>();
         labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-        this.metadata = new Metadata(instanceName, namespace, labels);
 
         this.data = data;
     }

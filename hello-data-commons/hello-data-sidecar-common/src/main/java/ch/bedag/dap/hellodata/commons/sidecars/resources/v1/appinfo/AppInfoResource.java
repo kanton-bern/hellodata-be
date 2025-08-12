@@ -30,11 +30,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.Metadata;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -48,24 +48,21 @@ public class AppInfoResource implements HdResource {
     @EqualsAndHashCode.Include
     private String instanceName;
     @EqualsAndHashCode.Include
-    private Metadata metadata;
     private Map<String, Object> data;//NOSONAR
     private HdBusinessContextInfo businessContextInfo;
 
     /**
      * @param instanceName instance name
-     * @param namespace    namespace
      * @param moduleType   e.g.: superset, airflow, dbt-docs, e.t.c.
      * @param url          instance public url
      */
-    public AppInfoResource(HdBusinessContextInfo businessContextInfo, String instanceName, String namespace, ModuleType moduleType, String url) {
+    public AppInfoResource(HdBusinessContextInfo businessContextInfo, String instanceName, ModuleType moduleType, String url) {
         this.businessContextInfo = businessContextInfo;
         this.moduleType = moduleType;
         this.instanceName = instanceName;
 
         Map<String, Object> labels = new HashMap<>();
         labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-        this.metadata = new Metadata(instanceName, namespace, labels);
 
         this.data = new HashMap<>();
         data.put(URL_KEY, url);

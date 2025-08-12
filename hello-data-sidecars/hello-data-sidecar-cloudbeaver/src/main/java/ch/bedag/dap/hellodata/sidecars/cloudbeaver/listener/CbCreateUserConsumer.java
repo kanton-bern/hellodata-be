@@ -33,7 +33,6 @@ import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.service.resource.CbUserResourceProviderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -66,7 +65,6 @@ public class CbCreateUserConsumer {
         }
     }
 
-    @NotNull
     private User toCbUser(SubsystemUserUpdate supersetUserCreate) {
         User dbtDocUser = new User(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
         dbtDocUser.setRoles(new ArrayList<>());

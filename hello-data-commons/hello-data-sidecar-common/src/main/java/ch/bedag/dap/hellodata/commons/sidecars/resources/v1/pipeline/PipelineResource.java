@@ -29,14 +29,14 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.Metadata;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -50,19 +50,16 @@ public class PipelineResource implements HdResource {
     private final String kind = ModuleResourceKind.HELLO_DATA_PIPELINES;
     @EqualsAndHashCode.Include
     private String instanceName;
-    private Metadata metadata;
     private List<Pipeline> data;
 
     /**
      * @param instanceName instance name
-     * @param namespace    namespace
      * @param data         Dag Run information
      */
-    public PipelineResource(String instanceName, String namespace, List<Pipeline> data) {
+    public PipelineResource(String instanceName, List<Pipeline> data) {
         this.instanceName = instanceName;
         Map<String, Object> labels = new HashMap<>();
         labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-        this.metadata = new Metadata(instanceName, namespace, labels);
 
         this.data = new ArrayList<>(data);
     }

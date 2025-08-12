@@ -30,12 +30,9 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
-import ch.bedag.dap.hellodata.sidecars.superset.service.cloud.PodUtilsProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +49,6 @@ public class DashboardResourceProviderService {
 
     private final NatsSenderService natsSenderService;
     private final SupersetClientProvider supersetClientProvider;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -61,15 +57,7 @@ public class DashboardResourceProviderService {
         log.info("--> publishDashboards()");
         SupersetDashboardResponse dashboardsResponse = supersetClientProvider.getSupersetClientInstance().dashboards();
 
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            DashboardResource dashboardResource = new DashboardResource(this.instanceName, current.getMetadata().getNamespace(), dashboardsResponse.getResult());
-            natsSenderService.publishMessageToJetStream(PUBLISH_DASHBOARD_RESOURCES, dashboardResource);
-        } else {
-            //dummy info for tests
-            DashboardResource dashboardResource = new DashboardResource(this.instanceName, "local", dashboardsResponse.getResult());
-            natsSenderService.publishMessageToJetStream(PUBLISH_DASHBOARD_RESOURCES, dashboardResource);
-        }
+        DashboardResource dashboardResource = new DashboardResource(this.instanceName, dashboardsResponse.getResult());
+        natsSenderService.publishMessageToJetStream(PUBLISH_DASHBOARD_RESOURCES, dashboardResource);
     }
 }

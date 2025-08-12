@@ -34,13 +34,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemG
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
-import ch.bedag.dap.hellodata.sidecars.superset.service.cloud.PodUtilsProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +56,6 @@ public class UserResourceProviderService {
 
     private final NatsSenderService natsSenderService;
     private final SupersetClientProvider supersetClientProvider;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -74,16 +70,8 @@ public class UserResourceProviderService {
         log.info("--> publishUsers()");
         SupersetUsersResponse response = supersetClientProvider.getSupersetClientInstance().users();
 
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
         List<SubsystemUser> subsystemUsers = CollectionUtils.emptyIfNull(response.getResult()).stream().filter(SubsystemUser::isActive).toList();
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        } else {
-            //dummy info for tests
-            UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, "local", subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        }
+        UserResource userResource = new UserResource(ModuleType.SUPERSET, this.instanceName, subsystemUsers);
+        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
     }
 }

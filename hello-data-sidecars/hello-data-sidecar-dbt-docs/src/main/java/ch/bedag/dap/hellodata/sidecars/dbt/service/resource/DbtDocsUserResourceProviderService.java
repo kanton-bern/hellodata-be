@@ -36,13 +36,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.Role;
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
-import ch.bedag.dap.hellodata.sidecars.dbt.service.cloud.PodUtilsProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +62,6 @@ public class DbtDocsUserResourceProviderService {
 
     private final UserRepository userRepository;
     private final NatsSenderService natsSenderService;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -80,19 +75,11 @@ public class DbtDocsUserResourceProviderService {
     @Transactional(readOnly = true)
     public void publishUsers() {
         log.info("--> publishUsers()");
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
         //ToDo: Remove this conversion to SupersetUsers, should use a generic interface
         List<User> allUsers = userRepository.findAll();
         List<SubsystemUser> subsystemUsers = toSupsetSetUsers(allUsers);
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        } else {
-            //dummy info for tests
-            UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, "local", subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        }
+        UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, subsystemUsers);
+        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
     }
 
     /**
@@ -107,7 +94,6 @@ public class DbtDocsUserResourceProviderService {
         return IntStream.range(0, modifiableList.size()).mapToObj(i -> toSubsystemUser(i + 2, modifiableList.get(i))).toList();
     }
 
-    @NotNull
     private SubsystemUser toSubsystemUser(int index, User dbtUser) {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setId(index);

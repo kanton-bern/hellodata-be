@@ -77,7 +77,7 @@ public class PostgresTestContainerTest {
         metaInfoResourceEntity.setKind(ModuleResourceKind.HELLO_DATA_APP_INFO);
         metaInfoResourceEntity.setInstanceName("someInstanceName");
 
-        AppInfoResource appInfoResource = new AppInfoResource(new HdBusinessContextInfo(), "someInstanceName", "someNamespace", ModuleType.SUPERSET, "http://localhost/superset");
+        AppInfoResource appInfoResource = new AppInfoResource(new HdBusinessContextInfo(), "someInstanceName", ModuleType.SUPERSET, "http://localhost/superset");
         metaInfoResourceEntity.setMetainfo(appInfoResource);
 
         //when

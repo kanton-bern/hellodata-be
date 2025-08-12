@@ -27,26 +27,20 @@
 package ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.Collection;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Persistable;
+
+import java.util.Collection;
+import java.util.UUID;
 
 @Entity(name = "hd_user")
 @Getter
 @Setter
-@RequiredArgsConstructor
 @EqualsAndHashCode
 public class User extends BaseEntity implements Persistable<UUID> {
 
@@ -73,11 +67,16 @@ public class User extends BaseEntity implements Persistable<UUID> {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "hd_users_roles", joinColumns = @JoinColumn(name = "hd_user_id", referencedColumnName = "id"),
-               inverseJoinColumns = @JoinColumn(name = "hd_role_id", referencedColumnName = "id"))
+            inverseJoinColumns = @JoinColumn(name = "hd_role_id", referencedColumnName = "id"))
     private Collection<Role> roles;
 
     public User() {
         // empty constructor
+    }
+
+    public User(String userName, String email) {
+        this.userName = userName;
+        this.email = email;
     }
 
     @Override

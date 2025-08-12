@@ -32,7 +32,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -48,7 +47,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration(proxyBeanMethods = false)
 @EnableAutoConfiguration
 @EnableAdminServer
-@EnableDiscoveryClient
 @EnableScheduling
 public class SBAdminApplication extends SpringBootServletInitializer {
 
@@ -74,10 +72,10 @@ public class SBAdminApplication extends SpringBootServletInitializer {
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             http.authorizeHttpRequests((authorizeRequests) -> authorizeRequests.anyRequest().permitAll())
-                .csrf((csrf) -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                                    .ignoringRequestMatchers(new AntPathRequestMatcher(this.adminServer.path("/instances"), HttpMethod.POST.toString()),
-                                                             new AntPathRequestMatcher(this.adminServer.path("/instances/*"), HttpMethod.DELETE.toString()),
-                                                             new AntPathRequestMatcher(this.adminServer.path("/actuator/**"))));
+                    .csrf((csrf) -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                            .ignoringRequestMatchers(new AntPathRequestMatcher(this.adminServer.path("/instances"), HttpMethod.POST.toString()),
+                                    new AntPathRequestMatcher(this.adminServer.path("/instances/*"), HttpMethod.DELETE.toString()),
+                                    new AntPathRequestMatcher(this.adminServer.path("/actuator/**"))));
             return http.build();
         }
     }
@@ -99,23 +97,23 @@ public class SBAdminApplication extends SpringBootServletInitializer {
             successHandler.setDefaultTargetUrl(this.adminServer.path("/"));
 
             http.authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/assets/**")))
-                                                                               .permitAll()
-                                                                               .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/actuator/health/liveness")))
-                                                                               .permitAll()
-                                                                               .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/actuator/health/readiness")))
-                                                                               .permitAll()
-                                                                               .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/login")))
-                                                                               .permitAll()
-                                                                               .anyRequest()
-                                                                               .authenticated())
+                            .permitAll()
+                            .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/actuator/health/liveness")))
+                            .permitAll()
+                            .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/actuator/health/readiness")))
+                            .permitAll()
+                            .requestMatchers(new AntPathRequestMatcher(this.adminServer.path("/login")))
+                            .permitAll()
+                            .anyRequest()
+                            .authenticated())
 
-                .formLogin((formLogin) -> formLogin.loginPage(this.adminServer.path("/login")).successHandler(successHandler))
-                .logout((logout) -> logout.logoutUrl(this.adminServer.path("/logout")))
-                .httpBasic(Customizer.withDefaults())
-                .csrf((csrf) -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                                    .ignoringRequestMatchers(new AntPathRequestMatcher(this.adminServer.path("/instances"), HttpMethod.POST.toString()),
-                                                             new AntPathRequestMatcher(this.adminServer.path("/instances/*"), HttpMethod.DELETE.toString()),
-                                                             new AntPathRequestMatcher(this.adminServer.path("/actuator/**"))));
+                    .formLogin((formLogin) -> formLogin.loginPage(this.adminServer.path("/login")).successHandler(successHandler))
+                    .logout((logout) -> logout.logoutUrl(this.adminServer.path("/logout")))
+                    .httpBasic(Customizer.withDefaults())
+                    .csrf((csrf) -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                            .ignoringRequestMatchers(new AntPathRequestMatcher(this.adminServer.path("/instances"), HttpMethod.POST.toString()),
+                                    new AntPathRequestMatcher(this.adminServer.path("/instances/*"), HttpMethod.DELETE.toString()),
+                                    new AntPathRequestMatcher(this.adminServer.path("/actuator/**"))));
 
             return http.build();
         }

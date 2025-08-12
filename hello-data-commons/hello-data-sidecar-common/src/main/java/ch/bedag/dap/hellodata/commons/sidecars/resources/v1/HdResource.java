@@ -37,10 +37,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "kind")
-@JsonSubTypes({ @JsonSubTypes.Type(value = AppInfoResource.class, name = ModuleResourceKind.HELLO_DATA_APP_INFO),
+@JsonSubTypes({@JsonSubTypes.Type(value = AppInfoResource.class, name = ModuleResourceKind.HELLO_DATA_APP_INFO),
         @JsonSubTypes.Type(value = DashboardResource.class, name = ModuleResourceKind.HELLO_DATA_DASHBOARDS),
         @JsonSubTypes.Type(value = UserResource.class, name = ModuleResourceKind.HELLO_DATA_USERS),
         @JsonSubTypes.Type(value = PermissionResource.class, name = ModuleResourceKind.HELLO_DATA_PERMISSIONS),
@@ -60,12 +61,10 @@ public interface HdResource extends Serializable {
 
     String getInstanceName();
 
-    Metadata getMetadata();
-
     Object getData();
 
     @JsonIgnore
     default String getSummary() {
-        return String.format(NAME_FORMAT, getApiVersion(), getMetadata().namespace(), getModuleType(), getKind(), getInstanceName());
+        return String.format(NAME_FORMAT, getApiVersion(), getModuleType(), getKind(), getInstanceName());
     }
 }

@@ -64,11 +64,11 @@
             <artifactId>spring-boot-admin-server-ui</artifactId>
             <version>${spring-boot-admin-version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-kubernetes-client-all</artifactId>
-            <version>${spring-cloud-starter-kubernetes-client-all-version}</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.cloud</groupId>-->
+        <!--            <artifactId>spring-cloud-starter-kubernetes-client-all</artifactId>-->
+        <!--            <version>${spring-cloud-starter-kubernetes-client-all-version}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>

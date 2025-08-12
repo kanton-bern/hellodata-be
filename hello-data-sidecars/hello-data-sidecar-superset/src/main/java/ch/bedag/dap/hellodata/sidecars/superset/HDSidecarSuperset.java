@@ -35,7 +35,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -45,10 +44,9 @@ import org.springframework.web.client.RestTemplate;
 @EnableJetStream
 @EnableScheduling
 @SpringBootApplication
-@EnableDiscoveryClient
 @ConfigurationPropertiesScan
 @ComponentScan("ch.bedag.dap.hellodata")
-@EnableConfigurationProperties({ SupersetProperties.class, HelloDataContextConfig.class })
+@EnableConfigurationProperties({SupersetProperties.class, HelloDataContextConfig.class})
 public class HDSidecarSuperset {
 
     public static void main(String[] args) {

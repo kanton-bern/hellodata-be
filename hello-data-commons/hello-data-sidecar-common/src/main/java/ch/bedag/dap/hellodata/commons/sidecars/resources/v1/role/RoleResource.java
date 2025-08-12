@@ -29,13 +29,13 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.Metadata;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -49,23 +49,20 @@ public class RoleResource implements HdResource {
     private String instanceName;
     @EqualsAndHashCode.Include
     private final String kind = ModuleResourceKind.HELLO_DATA_ROLES;
-    private Metadata metadata;
 
     private List<RolePermissions> data;
 
     /**
      * @param instanceName instance name
-     * @param namespace    namespace
      * @param moduleType   e.g.: superset, airflow, dbt-docs, e.t.c.
      * @param data         role/permissions mapping
      */
-    public RoleResource(String instanceName, String namespace, ModuleType moduleType, List<RolePermissions> data) {
+    public RoleResource(String instanceName, ModuleType moduleType, List<RolePermissions> data) {
         this.moduleType = moduleType;
         this.instanceName = instanceName;
 
         Map<String, Object> labels = new HashMap<>();
         labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-        this.metadata = new Metadata(instanceName, namespace, labels);
 
         this.data = data;
     }

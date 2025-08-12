@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.orchestration.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
@@ -35,17 +36,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.Pipeline;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstance;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstanceState;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,9 +50,11 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @Log4j2
@@ -97,7 +94,7 @@ public class OrchestrationServiceTest {
         pipeline.setPaused(false);
         pipeline.setFileLocation("/CONTEXT_KEY/");
         pipeline.setLastInstance(new PipelineInstance("id", "123", null, null, PipelineInstanceState.SUCCESS));
-        PipelineResource pipelineResource = new PipelineResource("instanceName", "namespace", List.of(pipeline));
+        PipelineResource pipelineResource = new PipelineResource("instanceName", List.of(pipeline));
         when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class)).thenReturn(
                 Collections.singletonList(pipelineResource));
 
@@ -173,7 +170,7 @@ public class OrchestrationServiceTest {
         pipeline.setPaused(false);
         pipeline.setFileLocation("/CONTEXT_KEY/");
         pipeline.setLastInstance(new PipelineInstance("id", "123", null, null, PipelineInstanceState.SUCCESS));
-        PipelineResource pipelineResource = new PipelineResource("instanceName", "namespace", List.of(pipeline));
+        PipelineResource pipelineResource = new PipelineResource("instanceName", List.of(pipeline));
         when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.AIRFLOW, ModuleResourceKind.HELLO_DATA_PIPELINES, PipelineResource.class)).thenReturn(
                 Collections.singletonList(pipelineResource));
 

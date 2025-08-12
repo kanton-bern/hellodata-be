@@ -32,8 +32,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -44,10 +42,9 @@ import org.springframework.web.client.RestTemplate;
 @EnableJetStream
 @EnableScheduling
 @EnableTransactionManagement
-@EnableDiscoveryClient
-@EntityScan(basePackages = { "ch.bedag.dap.hellodata" })
-@EnableJpaRepositories(basePackages = { "ch.bedag.dap.hellodata" })
-@SpringBootApplication(scanBasePackages = { "ch.bedag.dap.hellodata" })
+@EntityScan(basePackages = {"ch.bedag.dap.hellodata"})
+@EnableJpaRepositories(basePackages = {"ch.bedag.dap.hellodata"})
+@SpringBootApplication(scanBasePackages = {"ch.bedag.dap.hellodata"})
 public class HDSidecarPortal {
 
     public static void main(String[] args) {

@@ -27,13 +27,13 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
 import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.user.data.BatchUpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
 import ch.bedag.dap.hellodata.portal.user.data.ContextsDto;
@@ -72,7 +72,7 @@ class BatchUsersInvitationServiceTest {
                 new RolePermissions(3, "RLS_04", List.of()),
                 new RolePermissions(3, "RLS_05", List.of()),
                 new RolePermissions(3, "RLS_06", List.of()));
-        RoleResource roleResource = new RoleResource("superset instance", "namespace", ModuleType.SUPERSET, existingRoles);
+        RoleResource roleResource = new RoleResource("superset instance", ModuleType.SUPERSET, existingRoles);
         metaInfoResourceEntity.setMetainfo(roleResource);
         List<MetaInfoResourceEntity> metaInfoResourceEntities = List.of(metaInfoResourceEntity);
         when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES)).thenReturn(metaInfoResourceEntities);
@@ -162,7 +162,7 @@ class BatchUsersInvitationServiceTest {
                 new RolePermissions(3, "RLS_04", List.of()),
                 new RolePermissions(3, "RLS_05", List.of()),
                 new RolePermissions(3, "RLS_06", List.of()));
-        RoleResource roleResource = new RoleResource("superset instance1", "namespace", ModuleType.SUPERSET, existingRoles);
+        RoleResource roleResource = new RoleResource("superset instance1", ModuleType.SUPERSET, existingRoles);
         metaInfoResourceEntity.setMetainfo(roleResource);
 
         List<RolePermissions> existingRoles1 = List.of(
@@ -174,7 +174,7 @@ class BatchUsersInvitationServiceTest {
                 new RolePermissions(3, "RLS_04", List.of()),
                 new RolePermissions(3, "RLS_05", List.of()),
                 new RolePermissions(3, "RLS_06", List.of()));
-        RoleResource roleResource1 = new RoleResource("superset instance2", "namespace", ModuleType.SUPERSET, existingRoles1);
+        RoleResource roleResource1 = new RoleResource("superset instance2", ModuleType.SUPERSET, existingRoles1);
         metaInfoResourceEntity1.setMetainfo(roleResource1);
 
         List<MetaInfoResourceEntity> metaInfoResourceEntities = List.of(metaInfoResourceEntity, metaInfoResourceEntity1);
