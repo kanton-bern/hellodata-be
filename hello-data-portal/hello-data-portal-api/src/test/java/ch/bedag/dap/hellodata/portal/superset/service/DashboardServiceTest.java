@@ -659,13 +659,6 @@ public class DashboardServiceTest {
                                 ],
                                 "instanceName": "bd01",
                                 "kind": "hellodata/Dashboards",
-                                "metadata": {
-                                    "instanceName": "bd01",
-                                    "labels": {
-                                        "hellodata/module": "superset"
-                                    },
-                                    "namespace": "test"
-                                },
                                 "moduleType": "SUPERSET"
                             }
                 """;
