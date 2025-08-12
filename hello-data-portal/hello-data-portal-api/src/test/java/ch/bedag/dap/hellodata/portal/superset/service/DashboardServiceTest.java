@@ -45,7 +45,6 @@ import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetada
 import ch.bedag.dap.hellodata.portal.superset.repository.DashboardMetadataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -688,12 +687,10 @@ public class DashboardServiceTest {
                 DashboardResource.class)).willReturn(dashboardResource);
     }
 
-    @NotNull
     private UserResource createUserResources(SubsystemUser subsystemUser) {
         return new UserResource(ModuleType.SUPERSET, instanceName, List.of(subsystemUser));
     }
 
-    @NotNull
     private SubsystemUser createAdminUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
@@ -702,7 +699,6 @@ public class DashboardServiceTest {
         return subsystemUser;
     }
 
-    @NotNull
     private SubsystemUser createViewerUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
@@ -712,7 +708,6 @@ public class DashboardServiceTest {
         return subsystemUser;
     }
 
-    @NotNull
     private SubsystemUser createEditorUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
@@ -721,7 +716,6 @@ public class DashboardServiceTest {
         return subsystemUser;
     }
 
-    @NotNull
     private static SubsystemRole createSupersetRole(int id, String roleName) {
         SubsystemRole role = new SubsystemRole();
         role.setId(id);
@@ -729,12 +723,10 @@ public class DashboardServiceTest {
         return role;
     }
 
-    @NotNull
     private DashboardResource createDashboardResource() {
         return createDashboardResource(false);
     }
 
-    @NotNull
     private DashboardResource createDashboardResource(boolean withAdditionalViewerRole) {
         List<SupersetDashboard> supersetDashboards = new ArrayList<>();
         SupersetDashboard dashboard = new SupersetDashboard();

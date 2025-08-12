@@ -37,7 +37,6 @@ import jakarta.persistence.metamodel.Metamodel;
 import jakarta.servlet.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.http.client.utils.URIBuilder;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +126,6 @@ public abstract class AbstractKeycloakTestContainers {
         });
     }
 
-    @Nullable
     private static String getUserBearerToken(String userName, String password) {
         try {
             URI authorizationURI = new URIBuilder(KEYCLOAK_CONTAINER.getAuthServerUrl() + "/realms/hellodata/protocol/openid-connect/token").build();
