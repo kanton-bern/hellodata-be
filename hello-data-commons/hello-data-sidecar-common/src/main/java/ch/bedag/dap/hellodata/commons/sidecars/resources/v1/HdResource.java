@@ -53,8 +53,6 @@ public interface HdResource extends Serializable {
     String HD_MODULE_KEY = "hellodata/module";
     String URL_KEY = "url";
 
-    String getApiVersion();
-
     ModuleType getModuleType();
 
     String getKind();
@@ -65,6 +63,6 @@ public interface HdResource extends Serializable {
 
     @JsonIgnore
     default String getSummary() {
-        return String.format(NAME_FORMAT, getApiVersion(), getModuleType(), getKind(), getInstanceName());
+        return String.format(NAME_FORMAT, getModuleType(), getKind(), getInstanceName());
     }
 }

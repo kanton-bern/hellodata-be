@@ -45,8 +45,6 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PipelineResource implements HdResource {
     @EqualsAndHashCode.Include
-    private final String apiVersion = "v1";
-    @EqualsAndHashCode.Include
     private final ModuleType moduleType = ModuleType.AIRFLOW;
     @EqualsAndHashCode.Include
     private final String kind = ModuleResourceKind.HELLO_DATA_PIPELINES;
