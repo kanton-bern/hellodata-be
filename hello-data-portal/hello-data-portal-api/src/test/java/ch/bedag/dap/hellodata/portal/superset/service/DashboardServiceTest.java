@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
@@ -38,22 +39,12 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.repository.DashboardMetadataRepository;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,6 +57,8 @@ import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -665,13 +658,6 @@ public class DashboardServiceTest {
                                 ],
                                 "instanceName": "bd01",
                                 "kind": "hellodata/Dashboards",
-                                "metadata": {
-                                    "instanceName": "bd01",
-                                    "labels": {
-                                        "hellodata/module": "superset"
-                                    },
-                                    "namespace": "test"
-                                },
                                 "moduleType": "SUPERSET"
                             }
                 """;
@@ -701,12 +687,10 @@ public class DashboardServiceTest {
                 DashboardResource.class)).willReturn(dashboardResource);
     }
 
-    @NotNull
     private UserResource createUserResources(SubsystemUser subsystemUser) {
-        return new UserResource(ModuleType.SUPERSET, instanceName, "", List.of(subsystemUser));
+        return new UserResource(ModuleType.SUPERSET, instanceName, List.of(subsystemUser));
     }
 
-    @NotNull
     private SubsystemUser createAdminUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
@@ -715,7 +699,6 @@ public class DashboardServiceTest {
         return subsystemUser;
     }
 
-    @NotNull
     private SubsystemUser createViewerUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
@@ -725,7 +708,6 @@ public class DashboardServiceTest {
         return subsystemUser;
     }
 
-    @NotNull
     private SubsystemUser createEditorUser() {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setEmail(email);
@@ -734,7 +716,6 @@ public class DashboardServiceTest {
         return subsystemUser;
     }
 
-    @NotNull
     private static SubsystemRole createSupersetRole(int id, String roleName) {
         SubsystemRole role = new SubsystemRole();
         role.setId(id);
@@ -742,12 +723,10 @@ public class DashboardServiceTest {
         return role;
     }
 
-    @NotNull
     private DashboardResource createDashboardResource() {
         return createDashboardResource(false);
     }
 
-    @NotNull
     private DashboardResource createDashboardResource(boolean withAdditionalViewerRole) {
         List<SupersetDashboard> supersetDashboards = new ArrayList<>();
         SupersetDashboard dashboard = new SupersetDashboard();
@@ -764,7 +743,7 @@ public class DashboardServiceTest {
             dashboard2.setRoles(List.of(createSupersetRole(2, SlugifyUtil.slugify("dashboard-2"))));
             supersetDashboards.add(dashboard2);
         }
-        return new DashboardResource(instanceName, "", supersetDashboards);
+        return new DashboardResource(instanceName, supersetDashboards);
     }
 
     private List<MetaInfoResourceEntity> createMetaInfoResourceEntities(DashboardResource dashboardResource) {

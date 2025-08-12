@@ -32,15 +32,14 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.ResourceRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
 
@@ -68,7 +67,7 @@ public class GenericPublishedResourceConsumer {
             resource.setApiVersion(hdResource.getApiVersion());
             resource.setModuleType(hdResource.getModuleType());
             resource.setKind(hdResource.getKind());
-            resource.setInstanceName(hdResource.getMetadata().instanceName());
+            resource.setInstanceName(hdResource.getInstanceName());
         }
         log.info("Resource saved: {}", resource);
         if (hdResource instanceof UserResource ur) {

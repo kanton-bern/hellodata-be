@@ -48,14 +48,14 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.Map.Entry;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
 public class ApiClient extends JavaTimeFormatter {
     private static final String URI_TEMPLATE_ATTRIBUTE = WebClient.class.getName() + ".uriTemplate";
     private final WebClient webClient;
     private final DateFormat dateFormat;
     private final ObjectMapper objectMapper;
-    private HttpHeaders defaultHeaders = new HttpHeaders();
-    private MultiValueMap<String, String> defaultCookies = new LinkedMultiValueMap<String, String>();
+    private final HttpHeaders defaultHeaders = new HttpHeaders();
+    private final MultiValueMap<String, String> defaultCookies = new LinkedMultiValueMap<String, String>();
     private String basePath = "/api/v2";
     private Map<String, Authentication> authentications;
 
@@ -283,9 +283,7 @@ public class ApiClient extends JavaTimeFormatter {
      * @return ApiClient this client
      */
     public ApiClient addDefaultHeader(String name, String value) {
-        if (defaultHeaders.containsKey(name)) {
-            defaultHeaders.remove(name);
-        }
+        defaultHeaders.remove(name);
         defaultHeaders.add(name, value);
         return this;
     }
@@ -298,9 +296,7 @@ public class ApiClient extends JavaTimeFormatter {
      * @return ApiClient this client
      */
     public ApiClient addDefaultCookie(String name, String value) {
-        if (defaultCookies.containsKey(name)) {
-            defaultCookies.remove(name);
-        }
+        defaultCookies.remove(name);
         defaultCookies.add(name, value);
         return this;
     }
@@ -369,7 +365,7 @@ public class ApiClient extends JavaTimeFormatter {
                 if (b.length() > 0) {
                     b.append(",");
                 }
-                b.append(String.valueOf(o));
+                b.append(o);
             }
             return b.toString();
         } else {
@@ -638,7 +634,7 @@ public class ApiClient extends JavaTimeFormatter {
 
         private final String separator;
 
-        private CollectionFormat(String separator) {
+        CollectionFormat(String separator) {
             this.separator = separator;
         }
 

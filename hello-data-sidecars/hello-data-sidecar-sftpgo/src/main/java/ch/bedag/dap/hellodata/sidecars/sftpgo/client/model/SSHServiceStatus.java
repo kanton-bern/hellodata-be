@@ -35,7 +35,7 @@ import java.util.*;
         SSHServiceStatus.JSON_PROPERTY_KEX_ALGORITHMS,
         SSHServiceStatus.JSON_PROPERTY_CIPHERS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
 public class SSHServiceStatus {
     public static final String JSON_PROPERTY_IS_ACTIVE = "is_active";
     public static final String JSON_PROPERTY_BINDINGS = "bindings";
@@ -47,8 +47,8 @@ public class SSHServiceStatus {
     public static final String JSON_PROPERTY_KEX_ALGORITHMS = "kex_algorithms";
     public static final String JSON_PROPERTY_CIPHERS = "ciphers";
     private Boolean isActive;
-    private JsonNullable<List<SSHBinding>> bindings = JsonNullable.<List<SSHBinding>>undefined();
-    private JsonNullable<List<SSHHostKey>> hostKeys = JsonNullable.<List<SSHHostKey>>undefined();
+    private JsonNullable<List<SSHBinding>> bindings = JsonNullable.undefined();
+    private JsonNullable<List<SSHHostKey>> hostKeys = JsonNullable.undefined();
     private List<String> sshCommands = new ArrayList<>();
     private List<SSHAuthentications> authentications = new ArrayList<>();
     private List<String> publicKeyAlgorithms = new ArrayList<>();
@@ -96,14 +96,14 @@ public class SSHServiceStatus {
     }
 
     public SSHServiceStatus bindings(List<SSHBinding> bindings) {
-        this.bindings = JsonNullable.<List<SSHBinding>>of(bindings);
+        this.bindings = JsonNullable.of(bindings);
 
         return this;
     }
 
     public SSHServiceStatus addBindingsItem(SSHBinding bindingsItem) {
         if (this.bindings == null || !this.bindings.isPresent()) {
-            this.bindings = JsonNullable.<List<SSHBinding>>of(new ArrayList<>());
+            this.bindings = JsonNullable.of(new ArrayList<>());
         }
         try {
             this.bindings.get().add(bindingsItem);
@@ -126,7 +126,7 @@ public class SSHServiceStatus {
     }
 
     public void setBindings(List<SSHBinding> bindings) {
-        this.bindings = JsonNullable.<List<SSHBinding>>of(bindings);
+        this.bindings = JsonNullable.of(bindings);
     }
 
     @JsonProperty(JSON_PROPERTY_BINDINGS)
@@ -142,14 +142,14 @@ public class SSHServiceStatus {
     }
 
     public SSHServiceStatus hostKeys(List<SSHHostKey> hostKeys) {
-        this.hostKeys = JsonNullable.<List<SSHHostKey>>of(hostKeys);
+        this.hostKeys = JsonNullable.of(hostKeys);
 
         return this;
     }
 
     public SSHServiceStatus addHostKeysItem(SSHHostKey hostKeysItem) {
         if (this.hostKeys == null || !this.hostKeys.isPresent()) {
-            this.hostKeys = JsonNullable.<List<SSHHostKey>>of(new ArrayList<>());
+            this.hostKeys = JsonNullable.of(new ArrayList<>());
         }
         try {
             this.hostKeys.get().add(hostKeysItem);
@@ -172,7 +172,7 @@ public class SSHServiceStatus {
     }
 
     public void setHostKeys(List<SSHHostKey> hostKeys) {
-        this.hostKeys = JsonNullable.<List<SSHHostKey>>of(hostKeys);
+        this.hostKeys = JsonNullable.of(hostKeys);
     }
 
     @JsonProperty(JSON_PROPERTY_HOST_KEYS)
@@ -412,19 +412,18 @@ public class SSHServiceStatus {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class SSHServiceStatus {\n");
-        sb.append("    isActive: ").append(toIndentedString(isActive)).append("\n");
-        sb.append("    bindings: ").append(toIndentedString(bindings)).append("\n");
-        sb.append("    hostKeys: ").append(toIndentedString(hostKeys)).append("\n");
-        sb.append("    sshCommands: ").append(toIndentedString(sshCommands)).append("\n");
-        sb.append("    authentications: ").append(toIndentedString(authentications)).append("\n");
-        sb.append("    publicKeyAlgorithms: ").append(toIndentedString(publicKeyAlgorithms)).append("\n");
-        sb.append("    macs: ").append(toIndentedString(macs)).append("\n");
-        sb.append("    kexAlgorithms: ").append(toIndentedString(kexAlgorithms)).append("\n");
-        sb.append("    ciphers: ").append(toIndentedString(ciphers)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        String sb = "class SSHServiceStatus {\n" +
+                "    isActive: " + toIndentedString(isActive) + "\n" +
+                "    bindings: " + toIndentedString(bindings) + "\n" +
+                "    hostKeys: " + toIndentedString(hostKeys) + "\n" +
+                "    sshCommands: " + toIndentedString(sshCommands) + "\n" +
+                "    authentications: " + toIndentedString(authentications) + "\n" +
+                "    publicKeyAlgorithms: " + toIndentedString(publicKeyAlgorithms) + "\n" +
+                "    macs: " + toIndentedString(macs) + "\n" +
+                "    kexAlgorithms: " + toIndentedString(kexAlgorithms) + "\n" +
+                "    ciphers: " + toIndentedString(ciphers) + "\n" +
+                "}";
+        return sb;
     }
 
     /**

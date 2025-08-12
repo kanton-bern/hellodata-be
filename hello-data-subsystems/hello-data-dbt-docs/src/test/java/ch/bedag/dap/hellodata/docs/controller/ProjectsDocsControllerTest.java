@@ -32,25 +32,21 @@ import ch.bedag.dap.hellodata.docs.service.ProjectDocService;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsStringIgnoringCase;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Sql(scripts = "/db/changelog/changelogs/add_testdata.sql")
 public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
@@ -67,7 +63,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     @Test
     public void should_get_non_empty_list_from_backend() {
         Mockito.when(projectDocService.getAllProjectsDocs())
-               .thenReturn(List.of(new ProjectDoc("context_key_1", "test", "path", "img", "alt"), new ProjectDoc("context_key_1", "test1", "path1", "img1", "alt1")));
+                .thenReturn(List.of(new ProjectDoc("context_key_1", "test", "path", "img", "alt"), new ProjectDoc("context_key_1", "test1", "path1", "img1", "alt1")));
         given().header("Authorization", getAdminBearer()).when().get("/api/projects-docs").then().body("", not(equalTo(Collections.emptyList())));
     }
 
@@ -122,13 +118,13 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
         String alt = "alt";
         Mockito.when(projectDocService.getByName(name)).thenReturn(Optional.of(new ProjectDoc(contextKey, name, path, imgPath, alt)));
         given().header("Authorization", getAdminBearer())
-               .when()
-               .get("/api/projects-docs/" + name + "/info")
-               .then()
-               .body("imgPath", equalTo(imgPath))
-               .body("name", equalTo(name))
-               .body("path", equalTo(path))
-               .body("alt", equalTo(alt));
+                .when()
+                .get("/api/projects-docs/" + name + "/info")
+                .then()
+                .body("imgPath", equalTo(imgPath))
+                .body("name", equalTo(name))
+                .body("path", equalTo(path))
+                .body("alt", equalTo(alt));
     }
 
     @Test
@@ -207,7 +203,6 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
         response.then().statusCode(HttpStatus.FORBIDDEN.value()).body(emptyString());
     }
 
-    @NotNull
     private List<ProjectDoc> getListWith3ProjectDocs() {
         List<ProjectDoc> projectDocs = new ArrayList<>();
         projectDocs.add(new ProjectDoc("kibon", "kibon", "/kibon/index.html", "image.jpg", "image"));

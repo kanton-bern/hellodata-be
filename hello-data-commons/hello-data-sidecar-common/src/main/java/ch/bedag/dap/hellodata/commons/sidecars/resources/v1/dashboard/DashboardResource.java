@@ -29,17 +29,19 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.Metadata;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DashboardResource implements HdResource {
     @EqualsAndHashCode.Include
     private final String apiVersion = "v1";
@@ -49,19 +51,16 @@ public class DashboardResource implements HdResource {
     private final String kind = ModuleResourceKind.HELLO_DATA_DASHBOARDS;
     @EqualsAndHashCode.Include
     private String instanceName;
-    private Metadata metadata;
     private List<SupersetDashboard> data;
 
     /**
      * @param instanceName instance name
-     * @param namespace    namespace
      * @param data         superset dashboards information
      */
-    public DashboardResource(String instanceName, String namespace, List<SupersetDashboard> data) {
+    public DashboardResource(String instanceName, List<SupersetDashboard> data) {
         this.instanceName = instanceName;
         Map<String, Object> labels = new HashMap<>();
         labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-        this.metadata = new Metadata(instanceName, namespace, labels);
 
         this.data = new ArrayList<>(data);
     }

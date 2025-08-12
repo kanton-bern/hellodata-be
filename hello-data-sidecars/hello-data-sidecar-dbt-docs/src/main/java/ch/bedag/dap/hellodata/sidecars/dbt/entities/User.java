@@ -27,25 +27,18 @@
 package ch.bedag.dap.hellodata.sidecars.dbt.entities;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
 @Entity(name = "dbt_user")
 @Getter
 @Setter
-@RequiredArgsConstructor
 @EqualsAndHashCode
 public class User extends BaseEntity {
 
@@ -65,20 +58,25 @@ public class User extends BaseEntity {
     @Size(min = 1, max = 255)
     private String lastName;
 
-    @Column(name = "superuser" , columnDefinition = "boolean default false")
+    @Column(name = "superuser", columnDefinition = "boolean default false")
     private boolean superuser = false;
 
     private boolean enabled;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "users_roles",
-        joinColumns = @JoinColumn(
-            name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(
-            name = "role_id", referencedColumnName = "id"))
+            name = "users_roles",
+            joinColumns = @JoinColumn(
+                    name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "role_id", referencedColumnName = "id"))
     private Collection<Role> roles;
 
-    protected User() {
+    public User() {
+    }
+
+    public User(String userName, String email) {
+        this.userName = userName;
+        this.email = email;
     }
 }

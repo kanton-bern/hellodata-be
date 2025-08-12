@@ -33,13 +33,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.HDVersions;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +41,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -150,7 +145,7 @@ public class MetaInfoResourceServiceTest {
     public void testFindInstanceUrl() {
         // given
         MetaInfoResourceEntity entity = new MetaInfoResourceEntity();
-        AppInfoResource appInfoResource = new AppInfoResource(null, "", "", ModuleType.SUPERSET, "");
+        AppInfoResource appInfoResource = new AppInfoResource(null, "", ModuleType.SUPERSET, "");
         Map<String, Object> data = new HashMap<>();
         data.put(AppInfoResource.URL_KEY, "https://example.com");
         appInfoResource.getData().putAll(data);

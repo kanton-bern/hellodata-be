@@ -29,11 +29,11 @@ package ch.bedag.dap.hellodata.sidecars.dbt.entities;
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 

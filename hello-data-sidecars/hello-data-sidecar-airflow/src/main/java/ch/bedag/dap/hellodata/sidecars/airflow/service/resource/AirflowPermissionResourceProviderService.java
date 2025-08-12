@@ -31,13 +31,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermission;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowPermissionsResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.service.cloud.PodUtilsProvider;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +54,6 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PER
 public class AirflowPermissionResourceProviderService {
     private final NatsSenderService natsSenderService;
     private final AirflowClientProvider airflowClientProvider;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -66,19 +62,10 @@ public class AirflowPermissionResourceProviderService {
         log.info("--> publishPermissions()");
         AirflowPermissionsResponse response = airflowClientProvider.getAirflowClientInstance().permissions();
 
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
         List<AirflowPermissionsResponse.Action> airflowPermissions = response.getActions();
         List<SupersetPermission> supersetPermissions = toSupersetPermissions(airflowPermissions);
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-
-            PermissionResource permissionResource = new PermissionResource(ModuleType.AIRFLOW, this.instanceName, current.getMetadata().getNamespace(), supersetPermissions);
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
-        } else {
-            //dummy info for tests
-            PermissionResource permissionResource = new PermissionResource(ModuleType.AIRFLOW, this.instanceName, "local", supersetPermissions);
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
-        }
+        PermissionResource permissionResource = new PermissionResource(ModuleType.AIRFLOW, this.instanceName, supersetPermissions);
+        natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
     }
 
     private List<SupersetPermission> toSupersetPermissions(List<AirflowPermissionsResponse.Action> airflowPermissions) {

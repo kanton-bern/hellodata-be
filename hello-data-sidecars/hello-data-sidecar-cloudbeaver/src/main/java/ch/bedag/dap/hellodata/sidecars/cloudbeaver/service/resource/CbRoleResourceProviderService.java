@@ -33,13 +33,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePe
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Role;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.RoleRepository;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -57,8 +53,6 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROL
 @RequiredArgsConstructor
 public class CbRoleResourceProviderService {
     private final RoleRepository roleRepository;
-    private final ObjectProvider<DiscoveryClient> discoveryClientObjectProvider;
-    private final ObjectProvider<PodUtils<V1Pod>> podUtilsObjectProvider;
     private final NatsSenderService natsSenderService;
     @Value("${hello-data.instance.name}")
     private String instanceName;
@@ -67,22 +61,9 @@ public class CbRoleResourceProviderService {
     public void publishRoles() {
         log.info("--> publishRoles()");
 
-        DiscoveryClient discoveryClient = this.discoveryClientObjectProvider.getIfAvailable();
-        if (discoveryClient != null) {
-            discoveryClient.description();
-            discoveryClient.getServices();
-        }
         List<RolePermissions> data = getRolePermissions();
-        PodUtils<V1Pod> podUtils = podUtilsObjectProvider.getIfAvailable();
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            RoleResource roleResource = new RoleResource(this.instanceName, current.getMetadata().getNamespace(), ModuleType.CLOUDBEAVER, data);
-            natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
-        } else {
-            //dummy info for tests
-            RoleResource roleResource = new RoleResource(this.instanceName, "local", ModuleType.CLOUDBEAVER, data);
-            natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
-        }
+        RoleResource roleResource = new RoleResource(this.instanceName, ModuleType.CLOUDBEAVER, data);
+        natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
     }
 
     private List<RolePermissions> getRolePermissions() {

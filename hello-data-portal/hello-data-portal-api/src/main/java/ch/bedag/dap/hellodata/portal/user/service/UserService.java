@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
@@ -44,7 +45,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
@@ -745,9 +745,9 @@ public class UserService {
             dashboardForUserDto.setInstanceUserId(subsystemUser.getId());
             dashboardForUserDto.setViewer(userHasSlugifyDashboardRole && userHasDashboardViewerRole);
         }
-        dashboardForUserDto.setInstanceName(dashboardResource.getMetadata().instanceName());
+        dashboardForUserDto.setInstanceName(dashboardResource.getInstanceName());
         dashboardForUserDto.setChangedOnUtc(supersetDashboard.getChangedOnUtc());
-        dashboardForUserDto.setCompositeId(dashboardResource.getMetadata().instanceName() + "_" + supersetDashboard.getId());
+        dashboardForUserDto.setCompositeId(dashboardResource.getInstanceName() + "_" + supersetDashboard.getId());
         dashboardForUserDto.setContextKey(contextKey);
         return dashboardForUserDto;
     }
