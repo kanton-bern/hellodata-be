@@ -27,24 +27,27 @@
 package ch.bedag.dap.hellodata.commons;
 
 import lombok.experimental.UtilityClass;
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
-import org.owasp.html.Sanitizers;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Safelist;
 
 @UtilityClass
 public class HdHtmlSanitizer {
-    private static final PolicyFactory CUSTOM_HTML_SANITIZER_POLICY = new HtmlPolicyBuilder()
-        .allowElements("span", "p", "li")
-        .allowAttributes("class").onElements("span", "p", "li")
-        .allowAttributes("style").onElements("span")
-        .toFactory();
-    private static final PolicyFactory HTML_SANITIZER_POLICY = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS)
-        .and(Sanitizers.STYLES).and(Sanitizers.TABLES).and(Sanitizers.LINKS).and(CUSTOM_HTML_SANITIZER_POLICY);
+
+    // Define a custom safelist similar to your old policy
+    private static final Safelist CUSTOM_HTML_SANITIZER_POLICY = Safelist.relaxed()
+            .addTags("span", "p", "li")
+            .addAttributes("span", "class", "style")
+            .addAttributes("p", "class")
+            .addAttributes("li", "class")
+            // Remove anything not explicitly allowed
+            .removeTags("script", "iframe", "object");
 
     public String sanitizeHtml(String inputString) {
         if (inputString == null) {
             return "";
         }
-        return HTML_SANITIZER_POLICY.sanitize(inputString);
+        // Jsoup.clean removes disallowed tags/attributes
+        return Jsoup.clean(inputString, "", CUSTOM_HTML_SANITIZER_POLICY, new Document.OutputSettings().prettyPrint(false));
     }
 }
