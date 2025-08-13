@@ -53,6 +53,8 @@ public class GenericPublishedResourceConsumer {
     private final HdContextRepository contextRepository;
 
     public MetaInfoResourceEntity persistResource(HdResource hdResource) {
+        log.info("Persisting resource api version: {}, module type: {}, kind: {}, instance name: {}", hdResource.getApiVersion(), hdResource.getModuleType(), hdResource.getKind(),
+                hdResource.getInstanceName());
         Optional<MetaInfoResourceEntity> found =
                 resourceRepository.findByApiVersionAndModuleTypeAndKindAndInstanceName(hdResource.getApiVersion(), hdResource.getModuleType(), hdResource.getKind(),
                         hdResource.getInstanceName());
