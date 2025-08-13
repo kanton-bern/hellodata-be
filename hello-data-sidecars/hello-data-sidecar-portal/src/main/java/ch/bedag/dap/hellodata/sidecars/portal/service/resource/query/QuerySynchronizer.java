@@ -100,7 +100,7 @@ public class QuerySynchronizer {
                 ObjectNode changedOnFilter = objectMapper.createObjectNode();
                 changedOnFilter.put("col", "changed_on");
                 changedOnFilter.put("opr", "gt");
-                changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss.SSS")));
+                changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
                 filter.add(changedOnFilter);
             }
 
