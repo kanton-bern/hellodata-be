@@ -34,7 +34,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.HDVersions;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +46,7 @@ import java.util.Optional;
 import static ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource.URL_KEY;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MetaInfoResourceService {
     private final ResourceRepository resourceRepository;
 
