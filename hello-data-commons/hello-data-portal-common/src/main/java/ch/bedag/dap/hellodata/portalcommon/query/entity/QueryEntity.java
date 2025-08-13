@@ -3,7 +3,6 @@ package ch.bedag.dap.hellodata.portalcommon.query.entity;
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -49,11 +48,9 @@ public class QueryEntity extends BaseEntity {
     @Column(name = "schema", length = 256)
     private String schema;
 
-    @Lob
     @Column(name = "sql")
     private String sql;
 
-    @Lob
     @Column(name = "executed_sql")
     private String executedSql;
 
@@ -69,14 +66,12 @@ public class QueryEntity extends BaseEntity {
     @Column(name = "end_time", precision = 20, scale = 6)
     private BigDecimal endTime;
 
-    @Lob
     @Column(name = "tracking_url")
     private String trackingUrl;
 
     @Column(name = "tmp_schema_name", length = 256)
     private String tmpSchemaName;
 
-    @Lob
     @Column(name = "sql_tables")
     private String sqlTables;
 

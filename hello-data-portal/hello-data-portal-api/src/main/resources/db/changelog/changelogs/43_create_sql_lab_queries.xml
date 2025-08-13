@@ -51,15 +51,15 @@
             <column name="username" type="varchar(256)"/>
             <column name="status" type="varchar(16)"/>
             <column name="schema" type="varchar(256)"/>
-            <column name="sql" type="text"/>
-            <column name="executed_sql" type="text"/>
+            <column name="sql" type="varchar"/>
+            <column name="executed_sql" type="varchar"/>
             <column name="rows" type="int"/>
             <column name="start_time" type="numeric(20,6)"/>
             <column name="changed_on" type="timestamp"/>
             <column name="end_time" type="numeric(20,6)"/>
-            <column name="tracking_url" type="text"/>
+            <column name="tracking_url" type="varchar"/>
             <column name="tmp_schema_name" type="varchar(256)"/>
-            <column name="sql_tables" type="text"/>
+            <column name="sql_tables" type="varchar"/>
 
             <column name="created_date" type="timestamp"/>
             <column name="created_by" type="varchar(150)"/>
