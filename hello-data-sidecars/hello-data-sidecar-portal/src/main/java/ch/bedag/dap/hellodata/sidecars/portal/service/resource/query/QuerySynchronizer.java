@@ -104,9 +104,7 @@ public class QuerySynchronizer {
                 filter.add(changedOnFilter);
             }
 
-            byte[] filterBytes = filter.size() > 0
-                    ? objectMapper.writeValueAsString(filter).getBytes(StandardCharsets.UTF_8)
-                    : "[]".getBytes(StandardCharsets.UTF_8);
+            byte[] filterBytes = objectMapper.writeValueAsString(filter).getBytes(StandardCharsets.UTF_8);
             Message reply = connection.request(subject, filterBytes, Duration.ofSeconds(60));
             if (reply != null && reply.getData() != null) {
                 reply.ack();
