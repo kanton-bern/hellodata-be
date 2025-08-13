@@ -49,7 +49,7 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = PipelineResource.class, name = ModuleResourceKind.HELLO_DATA_PIPELINES)})
 public interface HdResource extends Serializable {
 
-    String NAME_FORMAT = "[api-version: %s][namespace: %s][module-type: %s][kind: %s][instance-name: %s]";
+    String NAME_FORMAT = "[module-type: %s][kind: %s][instance-name: %s][api-version: %s]";
     String HD_MODULE_KEY = "hellodata/module";
     String URL_KEY = "url";
 
@@ -65,6 +65,6 @@ public interface HdResource extends Serializable {
 
     @JsonIgnore
     default String getSummary() {
-        return String.format(NAME_FORMAT, getApiVersion(), getModuleType(), getKind(), getInstanceName());
+        return String.format(NAME_FORMAT, getModuleType(), getKind(), getInstanceName(), getApiVersion());
     }
 }
