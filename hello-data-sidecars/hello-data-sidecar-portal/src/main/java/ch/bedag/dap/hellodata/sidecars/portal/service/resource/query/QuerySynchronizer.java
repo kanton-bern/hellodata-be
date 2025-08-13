@@ -12,8 +12,8 @@ import ch.bedag.dap.hellodata.portalcommon.query.repository.QueryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.nats.client.Connection;
 import io.nats.client.Message;
 import lombok.AllArgsConstructor;
@@ -92,17 +92,21 @@ public class QuerySynchronizer {
             log.debug("[fetchQueries] Sending request to subject: {}", subject);
 
             Optional<QueryEntity> foundEntity = queryRepository.findFirstByContextKeyOrderByChangedOnDesc(contextKey);
-            JsonArray filter = new JsonArray();
+            ArrayNode filter = objectMapper.createArrayNode();
+
             if (foundEntity.isPresent()) {
                 QueryEntity queryEntity = foundEntity.get();
                 OffsetDateTime changedOn = queryEntity.getChangedOn();
-                JsonObject changedOnFilter = new JsonObject();
-                changedOnFilter.addProperty("col", "changed_on");
-                changedOnFilter.addProperty("opr", "gt");
-                changedOnFilter.addProperty("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
+                ObjectNode changedOnFilter = objectMapper.createObjectNode();
+                changedOnFilter.put("col", "changed_on");
+                changedOnFilter.put("opr", "gt");
+                changedOnFilter.put("value", changedOn.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")));
                 filter.add(changedOnFilter);
             }
-            byte[] filterBytes = filter.size() > 0 ? filter.getAsString().getBytes(StandardCharsets.UTF_8) : "[]".getBytes(StandardCharsets.UTF_8);
+
+            byte[] filterBytes = filter.size() > 0
+                    ? objectMapper.writeValueAsString(filter).getBytes(StandardCharsets.UTF_8)
+                    : "[]".getBytes(StandardCharsets.UTF_8);
             Message reply = connection.request(subject, filterBytes, Duration.ofSeconds(60));
             if (reply != null && reply.getData() != null) {
                 reply.ack();
