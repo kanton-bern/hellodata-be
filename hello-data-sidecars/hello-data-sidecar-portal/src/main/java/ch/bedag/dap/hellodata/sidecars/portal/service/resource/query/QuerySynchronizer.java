@@ -108,8 +108,10 @@ public class QuerySynchronizer {
             Message reply = connection.request(subject, filterBytes, Duration.ofSeconds(60));
             if (reply != null && reply.getData() != null) {
                 reply.ack();
-                return objectMapper.readValue(new String(reply.getData(), StandardCharsets.UTF_8), new TypeReference<>() {
+                List<SupersetQuery> supersetQueries = objectMapper.readValue(new String(reply.getData(), StandardCharsets.UTF_8), new TypeReference<>() {
                 });
+                log.debug("[fetchQueries] Received queries by filter {}, queries: {}", new String(filterBytes, StandardCharsets.UTF_8), supersetQueries);
+                return supersetQueries;
             }
             if (reply != null) {
                 reply.ack();
