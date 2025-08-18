@@ -50,42 +50,41 @@ public class QuerySynchronizer {
         log.debug("Synchronizing queries from data domains {}", String.join(" : ", dataDomains.stream().map(dd -> dd.getName()).toList()));
         for (HdContextEntity contextEntity : dataDomains) {
             log.info("Started synchronizing queries for data domain {}", contextEntity.getName());
-            fetchQueries(contextEntity.getContextKey())
-                    .forEach(supersetQuery -> {
-                        log.debug("Processing query: {}", supersetQuery);
-                        QueryEntity queryEntity = new QueryEntity();
-                        queryEntity.setContextKey(contextEntity.getContextKey());
-                        LocalDateTime localDateTime = supersetQuery.getChangedOn();
-                        ZoneId zoneId = ZoneId.systemDefault();
-                        ZoneOffset offset = zoneId.getRules().getOffset(localDateTime);
-                        OffsetDateTime offsetDateTime = localDateTime.atOffset(offset);
-                        queryEntity.setChangedOn(offsetDateTime);
-                        queryEntity.setDatabaseName(supersetQuery.getDatabase().getDatabaseName());
-                        queryEntity.setTrackingUrl(supersetQuery.getTrackingUrl());
-                        queryEntity.setTmpTableName(supersetQuery.getTmpTableName());
-                        queryEntity.setStatus(supersetQuery.getStatus());
-                        queryEntity.setStartTime(supersetQuery.getStartTime());
-                        queryEntity.setEndTime(supersetQuery.getEndTime());
-                        try {
-                            queryEntity.setSqlTables(objectMapper.writeValueAsString(supersetQuery.getSqlTables()));
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException("Could not parse json string", e);
-                        }
-                        queryEntity.setSql(supersetQuery.getSql());
-                        queryEntity.setSchema(supersetQuery.getSchema());
-                        queryEntity.setRows(supersetQuery.getRows());
-                        queryEntity.setSubsystemId(supersetQuery.getId());
-                        queryEntity.setExecutedSql(supersetQuery.getExecutedSql());
-                        queryEntity.setTabName(supersetQuery.getTabName());
-                        queryEntity.setUserFullname(supersetQuery.getUser().getFirstName() + " " + supersetQuery.getUser().getLastName());
-                        Optional<QueryEntity> found = queryRepository.findByContextKeyAndSubsystemId(contextEntity.getContextKey(), supersetQuery.getId());
-                        if (found.isPresent()) {
-                            QueryEntity existingQuery = found.get();
-                            log.warn("Updating query {}", existingQuery);
-                            queryEntity.setId(existingQuery.getId());
-                        }
-                        queryRepository.save(queryEntity);
-                    });
+            for (SupersetQuery supersetQuery : fetchQueries(contextEntity.getContextKey())) {
+                log.debug("Processing query: {}", supersetQuery);
+                QueryEntity queryEntity = new QueryEntity();
+                queryEntity.setContextKey(contextEntity.getContextKey());
+                LocalDateTime localDateTime = supersetQuery.getChangedOn();
+                ZoneId zoneId = ZoneId.systemDefault();
+                ZoneOffset offset = zoneId.getRules().getOffset(localDateTime);
+                OffsetDateTime offsetDateTime = localDateTime.atOffset(offset);
+                queryEntity.setChangedOn(offsetDateTime);
+                queryEntity.setDatabaseName(supersetQuery.getDatabase().getDatabaseName());
+                queryEntity.setTrackingUrl(supersetQuery.getTrackingUrl());
+                queryEntity.setTmpTableName(supersetQuery.getTmpTableName());
+                queryEntity.setStatus(supersetQuery.getStatus());
+                queryEntity.setStartTime(supersetQuery.getStartTime());
+                queryEntity.setEndTime(supersetQuery.getEndTime());
+                try {
+                    queryEntity.setSqlTables(objectMapper.writeValueAsString(supersetQuery.getSqlTables()));
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("Could not parse json string", e);
+                }
+                queryEntity.setSql(supersetQuery.getSql());
+                queryEntity.setSchema(supersetQuery.getSchema());
+                queryEntity.setRows(supersetQuery.getRows());
+                queryEntity.setSubsystemId(supersetQuery.getId());
+                queryEntity.setExecutedSql(supersetQuery.getExecutedSql());
+                queryEntity.setTabName(supersetQuery.getTabName());
+                queryEntity.setUserFullname(supersetQuery.getUser().getFirstName() + " " + supersetQuery.getUser().getLastName());
+                Optional<QueryEntity> found = queryRepository.findByContextKeyAndSubsystemId(contextEntity.getContextKey(), supersetQuery.getId());
+                if (found.isPresent()) {
+                    QueryEntity existingQuery = found.get();
+                    log.warn("Updating query {}", existingQuery);
+                    queryEntity.setId(existingQuery.getId());
+                }
+                queryRepository.save(queryEntity);
+            }
             log.info("Finished synchronizing queries for data domain {}", contextEntity.getName());
 
         }
