@@ -78,6 +78,12 @@ public class QuerySynchronizer {
                         queryEntity.setExecutedSql(supersetQuery.getExecutedSql());
                         queryEntity.setTabName(supersetQuery.getTabName());
                         queryEntity.setUserFullname(supersetQuery.getUser().getFirstName() + " " + supersetQuery.getUser().getLastName());
+                        Optional<QueryEntity> found = queryRepository.findByContextKeyAndSubsystemId(contextEntity.getContextKey(), supersetQuery.getId());
+                        if (found.isPresent()) {
+                            QueryEntity existingQuery = found.get();
+                            log.warn("Updating query {}", existingQuery);
+                            queryEntity.setId(existingQuery.getId());
+                        }
                         queryRepository.save(queryEntity);
                     });
             log.info("Finished synchronizing queries for data domain {}", contextEntity.getName());

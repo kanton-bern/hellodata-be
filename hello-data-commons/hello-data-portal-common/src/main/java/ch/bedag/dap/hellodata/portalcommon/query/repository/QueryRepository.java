@@ -14,6 +14,8 @@ import java.util.UUID;
 @Repository
 public interface QueryRepository extends JpaRepository<QueryEntity, UUID> {
 
+    Optional<QueryEntity> findByContextKeyAndSubsystemId(String contextKey, Integer subsystemId);
+
     Page<QueryEntity> findAllByContextKey(Pageable pageable, String contextKey);
 
     @Query(value = "SELECT q FROM query q WHERE " +
