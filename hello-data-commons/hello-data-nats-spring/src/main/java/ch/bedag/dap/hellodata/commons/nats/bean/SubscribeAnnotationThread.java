@@ -118,7 +118,17 @@ public class SubscribeAnnotationThread extends Thread {
                 log.error("", e);
                 Thread.currentThread().interrupt(); // Re-interrupt the thread
             } catch (Exception e) {
-                log.error("", e);
+                failureCount++;
+                log.error("Nats connection failed {}/{}", failureCount, killJvmCounter, e);
+                if (killJvmOnError) {
+                    if (failureCount >= killJvmCounter) {
+                        log.error("Too many subscription failures. Exiting JVM to trigger orchestrator restart.");
+                        System.exit(1);
+                    }
+                } else {
+                    log.debug("[NATS] Error on connection for stream {} and subject {}. Re-subscribing...", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), e);
+                    subscribe();
+                }
             }
         }
         log.info("[NATS] Stopped NATS subscription thread!");
@@ -156,27 +166,13 @@ public class SubscribeAnnotationThread extends Thread {
     /**
      * Checks if the consumer still exists and recreates it if missing.
      */
-    private void checkOrCreateConsumer() {
-        try {
-            JetStreamManagement jsm = natsConnection.jetStreamManagement();
-            failureCount = 0;
-            ConsumerInfo consumerInfo = jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
-            if (consumerInfo == null) {
-                log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing...", durableName, subscribeAnnotation.event().getStreamName());
-                subscribe();
-            }
-        } catch (Exception e) {
-            failureCount++;
-            log.error("Subscription failed {}/{}", failureCount, killJvmCounter, e);
-            if (killJvmOnError) {
-                if (failureCount >= killJvmCounter) {
-                    log.error("Too many subscription failures. Exiting JVM to trigger orchestrator restart.");
-                    System.exit(1);
-                }
-            } else {
-                log.error("[NATS] Error checking consumer status for stream {} and subject {}. Re-subscribing...", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), e);
-                subscribe();
-            }
+    private void checkOrCreateConsumer() throws IOException, JetStreamApiException {
+        JetStreamManagement jsm = natsConnection.jetStreamManagement();
+        failureCount = 0;
+        ConsumerInfo consumerInfo = jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
+        if (consumerInfo == null) {
+            log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing...", durableName, subscribeAnnotation.event().getStreamName());
+            subscribe();
         }
     }
 
