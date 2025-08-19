@@ -125,7 +125,7 @@ public class SubscribeAnnotationThread extends Thread {
     }
 
     private void fetchMessage() throws InterruptedException {
-        Message message = subscription.nextMessage(Duration.ofSeconds(2L));
+        Message message = subscription.nextMessage(Duration.ofSeconds(10L));
         if (message != null) {
             log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             if (subscribeAnnotation.asyncRun()) {
@@ -164,7 +164,7 @@ public class SubscribeAnnotationThread extends Thread {
                 log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing...", durableName, subscribeAnnotation.event().getStreamName());
                 subscribe();
             }
-        } catch (JetStreamApiException | IOException e) {
+        } catch (Exception e) {
             failureCount++;
             log.error("Subscription failed {}/{}", failureCount, killJvmCounter, e);
             if (killJvmOnError) {
