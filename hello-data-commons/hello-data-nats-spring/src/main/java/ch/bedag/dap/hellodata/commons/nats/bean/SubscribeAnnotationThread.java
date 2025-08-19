@@ -96,14 +96,14 @@ public class SubscribeAnnotationThread extends Thread {
         while (running && !Thread.currentThread().isInterrupted()) {
             try {
                 if (natsConnection == null) {
-                    log.warn("Connection is null, skipping consumer creation.");
+                    log.warn("Connection is null, skipping consumer creation. Failure {}", ++failureCount);
                     Thread.sleep(2000L);
                     return;
                 }
 
                 Connection.Status status = natsConnection.getStatus();
                 if (status == Connection.Status.CLOSED || status == Connection.Status.DISCONNECTED) {
-                    log.warn("Connection is closed/disconnected, skipping consumer creation!");
+                    log.warn("Connection is closed/disconnected, skipping consumer creation! Failure {}", ++failureCount);
                     Thread.sleep(2000L);
                     return;
                 }
@@ -111,8 +111,15 @@ public class SubscribeAnnotationThread extends Thread {
                 log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null && subscription.isActive()) {
                     fetchMessage();
+                    failureCount = 0;
                 } else {
-                    log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+                    log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}. Failure count {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), ++failureCount);
+                }
+                if (killJvmOnError) {
+                    if (failureCount >= killJvmCounter) {
+                        log.error("Too many connection failures. Exiting JVM to trigger orchestrator restart.");
+                        System.exit(1);
+                    }
                 }
             } catch (InterruptedException e) {
                 log.error("", e);
@@ -122,7 +129,7 @@ public class SubscribeAnnotationThread extends Thread {
                 log.error("Nats connection failed {}/{}", failureCount, killJvmCounter, e);
                 if (killJvmOnError) {
                     if (failureCount >= killJvmCounter) {
-                        log.error("Too many subscription failures. Exiting JVM to trigger orchestrator restart.");
+                        log.error("Too many connection/subscription failures. Exiting JVM to trigger orchestrator restart.");
                         System.exit(1);
                     }
                 } else {
@@ -168,10 +175,9 @@ public class SubscribeAnnotationThread extends Thread {
      */
     private void checkOrCreateConsumer() throws IOException, JetStreamApiException {
         JetStreamManagement jsm = natsConnection.jetStreamManagement();
-        failureCount = 0;
         ConsumerInfo consumerInfo = jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
         if (consumerInfo == null) {
-            log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing...", durableName, subscribeAnnotation.event().getStreamName());
+            log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing... Failure count {}", durableName, subscribeAnnotation.event().getStreamName(), ++failureCount);
             subscribe();
         }
     }
