@@ -97,6 +97,7 @@ public class SubscribeAnnotationThread extends Thread {
             try {
                 if (natsConnection == null) {
                     log.warn("Connection is null, skipping consumer creation. Failure {}", ++failureCount);
+                    checkFailureCounter();
                     Thread.sleep(2000L);
                     return;
                 }
@@ -104,6 +105,7 @@ public class SubscribeAnnotationThread extends Thread {
                 Connection.Status status = natsConnection.getStatus();
                 if (status == Connection.Status.CLOSED || status == Connection.Status.DISCONNECTED) {
                     log.warn("Connection is closed/disconnected, skipping consumer creation! Failure {}", ++failureCount);
+                    checkFailureCounter();
                     Thread.sleep(2000L);
                     return;
                 }
@@ -115,14 +117,10 @@ public class SubscribeAnnotationThread extends Thread {
                 } else {
                     log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}. Failure count {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), ++failureCount);
                 }
-                if (killJvmOnError) {
-                    if (failureCount >= killJvmCounter) {
-                        log.error("Too many connection failures. Exiting JVM to trigger orchestrator restart.");
-                        System.exit(1);
-                    }
-                }
+                checkFailureCounter();
             } catch (InterruptedException e) {
                 log.error("", e);
+                failureCount++;
                 Thread.currentThread().interrupt(); // Re-interrupt the thread
             } catch (Exception e) {
                 failureCount++;
@@ -140,6 +138,15 @@ public class SubscribeAnnotationThread extends Thread {
         }
         log.info("[NATS] Stopped NATS subscription thread!");
         System.exit(1); // Exit the JVM if the thread is stopped
+    }
+
+    private void checkFailureCounter() {
+        if (killJvmOnError) {
+            if (failureCount >= killJvmCounter) {
+                log.error("Too many connection failures. Exiting JVM to trigger orchestrator restart.");
+                System.exit(1);
+            }
+        }
     }
 
     private void fetchMessage() throws InterruptedException {
@@ -180,6 +187,7 @@ public class SubscribeAnnotationThread extends Thread {
             log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing... Failure count {}", durableName, subscribeAnnotation.event().getStreamName(), ++failureCount);
             subscribe();
         }
+        checkFailureCounter();
     }
 
     private void processMessageInThread(Message message) throws InterruptedException {
