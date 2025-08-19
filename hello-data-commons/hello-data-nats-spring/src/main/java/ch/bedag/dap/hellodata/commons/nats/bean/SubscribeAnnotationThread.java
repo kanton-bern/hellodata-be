@@ -109,14 +109,11 @@ public class SubscribeAnnotationThread extends Thread {
                 }
                 checkOrCreateConsumer();
                 log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
-                if (subscription != null) {
+                if (subscription != null && subscription.isActive()) {
                     fetchMessage();
                 } else {
                     log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 }
-            } catch (IllegalStateException e) {
-                log.error("", e);
-                subscribe();
             } catch (InterruptedException e) {
                 log.error("", e);
                 Thread.currentThread().interrupt(); // Re-interrupt the thread
@@ -124,10 +121,11 @@ public class SubscribeAnnotationThread extends Thread {
                 log.error("", e);
             }
         }
+        log.info("[NATS] Stopped NATS subscription thread!");
     }
 
     private void fetchMessage() throws InterruptedException {
-        Message message = subscription.nextMessage(Duration.ofSeconds(10L));
+        Message message = subscription.nextMessage(Duration.ofSeconds(2L));
         if (message != null) {
             log.debug("[NATS] ------- Message fetched from the queue for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             if (subscribeAnnotation.asyncRun()) {

@@ -92,7 +92,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     @Override
     public void destroy() {
-        log.info("Shutting down NATS subscriptions!");
+        log.info("Commencing gracefull shutdown of all NATS subscriptions!");
         THREADS.forEach(SubscribeAnnotationThread::stopThread); // Shutdown individual threads
         executorService.shutdown();
         try {
