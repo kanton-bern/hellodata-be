@@ -104,10 +104,6 @@ public class SubscribeAnnotationThread extends Thread {
                     log.warn("[NATS] Subscription to NATS is null. Please check if NATS is available for stream {} and subject {}. Failure count {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), ++failureCount);
                 }
                 checkFailureCounter();
-            } catch (InterruptedException e) {
-                log.error("", e);
-                failureCount++;
-                System.exit(1); // Exit the JVM if the thread is stopped
             } catch (Exception e) {
                 failureCount++;
                 log.error("Nats connection failed {}/{}", failureCount, killJvmCounter, e);
