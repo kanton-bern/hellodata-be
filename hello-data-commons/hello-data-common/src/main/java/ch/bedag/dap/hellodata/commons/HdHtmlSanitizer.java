@@ -34,7 +34,6 @@ import org.jsoup.safety.Safelist;
 @UtilityClass
 public class HdHtmlSanitizer {
 
-    // Define a custom safelist similar to your old policy
     private static final Safelist CUSTOM_HTML_SANITIZER_POLICY = Safelist.relaxed()
             .addTags("span", "p", "li")
             .addAttributes("span", "class", "style")
