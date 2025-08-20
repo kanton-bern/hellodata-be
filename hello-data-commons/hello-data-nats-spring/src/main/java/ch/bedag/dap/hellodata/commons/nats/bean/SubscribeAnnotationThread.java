@@ -108,7 +108,6 @@ public class SubscribeAnnotationThread extends Thread {
                 log.error("", e);
                 failureCount++;
                 System.exit(1); // Exit the JVM if the thread is stopped
-                Thread.currentThread().interrupt(); // Re-interrupt the thread
             } catch (Exception e) {
                 failureCount++;
                 log.error("Nats connection failed {}/{}", failureCount, killJvmCounter, e);
