@@ -71,9 +71,9 @@ public class GenericPublishedResourceConsumer {
             resource.setKind(hdResource.getKind());
             resource.setInstanceName(hdResource.getInstanceName());
         }
-        log.info("Resource saved: {}", resource);
+        log.debug("Resource saved: {}", resource);
         if (hdResource instanceof UserResource ur) {
-            log.info("User resource saved. Subsystemusers: {}", ur.getData());
+            log.debug("User resource saved. Subsystemusers: {}", ur.getData());
         }
         return saveEntity(resource);
     }
