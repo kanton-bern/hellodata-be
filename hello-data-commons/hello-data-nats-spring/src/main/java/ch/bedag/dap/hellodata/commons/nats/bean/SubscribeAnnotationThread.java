@@ -230,7 +230,7 @@ public class SubscribeAnnotationThread extends Thread {
                 log.debug("[NATS] NATS message processing finished {}. The operation took {}", beanWrapper.bean().getClass().getName(), watch.formatTime());
             }
             message.ack();
-        } catch (IllegalAccessException | InvocationTargetException | CompletionException | IOException e) {
+        } catch (IllegalAccessException | InvocationTargetException | IOException | RuntimeException e) {
             log.error("[NATS] Error invoking method", e);
         }
     }
