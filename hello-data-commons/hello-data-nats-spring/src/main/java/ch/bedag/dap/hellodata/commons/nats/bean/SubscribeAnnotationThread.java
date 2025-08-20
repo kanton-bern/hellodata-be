@@ -95,20 +95,6 @@ public class SubscribeAnnotationThread extends Thread {
     public void run() {
         while (running && !Thread.currentThread().isInterrupted()) {
             try {
-                if (natsConnection == null) {
-                    log.warn("Connection is null, skipping consumer creation. Failure {}", ++failureCount);
-                    checkFailureCounter();
-                    Thread.sleep(2000L);
-                    return;
-                }
-
-                Connection.Status status = natsConnection.getStatus();
-                if (status == Connection.Status.CLOSED || status == Connection.Status.DISCONNECTED) {
-                    log.warn("Connection is closed/disconnected, skipping consumer creation! Failure {}", ++failureCount);
-                    checkFailureCounter();
-                    Thread.sleep(2000L);
-                    return;
-                }
                 checkOrCreateConsumer();
                 log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null && subscription.isActive()) {
@@ -121,6 +107,7 @@ public class SubscribeAnnotationThread extends Thread {
             } catch (InterruptedException e) {
                 log.error("", e);
                 failureCount++;
+                System.exit(1); // Exit the JVM if the thread is stopped
                 Thread.currentThread().interrupt(); // Re-interrupt the thread
             } catch (Exception e) {
                 failureCount++;
