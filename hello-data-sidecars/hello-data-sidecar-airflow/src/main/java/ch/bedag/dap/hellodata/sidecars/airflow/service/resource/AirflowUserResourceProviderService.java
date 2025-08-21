@@ -36,15 +36,12 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserRole;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.service.cloud.PodUtilsProvider;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +63,6 @@ public class AirflowUserResourceProviderService {
 
     private final NatsSenderService natsSenderService;
     private final AirflowClientProvider airflowClientProvider;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -81,19 +77,10 @@ public class AirflowUserResourceProviderService {
         log.info("--> publishUsers()");
         AirflowUsersResponse response = airflowClientProvider.getAirflowClientInstance().users();
 
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
         List<AirflowUserResponse> airflowUsers = CollectionUtils.emptyIfNull(response.getUsers()).stream().toList();
-        //ToDo: Remove this conversion to SupersetUsers, should use a generic interface
         List<SubsystemUser> subsystemUsers = toSupsetSetUsers(airflowUsers);
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            UserResource userResource = new UserResource(ModuleType.AIRFLOW, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        } else {
-            //dummy info for tests
-            UserResource userResource = new UserResource(ModuleType.AIRFLOW, this.instanceName, "local", subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        }
+        UserResource userResource = new UserResource(ModuleType.AIRFLOW, this.instanceName, subsystemUsers);
+        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
     }
 
     /**

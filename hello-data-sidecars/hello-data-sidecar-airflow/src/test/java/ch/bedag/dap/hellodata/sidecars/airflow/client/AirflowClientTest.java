@@ -26,16 +26,9 @@
  */
 package ch.bedag.dap.hellodata.sidecars.airflow.client;
 
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowPermissionsResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRolesResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUser;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserResponse;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserRole;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUserRolesUpdate;
-import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowUsersResponse;
+import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.*;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +122,6 @@ class AirflowClientTest {
         assertThat(permissions.getActions()).isNotEmpty();
     }
 
-    @NotNull
     private static AirflowUserRolesUpdate createAirflowUserRolesUpdate(String usernameToUpdate) {
         AirflowUserRolesUpdate userRolesUpdate = new AirflowUserRolesUpdate();
         userRolesUpdate.setUsername(usernameToUpdate);

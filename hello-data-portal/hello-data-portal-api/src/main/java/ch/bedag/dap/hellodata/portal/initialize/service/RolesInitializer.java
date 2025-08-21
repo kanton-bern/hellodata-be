@@ -26,7 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.initialize.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
@@ -43,14 +43,17 @@ import ch.bedag.dap.hellodata.portalcommon.role.repository.UserPortalRoleReposit
 import ch.bedag.dap.hellodata.portalcommon.user.entity.Permissions;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import static ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter.WORKSPACES_PERMISSION;
 
 @Log4j2

@@ -5,38 +5,32 @@ import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
+import ch.bedag.dap.hellodata.sidecars.superset.service.resource.DashboardResourceProviderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Message;
 import jakarta.annotation.PostConstruct;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.io.*;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 @Log4j2
 @Service
@@ -49,6 +43,7 @@ public class UploadDashboardsFileListener {
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
     private final ObjectMapper objectMapper;
+    private final DashboardResourceProviderService dashboardResourceProviderService;
 
     @Value("${hello-data.instance.name}")
     private String instanceName;
@@ -56,11 +51,15 @@ public class UploadDashboardsFileListener {
     @Value("${hello-data.dashboard-export-check-script-location}")
     private String pythonExportCheckScriptLocation;
 
+    @Value("${hello-data.dashboard-import-default-sql-alchemy}")
+    private String defaultSqlAlchemyUri;
+
     @PostConstruct
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPLOAD_DASHBOARDS_FILE.getSubject());
         log.debug("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
         Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
+            log.debug("\t-=-=-=-= Received message from NATS: {}", new String(msg.getData()));
             String binaryFileId = null;
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
@@ -70,7 +69,7 @@ public class UploadDashboardsFileListener {
                 if (dashboardUpload.isLastChunk()) {
                     destinationFile =
                             File.createTempFile(StringUtils.isBlank(dashboardUpload.getFilename()) ? dashboardUpload.getBinaryFileId() : dashboardUpload.getFilename(), //NOSONAR
-                                                ""); //NOSONAR
+                                    ""); //NOSONAR
                     log.debug("Created temp file for chunk {}", destinationFile);
                     binaryFileId = dashboardUpload.getBinaryFileId();
                     assembleChunks(binaryFileId, dashboardUpload.getFilename(), dashboardUpload.getChunkNumber(), dashboardUpload.getFileSize(), destinationFile.toPath());
@@ -79,11 +78,12 @@ public class UploadDashboardsFileListener {
                     ackMessage(msg);
                     return;
                 }
+                useDefaultSqlAlchemyUri(dashboardUpload, destinationFile);
                 JsonObject passwordsObject = getPasswordsObject(destinationFile);
                 log.debug("Passwords parameter send to API ");
                 supersetClient.importDashboard(destinationFile, passwordsObject, true);
-                log.debug("\t-=-=-=-= received message from the superset: {}", new String(msg.getData()));
                 ackMessage(msg);
+                dashboardResourceProviderService.publishDashboards();
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error uploading dashboards", e);
                 natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
@@ -94,6 +94,57 @@ public class UploadDashboardsFileListener {
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);
+    }
+
+    private void useDefaultSqlAlchemyUri(DashboardUpload dashboardUpload, File destinationFile) throws IOException {
+        File tempZip = File.createTempFile("modified-", dashboardUpload.getFilename());
+        replaceSqlalchemyUrisInZip(destinationFile, tempZip, defaultSqlAlchemyUri);
+        Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private void replaceSqlalchemyUrisInZip(File sourceZip, File targetZip, String newSqlalchemyUri) throws IOException {
+        ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+        try (
+                ZipFile zipFile = new ZipFile(sourceZip);
+                FileOutputStream fos = new FileOutputStream(targetZip);
+                ZipOutputStream zos = new ZipOutputStream(fos, StandardCharsets.UTF_8)
+        ) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+
+                try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                    if (entryName.contains("/databases/") && !entry.isDirectory()) {
+                        log.info("Replacing sqlalchemy_uri in: {} to {}", entryName, newSqlalchemyUri.substring(0, 30));
+
+                        // Read and parse YAML
+                        String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                        Map<String, Object> parsed = yamlMapper.readValue(content, Map.class);
+
+                        // Replace sqlalchemy_uri
+                        parsed.put("sqlalchemy_uri", newSqlalchemyUri);
+
+                        // Convert back to YAML
+                        String updatedYaml = yamlMapper.writeValueAsString(parsed);
+
+                        // Add to output zip
+                        ZipEntry newEntry = new ZipEntry(entryName);
+                        zos.putNextEntry(newEntry);
+                        zos.write(updatedYaml.getBytes(StandardCharsets.UTF_8));
+                        zos.closeEntry();
+
+                    } else {
+                        // Copy other files as-is
+                        ZipEntry newEntry = new ZipEntry(entryName);
+                        zos.putNextEntry(newEntry);
+                        inputStream.transferTo(zos);
+                        zos.closeEntry();
+                    }
+                }
+            }
+        }
     }
 
     private JsonObject getPasswordsObject(File destinationFile) throws IOException {
@@ -194,7 +245,7 @@ public class UploadDashboardsFileListener {
         if (chunks.isEmpty() || chunks.size() != totalChunks || validateChunkSizeWrong(fileSize, chunks)) {
             String errMsg =
                     "Chunks list empty? - " + chunks.isEmpty() + " Chunk size different than total size? - " + (chunks.size() != totalChunks) + " Chunk size different? - " +
-                    validateChunkSizeWrong(fileSize, chunks);
+                            validateChunkSizeWrong(fileSize, chunks);
             throw new UploadDashboardsFileException("Chunks validation failed. Upload canceled. " + errMsg);
         }
         writeChunksToFile(destinationPath, chunks);
@@ -203,7 +254,7 @@ public class UploadDashboardsFileListener {
 
     private void validateZipFile(Path destinationPath) throws IOException {
         // Command to execute Python script
-        String[] cmd = { "python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString() };
+        String[] cmd = {"python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString()};
         log.info("Python cmd {}", StringUtils.join(cmd, " "));
 
         // Create ProcessBuilder

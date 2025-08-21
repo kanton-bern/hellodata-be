@@ -26,8 +26,8 @@
  */
 package ch.bedag.dap.hellodata.sidecars.portal.service.resource.appinfo;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;

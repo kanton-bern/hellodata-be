@@ -26,8 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal.role.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
@@ -37,9 +37,11 @@ import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.RoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -81,10 +83,10 @@ public class RoleService {
     @Transactional
     public void updateDomainRoleForUser(UserEntity userEntity, RoleDto domainRole, String contextKey) {
         long alreadyHasContextRole = CollectionUtils.emptyIfNull(userEntity.getContextRoles())
-                                                    .stream()
-                                                    .filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(contextKey) &&
-                                                                           contextRole.getRole().getId().equals(domainRole.getId()))
-                                                    .count();
+                .stream()
+                .filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(contextKey) &&
+                        contextRole.getRole().getId().equals(domainRole.getId()))
+                .count();
         if (alreadyHasContextRole > 0) {
             return;
         }
@@ -112,10 +114,10 @@ public class RoleService {
     public void setBusinessDomainRoleForUser(UserEntity userEntity, HdRoleName roleName) {
         Set<UserContextRoleEntity> contextRoles = userEntity.getContextRoles();
         long alreadyHasTheRole = CollectionUtils.emptyIfNull(contextRoles)
-                                                .stream()
-                                                .filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey()) &&
-                                                                       contextRole.getRole().getName() == roleName)
-                                                .count();
+                .stream()
+                .filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey()) &&
+                        contextRole.getRole().getName() == roleName)
+                .count();
         if (alreadyHasTheRole == 1) {
             return;
         }

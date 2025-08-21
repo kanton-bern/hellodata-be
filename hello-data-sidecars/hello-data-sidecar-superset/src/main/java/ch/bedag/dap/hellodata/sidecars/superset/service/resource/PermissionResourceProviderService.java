@@ -31,12 +31,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.PermissionResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermissionResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
-import ch.bedag.dap.hellodata.sidecars.superset.service.cloud.PodUtilsProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +49,6 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_PER
 public class PermissionResourceProviderService {
     private final NatsSenderService natsSenderService;
     private final SupersetClientProvider supersetClientProvider;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -61,15 +57,7 @@ public class PermissionResourceProviderService {
         log.info("--> publishPermissions()");
         SupersetPermissionResponse response = supersetClientProvider.getSupersetClientInstance().permissions();
 
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            PermissionResource permissionResource = new PermissionResource(ModuleType.SUPERSET, this.instanceName, current.getMetadata().getNamespace(), response.getResult());
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
-        } else {
-            //dummy info for tests
-            PermissionResource permissionResource = new PermissionResource(ModuleType.SUPERSET, this.instanceName, "local", response.getResult());
-            natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
-        }
+        PermissionResource permissionResource = new PermissionResource(ModuleType.SUPERSET, this.instanceName, response.getResult());
+        natsSenderService.publishMessageToJetStream(PUBLISH_PERMISSION_RESOURCES, permissionResource);
     }
 }

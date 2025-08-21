@@ -26,8 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal.postgres;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.ResourceRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.ResourceRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
@@ -35,8 +35,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResou
 import ch.bedag.dap.hellodata.portal.base.config.PersistenceConfig;
 import io.nats.client.Connection;
 import jakarta.persistence.EntityManager;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -45,13 +43,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.List;
+import java.util.UUID;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 @DataJpaTest
 @ActiveProfiles("tc-postgres")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ContextConfiguration(classes = { PersistenceConfig.class })
+@ContextConfiguration(classes = {PersistenceConfig.class})
 public class PostgresTestContainerTest {
 
     @Autowired
@@ -75,7 +77,7 @@ public class PostgresTestContainerTest {
         metaInfoResourceEntity.setKind(ModuleResourceKind.HELLO_DATA_APP_INFO);
         metaInfoResourceEntity.setInstanceName("someInstanceName");
 
-        AppInfoResource appInfoResource = new AppInfoResource(new HdBusinessContextInfo(), "someInstanceName", "someNamespace", ModuleType.SUPERSET, "http://localhost/superset");
+        AppInfoResource appInfoResource = new AppInfoResource(new HdBusinessContextInfo(), "someInstanceName", ModuleType.SUPERSET, "http://localhost/superset");
         metaInfoResourceEntity.setMetainfo(appInfoResource);
 
         //when

@@ -35,13 +35,9 @@ import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRole;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRoleAction;
 import ch.bedag.dap.hellodata.sidecars.airflow.client.user.response.AirflowRolesResponse;
 import ch.bedag.dap.hellodata.sidecars.airflow.service.provider.AirflowClientProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -60,8 +56,6 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_ROL
 @Service
 @RequiredArgsConstructor
 public class AirflowRoleResourceProviderService {
-    private final ObjectProvider<DiscoveryClient> discoveryClientObjectProvider;
-    private final ObjectProvider<PodUtils<V1Pod>> podUtilsObjectProvider;
     private final NatsSenderService natsSenderService;
     private final AirflowClientProvider airflowClientProvider;
     @Value("${hello-data.instance.name}")
@@ -72,21 +66,8 @@ public class AirflowRoleResourceProviderService {
         log.info("--> publishRoles()");
         List<RolePermissions> data = getRolePermissions();
 
-        DiscoveryClient discoveryClient = this.discoveryClientObjectProvider.getIfAvailable();
-        if (discoveryClient != null) {
-            discoveryClient.description();
-            discoveryClient.getServices();
-        }
-        PodUtils<V1Pod> podUtils = podUtilsObjectProvider.getIfAvailable();
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            RoleResource roleResource = new RoleResource(this.instanceName, current.getMetadata().getNamespace(), ModuleType.AIRFLOW, data);
-            natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
-        } else {
-            //dummy info for tests
-            RoleResource roleResource = new RoleResource(this.instanceName, "local", ModuleType.AIRFLOW, data);
-            natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
-        }
+        RoleResource roleResource = new RoleResource(this.instanceName, ModuleType.AIRFLOW, data);
+        natsSenderService.publishMessageToJetStream(PUBLISH_ROLE_RESOURCES, roleResource);
     }
 
     private List<RolePermissions> getRolePermissions() throws URISyntaxException, IOException {

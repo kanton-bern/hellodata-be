@@ -48,13 +48,14 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
 
     @Override
     public void connectionEvent(Connection cnctn, Events event) {
-        log.debug("[NATS] Connection Event:" + event);
         switch (event) {
-            case CONNECTED -> log.debug("[NATS] CONNECTED to NATS!");
+            case CONNECTED -> log.warn("[NATS] CONNECTED to NATS!");
+            case CLOSED -> log.warn("[NATS] CLOSED connection to NATS!");
             case DISCONNECTED -> log.warn("[NATS] DISCONNECTED from NATS!");
-            case RECONNECTED -> log.debug("[NATS] RECONNECTED to NATS!");
-            case RESUBSCRIBED -> log.debug("[NATS] RESUBSCRIBED!");
-            default -> log.debug("[NATS] Other event: {}", event);
+            case RECONNECTED -> log.warn("[NATS] RECONNECTED to NATS!");
+            case DISCOVERED_SERVERS -> log.warn("[NATS] DISCOVERED_SERVERS of NATS!");
+            case LAME_DUCK -> log.warn("[NATS] LAME_DUCK from NATS!");
+            default -> log.warn("[NATS] Other event: {}", event);
         }
     }
 

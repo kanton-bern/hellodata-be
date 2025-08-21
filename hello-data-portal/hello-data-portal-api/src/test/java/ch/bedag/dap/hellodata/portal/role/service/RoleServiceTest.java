@@ -26,8 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal.role.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
@@ -37,12 +37,14 @@ import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.RoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,6 +53,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;

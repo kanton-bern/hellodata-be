@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardByIdResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermissionResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.query.response.superset.SupersetQueryResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolePermissionsResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
@@ -42,6 +43,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedRespo
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetDashboardPublishedFlagUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.AllArgsConstructor;
@@ -366,6 +368,42 @@ public class SupersetClient {
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("dashboards() response json \n{}", new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetDashboardResponse.class);
+    }
+
+    /**
+     * Returns a list of available queries.
+     *
+     * @return A JSON array containing a list of queries.
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public SupersetQueryResponse queries() throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequest(host, port, authToken);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("queries() response json \n{}", new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
+    }
+
+    /**
+     * Returns a list of available queries.
+     *
+     * @return A JSON array containing a list of queries.
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public SupersetQueryResponse queriesFiltered(JsonArray filters) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, filters);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("queriesFiltered() response json \n{}", new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
     }
 
     /**

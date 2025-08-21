@@ -9,12 +9,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.User;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
-import ch.bedag.dap.hellodata.sidecars.sftpgo.service.cloud.PodUtilsProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +30,6 @@ import static ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.User.StatusEnu
 public class SftpGoUserResourceProviderService {
     private final NatsSenderService natsSenderService;
     private final SftpGoService sftpGoService;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -48,17 +44,9 @@ public class SftpGoUserResourceProviderService {
         log.info("--> publishUsers()");
         List<User> allUsers = sftpGoService.getAllUsers();
 
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
         List<SubsystemUser> subsystemUsers = toSubsystemUsers(allUsers);
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            UserResource userResource = new UserResource(ModuleType.SFTPGO, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        } else {
-            //dummy info for tests
-            UserResource userResource = new UserResource(ModuleType.SFTPGO, this.instanceName, "local", subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        }
+        UserResource userResource = new UserResource(ModuleType.SFTPGO, this.instanceName, subsystemUsers);
+        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
     }
 
     private List<SubsystemUser> toSubsystemUsers(List<User> allUsers) {

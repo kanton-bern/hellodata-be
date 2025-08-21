@@ -37,10 +37,12 @@ import {TableModule} from "primeng/table";
 import {TooltipModule} from "primeng/tooltip";
 import {NgArrayPipesModule} from "ngx-pipes";
 import {FileUploadModule} from "primeng/fileupload";
+import {SilentLoginComponent} from "../../../shared/components/silent-login/silent-login.component";
 
 @NgModule({
   declarations: [
-    DashboardImportExportComponent
+    DashboardImportExportComponent,
+    SilentLoginComponent,
   ],
   imports: [
     CommonModule,
@@ -52,7 +54,7 @@ import {FileUploadModule} from "primeng/fileupload";
     TableModule,
     TooltipModule,
     NgArrayPipesModule,
-    FileUploadModule
+    FileUploadModule,
   ]
 })
 export class DashboardImportExportModule {

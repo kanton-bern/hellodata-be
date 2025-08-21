@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.commons.nats.exception.NatsException;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import io.nats.client.Connection;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -54,6 +55,10 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
     private String appName;
     @Value("${hello-data.instance.name:}")
     private String instanceName;
+    @Value("${hello-data.on-error.kill-jvm:true}")
+    private String killJvmOnError;
+    @Value("${hello-data.on-error.kill-jvm-counter:20}")
+    private String killJvmCounter;
 
     public NatsConfigBeanPostProcessor(Connection natsConnection) {
         this.natsConnection = natsConnection;
@@ -87,16 +92,18 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     @Override
     public void destroy() {
+        log.info("Commencing gracefull shutdown of all NATS subscriptions!");
+        THREADS.forEach(SubscribeAnnotationThread::stopThread); // Shutdown individual threads
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(20, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
             executorService.shutdownNow();
             Thread.currentThread().interrupt();
         }
-        THREADS.forEach(SubscribeAnnotationThread::shutdown); // Shutdown individual threads
+        log.info("Done shutting down NATS subscriptions!");
     }
 
     private int roundUpToNextMultipleOfTen(int number) {
@@ -126,7 +133,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "") + "-" + UUID.randomUUID();
             durableName = SlugifyUtil.slugify(durableName, "");
             log.debug("[NATS] Durable name for consumer: {}", durableName);
-            SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableName, executorService);
+            SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableName, executorService, BooleanUtils.toBoolean(killJvmOnError), Short.parseShort(killJvmCounter));
             executorService.submit(thread);
             THREADS.add(thread);
         }
