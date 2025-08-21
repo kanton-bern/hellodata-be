@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hello-data-superset
+FROM bedag/hello-data-superset:HELLODATA-1618_upgrade_superset-SNAPSHOT
 USER root
 COPY superset/ /app/docker/
 RUN find /app/docker/ -type f -iname "*.sh" -exec chmod +x {} \;
@@ -37,7 +37,7 @@ RUN ls -la /app/docker
 RUN ls -la /app/docker/pythonpath_dev
 
 #CORS https://superset.apache.org/docs/installation/networking-settings/
-RUN pip install apache-superset[cors]
+RUN uv pip install apache_superset[cors]
 
 RUN apt-get update && \
     # deps for superset
