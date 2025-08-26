@@ -77,7 +77,7 @@
             <span *ngSwitchCase="'success'" [pTooltip]="query.status" class="align-items-end pi pi-check-circle"
                   style="color: green"></span>
           </td>
-          <td>{{ formatChangedOn(query.changedOn) }}</td>
+          <td>{{ query.changedOn | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
           <td>
             <p-tag *ngSwitchCase="'failed'" severity="danger"
                    [value]="formatDuration(query.endTime - query.startTime)"></p-tag>
