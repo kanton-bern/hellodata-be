@@ -26,6 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal;
 
+import ch.bedag.dap.hellodata.portal.base.converter.LocalDateTimeToOffsetDateTimeConverter;
+import ch.bedag.dap.hellodata.portal.base.converter.OffsetDateTimeToLocalDateTimeConverter;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -51,6 +53,9 @@ public class HellodataPortalApiApplication {
 
     @Bean
     public ModelMapper modelMapper() {
+        ModelMapper mapper = new ModelMapper();
+        mapper.addConverter(new OffsetDateTimeToLocalDateTimeConverter());
+        mapper.addConverter(new LocalDateTimeToOffsetDateTimeConverter());
         return new ModelMapper();
     }
 }
