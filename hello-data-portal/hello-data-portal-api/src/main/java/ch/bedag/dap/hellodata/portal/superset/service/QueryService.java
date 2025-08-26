@@ -29,7 +29,11 @@ public class QueryService {
             allByContextKeyPageable = queryRepository.findAllByContextKey(pageable, contextKey);
         }
         log.info("Fetched queries {} for contextKey: {} and search: {}", allByContextKeyPageable, contextKey, search);
-        return allByContextKeyPageable.map(userEntity -> modelMapper.map(userEntity, SupersetQueryDto.class));
+        return allByContextKeyPageable.map(userEntity -> {
+            SupersetQueryDto dto = modelMapper.map(userEntity, SupersetQueryDto.class);
+            dto.setChangedOn(userEntity.getChangedOn().toInstant().toEpochMilli());
+            return dto;
+        });
     }
 
 }

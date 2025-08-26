@@ -33,8 +33,7 @@ public class SupersetQueryDto {
     private String executedSql;
     private Integer rows;
     private BigDecimal startTime;
-    @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
-    private LocalDateTime changedOn;
+    private long changedOn;
     private BigDecimal endTime;
     private String trackingUrl;
     private String tmpSchemaName;
