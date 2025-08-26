@@ -9,11 +9,14 @@ import org.springframework.data.domain.Sort;
 @UtilityClass
 public class PageUtil {
 
-    public static Pageable createPageable(int page, int size, String sort, String search) {
-        sort = StringUtils.defaultIfEmpty(sort, null);
-        search = StringUtils.defaultIfEmpty(search, null);
+    public static Pageable createPageable(int page, int size, String sort) {
+        return createPageable(page, size, sort, "id", Sort.Direction.ASC);
+    }
 
-        Sort sorting = Sort.by(Sort.Direction.ASC, "id");
+    public static Pageable createPageable(int page, int size, String sort, String defaultSortField, Sort.Direction defaultDirection) {
+        sort = StringUtils.defaultIfEmpty(sort, null);
+
+        Sort sorting = Sort.by(Sort.Direction.ASC, defaultSortField);
         if (sort != null && !sort.isEmpty()) {
             String[] sortParams = sort.split(",");
             if (sortParams.length == 2) {

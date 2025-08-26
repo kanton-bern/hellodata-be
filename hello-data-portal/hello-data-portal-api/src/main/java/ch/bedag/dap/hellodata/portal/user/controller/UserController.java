@@ -92,7 +92,7 @@ public class UserController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String search) {
 
-        Pageable pageable = PageUtil.createPageable(page, size, sort, search);
+        Pageable pageable = PageUtil.createPageable(page, size, sort);
         Page<UserDto> usersPage = userService.getAllUsersPageable(pageable, search);
         return ResponseEntity.ok(usersPage);
     }
