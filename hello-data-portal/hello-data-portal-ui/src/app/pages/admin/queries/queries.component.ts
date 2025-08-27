@@ -44,7 +44,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
             this.createBreadcrumbs(dataDomain.name);
             if (this.componentInitiated) {
               this.store.dispatch(loadQueriesPaginated({
-                page: 0, size: 10, sort: '', search: '', contextKey
+                page: 0, size: 10, sort: 'changedOn, desc', search: '', contextKey
               }));
             }
           } else {
