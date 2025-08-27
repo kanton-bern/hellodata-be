@@ -30,6 +30,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
   queriesLoading$ = this.store.select(selectQueriesLoading);
   expandedRows = {};
   filterValue = '';
+  first = 0;
 
   constructor(private store: Store<AppState>) {
     super();
@@ -39,6 +40,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
         this.store.select(selectAvailableDataDomains).pipe(take(2))
       ]).pipe(
         map(([contextKey, availableDataDomains]) => {
+          this.first = 0;
           const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
           if (contextKey && dataDomain) {
             this.createBreadcrumbs(dataDomain.name);

@@ -1,6 +1,5 @@
 export interface QueriesState {
   queries: any[],
-  currentQueryPaginationByContextKey: any,
   queriesLoading: boolean,
   queriesTotalRecords: number,
 }
@@ -14,7 +13,6 @@ export interface CurrentQueryPagination {
 
 export const initialQueriesState: QueriesState = {
   queries: [],
-  currentQueryPaginationByContextKey: {},
   queriesLoading: false,
   queriesTotalRecords: 0,
 }

@@ -4,14 +4,11 @@ import {loadQueriesPaginated, loadQueriesSuccess, resetQueriesState} from "./que
 
 export const queriesReducer = createReducer(
   initialQueriesState,
-  on(loadQueriesPaginated, (state: QueriesState, {page, size, sort, search, contextKey}): QueriesState => {
-    const newCurrentPagination = {...state.currentQueryPaginationByContextKey}
-    newCurrentPagination[contextKey] = {page, size, sort, search};
+  on(loadQueriesPaginated, (state: QueriesState): QueriesState => {
     return {
       ...state,
       queries: [],
       queriesLoading: true,
-      currentQueryPaginationByContextKey: newCurrentPagination
     };
   }),
   on(loadQueriesSuccess, (state: QueriesState, {queries, totalElements, totalPages}): QueriesState => {
