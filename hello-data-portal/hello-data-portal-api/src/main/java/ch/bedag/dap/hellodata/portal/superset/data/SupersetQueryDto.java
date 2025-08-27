@@ -24,7 +24,6 @@ public class SupersetQueryDto {
     private String databaseName;
     private String tmpTableName;
     private String tabName;
-    private String sqlEditorId;
     private String userFullname;
     private String username;
     private String status;
