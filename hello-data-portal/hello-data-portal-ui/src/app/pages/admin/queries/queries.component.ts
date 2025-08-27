@@ -79,12 +79,6 @@ export class QueriesComponent extends BaseComponent implements OnInit {
     scrollToTop();
   }
 
-  formatChangedOn(changedOn: number) {
-    const date = new Date(changedOn * 1000);
-    const humanReadable = date.toLocaleString();
-    return date.toLocaleString();
-  }
-
   formatDuration(ms: number): string {
     const hours = Math.floor(ms / 3600000);
     const minutes = Math.floor((ms % 3600000) / 60000);
