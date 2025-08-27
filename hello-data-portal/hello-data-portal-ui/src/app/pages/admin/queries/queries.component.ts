@@ -1,5 +1,5 @@
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/queries.action";
@@ -13,7 +13,7 @@ import {combineLatest, Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {selectAvailableDataDomains} from "../../../store/my-dashboards/my-dashboards.selector";
-import {TableLazyLoadEvent} from "primeng/table";
+import {Table, TableLazyLoadEvent} from "primeng/table";
 import {map, take} from "rxjs/operators";
 import {scrollToTop} from "../../../shared/services/view-helpers";
 
@@ -31,6 +31,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
   expandedRows = {};
   filterValue = '';
   first = 0;
+  @ViewChild('dt') table!: Table;
 
   constructor(private store: Store<AppState>) {
     super();
@@ -45,8 +46,10 @@ export class QueriesComponent extends BaseComponent implements OnInit {
           if (contextKey && dataDomain) {
             this.createBreadcrumbs(dataDomain.name);
             if (this.componentInitiated) {
+              const sortField = this.table.sortField;
+              const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc'
               this.store.dispatch(loadQueriesPaginated({
-                page: 0, size: 10, sort: 'changedOn, desc', search: '', contextKey
+                page: 0, size: 10, sort: `${sortField}, ${sortOrder}`, search: '', contextKey
               }));
             }
           } else {
