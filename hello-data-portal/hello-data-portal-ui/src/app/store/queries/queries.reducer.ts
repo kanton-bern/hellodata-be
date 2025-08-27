@@ -9,6 +9,7 @@ export const queriesReducer = createReducer(
     newCurrentPagination[contextKey] = {page, size, sort, search};
     return {
       ...state,
+      queries: [],
       queriesLoading: true,
       currentQueryPaginationByContextKey: newCurrentPagination
     };
