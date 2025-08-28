@@ -134,6 +134,7 @@ export const selectEditedUserIsAdminAndCurrentIsSuperuser = createSelector(
     }
     return {
       isEditedUserBDAdmin: false,
+      isEditedUserHDAdmin: false,
       isCurrentUserSuperuser
     };
   }
