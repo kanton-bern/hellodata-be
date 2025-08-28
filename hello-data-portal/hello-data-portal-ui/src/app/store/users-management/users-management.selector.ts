@@ -143,7 +143,6 @@ export const selectAvailableRolesForBusinessDomain = createSelector(
   selectCurrentUserPermissions,
   selectEditedUserIsAdminAndCurrentIsSuperuser,
   (state: UsersManagementState, currentUserPermissions, result) => {
-    console.log('selectAvailableRolesForBusinessDomain', result, currentUserPermissions);
     if (!result.isCurrentUserSuperuser && currentUserPermissions.some(permission => permission === 'USER_MANAGEMENT')) {
       return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
     }
