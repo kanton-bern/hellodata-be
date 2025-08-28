@@ -37,7 +37,7 @@ import {
   HELLODATA_ADMIN_ROLE,
   NONE_ROLE
 } from "./users-management.model";
-import {selectIsSuperuser} from "../auth/auth.selector";
+import {selectCurrentUserPermissions, selectIsSuperuser} from "../auth/auth.selector";
 
 const usersManagementState = (state: AppState) => state.usersManagement;
 export const selectParamUserId = selectRouteParam('userId');
@@ -127,12 +127,12 @@ export const selectEditedUserIsAdminAndCurrentIsSuperuser = createSelector(
   (state: UsersManagementState, isCurrentUserSuperuser) => {
     if (state.userContextRoles.length > 0) {
       return {
-        isBusinessDomainAdmin: state.userContextRoles.some(userContextRole => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE && (userContextRole.role.name === HELLODATA_ADMIN_ROLE || userContextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE)),
+        isEditedUserBDAdmin: state.userContextRoles.some(userContextRole => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE && (userContextRole.role.name === HELLODATA_ADMIN_ROLE || userContextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE)),
         isCurrentUserSuperuser
       }
     }
     return {
-      isBusinessDomainAdmin: false,
+      isEditedUserBDAdmin: false,
       isCurrentUserSuperuser
     };
   }
@@ -140,12 +140,14 @@ export const selectEditedUserIsAdminAndCurrentIsSuperuser = createSelector(
 
 export const selectAvailableRolesForBusinessDomain = createSelector(
   usersManagementState,
+  selectCurrentUserPermissions,
   selectEditedUserIsAdminAndCurrentIsSuperuser,
-  (state: UsersManagementState, result) => {
-    if (!result.isCurrentUserSuperuser && result.isBusinessDomainAdmin) {
+  (state: UsersManagementState, currentUserPermissions, result) => {
+    console.log('selectAvailableRolesForBusinessDomain', result, currentUserPermissions);
+    if (!result.isCurrentUserSuperuser && currentUserPermissions.some(permission => permission === 'USER_MANAGEMENT')) {
       return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
     }
-    if (!result.isCurrentUserSuperuser && !result.isBusinessDomainAdmin) {
+    if (!result.isEditedUserBDAdmin && !result.isCurrentUserSuperuser) {
       return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE);
     }
     return state.allAvailableContextRoles.filter(role => role.contextType === BUSINESS_DOMAIN_CONTEXT_TYPE || role.contextType === null);
