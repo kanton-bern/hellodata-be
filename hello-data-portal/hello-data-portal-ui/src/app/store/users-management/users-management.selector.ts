@@ -37,7 +37,7 @@ import {
   HELLODATA_ADMIN_ROLE,
   NONE_ROLE
 } from "./users-management.model";
-import {selectCurrentUserPermissions, selectIsSuperuser} from "../auth/auth.selector";
+import {selectIsSuperuser} from "../auth/auth.selector";
 
 const usersManagementState = (state: AppState) => state.usersManagement;
 export const selectParamUserId = selectRouteParam('userId');
@@ -140,13 +140,12 @@ export const selectEditedUserIsAdminAndCurrentIsSuperuser = createSelector(
 
 export const selectAvailableRolesForBusinessDomain = createSelector(
   usersManagementState,
-  selectCurrentUserPermissions,
   selectEditedUserIsAdminAndCurrentIsSuperuser,
-  (state: UsersManagementState, currentUserPermissions, result) => {
-    if (!result.isCurrentUserSuperuser && currentUserPermissions.some(permission => permission === 'USER_MANAGEMENT')) {
-      return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE || role.contextType === BUSINESS_DOMAIN_CONTEXT_TYPE);
+  (state: UsersManagementState, result) => {
+    if (!result.isCurrentUserSuperuser && result.isBusinessDomainAdmin) {
+      return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
     }
-    if (!result.isBusinessDomainAdmin && !result.isCurrentUserSuperuser) {
+    if (!result.isCurrentUserSuperuser && !result.isBusinessDomainAdmin) {
       return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE);
     }
     return state.allAvailableContextRoles.filter(role => role.contextType === BUSINESS_DOMAIN_CONTEXT_TYPE || role.contextType === null);
