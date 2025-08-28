@@ -401,6 +401,10 @@ public class UserService {
 
     @Transactional
     public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
+        boolean isCurrentUserHDAdmin = SecurityUtils.isSuperuser();
+        if (!isCurrentUserHDAdmin && HdRoleName.HELLODATA_ADMIN.name().equalsIgnoreCase(updateContextRolesForUserDto.getBusinessDomainRole().getName())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only a HelloData Admin can assign the HelloData Admin role to another user");
+        }
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
         UserEntity userEntity = getUserEntity(userId);
