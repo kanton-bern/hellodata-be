@@ -10,7 +10,8 @@
     "lint": "ng lint",
     "test": "jest",
     "test:cov": "jest --coverage --silent",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "audit:high": "node ./audit.js"
   },
   "private": true,
   "dependencies": {

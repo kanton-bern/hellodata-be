@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -154,6 +155,15 @@
                 </configuration>
               </execution>
               <execution>
+                <id>yarn audit</id>
+                <goals>
+                  <goal>yarn</goal>
+                </goals>
+                <configuration>
+                  <arguments>audit:high</arguments>
+                </configuration>
+              </execution>
+              <execution>
                 <id>yarn build</id>
                 <goals>
                   <goal>yarn</goal>
@@ -187,7 +197,8 @@
                     <dockerFile>${project.basedir}/build/docker/Dockerfile</dockerFile>
                     <!-- extract the assembly into the docker context directory-->
                     <assembly>
-                      <descriptor>${project.basedir}/assembly-descriptor.xml</descriptor> <!-- copy dist/frontend to docker image -->
+                      <descriptor>${project.basedir}/assembly-descriptor.xml
+                      </descriptor> <!-- copy dist/frontend to docker image -->
                       <name>hello-data-portal-ui</name>
                     </assembly>
                   </build>
@@ -341,7 +352,8 @@
                     <dockerFile>${project.basedir}/build/docker/Dockerfile</dockerFile>
                     <!-- extract the assembly into the docker context directory-->
                     <assembly>
-                      <descriptor>${project.basedir}/assembly-descriptor.xml</descriptor> <!-- copy dist/frontend to docker image -->
+                      <descriptor>${project.basedir}/assembly-descriptor.xml
+                      </descriptor> <!-- copy dist/frontend to docker image -->
                       <name>hello-data-portal-ui</name>
                     </assembly>
                   </build>
