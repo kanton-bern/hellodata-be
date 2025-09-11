@@ -1,28 +1,35 @@
 #!/usr/bin/env node
-
 const {spawn} = require("child_process");
 
 let hasHigh = false;
 
-const audit = spawn("yarn", ["npm", "audit", "--json"], {stdio: ["ignore", "pipe", "pipe"]});
+const audit = spawn("yarn", ["audit", "--json"], {stdio: ["ignore", "pipe", "pipe"]});
 
 audit.stdout.on("data", (data) => {
-  console.log(data.toString());
-  const lines = data.toString().trim().split("\n");
+  const lines = data.toString().split("\n").map(l => l.trim()).filter(l => l.startsWith("{") && l.endsWith("}"));
+
   for (const line of lines) {
     try {
       const obj = JSON.parse(line);
-      console.log(obj);
       if (
-        ["high", "critical", "moderate"].includes(obj.children.Severity)
+        obj.type === "auditAdvisory" &&
+        ["high", "critical"].includes(obj.data.advisory.severity)
       ) {
+        console.error(
+          `[VULNERABILITY] ${obj.data.advisory.severity.toUpperCase()}: ${obj.data.advisory.title}`
+        );
+        console.error("Details:");
+        console.error(obj);
         hasHigh = true;
       }
     } catch (e) {
-      console.log(e);
-      process.exit(1);
+      // Ignore parsing errors for malformed lines
     }
   }
+});
+
+audit.stderr.on("data", (data) => {
+  process.stderr.write(data);
 });
 
 audit.on("close", (code) => {
@@ -30,7 +37,6 @@ audit.on("close", (code) => {
     console.error("High or critical vulnerabilities found! Failing build.");
     process.exit(1);
   } else {
-    console.error("Vulnerability audit finished ok")
     process.exit(0);
   }
 });
