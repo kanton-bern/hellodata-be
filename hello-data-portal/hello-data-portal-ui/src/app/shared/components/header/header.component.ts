@@ -72,6 +72,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
 import {DividerModule} from "primeng/divider";
+import {MatomoTrackerDirective} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-header',
@@ -217,7 +218,8 @@ export class HeaderComponent {
     InputTextModule,
     TabViewModule,
     SharedModule,
-    DividerModule
+    DividerModule,
+    MatomoTrackerDirective
   ],
   declarations: [HeaderComponent, BreadcrumbComponent],
   exports: [HeaderComponent]
