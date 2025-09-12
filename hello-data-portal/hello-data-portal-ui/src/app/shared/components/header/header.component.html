@@ -32,12 +32,7 @@
         <span class="mr-3 top-menu-item" *ngIf="(languages$ | async) as languages">
             <ng-template [ngForOf]="supportedLanguages" let-i="index" let-last="last" let-item ngFor>
               <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
-                 (click)="onLanguageChange(item.code)"
-                 [matomoTracker]="['click']"
-                 matomoCategory="Click"
-                 matomoAction="Language"
-                 matomoName="Language change"
-                 [matomoValue]="item.code">
+                 (click)="onLanguageChange(item.code)">
                 {{ item.label }}
               </a>
               <span *ngIf="!last">|</span>

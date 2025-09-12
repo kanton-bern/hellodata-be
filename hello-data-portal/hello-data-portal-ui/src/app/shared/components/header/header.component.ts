@@ -72,7 +72,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
 import {DividerModule} from "primeng/divider";
-import {MatomoTrackerDirective} from "ngx-matomo-client";
+import {MatomoTracker, MatomoTrackerDirective} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-header',
@@ -105,7 +105,7 @@ export class HeaderComponent {
 
   selectedLanguage: string | null = null;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService, private tracker: MatomoTracker) {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
     this.languages$ = this.getSupportedLanguages();
@@ -191,6 +191,12 @@ export class HeaderComponent {
   }
 
   onLanguageChange(langCode: any) {
+    this.tracker.trackEvent(
+      'Click',
+      'Language',
+      'Language change',
+      langCode
+    );
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 }
