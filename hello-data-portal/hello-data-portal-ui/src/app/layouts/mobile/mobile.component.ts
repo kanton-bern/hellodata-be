@@ -54,7 +54,7 @@ import {setSelectedLanguage} from "../../store/auth/auth.action";
 import {FooterModule} from "../../shared/components";
 import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
-import {MatomoTrackerDirective} from "ngx-matomo-client";
+import {MatomoTracker, MatomoTrackerDirective} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-mobile',
@@ -80,7 +80,10 @@ export class MobileComponent {
   groupedDashboards$: Observable<Map<string, any[]>>;
   languages$: Observable<any[]>;
 
-  constructor(private store: Store<AppState>, public appInfo: AppInfoService, public translateService: TranslateService) {
+  constructor(private store: Store<AppState>,
+              public appInfo: AppInfoService,
+              public translateService: TranslateService,
+              private tracker: MatomoTracker) {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.groupedDashboards$ = this.store.select(selectMyDashboards).pipe(
       map((dashboards: any[]) => {
@@ -125,6 +128,11 @@ export class MobileComponent {
   }
 
   openDashboard(dash: any) {
+    this.tracker.trackEvent(
+      'Click',
+      'Mobile Dashboard Navigation',
+      `${dash.dashboardTitle} [${dash.contextName}]`
+    );
     const link = this.createDashboardLink(dash);
     this.store.dispatch(navigate({url: link}));
     this.showDashboardMenu = false;

@@ -47,13 +47,8 @@
       <ng-container *ngFor="let context of groupedDashboards.keys()">
         <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
         <ng-container *ngFor="let dash of groupedDashboards.get(context)">
-          <a
-            [matomoTracker]="['click']"
-            matomoCategory="Click"
-            matomoAction="Mobile Dashboard Navigation"
-            matomoName="{{ dash.dashboardTitle + ' [' + dash.contextName + ']'}}"
-            class="cursor-pointer hover:underline ml-2 text-black"
-            (click)="openDashboard(dash)">
+          <a class="cursor-pointer hover:underline ml-2 text-black"
+             (click)="openDashboard(dash)">
             {{ dash.dashboardTitle }}
           </a>
           <hr class="my-1 border-top-1 surface-border"/>
