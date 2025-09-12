@@ -75,7 +75,7 @@ export class DashboardsComponent implements OnInit {
     // Track first
     this.tracker.trackEvent(
       'Click',
-      'Mobile Dashboard Navigation',
+      'Home Dashboard List',
       `${dash.dashboardTitle} [${dash.contextName}]`
     );
 
