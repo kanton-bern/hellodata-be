@@ -6,34 +6,52 @@
   <ul *ngIf="(navItems$ | async) as navItems" class="nav-links">
     <ng-template [ngForOf]="navItems" let-i="index" let-item ngFor>
       <li>
-        <a *ngIf="item.routerLink" [id]="item.id" [routerLink]="item.routerLink">
+        <a *ngIf="item.routerLink" [id]="item.id" [routerLink]="item.routerLink"
+           matomoCategory="Click"
+           matomoAction="Sidebar Navigation"
+           matomoName="{{item.text}}"
+        >
           <i [ngClass]="item.icon"></i>
           <span class="link_name">{{ item.text | transloco }}</span>
         </a>
         <a *ngIf="!item.routerLink && item.items && item.items.length > 0" [attr.href]="item.url"
-           [attr.target]="item.target" [id]="item.id">
+           [attr.target]="item.target" [id]="item.id"
+           matomoCategory="Click"
+           matomoAction="Sidebar Navigation"
+           matomoName="{{item.text}}">
           <i [ngClass]="item.icon"></i>
           <span class="link_name">{{ item.text | transloco }}</span>
         </a>
         <ul *ngIf="item.items && item.items.length > 0" class="second-level-menu">
           <ng-template [ngForOf]="item.items" let-i="index" let-last="last" let-subItem ngFor>
             <li>
-              <a *ngIf="subItem.routerLink" [id]="subItem.id" [routerLink]="subItem.routerLink">
+              <a *ngIf="subItem.routerLink" [id]="subItem.id" [routerLink]="subItem.routerLink" matomoCategory="Click"
+                 matomoAction="Sidebar Navigation"
+                 matomoName="{{item.text}}">
                 <span class="link_name">{{ subItem.text | transloco }}</span>
                 <i *ngIf="subItem.items" class='fas fa-angle-right'></i>
               </a>
-              <a *ngIf="!subItem.routerLink" [attr.href]="subItem.url" [attr.target]="subItem.target" [id]="subItem.id">
+              <a *ngIf="!subItem.routerLink" [attr.href]="subItem.url" [attr.target]="subItem.target" [id]="subItem.id"
+                 matomoCategory="Click"
+                 matomoAction="Sidebar Navigation"
+                 matomoName="{{item.text}}">
                 <span class="link_name">{{ subItem.text | transloco }}</span>
                 <i *ngIf="subItem.items && subItem.items.length > 0" class='fas fa-angle-right'></i>
               </a>
               <ul *ngIf="subItem.items && subItem.items.length > 0" class="third-level-menu">
                 <ng-template [ngForOf]="subItem.items" let-i="index" let-subSubItem ngFor>
                   <li>
-                    <a *ngIf="subSubItem.routerLink" [id]="subSubItem.id" [routerLink]="subSubItem.routerLink">
+                    <a *ngIf="subSubItem.routerLink" [id]="subSubItem.id" [routerLink]="subSubItem.routerLink"
+                       matomoCategory="Click"
+                       matomoAction="Sidebar Navigation"
+                       matomoName="{{subSubItem.text}}">
                       <span class="link_name">{{ subSubItem.text | transloco }}</span>
                     </a>
                     <a *ngIf="!subSubItem.routerLink" [attr.href]="subSubItem.url" [attr.target]="subSubItem.target"
-                       [id]="subSubItem.id">
+                       [id]="subSubItem.id"
+                       matomoCategory="Click"
+                       matomoAction="Sidebar Navigation"
+                       matomoName="{{subSubItem.text}}">
                       <span class="link_name">{{ subSubItem.text | transloco }}</span>
                     </a>
                   </li>

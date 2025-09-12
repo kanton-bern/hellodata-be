@@ -42,6 +42,7 @@ import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
 import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
+import {MatomoTrackerDirective} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
@@ -74,7 +75,7 @@ export class SideNavOuterToolbarComponent {
     SummaryModule,
     ToastModule,
     ScrollTopModule,
-    UnsavedChangesModule],
+    UnsavedChangesModule, MatomoTrackerDirective],
   exports: [SideNavOuterToolbarComponent],
   declarations: [SideNavOuterToolbarComponent]
 })
