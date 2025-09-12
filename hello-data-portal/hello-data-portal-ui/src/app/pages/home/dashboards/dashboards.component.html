@@ -1,4 +1,3 @@
-
 <div *ngIf="(dashboards$ | async) as dashboards">
   <p-table #dt
            [globalFilterFields]="['instanceName','dashboardTitle']"
@@ -16,17 +15,18 @@
       <div class="flex">
           <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
-            <input pInputText #textInput [(ngModel)]="filterValue" (input)="dt.filterGlobal(filterValue, 'contains')" placeholder="{{'@Search' | transloco}}" type="text"/>
+            <input pInputText #textInput [(ngModel)]="filterValue" (input)="dt.filterGlobal(filterValue, 'contains')"
+                   placeholder="{{'@Search' | transloco}}" type="text"/>
           </span>
       </div>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
         <th id="icon"></th>
-        <th id="dataDomain" pSortableColumn="instanceName">{{'@Data domain' | transloco}}
+        <th id="dataDomain" pSortableColumn="instanceName">{{ '@Data domain' | transloco }}
           <p-sortIcon field="instanceName"></p-sortIcon>
         </th>
-        <th id="dashboard" pSortableColumn="dashboardTitle">{{'@Dashboard' | transloco}}
+        <th id="dashboard" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
           <p-sortIcon field="dashboardTitle"></p-sortIcon>
         </th>
       </tr>
@@ -37,10 +37,16 @@
           <i class="fas fa-light fa-chart-line"></i>
         </td>
         <td>
-          {{dashboard.contextName}}
+          {{ dashboard.contextName }}
         </td>
         <td>
-          <a routerLink="{{createLink(dashboard)}}">{{dashboard.dashboardTitle}}</a>
+          <a routerLink="{{createLink(dashboard)}}"
+             [matomoTracker]="['click']"
+             matomoCategory="Click"
+             matomoAction="Home Dashboard List"
+             matomoName="{{ dashboard.dashboardTitle + ' [' + dashboard.contextName + ']'}}">
+            {{ dashboard.dashboardTitle }}
+          </a>
         </td>
       </tr>
     </ng-template>

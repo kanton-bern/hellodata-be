@@ -56,6 +56,7 @@ import {ScrollPanelModule} from "primeng/scrollpanel";
 import {SidebarModule} from "primeng/sidebar";
 import {BadgeModule} from "primeng/badge";
 import {AdminInitModule} from "../../shared/components/admin-init/admin-init.component";
+import {MatomoTrackerDirective} from "ngx-matomo-client";
 
 
 @NgModule({
@@ -84,7 +85,8 @@ import {AdminInitModule} from "../../shared/components/admin-init/admin-init.com
     ScrollPanelModule,
     SidebarModule,
     BadgeModule,
-    AdminInitModule
+    AdminInitModule,
+    MatomoTrackerDirective
   ]
 })
 export class HomeModule {
