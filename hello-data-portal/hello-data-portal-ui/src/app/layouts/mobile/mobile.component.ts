@@ -54,6 +54,7 @@ import {setSelectedLanguage} from "../../store/auth/auth.action";
 import {FooterModule} from "../../shared/components";
 import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
+import {MatomoTrackerDirective} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-mobile',
@@ -96,7 +97,7 @@ export class MobileComponent {
         return grouped;
       })
     );
-    this.availableDataDomains$= this.store.select(selectAvailableDataDomains).pipe(tap(availableDataDomains => {
+    this.availableDataDomains$ = this.store.select(selectAvailableDataDomains).pipe(tap(availableDataDomains => {
       this.dataDomainSelectionItems = [];
       for (const availableDataDomain of availableDataDomains) {
         this.dataDomainSelectionItems.push({
@@ -179,7 +180,8 @@ export class MobileComponent {
     AnimateModule,
     Ripple,
     TranslocoModule,
-    FooterModule
+    FooterModule,
+    MatomoTrackerDirective
   ],
   exports: [MobileComponent],
   declarations: [MobileComponent]

@@ -14,7 +14,7 @@
 
     <div class="col-8 flex align-items-center justify-content-center h-full">
       <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
-          <a (click)="showDataDomainMenu = true"  style="cursor: pointer; font-size: 0.9rem"
+          <a (click)="showDataDomainMenu = true" style="cursor: pointer; font-size: 0.9rem"
              class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
             <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
             <i class="fas fa-chevron-down p-1"></i>
@@ -24,9 +24,9 @@
 
     <div class="col-2 flex align-items-center justify-content-end h-full">
       <button pAnimate pRipple
-        type="button"
-        class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
-        aria-label="User Profile">
+              type="button"
+              class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
+              aria-label="User Profile">
         <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
       </button>
     </div>
@@ -48,11 +48,15 @@
         <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
         <ng-container *ngFor="let dash of groupedDashboards.get(context)">
           <a
+            [matomoTracker]="['click']"
+            matomoCategory="Click"
+            matomoAction="Mobile Dashboard Navigation"
+            matomoName="{{ dash.dashboardTitle + ' [' + dash.contextName + ']'}}"
             class="cursor-pointer hover:underline ml-2 text-black"
             (click)="openDashboard(dash)">
             {{ dash.dashboardTitle }}
           </a>
-          <hr class="my-1 border-top-1 surface-border" />
+          <hr class="my-1 border-top-1 surface-border"/>
         </ng-container>
       </ng-container>
     </div>
@@ -81,32 +85,32 @@
   </ng-template>
   <ng-template pTemplate="content">
     <div class="flex flex-column gap-3 text-900">
-      <hr class="m-0 border-top-1 surface-border" />
+      <hr class="m-0 border-top-1 surface-border"/>
       <a (click)="navigateToProfile()"
          class="cursor-pointer hover:underline"
          style="color: black;">
-        {{ '@Profile' | transloco}}
+        {{ '@Profile' | transloco }}
       </a>
 
-      <hr class="m-0 border-top-1 surface-border" />
+      <hr class="m-0 border-top-1 surface-border"/>
 
       <a (click)="logout()"
          class="cursor-pointer hover:underline"
          style="color: black;">
-        {{ '@Logout' | transloco}}
+        {{ '@Logout' | transloco }}
       </a>
 
-      <hr class="m-0 border-top-1 surface-border" />
+      <hr class="m-0 border-top-1 surface-border"/>
 
       <a (click)="navigateToHome()">{{ '@HelloDATA' | transloco }}</a>
       <a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">
-        OpenSource Data Platform  {{appInfo.currentYear}}
+        OpenSource Data Platform  {{ appInfo.currentYear }}
       </a>
 
       <a href="{{licenseUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">License</a>
       <a href="{{githubUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">GitHub</a>
       <a href="{{versionLink}}" rel="noopener" target="_blank" style="font-size: 0.9em; color: black">
-        <b>{{ '@Version' | transloco}}:</b>{{' '}}{{appInfo.buildInfo}}
+        <b>{{ '@Version' | transloco }}:</b>{{ ' ' }}{{ appInfo.buildInfo }}
       </a>
     </div>
 
@@ -127,21 +131,22 @@
   </ng-template>
   <ng-template pTemplate="content">
     <div class="flex flex-column gap-3 text-900">
-      <hr class="m-0 border-top-1 surface-border" />
+      <hr class="m-0 border-top-1 surface-border"/>
       <ng-container *ngFor="let item of dataDomainSelectionItems">
         <a class="cursor-pointer hover:underline"
            style="color: black;"
            (click)="onDataDomainClicked(item)">
           {{ item.label | transloco }}
         </a>
-        <hr class="m-0 border-top-1 surface-border" />
+        <hr class="m-0 border-top-1 surface-border"/>
       </ng-container>
     </div>
   </ng-template>
 </p-sidebar>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
-  <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}" id="mainContentDiv">
+  <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}"
+       id="mainContentDiv">
     <ng-content ng-style="width: 100%"></ng-content>
   </div>
 </div>
