@@ -16,8 +16,6 @@
       <div class="flex-auto flex align-items-center m-1 px-1 py-1"
            *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
         <section [pTooltip]="'@Selected Data Domain' | transloco" class="top-menu-item" tooltipPosition="bottom">
-
-
            <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
               <a (click)="selectedDataDomainMenu.toggle($event)"
                  class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
