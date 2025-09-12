@@ -26,7 +26,7 @@
 ///
 
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {Router} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -34,17 +34,21 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {MenuService} from "../../../store/menu/menu.service";
 import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-page.model";
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
+import {MatomoTracker} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-dashboards',
   templateUrl: './dashboards.component.html',
   styleUrls: ['./dashboards.component.scss']
 })
-export class DashboardsComponent implements OnInit{
+export class DashboardsComponent implements OnInit {
   dashboards$: Observable<SupersetDashboard[]>;
   filterValue = '';
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>, private menuService: MenuService) {
+  constructor(private store: Store<AppState>,
+              private menuService: MenuService,
+              private router: Router,
+              private tracker: MatomoTracker) {
     this.dashboards$ = this.store.select(selectMyDashboards);
   }
 
@@ -65,5 +69,19 @@ export class DashboardsComponent implements OnInit{
 
   createLink(dashboard: SupersetDashboardWithMetadata): string {
     return this.menuService.createDashboardLink(dashboard);
+  }
+
+  navigateToDashboard(dash: SupersetDashboardWithMetadata) {
+    // Track first
+    this.tracker.trackEvent(
+      'Click',
+      'Mobile Dashboard Navigation',
+      `${dash.dashboardTitle} [${dash.contextName}]`
+    );
+
+    // Navigate after a small delay to ensure Matomo sends the event
+    setTimeout(() => {
+      this.router.navigate([this.createLink(dash)]);
+    }, 50);
   }
 }

@@ -40,11 +40,7 @@
           {{ dashboard.contextName }}
         </td>
         <td>
-          <a routerLink="{{createLink(dashboard)}}"
-             [matomoTracker]="['click']"
-             matomoCategory="Click"
-             matomoAction="Home Dashboard List"
-             matomoName="{{ dashboard.dashboardTitle + ' [' + dashboard.contextName + ']'}}">
+          <a (click)="navigateToDashboard(dashboard)">
             {{ dashboard.dashboardTitle }}
           </a>
         </td>
