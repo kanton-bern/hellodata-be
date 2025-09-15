@@ -61,13 +61,14 @@ export class AppEffects {
       ofType(showError),
       tap(action => {
         console.error(action.error);
+        let errorMessage = '@Unexpected error occurred';
         if (action?.error?.error?.message) {
-          this._notificationService.error(action.error.error.message);
+          errorMessage = action.error.error.message;
         } else if (action?.error?.message) {
-          this._notificationService.error(action.error.message);
-        } else {
-          this._notificationService.error('@Unexpected error occurred');
+          errorMessage = action.error.message;
         }
+        this._notificationService.error(errorMessage);
+        this._tracker.trackEvent("Error", "Error shown", errorMessage);
       })
     )
   }, {dispatch: false});
