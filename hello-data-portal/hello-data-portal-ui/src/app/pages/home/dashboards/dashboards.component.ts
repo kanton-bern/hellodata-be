@@ -26,7 +26,6 @@
 ///
 
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {Router} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -35,7 +34,7 @@ import {MenuService} from "../../../store/menu/menu.service";
 import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-page.model";
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {Table, TablePageEvent} from "primeng/table";
-import {trackEvent} from "../../../store/app/app.action";
+import {navigate, trackEvent} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-dashboards',
@@ -49,8 +48,7 @@ export class DashboardsComponent implements OnInit {
   private filterTimer: any;
 
   constructor(private store: Store<AppState>,
-              private menuService: MenuService,
-              private router: Router) {
+              private menuService: MenuService) {
     this.dashboards$ = this.store.select(selectMyDashboards);
   }
 
@@ -83,7 +81,7 @@ export class DashboardsComponent implements OnInit {
 
     // Navigate after a small delay to ensure Matomo sends the event
     setTimeout(() => {
-      this.router.navigate([this.createLink(dash)]);
+      this.store.dispatch(navigate({url: this.createLink(dash)}));
     }, 50);
   }
 
