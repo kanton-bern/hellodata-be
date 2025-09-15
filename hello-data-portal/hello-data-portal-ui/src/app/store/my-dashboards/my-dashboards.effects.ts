@@ -27,9 +27,9 @@
 
 import {Injectable} from "@angular/core";
 import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap, withLatestFrom} from "rxjs";
+import {catchError, of, switchMap} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {navigate, navigateToList, showError, showSuccess} from "../app/app.action";
+import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
 import {
   loadAvailableDataDomains,
@@ -42,7 +42,6 @@ import {
 } from "./my-dashboards.action";
 import {NotificationService} from "../../shared/services/notification.service";
 import {TranslateService} from "../../shared/services/translate.service";
-import {selectParamExternalDashboardId} from "../external-dashboards/external-dashboards.selector";
 import {ScreenService} from "../../shared/services";
 
 @Injectable()
@@ -69,17 +68,22 @@ export class MyDashboardsEffects {
       ofType(setSelectedDataDomain),
       concatLatestFrom(() => this._screenService.isMobile),
       switchMap(([action, isMobile]) => {
-        const successMsg = {message: '@Data domain changed', interpolateParams: {'dataDomainName': this._translateService.translate(action.dataDomain.name)}};
-        if (isMobile) {
+          const successMsg = {
+            message: '@Data domain changed',
+            interpolateParams: {'dataDomainName': this._translateService.translate(action.dataDomain.name)}
+          };
+          if (isMobile) {
+            return of(
+              trackEvent({eventCategory: 'Data Domain', eventAction: 'Click', eventName: action.dataDomain.name}),
+              showSuccess(successMsg),
+              navigate({url: 'home'})
+            );
+          }
           return of(
+            trackEvent({eventCategory: 'Data Domain', eventAction: 'Click', eventName: action.dataDomain.name}),
             showSuccess(successMsg),
-            navigate({url: 'home'})
+            navigateToList()
           );
-        }
-        return of(
-          showSuccess(successMsg),
-          navigateToList()
-        );
         }
       ),
     )
