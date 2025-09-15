@@ -1,5 +1,4 @@
-
-<h3 class="content-block">{{'@External dashboards' | transloco}}</h3>
+<h3 class="content-block">{{ '@External dashboards' | transloco }}</h3>
 <div *ngIf="(currentUserPermissions$ | async) as permissions" class="card">
   <div *ngIf="(externalDashboards$ | async) as externalDashboards">
     <p-table #dt [filterDelay]="0"
@@ -7,6 +6,7 @@
              [paginator]="true"
              [rowHover]="true"
              [rows]="10"
+             (onPage)="onPageChange($event)"
              [showCurrentPageReport]="true"
              [tableStyle]="{ 'min-width': '50rem' }"
              [value]="externalDashboards"
@@ -23,40 +23,42 @@
           <h5 class="m-0">&nbsp;</h5>
           <span class="p-input-icon-left">
               <i class="fas fa-magnifying-glass"></i>
-              <input (input)="applyFilterGlobal($event, 'contains')" pInputText placeholder="{{'@Search' | transloco}}" type="text"/>
+              <input (input)="applyFilterGlobal($event, 'contains')" pInputText placeholder="{{'@Search' | transloco}}"
+                     type="text"/>
           </span>
         </div>
       </ng-template>
       <ng-template pTemplate="header">
         <tr>
-          <th id="title" pSortableColumn="title">{{'@Dashboard' | transloco}}
+          <th id="title" pSortableColumn="title">{{ '@Dashboard' | transloco }}
             <p-sortIcon field="title"></p-sortIcon>
           </th>
-          <th id="contextName" pSortableColumn="contextName">{{'@Data domain' | transloco}}
+          <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
             <p-sortIcon field="contextName"></p-sortIcon>
           </th>
-          <th id="businessProcess" pSortableColumn="businessProcess">{{'@Business process' | transloco}}
+          <th id="businessProcess" pSortableColumn="businessProcess">{{ '@Business process' | transloco }}
             <p-sortIcon field="businessProcess"></p-sortIcon>
           </th>
-          <th id="department" pSortableColumn="department">{{'@Department' | transloco}}
+          <th id="department" pSortableColumn="department">{{ '@Department' | transloco }}
             <p-sortIcon field="department"></p-sortIcon>
           </th>
-          <th id="responsibility" pSortableColumn="responsibility">{{'@Professional responsibility' | transloco}}
+          <th id="responsibility" pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
             <p-sortIcon field="responsibility"></p-sortIcon>
           </th>
-          <th id="dataAnalyst" pSortableColumn="dataAnalyst">{{'@Data analyst' | transloco}}
+          <th id="dataAnalyst" pSortableColumn="dataAnalyst">{{ '@Data analyst' | transloco }}
             <p-sortIcon field="dataAnalyst"></p-sortIcon>
           </th>
-          <th id="scheduled" pSortableColumn="scheduled">{{'@Scheduled' | transloco}}
+          <th id="scheduled" pSortableColumn="scheduled">{{ '@Scheduled' | transloco }}
             <p-sortIcon field="scheduled"></p-sortIcon>
           </th>
-          <th id="datasource" pSortableColumn="datasource">{{'@Datasource' | transloco}}
+          <th id="datasource" pSortableColumn="datasource">{{ '@Datasource' | transloco }}
             <p-sortIcon field="datasource"></p-sortIcon>
           </th>
-          <th id="modifiedDate" pSortableColumn="modifiedDate">{{'@Modified date' | transloco}}
+          <th id="modifiedDate" pSortableColumn="modifiedDate">{{ '@Modified date' | transloco }}
             <p-sortIcon field="modifiedDate"></p-sortIcon>
           </th>
-          <th *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'" id="permissions" style="min-width:8rem"></th>
+          <th *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'" id="permissions"
+              style="min-width:8rem"></th>
         </tr>
       </ng-template>
       <ng-template let-dashboard pTemplate="body">
@@ -86,8 +88,8 @@
             {{ dashboard.datasource }}
           </td>
           <td [pEditableColumn]="false">
-            <span *ngIf="dashboard.modifiedDate">{{ dashboard.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss'}}</span>
-            <span *ngIf="dashboard.modifiedDate === null">{{ '@Never' | transloco}}</span>
+            <span *ngIf="dashboard.modifiedDate">{{ dashboard.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+            <span *ngIf="dashboard.modifiedDate === null">{{ '@Never' | transloco }}</span>
           </td>
           <td *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'">
             <div class="flex align-items-center justify-content-center gap-2">
@@ -113,11 +115,13 @@
 
 <p-confirmDialog #cd [style]="{width: '50vw'}">
   <ng-template pTemplate="header">
-    <h3>{{'@Delete external dashboard' | transloco}}</h3>
+    <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton type="button"></button>
-    <button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pButton type="button"></button>
+    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
+            type="button"></button>
+    <button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pButton
+            type="button"></button>
   </ng-template>
 </p-confirmDialog>
 

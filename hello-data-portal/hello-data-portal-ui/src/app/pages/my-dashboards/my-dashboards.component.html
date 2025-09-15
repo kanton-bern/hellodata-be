@@ -12,6 +12,7 @@
            [value]="dashboards"
            sortField="dashboardTitle"
            [sortOrder]="1"
+           (onPage)="onPageChange($event)"
            dataKey="id"
            selectionMode="single">
     <ng-template pTemplate="caption">

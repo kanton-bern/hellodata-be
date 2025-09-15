@@ -84,7 +84,7 @@ export class ExternalComponent implements OnInit {
     const pageNumber = pageIndex + 1;
 
     this.store.dispatch(trackEvent({
-      eventCategory: 'External Dashboard',
+      eventCategory: 'External Dashboard (Home Page)',
       eventAction: 'Click Paging',
       eventName: `${pageNumber}`
     }));
@@ -101,7 +101,7 @@ export class ExternalComponent implements OnInit {
       const val = value || '(cleared)';
       console.log('Global filter:', value);
       this.store.dispatch(trackEvent({
-        eventCategory: 'External Dashboard',
+        eventCategory: 'External Dashboard (Home Page)',
         eventAction: 'Search',
         eventName: val
       }));

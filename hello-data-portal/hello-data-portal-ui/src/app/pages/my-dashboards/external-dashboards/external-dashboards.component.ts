@@ -27,7 +27,6 @@
 
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs";
-import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {ConfirmationService} from "primeng/api";
@@ -35,11 +34,16 @@ import {TranslateService} from "../../../shared/services/translate.service";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
-import {Table} from "primeng/table";
+import {Table, TablePageEvent} from "primeng/table";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {deleteExternalDashboard, loadExternalDashboards, openExternalDashboardEdition} from "../../../store/external-dashboards/external-dasboards.action";
+import {
+  deleteExternalDashboard,
+  loadExternalDashboards,
+  openExternalDashboardEdition
+} from "../../../store/external-dashboards/external-dasboards.action";
+import {trackEvent} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-external-dashboards',
@@ -51,7 +55,10 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>, private confirmationService: ConfirmationService,
+  private filterTimer: any;
+
+  constructor(private store: Store<AppState>,
+              private confirmationService: ConfirmationService,
               private translateService: TranslateService) {
     super();
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
@@ -103,6 +110,26 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
     if (this.dt) {
       this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
     }
+    clearTimeout(this.filterTimer);
+    // debounce
+    this.filterTimer = setTimeout(() => {
+      const val = stringVal || '(cleared)';
+      this.store.dispatch(trackEvent({
+        eventCategory: 'External Dashboard',
+        eventAction: 'Search',
+        eventName: val
+      }));
+    }, 400);
   }
 
+  onPageChange($event: TablePageEvent) {
+    const pageIndex = $event.first / $event.rows;   // 0-based
+    const pageNumber = pageIndex + 1;
+
+    this.store.dispatch(trackEvent({
+      eventCategory: 'External Dashboard',
+      eventAction: 'Click Paging',
+      eventName: `${pageNumber}`
+    }));
+  }
 }

@@ -90,7 +90,7 @@ export class DashboardsComponent implements OnInit {
     const pageNumber = pageIndex + 1;
 
     this.store.dispatch(trackEvent({
-      eventCategory: 'Dashboard',
+      eventCategory: 'Dashboard (Home Page)',
       eventAction: 'Click Paging',
       eventName: `${pageNumber}`
     }));
@@ -105,9 +105,8 @@ export class DashboardsComponent implements OnInit {
     this.filterTimer = setTimeout(() => {
       table.filterGlobal(value, 'contains');
       const val = value || '(cleared)';
-      console.log('Global filter:', value);
       this.store.dispatch(trackEvent({
-        eventCategory: 'Dashboard',
+        eventCategory: 'Dashboard (Home Page)',
         eventAction: 'Search',
         eventName: val
       }));

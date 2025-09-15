@@ -32,11 +32,11 @@ import {combineLatest, map, Observable, tap} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
-import {Table} from "primeng/table";
+import {Table, TablePageEvent} from "primeng/table";
 import {naviElements} from "../../app-navi-elements";
 import {selectFilteredBy, selectMyDashboardsFiltered} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
-import {navigate} from "../../store/app/app.action";
+import {navigate, trackEvent} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
@@ -53,6 +53,8 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   editDashboardMetadataDialog = false;
   viewDashboardDataDialog = false;
   selectedDashboard!: SupersetDashboardWithMetadata;
+
+  private filterTimer: any;
 
   constructor(private store: Store<AppState>, private menuService: MenuService) {
     super();
@@ -137,6 +139,16 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
     if (this.dt) {
       this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
     }
+    clearTimeout(this.filterTimer);
+    // debounce
+    this.filterTimer = setTimeout(() => {
+      const val = stringVal || '(cleared)';
+      this.store.dispatch(trackEvent({
+        eventCategory: 'Dashboard',
+        eventAction: 'Search',
+        eventName: val
+      }));
+    }, 400);
   }
 
   openDashboard(dashboard: SupersetDashboardWithMetadata) {
@@ -151,5 +163,16 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   hideInfoPanel() {
     this.viewDashboardDataDialog = false;
+  }
+
+  onPageChange($event: TablePageEvent) {
+    const pageIndex = $event.first / $event.rows;   // 0-based
+    const pageNumber = pageIndex + 1;
+
+    this.store.dispatch(trackEvent({
+      eventCategory: 'Dashboard',
+      eventAction: 'Click Paging',
+      eventName: `${pageNumber}`
+    }));
   }
 }
