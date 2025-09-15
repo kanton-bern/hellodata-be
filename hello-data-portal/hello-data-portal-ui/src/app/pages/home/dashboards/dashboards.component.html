@@ -3,11 +3,12 @@
            [globalFilterFields]="['instanceName','dashboardTitle']"
            [paginator]="true"
            [rowHover]="true"
-           [rows]="10"
+           [rows]="5"
            [rowsPerPageOptions]="[5,10, 25, 50, 100]"
            [showCurrentPageReport]="true"
            [tableStyle]="{ 'min-width': '20rem' }"
            [value]="dashboards"
+           (onPage)="onPageChange($event)"
            stateStorage="session"
            stateKey="home-dashboards-table"
            dataKey="id">

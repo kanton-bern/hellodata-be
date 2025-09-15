@@ -27,14 +27,14 @@
 
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs";
-import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {Table} from "primeng/table";
+import {Table, TablePageEvent} from "primeng/table";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {loadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
+import {MatomoTracker} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-external',
@@ -47,7 +47,7 @@ export class ExternalComponent implements OnInit {
   currentUserPermissions$: Observable<string[]>;
   filterValue = '';
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor(private store: Store<AppState>, private tracker: MatomoTracker) {
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
@@ -82,5 +82,17 @@ export class ExternalComponent implements OnInit {
     if (this.dt) {
       this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
     }
+  }
+
+  onPageChange($event: TablePageEvent) {
+    console.log('Paginator clicked:', $event);
+    const pageIndex = $event.first / $event.rows;   // 0-based
+    const pageNumber = pageIndex + 1;
+
+    this.tracker.trackEvent(
+      'External Dashboard',
+      'Click Paging',
+      `${pageNumber}`
+    );
   }
 }

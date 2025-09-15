@@ -35,6 +35,7 @@ import {MenuService} from "../../../store/menu/menu.service";
 import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-page.model";
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {MatomoTracker} from "ngx-matomo-client";
+import {TablePageEvent} from "primeng/table";
 
 @Component({
   selector: 'app-dashboards',
@@ -83,5 +84,17 @@ export class DashboardsComponent implements OnInit {
     setTimeout(() => {
       this.router.navigate([this.createLink(dash)]);
     }, 50);
+  }
+
+  onPageChange($event: TablePageEvent) {
+    console.log('Paginator clicked:', $event);
+    const pageIndex = $event.first / $event.rows;   // 0-based
+    const pageNumber = pageIndex + 1;
+
+    this.tracker.trackEvent(
+      'Dashboard',
+      'Click Paging',
+      `${pageNumber}`
+    );
   }
 }
