@@ -74,7 +74,11 @@ export class MyDashboardsEffects {
           };
           if (isMobile) {
             return of(
-              trackEvent({eventCategory: 'Data Domain', eventAction: 'Click', eventName: action.dataDomain.name}),
+              trackEvent({
+                eventCategory: 'Data Domain',
+                eventAction: 'Click (mobile)',
+                eventName: action.dataDomain.name
+              }),
               showSuccess(successMsg),
               navigate({url: 'home'})
             );
