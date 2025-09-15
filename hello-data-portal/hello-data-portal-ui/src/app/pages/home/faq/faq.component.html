@@ -30,9 +30,17 @@
             <td>
               <p-accordion>
                 <ng-container *ngFor="let domainFaq of item.faqs">
-                  <p-accordionTab header="{{ getTitle(domainFaq, selectedLanguage.code, defaultLanguage) }}"
-                                  style="white-space: pre-wrap;">
-                    <p-editor [disabled]="true" [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
+                  <p-accordionTab style="white-space: pre-wrap;">
+                    <ng-template pTemplate="header">
+                      <span matomoCategory="FAQ"
+                            matomoAction="Click"
+                            matomoName="Question opened"
+                            [matomoTracker]="['click']">
+                        {{ getTitle(domainFaq, selectedLanguage.code, defaultLanguage) }}
+                      </span>
+                    </ng-template>
+                    <p-editor [disabled]="true"
+                              [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
                               [readonly]="true"
                               [style]="{ height: '320px', 'white-space': 'pre-wrap' }"
                               class="p-editor-readonly">

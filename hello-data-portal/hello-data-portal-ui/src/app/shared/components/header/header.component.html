@@ -20,9 +20,9 @@
               <a (click)="selectedDataDomainMenu.toggle($event)"
                  class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
                 <span class="pl-2" style="cursor: pointer"
-                      matomoCategory="Click"
-                      matomoAction="Data Domain Selection"
-                      matomoName="{{selectedDataDomain.name}}"
+                      matomoCategory="Domain"
+                      matomoAction="Click"
+                      matomoName="{{ selectedDataDomain.name }}"
                       [matomoTracker]="['click']">
                   {{ selectedDataDomain.name | transloco }}</span>
                 <i class="fas fa-chevron-down p-1" style="cursor: pointer"></i>

@@ -7,8 +7,8 @@
     <ng-template [ngForOf]="navItems" let-i="index" let-item ngFor>
       <li>
         <a *ngIf="item.routerLink" [id]="item.id" [routerLink]="item.routerLink"
-           matomoCategory="Click"
-           matomoAction="Sidebar Navigation"
+           matomoCategory="Menu Item"
+           matomoAction="Click"
            matomoName="{{item.text}}"
            [matomoTracker]="['click']"
         >
@@ -18,8 +18,8 @@
         <a *ngIf="!item.routerLink && item.items && item.items.length > 0" [attr.href]="item.url"
            [attr.target]="item.target" [id]="item.id"
            [matomoTracker]="['click']"
-           matomoCategory="Click"
-           matomoAction="Sidebar Navigation"
+           matomoCategory="Menu Item"
+           matomoAction="Click"
            matomoName="{{item.text}}">
           <i [ngClass]="item.icon"></i>
           <span class="link_name">{{ item.text | transloco }}</span>
@@ -29,16 +29,16 @@
             <li>
               <a *ngIf="subItem.routerLink" [id]="subItem.id" [routerLink]="subItem.routerLink"
                  [matomoTracker]="['click']"
-                 matomoCategory="Click"
-                 matomoAction="Sidebar Navigation"
+                 matomoCategory="Menu Item"
+                 matomoAction="Click"
                  matomoName="{{item.text}}">
                 <span class="link_name">{{ subItem.text | transloco }}</span>
                 <i *ngIf="subItem.items" class='fas fa-angle-right'></i>
               </a>
               <a *ngIf="!subItem.routerLink" [attr.href]="subItem.url" [attr.target]="subItem.target" [id]="subItem.id"
                  [matomoTracker]="['click']"
-                 matomoCategory="Click"
-                 matomoAction="Sidebar Navigation"
+                 matomoCategory="Menu Item"
+                 matomoAction="Click"
                  matomoName="{{item.text}}">
                 <span class="link_name">{{ subItem.text | transloco }}</span>
                 <i *ngIf="subItem.items && subItem.items.length > 0" class='fas fa-angle-right'></i>
@@ -48,16 +48,16 @@
                   <li>
                     <a *ngIf="subSubItem.routerLink" [id]="subSubItem.id" [routerLink]="subSubItem.routerLink"
                        [matomoTracker]="['click']"
-                       matomoCategory="Click"
-                       matomoAction="Sidebar Navigation"
+                       matomoCategory="Menu Item"
+                       matomoAction="Click"
                        matomoName="{{subSubItem.text}}">
                       <span class="link_name">{{ subSubItem.text | transloco }}</span>
                     </a>
                     <a *ngIf="!subSubItem.routerLink" [attr.href]="subSubItem.url" [attr.target]="subSubItem.target"
                        [id]="subSubItem.id"
                        [matomoTracker]="['click']"
-                       matomoCategory="Click"
-                       matomoAction="Sidebar Navigation"
+                       matomoCategory="Menu Item"
+                       matomoAction="Click"
                        matomoName="{{subSubItem.text}}">
                       <span class="link_name">{{ subSubItem.text | transloco }}</span>
                     </a>

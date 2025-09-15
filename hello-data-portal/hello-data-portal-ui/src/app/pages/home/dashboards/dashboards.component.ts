@@ -74,8 +74,8 @@ export class DashboardsComponent implements OnInit {
   navigateToDashboard(dash: SupersetDashboardWithMetadata) {
     // Track first
     this.tracker.trackEvent(
+      'Dashboard',
       'Click',
-      'Home Dashboard List',
       `${dash.dashboardTitle} [${dash.contextName}]`
     );
 

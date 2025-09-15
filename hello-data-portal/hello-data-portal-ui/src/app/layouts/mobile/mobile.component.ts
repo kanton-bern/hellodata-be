@@ -129,8 +129,8 @@ export class MobileComponent {
 
   openDashboard(dash: any) {
     this.tracker.trackEvent(
+      'Mobile',
       'Click',
-      'Mobile Dashboard Navigation',
       `${dash.dashboardTitle} [${dash.contextName}]`
     );
     const link = this.createDashboardLink(dash);

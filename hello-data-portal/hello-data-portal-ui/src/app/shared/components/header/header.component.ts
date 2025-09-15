@@ -192,8 +192,8 @@ export class HeaderComponent {
 
   onLanguageChange(langCode: any) {
     this.tracker.trackEvent(
+      'Language',
       'Click',
-      'Language Change',
       langCode
     );
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
