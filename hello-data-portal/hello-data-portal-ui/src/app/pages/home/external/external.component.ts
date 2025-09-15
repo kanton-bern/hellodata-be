@@ -46,6 +46,7 @@ export class ExternalComponent implements OnInit {
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
   filterValue = '';
+  private filterTimer: any;
 
   constructor(private store: Store<AppState>) {
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
@@ -78,14 +79,7 @@ export class ExternalComponent implements OnInit {
     return url;
   }
 
-  applyFilterGlobal($event: any, stringVal: string) {
-    if (this.dt) {
-      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
-    }
-  }
-
   onPageChange($event: TablePageEvent) {
-    console.log('Paginator clicked:', $event);
     const pageIndex = $event.first / $event.rows;   // 0-based
     const pageNumber = pageIndex + 1;
 
@@ -94,5 +88,23 @@ export class ExternalComponent implements OnInit {
       eventAction: 'Click Paging',
       eventName: `${pageNumber}`
     }));
+  }
+
+  onFilter(event: Event, table: Table) {
+    clearTimeout(this.filterTimer);
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    table.filterGlobal(value, 'contains');
+    // debounce
+    this.filterTimer = setTimeout(() => {
+      table.filterGlobal(value, 'contains');
+      const val = value || '(cleared)';
+      console.log('Global filter:', value);
+      this.store.dispatch(trackEvent({
+        eventCategory: 'External Dashboard',
+        eventAction: 'Search',
+        eventName: val
+      }));
+    }, 400);
   }
 }

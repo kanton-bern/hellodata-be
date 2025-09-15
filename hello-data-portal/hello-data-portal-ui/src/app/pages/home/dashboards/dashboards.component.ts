@@ -46,6 +46,7 @@ export class DashboardsComponent implements OnInit {
   dashboards$: Observable<SupersetDashboard[]>;
   filterValue = '';
   @ViewChild('dt') dt!: Table | undefined;
+  private filterTimer: any;
 
   constructor(private store: Store<AppState>,
               private menuService: MenuService,
@@ -87,7 +88,6 @@ export class DashboardsComponent implements OnInit {
   }
 
   onPageChange($event: TablePageEvent) {
-    console.log('Paginator clicked:', $event);
     const pageIndex = $event.first / $event.rows;   // 0-based
     const pageNumber = pageIndex + 1;
 
@@ -98,9 +98,21 @@ export class DashboardsComponent implements OnInit {
     }));
   }
 
-  applyFilterGlobal($event: any, stringVal: string) {
-    if (this.dt) {
-      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
-    }
+  onFilter(event: Event, table: Table) {
+    clearTimeout(this.filterTimer);
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    table.filterGlobal(value, 'contains');
+    // debounce
+    this.filterTimer = setTimeout(() => {
+      table.filterGlobal(value, 'contains');
+      const val = value || '(cleared)';
+      console.log('Global filter:', value);
+      this.store.dispatch(trackEvent({
+        eventCategory: 'Dashboard',
+        eventAction: 'Search',
+        eventName: val
+      }));
+    }, 400);
   }
 }

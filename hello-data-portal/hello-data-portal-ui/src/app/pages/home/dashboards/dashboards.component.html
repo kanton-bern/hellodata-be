@@ -16,7 +16,7 @@
       <div class="flex">
           <span class="p-input-icon-left ml-auto">
             <i class="pi pi-search"></i>
-            <input pInputText #textInput [(ngModel)]="filterValue" (input)="dt.filterGlobal(filterValue, 'contains')"
+            <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
                    placeholder="{{'@Search' | transloco}}" type="text"/>
           </span>
       </div>
