@@ -142,7 +142,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
     clearTimeout(this.filterTimer);
     // debounce
     this.filterTimer = setTimeout(() => {
-      const val = stringVal || '(cleared)';
+      const val = ($event.target as HTMLInputElement).value || '(cleared)';
       this.store.dispatch(trackEvent({
         eventCategory: 'Dashboard',
         eventAction: 'Search',
