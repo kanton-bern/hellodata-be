@@ -63,7 +63,7 @@ import {AnimateModule} from "primeng/animate";
 import {environment} from "../../../../environments/environment";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
-import {navigate} from "../../../store/app/app.action";
+import {navigate, trackEvent} from "../../../store/app/app.action";
 import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
 import {MenuItem, SharedModule} from "primeng/api";
 import {TabViewModule} from "primeng/tabview";
@@ -72,7 +72,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
 import {DividerModule} from "primeng/divider";
-import {MatomoTracker, MatomoTrackerDirective} from "ngx-matomo-client";
+import {MatomoTrackerDirective} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-header',
@@ -105,7 +105,7 @@ export class HeaderComponent {
 
   selectedLanguage: string | null = null;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService, private tracker: MatomoTracker) {
+  constructor(private store: Store<AppState>, private translateService: TranslateService) {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
     this.languages$ = this.getSupportedLanguages();
@@ -191,11 +191,11 @@ export class HeaderComponent {
   }
 
   onLanguageChange(langCode: any) {
-    this.tracker.trackEvent(
-      'Language',
-      'Click',
-      langCode
-    );
+    this.store.dispatch(trackEvent({
+      eventCategory: 'Language',
+      eventAction: 'Click',
+      eventName: langCode
+    }));
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 }

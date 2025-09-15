@@ -38,7 +38,7 @@ import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {TranslateService} from "../../shared/services/translate.service";
-import {navigate} from "../../store/app/app.action";
+import {navigate, trackEvent} from "../../store/app/app.action";
 import {
   selectAvailableDataDomains,
   selectMyDashboards,
@@ -54,7 +54,7 @@ import {setSelectedLanguage} from "../../store/auth/auth.action";
 import {FooterModule} from "../../shared/components";
 import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
-import {MatomoTracker, MatomoTrackerDirective} from "ngx-matomo-client";
+import {MatomoTrackerDirective} from "ngx-matomo-client";
 
 @Component({
   selector: 'app-mobile',
@@ -82,8 +82,7 @@ export class MobileComponent {
 
   constructor(private store: Store<AppState>,
               public appInfo: AppInfoService,
-              public translateService: TranslateService,
-              private tracker: MatomoTracker) {
+              public translateService: TranslateService) {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.groupedDashboards$ = this.store.select(selectMyDashboards).pipe(
       map((dashboards: any[]) => {
@@ -128,11 +127,11 @@ export class MobileComponent {
   }
 
   openDashboard(dash: any) {
-    this.tracker.trackEvent(
-      'Mobile',
-      'Click',
-      `${dash.dashboardTitle} [${dash.contextName}]`
-    );
+    this.store.dispatch(trackEvent({
+      eventCategory: 'Mobile',
+      eventAction: 'Click',
+      eventName: `${dash.dashboardTitle} [${dash.contextName}]`
+    }));
     const link = this.createDashboardLink(dash);
     this.store.dispatch(navigate({url: link}));
     this.showDashboardMenu = false;

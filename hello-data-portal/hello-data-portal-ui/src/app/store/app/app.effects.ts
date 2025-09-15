@@ -32,7 +32,7 @@ import {UsersManagementEffects} from "../users-management/users-management.effec
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {tap, withLatestFrom} from "rxjs";
 import {NotificationService} from "../../shared/services/notification.service";
-import {navigate, navigateToList, showError, showInfo, showSuccess} from "./app.action";
+import {navigate, navigateToList, showError, showInfo, showSuccess, trackEvent} from "./app.action";
 import {AuthEffects} from "../auth/auth.effects";
 import {Router} from "@angular/router";
 import {PortalRolesManagementEffects} from "../portal-roles-management/portal-roles-management.effects";
@@ -52,6 +52,7 @@ import {AppState} from "./app.state";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "./app.constants";
 import {QueriesEffects} from "../queries/queries.effects";
+import {MatomoTracker} from "ngx-matomo-client";
 
 @Injectable()
 export class AppEffects {
@@ -110,11 +111,21 @@ export class AppEffects {
     )
   }, {dispatch: false});
 
+  trackEvent$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(trackEvent),
+      tap((action) => {
+        this._tracker.trackEvent(action.eventCategory, action.eventAction, action.eventName, action.eventValue);
+      }),
+    )
+  }, {dispatch: false});
+
   constructor(
     private _store: Store<AppState>,
     private _router: Router,
     private _actions$: Actions,
-    private _notificationService: NotificationService
+    private _notificationService: NotificationService,
+    private _tracker: MatomoTracker
   ) {
   }
 

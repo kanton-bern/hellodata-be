@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -34,8 +34,8 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {MenuService} from "../../../store/menu/menu.service";
 import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-page.model";
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
-import {MatomoTracker} from "ngx-matomo-client";
-import {TablePageEvent} from "primeng/table";
+import {Table, TablePageEvent} from "primeng/table";
+import {trackEvent} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-dashboards',
@@ -45,11 +45,11 @@ import {TablePageEvent} from "primeng/table";
 export class DashboardsComponent implements OnInit {
   dashboards$: Observable<SupersetDashboard[]>;
   filterValue = '';
+  @ViewChild('dt') dt!: Table | undefined;
 
   constructor(private store: Store<AppState>,
               private menuService: MenuService,
-              private router: Router,
-              private tracker: MatomoTracker) {
+              private router: Router) {
     this.dashboards$ = this.store.select(selectMyDashboards);
   }
 
@@ -74,11 +74,11 @@ export class DashboardsComponent implements OnInit {
 
   navigateToDashboard(dash: SupersetDashboardWithMetadata) {
     // Track first
-    this.tracker.trackEvent(
-      'Dashboard',
-      'Click',
-      `${dash.dashboardTitle} [${dash.contextName}]`
-    );
+    this.store.dispatch(trackEvent({
+      eventCategory: 'Dashboard',
+      eventAction: 'Click',
+      eventName: `${dash.dashboardTitle} [${dash.contextName}]`
+    }));
 
     // Navigate after a small delay to ensure Matomo sends the event
     setTimeout(() => {
@@ -91,10 +91,16 @@ export class DashboardsComponent implements OnInit {
     const pageIndex = $event.first / $event.rows;   // 0-based
     const pageNumber = pageIndex + 1;
 
-    this.tracker.trackEvent(
-      'Dashboard',
-      'Click Paging',
-      `${pageNumber}`
-    );
+    this.store.dispatch(trackEvent({
+      eventCategory: 'Dashboard',
+      eventAction: 'Click Paging',
+      eventName: `${pageNumber}`
+    }));
+  }
+
+  applyFilterGlobal($event: any, stringVal: string) {
+    if (this.dt) {
+      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+    }
   }
 }

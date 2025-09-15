@@ -34,7 +34,7 @@ import {ExternalDashboard} from "../../../store/external-dashboards/external-das
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {loadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
-import {MatomoTracker} from "ngx-matomo-client";
+import {trackEvent} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-external',
@@ -47,7 +47,7 @@ export class ExternalComponent implements OnInit {
   currentUserPermissions$: Observable<string[]>;
   filterValue = '';
 
-  constructor(private store: Store<AppState>, private tracker: MatomoTracker) {
+  constructor(private store: Store<AppState>) {
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
@@ -89,10 +89,10 @@ export class ExternalComponent implements OnInit {
     const pageIndex = $event.first / $event.rows;   // 0-based
     const pageNumber = pageIndex + 1;
 
-    this.tracker.trackEvent(
-      'External Dashboard',
-      'Click Paging',
-      `${pageNumber}`
-    );
+    this.store.dispatch(trackEvent({
+      eventCategory: 'External Dashboard',
+      eventAction: 'Click Paging',
+      eventName: `${pageNumber}`
+    }));
   }
 }
