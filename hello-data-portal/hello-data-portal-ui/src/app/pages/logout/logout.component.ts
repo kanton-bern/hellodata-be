@@ -51,7 +51,21 @@ export class LogoutComponent implements AfterViewInit {
       })
     }
 
-    //logout airflow
+    this.logoutAirflow();
+    this.logoutFilebrowser();
+  }
+
+  private logoutFilebrowser() {
+    const protocol = environment.subSystemsConfig.filebrowser.protocol;
+    const host = environment.subSystemsConfig.filebrowser.host;
+    const domain = environment.subSystemsConfig.filebrowser.domain;
+    const filebrowserBaseUrl = protocol + host + domain;
+    const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
+    const instance = componentRef.instance;
+    instance.url = filebrowserBaseUrl + '/web/client/logout';
+  }
+
+  private logoutAirflow() {
     const protocol = environment.subSystemsConfig.airflow.protocol;
     const host = environment.subSystemsConfig.airflow.host;
     const domain = environment.subSystemsConfig.airflow.domain;
