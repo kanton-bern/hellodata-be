@@ -59,6 +59,7 @@ import {AppState} from "../app/app.state";
 import {selectProfile, selectSelectedLanguage} from "./auth.selector";
 import {CloudbeaverService} from "./cloudbeaver.service";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
+import {WindowManagementService} from "../../shared/services/window-management.service";
 
 @Injectable()
 export class AuthEffects {
@@ -73,7 +74,10 @@ export class AuthEffects {
   logout$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(logout),
-      tap(() => this._cloudbeaverSessionService.destroyTimerCookie()),
+      tap(() => {
+        this._cloudbeaverSessionService.destroyTimerCookie();
+        this._windowManagementService.closeAllWindows();
+      }),
       switchMap(() => this._authService.signOut()),
       catchError(e => of(authError(e)))
     )
@@ -278,7 +282,8 @@ export class AuthEffects {
     private _usersManagementService: UsersManagementService,
     private _translateService: TranslateService,
     private _cloudbeaverService: CloudbeaverService,
-    private _cloudbeaverSessionService: CloudbeaverSessionService
+    private _cloudbeaverSessionService: CloudbeaverSessionService,
+    private _windowManagementService: WindowManagementService
   ) {
   }
 }

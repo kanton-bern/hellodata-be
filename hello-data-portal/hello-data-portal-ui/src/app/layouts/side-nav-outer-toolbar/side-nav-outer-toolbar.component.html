@@ -35,7 +35,8 @@
                 <span class="link_name">{{ subItem.text | transloco }}</span>
                 <i *ngIf="subItem.items" class='fas fa-angle-right'></i>
               </a>
-              <a *ngIf="!subItem.routerLink" [attr.href]="subItem.url" [attr.target]="subItem.target" [id]="subItem.id"
+              <a *ngIf="!subItem.routerLink" [id]="subItem.id"
+                 (click)="openWindow(subItem.url, subItem.target)"
                  [matomoTracker]="['click']"
                  matomoCategory="Menu Item"
                  matomoAction="Click"
@@ -53,7 +54,8 @@
                        matomoName="{{subSubItem.text}}">
                       <span class="link_name">{{ subSubItem.text | transloco }}</span>
                     </a>
-                    <a *ngIf="!subSubItem.routerLink" [attr.href]="subSubItem.url" [attr.target]="subSubItem.target"
+                    <a *ngIf="!subSubItem.routerLink"
+                       (click)="openWindow(subSubItem.url, subSubItem.target)"
                        [id]="subSubItem.id"
                        [matomoTracker]="['click']"
                        matomoCategory="Menu Item"

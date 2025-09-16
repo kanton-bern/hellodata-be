@@ -32,7 +32,7 @@ import {UsersManagementEffects} from "../users-management/users-management.effec
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {tap, withLatestFrom} from "rxjs";
 import {NotificationService} from "../../shared/services/notification.service";
-import {navigate, navigateToList, showError, showInfo, showSuccess, trackEvent} from "./app.action";
+import {navigate, navigateToList, openWindow, showError, showInfo, showSuccess, trackEvent} from "./app.action";
 import {AuthEffects} from "../auth/auth.effects";
 import {Router} from "@angular/router";
 import {PortalRolesManagementEffects} from "../portal-roles-management/portal-roles-management.effects";
@@ -53,6 +53,7 @@ import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector"
 import {ALL_DATA_DOMAINS} from "./app.constants";
 import {QueriesEffects} from "../queries/queries.effects";
 import {MatomoTracker} from "ngx-matomo-client";
+import {WindowManagementService} from "../../shared/services/window-management.service";
 
 @Injectable()
 export class AppEffects {
@@ -121,12 +122,22 @@ export class AppEffects {
     )
   }, {dispatch: false});
 
+  openWindow$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(openWindow),
+      tap((action) => {
+        this._windowManagementService.openWindow(action.url, action.target)
+      }),
+    )
+  }, {dispatch: false});
+
   constructor(
     private _store: Store<AppState>,
     private _router: Router,
     private _actions$: Actions,
     private _notificationService: NotificationService,
-    private _tracker: MatomoTracker
+    private _tracker: MatomoTracker,
+    private _windowManagementService: WindowManagementService
   ) {
   }
 

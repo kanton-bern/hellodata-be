@@ -43,7 +43,7 @@ import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
 import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
 import {MatomoTrackClickDirective, MatomoTrackerDirective} from "ngx-matomo-client";
-import {navigate, trackEvent} from "../../store/app/app.action";
+import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
@@ -69,6 +69,10 @@ export class SideNavOuterToolbarComponent {
       eventAction: 'Click',
       eventName: 'Home'
     }));
+  }
+
+  openWindow(url: string, target: string) {
+    this.store.dispatch(openWindow({url, target}));
   }
 }
 
