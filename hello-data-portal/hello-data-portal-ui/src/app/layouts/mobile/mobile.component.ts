@@ -128,9 +128,9 @@ export class MobileComponent {
 
   openDashboard(dash: any) {
     this.store.dispatch(trackEvent({
-      eventCategory: 'Mobile',
+      eventCategory: 'Mobile Dashboard',
       eventAction: 'Click',
-      eventName: `${dash.dashboardTitle} [${dash.contextName}]`
+      eventName: `${dash.dashboardTitle} [${dash.contextName}] - Mobile`
     }));
     const link = this.createDashboardLink(dash);
     this.store.dispatch(navigate({url: link}));
@@ -165,7 +165,12 @@ export class MobileComponent {
   }
 
   onLanguageChange(langCode: any) {
-    this.store.dispatch(setSelectedLanguage({lang: langCode}))
+    this.store.dispatch(setSelectedLanguage({lang: langCode}));
+    this.store.dispatch(trackEvent({
+      eventCategory: 'Language Mobile',
+      eventAction: 'Click',
+      eventName: langCode + ' - Mobile'
+    }));
   }
 
   navigateToHome() {
