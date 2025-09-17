@@ -74,6 +74,7 @@ public class LdapUserLookupProvider implements UserLookupProvider {
     }
 
     private AdUserDto toAdUserDto(Attributes attrs) throws NamingException {
+        log.info("Mapping attributes to AdUserDto: {}", attrs);
         var user = new AdUserDto();
         user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()));
         user.setFirstName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getFirstName()));
