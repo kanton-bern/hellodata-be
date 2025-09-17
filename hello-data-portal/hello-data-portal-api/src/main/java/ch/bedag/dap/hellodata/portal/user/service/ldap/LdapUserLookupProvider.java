@@ -39,9 +39,12 @@ import org.springframework.ldap.query.ContainerCriteria;
 import org.springframework.ldap.support.LdapEncoder;
 import org.springframework.stereotype.Component;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +72,7 @@ public class LdapUserLookupProvider implements UserLookupProvider {
     public List<AdUserDto> adLookup(String email) {
         String encodedEmail = LdapEncoder.filterEncode(email);
         log.debug("Search for email {}", encodedEmail);
-        ContainerCriteria query = query().where("objectclass").is("person").and("mail").like(encodedEmail + "*");
+        ContainerCriteria query = query().where("objectclass").is("person").and("objectclass").is("user").and("mail").like(encodedEmail + "*");
         return ldapTemplate.search(query,
                 (AttributesMapper<AdUserDto>) attrs -> {
                     log.debug("Attributes: {}", attrs);
@@ -96,14 +99,31 @@ public class LdapUserLookupProvider implements UserLookupProvider {
         return user;
     }
 
-    private String extractCnFromDn(String dn) {
-        try {
-            // This is a simplified approach. For more robust parsing, consider using LdapName.
-            String cnPart = dn.split(",")[0];
-            return cnPart.substring(cnPart.indexOf("=") + 1);
-        } catch (Exception e) {
-            return dn; // Fallback to returning the full DN on parsing error
+    public String extractCnFromDn(String dn) {
+        if (dn == null || dn.isEmpty()) {
+            return dn;
         }
+
+        try {
+            // LdapName is the standard, RFC 4514-compliant parser.
+            LdapName ldapName = new LdapName(dn);
+
+            // iterate through the RDNs (Relative Distinguished Names) in reverse
+            // because the most specific RDN (like CN) is often first.
+            for (Rdn rdn : ldapName.getRdns()) {
+                // check if the attribute type is "CN" (case-insensitive)
+                if (rdn.getType().equalsIgnoreCase("CN")) {
+                    // return the attribute's value as a string
+                    return rdn.getValue().toString();
+                }
+            }
+        } catch (InvalidNameException e) {
+            log.error("Failed to parse DN: {}", dn, e);
+            return dn;
+        }
+
+        // fallback if no CN component was found in a valid DN.
+        return dn;
     }
 
     private String getFieldOrDefault(Attributes attrs, String fieldName) throws NamingException {
