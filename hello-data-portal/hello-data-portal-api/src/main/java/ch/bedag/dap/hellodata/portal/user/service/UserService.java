@@ -547,6 +547,10 @@ public class UserService {
         return userRepository.findSelectedLanguageByEmail(email);
     }
 
+    public Map<String, Object> impersonate(String email) {
+        return this.keycloakService.impersonate(email);
+    }
+
     private boolean isValidEmail(String email) {
         return EmailValidator.getInstance().isValid(email);
     }

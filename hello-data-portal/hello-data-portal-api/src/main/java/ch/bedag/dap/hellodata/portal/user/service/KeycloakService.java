@@ -41,6 +41,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @Service
@@ -76,6 +77,10 @@ public class KeycloakService {
             return null;
         }
         return userRepresentations.get(0);
+    }
+
+    public Map<String, Object> impersonate(String email) {
+        return keycloak.realm(realmName).users().get(getUserRepresentationByEmail(email).getId()).impersonate();
     }
 
     public List<UserRepresentation> getAllUsers() {

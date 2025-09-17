@@ -34,6 +34,7 @@ import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.ClientErrorException;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -226,6 +228,13 @@ public class UserController {
     @PatchMapping("/{userId}/set-selected-lang/{lang}")
     public void setSelectedLanguageForUser(@PathVariable String userId, @PathVariable Locale lang) {
         userService.setSelectedLanguage(userId, lang);
+    }
+
+    @Validated
+    @PreAuthorize("hasAnyAuthority('IMPERSONATION')")
+    @GetMapping("impersonate")
+    public Map<String, Object> impersonate(@RequestParam("email") @NotNull @Email String email) {
+        return userService.impersonate(email);
     }
 
     private Set<String> getCurrentUserPermissions() {
