@@ -40,8 +40,12 @@ import org.springframework.ldap.support.LdapEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
@@ -69,18 +73,37 @@ public class LdapUserLookupProvider implements UserLookupProvider {
         return ldapTemplate.search(query,
                 (AttributesMapper<AdUserDto>) attrs -> {
                     log.debug("Attributes: {}", attrs);
-                    return toAdUserDto(attrs);
+                    return toAdUserDto(attrs, email);
                 });
     }
 
-    private AdUserDto toAdUserDto(Attributes attrs) throws NamingException {
-        log.info("Mapping attributes to AdUserDto: {}", attrs);
+    private AdUserDto toAdUserDto(Attributes attrs, String email) throws NamingException {
+        log.debug("Mapping attributes to AdUserDto: {}", attrs);
+        List<String> groups = new ArrayList<>();
+        Attribute memberOf = attrs.get("memberOf");
+        if (memberOf != null) {
+            groups.addAll(Collections.list(memberOf.getAll()).stream()
+                    .map(String::valueOf)
+                    .map(this::extractCnFromDn)
+                    .collect(Collectors.toList()));
+        }
+        log.info("Extracted groups for email {}: {}", email, groups);
         var user = new AdUserDto();
         user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()));
         user.setFirstName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getFirstName()));
         user.setLastName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getLastName()));
         user.setOrigin(AdUserOrigin.LDAP);
         return user;
+    }
+
+    private String extractCnFromDn(String dn) {
+        try {
+            // This is a simplified approach. For more robust parsing, consider using LdapName.
+            String cnPart = dn.split(",")[0];
+            return cnPart.substring(cnPart.indexOf("=") + 1);
+        } catch (Exception e) {
+            return dn; // Fallback to returning the full DN on parsing error
+        }
     }
 
     private String getFieldOrDefault(Attributes attrs, String fieldName) throws NamingException {
