@@ -90,7 +90,7 @@ public class LdapUserLookupProvider implements UserLookupProvider {
                     .map(this::extractCnFromDn)
                     .collect(Collectors.toList()));
         }
-        log.info("Extracted groups for email {}: {}", email, groups);
+        log.debug("Extracted groups for email {}: {}", email, groups);
         var user = new AdUserDto();
         user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()));
         user.setFirstName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getFirstName()));
