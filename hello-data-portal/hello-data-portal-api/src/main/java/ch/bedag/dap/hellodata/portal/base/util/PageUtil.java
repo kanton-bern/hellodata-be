@@ -16,7 +16,7 @@ public class PageUtil {
     }
 
     public static Pageable createPageable(int page, int size, String sort, String defaultSortField, Sort.Direction defaultDirection) {
-        log.info("Creating page {} of size {}", page, size);
+        log.debug("Creating page {} of size {}", page, size);
         sort = StringUtils.defaultIfEmpty(sort, null);
 
         Sort sorting = Sort.by(Sort.Direction.ASC, defaultSortField);
@@ -27,7 +27,7 @@ public class PageUtil {
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
                 sorting = Sort.by(direction, sortField);
             }
-            log.info("Sorting by {} {}", sorting, sort);
+            log.debug("Sorting by {} {}", sorting, sort);
         }
         return PageRequest.of(page, size, sorting);
     }
