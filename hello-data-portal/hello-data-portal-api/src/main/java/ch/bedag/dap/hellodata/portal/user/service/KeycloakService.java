@@ -34,14 +34,20 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 @Log4j2
 @Service
@@ -52,6 +58,13 @@ public class KeycloakService {
     private final Keycloak keycloak;
     @Value("${hello-data.auth-server.realm}")
     private String realmName;
+    @Value("${hello-data.auth-server.admin-client-id}")
+    private String adminClientId;
+    @Value("${hello-data.auth-server.admin-client-id}")
+    private String adminClientSecret;
+    @Value("${hello-data.auth-server.client-id}")
+    private String clientId;
+    private final WebClient.Builder exchangeTokenTarget;
 
     public String createUser(UserRepresentation user) {
         try (Response response = keycloak.realm(realmName).users().create(user)) {
@@ -79,21 +92,30 @@ public class KeycloakService {
         return userRepresentations.get(0);
     }
 
-    public Map<String, Object> impersonate(String email) {
-        return keycloak.realm(realmName).users().get(getUserRepresentationByEmail(email).getId()).impersonate();
-    }
+    public String impersonate(String email) {
+        String username = getUserRepresentationByEmail(email).getUsername();
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+        formData.add("client_id", adminClientId);
+        formData.add("client_secret", adminClientSecret);
+        formData.add("requested_subject", username);
+        formData.add("audience", clientId);
+        formData.add("requested_token_type", "urn:ietf:params:oauth:token-type:access_token");
 
-    public List<UserRepresentation> getAllUsers() {
-        return getAllUsersInternal();
-    }
+        String adminToken = keycloak.tokenManager().getAccessTokenString();
 
-    private List<UserRepresentation> getAllUsersInternal() {
-        Integer userCount = keycloak.realm(realmName).users().count();
-        if (userCount == null) {
-            log.warn("Could not get current usercount from realm {}. Still trying to load users.", realmName);
-            userCount = 10000;
+        ResponseEntity<String> responseEntity = exchangeTokenTarget.defaultHeader(HttpHeaders.AUTHORIZATION, adminToken)
+                .build()
+                .post()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(formData))
+                .retrieve()
+                .toEntity(String.class)
+                .block();
+        if (responseEntity == null || responseEntity.getBody() == null) {
+            throw new RuntimeException("Could not exchange token for user " + email);
         }
-        return keycloak.realm(realmName).users().list(0, userCount);
+        return responseEntity.getBody();
     }
 
     private String getCreatedId(Response response) {
