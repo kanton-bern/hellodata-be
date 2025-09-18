@@ -33,13 +33,13 @@
                         pRipple></button>
               </div>
               <p-fileUpload name="file"
-                            url="{{baseUrl}}{{dataDomain.data.key}}"
+                            url="{{uploadDashboardsUrl}}{{dataDomain.data.key}}"
                             *ngIf="uploadVisible(dataDomain.data.key)"
                             (onUpload)="onUploadCompleted($event)"
                             (onError)="onError($event)"
                             (onSelect)="onSelect($event)"
                             [styleClass]="'mt-2'"
-                            accept=".zip,.json"
+                            accept=".zip"
                             [maxFileSize]="5000000000">
               </p-fileUpload>
             </ng-template>
