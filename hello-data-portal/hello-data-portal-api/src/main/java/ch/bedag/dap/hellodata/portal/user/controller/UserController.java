@@ -231,7 +231,7 @@ public class UserController {
     }
 
     @Validated
-    @PreAuthorize("hasAnyAuthority('IMPERSONATION')")
+    @PreAuthorize("hasAnyAuthority('IMPERSONATE')")
     @GetMapping("impersonate")
     public Map<String, Object> impersonate(@RequestParam("email") @NotNull @Email String email) {
         return userService.impersonate(email);
