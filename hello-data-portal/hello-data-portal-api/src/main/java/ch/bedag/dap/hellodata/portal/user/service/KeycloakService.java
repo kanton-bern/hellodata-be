@@ -64,6 +64,10 @@ public class KeycloakService {
     private String adminClientSecret;
     @Value("${hello-data.auth-server.client-id}")
     private String clientId;
+    @Value("${hello-data.auth-server.realm}")
+    private String realm;
+    @Value("${hello-data.auth-server.url}")
+    private String authServerUrl;
     private final WebClient.Builder exchangeTokenTarget;
 
     public String createUser(UserRepresentation user) {
@@ -107,6 +111,7 @@ public class KeycloakService {
         ResponseEntity<String> responseEntity = exchangeTokenTarget.defaultHeader(HttpHeaders.AUTHORIZATION, adminToken)
                 .build()
                 .post()
+                .uri(authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(formData))
                 .retrieve()
