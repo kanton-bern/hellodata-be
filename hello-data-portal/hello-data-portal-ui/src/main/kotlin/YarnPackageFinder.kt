@@ -37,6 +37,7 @@ object YarnPackageFinder {
   private fun checkForPackages(files: List<File>) {
     files.forEach { f ->
       val content = f.readText()
+      println("Checking yarn.lock file: \n ${content}")
       packs.forEach { p ->
         println("Checking for package $p in ${f.name}...")
         if (content.contains(p, ignoreCase = true)) {
