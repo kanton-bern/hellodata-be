@@ -33,7 +33,63 @@
     <frontend-maven-plugin.yarnVersion>v1.22.18</frontend-maven-plugin.yarnVersion>
     <frontend-maven-plugin.npmVersion>9.9.2</frontend-maven-plugin.npmVersion>
     <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
+    <main.class>YarnPackageFinder</main.class>
+    <kotlin.version>1.9.23</kotlin.version>
+    <classpathScope>compile</classpathScope>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Kotlin compiler -->
+      <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <version>${kotlin.version}</version>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <sourceDirs>
+            <sourceDir>src/main/kotlin</sourceDir>
+          </sourceDirs>
+        </configuration>
+      </plugin>
+
+      <!-- Run the checker during verify -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>run-npm-checker</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+            <configuration>
+              <mainClass>${main.class}</mainClass>
+              <classpathScope>compile</classpathScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <profiles>
     <profile>
