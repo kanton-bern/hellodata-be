@@ -46,56 +46,53 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <!-- Kotlin compiler -->
-      <plugin>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-maven-plugin</artifactId>
-        <version>${kotlin.version}</version>
-        <executions>
-          <execution>
-            <id>compile</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <sourceDirs>
-            <sourceDir>src/main/kotlin</sourceDir>
-          </sourceDirs>
-        </configuration>
-      </plugin>
-
-      <!-- Run the checker during verify -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>run-npm-checker</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>java</goal>
-            </goals>
-            <configuration>
-              <mainClass>${main.class}</mainClass>
-              <classpathScope>compile</classpathScope>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
   <profiles>
     <profile>
       <id>docker</id>
       <build>
         <plugins>
+
+          <!-- Kotlin compiler -->
+          <plugin>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-plugin</artifactId>
+            <version>${kotlin.version}</version>
+            <executions>
+              <execution>
+                <id>compile</id>
+                <phase>compile</phase>
+                <goals>
+                  <goal>compile</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/main/kotlin</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </plugin>
+
+          <!-- Run the checker during verify -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.3.0</version>
+            <executions>
+              <execution>
+                <id>run-npm-checker</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <mainClass>${main.class}</mainClass>
+                  <classpathScope>compile</classpathScope>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
           <plugin>
             <artifactId>maven-clean-plugin</artifactId>
             <version>3.2.0</version>
