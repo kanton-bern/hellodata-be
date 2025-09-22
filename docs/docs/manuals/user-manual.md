@@ -200,7 +200,7 @@ with DAG(
         task_id='my_task',
         arguments=[
 '''
-echo "I run as a cluster and have the following env vars" &&
+echo "I run on kubernetes and have the following env vars" &&
 printenv
 '''
         ],
