@@ -66,8 +66,7 @@ export class SideNavOuterToolbarComponent {
     this.store.dispatch(navigate({url: 'home'}));
     this.store.dispatch(trackEvent({
       eventCategory: 'Menu Item',
-      eventAction: 'Click',
-      eventName: 'Home'
+      eventAction: '[Click] - Moved to Home'
     }));
   }
 

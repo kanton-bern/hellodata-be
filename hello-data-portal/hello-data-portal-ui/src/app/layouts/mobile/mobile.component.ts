@@ -129,8 +129,7 @@ export class MobileComponent {
   openDashboard(dash: any) {
     this.store.dispatch(trackEvent({
       eventCategory: 'Mobile Dashboard',
-      eventAction: 'Click',
-      eventName: `${dash.dashboardTitle} [${dash.contextName}] - Mobile`
+      eventAction: `[Click] - ${dash.dashboardTitle} [${dash.contextName}]`
     }));
     const link = this.createDashboardLink(dash);
     this.store.dispatch(navigate({url: link}));
@@ -168,8 +167,7 @@ export class MobileComponent {
     this.store.dispatch(setSelectedLanguage({lang: langCode}));
     this.store.dispatch(trackEvent({
       eventCategory: 'Language Mobile',
-      eventAction: 'Click',
-      eventName: langCode + ' - Mobile'
+      eventAction: '[Click] - Changed language to ' + langCode
     }));
   }
 

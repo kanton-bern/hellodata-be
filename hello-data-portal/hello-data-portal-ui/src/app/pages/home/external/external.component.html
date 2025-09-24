@@ -46,8 +46,7 @@
           <td>
             <a [href]="createExternalUrl(dashboard.url)" rel="noopener" target="_blank"
                matomoCategory="External Dashboard (Home Page)"
-               matomoAction="Click"
-               matomoName="{{ dashboard.title }}"
+               matomoAction="[Click] - {{ dashboard.title }}"
                [matomoTracker]="['click']">{{ dashboard.title }}</a>
           </td>
         </tr>

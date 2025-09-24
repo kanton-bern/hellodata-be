@@ -75,8 +75,7 @@ export class DashboardsComponent implements OnInit {
     // Track first
     this.store.dispatch(trackEvent({
       eventCategory: 'Dashboard',
-      eventAction: 'Click',
-      eventName: `${dash.dashboardTitle} [${dash.contextName}]`
+      eventAction: `[Click] - ${dash.dashboardTitle} [${dash.contextName}]`
     }));
 
     // Navigate after a small delay to ensure Matomo sends the event
@@ -91,8 +90,7 @@ export class DashboardsComponent implements OnInit {
 
     this.store.dispatch(trackEvent({
       eventCategory: 'Dashboard (Home Page)',
-      eventAction: 'Click Paging',
-      eventName: `${pageNumber}`
+      eventAction: '[Click Paging] - Moved to page ' + pageNumber
     }));
   }
 
@@ -107,8 +105,7 @@ export class DashboardsComponent implements OnInit {
       const val = value || '(cleared)';
       this.store.dispatch(trackEvent({
         eventCategory: 'Dashboard (Home Page)',
-        eventAction: 'Search',
-        eventName: val
+        eventAction: '[Search] - Searched for ' + val
       }));
     }, 400);
   }

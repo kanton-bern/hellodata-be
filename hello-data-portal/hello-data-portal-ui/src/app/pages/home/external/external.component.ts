@@ -85,8 +85,7 @@ export class ExternalComponent implements OnInit {
 
     this.store.dispatch(trackEvent({
       eventCategory: 'External Dashboard (Home Page)',
-      eventAction: 'Click Paging',
-      eventName: `${pageNumber}`
+      eventAction: '[Click Paging] - Moved to page ' + pageNumber
     }));
   }
 
@@ -102,8 +101,7 @@ export class ExternalComponent implements OnInit {
       console.log('Global filter:', value);
       this.store.dispatch(trackEvent({
         eventCategory: 'External Dashboard (Home Page)',
-        eventAction: 'Search',
-        eventName: val
+        eventAction: '[Search] - Searched for ' + val
       }));
     }, 400);
   }

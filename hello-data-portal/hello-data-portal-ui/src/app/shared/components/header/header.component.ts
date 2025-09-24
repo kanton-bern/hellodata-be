@@ -193,8 +193,7 @@ export class HeaderComponent {
   onLanguageChange(langCode: any) {
     this.store.dispatch(trackEvent({
       eventCategory: 'Language',
-      eventAction: 'Click',
-      eventName: langCode
+      eventAction: '[Click] - Changed language to ' + langCode
     }));
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }

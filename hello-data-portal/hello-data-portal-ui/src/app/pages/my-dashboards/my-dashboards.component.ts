@@ -145,8 +145,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
       const val = ($event.target as HTMLInputElement).value || '(cleared)';
       this.store.dispatch(trackEvent({
         eventCategory: 'Dashboard',
-        eventAction: 'Search',
-        eventName: val
+        eventAction: '[Search] - Searched for ' + val
       }));
     }, 400);
   }
@@ -171,8 +170,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
     this.store.dispatch(trackEvent({
       eventCategory: 'Dashboard',
-      eventAction: 'Click Paging',
-      eventName: `${pageNumber}`
+      eventAction: '[Click Paging] - Moved to page ' + pageNumber
     }));
   }
 }
