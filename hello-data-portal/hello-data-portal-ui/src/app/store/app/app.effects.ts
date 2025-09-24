@@ -69,7 +69,7 @@ export class AppEffects {
           errorMessage = action.error.message;
         }
         this._notificationService.error(errorMessage);
-        this._tracker.trackEvent("Error", "Error shown", errorMessage);
+        this._tracker.trackEvent("Error", errorMessage);
       })
     )
   }, {dispatch: false});
