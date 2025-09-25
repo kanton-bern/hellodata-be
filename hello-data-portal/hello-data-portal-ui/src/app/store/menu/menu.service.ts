@@ -213,7 +213,7 @@ export class MenuService {
 
   private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[]) {
     const myDashboards: any[] = [];
-    myDashboards.push({id: 'dashboarList', text: '@List', routerLink: 'my-dashboards'})
+    myDashboards.push({id: 'dashboarList', text: '@Dashboard List', routerLink: 'my-dashboards'})
 
     const groupedByInstance: Map<string, SupersetDashboard[]> = new Map<string, SupersetDashboard[]>();
     dashboards.forEach(db => {
@@ -273,7 +273,7 @@ export class MenuService {
     const subMenuEntry: any[] = [];
     subMenuEntry.push({
       id: 'lineageDocsList',
-      text: '@List',
+      text: '@Lineage Docs List',
       routerLink: 'lineage-docs/list',
       requiredPermissions: ['DATA_LINEAGE']
     })
