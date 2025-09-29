@@ -152,7 +152,7 @@ export class MenuService {
               menuItem.items.push(jupyterhubSubNav);
             }
           }
-          if (menuItem.id === 'administrationMenu') {
+          if (menuItem.id === 'devToolsMenu') {
             if (this.displayQueries(contextRoles)) {
               const queriesMenu = menuItem.items.filter((item: {
                 id: string;
