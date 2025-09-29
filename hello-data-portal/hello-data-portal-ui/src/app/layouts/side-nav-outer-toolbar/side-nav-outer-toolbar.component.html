@@ -23,39 +23,39 @@
           <span class="link_name">{{ item.text | transloco }}</span>
         </a>
         <ul *ngIf="item.items && item.items.length > 0" class="second-level-menu">
-          <ng-template [ngForOf]="item.items" let-i="index" let-last="last" let-subItem ngFor>
+          <ng-template [ngForOf]="item.items" let-i="index" let-last="last" let-secondLevel ngFor>
             <li>
-              <a *ngIf="subItem.routerLink" [id]="subItem.id" [routerLink]="subItem.routerLink"
+              <a *ngIf="secondLevel.routerLink" [id]="secondLevel.id" [routerLink]="secondLevel.routerLink"
                  [matomoTracker]="['click']"
                  matomoCategory="Menu Item"
-                 matomoAction="[Click] - {{subItem.text}}">
-                <span class="link_name">{{ subItem.text | transloco }}</span>
-                <i *ngIf="subItem.items" class='fas fa-angle-right'></i>
+                 matomoAction="[Click] - {{secondLevel.text}}">
+                <span class="link_name">{{ secondLevel.text | transloco }}</span>
+                <i *ngIf="secondLevel.items" class='fas fa-angle-right'></i>
               </a>
-              <a *ngIf="!subItem.routerLink" [id]="subItem.id"
-                 (click)="openWindow(subItem.url, subItem.target)"
+              <a *ngIf="!secondLevel.routerLink" [id]="secondLevel.id"
+                 (click)="openWindow(secondLevel.url, secondLevel.target)"
                  [matomoTracker]="['click']"
                  matomoCategory="Menu Item"
-                 matomoAction="[Click] - {{subItem.text}}">
-                <span class="link_name">{{ subItem.text | transloco }}</span>
-                <i *ngIf="subItem.items && subItem.items.length > 0" class='fas fa-angle-right'></i>
+                 matomoAction="[Click] - {{secondLevel.text}}">
+                <span class="link_name">{{ secondLevel.text | transloco }}</span>
+                <i *ngIf="secondLevel.items && secondLevel.items.length > 0" class='fas fa-angle-right'></i>
               </a>
-              <ul *ngIf="subItem.items && subItem.items.length > 0" class="third-level-menu">
-                <ng-template [ngForOf]="subItem.items" let-i="index" let-subSubItem ngFor>
+              <ul *ngIf="secondLevel.items && secondLevel.items.length > 0" class="third-level-menu">
+                <ng-template [ngForOf]="secondLevel.items" let-i="index" let-thirdLevel ngFor>
                   <li>
-                    <a *ngIf="subSubItem.routerLink" [id]="subSubItem.id" [routerLink]="subSubItem.routerLink"
+                    <a *ngIf="thirdLevel.routerLink" [id]="thirdLevel.id" [routerLink]="thirdLevel.routerLink"
                        [matomoTracker]="['click']"
                        matomoCategory="Menu Item"
-                       matomoAction="[Click] - {{subSubItem.text}}">
-                      <span class="link_name">{{ subSubItem.text | transloco }}</span>
+                       matomoAction="[Click] - {{thirdLevel.text}}">
+                      <span class="link_name">{{ thirdLevel.text | transloco }}</span>
                     </a>
-                    <a *ngIf="!subSubItem.routerLink"
-                       (click)="openWindow(subSubItem.url, subSubItem.target)"
-                       [id]="subSubItem.id"
+                    <a *ngIf="!thirdLevel.routerLink"
+                       (click)="openWindow(thirdLevel.url, thirdLevel.target)"
+                       [id]="thirdLevel.id"
                        [matomoTracker]="['click']"
                        matomoCategory="Menu Item"
-                       matomoAction="[Click] - {{subSubItem.text}}">
-                      <span class="link_name">{{ subSubItem.text | transloco }}</span>
+                       matomoAction="[Click] - {{thirdLevel.text}}">
+                      <span class="link_name">{{ thirdLevel.text | transloco }}</span>
                     </a>
                   </li>
                 </ng-template>
