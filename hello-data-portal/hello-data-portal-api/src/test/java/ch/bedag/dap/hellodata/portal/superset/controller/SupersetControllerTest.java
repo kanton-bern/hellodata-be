@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
+import ch.bedag.dap.hellodata.portal.superset.service.DashboardAccessService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,8 @@ class SupersetControllerTest extends HDControllerTest {
     private DashboardService dashboardService;
     @MockBean
     private QueryService queryService;
+    @MockBean
+    private DashboardAccessService dashboardAccessService;
 
     @Test
     void fetchMyDashboards() throws Exception {
