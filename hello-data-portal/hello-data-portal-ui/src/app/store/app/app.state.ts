@@ -41,6 +41,7 @@ import {LineageDocsState} from "../lineage-docs/lineageDocsState";
 import {BreadcrumbState} from "../breadcrumb/breadcrumb.state";
 import {UnsavedChangesState} from "../unsaved-changes/unsaved-changes.state";
 import {QueriesState} from "../queries/queries.state";
+import {DashboardAccessState} from "../dashboard-access/dashboard-access.state";
 
 export interface AppState {
   readonly auth: AuthState;
@@ -58,5 +59,6 @@ export interface AppState {
   readonly myLineageDocs: LineageDocsState,
   readonly breadcrumbs: BreadcrumbState,
   readonly unsavedChanges: UnsavedChangesState,
-  readonly queries: QueriesState
+  readonly queries: QueriesState,
+  readonly dashboardAccess: DashboardAccessState
 }

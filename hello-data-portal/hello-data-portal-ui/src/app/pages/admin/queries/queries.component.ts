@@ -63,8 +63,8 @@ export class QueriesComponent extends BaseComponent implements OnInit {
       this.store.select(selectAllQueries),
       this.store.select(selectQueriesTotalRecords)
     ]).pipe(
-      tap(([_, usersTotalRecords]) => {
-        this.queriesTotalRecords = usersTotalRecords;
+      tap(([_, queriesTotalRecords]) => {
+        this.queriesTotalRecords = queriesTotalRecords;
       }),
       map(([queries, _]) => queries),
     );
