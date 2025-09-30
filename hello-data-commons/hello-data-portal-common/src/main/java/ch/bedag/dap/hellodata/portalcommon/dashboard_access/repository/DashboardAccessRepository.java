@@ -23,8 +23,6 @@ public interface DashboardAccessRepository extends JpaRepository<DashboardAccess
             "da.contextKey = :contextKey " +
             "AND (LOWER(da.username) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "AND LOWER(da.userFullname) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(da.userId) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(da.dashboardId) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(CAST(da.dashboardSlug as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(da.dashboardTitle) LIKE LOWER(CONCAT('%', :search, '%'))) ")
     Page<DashboardAccessEntity> findAll(Pageable pageable, @Param("contextKey") String contextKey, @Param("search") String search);
