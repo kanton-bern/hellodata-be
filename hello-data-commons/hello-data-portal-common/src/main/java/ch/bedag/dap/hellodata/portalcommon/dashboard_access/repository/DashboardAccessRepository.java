@@ -32,13 +32,9 @@ public interface DashboardAccessRepository extends JpaRepository<DashboardAccess
     @Query(value = "SELECT da FROM dashboard_access da WHERE " +
             "LOWER(da.username) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "AND LOWER(da.userFullname) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(da.userId) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(da.dashboardId) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(CAST(da.dashboardSlug as string)) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(da.dashboardTitle) LIKE LOWER(CONCAT('%', :search, '%')) ")
     Page<DashboardAccessEntity> findAll(Pageable pageable, @Param("search") String search);
-
-    long countAllByContextKey(String contextKey);
 
     Optional<DashboardAccessEntity> findFirstByContextKeyOrderByDttmDesc(String contextKey);
 
