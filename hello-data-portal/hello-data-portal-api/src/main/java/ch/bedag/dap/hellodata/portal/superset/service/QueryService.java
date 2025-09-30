@@ -27,31 +27,31 @@ public class QueryService {
             allByContextKeyPageable = queryRepository.findAllByContextKey(pageable, contextKey);
         }
         log.info("Fetched queries {} for contextKey: {} and search: {}", allByContextKeyPageable, contextKey, search);
-        return allByContextKeyPageable.map(userEntity -> {
+        return allByContextKeyPageable.map(queryEntity -> {
             SupersetQueryDto dto = new SupersetQueryDto();
-            dto.setContextKey(userEntity.getContextKey());
-            dto.setId(userEntity.getId());
-            dto.setCreatedBy(userEntity.getCreatedBy());
-            dto.setCreatedDate(userEntity.getCreatedDate());
-            dto.setModifiedBy(userEntity.getModifiedBy());
-            dto.setModifiedDate(userEntity.getModifiedDate());
-            dto.setRows(userEntity.getRows());
-            dto.setStartTime(userEntity.getStartTime());
-            dto.setEndTime(userEntity.getEndTime());
-            dto.setTrackingUrl(userEntity.getTrackingUrl());
-            dto.setSchema(userEntity.getSchema());
-            dto.setTmpSchemaName(userEntity.getTmpSchemaName());
-            dto.setExecutedSql(userEntity.getExecutedSql());
-            dto.setSql(userEntity.getSql());
-            dto.setSqlTables(userEntity.getSqlTables());
-            dto.setChangedOn(userEntity.getChangedOn().toInstant().toEpochMilli());
-            dto.setUsername(userEntity.getUsername());
-            dto.setUserFullname(userEntity.getUserFullname());
-            dto.setStatus(userEntity.getStatus());
-            dto.setTabName(userEntity.getTabName());
-            dto.setTmpTableName(userEntity.getTmpTableName());
-            dto.setDatabaseName(userEntity.getDatabaseName());
-            dto.setSubsystemId(userEntity.getSubsystemId());
+            dto.setContextKey(queryEntity.getContextKey());
+            dto.setId(queryEntity.getId());
+            dto.setCreatedBy(queryEntity.getCreatedBy());
+            dto.setCreatedDate(queryEntity.getCreatedDate());
+            dto.setModifiedBy(queryEntity.getModifiedBy());
+            dto.setModifiedDate(queryEntity.getModifiedDate());
+            dto.setRows(queryEntity.getRows());
+            dto.setStartTime(queryEntity.getStartTime());
+            dto.setEndTime(queryEntity.getEndTime());
+            dto.setTrackingUrl(queryEntity.getTrackingUrl());
+            dto.setSchema(queryEntity.getSchema());
+            dto.setTmpSchemaName(queryEntity.getTmpSchemaName());
+            dto.setExecutedSql(queryEntity.getExecutedSql());
+            dto.setSql(queryEntity.getSql());
+            dto.setSqlTables(queryEntity.getSqlTables());
+            dto.setChangedOn(queryEntity.getChangedOn().toInstant().toEpochMilli());
+            dto.setUsername(queryEntity.getUsername());
+            dto.setUserFullname(queryEntity.getUserFullname());
+            dto.setStatus(queryEntity.getStatus());
+            dto.setTabName(queryEntity.getTabName());
+            dto.setTmpTableName(queryEntity.getTmpTableName());
+            dto.setDatabaseName(queryEntity.getDatabaseName());
+            dto.setSubsystemId(queryEntity.getSubsystemId());
             return dto;
         });
     }

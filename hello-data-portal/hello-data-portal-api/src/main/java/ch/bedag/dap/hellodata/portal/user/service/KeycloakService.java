@@ -34,15 +34,9 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -94,33 +88,6 @@ public class KeycloakService {
             return null;
         }
         return userRepresentations.get(0);
-    }
-
-    public String impersonate(String email) {
-        String username = getUserRepresentationByEmail(email).getUsername();
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
-        formData.add("client_id", adminClientId);
-        formData.add("client_secret", adminClientSecret);
-        formData.add("requested_subject", username);
-        formData.add("audience", clientId);
-        formData.add("requested_token_type", "urn:ietf:params:oauth:token-type:access_token");
-
-        String adminToken = keycloak.tokenManager().getAccessTokenString();
-
-        ResponseEntity<String> responseEntity = exchangeTokenTarget.defaultHeader(HttpHeaders.AUTHORIZATION, adminToken)
-                .build()
-                .post()
-                .uri(authServerUrl + "/realms/" + realm + "/protocol/openid-connect/token")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData(formData))
-                .retrieve()
-                .toEntity(String.class)
-                .block();
-        if (responseEntity == null || responseEntity.getBody() == null) {
-            throw new RuntimeException("Could not exchange token for user " + email);
-        }
-        return responseEntity.getBody();
     }
 
     private String getCreatedId(Response response) {

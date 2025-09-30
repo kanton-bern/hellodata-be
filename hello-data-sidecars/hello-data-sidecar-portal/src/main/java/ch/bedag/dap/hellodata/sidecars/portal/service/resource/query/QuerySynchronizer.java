@@ -43,7 +43,7 @@ public class QuerySynchronizer {
 
     @Scheduled(timeUnit = TimeUnit.MINUTES,
             fixedDelayString = "${hello-data.synchronize-query-in-minutes:60}",
-            initialDelayString = "${hello-data.synchronize-query.initial-delay:2}")
+            initialDelayString = "${hello-data.synchronize-query.initial-delay-minutes:2}")
     @Transactional
     public void synchronizeQueriesFromSupersets() {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));

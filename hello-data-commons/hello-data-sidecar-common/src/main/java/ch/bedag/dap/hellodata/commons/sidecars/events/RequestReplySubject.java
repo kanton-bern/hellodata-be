@@ -37,6 +37,7 @@ public enum RequestReplySubject {
     UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
     NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
     GET_QUERY_LIST("-get_query_list"),
+    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
     ;
     private final String subject;
 
