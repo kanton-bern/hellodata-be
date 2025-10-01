@@ -4,7 +4,8 @@
     "config:recommended"
   ],
   "timezone": "Europe/Zurich",
-  "repositories": ["bedag/hellodata-be"],
+  "platform": "github",
+  "repositories": ["kanton-bern/hellodata-be"],
   "schedule": ["before 3am"],
   "packageRules": [
     {
