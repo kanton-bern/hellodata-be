@@ -29,9 +29,13 @@ import {Component, OnInit, ViewChild} from "@angular/core";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
-import {Observable, tap} from "rxjs";
+import {combineLatest, Observable, tap} from "rxjs";
 import {DashboardAccess} from "../../../store/dashboard-access/dashboard-access.model";
-import {selectAllDashboardAccess} from "../../../store/dashboard-access/dashboard-access.selector";
+import {
+  selectAllDashboardAccess,
+  selectDashboardAccessDataLoading,
+  selectDashboardAccessTotalRecords
+} from "../../../store/dashboard-access/dashboard-access.selector";
 import {Table, TableLazyLoadEvent} from "primeng/table";
 import {loadDashboardAccessPaginated} from "../../../store/dashboard-access/dashboard-access.action";
 import {selectSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.selector";
@@ -39,6 +43,7 @@ import {scrollToTop} from "../../../shared/services/view-helpers";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
+import {map} from "rxjs/operators";
 
 @Component({
   templateUrl: 'dashboard-access.component.html',
@@ -51,11 +56,20 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
   first = 0;
   @ViewChild('dt') table!: Table;
   totalRecords = 0;
+  dataLoading$ = this.store.select(selectDashboardAccessDataLoading);
 
   constructor(private store: Store<AppState>) {
     super();
     this.createBreadcrumbs();
-    this.dashboardAccess$ = this.store.select(selectAllDashboardAccess);
+    this.dashboardAccess$ = combineLatest([
+      this.store.select(selectAllDashboardAccess),
+      this.store.select(selectDashboardAccessTotalRecords)
+    ]).pipe(
+      tap(([_, totalRecords]) => {
+        this.totalRecords = totalRecords;
+      }),
+      map(([dashboardAccessList, _]) => dashboardAccessList),
+    );
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(
       tap((dataDomain) => {
         let contextKey = dataDomain?.key ? dataDomain?.key : null;
