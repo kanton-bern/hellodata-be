@@ -27,6 +27,8 @@
 
 FROM bedag/hellodata-superset:5.0-HD.rc1
 
+ARG GECKODRIVER_VERSION=0.34.0
+
 COPY ./assets/images/* /app/superset/static/assets/images/
 
 # Switching to root to install the required packages
@@ -39,7 +41,7 @@ RUN apt-get update && \
     # deps for liquibase
     apt-get install --no-install-recommends -y openjdk-17-jre-headless ca-certificates-java gnupg unzip postgresql-client
 
-ENV GECKODRIVER_VERSION=0.34.0
+ENV GECKODRIVER_VERSION=${GECKODRIVER_VERSION}
 RUN wget -q https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz && \
     tar -x geckodriver -zf geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz -O > /usr/bin/geckodriver && \
     chmod 755 /usr/bin/geckodriver && \

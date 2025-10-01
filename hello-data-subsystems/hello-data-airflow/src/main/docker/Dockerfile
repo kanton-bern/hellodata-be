@@ -25,10 +25,17 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+
 FROM apache/airflow:slim-2.8.1-python3.10
 
-ENV AIRFLOW_VERSION=2.8.1
-ENV PYTHON_VERSION=3.10
+ARG AIRFLOW_VERSION=2.8.1
+ARG PYTHON_VERSION=3.10
+ARG AUTHLIB_VERSION=0.15.5
+ARG DBT_CORE_VERSION=1.5.0
+ARG DBT_POSTGRES_VERSION=1.5.0
+
+ENV AIRFLOW_VERSION=${AIRFLOW_VERSION}
+ENV PYTHON_VERSION=${PYTHON_VERSION}
 
 ## Change container image to root user to allow for global
 ## installation of software
@@ -46,12 +53,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 USER airflow
 RUN python -m pip install --upgrade pip
 RUN pip install --upgrade pip  \
-  &&  pip install --no-cache-dir psycopg2-binary Redis authlib==0.15.5 \
+  &&  pip install --no-cache-dir psycopg2-binary Redis authlib==${AUTHLIB_VERSION} \
   &&  pip install --no-cache-dir "apache-airflow[celery,postgres,kubernetes,statsd,mssql]==${AIRFLOW_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt" \
   &&  pip install --no-cache-dir virtualenv
 
 # dbt dependencies
-RUN pip install --no-cache-dir dbt-core==1.5.0 dbt-postgres==1.5.0
+RUN pip install --no-cache-dir dbt-core==${DBT_CORE_VERSION} dbt-postgres==${DBT_POSTGRES_VERSION}
 
 # add additional python requirements
 RUN pip install --no-cache-dir pyaxis pygdaltools pyctuator
