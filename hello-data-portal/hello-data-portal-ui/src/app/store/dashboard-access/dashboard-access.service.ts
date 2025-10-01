@@ -47,20 +47,19 @@ export class DashboardAccessService {
     totalElements: number,
     totalPages: number
   }> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sort', sort)
       .set('search', search || '');
 
     if (contextKey && contextKey.trim().length > 0) {
-      params.set('contextKey', contextKey);
+      params = params.set('contextKey', contextKey);
     }
-
     return this.httpClient.get<{
       content: DashboardAccess[],
       totalElements: number,
       totalPages: number
-    }>(`${this.baseUrl}${contextKey}`, {params});
+    }>(`${this.baseUrl}`, {params});
   }
 }
