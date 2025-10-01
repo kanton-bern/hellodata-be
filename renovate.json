@@ -1,13 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
+  "extends": ["config:recommended"],
   "timezone": "Europe/Zurich",
   "schedule": ["before 3am"],
-  "ignorePaths": [
-    "hello-data-portal/hello-data-portal-ui/**"
-  ],
+  "repositories": ["kanton-bern/hellodata-be"],
+  "ignorePaths": ["hello-data-portal/hello-data-portal-ui/**"],
   "packageRules": [
     {
       "matchFileNames": ["**/pom.xml"],
@@ -20,7 +17,7 @@
     {
       "matchFileNames": ["**/pom.xml"],
       "matchManagers": ["maven"],
-      "matchDepTypes": ["properties"],      
+      "matchDepTypes": ["properties"],
       "matchUpdateTypes": ["major"],
       "groupName": "major update for {{depName}}",
       "groupSlug": "{{depName}}-major"
@@ -53,18 +50,17 @@
       "groupName": "major update for {{depName}}",
       "groupSlug": "{{depName}}-major"
     },
-
     {
       "matchManagers": ["maven"],
-      "matchPackagePrefixes": ["ch.bedag.dap.hellodata:"],
       "enabled": false,
-      "description": "Ignore internal Maven packages that Renovate cannot resolve"
+      "description": "Ignore internal Maven packages that Renovate cannot resolve",
+      "matchPackageNames": ["ch.bedag.dap.hellodata:{/,}**"]
     },
     {
       "matchManagers": ["dockerfile"],
-      "matchPackagePrefixes": ["registry.mgmtbi.ch/"],
       "enabled": false,
-      "description": "Ignore internal Docker images from private registry"
+      "description": "Ignore internal Docker images from private registry",
+      "matchPackageNames": ["registry.mgmtbi.ch/{/,}**"]
     }
   ]
 }
