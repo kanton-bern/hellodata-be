@@ -9,7 +9,6 @@
     {
       "matchFileNames": ["**/pom.xml"],
       "matchManagers": ["maven"],
-      "matchDepTypes": ["properties"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major dependencies (maven)",
       "groupSlug": "all-minor-patch-maven"
@@ -17,7 +16,6 @@
     {
       "matchFileNames": ["**/pom.xml"],
       "matchManagers": ["maven"],
-      "matchDepTypes": ["properties"],
       "matchUpdateTypes": ["major"],
       "groupName": "major update for {{depName}}",
       "groupSlug": "{{depName}}-major"
