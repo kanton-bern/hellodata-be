@@ -10,7 +10,6 @@
              [rowsPerPageOptions]="[5, 10, 20]"
              [rows]="10"
              [totalRecords]="totalRecords"
-             [globalFilterFields]="['status','tabName','databaseName', 'schema', 'table', 'userFullname', 'sql']"
              dataKey="id"
              id="dashboard_access_table"
              stateKey="dashboard-access-table"
@@ -38,34 +37,31 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
-            User
+            {{ '@Name' | transloco }}
             <p-sortIcon field="userFullname"></p-sortIcon>
           </th>
           <th id="usernameHeader" pSortableColumn="username" style="max-width:5rem">
-            User
+            {{ '@Username' | transloco }}
             <p-sortIcon field="username"></p-sortIcon>
           </th>
           <th id="dttmHeader" pSortableColumn="dttm" style="max-width:5rem">
-            Time
+            {{ '@Time' | transloco }}
             <p-sortIcon field="dttm"></p-sortIcon>
           </th>
           <th id="dashboardTitleHeader" pSortableColumn="dashboardTitle" style="max-width:5rem">
-            Tab name
+            {{ '@Dashboard' | transloco }}
             <p-sortIcon field="dashboardTitle"></p-sortIcon>
-          </th>
-          <th id="dashboardSlugHeader" pSortableColumn="dashboardSlug" style="max-width:5rem">
-            Tab name
-            <p-sortIcon field="dashboardSlug"></p-sortIcon>
           </th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-dashboardAccess>
-        <td>{{ dashboardAccess.dttm | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
-        <td>{{ dashboardAccess.userFullname }}</td>
-        <td>{{ dashboardAccess.username }}</td>
-        <td>{{ dashboardAccess.dashboardTitle }}</td>
-        <td>{{ dashboardAccess.dashboardSlug }}</td>
+        <tr>
+          <td>{{ dashboardAccess.userFullname }}</td>
+          <td>{{ dashboardAccess.username }}</td>
+          <td>{{ dashboardAccess.dttm | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
+          <td>{{ dashboardAccess.dashboardTitle }}</td>
+        </tr>
       </ng-template>
     </p-table>
   </div>

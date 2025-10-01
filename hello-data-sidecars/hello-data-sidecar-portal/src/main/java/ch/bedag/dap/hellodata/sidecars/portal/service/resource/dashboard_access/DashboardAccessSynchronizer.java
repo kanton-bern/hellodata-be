@@ -68,9 +68,9 @@ public class DashboardAccessSynchronizer {
                     dashboardAccessEntity.setId(existingDashboardAccess.getId());
                 }
                 dashboardAccessRepository.save(dashboardAccessEntity);
-                log.info("[fetchDashboardAccess] Saved dashboard access {}", dashboardAccessEntity);
+                log.debug("[fetchDashboardAccess] Saved dashboard access {}", dashboardAccessEntity);
             }
-            log.info("Finished synchronizing queries for data domain {}", contextEntity.getName());
+            log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses for data domain {}", contextEntity.getName());
 
         }
     }
@@ -120,8 +120,8 @@ public class DashboardAccessSynchronizer {
             ArrayNode filter = objectMapper.createArrayNode();
 
             if (foundEntity.isPresent()) {
-                DashboardAccessEntity queryEntity = foundEntity.get();
-                OffsetDateTime accessDate = queryEntity.getDttm();
+                DashboardAccessEntity dashboardAccessEntity = foundEntity.get();
+                OffsetDateTime accessDate = dashboardAccessEntity.getDttm();
                 ObjectNode changedOnFilter = objectMapper.createObjectNode();
                 changedOnFilter.put("col", "changed_on");
                 changedOnFilter.put("opr", "gt");
@@ -135,7 +135,7 @@ public class DashboardAccessSynchronizer {
                 reply.ack();
                 List<SupersetLog> supersetLogs = objectMapper.readValue(new String(reply.getData(), StandardCharsets.UTF_8), new TypeReference<>() {
                 });
-                log.debug("[fetchDashboardAccess] Received dashboard accesses by filter {}, queries: {}", new String(filterBytes, StandardCharsets.UTF_8), supersetLogs);
+                log.debug("[fetchDashboardAccess] Received dashboard accesses by filter {}, result: {}", new String(filterBytes, StandardCharsets.UTF_8), supersetLogs);
                 return supersetLogs;
             }
             if (reply != null) {

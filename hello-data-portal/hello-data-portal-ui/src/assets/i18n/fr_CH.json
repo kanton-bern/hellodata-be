@@ -209,6 +209,7 @@
   "@Sync Users": "Synchronisation",
   "@Sync Users Title": "Synchroniser les utilisateurs avec les systèmes environnants",
   "@Sync in progress": "Synchronisation en cours",
+  "@Time": "Temps",
   "@Title": "Titre",
   "@Title is invalid": "Le titre est invalide",
   "@Translation not available, fallback to default": "Traduction non disponible, retour à la valeur par {{default}}",

@@ -44,7 +44,6 @@ import {selectAdminEmails} from "../../store/users-management/users-management.s
 import {loadAdminEmails} from "../../store/users-management/users-management.action";
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {ScreenService} from "../../shared/services";
-import {navigate} from "../../store/app/app.action";
 
 @Component({
   templateUrl: 'home.component.html',
@@ -92,7 +91,4 @@ export class HomeComponent extends BaseComponent implements OnInit {
     return of(true);
   }
 
-  navigateHome() {
-    this.store.dispatch(navigate({url: 'home'}));
-  }
 }
