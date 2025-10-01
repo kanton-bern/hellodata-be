@@ -1,0 +1,56 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "timezone": "Europe/Zurich",
+  "repositories": ["bedag/hellodata-be"],
+  "schedule": ["before 3am"],
+  "packageRules": [
+    {
+      "matchFileNames": ["**/pom.xml"],
+      "matchManagers": ["maven"],
+      "matchDepTypes": ["properties"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies (maven)",
+      "groupSlug": "all-minor-patch-maven"
+    },
+    {
+      "matchFileNames": ["**/pom.xml"],
+      "matchManagers": ["maven"],
+      "matchDepTypes": ["properties"],      
+      "matchUpdateTypes": ["major"],
+      "groupName": "major update for {{depName}}",
+      "groupSlug": "{{depName}}-major"
+    },
+    {
+      "matchManagers": ["yarn"],
+      "matchFileNames": ["**/yarn.lock", "**/package.json"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies (yarn)",
+      "groupSlug": "all-minor-patch-yarn"
+    },
+    {
+      "matchManagers": ["yarn"],
+      "matchFileNames": ["**/yarn.lock", "**/package.json"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "major update for {{depName}}",
+      "groupSlug": "{{depName}}-major"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchFileNames": ["**/Dockerfile"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies (Dockerfiles)",
+      "groupSlug": "all-minor-patch-yarn"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchFileNames": ["**/Dockerfile"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "major update for {{depName}}",
+      "groupSlug": "{{depName}}-major"
+    }
+
+  ]
+}
