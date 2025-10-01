@@ -36,6 +36,7 @@
   "@Dashboard": "Dashboard",
   "@Dashboard List": "Liste",
   "@Dashboard Overview": "Dashboards",
+  "@Dashboard access": "Dashboard-Zugriff",
   "@Dashboard export completed": "Dashboard-Export abgeschlossen",
   "@Dashboard export started": "Dashboard-Export gestartet. Bitte warten...",
   "@Dashboard import-export": "Dashboard Import/Export",

@@ -67,7 +67,7 @@ public class DashboardAccessSynchronizer {
                     log.warn("Updating dashboard access {}", existingDashboardAccess);
                     dashboardAccessEntity.setId(existingDashboardAccess.getId());
                 }
-                // dashboardAccessRepository.save(dashboardAccessEntity);
+                dashboardAccessRepository.save(dashboardAccessEntity);
                 log.info("[fetchDashboardAccess] Saved dashboard access {}", dashboardAccessEntity);
             }
             log.info("Finished synchronizing queries for data domain {}", contextEntity.getName());

@@ -70,16 +70,7 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
       }),
       map(([dashboardAccessList, _]) => dashboardAccessList),
     );
-    this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(
-      tap((dataDomain) => {
-        const contextKey = dataDomain?.key ? dataDomain?.key : null;
-        const sortField = this.table.sortField;
-        const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc'
-        this.store.dispatch(loadDashboardAccessPaginated({
-          page: 0, size: 10, sort: `${sortField}, ${sortOrder}`, search: '', contextKey
-        }));
-      })
-    );
+    this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
   }
 
   loadDashboardAccess(event: TableLazyLoadEvent, contextKey: string) {

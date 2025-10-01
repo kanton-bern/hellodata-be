@@ -114,8 +114,8 @@ export const naviElements: any = {
     label: '@Queries'
   },
   dashboardAccess: {
-    path: 'dashboardAccess/list',
-    label: '@Dashboard Access'
+    path: 'dashboard-access/list',
+    label: '@Dashboard access'
   },
   externalDashboards: {
     path: 'external-dashboards',
