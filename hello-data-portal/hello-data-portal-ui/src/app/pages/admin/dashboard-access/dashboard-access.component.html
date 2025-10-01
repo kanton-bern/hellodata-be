@@ -52,6 +52,10 @@
             {{ '@Dashboard' | transloco }}
             <p-sortIcon field="dashboardTitle"></p-sortIcon>
           </th>
+          <th id="contextName" pSortableColumn="contextName">
+            {{ '@Data domain' | transloco }}
+            <p-sortIcon field="contextName"></p-sortIcon>
+          </th>
         </tr>
       </ng-template>
 
@@ -61,6 +65,7 @@
           <td>{{ dashboardAccess.username }}</td>
           <td>{{ dashboardAccess.dttm | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
           <td>{{ dashboardAccess.dashboardTitle }}</td>
+          <td>{{ dashboardAccess.contextName }}</td>
         </tr>
       </ng-template>
     </p-table>

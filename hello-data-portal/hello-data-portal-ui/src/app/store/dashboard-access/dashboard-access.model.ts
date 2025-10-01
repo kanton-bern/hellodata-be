@@ -28,6 +28,7 @@
 export interface DashboardAccess {
   id: string;
   contextKey: string;
+  contextName: string;
   username: string;
   userId: number;
   userFullname: string;

@@ -1,5 +1,7 @@
 package ch.bedag.dap.hellodata.portal.superset.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.superset.data.DashboardAccessDto;
 import ch.bedag.dap.hellodata.portalcommon.dashboard_access.entity.DashboardAccessEntity;
 import ch.bedag.dap.hellodata.portalcommon.dashboard_access.repository.DashboardAccessRepository;
@@ -11,12 +13,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class DashboardAccessService {
 
     private final DashboardAccessRepository dashboardAccessRepository;
+    private final HdContextRepository hdContextRepository;
 
     @Transactional(readOnly = true)
     public Page<DashboardAccessDto> findDashboardAccess(String contextKey, Pageable pageable, String search) {
@@ -26,7 +31,9 @@ public class DashboardAccessService {
         } else {
             allByContextKeyPageable = fetchAll(pageable, search);
         }
-        log.info("Fetched queries {} for contextKey: {} and search: {}", allByContextKeyPageable, contextKey, search);
+        List<HdContextEntity> allContexts = hdContextRepository.findAll();
+
+        log.debug("Fetched dashboard access list {} for contextKey: {} and search: {}", allByContextKeyPageable, contextKey, search);
         return allByContextKeyPageable.map(dashboardAccessEntity -> {
             DashboardAccessDto dto = new DashboardAccessDto();
             dto.setContextKey(dashboardAccessEntity.getContextKey());
@@ -41,6 +48,10 @@ public class DashboardAccessService {
             dto.setDashboardTitle(dashboardAccessEntity.getDashboardTitle());
             dto.setJson(dashboardAccessEntity.getJson());
             dto.setReferrer(dashboardAccessEntity.getReferrer());
+            HdContextEntity hdContextEntity = allContexts.stream().filter(ctx -> ctx.getContextKey().equals(dto.getContextKey())).findFirst().orElse(null);
+            if (hdContextEntity != null) {
+                dto.setContextName(hdContextEntity.getName());
+            }
             return dto;
         });
     }

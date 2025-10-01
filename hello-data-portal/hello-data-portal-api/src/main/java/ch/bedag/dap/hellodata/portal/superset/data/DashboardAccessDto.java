@@ -25,5 +25,6 @@ public class DashboardAccessDto {
     private long dttm;
     private String json;
     private String referrer;
+    private String contextName;
 
 }
