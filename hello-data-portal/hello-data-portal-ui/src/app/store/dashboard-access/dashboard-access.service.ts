@@ -42,7 +42,7 @@ export class DashboardAccessService {
   constructor(protected httpClient: HttpClient) {
   }
 
-  public getDashboardAccessPaginated(contextKey: string, page: number, size: number, sort: string, search: string): Observable<{
+  public getDashboardAccessPaginated(contextKey: string | null, page: number, size: number, sort: string, search: string): Observable<{
     content: DashboardAccess[],
     totalElements: number,
     totalPages: number

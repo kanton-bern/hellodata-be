@@ -44,7 +44,7 @@ import {MenuModule} from "primeng/menu";
 import {AnimateModule} from "primeng/animate";
 import {DropdownModule} from "primeng/dropdown";
 import {InputTextareaModule} from "primeng/inputtextarea";
-import {DashboardAccessComponent} from "./dashboard-access-component";
+import {DashboardAccessComponent} from "./dashboard-access.component";
 
 @NgModule({
   declarations: [DashboardAccessComponent],
