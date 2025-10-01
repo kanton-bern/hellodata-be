@@ -64,7 +64,7 @@ public class DashboardAccessSynchronizer {
                 Optional<DashboardAccessEntity> found = dashboardAccessRepository.findByContextKeyAndDttm(contextEntity.getContextKey(), dashboardAccessEntity.getDttm());
                 if (found.isPresent()) {
                     DashboardAccessEntity existingDashboardAccess = found.get();
-                    log.warn("Updating dashboard access {}", existingDashboardAccess);
+                    log.warn(" [fetchDashboardAccess]Updating dashboard access {}", existingDashboardAccess);
                     dashboardAccessEntity.setId(existingDashboardAccess.getId());
                 }
                 dashboardAccessRepository.save(dashboardAccessEntity);
