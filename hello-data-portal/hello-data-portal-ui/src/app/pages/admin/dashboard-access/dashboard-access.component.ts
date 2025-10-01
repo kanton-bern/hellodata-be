@@ -72,7 +72,7 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
     );
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(
       tap((dataDomain) => {
-        let contextKey = dataDomain?.key ? dataDomain?.key : null;
+        const contextKey = dataDomain?.key ? dataDomain?.key : null;
         const sortField = this.table.sortField;
         const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc'
         this.store.dispatch(loadDashboardAccessPaginated({
