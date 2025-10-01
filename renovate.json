@@ -5,6 +5,9 @@
   ],
   "timezone": "Europe/Zurich",
   "schedule": ["before 3am"],
+  "ignorePaths": [
+    "hello-data-portal/hello-data-portal-ui/**"
+  ],
   "packageRules": [
     {
       "matchFileNames": ["**/pom.xml"],
@@ -49,7 +52,19 @@
       "matchUpdateTypes": ["major"],
       "groupName": "major update for {{depName}}",
       "groupSlug": "{{depName}}-major"
-    }
+    },
 
+    {
+      "matchManagers": ["maven"],
+      "matchPackagePrefixes": ["ch.bedag.dap.hellodata:"],
+      "enabled": false,
+      "description": "Ignore internal Maven packages that Renovate cannot resolve"
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackagePrefixes": ["registry.mgmtbi.ch/"],
+      "enabled": false,
+      "description": "Ignore internal Docker images from private registry"
+    }
   ]
 }
