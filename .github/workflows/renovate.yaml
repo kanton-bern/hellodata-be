@@ -22,4 +22,4 @@ jobs:
           configurationFile: renovate.json
         env:
           RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LOG_LEVEL: info
+          LOG_LEVEL: debug

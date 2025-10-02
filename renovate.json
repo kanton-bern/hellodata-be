@@ -3,8 +3,7 @@
   "extends": ["config:recommended"],
   "timezone": "Europe/Zurich",
   "schedule": ["before 3am"],
-  "repositories": ["kanton-bern/hellodata-be"],
-  "ignorePaths": ["hello-data-portal/hello-data-portal-ui/**"],
+  "ignorePaths": ["hello-data-portal/hello-data-portal-ui-e2e/**"],
   "packageRules": [
     {
       "matchFileNames": ["**/pom.xml"],
@@ -39,7 +38,7 @@
       "matchFileNames": ["**/Dockerfile"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major dependencies (Dockerfiles)",
-      "groupSlug": "all-minor-patch-yarn"
+      "groupSlug": "all-minor-patch-dockerfiles"
     },
     {
       "matchManagers": ["dockerfile"],
