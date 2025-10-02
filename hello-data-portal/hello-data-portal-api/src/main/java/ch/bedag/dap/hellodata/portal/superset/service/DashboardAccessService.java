@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Log4j2
@@ -38,7 +39,7 @@ public class DashboardAccessService {
             DashboardAccessDto dto = new DashboardAccessDto();
             dto.setContextKey(dashboardAccessEntity.getContextKey());
             dto.setId(dashboardAccessEntity.getId());
-            dto.setDttm(dashboardAccessEntity.getDttm().toInstant().toEpochMilli());
+            dto.setDttm(dashboardAccessEntity.getDttm().toInstant(ZoneOffset.UTC).toEpochMilli());
             dto.setUsername(dashboardAccessEntity.getUsername());
             dto.setUserFullname(dashboardAccessEntity.getUserFullname());
             dto.setUserId(dashboardAccessEntity.getUserId());
