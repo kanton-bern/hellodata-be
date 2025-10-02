@@ -52,7 +52,7 @@ public class DashboardAccessSynchronizer {
     @Transactional
     public void synchronizeDashboardAccessFromSupersets() {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
-        log.debug("[fetchDashboardAccess] Synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
+        log.info("[fetchDashboardAccess] Synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
         for (HdContextEntity contextEntity : dataDomains) {
             log.info("[fetchDashboardAccess] Started synchronizing dashboard accesses for data domain {}", contextEntity.getName());
             String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextEntity.getContextKey());
@@ -71,8 +71,8 @@ public class DashboardAccessSynchronizer {
                 log.debug("[fetchDashboardAccess] Saved dashboard access {}", dashboardAccessEntity);
             }
             log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses for data domain {}", contextEntity.getName());
-
         }
+        log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
     }
 
     private static DashboardAccessEntity createDashboardAccessEntity(HdContextEntity contextEntity, SupersetLog supersetLog) {
