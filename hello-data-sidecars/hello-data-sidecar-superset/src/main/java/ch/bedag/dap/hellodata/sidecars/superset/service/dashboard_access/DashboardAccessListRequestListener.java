@@ -2,6 +2,7 @@ package ch.bedag.dap.hellodata.sidecars.superset.service.dashboard_access;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.logs.response.superset.SupersetLog;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.logs.response.superset.SupersetLogResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Log4j2
 @Service
@@ -42,9 +44,9 @@ public class DashboardAccessListRequestListener {
             log.debug("\t-=-=-=-= Received message from NATS: {}", new String(msg.getData()));
             try {
                 JsonElement jsonElement = JsonParser.parseString(new String(msg.getData(), StandardCharsets.UTF_8));
-                SupersetLogResponse logs = getSupersetLogResponse(msg, jsonElement);
-                log.debug("Received {} log entries from Superset", logs.getResult());
-                String result = objectMapper.writeValueAsString(logs.getResult());
+                List<SupersetLog> logs = getSupersetLogResponse(msg, jsonElement);
+                log.debug("Received {} log entries from Superset", logs);
+                String result = objectMapper.writeValueAsString(logs);
                 natsConnection.publish(msg.getReplyTo(), result.getBytes(StandardCharsets.UTF_8));
                 msg.ack();
             } catch (URISyntaxException | IOException | RuntimeException e) {
@@ -55,7 +57,7 @@ public class DashboardAccessListRequestListener {
         dispatcher.subscribe(supersetSidecarSubject);
     }
 
-    private SupersetLogResponse getSupersetLogResponse(Message msg, JsonElement jsonElement) throws URISyntaxException, IOException {
+    private List<SupersetLog> getSupersetLogResponse(Message msg, JsonElement jsonElement) throws URISyntaxException, IOException {
         JsonArray filter;
         if (jsonElement.isJsonArray()) {
             filter = jsonElement.getAsJsonArray();
@@ -74,6 +76,7 @@ public class DashboardAccessListRequestListener {
         filter.add(dashboardIdFilter);
 
         SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
-        return supersetClient.logsFiltered(filter);
+        SupersetLogResponse supersetLogResponse = supersetClient.logsFiltered(filter);
+        return supersetLogResponse.getResult().stream().filter(logEntry -> logEntry.getJson().contains("mount_dashboard")).toList();
     }
 }
