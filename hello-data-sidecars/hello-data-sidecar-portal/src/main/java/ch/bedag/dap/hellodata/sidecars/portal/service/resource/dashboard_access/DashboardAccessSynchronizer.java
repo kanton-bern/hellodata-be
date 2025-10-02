@@ -123,7 +123,7 @@ public class DashboardAccessSynchronizer {
                 DashboardAccessEntity dashboardAccessEntity = foundEntity.get();
                 OffsetDateTime accessDate = dashboardAccessEntity.getDttm();
                 ObjectNode changedOnFilter = objectMapper.createObjectNode();
-                changedOnFilter.put("col", "changed_on");
+                changedOnFilter.put("col", "dttm");
                 changedOnFilter.put("opr", "gt");
                 changedOnFilter.put("value", accessDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")));
                 filter.add(changedOnFilter);
