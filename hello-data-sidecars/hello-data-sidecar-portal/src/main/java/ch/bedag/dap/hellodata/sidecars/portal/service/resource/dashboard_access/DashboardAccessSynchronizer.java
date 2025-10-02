@@ -133,7 +133,9 @@ public class DashboardAccessSynchronizer {
             Message reply = connection.request(subject, filterBytes, Duration.ofSeconds(60));
             if (reply != null && reply.getData() != null) {
                 reply.ack();
-                List<SupersetLog> supersetLogs = objectMapper.readValue(new String(reply.getData(), StandardCharsets.UTF_8), new TypeReference<>() {
+                String content = new String(reply.getData(), StandardCharsets.UTF_8);
+                log.debug("[fetchDashboardAccess] reply: {}", content);
+                List<SupersetLog> supersetLogs = objectMapper.readValue(content, new TypeReference<>() {
                 });
                 log.debug("[fetchDashboardAccess] Received dashboard accesses by filter {}, result: {}", new String(filterBytes, StandardCharsets.UTF_8), supersetLogs);
                 return supersetLogs;
@@ -142,8 +144,10 @@ public class DashboardAccessSynchronizer {
                 reply.ack();
             }
             return Collections.emptyList();
-        } catch (InterruptedException | JsonProcessingException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread was interrupted when fetching dashboard accesses from the superset instance " + contextKey, e); //NOSONAR
+        } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching dashboard accesses from the superset instance " + contextKey, e); //NOSONAR
         }
     }

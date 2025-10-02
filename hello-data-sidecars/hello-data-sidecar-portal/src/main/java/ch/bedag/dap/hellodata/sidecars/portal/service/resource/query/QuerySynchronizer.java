@@ -122,8 +122,10 @@ public class QuerySynchronizer {
                 reply.ack();
             }
             return Collections.emptyList();
-        } catch (InterruptedException | JsonProcessingException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread was interrupted when fetching queries from the superset instance " + contextKey, e); //NOSONAR
+        } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching queries from the superset instance " + contextKey, e); //NOSONAR
         }
     }
