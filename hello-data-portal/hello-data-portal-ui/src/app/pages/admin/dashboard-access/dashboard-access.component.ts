@@ -57,6 +57,7 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
   @ViewChild('dt') table!: Table;
   totalRecords = 0;
   dataLoading$ = this.store.select(selectDashboardAccessDataLoading);
+  usedContextKey: string | null = null;
 
   constructor(private store: Store<AppState>) {
     super();
@@ -72,13 +73,15 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
     );
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(
       tap((dataDomain) => {
-        if (this.table) {
+        if (this.table && this.usedContextKey !== dataDomain?.key) {
           const contextKey = dataDomain?.key ? dataDomain?.key : null;
           const sortField = this.table.sortField;
-          const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc'
+          const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc';
+          const pageSize = this.table.rows as number;
           this.store.dispatch(loadDashboardAccessPaginated({
-            page: 0, size: 10, sort: `${sortField}, ${sortOrder}`, search: '', contextKey
+            page: 0, size: pageSize, sort: `${sortField}, ${sortOrder}`, search: '', contextKey
           }));
+          this.usedContextKey = contextKey;
         }
       })
     );
@@ -92,6 +95,7 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
       search: event.globalFilter ? event.globalFilter as string : '',
       contextKey
     }));
+    this.usedContextKey = contextKey;
     scrollToTop();
   }
 
