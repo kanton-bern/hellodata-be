@@ -20,11 +20,8 @@ jobs:
         uses: renovatebot/github-action@v43.0.14
         with:
           configurationFile: renovate.json
-          globalConfig: |
-            {
-              "platform": "github",
-              "repositories": ["${{ github.repository }}"]
-            }
         env:
           RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RENOVATE_PLATFORM: "github"
+          RENOVATE_REPOSITORIES: "${{ github.repository }}"
           LOG_LEVEL: info
