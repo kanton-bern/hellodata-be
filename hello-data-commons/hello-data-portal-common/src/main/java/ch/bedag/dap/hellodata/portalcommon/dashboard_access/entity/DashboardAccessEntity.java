@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Dashboard Accesses gathered from all data domains
@@ -34,7 +34,7 @@ public class DashboardAccessEntity extends BaseEntity {
     @Column(name = "dashboard_slug", nullable = false)
     private String dashboardSlug;
     @Column(name = "dttm", nullable = false)
-    private LocalDateTime dttm;
+    private OffsetDateTime dttm;
     private String json;
     private String referrer;
 }

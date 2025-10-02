@@ -30,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -79,7 +81,9 @@ public class DashboardAccessSynchronizer {
     private static DashboardAccessEntity createDashboardAccessEntity(HdContextEntity contextEntity, SupersetLog supersetLog) {
         DashboardAccessEntity dashboardAccessEntity = new DashboardAccessEntity();
         dashboardAccessEntity.setContextKey(contextEntity.getContextKey());
-        dashboardAccessEntity.setDttm(supersetLog.getDttm());
+        LocalDateTime localDateTime = supersetLog.getDttm();
+        OffsetDateTime offsetDateTime = localDateTime.atOffset(ZoneOffset.UTC);
+        dashboardAccessEntity.setDttm(offsetDateTime);
         dashboardAccessEntity.setDashboardId(supersetLog.getDashboardId());
         dashboardAccessEntity.setJson(supersetLog.getJson());
         dashboardAccessEntity.setReferrer(supersetLog.getReferrer());
@@ -118,7 +122,7 @@ public class DashboardAccessSynchronizer {
 
             if (foundEntity.isPresent()) {
                 DashboardAccessEntity dashboardAccessEntity = foundEntity.get();
-                LocalDateTime accessDate = dashboardAccessEntity.getDttm();
+                OffsetDateTime accessDate = dashboardAccessEntity.getDttm();
                 ObjectNode changedOnFilter = objectMapper.createObjectNode();
                 changedOnFilter.put("col", "dttm");
                 changedOnFilter.put("opr", "gt");
