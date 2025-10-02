@@ -86,6 +86,7 @@ import {AdvancedAnalyticsModule} from "./pages/advanced-analytics/advanced-analy
 import {SubsystemUsersModule} from "./pages/admin/subsystem-users/subsystem-users.module";
 import {MatomoModule, MatomoRouterModule} from 'ngx-matomo-client';
 import {QueriesModule} from "./pages/admin/queries/queries.module";
+import {DashboardAccessModule} from "./pages/admin/dashboard-access/dashboard-access.module";
 
 registerLocaleData(localeDECH);
 
@@ -155,7 +156,8 @@ registerLocaleData(localeDECH);
       trackerUrl: environment.matomoConfig.trackerUrl,
     }),
     MatomoRouterModule,
-    QueriesModule
+    QueriesModule,
+    DashboardAccessModule
   ],
   providers: [
     ScreenService,

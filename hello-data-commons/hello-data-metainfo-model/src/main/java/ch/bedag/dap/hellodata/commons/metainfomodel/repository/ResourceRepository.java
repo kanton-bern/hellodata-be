@@ -28,15 +28,14 @@ package ch.bedag.dap.hellodata.commons.metainfomodel.repository;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ResourceRepository extends JpaRepository<MetaInfoResourceEntity, UUID> {
@@ -45,6 +44,8 @@ public interface ResourceRepository extends JpaRepository<MetaInfoResourceEntity
     List<MetaInfoResourceEntity> findAllByModuleType(ModuleType moduleType);
 
     List<MetaInfoResourceEntity> findAllByModuleTypeAndKind(ModuleType moduleType, String kind);
+
+    Optional<MetaInfoResourceEntity> getByModuleTypeAndKindAndContextKey(ModuleType moduleType, String kind, String contextKey);
 
     List<MetaInfoResourceEntity> findAllByKind(String kind);
 

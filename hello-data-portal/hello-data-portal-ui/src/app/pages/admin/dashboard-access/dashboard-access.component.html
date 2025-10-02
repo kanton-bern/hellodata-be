@@ -1,0 +1,73 @@
+<h2 class="content-block">{{ '@Dashboard access' | transloco }}</h2>
+<div class="card" *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
+    <div *ngIf="(dashboardAccess$ | async) as dashboardAccessList">
+        <p-table #dt
+                 [lazy]="true"
+                 (onLazyLoad)="loadDashboardAccess($event, selectedDataDomain.key)"
+                 [loading]="(dataLoading$ | async) ?? false"
+                 [value]="dashboardAccessList"
+                 [paginator]="true"
+                 [rowHover]="true"
+                 [rowsPerPageOptions]="[5, 10, 20]"
+                 [rows]="10"
+                 [totalRecords]="totalRecords"
+                 dataKey="id"
+                 id="dashboard_access_table"
+                 stateKey="dashboard-access-table"
+                 sortField="dttm"
+                 [sortOrder]="-1"
+                 [(first)]="first"
+                 stateStorage="session"
+                 styleClass="p-datatable-striped"
+                 [tableStyle]="{ 'min-width': '50rem' }">
+
+            <ng-template pTemplate="caption">
+                <div>
+                    <div id="searchBox">
+            <span class="p-input-icon-left p-ml-auto">
+              <i class="pi pi-search"></i>
+              <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
+            </span>
+                    </div>
+                </div>
+                <br><br><br>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
+                        {{ '@Name' | transloco }}
+                        <p-sortIcon field="userFullname"></p-sortIcon>
+                    </th>
+                    <th id="usernameHeader" pSortableColumn="username" style="max-width:5rem">
+                        {{ '@Username' | transloco }}
+                        <p-sortIcon field="username"></p-sortIcon>
+                    </th>
+                    <th id="dttmHeader" pSortableColumn="dttm" style="max-width:5rem">
+                        {{ '@Time' | transloco }}
+                        <p-sortIcon field="dttm"></p-sortIcon>
+                    </th>
+                    <th id="dashboardTitleHeader" pSortableColumn="dashboardTitle" style="max-width:5rem">
+                        {{ '@Dashboard' | transloco }}
+                        <p-sortIcon field="dashboardTitle"></p-sortIcon>
+                    </th>
+                    <th id="contextName">
+                        {{ '@Data domain' | transloco }}
+                    </th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-dashboardAccess>
+                <tr>
+                    <td>{{ dashboardAccess.userFullname }}</td>
+                    <td>{{ dashboardAccess.username }}</td>
+                    <td>{{ dashboardAccess.dttm | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
+                    <td>{{ dashboardAccess.dashboardTitle }}</td>
+                    <td>{{ dashboardAccess.contextName }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>

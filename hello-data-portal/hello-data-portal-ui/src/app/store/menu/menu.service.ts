@@ -170,12 +170,14 @@ export class MenuService {
     const result: any[] = [];
     const dataDomains = availableDomainItems.map(item => item.data).sort((a, b) => a!.key.toLowerCase().localeCompare(b!.key.toLowerCase()));
     for (const dataDomain of dataDomains) {
-      result.push({
-        id: 'queries_' + dataDomain!.key,
-        text: dataDomain!.name,
-        routerLink: this.createQueryLink(dataDomain!.key),
-        requiredPermissions: ['QUERIES']
-      });
+      if (dataDomain.key) {
+        result.push({
+          id: 'queries_' + dataDomain!.key,
+          text: dataDomain!.name,
+          routerLink: this.createQueryLink(dataDomain!.key),
+          requiredPermissions: ['QUERIES']
+        });
+      }
     }
     return result;
   }

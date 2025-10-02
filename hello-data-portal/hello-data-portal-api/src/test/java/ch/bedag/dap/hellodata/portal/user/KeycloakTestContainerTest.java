@@ -33,6 +33,7 @@ import ch.bedag.dap.hellodata.portal.initialize.service.RolesInitializer;
 import ch.bedag.dap.hellodata.portal.monitoring.service.StorageSizeService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.service.BatchUsersCustomLogger;
+import ch.bedag.dap.hellodata.portalcommon.dashboard_access.repository.DashboardAccessRepository;
 import ch.bedag.dap.hellodata.portalcommon.query.repository.QueryRepository;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import io.nats.client.Connection;
@@ -84,6 +85,8 @@ public abstract class KeycloakTestContainerTest {
     private BatchUsersCustomLogger batchUsersCustomLogger;
     @MockBean
     private QueryRepository queryRepository;
+    @MockBean
+    private DashboardAccessRepository dashboardAccessRepository;
 
     @DynamicPropertySource
     static void registerResourceServerIssuerProperty(DynamicPropertyRegistry registry) {

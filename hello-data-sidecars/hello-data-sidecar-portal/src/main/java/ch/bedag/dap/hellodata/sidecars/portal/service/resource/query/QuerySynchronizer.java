@@ -43,7 +43,7 @@ public class QuerySynchronizer {
 
     @Scheduled(timeUnit = TimeUnit.MINUTES,
             fixedDelayString = "${hello-data.synchronize-query-in-minutes:60}",
-            initialDelayString = "${hello-data.synchronize-query.initial-delay:2}")
+            initialDelayString = "${hello-data.synchronize-query.initial-delay-minutes:2}")
     @Transactional
     public void synchronizeQueriesFromSupersets() {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
@@ -122,8 +122,10 @@ public class QuerySynchronizer {
                 reply.ack();
             }
             return Collections.emptyList();
-        } catch (InterruptedException | JsonProcessingException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread was interrupted when fetching queries from the superset instance " + contextKey, e); //NOSONAR
+        } catch (JsonProcessingException e) {
             throw new RuntimeException("Error fetching queries from the superset instance " + contextKey, e); //NOSONAR
         }
     }

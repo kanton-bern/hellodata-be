@@ -27,9 +27,11 @@
 package ch.bedag.dap.hellodata.portal.superset.controller;
 
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
+import ch.bedag.dap.hellodata.portal.superset.data.DashboardAccessDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetQueryDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
+import ch.bedag.dap.hellodata.portal.superset.service.DashboardAccessService;
 import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
 import jakarta.validation.Valid;
@@ -57,6 +59,7 @@ public class SupersetController {
 
     private final DashboardService dashboardService;
     private final QueryService queryService;
+    private final DashboardAccessService dashboardAccessService;
 
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     @GetMapping(value = "/my-dashboards")
@@ -90,6 +93,19 @@ public class SupersetController {
         Pageable pageable = PageUtil.createPageable(page, size, sort, "changedOn", Sort.Direction.DESC);
         Page<SupersetQueryDto> queries = queryService.findQueries(contextKey, pageable, search);
         return ResponseEntity.ok(queries);
+    }
+
+    @PreAuthorize("hasAnyAuthority('DASHBOARD_ACCESS')")
+    @GetMapping(value = "/dashboard_access")
+    public ResponseEntity<Page<DashboardAccessDto>> fetchDashboardAccess(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String contextKey) {
+        Pageable pageable = PageUtil.createPageable(page, size, sort, "dttm", Sort.Direction.DESC);
+        Page<DashboardAccessDto> result = dashboardAccessService.findDashboardAccess(contextKey, pageable, search);
+        return ResponseEntity.ok(result);
     }
 
 }

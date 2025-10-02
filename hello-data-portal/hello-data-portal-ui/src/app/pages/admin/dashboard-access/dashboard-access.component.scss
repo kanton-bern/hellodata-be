@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright © 2024, Kanton Bern
  * All rights reserved.
  *
@@ -24,24 +24,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.events;
-
-import lombok.Getter;
-
-/**
- * Subjects for request/reply NATS pattern
- */
-@Getter
-public enum RequestReplySubject {
-    UPDATE_DASHBOARD_ROLES_FOR_USER("-update_dashboard_roles_for_user"),
-    UPLOAD_DASHBOARDS_FILE("-upload_dashboards_file"),
-    NATS_CONNECTION_HEALTH_CHECK("nats_connection_health_check"),
-    GET_QUERY_LIST("-get_query_list"),
-    GET_DASHBOARD_ACCESS_LIST("-get_logs_list"),
-    ;
-    private final String subject;
-
-    RequestReplySubject(String subject) {
-        this.subject = subject;
+:host ::ng-deep {
+  .p-datatable-striped {
+    #searchBox {
+      display: flex;
+      float: right;
     }
+  }
 }

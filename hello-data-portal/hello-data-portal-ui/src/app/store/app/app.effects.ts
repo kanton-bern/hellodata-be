@@ -54,6 +54,7 @@ import {ALL_DATA_DOMAINS} from "./app.constants";
 import {QueriesEffects} from "../queries/queries.effects";
 import {MatomoTracker} from "ngx-matomo-client";
 import {WindowManagementService} from "../../shared/services/window-management.service";
+import {DashboardAccessEffects} from "../dashboard-access/dashboard-access.effects";
 
 @Injectable()
 export class AppEffects {
@@ -160,5 +161,6 @@ export const appEffects: Array<Type<unknown> | Record<string, FunctionalEffect>>
     ExternalDashboardsEffects,
     LineageDocsEffects,
     UnsavedChangesEffects,
-    QueriesEffects
+    QueriesEffects,
+    DashboardAccessEffects,
   ]

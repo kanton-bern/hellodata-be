@@ -29,6 +29,7 @@ package ch.bedag.dap.hellodata.sidecars.superset.client;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardByIdResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.logs.response.superset.SupersetLogResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset.SupersetPermissionResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.query.response.superset.SupersetQueryResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolePermissionsResponse;
@@ -404,6 +405,24 @@ public class SupersetClient {
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("queriesFiltered() response json \n{}", new String(bytes));
         return getObjectMapper().readValue(bytes, SupersetQueryResponse.class);
+    }
+
+    /**
+     * Returns a list of available logs.
+     *
+     * @return A JSON array containing a list of logs.
+     * @throws URISyntaxException      If the Superset URL is invalid.
+     * @throws ClientProtocolException If there was an error communicating with the
+     *                                 Superset server.
+     * @throws IOException             If there was an error communicating with the
+     *                                 Superset server.
+     */
+    public SupersetLogResponse logsFiltered(JsonArray filters) throws URISyntaxException, ClientProtocolException, IOException {
+        HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(host, port, authToken, filters);
+        ApiResponse resp = executeRequest(request);
+        byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
+        log.debug("logsFiltered() response json \n{}", new String(bytes));
+        return getObjectMapper().readValue(bytes, SupersetLogResponse.class);
     }
 
     /**

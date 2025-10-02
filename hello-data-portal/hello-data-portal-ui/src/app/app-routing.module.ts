@@ -74,6 +74,7 @@ import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehous
 import {SubsystemUsersComponent} from "./pages/admin/subsystem-users/subsystem-users.component";
 import {UsersOverviewComponent} from "./pages/admin/users-overview/users-overview.component";
 import {QueriesComponent} from "./pages/admin/queries/queries.component";
+import {DashboardAccessComponent} from "./pages/admin/dashboard-access/dashboard-access.component";
 
 const routes: Routes = [
 
@@ -156,6 +157,23 @@ const routes: Routes = [
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['USER_MANAGEMENT'],
+        }
+      }
+    ]
+  },
+  {
+    path: naviElements.dashboardAccess.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARD_ACCESS'],
+    },
+    children: [
+      {
+        path: '',
+        component: DashboardAccessComponent,
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['DASHBOARD_ACCESS'],
         }
       }
     ]

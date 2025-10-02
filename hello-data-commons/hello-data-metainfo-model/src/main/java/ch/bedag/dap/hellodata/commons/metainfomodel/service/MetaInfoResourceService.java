@@ -76,6 +76,18 @@ public class MetaInfoResourceService {
     }
 
     @Transactional(readOnly = true)
+    public <T extends HdResource> T findAllByModuleTypeAndKindAndContextKey(ModuleType moduleType, String kind, String contextKey, Class<T> concreteClass) {
+        Optional<MetaInfoResourceEntity> result = resourceRepository.getByModuleTypeAndKindAndContextKey(moduleType, kind, contextKey);
+        if (result.isPresent()) {
+            HdResource metainfo = result.get().getMetainfo();
+            if (concreteClass.isInstance(metainfo)) {
+                return concreteClass.cast(metainfo);
+            }
+        }
+        return null;
+    }
+
+    @Transactional(readOnly = true)
     public List<MetaInfoResourceEntity> findAllByKindWithContext(String kind) {
         return resourceRepository.findAllByKind(kind);
     }

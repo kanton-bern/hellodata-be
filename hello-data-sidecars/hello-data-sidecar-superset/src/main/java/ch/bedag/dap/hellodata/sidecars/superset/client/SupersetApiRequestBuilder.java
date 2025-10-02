@@ -74,6 +74,7 @@ public class SupersetApiRequestBuilder {
     private static final String LIST_ROLE_PERMISSIONS_API_ENDPOINT = "/api/v1/security/roles/%d/permissions/";
     private static final String LIST_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/";
     private static final String LIST_QUERY_API_ENDPOINT = "/api/v1/query/";
+    private static final String LIST_LOGS_API_ENDPOINT = "/api/v1/log/";
     private static final String DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/%d";
     private static final String EXPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/export/";
     private static final String IMPORT_DASHBOARD_API_ENDPOINT = "/api/v1/dashboard/import/";
@@ -184,6 +185,10 @@ public class SupersetApiRequestBuilder {
 
     public static HttpUriRequest getListQueriesRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
         return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_QUERY_API_ENDPOINT);
+    }
+
+    public static HttpUriRequest getLisLogsRequestFiltered(String host, int port, String authToken, JsonArray filters) throws URISyntaxException {
+        return getHttpUriRequestWithBasicParams(host, port, authToken, null, filters, LIST_LOGS_API_ENDPOINT);
     }
 
     public static ObjectMapper getObjectMapper() {

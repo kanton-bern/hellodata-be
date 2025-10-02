@@ -30,8 +30,6 @@ public interface QueryRepository extends JpaRepository<QueryEntity, UUID> {
             "OR LOWER(q.tabName) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<QueryEntity> findAll(Pageable pageable, @Param("contextKey") String contextKey, @Param("search") String search);
 
-    long countAllByContextKey(String contextKey);
-
     Optional<QueryEntity> findFirstByContextKeyOrderByChangedOnDesc(String contextKey);
 
 }
