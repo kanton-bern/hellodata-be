@@ -43,6 +43,7 @@ public class DashboardAccessListRequestListener {
             try {
                 JsonElement jsonElement = JsonParser.parseString(new String(msg.getData(), StandardCharsets.UTF_8));
                 SupersetLogResponse logs = getSupersetLogResponse(msg, jsonElement);
+                log.debug("Received {} log entries from Superset", logs.getResult());
                 String result = objectMapper.writeValueAsString(logs.getResult());
                 natsConnection.publish(msg.getReplyTo(), result.getBytes(StandardCharsets.UTF_8));
                 msg.ack();
