@@ -62,11 +62,16 @@ public class DashboardAccessListRequestListener {
         } else {
             throw new IllegalStateException("Expected a JSON array but received: " + new String(msg.getData(), StandardCharsets.UTF_8));
         }
-        JsonObject dashboardActionFilter = new JsonObject();
-        dashboardActionFilter.addProperty("col", "action");
-        dashboardActionFilter.addProperty("opr", "eq");
-        dashboardActionFilter.addProperty("value", "DashboardRestApi.get");
-        filter.add(dashboardActionFilter);
+        JsonObject logFilter = new JsonObject();
+        logFilter.addProperty("col", "action");
+        logFilter.addProperty("opr", "eq");
+        logFilter.addProperty("value", "log");
+        filter.add(logFilter);
+        JsonObject dashboardIdFilter = new JsonObject();
+        dashboardIdFilter.addProperty("col", "dashboard_id");
+        dashboardIdFilter.addProperty("opr", "gt");
+        dashboardIdFilter.addProperty("value", 0);
+        filter.add(dashboardIdFilter);
 
         SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
         return supersetClient.logsFiltered(filter);
