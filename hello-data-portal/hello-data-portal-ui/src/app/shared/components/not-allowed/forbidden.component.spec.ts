@@ -26,7 +26,7 @@
 ///
 
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {TranslocoService, TranslocoTestingModule} from '@ngneat/transloco';
+import {TranslocoService, TranslocoTestingModule} from '@jsverse/transloco';
 import {ForbiddenComponent} from './forbidden.component';
 import {beforeEach, describe, expect, it} from "@jest/globals";
 

@@ -32,7 +32,7 @@ import {of} from 'rxjs';
 import {naviElements} from '../../app-navi-elements';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 describe('ProfileComponent', () => {

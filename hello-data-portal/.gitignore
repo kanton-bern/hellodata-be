@@ -37,3 +37,9 @@ target/
 .DS_Store
 
 ../hello-data-deployment/docker-compose/smtp4dev-data/database.db
+
+### yarn
+.pnp.loader.mjs
+.pnp.cjs
+.yarn
+.yarnrc.yml

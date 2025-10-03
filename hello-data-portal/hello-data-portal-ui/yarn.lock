@@ -2548,6 +2548,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jsverse/transloco-utils@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "@jsverse/transloco-utils@npm:8.0.2"
+  dependencies:
+    cosmiconfig: "npm:^8.1.3"
+    tslib: "npm:^2.3.0"
+  checksum: 10c0/151fe809f0c403f0d8212764dc793663fdf0966a2d40a2f25d135a7b34ab028c59fa476341640e9fb95ed379f4818b4b1888647e7ed92d28aa6eeaa285d09cd2
+  languageName: node
+  linkType: hard
+
+"@jsverse/transloco@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "@jsverse/transloco@npm:8.0.2"
+  dependencies:
+    "@jsverse/transloco-utils": "npm:^8.0.2"
+    "@jsverse/utils": "npm:1.0.0-beta.5"
+    tslib: "npm:^2.2.0"
+  peerDependencies:
+    "@angular/core": ">=16.0.0"
+    rxjs: ">=6.0.0"
+  checksum: 10c0/ec6f2eacf3873ae817cd35c5b299f64b7ff547279c95569a627b72e99b061f5e82e13f937f74ed3e861423d1a38e3bc0a8ad783b3a5f6b0f3ebbeabf7ea3b0b5
+  languageName: node
+  linkType: hard
+
+"@jsverse/utils@npm:1.0.0-beta.5":
+  version: 1.0.0-beta.5
+  resolution: "@jsverse/utils@npm:1.0.0-beta.5"
+  checksum: 10c0/caa2fca550a56a7f5311de5c298d47295d279781b91551a8ab86032dbc57eac9f32d5592356ef2d13803a582a7fe5e9241dd63b87bd0c151af04ccc4d05c127d
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.5
   resolution: "@leichtgewicht/ip-codec@npm:2.0.5"
@@ -2561,35 +2592,6 @@ __metadata:
   dependencies:
     call-bind: "npm:^1.0.8"
   checksum: 10c0/7c5c22ed668f51193b82e4a352c7a44f777f537ef47f37befb49032f4827a766ea74c2972e5a0185bdfe355431ae50722d9fb57fa63553ba36aa4aeb941f0e70
-  languageName: node
-  linkType: hard
-
-"@ngneat/transloco-utils@npm:3.0.5":
-  version: 3.0.5
-  resolution: "@ngneat/transloco-utils@npm:3.0.5"
-  dependencies:
-    cosmiconfig: "npm:^8.1.3"
-    tslib: "npm:^2.3.0"
-  checksum: 10c0/4c01cc89f9ada5a3f1179f9f4bbcababcb6a19ffacf747708b5850135a1dc43c1bda271f804b0c3beb22f97d037882f724bcdff7bf1ea3c38babf4e56be7c7c3
-  languageName: node
-  linkType: hard
-
-"@ngneat/transloco@npm:^4.2.6":
-  version: 4.3.0
-  resolution: "@ngneat/transloco@npm:4.3.0"
-  dependencies:
-    "@ngneat/transloco-utils": "npm:3.0.5"
-    flat: "npm:5.0.2"
-    lodash.kebabcase: "npm:^4.1.1"
-    ora: "npm:^5.4.1"
-    replace-in-file: "npm:^6.2.0"
-    tslib: "npm:^2.2.0"
-  peerDependencies:
-    "@angular/core": ">=13.0.0"
-    fs-extra: ">=9.1.0"
-    glob: ">=7.1.7"
-    rxjs: ">=6.0.0"
-  checksum: 10c0/5f74d22bbc0981011f522ea4e72ed202e03cfcccc9b6bd60e21f9e1f623131cdf8b27c6c0929973143c5e1f460484cc9e66566f50677c3748506c9af0d9e0ab6
   languageName: node
   linkType: hard
 
@@ -4901,7 +4903,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0, chalk@npm:^4.1.2":
+"chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
   dependencies:
@@ -6604,7 +6606,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"flat@npm:5.0.2, flat@npm:^5.0.2":
+"flat@npm:^5.0.2":
   version: 5.0.2
   resolution: "flat@npm:5.0.2"
   bin:
@@ -6845,7 +6847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.2.0":
+"glob@npm:^7.1.3, glob@npm:^7.1.4":
   version: 7.2.3
   resolution: "glob@npm:7.2.3"
   dependencies:
@@ -7007,7 +7009,7 @@ __metadata:
     "@fortawesome/free-brands-svg-icons": "npm:^6.4.0"
     "@fortawesome/free-regular-svg-icons": "npm:^6.4.0"
     "@fortawesome/free-solid-svg-icons": "npm:^6.4.0"
-    "@ngneat/transloco": "npm:^4.2.6"
+    "@jsverse/transloco": "npm:^8.0.2"
     "@ngrx/core": "npm:^1.2.0"
     "@ngrx/effects": "npm:^17.0.1"
     "@ngrx/eslint-plugin": "npm:^17.1.0"
@@ -8788,13 +8790,6 @@ __metadata:
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
   checksum: 10c0/762998a63e095412b6099b8290903e0a8ddcb353ac6e2e0f2d7e7d03abd4275fe3c689d88960eb90b0dde4f177554d51a690f22a343932ecbc50a5d111849987
-  languageName: node
-  linkType: hard
-
-"lodash.kebabcase@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "lodash.kebabcase@npm:4.1.1"
-  checksum: 10c0/da5d8f41dbb5bc723d4bf9203d5096ca8da804d6aec3d2b56457156ba6c8d999ff448d347ebd97490da853cb36696ea4da09a431499f1ee8deb17b094ecf4e33
   languageName: node
   linkType: hard
 
@@ -10635,19 +10630,6 @@ __metadata:
   bin:
     regjsparser: bin/parser
   checksum: 10c0/99d3e4e10c8c7732eb7aa843b8da2fd8b647fe144d3711b480e4647dc3bff4b1e96691ccf17f3ace24aa866a50b064236177cb25e6e4fbbb18285d99edaed83b
-  languageName: node
-  linkType: hard
-
-"replace-in-file@npm:^6.2.0":
-  version: 6.3.5
-  resolution: "replace-in-file@npm:6.3.5"
-  dependencies:
-    chalk: "npm:^4.1.2"
-    glob: "npm:^7.2.0"
-    yargs: "npm:^17.2.1"
-  bin:
-    replace-in-file: bin/cli.js
-  checksum: 10c0/20fa9bc0e6fb439e4556f65e672db35ad7ceaab6900ab035799c523eaef8bea463ce06cb790280ad56c0e2e5de70fd8b1ed0317eb539352d90b58de951995967
   languageName: node
   linkType: hard
 

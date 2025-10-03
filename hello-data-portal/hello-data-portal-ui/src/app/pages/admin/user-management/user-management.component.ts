@@ -51,7 +51,7 @@ import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-man
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {UserEditComponent} from "./user-edit/user-edit.component";
 import {ActionsUserPopupComponent} from "./actions-user-popup/actions-user-popup.component";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
 import {TableLazyLoadEvent, TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";

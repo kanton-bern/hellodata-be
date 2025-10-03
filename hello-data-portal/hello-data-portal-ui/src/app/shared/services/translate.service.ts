@@ -26,9 +26,9 @@
 ///
 
 import {Injectable, OnDestroy} from "@angular/core";
-import {LangDefinition, Translation, TranslocoService} from "@ngneat/transloco";
+import {LangDefinition, Translation, TranslocoService} from "@jsverse/transloco";
 import {Observable, Subscription, switchMap, tap} from "rxjs";
-import {HashMap, TranslateParams, TranslocoScope} from "@ngneat/transloco/lib/types";
+import {HashMap, TranslateParams, TranslocoScope} from "@jsverse/transloco/lib/types";
 import {filter} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
 import {PrimeNGConfig} from "primeng/api";

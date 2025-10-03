@@ -32,7 +32,7 @@ import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} f
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
 import {EmbeddedLineageDocsComponent} from "./embedded/embedded-lineage-docs.component";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {DropdownModule} from "primeng/dropdown";
 import {TooltipModule} from "primeng/tooltip";
 import {LineageDoc} from "../../store/lineage-docs/lineage-docs.model";

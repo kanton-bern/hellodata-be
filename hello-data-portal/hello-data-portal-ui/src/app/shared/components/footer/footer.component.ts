@@ -27,7 +27,7 @@
 
 import {Component, Input, NgModule} from '@angular/core';
 import {AppInfoService} from "../../services";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {environment} from "../../../../environments/environment";
 import {RouterModule} from "@angular/router";
 

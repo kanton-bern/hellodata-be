@@ -38,7 +38,7 @@ import {SelectedWorkspaceComponent} from "./selected-workspace/selected-workspac
 import {SelectedWorkspaceRolesComponent} from "./selected-workspace-roles/selected-workspace-roles.component";
 import {SelectedWorkspaceDashboardsComponent} from "./selected-workspace-dashboards/selected-workspace-dashboards.component";
 import {TableModule} from "primeng/table";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {TagModule} from "primeng/tag";
 import {TooltipModule} from "primeng/tooltip";
 import {ToolbarModule} from "primeng/toolbar";

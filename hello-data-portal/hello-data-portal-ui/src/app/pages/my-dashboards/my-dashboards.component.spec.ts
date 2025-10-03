@@ -36,7 +36,7 @@ import {MenuService} from '../../store/menu/menu.service';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 

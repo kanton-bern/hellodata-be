@@ -49,7 +49,7 @@ import {ButtonModule} from "primeng/button";
 import {SidebarModule} from "primeng/sidebar";
 import {BreadcrumbComponent} from "../breadcrumb/breadcrumb.component";
 import {BreadcrumbModule} from "primeng/breadcrumb";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {DropdownModule} from "primeng/dropdown";
 import {FormsModule} from "@angular/forms";
 import {ToolbarModule} from "primeng/toolbar";

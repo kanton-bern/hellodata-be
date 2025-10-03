@@ -60,7 +60,7 @@ import {
   selectSelectedLanguage
 } from "../../../store/auth/auth.selector";
 import {HdCommonModule} from "../../../hd-common.module";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {TooltipModule} from "primeng/tooltip";
 import {DataViewModule} from "primeng/dataview";
 import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
