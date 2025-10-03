@@ -10,7 +10,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      issues: write
       security-events: read
     steps:
       - name: Checkout
@@ -24,4 +23,4 @@ jobs:
           RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RENOVATE_PLATFORM: "github"
           RENOVATE_REPOSITORIES: "${{ github.repository }}"
-          LOG_LEVEL: info
+          LOG_LEVEL: debug
