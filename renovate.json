@@ -2,7 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "timezone": "Europe/Zurich",
-  "schedule": ["before 3am"],
   "ignorePaths": ["hello-data-portal/hello-data-portal-ui-e2e/**"],
   "packageRules": [
     {
