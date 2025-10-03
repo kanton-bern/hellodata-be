@@ -26,15 +26,8 @@
 ///
 
 import {HttpClient} from '@angular/common/http';
-import {
-  Translation,
-  TRANSLOCO_CONFIG,
-  TRANSLOCO_LOADER,
-  translocoConfig,
-  TranslocoLoader,
-  TranslocoModule
-} from '@jsverse/transloco';
-import {Injectable, NgModule} from '@angular/core';
+import {provideTransloco, Translation, TranslocoLoader, TranslocoModule} from '@jsverse/transloco';
+import {Injectable, isDevMode, NgModule} from '@angular/core';
 
 @Injectable({providedIn: 'root'})
 export class TranslocoHttpLoader implements TranslocoLoader {
@@ -42,31 +35,32 @@ export class TranslocoHttpLoader implements TranslocoLoader {
   }
 
   getTranslation(lang: string) {
-    console.debug('get translation', lang);
     const timestamp = new Date().getTime();
     const url = `./assets/i18n/${lang}.json?ts=${timestamp}`;
     return this.http.get<Translation>(url);
   }
 }
 
-export const HD_TRANSLOCO_CONFIG = {
-  availableLangs: ['en', 'de_CH', 'fr_CH'],
-  defaultLang: 'de_CH',
-  // Remove this option if your application doesn't support changing language in runtime.
-  reRenderOnLangChange: true,
-  missingHandler: {
-    logMissingKey: false,
-  },
-};
 
 @NgModule({
   exports: [TranslocoModule],
   providers: [
-    {
-      provide: TRANSLOCO_CONFIG,
-      useValue: translocoConfig(HD_TRANSLOCO_CONFIG)
-    },
-    {provide: TRANSLOCO_LOADER, useClass: TranslocoHttpLoader}
+    provideTransloco({
+      config: {
+        availableLangs: ['en', 'de_CH', 'fr_CH'],
+        defaultLang: 'de_CH',
+        fallbackLang: 'de_CH',
+        reRenderOnLangChange: true,
+        prodMode: !isDevMode(),
+        flatten: {aot: true},
+        missingHandler: {
+          useFallbackTranslation: false,
+          allowEmpty: true,
+          logMissingKey: false
+        },
+      },
+      loader: TranslocoHttpLoader,
+    }),
   ]
 })
 export class TranslocoRootModule {

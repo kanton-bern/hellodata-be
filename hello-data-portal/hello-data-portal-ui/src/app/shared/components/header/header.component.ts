@@ -179,7 +179,7 @@ export class HeaderComponent {
         languagesLocal.push({
           code: language,
           label: language.slice(0, 2)?.toUpperCase(),
-          selected: this.selectedLanguage === language
+          selected: language.startsWith(this.selectedLanguage as string)
         });
       }
       this.supportedLanguages = languagesLocal;

@@ -56,7 +56,7 @@ import {loadDocumentation, loadPipelines, loadStorageSize} from "../summary/summ
 import {TranslateService} from "../../shared/services/translate.service";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {selectProfile, selectSelectedLanguage} from "./auth.selector";
+import {selectProfile, selectSelectedLanguage, selectSupportedLanguages} from "./auth.selector";
 import {CloudbeaverService} from "./cloudbeaver.service";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 import {WindowManagementService} from "../../shared/services/window-management.service";
@@ -261,10 +261,18 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(setActiveTranslocoLanguage),
       withLatestFrom(
-        this._store.select(selectSelectedLanguage)
+        this._store.select(selectSelectedLanguage),
+        this._store.select(selectSupportedLanguages)
       ),
-      tap(([_, selectedLanguage]) => {
-        if (selectedLanguage) {
+      tap(([_, selectedLanguage, supportedLanguages]) => {
+        if (selectedLanguage && !supportedLanguages.includes(selectedLanguage.code as string)) {
+          const lang = supportedLanguages.find(lang => lang.startsWith(selectedLanguage.code as string));
+          if (lang) {
+            this._translateService.setActiveLang(lang as string);
+          } else {
+            this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
+          }
+        } else if (selectedLanguage) {
           this._translateService.setActiveLang(selectedLanguage.code as string);
         }
       }),
