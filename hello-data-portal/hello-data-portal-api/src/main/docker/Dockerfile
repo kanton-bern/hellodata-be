@@ -28,7 +28,7 @@
 # The fat JAR base-image executes a JAR /app/app.jar (or, if there is no /app/app.jar, it executes the first JAR it finds in the /app folder).
 # The java executable is wrapped with tini and executed as the user app with uid 3012.
 
-FROM eclipse-temurin:17.0.9_9-jre
+FROM eclipse-temurin:17.0.16_8-jre
 LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group

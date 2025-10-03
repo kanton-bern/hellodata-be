@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM alpine:3.14
+FROM alpine:3.22
 COPY showcase/ /showcase-src
 
 # Set the working directory

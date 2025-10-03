@@ -25,5 +25,5 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM grafana/grafana-oss:9.5.2
+FROM grafana/grafana-oss:9.5.21
 LABEL maintainer="HelloDATA Team"

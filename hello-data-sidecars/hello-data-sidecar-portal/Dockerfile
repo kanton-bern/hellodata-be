@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM eclipse-temurin:17.0.9_9-jre
+FROM eclipse-temurin:17.0.16_8-jre
 LABEL MAINTAINER="HelloData Team"
 
 # add 'app' user with uid 3012 and corresponding group
