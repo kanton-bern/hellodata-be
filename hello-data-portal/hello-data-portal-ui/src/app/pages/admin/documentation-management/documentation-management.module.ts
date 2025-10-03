@@ -28,7 +28,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {EditorModule} from "primeng/editor";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DocumentationManagementComponent} from "./documentation-management.component";
 import {ButtonModule} from "primeng/button";

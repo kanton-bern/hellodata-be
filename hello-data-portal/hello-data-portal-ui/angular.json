@@ -156,8 +156,8 @@
         },
         "options": {
           "allowedCommonJsDependencies": [
-            "ngneat-transloco",
-            "ngneat-transloco-locale",
+            "jsverse-transloco",
+            "jsverse-transloco-locale",
             "flat"
           ]
         },

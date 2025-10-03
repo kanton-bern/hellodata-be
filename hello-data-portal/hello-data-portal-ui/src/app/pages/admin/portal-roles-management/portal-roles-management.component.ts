@@ -35,7 +35,7 @@ import {Observable} from "rxjs";
 import {selectPortalRoles} from "../../../store/portal-roles-management/portal-roles-management.selector";
 import {DeletePortalRolePopupComponent} from "./delete-portal-role-popup/delete-portal-role-popup.component";
 import {PortalRole} from "../../../store/portal-roles-management/portal-roles-management.model";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
 import {SharedModule} from "primeng/api";

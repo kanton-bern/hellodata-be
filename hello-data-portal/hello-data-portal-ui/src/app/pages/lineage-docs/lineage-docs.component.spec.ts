@@ -37,7 +37,7 @@ import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {LineageDocsService} from "../../store/lineage-docs/lineage-docs.service";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {DropdownModule} from "primeng/dropdown";
 import {TooltipModule} from "primeng/tooltip";
 import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";

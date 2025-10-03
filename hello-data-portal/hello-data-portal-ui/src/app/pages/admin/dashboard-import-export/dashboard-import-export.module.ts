@@ -27,7 +27,7 @@
 
 import {NgModule} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {DashboardImportExportComponent} from "./dashboard-import-export.component";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";

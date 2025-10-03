@@ -33,7 +33,7 @@ import {
   translocoConfig,
   TranslocoLoader,
   TranslocoModule
-} from '@ngneat/transloco';
+} from '@jsverse/transloco';
 import {Injectable, NgModule} from '@angular/core';
 
 @Injectable({providedIn: 'root'})

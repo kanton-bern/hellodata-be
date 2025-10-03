@@ -32,7 +32,7 @@ import {of} from 'rxjs';
 import {Context} from '../../../../store/users-management/context-role.model';
 import {loadAvailableContexts} from '../../../../store/users-management/users-management.action';
 import {afterEach, beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 
 describe('SubscriptionsComponent', () => {
   let component: SubscriptionsComponent;

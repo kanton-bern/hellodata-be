@@ -33,7 +33,7 @@ import {AppState} from '../../../store/app/app.state';
 import {naviElements} from '../../../app-navi-elements';
 import {Announcement} from '../../../store/announcement/announcement.model';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 

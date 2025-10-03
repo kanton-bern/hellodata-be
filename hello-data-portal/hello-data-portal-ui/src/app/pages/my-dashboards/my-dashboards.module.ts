@@ -28,7 +28,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HdCommonModule} from "../../hd-common.module";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MyDashboardsComponent} from "./my-dashboards.component";
 import {EmbedMyDashboardComponent} from "./embed-my-dashboard.component";

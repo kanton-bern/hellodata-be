@@ -26,7 +26,7 @@
 ///
 
 import {Component, NgModule} from '@angular/core';
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 
 @Component({
   selector: 'app-not-allowed',

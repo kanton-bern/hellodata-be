@@ -28,7 +28,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {AnnouncementsManagementComponent} from './announcements-management.component';
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {AnnouncementEditComponent} from './announcement-edit/announcement-edit.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DeleteAnnouncementPopupComponent} from './delete-announcement-popup/delete-announcement-popup.component';

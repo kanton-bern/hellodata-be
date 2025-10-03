@@ -29,7 +29,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HomeComponent} from "./home.component";
 import {DashboardsComponent} from './dashboards/dashboards.component';
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {FaqComponent} from './faq/faq.component';
 import {RouterLink} from "@angular/router";
 import {HdCommonModule} from "../../hd-common.module";

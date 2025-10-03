@@ -72,7 +72,7 @@ import {AppInfoService, ScreenService} from "./shared/services";
 import {environment} from "../environments/environment";
 import {TokenInterceptor} from "./shared/interceptor/token-interceptor.service";
 import {ConfirmationService, MessageService} from "primeng/api";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 
 @NgModule({
   declarations: [

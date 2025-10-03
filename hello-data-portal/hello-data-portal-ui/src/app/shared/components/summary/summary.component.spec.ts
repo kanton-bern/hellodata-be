@@ -30,7 +30,7 @@ import {SummaryComponent} from './summary.component';
 import {Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {Pipeline} from "../../../store/summary/summary.model";
 
 describe('SummaryComponent', () => {

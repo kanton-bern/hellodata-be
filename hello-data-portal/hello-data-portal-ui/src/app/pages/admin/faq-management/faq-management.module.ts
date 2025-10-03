@@ -28,7 +28,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FaqListComponent} from './faq-list.component';
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {DeleteFaqPopupComponent} from './delete-faq-popup/delete-faq-popup.component';
 import {FaqEditComponent} from './faq-edit/faq-edit.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";

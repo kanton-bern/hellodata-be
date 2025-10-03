@@ -26,7 +26,7 @@
 ///
 
 import {Component, NgModule} from '@angular/core';
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {Observable} from "rxjs";
 import {AppState} from "../../../store/app/app.state";

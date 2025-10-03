@@ -27,7 +27,7 @@
 
 import {Component, NgModule, OnDestroy, OnInit} from "@angular/core";
 import {CommonModule} from "@angular/common";
-import {TranslocoModule} from "@ngneat/transloco";
+import {TranslocoModule} from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";
