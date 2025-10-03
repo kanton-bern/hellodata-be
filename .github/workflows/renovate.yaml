@@ -19,8 +19,9 @@ jobs:
         uses: renovatebot/github-action@v43.0.14
         with:
           configurationFile: renovate.json
+          token: ${{ secrets.RENOVATE_TOKEN }}
         env:
-          RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
           RENOVATE_PLATFORM: "github"
           RENOVATE_REPOSITORIES: "${{ github.repository }}"
           LOG_LEVEL: debug
