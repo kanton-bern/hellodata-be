@@ -3,6 +3,8 @@
   "extends": ["config:recommended"],
   "timezone": "Europe/Zurich",
   "ignorePaths": ["hello-data-portal/hello-data-portal-ui-e2e/**"],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 10,
   "packageRules": [
     {
       "matchFileNames": ["**/pom.xml"],
