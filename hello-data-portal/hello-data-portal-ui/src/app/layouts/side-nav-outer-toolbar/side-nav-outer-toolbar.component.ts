@@ -71,7 +71,9 @@ export class SideNavOuterToolbarComponent {
   }
 
   openWindow(url: string, target: string) {
-    this.store.dispatch(openWindow({url, target}));
+    if (target || url) {
+      this.store.dispatch(openWindow({url, target}));
+    }
   }
 }
 
