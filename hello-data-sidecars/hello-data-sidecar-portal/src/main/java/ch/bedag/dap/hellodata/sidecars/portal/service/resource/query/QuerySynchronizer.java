@@ -23,7 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.time.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +50,7 @@ public class QuerySynchronizer {
     @Transactional
     public void synchronizeQueriesFromSupersets() {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
-        log.debug("Synchronizing queries from data domains {}", String.join(" : ", dataDomains.stream().map(dd -> dd.getName()).toList()));
+        log.debug("Synchronizing queries from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
         for (HdContextEntity contextEntity : dataDomains) {
             log.info("Started synchronizing queries for data domain {}", contextEntity.getName());
             for (SupersetQuery supersetQuery : fetchQueries(contextEntity.getContextKey())) {
@@ -55,9 +58,7 @@ public class QuerySynchronizer {
                 QueryEntity queryEntity = new QueryEntity();
                 queryEntity.setContextKey(contextEntity.getContextKey());
                 LocalDateTime localDateTime = supersetQuery.getChangedOn();
-                ZoneId zoneId = ZoneId.systemDefault();
-                ZoneOffset offset = zoneId.getRules().getOffset(localDateTime);
-                OffsetDateTime offsetDateTime = localDateTime.atOffset(offset);
+                OffsetDateTime offsetDateTime = localDateTime.atOffset(ZoneOffset.UTC);
                 queryEntity.setChangedOn(offsetDateTime);
                 queryEntity.setDatabaseName(supersetQuery.getDatabase().getDatabaseName());
                 queryEntity.setTrackingUrl(supersetQuery.getTrackingUrl());
