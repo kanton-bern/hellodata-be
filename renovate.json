@@ -1,64 +1,120 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
   "timezone": "Europe/Zurich",
-  "ignorePaths": ["hello-data-portal/hello-data-portal-ui-e2e/**"],
+  "ignorePaths": [
+    "hello-data-portal/hello-data-portal-ui-e2e/**"
+  ],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
+  "lockFileMaintenance": {
+    "enabled": false
+  },
   "packageRules": [
     {
-      "matchFileNames": ["**/pom.xml"],
-      "matchManagers": ["maven"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchFileNames": [
+        "**/pom.xml"
+      ],
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "all non-major dependencies (maven)",
       "groupSlug": "all-minor-patch-maven"
     },
     {
-      "matchFileNames": ["**/pom.xml"],
-      "matchManagers": ["maven"],
-      "matchUpdateTypes": ["major"],
+      "matchFileNames": [
+        "**/pom.xml"
+      ],
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "groupName": "major update for {{depName}}",
       "groupSlug": "{{depName}}-major"
     },
     {
-      "matchManagers": ["yarn"],
-      "matchFileNames": ["**/yarn.lock", "**/package.json"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchManagers": [
+        "yarn"
+      ],
+      "matchFileNames": [
+        "**/yarn.lock",
+        "**/package.json"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "all non-major dependencies (yarn)",
       "groupSlug": "all-minor-patch-yarn"
     },
     {
-      "matchManagers": ["yarn"],
-      "matchFileNames": ["**/yarn.lock", "**/package.json"],
-      "matchUpdateTypes": ["major"],
+      "matchManagers": [
+        "yarn"
+      ],
+      "matchFileNames": [
+        "**/yarn.lock",
+        "**/package.json"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "groupName": "major update for {{depName}}",
       "groupSlug": "{{depName}}-major"
     },
     {
-      "matchManagers": ["dockerfile"],
-      "matchFileNames": ["**/Dockerfile"],
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchFileNames": [
+        "**/Dockerfile"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "all non-major dependencies (Dockerfiles)",
       "groupSlug": "all-minor-patch-dockerfiles"
     },
     {
-      "matchManagers": ["dockerfile"],
-      "matchFileNames": ["**/Dockerfile"],
-      "matchUpdateTypes": ["major"],
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "matchFileNames": [
+        "**/Dockerfile"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "groupName": "major update for {{depName}}",
       "groupSlug": "{{depName}}-major"
     },
     {
-      "matchManagers": ["maven"],
+      "matchManagers": [
+        "maven"
+      ],
       "enabled": false,
       "description": "Ignore internal Maven packages that Renovate cannot resolve",
-      "matchPackageNames": ["ch.bedag.dap.hellodata:{/,}**"]
+      "matchPackageNames": [
+        "ch.bedag.dap.hellodata:{/,}**"
+      ]
     },
     {
-      "matchManagers": ["dockerfile"],
+      "matchManagers": [
+        "dockerfile"
+      ],
       "enabled": false,
       "description": "Ignore internal Docker images from private registry",
-      "matchPackageNames": ["registry.mgmtbi.ch/{/,}**"]
+      "matchPackageNames": [
+        "registry.mgmtbi.ch/{/,}**"
+      ]
     }
   ]
 }
