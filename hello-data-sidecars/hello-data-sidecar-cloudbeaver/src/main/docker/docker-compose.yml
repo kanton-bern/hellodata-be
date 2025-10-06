@@ -28,7 +28,7 @@
 version: "3.8"
 services:
   hd-cloudbeaver:
-    image: dbeaver/cloudbeaver:23.2.0
+    image: dbeaver/cloudbeaver:23.3.5
     restart: always
     ports:
       - '8978:8978'
