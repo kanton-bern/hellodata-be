@@ -172,9 +172,9 @@ export class MenuService {
     for (const dataDomain of dataDomains) {
       if (dataDomain.key) {
         result.push({
-          id: 'queries_' + dataDomain!.key,
-          text: dataDomain!.name,
-          routerLink: this.createQueryLink(dataDomain!.key),
+          id: 'queries_' + dataDomain.key,
+          text: dataDomain.name,
+          routerLink: this.createQueryLink(dataDomain.key),
           requiredPermissions: ['QUERIES']
         });
       }
