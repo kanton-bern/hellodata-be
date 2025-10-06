@@ -157,7 +157,7 @@ export class MenuService {
               const queriesMenu = menuItem.items.filter((item: {
                 id: string;
               }) => item.id === 'queriesMenu')[0];
-              queriesMenu.items = this.createQueriesSubNav(menuItem, availableDomainItems);
+              queriesMenu.items = this.createQueriesSubNav(availableDomainItems);
             }
           }
           return menuItem;
@@ -166,7 +166,7 @@ export class MenuService {
     )
   }
 
-  private createQueriesSubNav(menuItem: any[], availableDomainItems: any[]) {
+  private createQueriesSubNav(availableDomainItems: any[]) {
     const result: any[] = [];
     const dataDomains = availableDomainItems.map(item => item.data).sort((a, b) => a!.key.toLowerCase().localeCompare(b!.key.toLowerCase()));
     for (const dataDomain of dataDomains) {
