@@ -6990,7 +6990,7 @@ __metadata:
     ngx-pipes: "npm:^3.2.2"
     primeflex: "npm:^3.3.1"
     primeicons: "npm:^6.0.1"
-    primeng: "npm:17.18.12"
+    primeng: "npm:17.18.15"
     quill: "npm:^1.3.7"
     rxjs: "npm:^7.8.0"
     ts-jest: "npm:^29.0.3"
@@ -10240,9 +10240,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"primeng@npm:17.18.12":
-  version: 17.18.12
-  resolution: "primeng@npm:17.18.12"
+"primeng@npm:17.18.15":
+  version: 17.18.15
+  resolution: "primeng@npm:17.18.15"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
@@ -10251,7 +10251,7 @@ __metadata:
     "@angular/forms": ^17.0.0 || ^18.0.0
     rxjs: ^6.0.0 || ^7.8.1
     zone.js: ~0.14.0
-  checksum: 10c0/605ce20a1549ba1083e13cf03983d1101bf70338124c901db8b10b1bcb0bcdcad13a699b99bde27d2642eb55a462c553170fb41509d5ed189d396952648eb5ef
+  checksum: 10c0/fc9d6e9a72b8771b603b9340a3a56b974c812d1069f504b58f66b009ed2353b33c79167eda9417a90c4f75101d6aee536515431ebab77b354fa702c1cc47043e
   languageName: node
   linkType: hard
 
