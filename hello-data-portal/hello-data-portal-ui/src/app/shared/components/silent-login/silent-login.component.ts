@@ -53,7 +53,7 @@ export class SilentLoginComponent {
     this.profile$ = this.store.select(selectProfile);
   }
 
-  loginSupersets(supersetInfos: MetaInfoResource[], email: any) {
+  loginSupersets(supersetInfos: MetaInfoResource[]) {
     if (!this.supersetsLoggedIn) {
       supersetInfos.forEach(supersetInfo => {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);

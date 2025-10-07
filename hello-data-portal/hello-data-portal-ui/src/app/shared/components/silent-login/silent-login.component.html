@@ -1,7 +1,6 @@
-
 <div *ngIf="(profile$ | async) as profile">
   <div *ngIf="(supersetInfos$ | async) as supersetInfos">
-    {{ loginSupersets(supersetInfos, profile.email) }}
+    {{ loginSupersets(supersetInfos) }}
   </div>
   <div *ngIf="(airflowInfos$ | async) as airflowInfos">
     {{ loginAirflows(airflowInfos, profile.email) }}
