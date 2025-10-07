@@ -58,6 +58,7 @@ export class SilentLoginComponent {
       supersetInfos.forEach(supersetInfo => {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         const instance = componentRef.instance;
+        instance.switchStyleOverflow = false;
 
         const supersetLogoutUrl = supersetInfo.data.url + 'logout';
         const supersetLoginUrl = supersetInfo.data.url + `login/keycloak`;
@@ -74,6 +75,7 @@ export class SilentLoginComponent {
       airflowInfos.forEach(airflowInfo => {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         const instance = componentRef.instance;
+        instance.switchStyleOverflow = false;
 
         const airflowLogoutUrl = airflowInfo.data.url + 'logout';
         const airflowLoginUrl = airflowInfo.data.url + `login/keycloak`;

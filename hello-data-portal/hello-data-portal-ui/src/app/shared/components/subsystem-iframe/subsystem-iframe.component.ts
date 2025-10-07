@@ -25,7 +25,19 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  NgModule,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {HdCommonModule} from "../../../hd-common.module";
 import {AuthService} from "../../services";
@@ -43,6 +55,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   @Input() accessTokenInQueryParam = false;
   @Input() delay = 0;
   @Input() style: { [p: string]: any } | null = null;
+  @Input() switchStyleOverflow = true;
   @Output() iframeSetup = new EventEmitter<boolean>();
   frameUrl!: string;
   @ViewChild('iframe') iframe!: ElementRef<HTMLIFrameElement>;
@@ -64,7 +77,9 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
         setTimeout(() => {
           this.frameUrl = this.accessTokenInQueryParam ? this.url + '?auth.access_token=' + value : this.url;
           this.iframeSetup.emit(true);
-          document.getElementById('mainContentDiv')!.style.overflow = 'hidden';
+          if (this.switchStyleOverflow) {
+            document.getElementById('mainContentDiv')!.style.overflow = 'hidden';
+          }
           this.clickScrollTopIfExists();
         }, this.delay)
       }
@@ -84,7 +99,9 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
     }
-    document.getElementById('mainContentDiv')!.style.overflow = 'auto';
+    if (this.switchStyleOverflow) {
+      document.getElementById('mainContentDiv')!.style.overflow = 'auto';
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
