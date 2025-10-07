@@ -170,7 +170,7 @@ export class MenuService {
     const result: any[] = [];
     const dataDomains = availableDomainItems.map(item => item.data).sort((a, b) => a!.key.toLowerCase().localeCompare(b!.key.toLowerCase()));
     for (const dataDomain of dataDomains) {
-      if (dataDomain.key) {
+      if (dataDomain?.key) {
         result.push({
           id: 'queries_' + dataDomain!.key,
           text: dataDomain!.name,
