@@ -30,10 +30,10 @@
         <spring-cloud.version>2020.0.4</spring-cloud.version>
         <main.class>ch.bedag.dap.hellodata.docs.HelloDataDocsApplication</main.class>
         <docker.file>Dockerfile</docker.file>
-        <liquibase.version>4.22.0</liquibase.version>
-        <junit.jupiter.version>5.9.3</junit.jupiter.version>
-        <lombok-version>1.18.28</lombok-version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <liquibase.version>4.33.0</liquibase.version>
+        <junit.jupiter.version>5.14.0</junit.jupiter.version>
+        <lombok-version>1.18.42</lombok-version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
@@ -144,7 +144,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.21.0</version>
+            <version>3.27.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -280,7 +280,7 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.43.4</version>
+                        <version>0.46.0</version>
                         <executions>
                             <execution>
                                 <id>build-docker-image</id>

@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.6</version>
+            <version>0.2.7</version>
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
@@ -177,7 +177,7 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.43.4</version>
+                        <version>0.46.0</version>
                         <executions>
                             <execution>
                                 <id>build-docker-image</id>

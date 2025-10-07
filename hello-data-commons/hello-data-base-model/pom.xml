@@ -20,8 +20,8 @@
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <lombok-version>1.18.28</lombok-version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <lombok-version>1.18.42</lombok-version>
     </properties>
 
     <dependencies>

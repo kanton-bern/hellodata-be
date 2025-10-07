@@ -20,12 +20,12 @@
         <main.class>ch.bedag.dap.hellodata.sidecars.cloudbeaver.HdSidecarCloudbeaver</main.class>
         <java.version>17</java.version>
         <jaxb-runtime.version>4.0.3</jaxb-runtime.version>
-        <lombok-version>1.18.28</lombok-version>
-        <liquibase-version>4.22.0</liquibase-version>
+        <lombok-version>1.18.42</lombok-version>
+        <liquibase-version>4.33.0</liquibase-version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
@@ -189,7 +189,7 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.43.4</version>
+                        <version>0.46.0</version>
                         <executions>
                             <execution>
                                 <id>build-docker-image</id>
