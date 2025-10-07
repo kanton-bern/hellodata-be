@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Java CI with Maven (module)
+name: Build Module only with Maven
 on:
   workflow_dispatch:
     inputs:
