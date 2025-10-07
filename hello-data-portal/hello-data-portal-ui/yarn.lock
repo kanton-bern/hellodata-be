@@ -3561,7 +3561,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^6.19.1":
+"@typescript-eslint/eslint-plugin@npm:^6.21.0":
   version: 6.21.0
   resolution: "@typescript-eslint/eslint-plugin@npm:6.21.0"
   dependencies:
@@ -6966,7 +6966,7 @@ __metadata:
     "@types/jasmine": "npm:^4.3.6"
     "@types/jasminewd2": "npm:^2.0.11"
     "@types/jest": "npm:^29.5.5"
-    "@typescript-eslint/eslint-plugin": "npm:^6.19.1"
+    "@typescript-eslint/eslint-plugin": "npm:^6.21.0"
     "@typescript-eslint/parser": "npm:6.21.0"
     angular-auth-oidc-client: "npm:^17.0.0"
     angular-build-info: "npm:^2.0.1"
@@ -6990,7 +6990,7 @@ __metadata:
     undici: "npm:^6.21.1"
     vite: "npm:^5.4.12"
     web-animations-js: "npm:^2.3.2"
-    zone.js: "npm:^0.14.3"
+    zone.js: "npm:^0.15.0"
   languageName: unknown
   linkType: soft
 
@@ -12835,9 +12835,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zone.js@npm:^0.14.3":
-  version: 0.14.10
-  resolution: "zone.js@npm:0.14.10"
-  checksum: 10c0/61283d152cb1eff899bae61621dccd572aa9f47e0c60c04b249bf86b43e3e4ba627bf6dba371b725023a4f302f39e554d7bf2d25bbf40c869c6c52f774b17e8b
+"zone.js@npm:^0.15.0":
+  version: 0.15.1
+  resolution: "zone.js@npm:0.15.1"
+  checksum: 10c0/4eca000f90dbea1c34f62e88ce56910dace8cdecbe14747b214f2af37aa511264c7bd50faf3e9b00612e95dc4567da156a9690fef1983bfcf74604a630d190ef
   languageName: node
   linkType: hard
