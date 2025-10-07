@@ -2134,15 +2134,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/angular-fontawesome@npm:^0.13.0":
-  version: 0.13.0
-  resolution: "@fortawesome/angular-fontawesome@npm:0.13.0"
+"@fortawesome/angular-fontawesome@npm:^0.15.0":
+  version: 0.15.0
+  resolution: "@fortawesome/angular-fontawesome@npm:0.15.0"
   dependencies:
-    tslib: "npm:^2.4.1"
+    "@fortawesome/fontawesome-svg-core": "npm:^6.5.2"
+    tslib: "npm:^2.6.2"
   peerDependencies:
-    "@angular/core": ^16.0.0
-    "@fortawesome/fontawesome-svg-core": ~1.2.27 || ~1.3.0-beta2 || ^6.1.0
-  checksum: 10c0/de52855aca88dabd7b2ca7693c1c6ca7490c1aeac6536b723c44a2026faf91d1f0af459921c1385379722970ba857a9d9f267b5e06cc6eca6f1c2098e6204e5e
+    "@angular/core": ^18.0.0
+  checksum: 10c0/9ddc4d167850e3b507bb16edecefb84872cbb464f4dab3e113b1910a57c2ccd28e329b897e7394cbed7f10bb1ed659e9acdb905c5ec19f03f8e7aa4ddce3c247
   languageName: node
   linkType: hard
 
@@ -2160,7 +2160,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-svg-core@npm:^6.4.0":
+"@fortawesome/fontawesome-svg-core@npm:^6.4.0, @fortawesome/fontawesome-svg-core@npm:^6.5.2":
   version: 6.7.2
   resolution: "@fortawesome/fontawesome-svg-core@npm:6.7.2"
   dependencies:
@@ -6948,7 +6948,7 @@ __metadata:
     "@angular/platform-browser": "npm:^17.1.2"
     "@angular/platform-browser-dynamic": "npm:^17.1.2"
     "@angular/router": "npm:^17.1.2"
-    "@fortawesome/angular-fontawesome": "npm:^0.13.0"
+    "@fortawesome/angular-fontawesome": "npm:^0.15.0"
     "@fortawesome/fontawesome-free": "npm:^6.4.0"
     "@fortawesome/fontawesome-svg-core": "npm:^6.4.0"
     "@fortawesome/free-brands-svg-icons": "npm:^6.4.0"
@@ -11897,7 +11897,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.4.1":
+"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.2.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.6.2":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
