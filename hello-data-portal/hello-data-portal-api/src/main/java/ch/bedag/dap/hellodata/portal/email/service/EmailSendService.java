@@ -69,7 +69,7 @@ class EmailSendService {
     }
 
     private void sendEmail(SimpleMailMessage simpleMailMessage) {
-        log.info("Sending email : {}", simpleMailMessage);
+        log.debug("Sending email : {}", simpleMailMessage);
         validateEmail(simpleMailMessage);
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
