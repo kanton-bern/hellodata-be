@@ -44,7 +44,6 @@ import {
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
 import {TranslateService} from "../../shared/services/translate.service";
-import {ALL_MENU_ITEMS} from "./menu.model";
 import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {
@@ -56,6 +55,7 @@ import {
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 import {environment} from "../../../environments/environment";
+import {ALL_MENU_ITEMS} from "./menu.state";
 
 @Injectable({
   providedIn: 'root'
