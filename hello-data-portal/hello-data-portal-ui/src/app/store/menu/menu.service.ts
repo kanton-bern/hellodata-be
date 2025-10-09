@@ -126,14 +126,14 @@ export class MenuService {
           const menuItem = {...item, expanded: !compactMode};
 
           // inject the users dashboards into the menu
-          if (menuItem.text === '@Dashboards') {
+          if (menuItem.label === '@Dashboards') {
             menuItem.items = this.createMyDashboardsSubNav(myDashboards, appInfos, contextRoles);
           }
           // inject the users lineage docs into the menu
-          if (menuItem.text === '@Lineage') {
+          if (menuItem.label === '@Lineage') {
             menuItem.items = this.createLineageDocsSubNav(myDocs, availableDomainItems);
           }
-          if (menuItem.text === '@Data Marts') {
+          if (menuItem.label === '@Data Marts') {
             menuItem.items = this.createDataMartsSubNav(availableDomainItems);
           }
           if (menuItem.id === 'dataEngMenu') {
@@ -141,7 +141,7 @@ export class MenuService {
             if (sftpgo && sftpgo.length > 0) {
               menuItem.items.push({
                 id: 'filebrowserMenu',
-                text: '@Filebrowser',
+                label: '@Filebrowser',
                 url: environment.subSystemsConfig.filebrowser.protocol + environment.subSystemsConfig.filebrowser.host + environment.subSystemsConfig.filebrowser.domain,
                 target: '_blank',
                 requiredPermissions: ['DATA_FILEBROWSER']
@@ -173,7 +173,7 @@ export class MenuService {
       if (dataDomain?.key) {
         result.push({
           id: 'queries_' + dataDomain!.key,
-          text: dataDomain!.name,
+          label: dataDomain!.name,
           routerLink: this.createQueryLink(dataDomain!.key),
           requiredPermissions: ['QUERIES']
         });
@@ -215,7 +215,7 @@ export class MenuService {
 
   private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[]) {
     const myDashboards: any[] = [];
-    myDashboards.push({id: 'dashboarList', text: '@Dashboard List', routerLink: 'my-dashboards'})
+    myDashboards.push({id: 'dashboarList', label: '@Dashboard List', routerLink: 'my-dashboards'})
 
     const groupedByInstance: Map<string, SupersetDashboard[]> = new Map<string, SupersetDashboard[]>();
     dashboards.forEach(db => {
@@ -235,7 +235,7 @@ export class MenuService {
       if (this.displaySupersetLink(instanceName, contextRoles)) {
         dashboardEntries.push({
           id: 'openSupersetInstance_' + instanceName,
-          text: "@Superset Instanz öffnen",
+          label: "@Superset Instanz öffnen",
           url: this.getSupersetInstanceLink(instanceName, appInfos),
           target: "_blank",
           requiredPermissions: ['DATA_ENG']
@@ -244,15 +244,15 @@ export class MenuService {
       dashboards.forEach((db: SupersetDashboard) => {
         dashboardEntries.push({
           id: 'dashboardMenu' + db.id,
-          text: this.dbMenuItemPrefix + db.dashboardTitle,
+          label: this.dbMenuItemPrefix + db.dashboardTitle,
           routerLink: this.createDashboardLink(db)
         });
       });
-      myDashboards.push({text: instanceName, items: dashboardEntries});
+      myDashboards.push({label: instanceName, items: dashboardEntries});
     }
     myDashboards.push({
       id: 'externalDashboards',
-      text: '@External dashboards',
+      label: '@External dashboards',
       routerLink: 'external-dashboards',
       requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
     })
@@ -275,7 +275,7 @@ export class MenuService {
     const subMenuEntry: any[] = [];
     subMenuEntry.push({
       id: 'lineageDocsList',
-      text: '@Lineage Docs List',
+      label: '@Lineage Docs List',
       routerLink: 'lineage-docs/list',
       requiredPermissions: ['DATA_LINEAGE']
     })
@@ -285,7 +285,7 @@ export class MenuService {
     );
     for (const [dataDomainContextName, lineageDocsInDomain] of sortedByKey) {
       const lineageDocsMenuEntries = this.getLineageDocsSubMenuItemsForDataDomain(lineageDocsInDomain);
-      subMenuEntry.push({id: 'lineageDocsEntries', text: dataDomainContextName, items: lineageDocsMenuEntries});
+      subMenuEntry.push({id: 'lineageDocsEntries', label: dataDomainContextName, items: lineageDocsMenuEntries});
     }
     return subMenuEntry;
   }
@@ -319,7 +319,7 @@ export class MenuService {
     const sortedByNameLineageDocs = [...lineageDoc];
     sortedByNameLineageDocs.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     return sortedByNameLineageDocs.map((lineageDoc: LineageDoc) => ({
-      text: `${this._translateService.translate('@Doc')}`,
+      label: `${this._translateService.translate('@Doc')}`,
       routerLink: this.createLineageDocsLink(lineageDoc)
     }));
   }
@@ -347,7 +347,7 @@ export class MenuService {
     if (availableDataDomains.length > 0) {
       subMenuEntry.push({
         id: 'dataMartsDetails',
-        text: '@DM Viewer Link',
+        label: '@DM Viewer Link',
         routerLink: '/embedded-dm-viewer',
         requiredPermissions: ['DATA_MARTS']
       })
@@ -366,7 +366,7 @@ export class MenuService {
       if (jupyterhubs.filter(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey).length > 0) {
         subMenuEntry.push({
           id: 'jupyterhub' + filteredContext.contextKey,
-          text: 'Advanced Analytics ' + filteredContext.name,
+          label: 'Advanced Analytics ' + filteredContext.name,
           url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer/' + filteredContext.contextKey,
           requiredPermissions: ['DATA_JUPYTER'],
           target: '_blank'

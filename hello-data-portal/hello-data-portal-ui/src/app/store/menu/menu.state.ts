@@ -27,10 +27,10 @@
 
 import {environment} from "../../../environments/environment";
 import {naviElements} from "../../app-navi-elements";
-import {HDMenuItem} from "./menu.model";
+import {MenuItem} from "primeng/api";
 
 export interface MenuState {
-  navItems: any[]
+  navItems: MenuItem[]
 }
 
 export const initialMenuState: MenuState = {
@@ -38,10 +38,10 @@ export const initialMenuState: MenuState = {
 }
 
 
-export const ALL_MENU_ITEMS: HDMenuItem[] = [
+export const ALL_MENU_ITEMS: MenuItem[] = [
   {
     id: 'dashboardsMenu',
-    text: '@Dashboards',
+    label: '@Dashboards',
     icon: 'fas fa-light fa-chart-line',
     requiresAuthentication: true,
     requiredPermissions: ['DASHBOARDS'],
@@ -49,7 +49,7 @@ export const ALL_MENU_ITEMS: HDMenuItem[] = [
   },
   {
     id: 'lineageMenu',
-    text: '@Lineage',
+    label: '@Lineage',
     icon: 'fas fa-light fa-diagram-project',
     requiresAuthentication: true,
     requiredPermissions: ['DATA_LINEAGE'],
@@ -57,7 +57,7 @@ export const ALL_MENU_ITEMS: HDMenuItem[] = [
   },
   {
     id: 'dataMartsMenu',
-    text: '@Data Marts',
+    label: '@Data Marts',
     icon: 'fas fa-light fa-store',
     requiresAuthentication: true,
     requiredPermissions: ['DATA_MARTS'],
@@ -65,7 +65,7 @@ export const ALL_MENU_ITEMS: HDMenuItem[] = [
   },
   {
     id: 'dataEngMenu',
-    text: '@Data Eng',
+    label: '@Data Eng',
     icon: 'fas fa-light fa-dice-d6',
     requiresAuthentication: true,
     requiredPermissions: ['DATA_DWH', 'DATA_ENG', 'DATA_JUPYTER', 'DATA_FILEBROWSER'],
@@ -73,13 +73,13 @@ export const ALL_MENU_ITEMS: HDMenuItem[] = [
       {
         id: 'dataEngViewerMenu',
         requiredPermissions: ['DATA_DWH'],
-        text: '@DWH Viewer',
+        label: '@DWH Viewer',
         url: environment.authConfig.redirectUrl + '?redirectTo=data-warehouse-viewer',
         target: '_blank'
       },
       {
         id: 'dataEngOrchestrationMenu',
-        text: '@Orchestration',
+        label: '@Orchestration',
         routerLink: naviElements.embeddedOrchestration.path,
         requiredPermissions: ['DATA_ENG']
       }
@@ -87,56 +87,56 @@ export const ALL_MENU_ITEMS: HDMenuItem[] = [
   },
   {
     id: 'administrationMenu',
-    text: '@Administration',
+    label: '@Administration',
     icon: 'fas fa-light fa-gear',
     //requiredPermissions must have the same set of permissions as each of sub-items
     requiredPermissions: ['USER_MANAGEMENT', 'ROLE_MANAGEMENT', 'ANNOUNCEMENT_MANAGEMENT', 'FAQ_MANAGEMENT', 'DOCUMENTATION_MANAGEMENT', 'USERS_OVERVIEW', 'DASHBOARD_ACCESS'],
     items: [
       {
         id: 'userManagementMenu',
-        text: '@User management',
+        label: '@User management',
         routerLink: naviElements.userManagement.path,
         requiredPermissions: ['USER_MANAGEMENT']
       },
       {
         id: 'usersOverviewMenu',
-        text: '@Users overview',
+        label: '@Users overview',
         routerLink: naviElements.usersOverview.path,
         requiredPermissions: ['USERS_OVERVIEW']
       },
       {
         id: 'dashboardAccessMenu',
-        text: '@Dashboard access',
+        label: '@Dashboard access',
         routerLink: naviElements.dashboardAccess.path,
         requiredPermissions: ['DASHBOARD_ACCESS']
       },
       {
         id: 'portalRoleManagementMenu',
-        text: '@Portal role management',
+        label: '@Portal role management',
         routerLink: naviElements.rolesManagement.path,
         requiredPermissions: ['ROLE_MANAGEMENT']
       },
       {
         id: 'announcementsManagementMenu',
-        text: '@Announcements',
+        label: '@Announcements',
         routerLink: naviElements.announcementsManagement.path,
         requiredPermissions: ['ANNOUNCEMENT_MANAGEMENT']
       },
       {
         id: 'faqManagementMenu',
-        text: '@Faq management',
+        label: '@Faq management',
         routerLink: naviElements.faqManagement.path,
         requiredPermissions: ['FAQ_MANAGEMENT']
       },
       {
         id: 'documentationManagementMenu',
-        text: '@Documentation management',
+        label: '@Documentation management',
         routerLink: naviElements.documentationManagement.path,
         requiredPermissions: ['DOCUMENTATION_MANAGEMENT']
       },
       {
         id: 'dashboardImportExportMenu',
-        text: '@Dashboard import-export',
+        label: '@Dashboard import-export',
         routerLink: naviElements.dashboardCopy.path,
         requiredPermissions: ['DASHBOARD_IMPORT_EXPORT']
       },
@@ -144,25 +144,25 @@ export const ALL_MENU_ITEMS: HDMenuItem[] = [
   },
   {
     id: 'monitoringMenu',
-    text: '@Monitoring',
+    label: '@Monitoring',
     icon: 'fas fa-light fa-list-check',
     requiredPermissions: ['DEVTOOLS', 'WORKSPACES'],
     items: [
       {
         id: 'monitoringStatusMenu',
-        text: '@Status',
+        label: '@Status',
         url: environment.subSystemsConfig.monitoringStatus.protocol + environment.subSystemsConfig.monitoringStatus.host + environment.subSystemsConfig.monitoringStatus.domain,
         target: '_blank'
       },
       {
         id: 'monitoringWorkspacesMenu',
-        text: '@Workspaces',
+        label: '@Workspaces',
         routerLink: naviElements.workspaces.path,
         requiredPermissions: ['WORKSPACES']
       },
       {
         id: 'subsystemUsersMenu',
-        text: '@Subsystem users',
+        label: '@Subsystem users',
         routerLink: naviElements.subsystemUsers.path,
         requiredPermissions: ['USER_MANAGEMENT']
       },
@@ -170,25 +170,25 @@ export const ALL_MENU_ITEMS: HDMenuItem[] = [
   },
   {
     id: 'devToolsMenu',
-    text: '@DevTools',
+    label: '@DevTools',
     icon: 'fas fa-light fa-screwdriver-wrench',
     requiredPermissions: ['DEVTOOLS', 'QUERIES'],
     items: [
       {
         id: 'queriesMenu',
-        text: '@Queries',
+        label: '@Queries',
         requiredPermissions: ['QUERIES'],
         items: []
       },
       {
         id: 'devToolsMailboxMenu',
-        text: '@Mailbox',
+        label: '@Mailbox',
         url: environment.subSystemsConfig.devToolsMailbox.protocol + environment.subSystemsConfig.devToolsMailbox.host + environment.subSystemsConfig.devToolsMailbox.domain,
         target: '_blank'
       },
       {
         id: 'devToolsFileBrowserMenu',
-        text: '@FileBrowser',
+        label: '@FileBrowser',
         url: environment.subSystemsConfig.devToolsFileBrowser.protocol + environment.subSystemsConfig.devToolsFileBrowser.host + environment.subSystemsConfig.devToolsFileBrowser.domain,
         target: '_blank'
       }

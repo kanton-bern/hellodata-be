@@ -8,19 +8,19 @@
       <li>
         <a *ngIf="item.routerLink" [id]="item.id" [routerLink]="item.routerLink"
            matomoCategory="Menu Item"
-           matomoAction="[Click] - {{item.text}}"
+           matomoAction="[Click] - {{item.label}}"
            [matomoTracker]="['click']"
         >
           <i [ngClass]="item.icon"></i>
-          <span class="link_name">{{ item.text | transloco }}</span>
+          <span class="link_name">{{ item.label | transloco }}</span>
         </a>
         <a *ngIf="!item.routerLink && item.items && item.items.length > 0" [attr.href]="item.url"
            [attr.target]="item.target" [id]="item.id"
            [matomoTracker]="['click']"
            matomoCategory="Menu Item"
-           matomoAction="[Click] - {{item.text}}">
+           matomoAction="[Click] - {{item.label}}">
           <i [ngClass]="item.icon"></i>
-          <span class="link_name">{{ item.text | transloco }}</span>
+          <span class="link_name">{{ item.label | transloco }}</span>
         </a>
         <ul *ngIf="item.items && item.items.length > 0" class="second-level-menu">
           <ng-template [ngForOf]="item.items" let-i="index" let-last="last" let-secondLevel ngFor>
@@ -28,16 +28,16 @@
               <a *ngIf="secondLevel.routerLink" [id]="secondLevel.id" [routerLink]="secondLevel.routerLink"
                  [matomoTracker]="['click']"
                  matomoCategory="Menu Item"
-                 matomoAction="[Click] - {{secondLevel.text}}">
-                <span class="link_name">{{ secondLevel.text | transloco }}</span>
+                 matomoAction="[Click] - {{secondLevel.label}}">
+                <span class="link_name">{{ secondLevel.label | transloco }}</span>
                 <i *ngIf="secondLevel.items" class='fas fa-angle-right'></i>
               </a>
               <a *ngIf="!secondLevel.routerLink" [id]="secondLevel.id"
                  (click)="openWindow(secondLevel.url, secondLevel.target)"
                  [matomoTracker]="['click']"
                  matomoCategory="Menu Item"
-                 matomoAction="[Click] - {{secondLevel.text}}">
-                <span class="link_name">{{ secondLevel.text | transloco }}</span>
+                 matomoAction="[Click] - {{secondLevel.label}}">
+                <span class="link_name">{{ secondLevel.label | transloco }}</span>
                 <i *ngIf="secondLevel.items && secondLevel.items.length > 0" class='fas fa-angle-right'></i>
               </a>
               <ul *ngIf="secondLevel.items && secondLevel.items.length > 0" class="third-level-menu">
@@ -46,16 +46,16 @@
                     <a *ngIf="thirdLevel.routerLink" [id]="thirdLevel.id" [routerLink]="thirdLevel.routerLink"
                        [matomoTracker]="['click']"
                        matomoCategory="Menu Item"
-                       matomoAction="[Click] - {{thirdLevel.text}}">
-                      <span class="link_name">{{ thirdLevel.text | transloco }}</span>
+                       matomoAction="[Click] - {{thirdLevel.label}}">
+                      <span class="link_name">{{ thirdLevel.label | transloco }}</span>
                     </a>
                     <a *ngIf="!thirdLevel.routerLink"
                        (click)="openWindow(thirdLevel.url, thirdLevel.target)"
                        [id]="thirdLevel.id"
                        [matomoTracker]="['click']"
                        matomoCategory="Menu Item"
-                       matomoAction="[Click] - {{thirdLevel.text}}">
-                      <span class="link_name">{{ thirdLevel.text | transloco }}</span>
+                       matomoAction="[Click] - {{thirdLevel.label}}">
+                      <span class="link_name">{{ thirdLevel.label | transloco }}</span>
                     </a>
                   </li>
                 </ng-template>

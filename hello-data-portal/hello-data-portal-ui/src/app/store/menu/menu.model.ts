@@ -25,15 +25,3 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {MenuItem} from "primeng/api";
-
-export interface HDMenuItem extends MenuItem {
-  id: string;
-  isFirstLevel?: boolean;
-  requiresAuthentication?: boolean;
-  requiredPermissions?: string[],
-  items?: HDMenuItem[],
-  text: string,
-  url?: string,
-}
-
