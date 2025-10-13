@@ -84,7 +84,6 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   loadQueries(event: TableLazyLoadEvent, contextKey: string) {
-    console.log('===> Load queries', event, contextKey);
     this.store.dispatch(loadQueriesPaginated({
       page: event.first as number / (event.rows as number),
       size: event.rows as number,
