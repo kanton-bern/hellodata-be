@@ -164,6 +164,7 @@ public class UserService {
         user.setEnabled(true);
         user.setRequiredActions(REQUIRED_ACTIONS);
         keycloakUserId = keycloakService.createUser(user);
+        log.info("Created keycloak user {} with id {}", email, keycloakUserId);
         return keycloakUserId;
     }
 
