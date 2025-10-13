@@ -129,6 +129,7 @@ public class UserService {
             if (isFederated) {
                 //For federated users that are not in keycloak yet, we will just fake the keycloak id
                 keycloakUserId = UUID.randomUUID().toString();
+                log.info("Federated user {}, creating with random user id {}", email, keycloakUserId);
             } else {
                 log.info("User {} doesn't not exist in the keycloak, creating", email);
                 keycloakUserId = createKeycloakUser(email, firstName, lastName);
