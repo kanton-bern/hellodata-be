@@ -8,17 +8,17 @@ export const selectParamContextKey = selectRouteParam('contextKey');
 const queriesState = (state: AppState) => state.queries;
 
 
-export const selectAllQueries = createSelector(
-    queriesState,
-    (state: QueriesState) => state.queries
+export const selectQueries = createSelector(
+  queriesState,
+  (state: QueriesState) => state.queries
 );
 
 export const selectQueriesTotalRecords = createSelector(
-    queriesState,
-    (state: QueriesState) => state.queriesTotalRecords
+  queriesState,
+  (state: QueriesState) => state.queriesTotalRecords
 );
 
 export const selectQueriesLoading = createSelector(
-    queriesState,
-    (state: QueriesState) => state.queriesLoading
+  queriesState,
+  (state: QueriesState) => state.queriesLoading
 );

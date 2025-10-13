@@ -2,17 +2,12 @@ export interface QueriesState {
   queries: any[],
   queriesLoading: boolean,
   queriesTotalRecords: number,
-}
-
-export interface CurrentQueryPagination {
-  page: number,
-  size: number,
-  sort: string,
-  search: string,
+  queriesTotalPages: number
 }
 
 export const initialQueriesState: QueriesState = {
   queries: [],
   queriesLoading: false,
   queriesTotalRecords: 0,
+  queriesTotalPages: 0,
 }
