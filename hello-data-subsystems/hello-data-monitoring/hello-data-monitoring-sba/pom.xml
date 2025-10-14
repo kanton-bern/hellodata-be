@@ -27,6 +27,19 @@
         <docker.namespace>bedag</docker.namespace>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Force newer Netty version for all modules -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>4.2.6.Final</version> <!-- replace with fixed version -->
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
