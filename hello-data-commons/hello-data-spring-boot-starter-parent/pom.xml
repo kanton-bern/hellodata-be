@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -48,6 +49,9 @@
         <thymeleaf-spring4.version>3.0.12.RELEASE</thymeleaf-spring4.version>
         <httpmime.version>4.5.14</httpmime.version>
         <httpclient5.version>5.2.1</httpclient5.version>
+        <netty.version>4.2.6.Final</netty.version>
+        <jakarta-mail-api.version>2.0.2</jakarta-mail-api.version>
+        <jakarta-mail.version>2.1.5</jakarta-mail.version>
     </properties>
 
     <dependencyManagement>
@@ -201,12 +205,20 @@
             <dependency>
                 <groupId>jakarta.mail</groupId>
                 <artifactId>jakarta.mail-api</artifactId>
-                <version>2.1.2</version>
+                <version>${jakarta-mail-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.mail</groupId>
                 <artifactId>jakarta.mail</artifactId>
-                <version>2.0.1</version>
+                <version>${jakarta-mail.version}</version>
+            </dependency>
+            <!-- Force newer Netty version for all modules -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
