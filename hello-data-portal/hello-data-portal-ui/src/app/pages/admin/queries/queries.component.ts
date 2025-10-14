@@ -69,7 +69,7 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
               this.createBreadcrumbs(dataDomain.name);
             }
             this.store.dispatch(loadQueriesPaginated({
-              page: 0, size: 10, sort: 'dttm: desc', search: '', contextKey
+              page: 0, size: 10, sort: 'changedOn, desc', search: '', contextKey
             }));
           }
           return contextKey ? contextKey : '';
