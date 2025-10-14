@@ -1,0 +1,183 @@
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-06 Merge branch 'release/1.4.0'
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-06 Merge branch 'release/1.4.0'
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-06 upgrade springdoc version
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-06 springdoc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-05 debug
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-05 HELLODATA-2183 - delete user (missing)
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-05 HELLODATA-2183 - adjustments
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-05 HELLODATA-2183 - adjustments
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-05 HELLODATA-2183 - adjustments
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-05 HELLODATA-2183 - fix keycloak sync
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-05 HELLODATA-2183 - fix keycloak sync
+Rajib Mitra rajib.mitra@bedag.ch 2025-06-04 Merge pull request #111 from kanton-bern/feature/HELLODATA-2183-Keycloak-Login-Problems
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-04 HELLODATA-2183 - small sync with develop branch
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-06-04 HELLODATA-2183: Change version in pom.xml to develop-SNAPSHOT
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-06-04 Merge branch 'develop' into feature/HELLODATA-2183-Keycloak-Login-Problems
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-02 HELLODATA-2268 - uppercase teams
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-06-02 HELLODATA-2183: Rename SQL-File after merge conflict
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-06-02 Merge branch 'develop' into feature/HELLODATA-2183-Keycloak-Login-Problems
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-06-02 HELLODATA-2183: Search user by email-ignore case and search user by email instead of username
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-02 update keycloak client
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-06-02 update kubernetes client
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-28 adjustments
+Diana Florea diana.florea@bedag.ch 2025-05-28 Merge pull request #110 from kanton-bern/bugfix/HELLODATA-2185-Dropdown-boxes-overlap
+Diana Florea diana.florea@bedag.ch 2025-05-28 Edit dropdown to use the whole width
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-26 Merge pull request #109 from kanton-bern/bugfix/HELLODATA-2351_missing_permission
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-26 deploy default DD only - don't add extra DD
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-26 info -> debug
+Diana Florea diana.florea@bedag.ch 2025-05-23 Merge pull request #108 from kanton-bern/feature/HELLODATA-2277-Users-Overview
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-22 HELLODATA-2351 - fix missing can_create on Users (on conflict do nothing)
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-22 upgrade esbuild
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-22 HELLODATA-2351 - change log level, add more info
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-21 fix dc healtz
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-21 HELLODATA-2309 - sftpgo docu
+Diana Balog diana.balog@nttdata.com 2025-05-21 Merge branch 'develop' into feature/HELLODATA-2277-Users-Overview
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-21 yarn upgrade
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-21 HELLODATA-2309 - fix spacing
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-21 HELLODATA-2183: Only call docs-url if user has permissions (prevents http 401 for federated users)
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-21 HELLODATA-2330 - don't set viewer if not explicitly set
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-21 Merge pull request #107 from kanton-bern/feature/HELLODATA-1942_blackduck
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-20 HELLODATA-2183: Fix wrong argument order
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-20 HELLODATA-2183: Increase log
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-20 HELLODATA-2183: Add log output
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-16 Merge branch 'develop' into feature/HELLODATA-1942_blackduck
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-16 Revert "enhance speed with completable future"
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-16 enhance speed with completable future
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-16 Revert "enhance speed with parallel stream"
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-16 enhance speed with parallel stream
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-15 add missing upload
+Diana Balog diana.balog@nttdata.com 2025-05-15 Add table scroll and min width on input
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-14 HELLODATA-2201 - fix uniqueness, add debug logs
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-14 HELLODATA-2183: Portal-Sidecar: Search user to update only by Email and not Username and Email
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-14 HELLODATA-2183: Do not throw an exception when deleting a federated user if he is not found in keycloak
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-13 HELLODATA-2201 - fix duplicated dashboards
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-13 HELLODATA-2183: Pass in email as username when deleting user from subsystems
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-12 HELLODATA-1952 - fix batch import users
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-12 Merge branch 'develop' into feature/HELLODATA-1942_blackduck
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-12 log
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-12 Merge pull request #106 from kanton-bern/patch-1
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-12 (README) - distinguish between German and English
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-12 HELLODATA-2183: Update UserService to send email as username for subsystem-userupdates
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-05-12 Merge pull request #105 from kanton-bern/feature/HELLODATA-1942_blackduck
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-12 Merge branch 'develop' into feature/HELLODATA-1942_blackduck
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-08 adjustments
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-08 adjustments
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-08 adjustments
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-08 fix default user disabled
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-07 Merge branch 'develop' into feature/HELLODATA-2183-Keycloak-Login-Problems
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Update DC Superset-config
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Add Dbt-Docs SQL Migration-script to replace usernames with email in table dbt_user
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Add Cloudbeaver-Sidecar SQL Migration-script to replace usernames with email in table hd_user
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Add Superset SQL Migration-script to replace usernames with email in table ab_user
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Add Airflow SQL Migration-script to replace usernames with email in table ab_user
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Remove unused code in docker-compose config for jupyterhub // replace some log-output from info with debug
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Fix UserService where wrong createUserInSubsystems was used for federated users
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-06 HELLODATA-2183: Update Test-Annotation
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-06 HELLODATA-1942 - upgrade spring cloud
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-05 HELLODATA-2183: Update gitignore
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-05 HELLODATA-2183: Update airflow Docker-compose webserver_config.py to don't check the username in the keycloak userinfo and use email instead
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-05 HELLODATA-2183: Add missing config for cloudbeaver and jupyterbook
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-05 HELLODATA-2183: Update JupyterHub-Config to use custom LoginHandler which checks the Portal-Database if user is authorized to login
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-05 HELLODATA-2183: Update UserService::enableUserById to that user can be enabled even if he doesn't exist in keycloak
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-05 HELLODATA-2183: Change notifyUserViaEmail to take user-infos from userEntity instead of Keycloak-UserRepresentation
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-05 HELLODATA-1942 - yarn upgrade
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-05 HELLODATA-1942 - upgrade spring boot admin; plugins
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-05 mvn tidy:pom
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-05-05 HELLODATA-1942 - upgrade spring boot
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-02 HELLODATA-2183: Update .gitignore to ignore Jupyterhub mounted data folder
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-02 HELLODATA-2183: Mount host docker engine into guest and configure jupyterhub to use this volume
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-02 HELLODATA-2183: Fix problem with wrong URL for jupyterhub if base-link ends with a slash
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-02 HELLODATA-2183: Remove read-only from share-volume mount, so cookie can be written inside it // adjust path to cookie file // add mount path for sqlite // remove network assignment and use default (before it could not find keycloak)
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-02 HELLODATA-2183: Set default tag for version to get rid of warning when building image ( => WARN: InvalidDefaultArgInFrom: Default value for ARG quay.io/jupyterhub/jupyterhub:$JUPYTERHUB_VERSION results in empty or invalid base image name (line 2) )
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-02 HELLODATA-2183: Link jupyterhub default-data-domain-jupyterhub with keycloak, so it will find it // remove connection refused to keycloak exception when starting up jupyterhub
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-01 HELLODATA-2183: CloudBeaver-Sidecar: Search users by Email instead Email and Username when syncing / creating new user
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-01 HELLODATA-2183: Differentiate between Federated Users and Local user-creation
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-05-01 HELLODATA-2183: nats-nui dc: volume mount to prevent startup error
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 fix importing dashboards
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-29 HELLODATA-2255 - fix starting dc
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-28 fix typo
+rajib.mitra@bedag.ch rajib.mitra@bedag.ch 2025-04-25 starting feature branch 'feature/HELLODATA-2183-Keycloak-Login-Problems'
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-25 enhance dashboard export mechanism
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-25 dashboard export completed
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-25 fix dashboard export
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-25 enhance dashboard export
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-25 dashboard export started
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-24 log
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-23 HELLODATA-2255 - link api to ui
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-23 HELLODATA-2255 - chmod all shared root dir
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-23 revert
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-23 update username (for migrating AD users)
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-23 IllegalStateException
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-23 exception when user not found in the keycloak
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-23 log username initialization
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-22 HELLODATA-2159 - extend equals and hashcode calculation
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-22 HELLODATA-2159 - compositeId only for equals and hashcode
+Slawomir Wieczorek slawomirwieczorek@gmail.com 2025-04-22 HELLODATA-2159 - omit css fetch
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-22 on conflict do nothing
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-18 Merge branch 'release/1.3.9.rc15'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-18 HELLODATA-2024 - remove keycloak configs (redundant)
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-18 HELLODATA-2252 - adding can favstar on Superset; can fave dashboards on Superset
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-18 debug logs
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-09 Merge branch 'release/1.3.9.rc14'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-09 revert
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-08 HELLODATA-2117 - email as username in local user search
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-08 HELLODATA-2117 - fetch username
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-08 HELLODATA-2117 - fetch username
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-07 HELLODATA-2183 - fix form value
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 Merge branch 'release/1.3.9.rc13'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - fix form value
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 Merge branch 'release/1.3.9.rc12'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - fill email value
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 Merge branch 'release/1.3.9.rc11'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - fill email value
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 Merge branch 'release/1.3.9.rc10'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - use tolowercase when checking user emails
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - cleanup
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 Merge branch 'release/1.3.9.rc9'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - expose federated flag
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - omit invalid emails
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - disable removing errors
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - sync users from provider improvement
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - ensure user federated
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 Merge branch 'release/1.3.9.rc8'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-04 HELLODATA-2183 - search user enhancements
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 ldap search with lowercase
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 fix duplicated emails when case discrepancy
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 Merge branch 'release/1.3.9.rc4'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 log if user is federated
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 Merge branch 'release/1.3.9.rc3'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 fix event
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 merge conflict
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 HELLODATA-2183 - log user creation
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 HELLODATA-2183 - fixme
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 HELLODATA-2183 - fix naming
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 HELLODATA-2183 - tests
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 HELLODATA-2183 - distinguish between federated and non-federated users
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 smarter search uniqueness
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 missing param
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 missing param
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-03 add logs
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-02 Merge branch 'release/1.3.9.rc1'
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-02 HELLODATA-2183 - delete user in provider only if enabled
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-04-02 more privileges for batch user processing folder
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-31 HELLODATA-2061 - extend standard angular email validation
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-26 fix potential NPE
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-26 info -> debug
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-25 HELLODATA-2140 - properties change for the jupyterhub
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-25 HELLODATA-2140 - rw directory
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-24 add space
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-24 sftpgo in the documentation
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-24 housekeeping
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-24 HELLODATA-2129 - filter off users already added
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-24 HELLODATA-2140 - logs
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-24 info by default
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-21 unit test
+Slawomir Wieczorek slawomir.wieczorek@bedag.ch 2025-03-21 rename class
+MariusHaegele marius.haegele@students.bfh.ch 2024-12-20 Update README.md
