@@ -44,6 +44,9 @@ import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dial
 import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
 import {MatomoTrackClickDirective, MatomoTrackerDirective} from "ngx-matomo-client";
 import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
+import {TieredMenuModule} from "primeng/tieredmenu";
+import {BadgeModule} from "primeng/badge";
+import {MenuItem} from "primeng/api";
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
@@ -70,9 +73,13 @@ export class SideNavOuterToolbarComponent {
     }));
   }
 
-  openWindow(url: string, target: string) {
-    if (target || url) {
-      this.store.dispatch(openWindow({url, target}));
+  openWindow(item: MenuItem) {
+    console.log('openWindow', item);
+    if (item.routerLink) {
+      this.store.dispatch(navigate({url: item.routerLink}));
+    }
+    if (item.target || item.url) {
+      this.store.dispatch(openWindow({url: item.url as string, target: item.target as string}));
     }
   }
 }
@@ -91,7 +98,7 @@ export class SideNavOuterToolbarComponent {
     ScrollTopModule,
     UnsavedChangesModule,
     MatomoTrackerDirective,
-    MatomoTrackClickDirective
+    MatomoTrackClickDirective, TieredMenuModule, BadgeModule
   ],
   exports: [SideNavOuterToolbarComponent],
   declarations: [SideNavOuterToolbarComponent]

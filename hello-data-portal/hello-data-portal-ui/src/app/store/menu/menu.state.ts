@@ -45,7 +45,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     icon: 'fas fa-light fa-chart-line',
     requiresAuthentication: true,
     requiredPermissions: ['DASHBOARDS'],
-    items: []
+    items: [],
+    isFirstLevel: true
   },
   {
     id: 'lineageMenu',
@@ -53,7 +54,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     icon: 'fas fa-light fa-diagram-project',
     requiresAuthentication: true,
     requiredPermissions: ['DATA_LINEAGE'],
-    items: []
+    items: [],
+    isFirstLevel: true
   },
   {
     id: 'dataMartsMenu',
@@ -61,7 +63,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     icon: 'fas fa-light fa-store',
     requiresAuthentication: true,
     requiredPermissions: ['DATA_MARTS'],
-    items: []
+    items: [],
+    isFirstLevel: true
   },
   {
     id: 'dataEngMenu',
@@ -83,7 +86,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         routerLink: naviElements.embeddedOrchestration.path,
         requiredPermissions: ['DATA_ENG']
       }
-    ]
+    ],
+    isFirstLevel: true
   },
   {
     id: 'administrationMenu',
@@ -140,7 +144,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         routerLink: naviElements.dashboardCopy.path,
         requiredPermissions: ['DASHBOARD_IMPORT_EXPORT']
       },
-    ]
+    ],
+    isFirstLevel: true
   },
   {
     id: 'monitoringMenu',
@@ -166,7 +171,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         routerLink: naviElements.subsystemUsers.path,
         requiredPermissions: ['USER_MANAGEMENT']
       },
-    ]
+    ],
+    isFirstLevel: true
   },
   {
     id: 'devToolsMenu',
@@ -192,7 +198,8 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         url: environment.subSystemsConfig.devToolsFileBrowser.protocol + environment.subSystemsConfig.devToolsFileBrowser.host + environment.subSystemsConfig.devToolsFileBrowser.domain,
         target: '_blank'
       }
-    ]
+    ],
+    isFirstLevel: true
   }
 ]
 

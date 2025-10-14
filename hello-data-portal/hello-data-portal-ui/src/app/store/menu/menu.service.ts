@@ -64,7 +64,6 @@ export class MenuService {
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
   private static readonly QUERY_LIST = '/queries/list/';
   private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
-  dbMenuItemPrefix = ' > ';
 
   constructor(
     private _store: Store<AppState>,
@@ -244,7 +243,7 @@ export class MenuService {
       dashboards.forEach((db: SupersetDashboard) => {
         dashboardEntries.push({
           id: 'dashboardMenu' + db.id,
-          label: this.dbMenuItemPrefix + db.dashboardTitle,
+          label: db.dashboardTitle,
           routerLink: this.createDashboardLink(db)
         });
       });
