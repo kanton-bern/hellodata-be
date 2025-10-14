@@ -96,11 +96,6 @@ export class FaqComponent implements OnInit {
     )
   }
 
-  onTabOpened($event: any) {
-
-    console.log($event);
-  }
-
   protected readonly onclick = onclick;
 }
 

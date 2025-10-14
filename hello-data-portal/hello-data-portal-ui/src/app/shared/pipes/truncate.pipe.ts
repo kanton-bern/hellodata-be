@@ -38,7 +38,6 @@ export class TruncatePipe implements PipeTransform {
     if (completeWords) {
       limit = value.substr(0, limit).lastIndexOf(' ');
     }
-    console.log('inside truncate pipe', value)
     return value.length > limit ? value.substr(0, limit) + ellipsis : value;
   }
 }

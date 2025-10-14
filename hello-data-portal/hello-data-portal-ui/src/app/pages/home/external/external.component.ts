@@ -98,7 +98,7 @@ export class ExternalComponent implements OnInit {
     this.filterTimer = setTimeout(() => {
       table.filterGlobal(value, 'contains');
       const val = value || '(cleared)';
-      console.log('Global filter:', value);
+      console.debug('Global filter:', value);
       this.store.dispatch(trackEvent({
         eventCategory: 'External Dashboard (Home Page)',
         eventAction: '[Search] - Searched for ' + val

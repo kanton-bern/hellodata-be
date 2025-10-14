@@ -74,12 +74,22 @@ export class SideNavOuterToolbarComponent {
   }
 
   openWindow(item: MenuItem) {
-    console.log('openWindow', item);
+    let isRouterOrUrl = false;
     if (item.routerLink) {
       this.store.dispatch(navigate({url: item.routerLink}));
+      isRouterOrUrl = true;
     }
     if (item.target || item.url) {
       this.store.dispatch(openWindow({url: item.url as string, target: item.target as string}));
+      isRouterOrUrl = true;
+    }
+    if (isRouterOrUrl) {
+      console.debug('openWindow', item);
+      this.store.dispatch(trackEvent({
+        eventCategory: 'Menu Item',
+        eventAction: '[Click] - ' + item.label
+      }));
+
     }
   }
 }
