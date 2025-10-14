@@ -1,27 +1,31 @@
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {Component, OnInit, ViewChild} from "@angular/core";
+import {Component, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/queries.action";
 import {
-  selectAllQueries,
   selectParamContextKey,
+  selectQueries,
   selectQueriesLoading,
   selectQueriesTotalRecords
 } from "../../../store/queries/queries.selector";
 import {combineLatest, Observable, tap} from "rxjs";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {selectAvailableDataDomains} from "../../../store/my-dashboards/my-dashboards.selector";
+import {
+  selectAllAvailableDataDomains,
+  selectSelectedDataDomain
+} from "../../../store/my-dashboards/my-dashboards.selector";
 import {Table, TableLazyLoadEvent} from "primeng/table";
 import {map, take} from "rxjs/operators";
 import {scrollToTop} from "../../../shared/services/view-helpers";
+import {navigate} from "../../../store/app/app.action";
 
 @Component({
   templateUrl: 'queries.component.html',
   styleUrls: ['./queries.component.scss']
 })
-export class QueriesComponent extends BaseComponent implements OnInit {
+export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
 
   paramContextKey$: Observable<any>;
   queries$: Observable<any>;
@@ -32,35 +36,13 @@ export class QueriesComponent extends BaseComponent implements OnInit {
   filterValue = '';
   first = 0;
   @ViewChild('dt') table!: Table;
+  loadedQueriesForContextKey = '';
+  selectedDataDomain$: Observable<any>;
 
   constructor(private store: Store<AppState>) {
     super();
-    this.paramContextKey$ =
-      combineLatest([
-        this.store.select(selectParamContextKey),
-        this.store.select(selectAvailableDataDomains).pipe(take(2))
-      ]).pipe(
-        map(([contextKey, availableDataDomains]) => {
-          this.first = 0;
-          const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
-          if (contextKey && dataDomain) {
-            this.createBreadcrumbs(dataDomain.name);
-            if (this.componentInitiated) {
-              const sortField = this.table.sortField;
-              const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc'
-              this.store.dispatch(loadQueriesPaginated({
-                page: 0, size: 10, sort: `${sortField}, ${sortOrder}`, search: '', contextKey
-              }));
-            }
-          } else {
-            this.store.dispatch(resetQueriesState());
-          }
-          return dataDomain?.key ? dataDomain.key : '';
-        }),
-      );
-
     this.queries$ = combineLatest([
-      this.store.select(selectAllQueries),
+      this.store.select(selectQueries),
       this.store.select(selectQueriesTotalRecords)
     ]).pipe(
       tap(([_, queriesTotalRecords]) => {
@@ -68,6 +50,37 @@ export class QueriesComponent extends BaseComponent implements OnInit {
       }),
       map(([queries, _]) => queries),
     );
+    this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(tap((dataDomain) => {
+      if (this.loadedQueriesForContextKey !== '' && dataDomain && (dataDomain.key !== '' && dataDomain.key !== this.loadedQueriesForContextKey)) {
+        this.store.dispatch(navigate({url: 'home'}));
+        this.store.dispatch(resetQueriesState());
+      }
+    }));
+    this.paramContextKey$ =
+      combineLatest([
+        this.store.select(selectParamContextKey),
+        this.store.select(selectAllAvailableDataDomains).pipe(take(1))
+      ]).pipe(
+        map(([contextKey, availableDataDomains]) => {
+          this.first = 0;
+          if (contextKey) {
+            const dataDomain = availableDataDomains.filter(dataDomain => dataDomain.key === contextKey)[0];
+            if (dataDomain) {
+              this.createBreadcrumbs(dataDomain.name);
+            }
+            this.store.dispatch(loadQueriesPaginated({
+              page: 0, size: 10, sort: 'changedOn, desc', search: '', contextKey
+            }));
+          }
+          return contextKey ? contextKey : '';
+        }),
+      );
+
+
+  }
+
+  ngOnDestroy(): void {
+    this.store.dispatch(resetQueriesState());
   }
 
   loadQueries(event: TableLazyLoadEvent, contextKey: string) {
@@ -79,6 +92,7 @@ export class QueriesComponent extends BaseComponent implements OnInit {
       contextKey
     }));
     this.componentInitiated = true;
+    this.loadedQueriesForContextKey = contextKey;
     scrollToTop();
   }
 

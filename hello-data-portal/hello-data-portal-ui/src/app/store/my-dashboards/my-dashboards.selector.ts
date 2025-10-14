@@ -56,6 +56,14 @@ export const selectAvailableDataDomains = createSelector(
   }
 );
 
+export const selectAllAvailableDataDomains = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => {
+    return [...state.availableDataDomains].sort((a, b) => a.name.localeCompare(b.name));
+
+  }
+);
+
 export const selectMyDashboards = createSelector(
   myDashboardsState,
   selectSelectedDataDomain,

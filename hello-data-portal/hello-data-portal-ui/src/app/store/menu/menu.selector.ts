@@ -28,13 +28,14 @@
 import {AppState} from "../app/app.state";
 import {createSelector} from "@ngrx/store";
 import {MenuState} from "./menu.state";
+import {MenuItem} from "primeng/api";
 
 const menuState = (state: AppState) => state.menu;
 const authState = (state: AppState) => state.auth;
 export const selectNavItems = createSelector(
   menuState,
   authState,
-  (state: MenuState, authState) => {
+  (state: MenuState, authState): MenuItem[] => {
     if (!authState.permissionsLoaded) {
       return [];
     }

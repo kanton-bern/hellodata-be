@@ -1,3 +1,4 @@
+<div *ngIf="selectedDataDomain$ | async"></div>
 <div class="card" *ngIf="(paramContextKey$ | async) as contextKey">
   <div *ngIf="(queries$ | async) as queries">
     <p-table #dt

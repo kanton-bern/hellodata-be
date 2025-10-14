@@ -17,6 +17,7 @@ export const queriesReducer = createReducer(
       queries,
       queriesLoading: false,
       queriesTotalRecords: totalElements,
+      queriesTotalPages: totalPages,
     };
   }),
   on(resetQueriesState, (state: QueriesState): QueriesState => {
