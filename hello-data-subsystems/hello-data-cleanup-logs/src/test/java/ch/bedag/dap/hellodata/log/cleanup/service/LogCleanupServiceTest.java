@@ -36,24 +36,24 @@ import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthAttemp
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthAttemptRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverAuthTokenRepository;
 import ch.bedag.dap.hellodata.log.cleanup.repo.cloudbeaver.CloudBeaverSessionRepository;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.ext.ScriptUtils;
 import org.testcontainers.jdbc.JdbcDatabaseDelegate;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Testcontainers
 class LogCleanupServiceTest {
 
     @Value("${hello-data.log-cleanup.olderThanInDays:365}")
@@ -77,34 +77,34 @@ class LogCleanupServiceTest {
     @Autowired
     private LogCleanupService logCleanupService;
 
-    @Container
+    @ServiceConnection
     private static final PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:15.4").withDatabaseName("testdatabase")
-                                                                                                              .withUsername("test")
-                                                                                                              .withPassword("test")
-                                                                                                              .withExposedPorts(5432)
-                                                                                                              .withInitScript("sql/db-init.sql");
+            .withUsername("test")
+            .withPassword("test")
+            .withExposedPorts(5432)
+            .withInitScript("sql/db-init.sql");
 
     @DynamicPropertySource
     static void databaseProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.jdbc-url",
-                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=airflow", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+                () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=airflow", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
         registry.add("jakarta.persistence.jdbc.url",
-                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=airflow", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+                () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=airflow", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
         registry.add("spring.datasource.username", postgresContainer::getUsername);
         registry.add("spring.datasource.password", postgresContainer::getPassword);
 
         registry.add("spring.supersets[0].jdbc-url",
-                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset_one", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+                () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset_one", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
         registry.add("spring.supersets[0].username", postgresContainer::getUsername);
         registry.add("spring.supersets[0].password", postgresContainer::getPassword);
 
         registry.add("spring.supersets[1].jdbc-url",
-                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset_two", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+                () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=superset_two", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
         registry.add("spring.supersets[1].username", postgresContainer::getUsername);
         registry.add("spring.supersets[1].password", postgresContainer::getPassword);
 
         registry.add("spring.cloudbeaver.jdbc-url",
-                     () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=cloudbeaver", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
+                () -> String.format("jdbc:postgresql://%s:%d/testdatabase?currentSchema=cloudbeaver", postgresContainer.getHost(), postgresContainer.getFirstMappedPort()));
         registry.add("spring.cloudbeaver.username", postgresContainer::getUsername);
         registry.add("spring.cloudbeaver.password", postgresContainer::getPassword);
     }

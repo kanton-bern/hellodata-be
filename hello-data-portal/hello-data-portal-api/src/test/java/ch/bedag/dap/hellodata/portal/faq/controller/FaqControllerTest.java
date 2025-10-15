@@ -33,9 +33,9 @@ import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.service.FaqService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.*;
@@ -46,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {FaqController.class})
 class FaqControllerTest extends HDControllerTest {
 
-    @MockBean
+    @MockitoBean
     private FaqService faqService;
 
     @Test

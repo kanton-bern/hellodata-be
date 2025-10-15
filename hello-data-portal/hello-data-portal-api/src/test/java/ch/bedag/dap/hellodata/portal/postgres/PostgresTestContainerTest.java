@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.UUID;
@@ -60,9 +60,9 @@ public class PostgresTestContainerTest {
     private ResourceRepository resourceRepository;
     @Autowired
     private EntityManager entityManager;
-    @MockBean
+    @MockitoBean
     private SecurityFilterChain securityFilterChain;
-    @MockBean
+    @MockitoBean
     private Connection connection;
 
     @Test

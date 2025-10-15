@@ -31,25 +31,27 @@ import ch.bedag.dap.hellodata.portal.external_dashboard.data.CreateExternalDashb
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.ExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.data.UpdateExternalDashboardDto;
 import ch.bedag.dap.hellodata.portal.external_dashboard.service.ExternalDashboardService;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ExternalDashboardController.class)
-@ContextConfiguration(classes = { ExternalDashboardController.class })
+@ContextConfiguration(classes = {ExternalDashboardController.class})
 class ExternalDashboardControllerTest extends HDControllerTest {
 
-    @MockBean
+    @MockitoBean
     private ExternalDashboardService externalDashboardService;
 
     @Test
@@ -67,8 +69,8 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         //when then
         mockMvc.perform(MockMvcRequestBuilders.get("/external-dashboards").header("authorization", generateToken()).contentType(MediaType.APPLICATION_JSON))
-               .andExpect(status().isOk())
-               .andExpect(content().json("[]"));
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 
     @Test
@@ -84,7 +86,7 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         //when then
         mockMvc.perform(MockMvcRequestBuilders.get("/external-dashboards/" + uuid).header("authorization", generateToken()).contentType(MediaType.APPLICATION_JSON))
-               .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -100,8 +102,8 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         //when then
         mockMvc.perform(MockMvcRequestBuilders.get("/external-dashboards/" + uuid)
-                                              .header("authorization", generateToken(uuid, Set.of("EXTERNAL_DASHBOARDS_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+                .header("authorization", generateToken(uuid, Set.of("EXTERNAL_DASHBOARDS_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
 
     @Test
@@ -114,9 +116,9 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         // ehen then
         mockMvc.perform(MockMvcRequestBuilders.post("/external-dashboards")
-                                              .header("authorization", generateToken())
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(createDto))).andExpect(status().isForbidden());
+                .header("authorization", generateToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createDto))).andExpect(status().isForbidden());
     }
 
     @Test
@@ -129,9 +131,9 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/external-dashboards")
-                                              .header("authorization", generateToken(Set.of("EXTERNAL_DASHBOARDS_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(createDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("EXTERNAL_DASHBOARDS_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createDto))).andExpect(status().isOk());
     }
 
     @Test
@@ -146,9 +148,9 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.put("/external-dashboards")
-                                              .header("authorization", generateToken(new HashSet<>()))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(updateDto))).andExpect(status().isForbidden());
+                .header("authorization", generateToken(new HashSet<>()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateDto))).andExpect(status().isForbidden());
     }
 
     @Test
@@ -163,9 +165,9 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.put("/external-dashboards")
-                                              .header("authorization", generateToken(Set.of("EXTERNAL_DASHBOARDS_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(updateDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("EXTERNAL_DASHBOARDS_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateDto))).andExpect(status().isOk());
     }
 
     @Test
@@ -184,6 +186,6 @@ class ExternalDashboardControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.delete("/external-dashboards/" + uuid).header("authorization", generateToken(Set.of("EXTERNAL_DASHBOARDS_MANAGEMENT"))))
-               .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 }

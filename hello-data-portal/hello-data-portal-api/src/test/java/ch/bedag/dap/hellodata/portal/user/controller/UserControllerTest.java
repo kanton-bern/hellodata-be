@@ -36,13 +36,13 @@ import ch.bedag.dap.hellodata.portal.user.service.KeycloakService;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Locale;
@@ -58,13 +58,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {UserController.class})
 class UserControllerTest extends HDControllerTest {
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
-    @MockBean
+    @MockitoBean
     private HelloDataContextConfig helloDataContextConfig;
-    @MockBean
+    @MockitoBean
     private SystemProperties systemProperties;
-    @MockBean
+    @MockitoBean
     private KeycloakService keycloakService;
 
     @Test

@@ -30,20 +30,22 @@ import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.role.data.PortalRoleCreateDto;
 import ch.bedag.dap.hellodata.portal.role.data.PortalRoleUpdateDto;
 import ch.bedag.dap.hellodata.portal.role.service.PortalRoleService;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.Set;
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PortalRoleController.class)
-@ContextConfiguration(classes = { PortalRoleController.class })
+@ContextConfiguration(classes = {PortalRoleController.class})
 class PortalRoleControllerTest extends HDControllerTest {
-    @MockBean
+    @MockitoBean
     private PortalRoleService portalRoleService;
 
     @Test
@@ -64,9 +66,9 @@ class PortalRoleControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.post("/portal-roles")
-                                              .header("authorization", generateToken(Set.of("ROLE_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(createDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("ROLE_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(createDto))).andExpect(status().isOk());
     }
 
     @Test
@@ -79,7 +81,7 @@ class PortalRoleControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.patch("/portal-roles").contentType(MediaType.APPLICATION_JSON).content(asJsonString(updateDto)))
-               .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -92,9 +94,9 @@ class PortalRoleControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.patch("/portal-roles")
-                                              .header("authorization", generateToken(Set.of("ROLE_MANAGEMENT")))
-                                              .contentType(MediaType.APPLICATION_JSON)
-                                              .content(asJsonString(updateDto))).andExpect(status().isOk());
+                .header("authorization", generateToken(Set.of("ROLE_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(updateDto))).andExpect(status().isOk());
     }
 
     @Test

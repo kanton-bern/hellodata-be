@@ -35,9 +35,9 @@ import ch.bedag.dap.hellodata.portal.superset.service.DashboardService;
 import ch.bedag.dap.hellodata.portal.superset.service.QueryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -52,11 +52,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {SupersetController.class})
 class SupersetControllerTest extends HDControllerTest {
 
-    @MockBean
+    @MockitoBean
     private DashboardService dashboardService;
-    @MockBean
+    @MockitoBean
     private QueryService queryService;
-    @MockBean
+    @MockitoBean
     private DashboardAccessService dashboardAccessService;
 
     @Test

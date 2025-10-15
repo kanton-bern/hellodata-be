@@ -46,6 +46,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
@@ -73,8 +74,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.net.URI;
@@ -86,12 +85,11 @@ import java.util.List;
 @ActiveProfiles("test-containers")
 @Import({AbstractKeycloakTestContainers.OverrideBean.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@Testcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class AbstractKeycloakTestContainers {
 
     static final KeycloakContainer KEYCLOAK_CONTAINER;
-    @Container
+    @ServiceConnection
     static PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:11.1").withDatabaseName("test").withUsername("sa").withPassword("sa");
 
     static {

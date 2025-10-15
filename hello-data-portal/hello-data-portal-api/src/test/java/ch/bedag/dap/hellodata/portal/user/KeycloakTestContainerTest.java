@@ -42,11 +42,11 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 @Log4j2
@@ -67,25 +67,25 @@ public abstract class KeycloakTestContainerTest {
 
     @LocalServerPort
     private int port;
-    @MockBean
+    @MockitoBean
     private Connection connection;
-    @MockBean
+    @MockitoBean
     private NatsSenderService natsSenderService;
-    @MockBean
+    @MockitoBean
     private RolesInitializer rolesInitializer;
-    @MockBean
+    @MockitoBean
     private RoleService roleService;
-    @MockBean
+    @MockitoBean
     private StorageSizeService storageSizeService;
-    @MockBean
+    @MockitoBean
     private NatsHealthIndicator natsHealthIndicator;
-    @MockBean
+    @MockitoBean
     private CacheUpdateService cacheUpdateService;
-    @MockBean
+    @MockitoBean
     private BatchUsersCustomLogger batchUsersCustomLogger;
-    @MockBean
+    @MockitoBean
     private QueryRepository queryRepository;
-    @MockBean
+    @MockitoBean
     private DashboardAccessRepository dashboardAccessRepository;
 
     @DynamicPropertySource
