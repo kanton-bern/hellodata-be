@@ -20,7 +20,6 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <main.class>ch.bedag.dap.hellodata.portal.HellodataPortalApiApplication</main.class>
-        <spring-ldap-core.version>3.2.8</spring-ldap-core.version>
         <lombok-version>1.18.28</lombok-version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     </properties>
@@ -101,7 +100,6 @@
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap-core</artifactId>
-            <version>${spring-ldap-core.version}</version>
         </dependency>
 
         <!-- DB -->
