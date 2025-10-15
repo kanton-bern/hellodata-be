@@ -31,7 +31,6 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <start-class>ch.bedag.dap.hellodata.monitoring.storage.HdStorageMonitoringApplication</start-class>
-        <testcontainers-version>1.19.1</testcontainers-version>
     </properties>
 
     <dependencies>
@@ -67,7 +66,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
+            <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>

@@ -16,16 +16,19 @@
     <name>hello-data-spring-boot-starter-parent</name>
 
     <properties>
-        <commons-io.version>2.17.0</commons-io.version>
-        <commons-csv.version>1.12.0</commons-csv.version>
-        <commons-validator.version>1.9.0</commons-validator.version>
         <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-csv.version>1.12.0</commons-csv.version>
+        <commons-io.version>2.17.0</commons-io.version>
+        <commons-validator.version>1.9.0</commons-validator.version>
         <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
-        <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <docker.namespace>bedag</docker.namespace>
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
+        <httpclient5.version>5.2.1</httpclient5.version>
+        <httpmime.version>4.5.14</httpmime.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+        <jakarta-mail-api.version>2.0.2</jakarta-mail-api.version>
+        <jakarta-mail.version>2.1.5</jakarta-mail.version>
         <java.version>17</java.version>
         <keycloak.version>26.0.0</keycloak.version>
         <main.class>empty_in_parent</main.class>
@@ -34,22 +37,20 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <modelmapper.version>3.1.1</modelmapper.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <rest-assured.version>5.2.0</rest-assured.version>
-        <spring-boot.version>3.5.6</spring-boot.version>
         <spring-boot-admin-dependencies.version>3.3.3</spring-boot-admin-dependencies.version>
+        <spring-boot.version>3.5.6</spring-boot.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
         <spring-ws-test.version>4.0.2</spring-ws-test.version>
         <springdoc.version>2.8.8</springdoc.version>
-        <testcontainers-keycloak.version>3.3.1</testcontainers-keycloak.version>
-        <testcontainers.version>1.20.1</testcontainers.version>
+        <testcontainers-keycloak.version>3.9.0</testcontainers-keycloak.version>
+        <testcontainers-postgresql.version>1.21.3</testcontainers-postgresql.version>
+        <testcontainers.version>2.0.0</testcontainers.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
         <thymeleaf-layout-dialect.version>2.5.3</thymeleaf-layout-dialect.version>
-        <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
         <thymeleaf-spring4.version>3.0.12.RELEASE</thymeleaf-spring4.version>
-        <httpmime.version>4.5.14</httpmime.version>
-        <httpclient5.version>5.2.1</httpclient5.version>
-        <jakarta-mail-api.version>2.0.2</jakarta-mail-api.version>
-        <jakarta-mail.version>2.1.5</jakarta-mail.version>
+        <thymeleaf.version>3.1.2.RELEASE</thymeleaf.version>
     </properties>
 
     <dependencyManagement>
@@ -115,7 +116,7 @@
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>${testcontainers.version}</version>
+                <version>${testcontainers-postgresql.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
