@@ -46,7 +46,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Publish Packages and Docker Images
+      - name: Build, Publish Packages and Docker Images
         run: mvn --batch-mode clean install -Pdocker -DskipTests -pl ${{ github.event.inputs.module }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
