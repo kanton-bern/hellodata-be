@@ -78,6 +78,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -88,12 +89,21 @@ import java.util.List;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class AbstractKeycloakTestContainers {
 
-    static final KeycloakContainer KEYCLOAK_CONTAINER;
     @ServiceConnection
     static PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:11.1").withDatabaseName("test").withUsername("sa").withPassword("sa");
 
+    static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
+            .withAdminUsername("admin")
+            .withAdminPassword("admin")
+            .withRealmImportFile("keycloak/realm.json")
+            .waitingFor(
+                    Wait.forHttp("/realms/hellodata")
+                            .forPort(8080) // Keycloak dev HTTP port
+                            .forStatusCode(200)
+                            .withStartupTimeout(Duration.ofMinutes(3)) // give enough time for startup
+            );
+
     static {
-        KEYCLOAK_CONTAINER = new KeycloakContainer().withAdminUsername("admin").withAdminPassword("admin").withRealmImportFile("keycloak/realm.json").waitingFor(Wait.forHttp("/"));
         KEYCLOAK_CONTAINER.start();
     }
 
@@ -105,13 +115,6 @@ public abstract class AbstractKeycloakTestContainers {
 
     @LocalServerPort
     private int port;
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgresqlContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgresqlContainer::getUsername);
-        registry.add("spring.datasource.password", postgresqlContainer::getPassword);
-    }
 
     @DynamicPropertySource
     static void registerResourceServerIssuerProperty(DynamicPropertyRegistry registry) {
