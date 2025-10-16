@@ -16,15 +16,10 @@
 
     <distributionManagement>
         <repository>
-            <id>gf-sie-releases</id>
-            <name>Releases vom Geschäftsfeld SIE</name>
-            <url>https://nexus.mgmtbi.ch/repository/maven2-gf-sie-releases</url>
+            <id>github</id>
+            <name>GitHub kanton-bern Maven Packages</name>
+            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
         </repository>
-        <snapshotRepository>
-            <id>gf-sie-snapshots</id>
-            <name>Snapshots vom Geschäftsfeld SIE</name>
-            <url>https://nexus.mgmtbi.ch/repository/maven2-gf-sie-snapshots</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <properties>
