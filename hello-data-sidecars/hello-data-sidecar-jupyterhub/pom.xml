@@ -232,14 +232,6 @@
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>${maven-deploy-plugin.version}</version>
-                <configuration>
-                    <deployAtEnd>true</deployAtEnd>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
