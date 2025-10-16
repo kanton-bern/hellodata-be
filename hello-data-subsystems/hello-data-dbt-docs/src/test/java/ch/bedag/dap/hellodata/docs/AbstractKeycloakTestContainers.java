@@ -89,8 +89,12 @@ import java.util.List;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class AbstractKeycloakTestContainers {
 
+    @SuppressWarnings("unused")
     @ServiceConnection
-    static PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:11.1").withDatabaseName("test").withUsername("sa").withPassword("sa");
+    static final PostgreSQLContainer POSTGRESQL_CONTAINER = new PostgreSQLContainer("postgres:11.1")
+            .withDatabaseName("test")
+            .withUsername("sa")
+            .withPassword("sa");
 
     static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
             .withAdminUsername("admin")
@@ -98,9 +102,9 @@ public abstract class AbstractKeycloakTestContainers {
             .withRealmImportFile("keycloak/realm.json")
             .waitingFor(
                     Wait.forHttp("/realms/hellodata")
-                            .forPort(8080) // Keycloak dev HTTP port
+                            .forPort(8080)
                             .forStatusCode(200)
-                            .withStartupTimeout(Duration.ofMinutes(3)) // give enough time for startup
+                            .withStartupTimeout(Duration.ofMinutes(3))
             );
 
     static {
