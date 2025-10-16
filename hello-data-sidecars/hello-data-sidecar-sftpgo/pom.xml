@@ -16,10 +16,6 @@
     <name>hello-data-sidecar-sftpgo</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <main.class>ch.bedag.dap.hellodata.sidecars.sftpgo.HDSidecarSftpGo</main.class>
     </properties>
 

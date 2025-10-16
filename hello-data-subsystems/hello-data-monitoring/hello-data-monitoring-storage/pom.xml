@@ -15,21 +15,7 @@
 
     <name>hello-data-monitoring-storage</name>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub kanton-bern Maven Packages</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </repository>
-    </distributionManagement>
-
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <start-class>ch.bedag.dap.hellodata.monitoring.storage.HdStorageMonitoringApplication</start-class>
     </properties>
 

@@ -16,10 +16,6 @@
     <name>hello-data-sidecar-superset</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <main.class>ch.bedag.dap.hellodata.sidecars.superset.HDSidecarSuperset</main.class>
     </properties>
 

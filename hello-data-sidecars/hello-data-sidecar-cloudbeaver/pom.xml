@@ -16,18 +16,7 @@
     <name>hello-data-sidecar-cloudbeaver</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <main.class>ch.bedag.dap.hellodata.sidecars.cloudbeaver.HdSidecarCloudbeaver</main.class>
-        <java.version>17</java.version>
-        <jaxb-runtime.version>4.0.3</jaxb-runtime.version>
-        <lombok-version>1.18.28</lombok-version>
-        <liquibase-version>4.22.0</liquibase-version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -66,7 +55,6 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>${liquibase-version}</version>
         </dependency>
         <dependency>
             <groupId>de.codecentric</groupId>
