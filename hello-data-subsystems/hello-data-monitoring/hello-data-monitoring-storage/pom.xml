@@ -15,23 +15,8 @@
 
     <name>hello-data-monitoring-storage</name>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub kanton-bern Maven Packages</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </repository>
-    </distributionManagement>
-
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <start-class>ch.bedag.dap.hellodata.monitoring.storage.HdStorageMonitoringApplication</start-class>
-        <testcontainers-version>1.19.1</testcontainers-version>
+        <main.class>ch.bedag.dap.hellodata.monitoring.storage.HdStorageMonitoringApplication</main.class>
     </properties>
 
     <dependencies>
@@ -68,11 +53,6 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
@@ -103,29 +83,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-                <configuration>
-                    <mainClass>${start-class}</mainClass>
-                    <layout>JAR</layout>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

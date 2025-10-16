@@ -16,12 +16,6 @@
     <name>hello-data-nats-spring</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <jnats.version>2.18.1</jnats.version>
         <nats.version>0.5.7</nats.version>
     </properties>

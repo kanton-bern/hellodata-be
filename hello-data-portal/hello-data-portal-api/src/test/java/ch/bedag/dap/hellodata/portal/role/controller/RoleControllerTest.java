@@ -29,23 +29,25 @@ package ch.bedag.dap.hellodata.portal.role.controller;
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
-import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.List;
+import java.util.UUID;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(RoleController.class)
-@ContextConfiguration(classes = { RoleController.class })
+@ContextConfiguration(classes = {RoleController.class})
 class RoleControllerTest extends HDControllerTest {
 
-    @MockBean
+    @MockitoBean
     private RoleService roleService;
 
     @Test
@@ -63,8 +65,8 @@ class RoleControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(get("/roles").header("authorization", generateToken()))
-               .andExpect(status().isOk())
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(content().json("[{'id':'" + roles.get(0).getId() + "', 'name':'Role1'}, {'id':'" + roles.get(1).getId() + "', 'name':'Role2'}]"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("[{'id':'" + roles.get(0).getId() + "', 'name':'Role1'}, {'id':'" + roles.get(1).getId() + "', 'name':'Role2'}]"));
     }
 }
