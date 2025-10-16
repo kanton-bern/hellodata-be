@@ -84,6 +84,11 @@ class LogCleanupServiceTest {
             .withExposedPorts(5432)
             .withInitScript("sql/db-init.sql");
 
+    static {
+        postgresContainer.start();  // ensure container is started before DynamicPropertySource
+    }
+
+
     @DynamicPropertySource
     static void databaseProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.jdbc-url",

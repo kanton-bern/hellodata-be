@@ -49,19 +49,26 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import java.time.Duration;
+
 @Log4j2
 @SuppressWarnings("unused")
 @ActiveProfiles("tc-keycloak")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class KeycloakTestContainerTest {
 
-    public static final KeycloakContainer KEYCLOAK_CONTAINER;
+    static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
+            .withAdminUsername("admin")
+            .withAdminPassword("admin")
+            .withRealmImportFile("keycloak/realm.json")
+            .waitingFor(
+                    Wait.forHttp("/realms/hellodata")
+                            .forPort(8080)
+                            .forStatusCode(200)
+                            .withStartupTimeout(Duration.ofMinutes(3))
+            );
 
     static {
-        KEYCLOAK_CONTAINER = new KeycloakContainer().withEnv("KEYCLOAK_USER", "admin")
-                .withEnv("KEYCLOAK_PASSWORD", "admin")
-                .withRealmImportFile("keycloak/realm.json")
-                .waitingFor(Wait.forHttp("/"));
         KEYCLOAK_CONTAINER.start();
     }
 
