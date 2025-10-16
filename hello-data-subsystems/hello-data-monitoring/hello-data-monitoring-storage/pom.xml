@@ -16,7 +16,7 @@
     <name>hello-data-monitoring-storage</name>
 
     <properties>
-        <start-class>ch.bedag.dap.hellodata.monitoring.storage.HdStorageMonitoringApplication</start-class>
+        <main.class>ch.bedag.dap.hellodata.monitoring.storage.HdStorageMonitoringApplication</main.class>
     </properties>
 
     <dependencies>

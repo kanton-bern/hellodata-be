@@ -16,7 +16,7 @@
     <name>hello-data-cleanup-logs</name>
 
     <properties>
-        <start-class>ch.bedag.dap.hellodata.log.cleanup.HdLogCleanupApplication</start-class>
+        <main.class>ch.bedag.dap.hellodata.log.cleanup.HdLogCleanupApplication</main.class>
     </properties>
 
     <dependencies>

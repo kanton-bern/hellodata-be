@@ -15,7 +15,7 @@
     <name>hello-data-sidecar-jupyterhub</name>
 
     <properties>
-        <start-class>ch.bedag.dap.hellodata.jupyterhub.sidecar.HDSidecarJupyterhub</start-class>
+        <main.class>ch.bedag.dap.hellodata.jupyterhub.sidecar.HDSidecarJupyterhub</main.class>
     </properties>
 
     <dependencies>
