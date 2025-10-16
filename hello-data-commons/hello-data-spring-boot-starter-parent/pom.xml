@@ -27,8 +27,6 @@
         <httpclient5.version>5.2.1</httpclient5.version>
         <httpmime.version>4.5.14</httpmime.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
-        <jakarta-mail-api.version>2.0.2</jakarta-mail-api.version>
-        <jakarta-mail.version>2.1.5</jakarta-mail.version>
         <java.version>17</java.version>
         <keycloak.version>26.0.0</keycloak.version>
         <lombok-version>1.18.28</lombok-version>
@@ -190,16 +188,6 @@
                 <groupId>nz.net.ultraq.thymeleaf</groupId>
                 <artifactId>thymeleaf-layout-dialect</artifactId>
                 <version>${thymeleaf-layout-dialect.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.mail</groupId>
-                <artifactId>jakarta.mail-api</artifactId>
-                <version>${jakarta-mail-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>jakarta.mail</artifactId>
-                <version>${jakarta-mail.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.dasniko</groupId>
