@@ -95,8 +95,7 @@ export class SideNavOuterToolbarComponent {
   }
 
   onMouseleave() {
-    const iframeEl = document.querySelector('app-subsystem-iframe');
-    console.log("onMouseleave", iframeEl);
+    const iframeEl = document.querySelector('iframe');
     if (iframeEl) {
       const rect = iframeEl.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
