@@ -59,9 +59,9 @@ export class SideNavOuterToolbarComponent {
   title!: string;
   navItems$: Observable<any[]>;
   selectCurrentUserPermissionsLoaded$: Observable<boolean>;
+  mouseEnterTimeoutId: number[] = [];
 
   constructor(private store: Store<AppState>) {
-
     this.navItems$ = this.store.select(selectNavItems);
     this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
   }
@@ -100,13 +100,21 @@ export class SideNavOuterToolbarComponent {
       const rect = iframeEl.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const widthPercentage = (rect.width / viewportWidth) * 100;
-      // console.log(`Iframe width: ${rect.width}px`);
-      // console.log(`Viewport width: ${viewportWidth}px`);
-      // console.log(`Iframe occupies ${widthPercentage.toFixed(2)}% of viewport width`);
       if (widthPercentage > 90) {
-        window.document.body.click();
+        const timeoutId = setTimeout(() => {
+          window.document.body.click();
+        }, 1200);
+        // @ts-ignore
+        this.mouseEnterTimeoutId.push(timeoutId);
       }
     }
+  }
+
+  onMouseEnter() {
+    for (const timeout of this.mouseEnterTimeoutId) {
+      clearTimeout(timeout);
+    }
+    this.mouseEnterTimeoutId = [];
   }
 }
 
