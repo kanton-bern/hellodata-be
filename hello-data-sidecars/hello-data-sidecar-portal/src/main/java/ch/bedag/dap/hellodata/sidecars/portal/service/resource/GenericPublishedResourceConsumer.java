@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
 
@@ -84,11 +85,23 @@ public class GenericPublishedResourceConsumer {
         String instanceName = hdResource.getInstanceName();
         Optional<MetaInfoResourceEntity> appInfoEntityFound =
                 resourceRepository.findByApiVersionAndModuleTypeAndKindAndInstanceName(apiVersion, moduleType, HELLO_DATA_APP_INFO, instanceName);
-        appInfoEntityFound.ifPresent(appInfoEntity -> {
-            contextRepository.getByContextKey(appInfoEntity.getContextKey()).ifPresent(context -> resource.setContextKey(context.getContextKey()));
+
+        if (appInfoEntityFound.isPresent()) {
+            MetaInfoResourceEntity appInfoEntity = appInfoEntityFound.get();
+            resource.setContextKey(appInfoEntity.getContextKey());
             resourceRepository.save(resource);
-        });
+        } else {
+            log.warn("No Hello Data App Info resource found for resource with api version: {}, module type: {}, instance name: {}. Cannot attach context.",
+                    apiVersion, moduleType, instanceName);
+        }
         return contextRepository.getByContextKey(resource.getContextKey()).orElse(null);
+    }
+
+    private Consumer<MetaInfoResourceEntity> ifAppInfoPresentConsumer(MetaInfoResourceEntity resource) {
+        return appInfoEntity -> {
+            resource.setContextKey(appInfoEntity.getContextKey());
+            resourceRepository.save(resource);
+        };
     }
 
     public MetaInfoResourceEntity saveEntity(MetaInfoResourceEntity entity) {
