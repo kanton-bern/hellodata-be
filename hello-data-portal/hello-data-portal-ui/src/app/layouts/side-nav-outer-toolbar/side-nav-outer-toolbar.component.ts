@@ -94,7 +94,7 @@ export class SideNavOuterToolbarComponent {
     }
   }
 
-  // if iframe viewed, hide menu after a time
+  // if iframe viewed, hide menu after a delay
   onMouseleave() {
     const iframeEl = document.querySelector('iframe');
     if (iframeEl) {
@@ -110,7 +110,7 @@ export class SideNavOuterToolbarComponent {
     }
   }
 
-  // reset iframe hide timers from onMouseLeave()
+  // reset iframe menu hide timers from onMouseLeave()
   onMouseEnter() {
     for (const timeout of this.mouseEnterTimeoutId) {
       clearTimeout(timeout);
