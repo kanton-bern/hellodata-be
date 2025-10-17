@@ -105,7 +105,6 @@ export class SideNavOuterToolbarComponent {
         const timeoutId = setTimeout(() => {
           window.document.body.click();
         }, 1200);
-        // @ts-ignore
         this.mouseEnterTimeoutId.push(timeoutId);
       }
     }
