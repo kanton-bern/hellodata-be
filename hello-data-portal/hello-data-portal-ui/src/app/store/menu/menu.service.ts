@@ -304,7 +304,6 @@ export class MenuService {
   }
 
   private getContextName(pd: LineageDoc, availableDataDomains: any[]) {
-    console.debug('get context name - availableDataDomains', availableDataDomains);
     const dataDomain = availableDataDomains.find(dataDomain => {
       if (dataDomain.data && dataDomain.data.key) {
         return dataDomain.data.key === pd.contextKey;

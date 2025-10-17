@@ -8,7 +8,7 @@
       <img alt="logo" src="/assets/img/hd.png" style="cursor: pointer" (click)="navigateHome()"/>
       <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
     </div>
-    <p-tieredMenu [model]="navItems" id="menu">
+    <p-tieredMenu [model]="navItems" id="menu" [autoDisplay]="true" (mouseleave)="onMouseleave()">
       <ng-template pTemplate="item" let-item let-hasSubmenu="hasSubmenu">
         <a
           pRipple

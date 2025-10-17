@@ -58,9 +58,10 @@ export class SideNavOuterToolbarComponent {
   @Input()
   title!: string;
   navItems$: Observable<any[]>;
-  selectCurrentUserPermissionsLoaded$: Observable<boolean>
+  selectCurrentUserPermissionsLoaded$: Observable<boolean>;
 
   constructor(private store: Store<AppState>) {
+
     this.navItems$ = this.store.select(selectNavItems);
     this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
   }
@@ -90,6 +91,22 @@ export class SideNavOuterToolbarComponent {
         eventAction: '[Click] - ' + item.label
       }));
 
+    }
+  }
+
+  onMouseleave() {
+    const iframeEl = document.querySelector('app-subsystem-iframe');
+    console.log("onMouseleave", iframeEl);
+    if (iframeEl) {
+      const rect = iframeEl.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const widthPercentage = (rect.width / viewportWidth) * 100;
+      // console.log(`Iframe width: ${rect.width}px`);
+      // console.log(`Viewport width: ${viewportWidth}px`);
+      // console.log(`Iframe occupies ${widthPercentage.toFixed(2)}% of viewport width`);
+      if (widthPercentage > 90) {
+        window.document.body.click();
+      }
     }
   }
 }
