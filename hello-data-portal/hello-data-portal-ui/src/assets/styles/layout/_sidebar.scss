@@ -118,10 +118,12 @@ body {
 
 p-tieredmenusub p-tieredmenusub ul li div a {
   padding: 3px;
+  padding-left: 0;
 }
 
 p-tieredmenusub p-tieredmenusub ul li div a span {
-  margin-right: 0.6rem;
+  margin-right: 0.8rem;
+  margin-left: 0;
   font-size: 1.1rem;
   font-weight: 300;
 }
