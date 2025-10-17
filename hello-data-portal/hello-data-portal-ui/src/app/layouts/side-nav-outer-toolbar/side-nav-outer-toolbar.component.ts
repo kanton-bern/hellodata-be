@@ -94,23 +94,15 @@ export class SideNavOuterToolbarComponent {
     }
   }
 
-  // if iframe viewed, hide menu after a delay
+  // hide menu on leave after timeout
   onMouseleave() {
-    const iframeEl = document.querySelector('iframe');
-    if (iframeEl) {
-      const rect = iframeEl.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const widthPercentage = (rect.width / viewportWidth) * 100;
-      if (widthPercentage > 90) {
-        const timeoutId = setTimeout(() => {
-          window.document.body.click();
-        }, 1200);
-        this.mouseEnterTimeoutId.push(timeoutId);
-      }
-    }
+    const timeoutId = setTimeout(() => {
+      window.document.body.click();
+    }, 1200);
+    this.mouseEnterTimeoutId.push(timeoutId);
   }
 
-  // reset iframe menu hide timers from onMouseLeave()
+  // reset menu hide timers back on menu
   onMouseEnter() {
     for (const timeout of this.mouseEnterTimeoutId) {
       clearTimeout(timeout);
