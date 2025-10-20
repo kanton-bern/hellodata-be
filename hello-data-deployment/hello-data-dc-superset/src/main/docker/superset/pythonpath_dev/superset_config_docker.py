@@ -69,8 +69,6 @@ from flask_appbuilder.security.views import AuthView
 from flask_appbuilder.utils.base import get_safe_redirect
 from flask_appbuilder.views import expose
 from flask_login import login_user, logout_user
-from pyctuator.auth import BasicAuth
-from pyctuator.pyctuator import Pyctuator
 from random import SystemRandom
 from superset.security import SupersetSecurityManager
 from typing import Optional

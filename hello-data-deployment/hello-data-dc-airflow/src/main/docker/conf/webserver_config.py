@@ -40,8 +40,6 @@ from flask_appbuilder._compat import as_unicode
 from flask_appbuilder.security.views import AuthView
 from flask_appbuilder.utils.base import get_safe_redirect
 from flask_login import login_user, logout_user
-from pyctuator.auth import BasicAuth
-from pyctuator.pyctuator import Pyctuator
 from random import SystemRandom
 from typing import Optional
 from werkzeug.wrappers import Response as WerkzeugResponse

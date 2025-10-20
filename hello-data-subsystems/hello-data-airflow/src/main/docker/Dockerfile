@@ -61,7 +61,7 @@ RUN pip install --upgrade pip  \
 RUN pip install --no-cache-dir dbt-core==${DBT_CORE_VERSION} dbt-postgres==${DBT_POSTGRES_VERSION}
 
 # add additional python requirements
-RUN pip install --no-cache-dir pyaxis pygdaltools pyctuator
+RUN pip install --no-cache-dir pyaxis pygdaltools
 
 # add helloDATA libraries
 RUN pip install \
