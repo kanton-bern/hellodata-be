@@ -72,7 +72,6 @@ export interface SubSystemsConfig {
   dwhViewer: SubSystemHost;
   filebrowser: SubSystemHost;
   advancedAnalyticsViewer: SubSystemHost;
-  monitoringStatus: SubSystemHost;
   devToolsMailbox: SubSystemHost;
   devToolsFileBrowser: SubSystemHost;
 }
