@@ -45,7 +45,6 @@ export class AppInfoService implements OnDestroy {
   constructor(private http: HttpClient, private oidcSecurityService: OidcSecurityService) {
     this.userData$ = this.oidcSecurityService.userData$.subscribe(u => {
       this.http.get<ActuatorInfo>(this.baseUrl + `/actuator/info`).subscribe(actuatorInfo => {
-        console.log('actuatorInfo', actuatorInfo);
         this._branch = actuatorInfo.git.branch;
         this._timestamp = actuatorInfo.git.commit.time;
         this._gitHash = actuatorInfo.git.commit.id;
