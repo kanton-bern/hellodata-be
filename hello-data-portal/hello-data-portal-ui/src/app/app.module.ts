@@ -151,9 +151,9 @@ registerLocaleData(localeDECH);
     DashboardImportExportModule,
     MobileModule,
     MatomoModule.forRoot({
-      disabled: !environment.matomoConfig.enabled,
-      siteId: environment.matomoConfig.siteId,
-      trackerUrl: environment.matomoConfig.trackerUrl,
+      disabled: environment.matomoConfig ? !environment.matomoConfig.enabled : false,
+      siteId: environment.matomoConfig ? environment.matomoConfig.siteId : 0,
+      trackerUrl: environment.matomoConfig ? environment.matomoConfig.trackerUrl : '',
     }),
     MatomoRouterModule,
     QueriesModule,
