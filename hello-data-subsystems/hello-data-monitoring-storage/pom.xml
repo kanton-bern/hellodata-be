@@ -2,122 +2,87 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ch.bedag.dap.hellodata</groupId>
-    <artifactId>hello-data-monitoring-sba</artifactId>
-    <version>develop-SNAPSHOT</version>
+    <parent>
+        <groupId>ch.bedag.dap.hellodata</groupId>
+        <artifactId>hello-data-spring-boot-starter-parent</artifactId>
+        <version>develop-SNAPSHOT</version>
+        <relativePath>../../hello-data-commons/hello-data-spring-boot-starter-parent/pom.xml</relativePath>
+    </parent>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub kanton-bern Maven Packages</name>
-            <url>https://maven.pkg.github.com/kanton-bern/hellodata-be</url>
-        </repository>
-    </distributionManagement>
+    <artifactId>hello-data-monitoring-storage</artifactId>
+    <version>develop-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>hello-data-monitoring-storage</name>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <micrometer-registry-prometheus.version>1.11.4</micrometer-registry-prometheus.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <push-docker-image-phase>post-integration-test</push-docker-image-phase>
-        <main.class>ch.bedag.dap.hellodata.monitoring.sba.SBAdminApplication</main.class>
-        <spring-version>3.5.3</spring-version>
-        <spring-boot-admin-version>3.5.5</spring-boot-admin-version>
-        <docker.namespace>bedag</docker.namespace>
+        <main.class>ch.bedag.dap.hellodata.monitoring.storage.HdStorageMonitoringApplication</main.class>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <!-- Force newer Netty version for all modules -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-bom</artifactId>
-                <version>4.2.6.Final</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
+            <groupId>ch.bedag.dap.hellodata</groupId>
+            <artifactId>hello-data-sidecar-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.bedag.dap.hellodata</groupId>
+            <artifactId>hello-data-nats-spring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <version>${spring-version}</version>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-version}</version>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-            <version>${spring-version}</version>
+            <artifactId>spring-boot-testcontainers</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-            <version>${spring-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-starter-client</artifactId>
-            <version>${spring-boot-admin-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-server</artifactId>
-            <version>${spring-boot-admin-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-server-ui</artifactId>
-            <version>${spring-boot-admin-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-            <version>${spring-version}</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
-            <version>${micrometer-registry-prometheus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.4.0</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                            <goal>build-info</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <addResources>false</addResources>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -193,9 +158,10 @@
                             <logStdout>true</logStdout>
                             <images>
                                 <image>
-                                    <name>${docker.namespace}/hello-data-monitoring-sba:${docker.tag.name}</name>
+                                    <name>${docker.namespace}/hello-data-monitoring-storage:${docker.tag.name}</name>
                                     <build>
-                                        <contextDir>${project.basedir}</contextDir>
+                                        <dockerFile>Dockerfile</dockerFile>
+                                        <dockerFileDir>${project.basedir}</dockerFileDir>
                                     </build>
                                 </image>
                             </images>
