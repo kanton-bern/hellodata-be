@@ -18,7 +18,7 @@
         <module>hello-data-cloudbeaver</module>
         <module>hello-data-cloudbeaver-gateway</module>
         <module>hello-data-dbt-docs</module>
-        <module>hello-data-monitoring</module>
+        <module>hello-data-monitoring-storage</module>
         <module>hello-data-cleanup-logs</module>
         <module>hello-data-jupyterhub-gateway</module>
     </modules>

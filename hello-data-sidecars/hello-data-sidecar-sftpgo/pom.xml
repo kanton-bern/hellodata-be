@@ -61,10 +61,6 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-starter-client</artifactId>
-        </dependency>
         <!-- HTTP client: Springboot starter WebFlux -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

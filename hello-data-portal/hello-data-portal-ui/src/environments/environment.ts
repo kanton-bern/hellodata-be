@@ -62,7 +62,6 @@ export const environment: Environment = window.environment != undefined ? window
     dwhViewer: {protocol: 'https://', host: 'dwh-db', domain: ''},
     filebrowser: {protocol: 'https://', host: 'fs', domain: ''},
     advancedAnalyticsViewer: {protocol: 'https://', host: 'jupyterhub', domain: ''},
-    monitoringStatus: {protocol: 'https://', host: 'status', domain: ''},
     devToolsMailbox: {protocol: 'https://', host: 'mb', domain: ''},
     devToolsFileBrowser: {protocol: 'https://', host: 'fs', domain: ''}
   },

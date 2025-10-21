@@ -65,9 +65,6 @@ RUN uv pip install statsd
 # Flower is a web based tool for monitoring the Celery cluster
 RUN uv pip install flower
 
-# Monitoring service with https://github.com/SolarEdgeTech/pyctuator
-RUN uv pip install pyctuator
-
 # CSP https://superset.apache.org/docs/security/
 # https://pypi.org/project/flask-talisman/
 RUN uv pip install flask-talisman
