@@ -40,10 +40,3 @@ hellodata:
 spring:
   application:
     name: HelloDATA Storage Monitoring
-  boot:
-    admin:
-      client:
-        url: http://monitoring-sba:8080
-        api-path: instances
-        username: "user"       #These two are needed so that the client
-        password: "password"   #can register at the protected server api

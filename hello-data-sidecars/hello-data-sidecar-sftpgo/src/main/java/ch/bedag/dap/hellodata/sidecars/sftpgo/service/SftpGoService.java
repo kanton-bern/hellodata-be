@@ -208,7 +208,6 @@ public class SftpGoService {
         BaseVirtualFolder baseVirtualFolder = new BaseVirtualFolder();
         baseVirtualFolder.setName(groupName);
         baseVirtualFolder.setDescription(dataDomainName);
-//        baseVirtualFolder.setMappedPath("/" + groupName); remove mapped path
         baseVirtualFolder.setFilesystem(filesystemConfig);
         FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
         log.info("Creating folder {}", baseVirtualFolder);
