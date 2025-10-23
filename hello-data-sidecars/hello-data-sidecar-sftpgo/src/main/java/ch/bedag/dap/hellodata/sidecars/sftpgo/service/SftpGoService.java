@@ -257,7 +257,7 @@ public class SftpGoService {
     private void refreshToken() {
         if (lastTokenRefreshTime != null) {
             Duration timeSinceLastRefresh = Duration.between(lastTokenRefreshTime, OffsetDateTime.now());
-            if (timeSinceLastRefresh.toMinutes() < 25) {
+            if (timeSinceLastRefresh.toMinutes() < 19) {
                 log.info("Token refresh skipped. Last refresh was {} minutes ago.", timeSinceLastRefresh.toMinutes());
                 return;
             }
