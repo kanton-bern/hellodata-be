@@ -20,6 +20,11 @@ jobs:
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
+          config: |
+            extends:
+              - config:base
+            gitTags:
+              enabled: false
         env:
           RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RENOVATE_PLATFORM: "github"
