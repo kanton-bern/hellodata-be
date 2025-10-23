@@ -46,7 +46,6 @@ services:
       - "shared_scripts:/srv/jupyterhub/shared_scripts"
       # mount folder for jupyterhub sqlite database
       - "./base/jupyterhub/data:/data"
-      - /var/run/docker.sock:/var/run/docker.sock:rw
     ports:
       - "8000:8000"
     extra_hosts:
