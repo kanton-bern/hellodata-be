@@ -13,21 +13,21 @@ import java.nio.file.StandardOpenOption;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class ConfigHashSchedulerService {
+public class ConfigHashService {
 
-    public static final String SFTPGO_CONFIG_MD_5 = "/.sftpgo.config.md5";
+    public static final String SFTPGO_CONFIG_MD_5 = "/.sftpgo.config.%s.md5";
 
     private final S3ConnectionsConfig s3ConnectionsConfig;
 
-    public boolean hashChanged() {
-        String currentHash = s3ConnectionsConfig.computeMd5Hash();
-        String storedHash = loadStoredHash();
+    public boolean hashChanged(String contextKey) {
+        String currentHash = s3ConnectionsConfig.computeMd5Hash(contextKey);
+        String storedHash = loadStoredHash(contextKey);
         if (storedHash == null) {
             log.warn("No hash found for current configuration, saving current hash. {}", currentHash);
-            storeHash(currentHash);
+            storeHash(currentHash, contextKey);
         } else if (!currentHash.equals(storedHash)) {
             log.info("Configuration hash changed. Previous: {}, Current: {}", storedHash, currentHash);
-            storeHash(currentHash);
+            storeHash(currentHash, contextKey);
             return true;
         } else {
             log.info("Configuration hash unchanged.");
@@ -35,8 +35,8 @@ public class ConfigHashSchedulerService {
         return false;
     }
 
-    private void storeHash(String newHash) {
-        String hashFilePath = s3ConnectionsConfig.getAdminVirtualFolder() + SFTPGO_CONFIG_MD_5;
+    private void storeHash(String newHash, String contextKey) {
+        String hashFilePath = s3ConnectionsConfig.getAdminVirtualFolder() + SFTPGO_CONFIG_MD_5.formatted(contextKey);
         Path hashPath = Path.of(hashFilePath);
         try {
             Files.createDirectories(hashPath.getParent());
@@ -47,8 +47,8 @@ public class ConfigHashSchedulerService {
         }
     }
 
-    private String loadStoredHash() {
-        String hashFilePath = s3ConnectionsConfig.getAdminVirtualFolder() + SFTPGO_CONFIG_MD_5;
+    private String loadStoredHash(String contextKey) {
+        String hashFilePath = s3ConnectionsConfig.getAdminVirtualFolder() + SFTPGO_CONFIG_MD_5.formatted(contextKey);
         Path hashPath = Path.of(hashFilePath);
         try {
             if (Files.exists(hashPath)) {

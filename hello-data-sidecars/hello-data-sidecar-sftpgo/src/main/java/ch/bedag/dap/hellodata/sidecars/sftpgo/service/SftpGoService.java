@@ -33,7 +33,6 @@ public class SftpGoService {
     public static final String ADMIN_GROUP_NAME = "Admin";
     private final ApiClient sftpGoApiClient;
     private final S3ConnectionsConfig s3ConnectionsConfig;
-    private final ConfigHashSchedulerService configHashSchedulerService;
     private final ModelMapper modelMapper;
 
     private OffsetDateTime lastTokenRefreshTime;
@@ -113,13 +112,13 @@ public class SftpGoService {
         return createdUser;
     }
 
-    public void createOrUpdateGroup(String dataDomainKey, String dataDomainName, String groupName, List<Permission> permissions) {
+    public void createOrUpdateGroup(String dataDomainKey, String dataDomainName, String groupName, List<Permission> permissions, boolean updateGroup) {
         refreshToken();
         GroupsApi groupsApi = new GroupsApi(sftpGoApiClient);
         try {
             Group existingGroup = groupsApi.getGroupByName(groupName, 0).block();
             log.info("Group {} already exists", existingGroup.getName());
-            if (configHashSchedulerService.hashChanged()) {
+            if (updateGroup) {
                 log.info("Configuration changed, updating group {}", groupName);
                 existingGroup.getVirtualFolders().forEach(virtualFolder -> {
                     updateVirtualFolder(virtualFolder, dataDomainKey, dataDomainName);

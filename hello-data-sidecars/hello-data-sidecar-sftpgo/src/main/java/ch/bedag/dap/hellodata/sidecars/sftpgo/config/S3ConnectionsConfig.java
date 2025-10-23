@@ -46,13 +46,14 @@ public class S3ConnectionsConfig {
         private boolean viewerDisabled;
     }
 
-    public String computeMd5Hash() {
+    public String computeMd5Hash(String contextKey) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
 
             // combine all relevant properties into a single string
             String combined = (s3Connections == null ? "" :
                     s3Connections.stream()
+                            .filter(connection -> connection.contextKey.equals(contextKey))
                             .map(c -> String.join("|",
                                     c.getContextKey(),
                                     c.getEndpoint(),
