@@ -34,8 +34,6 @@ class SftpGoServiceTest {
     @Mock
     private S3ConnectionsConfig.S3Connection s3Connection;
     @Mock
-    private ConfigHashSchedulerService configHashSchedulerService;
-    @Mock
     private ModelMapper modelMapper;
     @Mock
     private GroupsApi groupsApi;
