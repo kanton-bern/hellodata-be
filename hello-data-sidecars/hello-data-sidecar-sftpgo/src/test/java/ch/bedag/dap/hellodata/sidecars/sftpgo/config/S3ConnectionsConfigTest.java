@@ -32,8 +32,8 @@ class S3ConnectionsConfigTest {
         config2.setAdminVirtualFolder("/folder");
         config2.setSftpGo(sftpGo);
 
-        String hash1 = config1.computeMd5Hash();
-        String hash2 = config2.computeMd5Hash();
+        String hash1 = config1.computeMd5Hash(conn.getContextKey());
+        String hash2 = config2.computeMd5Hash(conn.getContextKey());
 
         assertNotNull(hash1);
         assertEquals(hash1, hash2, "Hashes for identical configurations should match");
@@ -59,11 +59,11 @@ class S3ConnectionsConfigTest {
         config.setAdminVirtualFolder("/folder");
         config.setSftpGo(sftpGo);
 
-        String originalHash = config.computeMd5Hash();
+        String originalHash = config.computeMd5Hash(conn.getContextKey());
 
         // Modify config
         conn.setBucket("bucket2");
-        String newHash = config.computeMd5Hash();
+        String newHash = config.computeMd5Hash(conn.getContextKey());
 
         assertNotEquals(originalHash, newHash, "Hashes should differ when configuration changes");
     }
