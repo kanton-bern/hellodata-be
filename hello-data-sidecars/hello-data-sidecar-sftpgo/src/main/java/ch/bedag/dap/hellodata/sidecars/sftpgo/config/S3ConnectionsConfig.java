@@ -23,7 +23,8 @@ public class S3ConnectionsConfig {
 
     public S3Connection getS3Connection(String contextKey) {
         return s3Connections.stream().filter(c -> c.contextKey.equals(contextKey))
-                .findFirst().orElseThrow(() -> new RuntimeException(String.format("No s3 config for data domain: %s", contextKey)));
+                .findFirst().orElseThrow(() -> new RuntimeException(String.format("No s3 config for data domain: %s, available contexts: %s",
+                        contextKey, s3Connections.stream().map(S3Connection::getContextKey).collect(Collectors.joining(", ")))));
     }
 
     @Data
