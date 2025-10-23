@@ -30,7 +30,7 @@ public class ConfigHashSchedulerService {
             storeHash(currentHash);
             return true;
         } else {
-            log.debug("Configuration hash unchanged.");
+            log.info("Configuration hash unchanged.");
         }
         return false;
     }
