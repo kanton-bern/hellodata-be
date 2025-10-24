@@ -2558,7 +2558,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jsverse/transloco@npm:^8.0.2":
+"@jsverse/transloco@npm:^8.1.0":
   version: 8.1.0
   resolution: "@jsverse/transloco@npm:8.1.0"
   dependencies:
@@ -6954,7 +6954,7 @@ __metadata:
     "@fortawesome/free-brands-svg-icons": "npm:^6.4.0"
     "@fortawesome/free-regular-svg-icons": "npm:^6.4.0"
     "@fortawesome/free-solid-svg-icons": "npm:^6.4.0"
-    "@jsverse/transloco": "npm:^8.0.2"
+    "@jsverse/transloco": "npm:^8.1.0"
     "@ngrx/core": "npm:^1.2.0"
     "@ngrx/effects": "npm:^17.0.1"
     "@ngrx/eslint-plugin": "npm:^17.1.0"
