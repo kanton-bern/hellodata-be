@@ -112,6 +112,15 @@ public class SftpGoService {
         return createdUser;
     }
 
+    /**
+     * Create or update a group with the given name and permissions
+     *
+     * @param dataDomainKey  - key of the data domain
+     * @param dataDomainName - name of the data domain
+     * @param groupName      - name of the group to create or update
+     * @param permissions    - list of permissions to set for the group
+     * @param updateGroup    - if true, update the group if it already exists
+     */
     public void createOrUpdateGroup(String dataDomainKey, String dataDomainName, String groupName, List<Permission> permissions, boolean updateGroup) {
         refreshToken();
         GroupsApi groupsApi = new GroupsApi(sftpGoApiClient);
