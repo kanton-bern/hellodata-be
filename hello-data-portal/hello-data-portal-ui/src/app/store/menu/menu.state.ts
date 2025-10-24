@@ -154,12 +154,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
     requiredPermissions: ['DEVTOOLS', 'WORKSPACES'],
     items: [
       {
-        id: 'monitoringStatusMenu',
-        label: '@Status',
-        url: environment.subSystemsConfig.monitoringStatus.protocol + environment.subSystemsConfig.monitoringStatus.host + environment.subSystemsConfig.monitoringStatus.domain,
-        target: '_blank'
-      },
-      {
         id: 'monitoringWorkspacesMenu',
         label: '@Workspaces',
         routerLink: naviElements.workspaces.path,

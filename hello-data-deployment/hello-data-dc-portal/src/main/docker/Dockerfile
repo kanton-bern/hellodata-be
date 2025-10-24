@@ -60,7 +60,6 @@ RUN echo "window.environment = { \
               dwhViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
               advancedAnalyticsViewer: {protocol: 'http://', host: 'localhost', domain: ':8088'}, \
               filebrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'}, \
-              monitoringStatus: {protocol: 'http://', host: 'localhost', domain: ':5099'}, \
               devToolsMailbox: {protocol: 'http://', host: 'localhost', domain: ':8001'}, \
               devToolsFileBrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'} \
             }, \

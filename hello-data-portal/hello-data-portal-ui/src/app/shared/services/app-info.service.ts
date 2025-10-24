@@ -39,14 +39,12 @@ export class AppInfoService implements OnDestroy {
   private baseUrl = `${environment.portalApi}`;
   private _timestamp!: string;
   private _branch!: string;
-  private _version!: string;
   private _tag!: string;
   private _gitHash!: string;
 
   constructor(private http: HttpClient, private oidcSecurityService: OidcSecurityService) {
     this.userData$ = this.oidcSecurityService.userData$.subscribe(u => {
       this.http.get<ActuatorInfo>(this.baseUrl + `/actuator/info`).subscribe(actuatorInfo => {
-        this._version = actuatorInfo.build.version;
         this._branch = actuatorInfo.git.branch;
         this._timestamp = actuatorInfo.git.commit.time;
         this._gitHash = actuatorInfo.git.commit.id;
