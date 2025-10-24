@@ -6,8 +6,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HdBusinessContextInfo;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.Permission;
+import ch.bedag.dap.hellodata.sidecars.sftpgo.service.ConfigHashService;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +27,7 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
     public static final String VIEWER_GROUP_POSTFIX = "-viewer";
 
     private final SftpGoService sftpGoService;
+    private final ConfigHashService configHashService;
 
     @Value("${hello-data.sftpgo.viewer-disabled}")
     private boolean viewerDisabled;
@@ -41,8 +42,9 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
             String dataDomainKey = subContext.getKey();
             log.info("--> Creating missing groups with virtual folders for the data domain: {} ", dataDomainKey);
             String groupName = SlugifyUtil.slugify(dataDomainKey, "");
-            sftpGoService.createGroup(dataDomainKey, subContext.getName(), groupName + ADMIN_GROUP_POSTFIX, List.of(Permission.STAR));
-            sftpGoService.createGroup(dataDomainKey, subContext.getName(), groupName + EDITOR_GROUP_POSTFIX,
+            boolean configChanged = configHashService.hashChanged(dataDomainKey);
+            sftpGoService.createOrUpdateGroup(dataDomainKey, subContext.getName(), groupName + ADMIN_GROUP_POSTFIX, List.of(Permission.STAR), configChanged);
+            sftpGoService.createOrUpdateGroup(dataDomainKey, subContext.getName(), groupName + EDITOR_GROUP_POSTFIX,
                     List.of(Permission.LIST,
                             Permission.DOWNLOAD,
                             Permission.RENAME,
@@ -50,9 +52,10 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
                             Permission.RENAME_DIRS,
                             Permission.UPLOAD,
                             Permission.COPY,
-                            Permission.CREATE_DIRS));
-            sftpGoService.createGroup(dataDomainKey, subContext.getName(), groupName + VIEWER_GROUP_POSTFIX,
-                    List.of(Permission.LIST, Permission.DOWNLOAD));
+                            Permission.CREATE_DIRS),
+                    configChanged);
+            sftpGoService.createOrUpdateGroup(dataDomainKey, subContext.getName(), groupName + VIEWER_GROUP_POSTFIX,
+                    List.of(Permission.LIST, Permission.DOWNLOAD), configChanged);
         }
     }
 }
