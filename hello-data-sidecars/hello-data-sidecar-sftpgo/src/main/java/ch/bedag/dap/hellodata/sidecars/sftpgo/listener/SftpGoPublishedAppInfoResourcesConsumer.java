@@ -10,7 +10,6 @@ import ch.bedag.dap.hellodata.sidecars.sftpgo.service.ConfigHashService;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,9 +27,6 @@ public class SftpGoPublishedAppInfoResourcesConsumer {
 
     private final SftpGoService sftpGoService;
     private final ConfigHashService configHashService;
-
-    @Value("${hello-data.sftpgo.viewer-disabled}")
-    private boolean viewerDisabled;
 
     @SuppressWarnings("unused")
     @JetStreamSubscribe(event = PUBLISH_APP_INFO_RESOURCES)
