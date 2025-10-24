@@ -31,7 +31,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
-    "@jsverse/transloco": "^8.0.2",
+    "@jsverse/transloco": "^8.1.0",
     "@ngrx/core": "^1.2.0",
     "@ngrx/effects": "^17.0.1",
     "@ngrx/router-store": "^17.0.1",

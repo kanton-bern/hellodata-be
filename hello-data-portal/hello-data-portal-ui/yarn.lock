@@ -2548,27 +2548,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jsverse/transloco-utils@npm:^8.0.2":
-  version: 8.0.2
-  resolution: "@jsverse/transloco-utils@npm:8.0.2"
+"@jsverse/transloco-utils@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "@jsverse/transloco-utils@npm:8.1.0"
   dependencies:
     cosmiconfig: "npm:^8.1.3"
     tslib: "npm:^2.3.0"
-  checksum: 10c0/151fe809f0c403f0d8212764dc793663fdf0966a2d40a2f25d135a7b34ab028c59fa476341640e9fb95ed379f4818b4b1888647e7ed92d28aa6eeaa285d09cd2
+  checksum: 10c0/5fcfd3438e786d24b631c120994ded3f0bd1e56f259519c4a910ed7aec061a8e65bd2c3306be3918f1883e86f625f8a3939c436c4c787f50b345be847366747d
   languageName: node
   linkType: hard
 
-"@jsverse/transloco@npm:^8.0.2":
-  version: 8.0.2
-  resolution: "@jsverse/transloco@npm:8.0.2"
+"@jsverse/transloco@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "@jsverse/transloco@npm:8.1.0"
   dependencies:
-    "@jsverse/transloco-utils": "npm:^8.0.2"
+    "@jsverse/transloco-utils": "npm:^8.1.0"
     "@jsverse/utils": "npm:1.0.0-beta.5"
     tslib: "npm:^2.2.0"
   peerDependencies:
     "@angular/core": ">=16.0.0"
     rxjs: ">=6.0.0"
-  checksum: 10c0/ec6f2eacf3873ae817cd35c5b299f64b7ff547279c95569a627b72e99b061f5e82e13f937f74ed3e861423d1a38e3bc0a8ad783b3a5f6b0f3ebbeabf7ea3b0b5
+  checksum: 10c0/8c384104a1103631c05c8d4dc3975a5a39a38717407e95332e37210be47f2c3feec3435785d5489264b11526c1b2bad5112308ca188b691c8f81f67573aa3f54
   languageName: node
   linkType: hard
 
@@ -6954,7 +6954,7 @@ __metadata:
     "@fortawesome/free-brands-svg-icons": "npm:^6.4.0"
     "@fortawesome/free-regular-svg-icons": "npm:^6.4.0"
     "@fortawesome/free-solid-svg-icons": "npm:^6.4.0"
-    "@jsverse/transloco": "npm:^8.0.2"
+    "@jsverse/transloco": "npm:^8.1.0"
     "@ngrx/core": "npm:^1.2.0"
     "@ngrx/effects": "npm:^17.0.1"
     "@ngrx/eslint-plugin": "npm:^17.1.0"
