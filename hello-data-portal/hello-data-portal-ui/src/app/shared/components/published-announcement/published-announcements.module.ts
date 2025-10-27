@@ -27,7 +27,9 @@
 
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {PublishedAnnouncementsWrapperComponent} from './published-announcements-wrapper/published-announcements-wrapper.component';
+import {
+  PublishedAnnouncementsWrapperComponent
+} from './published-announcements-wrapper/published-announcements-wrapper.component';
 import {TranslocoModule} from "@jsverse/transloco";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
@@ -37,12 +39,15 @@ import {EditorModule} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
 import {DividerModule} from "primeng/divider";
 import {TooltipModule} from "primeng/tooltip";
-import {PublishedAnnouncementsPopupComponent} from "./published-announcements-popup/published-announcements-popup.component";
+import {
+  PublishedAnnouncementsPopupComponent
+} from "./published-announcements-popup/published-announcements-popup.component";
 import {DialogModule} from 'primeng/dialog';
 import {DynamicDialogModule} from 'primeng/dynamicdialog';
-import {PublishedAnnouncementsPopupHeaderComponent} from "./published-announcements-popup/published-annoucements-popup-header/published-announcements-popup-header.component";
+import {
+  PublishedAnnouncementsPopupHeaderComponent
+} from "./published-announcements-popup/published-annoucements-popup-header/published-announcements-popup-header.component";
 import {ToggleButtonModule} from "primeng/togglebutton";
-import {TriStateCheckboxModule} from "primeng/tristatecheckbox";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {CheckboxModule} from "primeng/checkbox";
 
@@ -70,7 +75,6 @@ import {CheckboxModule} from "primeng/checkbox";
     DialogModule,
     DynamicDialogModule,
     ToggleButtonModule,
-    TriStateCheckboxModule,
     SelectButtonModule,
     CheckboxModule,
   ]
