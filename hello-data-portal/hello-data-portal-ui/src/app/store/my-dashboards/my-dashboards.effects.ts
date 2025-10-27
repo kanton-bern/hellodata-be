@@ -26,8 +26,8 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
@@ -66,7 +66,7 @@ export class MyDashboardsEffects {
   setSelectedDataDomain$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(setSelectedDataDomain),
-      concatLatestFrom(() => this._screenService.isMobile),
+      withLatestFrom(this._screenService.isMobile),
       switchMap(([action, isMobile]) => {
           const successMsg = {
             message: '@Data domain changed',

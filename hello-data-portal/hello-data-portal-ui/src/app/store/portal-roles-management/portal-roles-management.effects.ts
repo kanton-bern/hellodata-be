@@ -26,8 +26,8 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, tap} from "rxjs";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {PortalRolesManagementService} from "./portal-roles-management.service";
@@ -114,7 +114,7 @@ export class PortalRolesManagementEffects {
   deleteRole$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deletePortalRole),
-      concatLatestFrom(() => this._store.select(selectSelectedPortalRoleForDeletion)),
+      withLatestFrom(this._store.select(selectSelectedPortalRoleForDeletion)),
       switchMap(([action, role]) => this._portalRoleService.deletePortalRoleById((role as PortalRole).id as string).pipe(
         map(() => deletePortalRoleSuccess({role: role as PortalRole})),
         catchError(e => of(showError({error: e})))
@@ -133,7 +133,7 @@ export class PortalRolesManagementEffects {
   deleteEditedRole$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteEditedPortalRole),
-      concatLatestFrom(() => this._store.select(selectSelectedPortalRoleForDeletion)),
+      withLatestFrom(this._store.select(selectSelectedPortalRoleForDeletion)),
       switchMap(([action, roleToBeDeleted]) => {
           return this._portalRoleService.deletePortalRoleById((roleToBeDeleted as PortalRole).id as string).pipe(
             map(() => deleteEditedPortalRoleSuccess({name: roleToBeDeleted!.name as string})),
@@ -155,7 +155,7 @@ export class PortalRolesManagementEffects {
   loadRoleById$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadPortalRoleById),
-      concatLatestFrom(() => this._store.select(selectPortalParamRoleId)),
+      withLatestFrom(this._store.select(selectPortalParamRoleId)),
       switchMap(([action, roleId]) => this._portalRoleService.getPortalRoleById(roleId as string)),
       switchMap(result => of(loadPortalRoleByIdSuccess({role: result}))),
       catchError(e => of(showError({error: e})))

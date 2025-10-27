@@ -26,8 +26,8 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap} from "rxjs";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {catchError, map, of, switchMap, withLatestFrom} from "rxjs";
 import {
   createExternalDashboard,
   createExternalDashboardSuccess,
@@ -138,7 +138,7 @@ export class ExternalDashboardsEffects {
   loadExternalDashboardById$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadExternalDashboardById),
-      concatLatestFrom(() => this._store.select(selectParamExternalDashboardId)),
+      withLatestFrom(this._store.select(selectParamExternalDashboardId)),
       switchMap(([action, externalDashboardId]) => this._externalDashboardsService.getExternalDashboardById(externalDashboardId as string)),
       switchMap(result => of(loadExternalDashboardByIdSuccess({dashboard: result}))),
       catchError(e => of(showError({error: e})))

@@ -26,8 +26,8 @@
 ///
 
 import {Injectable} from '@angular/core';
-import {Actions, concatLatestFrom, createEffect, ofType} from '@ngrx/effects';
-import {catchError, of, switchMap} from 'rxjs';
+import {Actions, createEffect, ofType} from '@ngrx/effects';
+import {catchError, of, switchMap, withLatestFrom} from 'rxjs';
 import {MetaInfoResourceService} from "./metainfo-resource.service";
 import {
   loadAppInfoResources,
@@ -77,7 +77,7 @@ export class MetaInfoResourceEffects {
   loadSelectedAppInfoResources$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadSelectedAppInfoResources),
-      concatLatestFrom(() => this._store.select(selectSelectedAppInfoResourcesParams)),
+      withLatestFrom(this._store.select(selectSelectedAppInfoResourcesParams)),
       switchMap(([action, params]) => this._metaInfoResourceService.getResourcesFilteredByAppInfo(params.apiVersion as string, params.instanceName as string, params.moduleType as string)),
       switchMap(result => of(loadSelectedAppInfoResourcesSuccess({payload: result}))),
       catchError(e => of(showError({error: e})))

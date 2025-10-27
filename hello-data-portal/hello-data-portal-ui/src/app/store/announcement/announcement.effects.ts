@@ -26,11 +26,11 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {catchError, map, of, switchMap, tap, withLatestFrom} from 'rxjs';
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
-import {catchError, map, of, switchMap, tap} from "rxjs";
 import {
   deleteAnnouncement,
   deleteAnnouncementSuccess,
@@ -101,7 +101,7 @@ export class AnnouncementEffects {
   loadAnnouncementById$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadAnnouncementById),
-      concatLatestFrom(() => this._store.select(selectParamAnnouncementId)),
+      withLatestFrom(this._store.select(selectParamAnnouncementId)),
       switchMap(([action, announcementId]) => this._announcementService.getAnnouncementById(announcementId as string)),
       switchMap(result => of(loadAnnouncementByIdSuccess({announcement: result}))),
       catchError(e => of(showError({error: e})))
@@ -143,7 +143,7 @@ export class AnnouncementEffects {
   deleteAnnouncement$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteAnnouncement),
-      concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
+      withLatestFrom(this._store.select(selectSelectedAnnouncementForDeletion)),
       switchMap(([action, announcement]) => this._announcementService.deleteAnnouncementById((announcement as Announcement).id as string).pipe(
         map(() => deleteAnnouncementSuccess({announcement: announcement as Announcement})),
         catchError(e => of(showError({error: e})))
@@ -162,7 +162,7 @@ export class AnnouncementEffects {
   deleteEditedAnnouncement$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteEditedAnnouncement),
-      concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
+      withLatestFrom(this._store.select(selectSelectedAnnouncementForDeletion)),
       switchMap(([action, announcementToBeDeleted]) => {
           return this._announcementService.deleteAnnouncementById((announcementToBeDeleted as Announcement).id as string).pipe(
             map(() => deleteEditedAnnouncementSuccess()),

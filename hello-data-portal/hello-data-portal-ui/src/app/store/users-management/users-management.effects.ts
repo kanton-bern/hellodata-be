@@ -26,7 +26,7 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
@@ -123,7 +123,7 @@ export class UsersManagementEffects {
   userPopupAction$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(invokeActionFromUserPopup),
-      concatLatestFrom(() => [this._store.select(selectUserForPopup), this._store.select(selectCurrentPagination)]),
+      withLatestFrom(this._store.select(selectUserForPopup), this._store.select(selectCurrentPagination)),
       switchMap(([action, userActionForPopup, currentPagination]) => {
           switch (userActionForPopup!.action) {
             case (UserAction.DISABLE):
@@ -224,7 +224,7 @@ export class UsersManagementEffects {
   loadUserById$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadUserById),
-      concatLatestFrom(() => this._store.select(selectParamUserId)),
+      withLatestFrom(this._store.select(selectParamUserId)),
       tap(([action, userId]) => sessionStorage.setItem(CURRENT_EDITED_USER_ID, userId as string)),
       switchMap(([action, userId]) => this._usersManagementService.getUserById(userId as string)),
       switchMap(result => of(loadUserByIdSuccess({user: result}))),
@@ -242,7 +242,7 @@ export class UsersManagementEffects {
   loadAllDashboardsWithMarkedUser$ = createEffect(() => {
       return this._actions$.pipe(
         ofType(loadDashboards),
-        concatLatestFrom(() => this._store.select(selectParamUserId)),
+        withLatestFrom(this._store.select(selectParamUserId)),
         switchMap(([action, userId]) => {
             return this._usersManagementService.getDashboardsWithMarkedUser(userId as string).pipe(
               map((result) => loadDashboardsSuccess({dashboards: result.dashboards})),
@@ -291,7 +291,7 @@ export class UsersManagementEffects {
   loadUserContextRoles$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadUserContextRoles),
-      concatLatestFrom(() => this._store.select(selectParamUserId)),
+      withLatestFrom(this._store.select(selectParamUserId)),
       switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
       switchMap(result => of(loadUserContextRolesSuccess({payload: result}))),
       catchError(e => of(showError({error: e})))

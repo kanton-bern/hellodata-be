@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {Injectable} from "@angular/core";
@@ -39,7 +39,7 @@ export class UnsavedChangesEffects {
   runSaveAction = createEffect(() => {
     return this._actions$.pipe(
       ofType(runSaveAction),
-      concatLatestFrom(() => this._store.select(selectActionToRun)),
+      withLatestFrom(this._store.select(selectActionToRun)),
       switchMap(([result, actionToRun]) => {
         if (actionToRun) {
           return of(actionToRun, clearUnsavedChanges())
