@@ -30,7 +30,6 @@ import {LangDefinition, TranslateParams, Translation, TranslocoScope, TranslocoS
 import {Observable, Subscription, switchMap, tap} from "rxjs";
 import {filter} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
-import {PrimeNGConfig} from "primeng/api";
 import {HashMap} from "@jsverse/transloco/lib/utils/type.utils";
 
 @Injectable({
@@ -41,7 +40,7 @@ export class TranslateService implements OnDestroy {
   private readonly loadSub: Subscription;
   private readonly eventSub: Subscription;
 
-  constructor(private translocoService: TranslocoService, private http: HttpClient, private primengConfig: PrimeNGConfig) {
+  constructor(private translocoService: TranslocoService, private http: HttpClient) {
     const activeLang = translocoService.getActiveLang();
     this.loadSub = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
     this.eventSub = translocoService.events$.pipe(
@@ -51,7 +50,7 @@ export class TranslateService implements OnDestroy {
         const url = `./assets/i18n/primeng/${event.payload.langName}.json?ts=${timestamp}`;
         return this.http.get<Translation>(url).pipe(
           tap(primengTranslations => {
-            this.primengConfig.setTranslation(primengTranslations);
+            // this.primengConfig.setTranslation(primengTranslations);//FIXME change primeng translations
           }));
       })
     ).subscribe();

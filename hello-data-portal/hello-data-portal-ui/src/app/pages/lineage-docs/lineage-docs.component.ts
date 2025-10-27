@@ -90,7 +90,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
     this.store.dispatch(navigate({url: docLink}));
   }
 
-  private createBreadcrumbs(docs: LineageDoc[], filteredBy: string | undefined) {
+  private createBreadcrumbs(docs: LineageDoc[], filteredBy: string | string[] | undefined) {
     if (filteredBy && docs && docs.filter(doc => doc.contextKey === filteredBy).length > 0) {
       this.store.dispatch(createBreadcrumbs({
         breadcrumbs: [

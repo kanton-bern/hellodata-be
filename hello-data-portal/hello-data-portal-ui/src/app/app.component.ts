@@ -72,7 +72,7 @@ export class AppComponent implements OnInit {
       // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks the new tab fullscreen DWH viewer opening
       console.debug('enabled redirect param?', param);
       if (param) {
-        sessionStorage.setItem(AppComponent.REDIRECT_TO_PARAM, param);
+        sessionStorage.setItem(AppComponent.REDIRECT_TO_PARAM, param as string);
         console.debug('saved redirect param to the session storage', param);
       }
     }));
