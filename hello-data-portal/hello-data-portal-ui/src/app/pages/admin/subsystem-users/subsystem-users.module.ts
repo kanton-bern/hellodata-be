@@ -43,7 +43,7 @@ import {AccordionModule} from "primeng/accordion";
 import {InputNumberModule} from "primeng/inputnumber";
 import {TextareaModule} from 'primeng/textarea';
 import {InputTextModule} from "primeng/inputtext";
-import {InputSwitchModule} from "primeng/inputswitch";
+import {ToggleSwitchModule} from 'primeng/toggleswitch';
 import {InputMaskModule} from "primeng/inputmask";
 import {AutoFocusModule} from "primeng/autofocus";
 import {TagModule} from "primeng/tag";
@@ -67,7 +67,7 @@ import {TagModule} from "primeng/tag";
     TooltipModule,
     AccordionModule,
     InputMaskModule,
-    InputSwitchModule,
+    ToggleSwitchModule,
     InputTextModule,
     TextareaModule,
     InputNumberModule,
