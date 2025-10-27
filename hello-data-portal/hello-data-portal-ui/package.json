@@ -77,7 +77,7 @@
     "jest-mock-extended": "^3.0.5",
     "jest-preset-angular": "^13.1.5",
     "jest-sonar": "^0.2.16",
-    "ts-jest": "^29.0.3",
+    "ts-jest": "^29.4.5",
     "typescript": "~5.3.3"
   },
   "resolutions": {
