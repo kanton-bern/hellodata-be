@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hello-data-superset:HELLODATA-1618_upgrade_superset-SNAPSHOT
+FROM bedag/hello-data-superset:latest
 USER root
 COPY superset/ /app/docker/
 RUN find /app/docker/ -type f -iname "*.sh" -exec chmod +x {} \;
