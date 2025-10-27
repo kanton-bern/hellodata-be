@@ -112,6 +112,8 @@ services:
       - HELLO_DATA_SUPERSET_HOST=superset-app-default-data-domain
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      - HELLO_DATA_SUPERSET_ADMIN_USERNAME=admin@superset.com
+      - HELLO_DATA_SUPERSET_ADMIN_PASSWORD=local-admin
     links:
       - nats
       - redis

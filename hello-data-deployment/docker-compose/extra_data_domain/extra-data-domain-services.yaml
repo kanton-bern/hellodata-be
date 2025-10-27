@@ -113,6 +113,8 @@ services:
       - HELLO_DATA_SUPERSET_PORT=8089
       - HELLO_DATA_CONTEXTS_0=Data Domain | Extra_Data_Domain | Extra Data Domain | true
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      - HELLO_DATA_SUPERSET_ADMIN_USERNAME=admin@hellodata.ch
+      - HELLO_DATA_SUPERSET_ADMIN_PASSWORD=local-admin
     links:
       - nats
       - redis
