@@ -33,7 +33,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DocumentationManagementComponent} from "./documentation-management.component";
 import {ButtonModule} from "primeng/button";
 import {ToolbarModule} from "primeng/toolbar";
-import {TabViewModule} from "primeng/tabview";
+import {TabsModule} from 'primeng/tabs';
 
 
 @NgModule({
@@ -45,7 +45,7 @@ import {TabViewModule} from "primeng/tabview";
     FormsModule,
     ButtonModule,
     ToolbarModule,
-    TabViewModule,
+    TabsModule,
     ReactiveFormsModule
   ],
 })

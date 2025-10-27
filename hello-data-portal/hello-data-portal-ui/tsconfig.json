@@ -21,7 +21,9 @@
     "module": "es2020",
     "useDefineForClassFields": false,
     "paths": {
-      "primeng/*": ["./node_modules/primeng/*"]
+      "primeng/*": [
+        "./node_modules/primeng/*"
+      ]
     },
     "lib": [
       "es2020",
@@ -42,7 +44,8 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": true,
+    "enableControlFlow": true
   },
   "exclude": [
     "node_modules"

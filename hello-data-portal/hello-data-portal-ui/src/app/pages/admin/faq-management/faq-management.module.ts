@@ -42,7 +42,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {FieldsetModule} from "primeng/fieldset";
 import {SplitButtonModule} from "primeng/splitbutton";
 import {SelectModule} from 'primeng/select';
-import {TabViewModule} from "primeng/tabview";
+import {TabsModule} from 'primeng/tabs';
 
 
 @NgModule({
@@ -66,7 +66,7 @@ import {TabViewModule} from "primeng/tabview";
     FieldsetModule,
     SplitButtonModule,
     SelectModule,
-    TabViewModule,
+    TabsModule,
   ]
 })
 export class FaqManagementModule {

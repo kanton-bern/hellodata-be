@@ -63,7 +63,7 @@ import {EditorModule} from "primeng/editor";
 import {RippleModule} from "primeng/ripple";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {StyleClassModule} from "primeng/styleclass";
-import {TabViewModule} from "primeng/tabview";
+import {TabsModule} from 'primeng/tabs';
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {CheckboxModule} from "primeng/checkbox";
 import {DividerModule} from "primeng/divider";
@@ -286,7 +286,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     FormsModule,
     ConfirmDialogModule,
     StyleClassModule,
-    TabViewModule,
+    TabsModule,
     AutoCompleteModule,
     CheckboxModule,
     DividerModule,

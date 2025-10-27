@@ -65,7 +65,7 @@ import {TranslateService} from "../../services/translate.service";
 import {navigate, trackEvent} from "../../../store/app/app.action";
 import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
 import {MenuItem, SharedModule} from "primeng/api";
-import {TabViewModule} from "primeng/tabview";
+import {TabsModule} from 'primeng/tabs';
 import {InputTextModule} from "primeng/inputtext";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {BrowserModule} from "@angular/platform-browser";
@@ -218,7 +218,7 @@ export class HeaderComponent {
     BrowserAnimationsModule,
     MenubarModule,
     InputTextModule,
-    TabViewModule,
+    TabsModule,
     SharedModule,
     DividerModule,
     MatomoTrackerDirective
