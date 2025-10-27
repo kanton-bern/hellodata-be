@@ -41,7 +41,7 @@ import {TooltipModule} from "primeng/tooltip";
 import {SubsystemUsersComponent} from "./subsystem-users.component";
 import {AccordionModule} from "primeng/accordion";
 import {InputNumberModule} from "primeng/inputnumber";
-import {InputTextareaModule} from "primeng/inputtextarea";
+import {TextareaModule} from 'primeng/textarea';
 import {InputTextModule} from "primeng/inputtext";
 import {InputSwitchModule} from "primeng/inputswitch";
 import {InputMaskModule} from "primeng/inputmask";
@@ -69,7 +69,7 @@ import {TagModule} from "primeng/tag";
     InputMaskModule,
     InputSwitchModule,
     InputTextModule,
-    InputTextareaModule,
+    TextareaModule,
     InputNumberModule,
     AutoFocusModule,
     TagModule,

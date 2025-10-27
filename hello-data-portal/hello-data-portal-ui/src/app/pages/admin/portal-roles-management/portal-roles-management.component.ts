@@ -43,7 +43,7 @@ import {ToolbarModule} from "primeng/toolbar";
 import {EditorModule} from "primeng/editor";
 import {TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";
-import {InputTextareaModule} from "primeng/inputtextarea";
+import {TextareaModule} from 'primeng/textarea';
 import {SelectModule} from 'primeng/select';
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
@@ -112,7 +112,7 @@ export class PortalRolesManagementComponent extends BaseComponent implements OnI
     EditorModule,
     TableModule,
     TagModule,
-    InputTextareaModule,
+    TextareaModule,
     SelectModule,
     AutoCompleteModule,
     ConfirmDialogModule,

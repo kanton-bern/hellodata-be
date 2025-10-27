@@ -42,7 +42,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToolbarModule} from "primeng/toolbar";
 import {MenuModule} from "primeng/menu";
 import {SelectModule} from 'primeng/select';
-import {InputTextareaModule} from "primeng/inputtextarea";
+import {TextareaModule} from "primeng/textarea";
 import {DashboardAccessComponent} from "./dashboard-access.component";
 
 @NgModule({
@@ -65,7 +65,7 @@ import {DashboardAccessComponent} from "./dashboard-access.component";
     ToolbarModule,
     MenuModule,
     SelectModule,
-    InputTextareaModule
+    TextareaModule
   ]
 })
 export class DashboardAccessModule {
