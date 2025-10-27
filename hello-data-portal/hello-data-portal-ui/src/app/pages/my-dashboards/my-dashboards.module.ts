@@ -45,8 +45,9 @@ import {ExternalDashboardsComponent} from './external-dashboards/external-dashbo
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToolbarModule} from "primeng/toolbar";
 import {MenuModule} from "primeng/menu";
-import {AnimateModule} from "primeng/animate";
-import {ExternalDashboardEditComponent} from './external-dashboards/external-dashboard-edit/external-dashboard-edit.component';
+import {
+  ExternalDashboardEditComponent
+} from './external-dashboards/external-dashboard-edit/external-dashboard-edit.component';
 import {DropdownModule} from "primeng/dropdown";
 
 @NgModule({
@@ -71,7 +72,6 @@ import {DropdownModule} from "primeng/dropdown";
     ConfirmDialogModule,
     ToolbarModule,
     MenuModule,
-    AnimateModule,
     DropdownModule
   ]
 })

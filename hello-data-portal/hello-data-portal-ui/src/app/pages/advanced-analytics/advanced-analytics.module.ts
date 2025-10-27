@@ -42,7 +42,6 @@ import {InputTextModule} from "primeng/inputtext";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToolbarModule} from "primeng/toolbar";
 import {MenuModule} from "primeng/menu";
-import {AnimateModule} from "primeng/animate";
 import {DropdownModule} from "primeng/dropdown";
 import {AdvancedAnalyticsViewerComponent} from "./advanced-analytics-viewer.component";
 
@@ -68,7 +67,6 @@ import {AdvancedAnalyticsViewerComponent} from "./advanced-analytics-viewer.comp
     ConfirmDialogModule,
     ToolbarModule,
     MenuModule,
-    AnimateModule,
     DropdownModule
   ]
 })

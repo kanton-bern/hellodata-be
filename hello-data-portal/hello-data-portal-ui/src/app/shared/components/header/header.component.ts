@@ -59,7 +59,6 @@ import {
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {RippleModule} from "primeng/ripple";
-import {AnimateModule} from "primeng/animate";
 import {environment} from "../../../../environments/environment";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
@@ -214,7 +213,6 @@ export class HeaderComponent {
     FormsModule,
     ToolbarModule,
     RippleModule,
-    AnimateModule,
     ConfirmDialogModule,
     BrowserModule,
     BrowserAnimationsModule,

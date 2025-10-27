@@ -55,7 +55,6 @@ import {OrchestrationModule} from "./pages/orchestration/orchestration.module";
 import {DataMartModule} from "./pages/data-mart/data-mart.module";
 import {LogoutModule} from "./pages/logout/logout.module";
 import {ToastModule} from "primeng/toast";
-import {AnimateModule} from "primeng/animate";
 import {ButtonModule} from "primeng/button";
 import {ToolbarModule} from "primeng/toolbar";
 import {EditorModule} from "primeng/editor";
@@ -111,7 +110,6 @@ import {TranslocoTestingModule} from "@jsverse/transloco";
     DataMartModule,
     LogoutModule,
     ToastModule,
-    AnimateModule,
     ButtonModule,
     ToolbarModule,
     EditorModule,

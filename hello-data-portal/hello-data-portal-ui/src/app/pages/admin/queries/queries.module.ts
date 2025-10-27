@@ -40,7 +40,6 @@ import {InputTextModule} from "primeng/inputtext";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToolbarModule} from "primeng/toolbar";
 import {MenuModule} from "primeng/menu";
-import {AnimateModule} from "primeng/animate";
 import {DropdownModule} from "primeng/dropdown";
 import {HdCommonModule} from "../../../hd-common.module";
 import {QueriesComponent} from "./queries.component";
@@ -65,7 +64,6 @@ import {InputTextareaModule} from "primeng/inputtextarea";
     ConfirmDialogModule,
     ToolbarModule,
     MenuModule,
-    AnimateModule,
     DropdownModule,
     InputTextareaModule
   ]

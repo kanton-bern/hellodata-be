@@ -32,21 +32,26 @@ import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource
 import {AppState} from "../../../store/app/app.state";
 import {CommonModule} from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
-import {AnimateModule} from "primeng/animate";
 import {RippleModule} from "primeng/ripple";
 import {SelectedWorkspaceComponent} from "./selected-workspace/selected-workspace.component";
 import {SelectedWorkspaceRolesComponent} from "./selected-workspace-roles/selected-workspace-roles.component";
-import {SelectedWorkspaceDashboardsComponent} from "./selected-workspace-dashboards/selected-workspace-dashboards.component";
+import {
+  SelectedWorkspaceDashboardsComponent
+} from "./selected-workspace-dashboards/selected-workspace-dashboards.component";
 import {TableModule} from "primeng/table";
 import {TranslocoModule} from "@jsverse/transloco";
 import {TagModule} from "primeng/tag";
 import {TooltipModule} from "primeng/tooltip";
 import {ToolbarModule} from "primeng/toolbar";
 import {ButtonModule} from "primeng/button";
-import {SelectedWorkspacePermissionsComponent} from "./selected-workspace-permissions/selected-workspace-permissions.component";
+import {
+  SelectedWorkspacePermissionsComponent
+} from "./selected-workspace-permissions/selected-workspace-permissions.component";
 import {SelectedWorkspaceUsersComponent} from "./selected-workspace-users/selected-workspace-users.component";
 import {FieldsetModule} from "primeng/fieldset";
-import {SelectedWorkspacePipelinesComponent} from "./selected-workspace-pipelines/selected-workspace-pipelines.component";
+import {
+  SelectedWorkspacePipelinesComponent
+} from "./selected-workspace-pipelines/selected-workspace-pipelines.component";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {NgArrayPipesModule} from "ngx-pipes";
@@ -91,7 +96,6 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AnimateModule,
     RippleModule,
     TableModule,
     TranslocoModule,

@@ -46,7 +46,6 @@ import {
 } from "../../store/my-dashboards/my-dashboards.selector";
 import {setSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.action";
 import {DataDomain, SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
-import {AnimateModule} from "primeng/animate";
 import {Ripple} from "primeng/ripple";
 import {map} from "rxjs/operators";
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../store/auth/auth.selector";
@@ -187,7 +186,6 @@ export class MobileComponent {
     UnsavedChangesModule,
     ScrollTopModule,
     MenuModule,
-    AnimateModule,
     Ripple,
     TranslocoModule,
     FooterModule,

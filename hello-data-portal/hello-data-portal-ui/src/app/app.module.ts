@@ -60,7 +60,6 @@ import {LogoutModule} from "./pages/logout/logout.module";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ToastModule} from "primeng/toast";
-import {AnimateModule} from "primeng/animate";
 import {ButtonModule} from "primeng/button";
 import {ToolbarModule} from "primeng/toolbar";
 import {EditorModule} from "primeng/editor";
@@ -134,7 +133,6 @@ registerLocaleData(localeDECH);
     AdvancedAnalyticsModule,
     LogoutModule,
     ToastModule,
-    AnimateModule,
     ButtonModule,
     ToolbarModule,
     EditorModule,
