@@ -32,7 +32,6 @@ import {TranslocoModule} from "@jsverse/transloco";
 import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
 import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {SidebarModule} from "primeng/sidebar";
 import {MenuModule} from "primeng/menu";
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
@@ -54,6 +53,7 @@ import {FooterModule} from "../../shared/components";
 import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
+import {DrawerModule} from "primeng/drawer";
 
 @Component({
   selector: 'app-mobile',
@@ -181,7 +181,7 @@ export class MobileComponent {
   imports: [
     CommonModule,
     RouterOutlet,
-    SidebarModule,
+    DrawerModule,
     ToastModule,
     UnsavedChangesModule,
     ScrollTopModule,

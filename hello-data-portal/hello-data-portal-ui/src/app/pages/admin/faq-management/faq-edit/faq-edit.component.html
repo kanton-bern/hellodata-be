@@ -54,11 +54,11 @@
     <div *ngIf="(availableDataDomains$ | async) as availableDataDomains" class="field grid">
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomainKey">{{ '@Data domain' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <p-dropdown [options]="availableDataDomains"
-                    formControlName="dataDomain"
-                    id="dataDomainKey"
-                    optionLabel="label"
-                    optionValue="key"></p-dropdown>
+        <p-select [options]="availableDataDomains"
+                  formControlName="dataDomain"
+                  id="dataDomainKey"
+                  optionLabel="label"
+                  optionValue="key"></p-select>
         <br/>
       </div>
     </div>

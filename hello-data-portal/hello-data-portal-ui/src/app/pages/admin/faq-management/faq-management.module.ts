@@ -41,7 +41,7 @@ import {EditorModule} from "primeng/editor";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {FieldsetModule} from "primeng/fieldset";
 import {SplitButtonModule} from "primeng/splitbutton";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {TabViewModule} from "primeng/tabview";
 
 
@@ -65,7 +65,7 @@ import {TabViewModule} from "primeng/tabview";
     ConfirmDialogModule,
     FieldsetModule,
     SplitButtonModule,
-    DropdownModule,
+    SelectModule,
     TabViewModule,
   ]
 })

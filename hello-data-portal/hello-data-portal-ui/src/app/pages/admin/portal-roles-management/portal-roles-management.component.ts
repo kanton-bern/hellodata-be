@@ -44,14 +44,19 @@ import {EditorModule} from "primeng/editor";
 import {TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";
 import {InputTextareaModule} from "primeng/inputtextarea";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TooltipModule} from "primeng/tooltip";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {deletePortalRole, loadPortalRoles, openPortalRoleEdition, showDeletePortalRolePopup} from "../../../store/portal-roles-management/portal-roles-management.action";
+import {
+  deletePortalRole,
+  loadPortalRoles,
+  openPortalRoleEdition,
+  showDeletePortalRolePopup
+} from "../../../store/portal-roles-management/portal-roles-management.action";
 
 @Component({
   selector: 'app-roles-management',
@@ -108,7 +113,7 @@ export class PortalRolesManagementComponent extends BaseComponent implements OnI
     TableModule,
     TagModule,
     InputTextareaModule,
-    DropdownModule,
+    SelectModule,
     AutoCompleteModule,
     ConfirmDialogModule,
     TooltipModule

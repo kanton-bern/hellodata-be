@@ -34,7 +34,7 @@
 </div>
 
 <!--Dashboard menu-->
-<p-sidebar
+<p-drawer
   [(visible)]="showDashboardMenu"
   position="left"
   [modal]="true"
@@ -56,10 +56,10 @@
       </ng-container>
     </div>
   </ng-template>
-</p-sidebar>
+</p-drawer>
 
 <!--User menu-->
-<p-sidebar
+<p-drawer
   [(visible)]="showUserMenu"
   position="top"
   [modal]="true"
@@ -110,10 +110,10 @@
     </div>
 
   </ng-template>
-</p-sidebar>
+</p-drawer>
 
 <!--Data Domain menu-->
-<p-sidebar
+<p-drawer
   [(visible)]="showDataDomainMenu"
   position="top"
   [modal]="true"
@@ -137,7 +137,7 @@
       </ng-container>
     </div>
   </ng-template>
-</p-sidebar>
+</p-drawer>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
   <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}"

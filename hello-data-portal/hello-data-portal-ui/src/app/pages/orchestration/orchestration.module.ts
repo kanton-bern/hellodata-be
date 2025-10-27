@@ -42,7 +42,7 @@ import {InputTextModule} from "primeng/inputtext";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToolbarModule} from "primeng/toolbar";
 import {MenuModule} from "primeng/menu";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {EmbeddedOrchestrationComponent} from "./embedded-orchestration.component";
 
 @NgModule({
@@ -67,7 +67,7 @@ import {EmbeddedOrchestrationComponent} from "./embedded-orchestration.component
     ConfirmDialogModule,
     ToolbarModule,
     MenuModule,
-    DropdownModule
+    SelectModule
   ]
 })
 export class OrchestrationModule {

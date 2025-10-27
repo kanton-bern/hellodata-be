@@ -33,7 +33,7 @@ import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
 import {EmbeddedLineageDocsComponent} from "./embedded/embedded-lineage-docs.component";
 import {TranslocoModule} from "@jsverse/transloco";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {TooltipModule} from "primeng/tooltip";
 import {LineageDoc} from "../../store/lineage-docs/lineage-docs.model";
 import {AppState} from "../../store/app/app.state";
@@ -129,7 +129,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
     RippleModule,
     HdCommonModule,
     TranslocoModule,
-    DropdownModule,
+    SelectModule,
     ReactiveFormsModule,
     TooltipModule,
     RouterLink,

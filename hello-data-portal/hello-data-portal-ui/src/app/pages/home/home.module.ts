@@ -46,14 +46,14 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {SummaryModule} from "../../shared/components";
 import {TooltipModule} from "primeng/tooltip";
 import {LineageComponent} from "./lineage/lineage.component";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {DmComponent} from "./datamarts/dm.component";
 import {ExternalComponent} from "./external/external.component";
 import {HomeDocumentationComponent} from "./documentation/home-documentation.component";
 import {DataViewModule} from "primeng/dataview";
 import {FieldsetModule} from "primeng/fieldset";
 import {ScrollPanelModule} from "primeng/scrollpanel";
-import {SidebarModule} from "primeng/sidebar";
+import {DrawerModule} from 'primeng/drawer';
 import {BadgeModule} from "primeng/badge";
 import {AdminInitModule} from "../../shared/components/admin-init/admin-init.component";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
@@ -78,12 +78,12 @@ import {MatomoTrackerDirective} from "ngx-matomo-client";
     ConfirmDialogModule,
     SummaryModule,
     TooltipModule,
-    DropdownModule,
+    SelectModule,
     ReactiveFormsModule,
     DataViewModule,
     FieldsetModule,
     ScrollPanelModule,
-    SidebarModule,
+    DrawerModule,
     BadgeModule,
     AdminInitModule,
     MatomoTrackerDirective

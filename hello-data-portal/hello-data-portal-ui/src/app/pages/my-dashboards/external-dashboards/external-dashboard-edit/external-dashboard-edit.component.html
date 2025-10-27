@@ -1,97 +1,110 @@
-
 <div class="card">
-  <form *ngIf="(editedExternalDashboard$ | async) as editedExternalDashboard" [formGroup]="externalDashboardForm" class="form">
+  <form *ngIf="(editedExternalDashboard$ | async) as editedExternalDashboard" [formGroup]="externalDashboardForm"
+        class="form">
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{'@Title' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="title" id="title" required
-               type="text">
-        <small *ngIf="!externalDashboardForm.controls['title'].valid && externalDashboardForm.controls['title'].dirty" class="p-error">{{'@Title is invalid' | transloco}}</small>
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="title" id="title" required
+          type="text">
+        <small *ngIf="!externalDashboardForm.controls['title'].valid && externalDashboardForm.controls['title'].dirty"
+               class="p-error">{{ '@Title is invalid' | transloco }}</small>
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="url">{{'Url'}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="url">{{ 'Url' }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="url" id="url" required
-               type="text">
-        <small *ngIf="!externalDashboardForm.controls['url'].valid && externalDashboardForm.controls['url'].dirty" class="p-error">{{'@Url is invalid' | transloco}}</small>
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="url" id="url" required
+          type="text">
+        <small *ngIf="!externalDashboardForm.controls['url'].valid && externalDashboardForm.controls['url'].dirty"
+               class="p-error">{{ '@Url is invalid' | transloco }}</small>
       </div>
     </div>
 
     <div *ngIf="(availableDataDomains$ | async) as availableDataDomains" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomain">{{'@Data domain' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomain">{{ '@Data domain' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <p-dropdown [options]="availableDataDomains"
-                    formControlName="dataDomain"
-                    id="dataDomain"
-                    optionValue="data.key"
-                    placeholder="Select a Data Domain"></p-dropdown>
+        <p-select [options]="availableDataDomains"
+                  formControlName="dataDomain"
+                  id="dataDomain"
+                  optionValue="data.key"
+                  placeholder="Select a Data Domain"></p-select>
         <br/>
-        <small *ngIf="!externalDashboardForm.controls['dataDomain'].valid && externalDashboardForm.controls['dataDomain'].dirty"
-               class="p-error">{{'@Data domain is invalid' | transloco}}</small>
+        <small
+          *ngIf="!externalDashboardForm.controls['dataDomain'].valid && externalDashboardForm.controls['dataDomain'].dirty"
+          class="p-error">{{ '@Data domain is invalid' | transloco }}</small>
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="businessProcess">{{'@Business process' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="businessProcess">{{ '@Business process' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="businessProcess" id="businessProcess"
-               type="text">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="businessProcess" id="businessProcess"
+          type="text">
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="businessProcess">{{'@Department' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="businessProcess">{{ '@Department' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="department" id="department"
-               type="text">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="department" id="department"
+          type="text">
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="responsibility">{{'@Professional responsibility' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0"
+             for="responsibility">{{ '@Professional responsibility' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="responsibility" id="responsibility"
-               type="text">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="responsibility" id="responsibility"
+          type="text">
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataAnalyst">{{'@Data analyst' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataAnalyst">{{ '@Data analyst' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="dataAnalyst" id="dataAnalyst"
-               type="text">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="dataAnalyst" id="dataAnalyst"
+          type="text">
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="scheduled">{{'@Scheduled' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="scheduled">{{ '@Scheduled' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="scheduled" id="scheduled"
-               type="text">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="scheduled" id="scheduled"
+          type="text">
       </div>
     </div>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="datasource">{{'@Datasource' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="datasource">{{ '@Datasource' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="datasource" id="datasource"
-               type="text">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="datasource" id="datasource"
+          type="text">
       </div>
     </div>
 
     <p-toolbar>
       <div class="p-toolbar-group-start">
-        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                  icon="fas fa-arrow-left"></p-button>
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="deleteExternalDashboard(editedExternalDashboard)"
@@ -115,10 +128,12 @@
 
 <p-confirmDialog #cd [style]="{width: '50vw'}">
   <ng-template pTemplate="header">
-    <h3>{{'@Delete external dashboard' | transloco}}</h3>
+    <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton type="button"></button>
-    <button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pButton type="button"></button>
+    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
+            type="button"></button>
+    <button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pButton
+            type="button"></button>
   </ng-template>
 </p-confirmDialog>

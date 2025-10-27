@@ -38,7 +38,7 @@ import {LineageDocsService} from "../../store/lineage-docs/lineage-docs.service"
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
 import {TranslocoTestingModule} from "@jsverse/transloco";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {TooltipModule} from "primeng/tooltip";
 import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {HdCommonModule} from "../../hd-common.module";
@@ -68,7 +68,7 @@ describe('LineageDocsComponent', () => {
         {provide: Store, useValue: mockStore},
         {provide: LineageDocsService, useClass: MockLineageDocsService}, // Replace with your LineageDocsService mock
       ],
-      imports: [FormsModule, ReactiveFormsModule, ButtonModule, RippleModule, TranslocoTestingModule, DropdownModule, TooltipModule, SubsystemIframeModule, HdCommonModule, TableModule],
+      imports: [FormsModule, ReactiveFormsModule, ButtonModule, RippleModule, TranslocoTestingModule, SelectModule, TooltipModule, SubsystemIframeModule, HdCommonModule, TableModule],
     });
 
     fixture = TestBed.createComponent(LineageDocsComponent);

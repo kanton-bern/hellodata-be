@@ -48,7 +48,7 @@ import {MenuModule} from "primeng/menu";
 import {
   ExternalDashboardEditComponent
 } from './external-dashboards/external-dashboard-edit/external-dashboard-edit.component';
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 
 @NgModule({
   declarations: [
@@ -72,7 +72,7 @@ import {DropdownModule} from "primeng/dropdown";
     ConfirmDialogModule,
     ToolbarModule,
     MenuModule,
-    DropdownModule
+    SelectModule
   ]
 })
 export class MyDashboardsModule {

@@ -68,7 +68,7 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {CheckboxModule} from "primeng/checkbox";
 import {DividerModule} from "primeng/divider";
 import {switchMap} from "rxjs/operators";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {
   DashboardViewerPermissionsComponent
 } from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
@@ -290,7 +290,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     AutoCompleteModule,
     CheckboxModule,
     DividerModule,
-    DropdownModule,
+    SelectModule,
     MultiSelectModule
   ],
   declarations: [

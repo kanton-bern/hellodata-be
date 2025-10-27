@@ -20,6 +20,9 @@
     "target": "ES2022",
     "module": "es2020",
     "useDefineForClassFields": false,
+    "paths": {
+      "primeng/*": ["./node_modules/primeng/*"]
+    },
     "lib": [
       "es2020",
       "dom"

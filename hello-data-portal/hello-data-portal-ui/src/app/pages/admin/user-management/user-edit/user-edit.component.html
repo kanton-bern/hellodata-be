@@ -1,10 +1,11 @@
 <div *ngIf="userForm" class="card">
   <form *ngIf="(editedUser$ | async) as editedUser" [formGroup]="userForm" class="form">
-    <h4>{{'@User data' | transloco}}</h4>
+    <h4>{{ '@User data' | transloco }}</h4>
 
     <p-toolbar>
       <div class="p-toolbar-group-start">
-        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                  icon="fas fa-arrow-left"></p-button>
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="showUserDisablePopup(editedUser)"
@@ -24,32 +25,35 @@
     <p-divider></p-divider>
 
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{'@E-mail' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               disabled id="email" type="text"
-               value="{{editedUser.email}}">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled id="email" type="text"
+          value="{{editedUser.email}}">
       </div>
     </div>
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{'@First name' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               disabled id="firstName" type="text"
-               value="{{editedUser.firstName}}">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled id="firstName" type="text"
+          value="{{editedUser.firstName}}">
       </div>
     </div>
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{'@Last name' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <input class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               disabled id="lastName" type="text"
-               value="{{editedUser.lastName}}">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled id="lastName" type="text"
+          value="{{editedUser.lastName}}">
       </div>
     </div>
     <br>
     <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0">{{'@Enabled' | transloco}}</label>
+      <label class="col-12 mb-2 md:col-2 md:mb-0">{{ '@Enabled' | transloco }}</label>
       <div class="col-12 md:col-10">
         <div *ngIf="editedUser.enabled">
           <i class="fas fa-check"></i>
@@ -65,27 +69,27 @@
       <div *ngIf="(dataDomains$ | async) as dataDomains ">
         <div *ngIf="(availableDataDomainRoles$ | async) as availableDataDomainRoles">
           <div class="field grid">
-            <h4 class="col-12 mb-2 md:col-2 md:mb-0">{{'@Permissions' | transloco}}</h4>
+            <h4 class="col-12 mb-2 md:col-2 md:mb-0">{{ '@Permissions' | transloco }}</h4>
             <div class="col-12 md:col-10">
               &nbsp;
             </div>
           </div>
           <br>
           <div *ngIf="(businessDomains$ | async) as businessDomains" class="field grid">
-            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@Business domain' | transloco}}</div>
-            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@User role' | transloco}}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@Business domain' | transloco }}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}</div>
             <br>
             <div class="col-12 md:col-12">
               <div *ngFor="let businessDomain of businessDomains">
                 <br>
                 <div class="field grid">
-                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{businessDomain.name}}</label>
+                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{ businessDomain.name }}</label>
                   <div class="col-12 md:col-10">
-                    <p-dropdown (onChange)="onBusinessDomainRoleSelected($event, dataDomains, availableDataDomainRoles)"
-                                [options]="availableBusinessDomainRoles$ | async"
-                                formControlName="{{businessDomain.contextKey}}"
-                                id="businessDomain"
-                                optionLabel="name"></p-dropdown>
+                    <p-select (onChange)="onBusinessDomainRoleSelected($event, dataDomains, availableDataDomainRoles)"
+                              [options]="availableBusinessDomainRoles$ | async"
+                              formControlName="{{businessDomain.contextKey}}"
+                              id="businessDomain"
+                              optionLabel="name"></p-select>
                   </div>
                 </div>
               </div>
@@ -93,30 +97,31 @@
           </div>
           <br>
           <div class="field grid">
-            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@Data domain' | transloco}}</div>
-            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@Domain type' | transloco}}</div>
-            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{'@User role' | transloco}}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@Data domain' | transloco }}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@Domain type' | transloco }}</div>
+            <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}</div>
             <br>
             <div class="col-12 md:col-12">
               <div *ngFor="let dataDomain of dataDomains">
                 <div class="field grid">
-                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{dataDomain.name}}</label>
-                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{dataDomain.extra ? 'Extra' : 'Standard'}}</label>
+                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{ dataDomain.name }}</label>
+                  <label class="col-12 mb-2 md:col-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</label>
                   <div class="col-12 md:col-2">
                     <div class="col-12 md:col-10 mt-1">
                       &nbsp;
                     </div>
-                    <p-dropdown
+                    <p-select
                       (onChange)="onDataDomainRoleSelected($event, dataDomain)"
                       [options]="availableDataDomainRoles"
                       formControlName="{{dataDomain.contextKey}}"
                       id="dataDomain"
                       optionLabel="name"
-                      [style]="{'width': '100%'}"></p-dropdown>
+                      [style]="{'width': '100%'}"></p-select>
                   </div>
                   <div *ngIf="dashboardTableVisibility.get(dataDomain.contextKey)" class="col-12 md:col-6">
-                    <app-dashboard-viewer-permissions (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
-                                                      [context]="dataDomain"></app-dashboard-viewer-permissions>
+                    <app-dashboard-viewer-permissions
+                      (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
+                      [context]="dataDomain"></app-dashboard-viewer-permissions>
                   </div>
                 </div>
                 <p-divider></p-divider>
@@ -129,7 +134,8 @@
 
     <p-toolbar>
       <div class="p-toolbar-group-start">
-        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                  icon="fas fa-arrow-left"></p-button>
         <button (click)="updateUser()" *ngIf="userSaveButtonDisabled$ | async; else userSaveButtonEnabled"
                 [pTooltip]="'@Save' | transloco"
                 class="p-button-success mr-2 p-button p-component"

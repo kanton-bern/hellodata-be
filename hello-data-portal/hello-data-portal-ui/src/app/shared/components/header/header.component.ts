@@ -46,11 +46,11 @@ import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
 import {MenuModule} from "primeng/menu";
 import {ButtonModule} from "primeng/button";
-import {SidebarModule} from "primeng/sidebar";
+import {DrawerModule} from 'primeng/drawer';
 import {BreadcrumbComponent} from "../breadcrumb/breadcrumb.component";
 import {BreadcrumbModule} from "primeng/breadcrumb";
 import {TranslocoModule} from "@jsverse/transloco";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {FormsModule} from "@angular/forms";
 import {ToolbarModule} from "primeng/toolbar";
 import {
@@ -206,10 +206,10 @@ export class HeaderComponent {
     MegaMenuModule,
     MenuModule,
     ButtonModule,
-    SidebarModule,
+    DrawerModule,
     BreadcrumbModule,
     TranslocoModule,
-    DropdownModule,
+    SelectModule,
     FormsModule,
     ToolbarModule,
     RippleModule,

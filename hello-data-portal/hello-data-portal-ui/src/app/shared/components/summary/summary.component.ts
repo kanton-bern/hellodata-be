@@ -26,7 +26,7 @@
 ///
 
 import {Component, EventEmitter, NgModule, Output} from '@angular/core';
-import {SidebarModule} from "primeng/sidebar";
+import {DrawerModule} from 'primeng/drawer';
 import {ScrollPanelModule} from "primeng/scrollpanel";
 import {
   AsyncPipe,
@@ -122,7 +122,7 @@ export class SummaryComponent {
 
 @NgModule({
   imports: [
-    SidebarModule,
+    DrawerModule,
     ScrollPanelModule,
     NgIf,
     NgClass,

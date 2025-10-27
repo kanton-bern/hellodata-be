@@ -1,5 +1,5 @@
 <div *ngIf="(currentUserPermissions$ | async) as permissions" id="summaryComponent">
-  <p-sidebar [(visible)]="overlaySidebarVisible" position="right" styleClass="w-30rem">
+  <p-drawer [(visible)]="overlaySidebarVisible" position="right" styleClass="w-30rem">
     <ng-template pTemplate="header">
       <div class="font-semibold" id="summaryHeader"> {{ '@Summary header' | transloco }}</div>
     </ng-template>
@@ -101,7 +101,7 @@
 
 
     </ng-template>
-  </p-sidebar>
+  </p-drawer>
 
   <p-scrollPanel [style]="{ width: '100%', height: 'calc(100vh - 4rem)' }">
     <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"

@@ -42,8 +42,8 @@ import {InputTextModule} from "primeng/inputtext";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToolbarModule} from "primeng/toolbar";
 import {MenuModule} from "primeng/menu";
-import {DropdownModule} from "primeng/dropdown";
 import {AdvancedAnalyticsViewerComponent} from "./advanced-analytics-viewer.component";
+import {SelectModule} from "primeng/select";
 
 @NgModule({
   declarations: [
@@ -67,7 +67,7 @@ import {AdvancedAnalyticsViewerComponent} from "./advanced-analytics-viewer.comp
     ConfirmDialogModule,
     ToolbarModule,
     MenuModule,
-    DropdownModule
+    SelectModule
   ]
 })
 export class AdvancedAnalyticsModule {
