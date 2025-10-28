@@ -32,8 +32,6 @@ import {AsyncPipe, CommonModule, JsonPipe} from "@angular/common";
 import {AppRoutingModule} from "./app-routing.module";
 import {BrowserModule} from "@angular/platform-browser";
 import {SubsystemIframeModule} from "./shared/components/subsystem-iframe/subsystem-iframe.component";
-import {CallbackComponent} from "./callback/callback.component";
-import {ProfileComponent} from "./pages/profile/profile.component";
 import {StoreModule} from "@ngrx/store";
 import {appReducers} from "./store/app/app.reducer";
 import {EffectsModule} from "@ngrx/effects";
@@ -75,9 +73,9 @@ import {TranslocoTestingModule} from "@jsverse/transloco";
 
 @NgModule({
   declarations: [
-    AppComponent,
-    CallbackComponent,
-    ProfileComponent,
+    // AppComponent,
+    // CallbackComponent,
+    // ProfileComponent,
   ],
   imports: [
     StoreModule.forRoot(appReducers),

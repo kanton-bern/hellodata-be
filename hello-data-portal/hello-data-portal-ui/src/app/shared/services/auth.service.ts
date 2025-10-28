@@ -28,7 +28,6 @@
 import {Injectable} from '@angular/core';
 import {OidcSecurityService} from "angular-auth-oidc-client";
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -37,34 +36,42 @@ export class AuthService {
   }
 
   get isLoggedIn() {
+    console.log('AuthService: Checking if user is logged in');
     return this.oidcSecurityService.isAuthenticated$;
   }
 
   get accessToken() {
+    console.log('AuthService: Retrieving access token');
     return this.oidcSecurityService.getAccessToken();
   }
 
   get refreshToken() {
+    console.log('AuthService: Retrieving refresh token');
     return this.oidcSecurityService.getRefreshToken();
   }
 
   get userData() {
+    console.log('AuthService: Retrieving user data');
     return this.oidcSecurityService.userData$;
   }
 
   get payloadFromAccessToken() {
+    console.log('AuthService: Retrieving payload from access token');
     return this.oidcSecurityService.getPayloadFromAccessToken();
   }
 
   checkAuth() {
+    console.log('AuthService: Checking authentication status');
     return this.oidcSecurityService.checkAuth();
   }
 
   doLogin() {
+    console.log('AuthService: Initiating login process');
     this.oidcSecurityService.authorize();
   }
 
   signOut() {
+    console.log('AuthService: Signing out and revoking tokens');
     return this.oidcSecurityService.logoffAndRevokeTokens();
   }
 }

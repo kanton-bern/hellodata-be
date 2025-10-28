@@ -4177,6 +4177,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@primeuix/themes@npm:^1.2.5":
+  version: 1.2.5
+  resolution: "@primeuix/themes@npm:1.2.5"
+  dependencies:
+    "@primeuix/styled": "npm:^0.7.3"
+  checksum: 10c0/695c78e179b2c1d453ca18e3ddcbc3821231b151c5d3c7f6e491738a821b59baa539a5dfa5a8c88919bc16184a4ceaec429f4143657c2a49cf1c1389e8855ede
+  languageName: node
+  linkType: hard
+
 "@primeuix/utils@npm:^0.6.1":
   version: 0.6.2
   resolution: "@primeuix/utils@npm:0.6.2"
@@ -8313,6 +8322,7 @@ __metadata:
     "@ngrx/router-store": "npm:^20.1.0"
     "@ngrx/store": "npm:^20.1.0"
     "@ngrx/store-devtools": "npm:^20.1.0"
+    "@primeuix/themes": "npm:^1.2.5"
     "@testing-library/angular": "npm:^18.1.0"
     "@testing-library/dom": "npm:^10.4.1"
     "@types/jasmine": "npm:^5.1.12"
@@ -8333,7 +8343,7 @@ __metadata:
     ngx-pipes: "npm:^3.2.2"
     primeflex: "npm:^4.0.0"
     primeicons: "npm:^7.0.0"
-    primeng: "npm:20.2.0"
+    primeng: "npm:^20.2.0"
     quill: "npm:^2.0.3"
     rxjs: "npm:^7.8.1"
     ts-jest: "npm:^29.4.5"
@@ -11268,7 +11278,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"primeng@npm:20.2.0":
+"primeng@npm:^20.2.0":
   version: 20.2.0
   resolution: "primeng@npm:20.2.0"
   dependencies:

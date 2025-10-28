@@ -52,20 +52,12 @@
               "src/silent-renew.html"
             ],
             "styles": [
-              "node_modules/primeng/resources/themes/mdc-light-indigo/theme.css",
-              "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeflex/primeflex.css",
               "node_modules/quill/dist/quill.core.css",
               "node_modules/quill/dist/quill.bubble.css",
               "node_modules/quill/dist/quill.snow.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "src/styles.scss"
-            ],
-            "scripts": [
-              "node_modules/quill/dist/quill.min.js"
-            ],
-            "allowedCommonJsDependencies": [
-              "quill"
             ]
           },
           "configurations": {
