@@ -3794,7 +3794,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngrx/effects@npm:^20.0.0":
+"@ngrx/effects@npm:^20.1.0":
   version: 20.1.0
   resolution: "@ngrx/effects@npm:20.1.0"
   dependencies:
@@ -3821,7 +3821,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngrx/router-store@npm:^20.0.0":
+"@ngrx/router-store@npm:^20.1.0":
   version: 20.1.0
   resolution: "@ngrx/router-store@npm:20.1.0"
   dependencies:
@@ -3836,7 +3836,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngrx/store-devtools@npm:^20.0.0":
+"@ngrx/store-devtools@npm:^20.1.0":
   version: 20.1.0
   resolution: "@ngrx/store-devtools@npm:20.1.0"
   dependencies:
@@ -3849,7 +3849,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngrx/store@npm:^20.0.0":
+"@ngrx/store@npm:^20.1.0":
   version: 20.1.0
   resolution: "@ngrx/store@npm:20.1.0"
   dependencies:
@@ -8308,11 +8308,11 @@ __metadata:
     "@fortawesome/free-solid-svg-icons": "npm:^6.4.0"
     "@jsverse/transloco": "npm:^8.1.0"
     "@ngrx/core": "npm:^1.2.0"
-    "@ngrx/effects": "npm:^20.0.0"
+    "@ngrx/effects": "npm:^20.1.0"
     "@ngrx/eslint-plugin": "npm:^20.0.0"
-    "@ngrx/router-store": "npm:^20.0.0"
-    "@ngrx/store": "npm:^20.0.0"
-    "@ngrx/store-devtools": "npm:^20.0.0"
+    "@ngrx/router-store": "npm:^20.1.0"
+    "@ngrx/store": "npm:^20.1.0"
+    "@ngrx/store-devtools": "npm:^20.1.0"
     "@testing-library/angular": "npm:^18.1.0"
     "@testing-library/dom": "npm:^10.4.1"
     "@types/jasmine": "npm:^5.1.12"
