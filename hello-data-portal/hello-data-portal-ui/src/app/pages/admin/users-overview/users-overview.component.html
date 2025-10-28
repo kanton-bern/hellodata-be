@@ -1,7 +1,8 @@
 <h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
 <div *ngIf="(tableData$ | async) as tableData" class="card">
   <div *ngIf="(columns$ | async) as columns">
-    <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData" [scrollable]="true" scrollDirection="horizontal" scrollHeight="flex">
+    <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData" [scrollable]="true"
+             scrollDirection="horizontal" scrollHeight="flex">
       <ng-template pTemplate="caption">
         <div class="flex">
           <div style="text-align: left">
@@ -14,13 +15,13 @@
             <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-replay"
                       label="{{ '@Reload' | transloco }}"
-                      styleClass="p-button-success"/>
+                      class="p-button-success"/>
           </div>
           <div class="ml-1" style="text-align: left">
             <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-times-circle"
                       label="{{ '@Clear cache' | transloco }}"
-                      styleClass="p-button-help"/>
+                      class="p-button-help"/>
           </div>
         </div>
       </ng-template>

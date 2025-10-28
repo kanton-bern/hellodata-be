@@ -20,7 +20,7 @@
              [sortOrder]="-1"
              [(first)]="first"
              stateStorage="session"
-             styleClass="p-datatable-striped"
+             class="p-datatable-striped"
              [tableStyle]="{ 'min-width': '50rem' }">
 
       <ng-template pTemplate="caption">
@@ -113,10 +113,9 @@
               cols="30"
               rows="5"
               pTextarea
-              variant="filled"
               [autoResize]="true"
               style="width: 100%"
-              [(ngModel)]="query.executedSql ? query.executedSql : query.sql">
+              [ngModel]="query.executedSql ? query.executedSql : query.sql">
             </textarea>
             </div>
           </td>

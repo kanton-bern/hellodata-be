@@ -56,7 +56,7 @@
                   [disabled]="inviteForm.invalid"
                   icon="fas fa-floppy-disk"
                   label="{{'@Set permissions' | transloco}}"
-                  styleClass="p-button-success mr-2"></p-button>
+                  class="p-button-success mr-2"></p-button>
       </div>
     </p-toolbar>
   </form>
@@ -73,7 +73,7 @@
                 [pTooltip]="'@Sync Users Title' | transloco"
                 icon="fas fa-arrows-rotate"
                 label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
-                styleClass="p-button-success mr-2"></p-button>
+                class="p-button-success mr-2"></p-button>
     </div>
   </p-toolbar>
 
@@ -94,7 +94,7 @@
     id="userTable"
     stateKey="portal-users-table"
     stateStorage="session"
-    styleClass="p-datatable-striped"
+    class="p-datatable-striped"
     sortField="email"
     [sortOrder]="1"
   >

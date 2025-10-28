@@ -1,4 +1,3 @@
-
 <div *ngIf="dashboardsFetched$ | async">
   <div *ngIf="dashboards$ | async">
     <br>
@@ -7,7 +6,7 @@
                    [options]="allDashboardsForContext"
                    [panelStyle]="{'width':'100%'}"
                    [style]="{'width':'100%'}"
-                   defaultLabel="{{'@Select a Dashboard' | transloco }}"
+                   placeholder="{{'@Select a Dashboard' | transloco }}"
                    optionLabel="title"></p-multiSelect>
   </div>
 </div>

@@ -33,7 +33,8 @@
     <div class="col-12 md:col-10">
       <input
         [value]="(selectedLanguage$ | async)?.code + ' ' + ((selectedLanguage$ | async)?.typeTranslationKey | transloco)"
-        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" disabled id="selectedLanguage"
+        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+        disabled id="selectedLanguage"
         type="text"/>
     </div>
   </div>
@@ -48,7 +49,7 @@
         dataKey="id"
         id="role-table"
         sortMode="multiple"
-        styleClass="p-datatable-striped"
+        class="p-datatable-striped"
       >
         <ng-template pTemplate="header">
           <tr style="text-align: left;">

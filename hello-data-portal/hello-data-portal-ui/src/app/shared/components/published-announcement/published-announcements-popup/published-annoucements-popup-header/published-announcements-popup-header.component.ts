@@ -11,7 +11,7 @@ import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-curren
       <div class="col">
         <p-checkbox [binary]="true" inputId="dont-show-again"
                     (onChange)="onChange($event)"></p-checkbox>
-        <label [for]="'dont-show-again'" class="ml-2"> {{ '@Do not show again' | transloco } </label>
+        <label for="dont-show-again" class="ml-2"> {{ '@Do not show again' | transloco } </label>
       </div>
     </div>
   `,

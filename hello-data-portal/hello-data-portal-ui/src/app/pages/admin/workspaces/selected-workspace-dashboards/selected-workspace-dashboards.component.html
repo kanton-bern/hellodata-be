@@ -1,4 +1,3 @@
-
 <p-table
   #dt
   *ngIf="dashboards.length > 0"
@@ -8,37 +7,37 @@
   [tableStyle]="{ 'min-width': '75rem' }"
   [value]="dashboards"
   dataKey="id"
-  styleClass="p-datatable-striped"
+  class="p-datatable-striped"
 >
   <ng-template pTemplate="header">
     <tr>
       <th id="dashboard">
-        {{'@Dashboard' | transloco}}
+        {{ '@Dashboard' | transloco }}
       </th>
       <th id="status">
-        {{'@Status' | transloco}}
+        {{ '@Status' | transloco }}
       </th>
       <th id="slug">
-        {{'@Slug' | transloco}}
+        {{ '@Slug' | transloco }}
       </th>
       <th id="owners">
-        {{'@Owners' | transloco}}
+        {{ '@Owners' | transloco }}
       </th>
       <th id="roles">
-        {{'@Roles' | transloco}}
+        {{ '@Roles' | transloco }}
       </th>
     </tr>
   </ng-template>
   <ng-template let-dashboard pTemplate="body">
     <tr>
       <td>
-        <a [href]="createLink(dashboard) | async" rel="noopener" target="_blank">{{dashboard.dashboard_title}}</a>
+        <a [href]="createLink(dashboard) | async" rel="noopener" target="_blank">{{ dashboard.dashboard_title }}</a>
       </td>
       <td>
-        {{dashboard.status}}
+        {{ dashboard.status }}
       </td>
       <td>
-        {{dashboard.slug}}
+        {{ dashboard.slug }}
       </td>
       <td>
         <p-tag *ngFor="let owner of dashboard.owners" icon="fas fa-user" value="{{owner.email}}"></p-tag>

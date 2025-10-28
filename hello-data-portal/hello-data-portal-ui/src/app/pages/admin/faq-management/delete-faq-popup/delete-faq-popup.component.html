@@ -4,9 +4,9 @@
     <h3>{{ '@Delete faq' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" pButtonIcon="fas fa-circle-xmark" pButtonLabel="{{'@Cancel' | transloco}}" pButton
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
               type="button"></p-button>
-    <p-button (click)="cd.onAccept()" class="p-button-danger" pButtonIcon="fas fa-trash" id="deleteFaqButton"
+    <p-button (click)="cd.onAccept()" class="p-button-danger" icon="fas fa-trash" id="deleteFaqButton"
               label="{{'@Delete' | transloco}}" pButton type="button"></p-button>
   </ng-template>
 </p-confirmDialog>

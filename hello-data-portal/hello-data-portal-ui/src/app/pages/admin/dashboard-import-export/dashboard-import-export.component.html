@@ -22,13 +22,13 @@
                           [disabled]="getSelectedDashboards(dataDomain.data.key).length === 0"
                           [pTooltip]="'@Export dashboard' | transloco"
                           class="p-button-rounded p-button-success mr-2"
-                          pButtonIcon="fas fa-light fa-download"
+                          icon="fas fa-light fa-download"
                           pButton
                           pRipple></p-button>
                 <p-button (click)="toggleImportVisible(dataDomain.data.key)"
                           [pTooltip]="'@Import dashboard' | transloco"
                           class="p-button-rounded p-button-help mr-2"
-                          pButtonIcon="fas fa-light fa-upload"
+                          icon="fas fa-light fa-upload"
                           pButton
                           pRipple></p-button>
               </div>
@@ -38,7 +38,7 @@
                             (onUpload)="onUploadCompleted($event)"
                             (onError)="onError($event)"
                             (onSelect)="onSelect($event)"
-                            [styleClass]="'mt-2'"
+                            [class]="'mt-2'"
                             accept=".zip"
                             [maxFileSize]="5000000000">
               </p-fileUpload>

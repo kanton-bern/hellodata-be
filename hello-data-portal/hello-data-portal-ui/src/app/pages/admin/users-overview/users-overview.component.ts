@@ -101,7 +101,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     return false;
   }
 
-  getTagSeverity(value: string): "success" | "secondary" | "info" | "warning" | "danger" | "contrast" | undefined {
+  getTagSeverity(value: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
     const valTrimmed = value.trim();
     if (valTrimmed.includes('Admin')) {
       return 'danger';

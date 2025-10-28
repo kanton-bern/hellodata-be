@@ -108,7 +108,7 @@
           [modal]="true"
           [style]="{ width: '550px' }"
           header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}"
-          styleClass="p-fluid">
+          class="p-fluid">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}" style="max-width: 500px"/>
     <div class="field">
@@ -151,7 +151,7 @@
 
 
 <p-dialog [(visible)]="viewDashboardDataDialog" [modal]="true"
-          header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}" styleClass="p-fluid">
+          header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}" class="p-fluid">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}"/>
     <div class="formgrid grid">

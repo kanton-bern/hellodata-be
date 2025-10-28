@@ -1,6 +1,6 @@
 <h2 class="content-block">{{ '@Announcements management' | transloco }}</h2>
 <div class="card" *ngIf="(selectedLanguage$ | async) as selectedLanguage">
-  <p-toolbar styleClass="mb-4 gap-2">
+  <p-toolbar class="mb-4 gap-2">
     <ng-template pTemplate="left">
       <p-button (click)="createAnnouncement()" class="p-button-success mr-2" icon="fas fa-circle-plus"
                 label="{{'@Create announcement' | transloco }}" pButton pRipple></p-button>
@@ -16,7 +16,7 @@
       [showCurrentPageReport]="true"
       [value]="announcements"
       dataKey="id"
-      styleClass="p-datatable-striped"
+      class="p-datatable-striped"
     >
       <ng-template pTemplate="header">
         <tr>
@@ -61,13 +61,13 @@
             <p-button (click)="editAnnouncement(announcement)"
                       [pTooltip]="'@Edit' | transloco"
                       class="p-button-rounded p-button-success mr-2"
-                      pButtonIcon="fas fa-light fa-pen-to-square"
+                      icon="fas fa-light fa-pen-to-square"
                       pButton
                       pRipple></p-button>
             <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                       [pTooltip]="'@Delete' | transloco"
                       class="p-button-rounded p-button-danger"
-                      pButtonIcon="fas fa-trash"
+                      icon="fas fa-trash"
                       pButton
                       pRipple></p-button>
           </td>

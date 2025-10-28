@@ -1,4 +1,3 @@
-
 <p-table
   #dt
   *ngIf="users.length > 0"
@@ -8,40 +7,40 @@
   [tableStyle]="{ 'min-width': '75rem' }"
   [value]="users"
   dataKey="id"
-  styleClass="p-datatable-striped"
+  class="p-datatable-striped"
 >
   <ng-template pTemplate="header">
     <tr>
       <th id="username">
-        {{'@Username' | transloco}}
+        {{ '@Username' | transloco }}
       </th>
       <th id="email">
-        {{'@Email' | transloco}}
+        {{ '@Email' | transloco }}
       </th>
       <th id="firstName">
-        {{'@First name' | transloco}}
+        {{ '@First name' | transloco }}
       </th>
       <th id="lastName">
-        {{'@Last name' | transloco}}
+        {{ '@Last name' | transloco }}
       </th>
       <th id="roles">
-        {{'@Roles' | transloco}}
+        {{ '@Roles' | transloco }}
       </th>
     </tr>
   </ng-template>
   <ng-template let-user pTemplate="body">
     <tr>
       <td>
-        {{user.username}}
+        {{ user.username }}
       </td>
       <td>
-        {{user.email}}
+        {{ user.email }}
       </td>
       <td>
-        {{user.first_name}}
+        {{ user.first_name }}
       </td>
       <td>
-        {{user.last_name}}
+        {{ user.last_name }}
       </td>
       <td>
         <span *ngFor="let role of user.roles" style="margin: 2px">

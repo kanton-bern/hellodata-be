@@ -14,13 +14,13 @@
             <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-replay"
                       label="{{ '@Reload' | transloco }}"
-                      styleClass="p-button-rounded p-button-success"/>
+                      class="p-button-rounded p-button-success"/>
           </div>
           <div class="ml-1" style="text-align: left">
             <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-times-circle"
                       label="{{ '@Clear cache' | transloco }}"
-                      styleClass="p-button-rounded p-button-help"/>
+                      class="p-button-rounded p-button-help"/>
           </div>
           <div class="ml-auto">
             <p-button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
