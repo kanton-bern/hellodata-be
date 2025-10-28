@@ -4,9 +4,9 @@
   </ng-template>
   {{ confirmAction(userForPopup) }}
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
               type="button"></p-button>
-    <p-button (click)="cd.accept()"
+    <p-button (click)="cd.onAccept()"
               [pStyleClass]="getButtonTypeForAction(userForPopup)"
               label="{{getActionTranslationKey(userForPopup) | transloco}}"
               pButton

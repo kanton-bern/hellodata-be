@@ -72,6 +72,7 @@ import {BrowserModule} from "@angular/platform-browser";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
 import {DividerModule} from "primeng/divider";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
+import {Tooltip} from "primeng/tooltip";
 
 @Component({
   selector: 'app-header',
@@ -222,7 +223,8 @@ export class HeaderComponent {
     TabsModule,
     SharedModule,
     DividerModule,
-    MatomoTrackerDirective
+    MatomoTrackerDirective,
+    Tooltip
   ],
   declarations: [HeaderComponent, BreadcrumbComponent],
   exports: [HeaderComponent]

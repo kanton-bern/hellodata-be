@@ -86,7 +86,8 @@ import {SubsystemUsersModule} from "./pages/admin/subsystem-users/subsystem-user
 import {MatomoModule, MatomoRouterModule} from 'ngx-matomo-client';
 import {QueriesModule} from "./pages/admin/queries/queries.module";
 import {DashboardAccessModule} from "./pages/admin/dashboard-access/dashboard-access.module";
-import { reducers, metaReducers } from './reducers';
+import {metaReducers, reducers} from './reducers';
+import {FormsModule} from "@angular/forms";
 
 registerLocaleData(localeDECH);
 
@@ -159,7 +160,8 @@ registerLocaleData(localeDECH);
     DashboardAccessModule,
     StoreModule.forRoot(reducers, {
       metaReducers
-    })
+    }),
+    FormsModule
   ],
   providers: [
     ScreenService,

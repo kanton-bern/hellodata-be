@@ -44,6 +44,7 @@ import {SelectModule} from 'primeng/select';
 import {HdCommonModule} from "../../../hd-common.module";
 import {QueriesComponent} from "./queries.component";
 import {TextareaModule} from 'primeng/textarea';
+import {Tooltip} from "primeng/tooltip";
 
 @NgModule({
   declarations: [QueriesComponent],
@@ -65,7 +66,8 @@ import {TextareaModule} from 'primeng/textarea';
     ToolbarModule,
     MenuModule,
     SelectModule,
-    TextareaModule
+    TextareaModule,
+    Tooltip
   ]
 })
 export class QueriesModule {

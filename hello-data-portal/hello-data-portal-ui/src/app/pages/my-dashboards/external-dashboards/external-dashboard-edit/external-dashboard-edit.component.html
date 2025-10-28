@@ -131,9 +131,9 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
               type="button"></p-button>
-    <p-button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
+    <p-button (click)="cd.onAccept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
               pButton
               type="button"></p-button>
   </ng-template>

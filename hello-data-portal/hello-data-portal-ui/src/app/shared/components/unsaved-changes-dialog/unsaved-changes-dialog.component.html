@@ -3,11 +3,11 @@
     <h3>{{ "@Unsaved changes title" | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton
               type="button"></p-button>
     <ng-container *ngIf="stayOnPage$ | async as stayOnPage">
       <p-button
-        (click)="cd.accept()"
+        (click)="cd.onAccept()"
         *ngIf="!stayOnPage.value; else continueEditionButton"
         class="p-button-success"
         icon="fas fa-floppy-disk"
