@@ -1,4 +1,3 @@
-
 <p-table
   #dt
   *ngIf="permissions.length > 0"
@@ -13,14 +12,14 @@
   <ng-template pTemplate="header">
     <tr>
       <th id="name">
-        {{'@Name' | transloco}}
+        {{ '@Name' | transloco }}
       </th>
     </tr>
   </ng-template>
   <ng-template let-permission pTemplate="body">
     <tr>
       <td>
-        <p-tag severity="warning" value="{{permission.name}}"></p-tag>
+        <p-tag severity="warn" value="{{permission.name}}"></p-tag>
       </td>
     </tr>
   </ng-template>

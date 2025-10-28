@@ -1,4 +1,3 @@
-
 <p-table
   #dt
   *ngIf="pipelines.length > 0"
@@ -13,16 +12,16 @@
   <ng-template pTemplate="header">
     <tr>
       <th id="id">
-        {{'@Id' | transloco}}
+        {{ '@Id' | transloco }}
       </th>
       <th id="description">
-        {{'@Description' | transloco}}
+        {{ '@Description' | transloco }}
       </th>
       <th id="status">
-        {{'@Status' | transloco}}
+        {{ '@Status' | transloco }}
       </th>
       <th id="detail">
-        {{'@Detail' | transloco}}
+        {{ '@Detail' | transloco }}
       </th>
     </tr>
   </ng-template>
@@ -32,7 +31,7 @@
         {{ pipeline.id }}
       </td>
       <td>
-        <p-tag severity="warning" value="{{pipeline.description}}"></p-tag>
+        <p-tag severity="warn" value="{{pipeline.description}}"></p-tag>
       </td>
       <td>
         <div *ngIf="pipeline.lastInstance.state" [ngSwitch]="pipeline.lastInstance.state" class="col-1">
@@ -47,7 +46,8 @@
         </div>
       </td>
       <td>
-        <p-button (click)="showDetails(pipeline.id)" [pTooltip]="'@Open' | transloco" class="mr-2" icon="p-button-icon fas fa-up-right-from-square"></p-button>
+        <p-button (click)="showDetails(pipeline.id)" [pTooltip]="'@Open' | transloco" class="mr-2"
+                  icon="p-button-icon fas fa-up-right-from-square"></p-button>
       </td>
     </tr>
   </ng-template>
