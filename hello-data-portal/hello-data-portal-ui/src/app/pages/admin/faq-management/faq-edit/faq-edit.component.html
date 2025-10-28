@@ -68,8 +68,8 @@
         @for (lang of supportedLanguages; track lang) {
           <p-tab>
             <div class="flex align-items-center gap-2">
-              <span class="font-bold white-space-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
-                    {{ getHeaderNameWithStatus(language) }}
+              <span class="font-bold white-space-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
+                    {{ getHeaderNameWithStatus(lang) }}
               </span>
             </div>
           </p-tab>
