@@ -54,6 +54,7 @@ import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
 import {DrawerModule} from "primeng/drawer";
+import {Button} from "primeng/button";
 
 @Component({
   selector: 'app-mobile',
@@ -190,7 +191,8 @@ export class MobileComponent {
     Ripple,
     TranslocoModule,
     FooterModule,
-    MatomoTrackerDirective
+    MatomoTrackerDirective,
+    Button
   ],
   exports: [MobileComponent],
   declarations: [MobileComponent]

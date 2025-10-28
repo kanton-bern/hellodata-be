@@ -1,29 +1,27 @@
-
 <p-confirmDialog #cd [style]="{width: '50vw'}" key="unsavedChangesConfirmation">
   <ng-template pTemplate="header">
-    <h3>{{"@Unsaved changes title" | transloco}}</h3>
+    <h3>{{ "@Unsaved changes title" | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton type="button"></button>
+    <p-button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton
+              type="button"></p-button>
     <ng-container *ngIf="stayOnPage$ | async as stayOnPage">
-      <button
+      <p-button
         (click)="cd.accept()"
         *ngIf="!stayOnPage.value; else continueEditionButton"
         class="p-button-success"
         icon="fas fa-floppy-disk"
         label="{{ '@Save' | transloco }}"
-        pButton
         type="button"
-      ></button>
+      ></p-button>
       <ng-template #continueEditionButton>
-        <button
+        <p-button
           (click)="cd.hide()"
           class="p-button-success"
           icon="fas fa-pen-to-square"
           label="{{ '@Continue edition' | transloco }}"
-          pButton
           type="button"
-        ></button>
+        ></p-button>
       </ng-template>
     </ng-container>
   </ng-template>

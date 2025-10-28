@@ -1,14 +1,16 @@
-
 <div *ngIf="announcementToBeDeleted$ | async"></div>
 <p-confirmDialog #cd [style]="{width: '50vw'}">
   <ng-template pTemplate="header">
-    <h3>{{'@Delete announcement' | transloco}}</h3>
+    <h3>{{ '@Delete announcement' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="body">
     <span class="ui-confirmdialog-message">{{ "@Delete announcement question" | transloco }}</span>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton type="button"></button>
-    <button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pButton type="button"></button>
+    <p-button (click)="cd.onReject()" pButtonIcon="fas fa-circle-xmark" pButtonLabel="{{'@Cancel' | transloco}}" pButton
+              type="button"></p-button>
+    <p-button (click)="cd.onAccept()" class="p-button-danger" pButtonIcon="fas fa-trash"
+              pButtonLabel="{{'@Delete' | transloco}}"
+              pButton type="button"></p-button>
   </ng-template>
 </p-confirmDialog>

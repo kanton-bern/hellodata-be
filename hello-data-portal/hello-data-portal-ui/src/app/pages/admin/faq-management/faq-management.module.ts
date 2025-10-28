@@ -43,6 +43,7 @@ import {FieldsetModule} from "primeng/fieldset";
 import {SplitButtonModule} from "primeng/splitbutton";
 import {SelectModule} from 'primeng/select';
 import {TabsModule} from 'primeng/tabs';
+import {Tooltip} from "primeng/tooltip";
 
 
 @NgModule({
@@ -67,6 +68,7 @@ import {TabsModule} from 'primeng/tabs';
     SplitButtonModule,
     SelectModule,
     TabsModule,
+    Tooltip,
   ]
 })
 export class FaqManagementModule {

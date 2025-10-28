@@ -1,7 +1,6 @@
-
-<h2 class="content-block">{{'@Dbt Project Docs' | transloco}}</h2>
+<h2 class="content-block">{{ '@Dbt Project Docs' | transloco }}</h2>
 <div *ngIf="(docs$ |async) as projectDocs" class="card">
-  <h4>{{'@Available Projects' | transloco}}</h4>
+  <h4>{{ '@Available Projects' | transloco }}</h4>
   <p-table [paginator]="true"
            [rowHover]="true"
            [rows]="10"
@@ -12,10 +11,10 @@
     <ng-template pTemplate="header">
       <tr>
         <th id="icon"></th>
-        <th id="instanceName">{{'@Instance name' | transloco}}</th>
-        <th id="name">{{'@Name' | transloco}}</th>
-        <th id="path">{{'@Path' | transloco}}</th>
-        <th id="modifiedDate">{{'@Modified date' | transloco}}</th>
+        <th id="instanceName">{{ '@Instance name' | transloco }}</th>
+        <th id="name">{{ '@Name' | transloco }}</th>
+        <th id="path">{{ '@Path' | transloco }}</th>
+        <th id="modifiedDate">{{ '@Modified date' | transloco }}</th>
         <th id="actions"></th>
       </tr>
     </ng-template>
@@ -25,7 +24,7 @@
           <i class="fas fa-light fa-diagram-project"></i>
         </td>
         <td>
-          {{projectDoc.contextName}}
+          {{ projectDoc.contextName }}
         </td>
         <td>
           {{ projectDoc.name }}
@@ -34,16 +33,16 @@
           {{ projectDoc.path }}
         </td>
         <td>
-          {{ projectDoc.lastModifiedTime | date: 'dd.MM.yyyy HH:mm:ss'}}
+          {{ projectDoc.lastModifiedTime | date: 'dd.MM.yyyy HH:mm:ss' }}
         </td>
         <td>
           <div class="flex align-items-center justify-content-center gap-2">
-            <button (click)="openLineage(projectDoc)"
-                    [pTooltip]="'@Open' | transloco"
-                    class="p-button-rounded p-button-info mr-2"
-                    icon="fas fa-up-right-from-square"
-                    pButton
-                    pRipple></button>
+            <p-button (click)="openLineage(projectDoc)"
+                      [pTooltip]="'@Open' | transloco"
+                      class="p-button-rounded p-button-info mr-2"
+                      icon="fas fa-up-right-from-square"
+                      pButton
+                      pRipple></p-button>
           </div>
         </td>
       </tr>

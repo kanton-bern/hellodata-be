@@ -136,17 +136,17 @@
       <div class="p-toolbar-group-start">
         <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
                   icon="fas fa-arrow-left"></p-button>
-        <button (click)="updateUser()" *ngIf="userSaveButtonDisabled$ | async; else userSaveButtonEnabled"
-                [pTooltip]="'@Save' | transloco"
-                class="p-button-success mr-2 p-button p-component"
-                label="{{'@Save' | transloco}}" pButton [loading]="true"
-                pRipple></button>
-        <ng-template #userSaveButtonEnabled>
-          <button (click)="updateUser()"
+        <p-button (click)="updateUser()" *ngIf="userSaveButtonDisabled$ | async; else userSaveButtonEnabled"
                   [pTooltip]="'@Save' | transloco"
                   class="p-button-success mr-2 p-button p-component"
-                  label="{{'@Save' | transloco}}" pButton
-                  pRipple></button>
+                  label="{{'@Save' | transloco}}" pButton [loading]="true"
+                  pRipple></p-button>
+        <ng-template #userSaveButtonEnabled>
+          <p-button (click)="updateUser()"
+                    [pTooltip]="'@Save' | transloco"
+                    class="p-button-success mr-2 p-button p-component"
+                    label="{{'@Save' | transloco}}" pButton
+                    pRipple></p-button>
         </ng-template>
       </div>
     </p-toolbar>

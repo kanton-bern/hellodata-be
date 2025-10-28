@@ -34,6 +34,7 @@ import {Store} from "@ngrx/store";
 import {selectStayOnPage} from "../../../store/unsaved-changes/unsaved-changes.selector";
 import {AsyncPipe, NgIf} from "@angular/common";
 import {StayOnPageContainer} from "../../../store/unsaved-changes/unsaved-changes.state";
+import {Button} from "primeng/button";
 
 @Component({
   selector: 'app-unsaved-changes-dialog',
@@ -56,7 +57,8 @@ export class UnsavedChangesDialogComponent {
     TranslocoModule,
     ConfirmDialogModule,
     AsyncPipe,
-    NgIf
+    NgIf,
+    Button
   ],
   exports: [UnsavedChangesDialogComponent]
 })

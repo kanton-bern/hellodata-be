@@ -2,8 +2,8 @@
 <div *ngIf="(selectedLanguage$ | async) as selectedLanguage" class="card">
   <p-toolbar styleClass="mb-4 gap-2">
     <ng-template pTemplate="left">
-      <button (click)="createFaq()" class="p-button-success mr-2" icon="fas fa-circle-plus" id="createFaqButton"
-              label="{{'@Create' | transloco }}" pButton pRipple></button>
+      <p-button (click)="createFaq()" class="p-button-success mr-2" icon="fas fa-circle-plus" id="createFaqButton"
+                pButtonLabel="{{'@Create' | transloco }}" pButton pRipple></p-button>
     </ng-template>
   </p-toolbar>
 
@@ -45,19 +45,19 @@
             </p-editor>
           </td>
           <td>
-            <button (click)="editFaq(faq)"
-                    [pTooltip]="'@Edit' | transloco"
-                    class="p-button-rounded p-button-success mr-2"
-                    faq.title icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
-                    pButton
-                    pRipple></button>
-            <button (click)="showFaqDeletionPopup(faq)"
-                    [pTooltip]="'@Delete' | transloco"
-                    class="p-button-rounded p-button-danger"
-                    icon="fas fa-trash"
-                    id="{{'deleteFaq_' + faq.title}}"
-                    pButton
-                    pRipple></button>
+            <p-button (click)="editFaq(faq)"
+                      [pTooltip]="'@Edit' | transloco"
+                      class="p-button-rounded p-button-success mr-2"
+                      pButtonIcon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
+                      pButton
+                      pRipple></p-button>
+            <p-button (click)="showFaqDeletionPopup(faq)"
+                      [pTooltip]="'@Delete' | transloco"
+                      class="p-button-rounded p-button-danger"
+                      pButtonIcon="fas fa-trash"
+                      id="{{'deleteFaq_' + faq.title}}"
+                      pButton
+                      pRipple></p-button>
           </td>
         </tr>
       </ng-template>

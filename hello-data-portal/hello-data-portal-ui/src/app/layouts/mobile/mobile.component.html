@@ -3,13 +3,13 @@
 <div class="grid w-full bg-white surface-border border-bottom-1 fixed top-0 left-0 z-5" style="height: 4rem;">
   <div class="col-12 flex pt-1">
     <div class="col-2 flex align-items-center justify-content-start h-full">
-      <button
+      <p-button
         type="button" pRipple
         class="p-button p-button-text h-full flex align-items-center justify-content-center"
         (click)="showDashboardMenu = true"
         aria-label="Open menu">
         <i class="pi pi-bars text-2xl" style="color: black"></i>
-      </button>
+      </p-button>
     </div>
 
     <div class="col-8 flex align-items-center justify-content-center h-full">
@@ -23,12 +23,12 @@
     </div>
 
     <div class="col-2 flex align-items-center justify-content-end h-full">
-      <button pRipple
-              type="button"
-              class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
-              aria-label="User Profile">
+      <p-button pRipple
+                type="button"
+                class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
+                aria-label="User Profile">
         <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
-      </button>
+      </p-button>
     </div>
   </div>
 </div>

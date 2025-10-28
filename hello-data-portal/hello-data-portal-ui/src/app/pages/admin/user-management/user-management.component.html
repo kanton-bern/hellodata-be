@@ -165,27 +165,27 @@
           <span *ngIf="user.lastAccess === null">{{ '@Never' | transloco }}</span>
         </td>
         <td *ngIf="(loggedInUser$ | async) as loggedInUser">
-          <button (click)="editUser(user)"
-                  class="p-button-rounded p-button-success mr-2"
-                  icon="fas fa-light fa-pen-to-square"
-                  pButton
-                  pRipple
-                  pTooltip="{{'@Edit' | transloco}}"></button>
-          <button (click)="enableUser(user)"
-                  *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
-                  class="p-button-rounded p-button-success mr-2"
-                  icon="fas fa-circle-plus" pButton pRipple
-                  pTooltip="{{'@Enable' | transloco}}"></button>
-          <button (click)="disableUser(user)"
-                  *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
-                  class="p-button-rounded p-button-warning mr-2"
-                  icon="fas fa-circle-xmark" pButton pRipple
-                  pTooltip="{{'@Disable' | transloco}}"></button>
-          <button (click)="showUserDeletionPopup(user)"
-                  *ngIf="!user.superuser && user.email !== loggedInUser.email"
-                  class="p-button-rounded p-button-danger mr-2"
-                  icon="fas fa-trash" pButton pRipple
-                  pTooltip="{{'@Delete' | transloco}}"></button>
+          <p-button (click)="editUser(user)"
+                    class="p-button-rounded p-button-success mr-2"
+                    icon="fas fa-light fa-pen-to-square"
+                    pButton
+                    pRipple
+                    pTooltip="{{'@Edit' | transloco}}"></p-button>
+          <p-button (click)="enableUser(user)"
+                    *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
+                    class="p-button-rounded p-button-success mr-2"
+                    icon="fas fa-circle-plus" pButton pRipple
+                    pTooltip="{{'@Enable' | transloco}}"></p-button>
+          <p-button (click)="disableUser(user)"
+                    *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
+                    class="p-button-rounded p-button-warning mr-2"
+                    icon="fas fa-circle-xmark" pButton pRipple
+                    pTooltip="{{'@Disable' | transloco}}"></p-button>
+          <p-button (click)="showUserDeletionPopup(user)"
+                    *ngIf="!user.superuser && user.email !== loggedInUser.email"
+                    class="p-button-rounded p-button-danger mr-2"
+                    icon="fas fa-trash" pButton pRipple
+                    pTooltip="{{'@Delete' | transloco}}"></p-button>
         </td>
       </tr>
     </ng-template>

@@ -1,5 +1,4 @@
-
-<h2 class="content-block">{{'@Portal roles management' | transloco}}</h2>
+<h2 class="content-block">{{ '@Portal roles management' | transloco }}</h2>
 <div class="card">
   <div *ngIf="(roles$ | async) as roles">
     <p-table
@@ -15,13 +14,13 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="name">
-            {{'@Name' | transloco}}
+            {{ '@Name' | transloco }}
           </th>
           <th id="description">
-            {{'@Description' | transloco}}
+            {{ '@Description' | transloco }}
           </th>
           <th id="permissions" style="min-width:20rem">
-            {{'@Permissions' | transloco}}
+            {{ '@Permissions' | transloco }}
           </th>
           <th id="actions" style="min-width:8rem"></th>
         </tr>
@@ -36,19 +35,19 @@
             </span>
           </td>
           <td>
-            <button (click)="editRole(role)" *ngIf="!role.systemDefault"
-                    [pTooltip]="'@Edit' | transloco"
-                    class="p-button-rounded p-button-success mr-2"
-                    icon="fas fa-light fa-pen-to-square"
-                    pButton
-                    pRipple></button>
-            <button (click)="showRoleDeletionPopup(role)"
-                    *ngIf="!role.systemDefault"
-                    [pTooltip]="'@Delete' | transloco"
-                    class="p-button-rounded p-button-danger"
-                    icon="fas fa-trash"
-                    pButton
-                    pRipple></button>
+            <p-button (click)="editRole(role)" *ngIf="!role.systemDefault"
+                      [pTooltip]="'@Edit' | transloco"
+                      class="p-button-rounded p-button-success mr-2"
+                      icon="fas fa-light fa-pen-to-square"
+                      pButton
+                      pRipple></p-button>
+            <p-button (click)="showRoleDeletionPopup(role)"
+                      *ngIf="!role.systemDefault"
+                      [pTooltip]="'@Delete' | transloco"
+                      class="p-button-rounded p-button-danger"
+                      icon="fas fa-trash"
+                      pButton
+                      pRipple></p-button>
           </td>
         </tr>
       </ng-template>

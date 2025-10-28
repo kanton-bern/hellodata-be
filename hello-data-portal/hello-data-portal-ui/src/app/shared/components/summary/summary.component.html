@@ -52,11 +52,11 @@
         <ng-template pTemplate="header">
           <div>
             <span>{{ '@Documentation' | transloco }}</span>
-            <button (click)="editDocumentation()" *ngIf="permissions | contains: 'DOCUMENTATION_MANAGEMENT'"
-                    [pTooltip]="'@Edit' | transloco"
-                    class="p-button-rounded p-button-success" icon="fas fa-light fa-pen-to-square"
-                    id="editDocumentationBtnOvrl" pButton pRipple>
-            </button>
+            <p-button (click)="editDocumentation()" *ngIf="permissions | contains: 'DOCUMENTATION_MANAGEMENT'"
+                      [pTooltip]="'@Edit' | transloco"
+                      class="p-button-rounded p-button-success" icon="fas fa-light fa-pen-to-square"
+                      id="editDocumentationBtnOvrl" pButton pRipple>
+            </p-button>
           </div>
         </ng-template>
         <div *ngIf="(defaultLanguage$ | async) as defaultLanguage">

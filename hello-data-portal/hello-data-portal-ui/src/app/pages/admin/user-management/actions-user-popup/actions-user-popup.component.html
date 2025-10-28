@@ -1,15 +1,15 @@
-
 <p-confirmDialog #cd *ngIf="selectUserForPopup$ | async as userForPopup" [style]="{width: '50vw'}">
   <ng-template pTemplate="header">
-    <h3>{{getActionTranslationKey(userForPopup) + ' user' | transloco}}</h3>
+    <h3>{{ getActionTranslationKey(userForPopup) + ' user' | transloco }}</h3>
   </ng-template>
   {{ confirmAction(userForPopup) }}
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton type="button"></button>
-    <button (click)="cd.accept()"
-            [pStyleClass]="getButtonTypeForAction(userForPopup)"
-            label="{{getActionTranslationKey(userForPopup) | transloco}}"
-            pButton
-            type="button"></button>
+    <p-button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
+              type="button"></p-button>
+    <p-button (click)="cd.accept()"
+              [pStyleClass]="getButtonTypeForAction(userForPopup)"
+              label="{{getActionTranslationKey(userForPopup) | transloco}}"
+              pButton
+              type="button"></p-button>
   </ng-template>
 </p-confirmDialog>

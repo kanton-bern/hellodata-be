@@ -75,24 +75,24 @@
           {{ dashboard.status }}
         </td>
         <td>
-          <button (click)="openDashboard(dashboard)"
-                  [pTooltip]="'@Open' | transloco"
-                  class="p-button-rounded p-button-info mr-2"
-                  icon="fas fa-up-right-from-square"
-                  pButton
-                  pRipple></button>
-          <button (click)="openInfoPanel(dashboard)"
-                  [pTooltip]="'@Info' | transloco"
-                  class="p-button-rounded p-button-help mr-2"
-                  icon="fas fa-circle-info"
-                  pButton
-                  pRipple></button>
-          <button (click)="editDashboard(dashboard)" *ngIf="dashboard.currentUserAdmin || dashboard.currentUserEditor"
-                  [pTooltip]="'@Edit' | transloco"
-                  class="p-button-rounded p-button-success mr-2"
-                  icon="fas fa-light fa-pen-to-square"
-                  pButton
-                  pRipple></button>
+          <p-button (click)="openDashboard(dashboard)"
+                    [pTooltip]="'@Open' | transloco"
+                    class="p-button-rounded p-button-info mr-2"
+                    icon="fas fa-up-right-from-square"
+                    pButton
+                    pRipple></p-button>
+          <p-button (click)="openInfoPanel(dashboard)"
+                    [pTooltip]="'@Info' | transloco"
+                    class="p-button-rounded p-button-help mr-2"
+                    icon="fas fa-circle-info"
+                    pButton
+                    pRipple></p-button>
+          <p-button (click)="editDashboard(dashboard)" *ngIf="dashboard.currentUserAdmin || dashboard.currentUserEditor"
+                    [pTooltip]="'@Edit' | transloco"
+                    class="p-button-rounded p-button-success mr-2"
+                    icon="fas fa-light fa-pen-to-square"
+                    pButton
+                    pRipple></p-button>
         </td>
       </tr>
     </ng-template>
@@ -138,14 +138,14 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <button (click)="hideEditMetadataDialog()" class="p-button-text" icon="fas fa-circle-xmark"
-            label="{{'@Cancel' | transloco}}" pButton pRipple></button>
-    <button (click)="updateDashboard(selectedDashboard)"
-            class="p-button-text"
-            icon="fas fa-check"
-            label="{{'@Save' | transloco}}"
-            pButton
-            pRipple></button>
+    <p-button (click)="hideEditMetadataDialog()" class="p-button-text" icon="fas fa-circle-xmark"
+              label="{{'@Cancel' | transloco}}" pButton pRipple></p-button>
+    <p-button (click)="updateDashboard(selectedDashboard)"
+              class="p-button-text"
+              icon="fas fa-check"
+              label="{{'@Save' | transloco}}"
+              pButton
+              pRipple></p-button>
   </ng-template>
 </p-dialog>
 
@@ -251,7 +251,8 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <button (click)="hideInfoPanel()" class="p-button-text" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-            pButton pRipple></button>
+    <p-button (click)="hideInfoPanel()" class="p-button-text" icon="fas fa-circle-xmark"
+              label="{{'@Cancel' | transloco}}"
+              pButton pRipple></p-button>
   </ng-template>
 </p-dialog>

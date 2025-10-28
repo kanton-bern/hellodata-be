@@ -13,13 +13,13 @@
              dataKey="id">
       <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
-          <button (click)="openNew()"
-                  *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'"
-                  class="p-button-success mr-2"
-                  icon="fas fa-circle-plus"
-                  label="{{'@Create' | transloco}}"
-                  pButton
-                  pRipple></button>
+          <p-button (click)="openNew()"
+                    *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'"
+                    class="p-button-success mr-2"
+                    icon="fas fa-circle-plus"
+                    label="{{'@Create' | transloco}}"
+                    pButton
+                    pRipple></p-button>
           <h5 class="m-0">&nbsp;</h5>
           <span class="p-input-icon-left">
               <i class="fas fa-magnifying-glass"></i>
@@ -93,18 +93,18 @@
           </td>
           <td *ngIf="permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT'">
             <div class="flex align-items-center justify-content-center gap-2">
-              <button (click)="editExternalDashboard(dashboard)"
-                      [pTooltip]="'@Edit' | transloco"
-                      class="p-button-rounded p-button-success mr-2"
-                      icon="fas fa-light fa-pen-to-square"
-                      pButton
-                      pRipple></button>
-              <button (click)="deleteExternalDashboard(dashboard)"
-                      [pTooltip]="'@Delete' | transloco"
-                      class="p-button-rounded p-button-warning"
-                      icon="fas fa-trash"
-                      pButton
-                      pRipple></button>
+              <p-button (click)="editExternalDashboard(dashboard)"
+                        [pTooltip]="'@Edit' | transloco"
+                        class="p-button-rounded p-button-success mr-2"
+                        icon="fas fa-light fa-pen-to-square"
+                        pButton
+                        pRipple></p-button>
+              <p-button (click)="deleteExternalDashboard(dashboard)"
+                        [pTooltip]="'@Delete' | transloco"
+                        class="p-button-rounded p-button-warning"
+                        icon="fas fa-trash"
+                        pButton
+                        pRipple></p-button>
             </div>
           </td>
         </tr>
@@ -118,10 +118,11 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-            type="button"></button>
-    <button (click)="cd.accept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pButton
-            type="button"></button>
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
+              type="button"></p-button>
+    <p-button (click)="cd.onAccept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
+              pButton
+              type="button"></p-button>
   </ng-template>
 </p-confirmDialog>
 
