@@ -14,7 +14,8 @@ import {
 @Component({
   selector: 'app-admin-init',
   templateUrl: 'admin-init.component.html',
-  styleUrls: ['./admin-init.component.scss']
+  styleUrls: ['./admin-init.component.scss'],
+  standalone: false
 })
 export class AdminInitComponent {
   initStuffForAdmin$: Observable<any>;

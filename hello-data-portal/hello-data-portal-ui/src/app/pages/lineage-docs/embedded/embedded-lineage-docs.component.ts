@@ -40,7 +40,8 @@ import {TranslateService} from "../../../shared/services/translate.service";
 
 @Component({
   templateUrl: 'embedded-lineage-docs.component.html',
-  styleUrls: ['./embedded-lineage-docs.component.scss']
+  styleUrls: ['./embedded-lineage-docs.component.scss'],
+  standalone: false
 })
 export class EmbeddedLineageDocsComponent {
   url!: string;

@@ -43,7 +43,8 @@ import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
-  styleUrls: ['./my-dashboards.component.scss']
+  styleUrls: ['./my-dashboards.component.scss'],
+  standalone: false
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
 

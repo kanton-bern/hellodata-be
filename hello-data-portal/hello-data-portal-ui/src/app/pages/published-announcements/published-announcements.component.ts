@@ -15,7 +15,8 @@ import {TranslateService} from "../../shared/services/translate.service";
   providers: [DialogService],
   selector: 'app-published-announcements',
   templateUrl: './published-announcements.component.html',
-  styleUrls: ['./published-announcements.component.scss']
+  styleUrls: ['./published-announcements.component.scss'],
+  standalone: false
 })
 export class PublishedAnnouncementsComponent implements OnInit {
   announcements$: Observable<any>;

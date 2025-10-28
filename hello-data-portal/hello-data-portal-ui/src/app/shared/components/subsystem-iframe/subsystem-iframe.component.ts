@@ -47,7 +47,8 @@ import {environment} from "../../../../environments/environment";
 @Component({
   selector: 'app-subsystem-iframe[url]',
   templateUrl: './subsystem-iframe.component.html',
-  styleUrls: ['./subsystem-iframe.component.scss']
+  styleUrls: ['./subsystem-iframe.component.scss'],
+  standalone: false
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 

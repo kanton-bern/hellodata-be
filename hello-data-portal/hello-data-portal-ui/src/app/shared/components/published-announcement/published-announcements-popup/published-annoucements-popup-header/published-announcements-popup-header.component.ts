@@ -12,7 +12,8 @@ import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-curren
         <p-checkbox [binary]="true" inputId="dont-show-again" label="{{'@Do not show again' | transloco}}" (onChange)="onChange($event)"></p-checkbox>
       </div>
     </div>
-  `
+  `,
+  standalone: false
 })
 export class PublishedAnnouncementsPopupHeaderComponent {
 

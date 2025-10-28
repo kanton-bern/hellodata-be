@@ -35,7 +35,8 @@ import {Observable} from "rxjs";
 @Component({
   selector: 'app-selected-workspace-dashboards',
   templateUrl: './selected-workspace-dashboards.component.html',
-  styleUrls: ['./selected-workspace-dashboards.component.scss']
+  styleUrls: ['./selected-workspace-dashboards.component.scss'],
+  standalone: false
 })
 export class SelectedWorkspaceDashboardsComponent {
 

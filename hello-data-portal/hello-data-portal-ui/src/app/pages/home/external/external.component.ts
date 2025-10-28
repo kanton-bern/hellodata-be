@@ -39,7 +39,8 @@ import {trackEvent} from "../../../store/app/app.action";
 @Component({
   selector: 'app-external',
   templateUrl: './external.component.html',
-  styleUrls: ['./external.component.scss']
+  styleUrls: ['./external.component.scss'],
+  standalone: false
 })
 export class ExternalComponent implements OnInit {
   @ViewChild('dt') dt!: Table | undefined;

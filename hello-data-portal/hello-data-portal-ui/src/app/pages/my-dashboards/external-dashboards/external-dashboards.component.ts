@@ -48,7 +48,8 @@ import {trackEvent} from "../../../store/app/app.action";
 @Component({
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
-  styleUrls: ['./external-dashboards.component.scss']
+  styleUrls: ['./external-dashboards.component.scss'],
+  standalone: false
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
   @ViewChild('dt') dt!: Table | undefined;

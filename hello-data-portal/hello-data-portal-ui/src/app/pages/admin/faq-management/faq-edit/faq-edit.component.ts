@@ -47,7 +47,8 @@ import {take} from "rxjs/operators";
 @Component({
   selector: 'app-faq-edit',
   templateUrl: './faq-edit.component.html',
-  styleUrls: ['./faq-edit.component.scss']
+  styleUrls: ['./faq-edit.component.scss'],
+  standalone: false
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedFaq$: Observable<Faq>;

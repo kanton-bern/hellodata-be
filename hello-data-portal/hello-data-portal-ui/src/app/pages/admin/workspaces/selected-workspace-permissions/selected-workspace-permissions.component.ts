@@ -30,7 +30,8 @@ import {Component, Input} from '@angular/core';
 @Component({
   selector: 'app-selected-workspace-permissions',
   templateUrl: './selected-workspace-permissions.component.html',
-  styleUrls: ['./selected-workspace-permissions.component.scss']
+  styleUrls: ['./selected-workspace-permissions.component.scss'],
+  standalone: false
 })
 export class SelectedWorkspacePermissionsComponent {
   @Input()

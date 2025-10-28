@@ -31,7 +31,10 @@ import {DashboardForUser} from "../../../../../store/users-management/users-mana
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../../store/app/app.state";
-import {selectAllDashboardsWithMarkedUser, selectAllDashboardsWithMarkedUserFetched} from "../../../../../store/users-management/users-management.selector";
+import {
+  selectAllDashboardsWithMarkedUser,
+  selectAllDashboardsWithMarkedUserFetched
+} from "../../../../../store/users-management/users-management.selector";
 import {markUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
 import {take} from "rxjs/operators";
 import {updateUserRoles} from "../../../../../store/users-management/users-management.action";
@@ -39,7 +42,8 @@ import {updateUserRoles} from "../../../../../store/users-management/users-manag
 @Component({
   selector: 'app-dashboard-viewer-permissions',
   templateUrl: './dashboard-viewer-permissions.component.html',
-  styleUrls: ['./dashboard-viewer-permissions.component.scss']
+  styleUrls: ['./dashboard-viewer-permissions.component.scss'],
+  standalone: false
 })
 export class DashboardViewerPermissionsComponent {
   @Input()

@@ -58,7 +58,8 @@ import {DrawerModule} from "primeng/drawer";
 @Component({
   selector: 'app-mobile',
   templateUrl: './mobile.component.html',
-  styleUrls: ['./mobile.component.scss']
+  styleUrls: ['./mobile.component.scss'],
+  standalone: false
 })
 export class MobileComponent {
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';

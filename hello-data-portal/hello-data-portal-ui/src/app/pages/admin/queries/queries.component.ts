@@ -23,7 +23,8 @@ import {navigate} from "../../../store/app/app.action";
 
 @Component({
   templateUrl: 'queries.component.html',
-  styleUrls: ['./queries.component.scss']
+  styleUrls: ['./queries.component.scss'],
+  standalone: false
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
 

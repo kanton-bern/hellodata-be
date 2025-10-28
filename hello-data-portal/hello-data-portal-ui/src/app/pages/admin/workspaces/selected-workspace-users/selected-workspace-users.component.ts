@@ -30,7 +30,8 @@ import {Component, Input} from '@angular/core';
 @Component({
   selector: 'app-selected-workspace-users',
   templateUrl: './selected-workspace-users.component.html',
-  styleUrls: ['./selected-workspace-users.component.scss']
+  styleUrls: ['./selected-workspace-users.component.scss'],
+  standalone: false
 })
 export class SelectedWorkspaceUsersComponent {
   @Input()

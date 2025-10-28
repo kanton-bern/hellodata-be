@@ -33,7 +33,8 @@ import {environment} from "../../../../environments/environment";
 @Component({
   selector: 'app-orchestration',
   templateUrl: './orchestration.component.html',
-  styleUrls: ['./orchestration.component.scss']
+  styleUrls: ['./orchestration.component.scss'],
+  standalone: false
 })
 export class OrchestrationComponent {
   airflowCfg = environment.subSystemsConfig.airflow;

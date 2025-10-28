@@ -47,7 +47,8 @@ import {TranslateService} from "../../../services/translate.service";
           <p-divider></p-divider>
         </div>
       </div>
-    </div>`
+    </div>`,
+  standalone: false
 })
 export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewInit {
 

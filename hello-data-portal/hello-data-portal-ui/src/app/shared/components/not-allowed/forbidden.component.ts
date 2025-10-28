@@ -37,7 +37,8 @@ import {TranslocoModule} from "@jsverse/transloco";
         <p class="forbidden-message">{{'@You are not allowed to access this page' | transloco}}</p>
       </div>
     </div>
-  `
+  `,
+  standalone: false
 })
 export class ForbiddenComponent {
 }

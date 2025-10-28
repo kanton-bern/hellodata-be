@@ -39,7 +39,8 @@ import {navigate, trackEvent} from "../../../store/app/app.action";
 @Component({
   selector: 'app-dashboards',
   templateUrl: './dashboards.component.html',
-  styleUrls: ['./dashboards.component.scss']
+  styleUrls: ['./dashboards.component.scss'],
+  standalone: false
 })
 export class DashboardsComponent implements OnInit {
   dashboards$: Observable<SupersetDashboard[]>;

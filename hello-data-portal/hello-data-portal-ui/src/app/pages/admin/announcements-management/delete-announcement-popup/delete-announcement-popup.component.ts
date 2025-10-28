@@ -37,7 +37,8 @@ import {hideDeleteAnnouncementPopup} from "../../../../store/announcement/announ
 @Component({
   selector: 'app-delete-announcement-popup[action]',
   templateUrl: './delete-announcement-popup.component.html',
-  styleUrls: ['./delete-announcement-popup.component.scss']
+  styleUrls: ['./delete-announcement-popup.component.scss'],
+  standalone: false
 })
 export class DeleteAnnouncementPopupComponent {
   @Input()

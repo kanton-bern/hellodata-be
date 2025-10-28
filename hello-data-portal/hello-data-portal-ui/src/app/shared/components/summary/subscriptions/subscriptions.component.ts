@@ -28,7 +28,10 @@
 import {Component} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {selectAllBusinessDomains, selectAllDataDomains} from "../../../../store/users-management/users-management.selector";
+import {
+  selectAllBusinessDomains,
+  selectAllDataDomains
+} from "../../../../store/users-management/users-management.selector";
 import {Observable} from "rxjs";
 import {Context} from "../../../../store/users-management/context-role.model";
 import {loadAvailableContexts} from "../../../../store/users-management/users-management.action";
@@ -36,7 +39,8 @@ import {loadAvailableContexts} from "../../../../store/users-management/users-ma
 @Component({
   selector: 'app-subscriptions',
   templateUrl: './subscriptions.component.html',
-  styleUrls: ['./subscriptions.component.scss']
+  styleUrls: ['./subscriptions.component.scss'],
+  standalone: false
 })
 export class SubscriptionsComponent {
   businessDomains$: Observable<Context[]>;

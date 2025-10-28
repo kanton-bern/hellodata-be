@@ -37,12 +37,17 @@ import {
 } from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
-import {loadAppInfoResources, loadSelectedAppInfoResource, loadSelectedAppInfoResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
+import {
+  loadAppInfoResources,
+  loadSelectedAppInfoResource,
+  loadSelectedAppInfoResources
+} from "../../../../store/metainfo-resource/metainfo-resource.action";
 
 @Component({
   selector: 'app-selected-workspace',
   templateUrl: './selected-workspace.component.html',
-  styleUrls: ['./selected-workspace.component.scss']
+  styleUrls: ['./selected-workspace.component.scss'],
+  standalone: false
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
 

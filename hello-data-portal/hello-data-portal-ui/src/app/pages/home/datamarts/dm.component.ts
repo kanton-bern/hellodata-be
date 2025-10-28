@@ -35,7 +35,8 @@ import {combineLatest, map, Observable} from "rxjs";
 @Component({
   selector: 'app-dm',
   templateUrl: './dm.component.html',
-  styleUrls: ['./dm.component.scss']
+  styleUrls: ['./dm.component.scss'],
+  standalone: false
 })
 export class DmComponent {
   dataMarts$: Observable<any>;

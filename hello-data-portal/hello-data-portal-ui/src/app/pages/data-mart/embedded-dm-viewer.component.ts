@@ -37,7 +37,8 @@ import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-sessi
 
 @Component({
   templateUrl: 'embedded-dm-viewer.component.html',
-  styleUrls: ['./embedded-dm-viewer.component.scss']
+  styleUrls: ['./embedded-dm-viewer.component.scss'],
+  standalone: false
 })
 export class EmbeddedDmViewerComponent {
   baseUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host

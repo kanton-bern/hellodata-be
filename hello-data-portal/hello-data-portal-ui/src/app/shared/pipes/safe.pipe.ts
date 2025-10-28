@@ -25,11 +25,12 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl } from '@angular/platform-browser';
+import {Pipe, PipeTransform} from '@angular/core';
+import {DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl} from '@angular/platform-browser';
 
 @Pipe({
-  name: 'safe'
+  name: 'safe',
+  standalone: false
 })
 export class SafePipe implements PipeTransform {
 

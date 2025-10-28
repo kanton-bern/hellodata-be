@@ -40,7 +40,8 @@ export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
 
 @Component({
   templateUrl: 'embedded-orchestration.component.html',
-  styleUrls: ['./embedded-orchestration.component.scss']
+  styleUrls: ['./embedded-orchestration.component.scss'],
+  standalone: false
 })
 export class EmbeddedOrchestrationComponent extends BaseComponent implements OnInit {
 

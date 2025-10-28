@@ -46,7 +46,8 @@ import {take} from "rxjs/operators";
 @Component({
   selector: 'app-documentation',
   templateUrl: './documentation-management.component.html',
-  styleUrls: ['./documentation-management.component.scss']
+  styleUrls: ['./documentation-management.component.scss'],
+  standalone: false
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   documentationForm!: FormGroup;

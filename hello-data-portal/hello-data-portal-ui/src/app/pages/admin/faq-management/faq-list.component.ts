@@ -40,7 +40,8 @@ import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 @Component({
   selector: 'app-faq-list',
   templateUrl: './faq-list.component.html',
-  styleUrls: ['./faq-list.component.scss']
+  styleUrls: ['./faq-list.component.scss'],
+  standalone: false
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;

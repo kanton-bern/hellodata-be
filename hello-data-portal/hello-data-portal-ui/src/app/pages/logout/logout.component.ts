@@ -36,7 +36,8 @@ import {logout} from "../../store/auth/auth.action";
 @Component({
   selector: 'app-logout',
   templateUrl: './logout.component.html',
-  styleUrls: ['./logout.component.scss']
+  styleUrls: ['./logout.component.scss'],
+  standalone: false
 })
 export class LogoutComponent implements AfterViewInit {
   constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {

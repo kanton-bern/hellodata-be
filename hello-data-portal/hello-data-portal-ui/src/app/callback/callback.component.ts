@@ -34,6 +34,7 @@ import {checkAuth} from "../store/auth/auth.action";
   selector: 'app-callback',
   templateUrl: './callback.component.html',
   styleUrls: ['./callback.component.css'],
+  standalone: false
 })
 export class CallbackComponent {
   constructor(private store: Store<AppState>) {

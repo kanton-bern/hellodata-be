@@ -33,12 +33,16 @@ import {selectUserForPopup} from "../../../../store/users-management/users-manag
 import {UserAction} from "../../../../store/users-management/users-management.model";
 import {ConfirmationService, ConfirmEventType} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
-import {hideUserPopupAction, invokeActionFromUserPopup} from "../../../../store/users-management/users-management.action";
+import {
+  hideUserPopupAction,
+  invokeActionFromUserPopup
+} from "../../../../store/users-management/users-management.action";
 
 @Component({
   selector: 'app-actions-user-popup',
   templateUrl: './actions-user-popup.component.html',
-  styleUrls: ['./actions-user-popup.component.scss']
+  styleUrls: ['./actions-user-popup.component.scss'],
+  standalone: false
 })
 export class ActionsUserPopupComponent {
   selectUserForPopup$: Observable<any>;

@@ -38,7 +38,8 @@ import {hideDeleteFaqPopup} from "../../../../store/faq/faq.action";
   selector: 'app-delete-faq-popup',
   templateUrl: './delete-faq-popup.component.html',
   styleUrls: ['./delete-faq-popup.component.scss'],
-  providers: [ConfirmationService, MessageService]
+  providers: [ConfirmationService, MessageService],
+  standalone: false
 })
 export class DeleteFaqPopupComponent {
   @Input()

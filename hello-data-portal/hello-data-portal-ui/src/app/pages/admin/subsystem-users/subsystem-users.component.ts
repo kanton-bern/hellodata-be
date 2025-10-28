@@ -50,7 +50,8 @@ interface TableRow {
 @Component({
   selector: 'app-subsystem-users',
   templateUrl: './subsystem-users.component.html',
-  styleUrls: ['./subsystem-users.component.scss']
+  styleUrls: ['./subsystem-users.component.scss'],
+  standalone: false
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';

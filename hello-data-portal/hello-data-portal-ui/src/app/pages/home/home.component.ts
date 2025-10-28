@@ -47,7 +47,8 @@ import {ScreenService} from "../../shared/services";
 
 @Component({
   templateUrl: 'home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  standalone: false
 })
 export class HomeComponent extends BaseComponent implements OnInit {
 

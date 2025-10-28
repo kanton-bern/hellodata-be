@@ -30,7 +30,8 @@ import {scrollToTop} from "../../services/view-helpers";
 
 @Component({
   selector: 'app-base',
-  template: ''
+  template: '',
+  standalone: false
 })
 export class BaseComponent implements OnInit {
 

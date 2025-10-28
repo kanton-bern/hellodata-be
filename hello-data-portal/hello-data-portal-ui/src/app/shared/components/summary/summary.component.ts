@@ -74,7 +74,8 @@ import {TranslateService} from "../../services/translate.service";
 @Component({
   selector: 'app-summary',
   templateUrl: './summary.component.html',
-  styleUrls: ['./summary.component.scss']
+  styleUrls: ['./summary.component.scss'],
+  standalone: false
 })
 export class SummaryComponent {
   currentUserPermissions$: Observable<string[]>;

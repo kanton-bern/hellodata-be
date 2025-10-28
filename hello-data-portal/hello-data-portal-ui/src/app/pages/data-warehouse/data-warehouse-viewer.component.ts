@@ -36,7 +36,8 @@ import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-sessi
 
 @Component({
   templateUrl: 'data-warehouse-viewer.component.html',
-  styleUrls: ['./data-warehouse-viewer.component.scss']
+  styleUrls: ['./data-warehouse-viewer.component.scss'],
+  standalone: false
 })
 export class DataWarehouseViewerComponent extends BaseComponent {
 

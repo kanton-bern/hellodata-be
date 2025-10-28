@@ -45,7 +45,8 @@ import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 @Component({
   selector: 'app-announcements-management',
   templateUrl: './announcements-management.component.html',
-  styleUrls: ['./announcements-management.component.scss']
+  styleUrls: ['./announcements-management.component.scss'],
+  standalone: false
 })
 export class AnnouncementsManagementComponent extends BaseComponent implements OnInit {
 

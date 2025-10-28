@@ -47,7 +47,8 @@ import {environment} from "../../../../environments/environment";
 @Component({
   selector: 'app-dashboard-import-export',
   templateUrl: './dashboard-import-export.component.html',
-  styleUrl: './dashboard-import-export.component.scss'
+  styleUrl: './dashboard-import-export.component.scss',
+  standalone: false
 })
 export class DashboardImportExportComponent extends BaseComponent {
   supersetInfos$: Observable<MetaInfoResource[]>;

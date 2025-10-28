@@ -30,7 +30,10 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
-import {selectAvailablePermissions, selectEditedPortalRole} from "../../../../store/portal-roles-management/portal-roles-management.selector";
+import {
+  selectAvailablePermissions,
+  selectEditedPortalRole
+} from "../../../../store/portal-roles-management/portal-roles-management.selector";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
 import {selectAppInfos} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
@@ -38,13 +41,21 @@ import {naviElements} from "../../../../app-navi-elements";
 import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
-import {loadAppInfoResources, loadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
-import {deleteEditedPortalRole, saveChangesToPortalRole, showDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
+import {
+  loadAppInfoResources,
+  loadPermissionResources
+} from "../../../../store/metainfo-resource/metainfo-resource.action";
+import {
+  deleteEditedPortalRole,
+  saveChangesToPortalRole,
+  showDeletePortalRolePopup
+} from "../../../../store/portal-roles-management/portal-roles-management.action";
 
 @Component({
   selector: 'app-role-edit',
   templateUrl: './portal-role-edit.component.html',
-  styleUrls: ['./portal-role-edit.component.scss']
+  styleUrls: ['./portal-role-edit.component.scss'],
+  standalone: false
 })
 export class PortalRoleEditComponent implements OnInit, OnDestroy {
 

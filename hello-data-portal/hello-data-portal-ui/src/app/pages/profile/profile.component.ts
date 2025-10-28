@@ -30,13 +30,17 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentContextRoles, selectProfile, selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {Observable} from "rxjs";
-import {BUSINESS_DOMAIN_CONTEXT_TYPE, DATA_DOMAIN_CONTEXT_TYPE} from "../../store/users-management/users-management.model";
+import {
+  BUSINESS_DOMAIN_CONTEXT_TYPE,
+  DATA_DOMAIN_CONTEXT_TYPE
+} from "../../store/users-management/users-management.model";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 @Component({
   templateUrl: 'profile.component.html',
-  styleUrls: ['./profile.component.scss']
+  styleUrls: ['./profile.component.scss'],
+  standalone: false
 })
 export class ProfileComponent {
   userDetails$: Observable<any>;

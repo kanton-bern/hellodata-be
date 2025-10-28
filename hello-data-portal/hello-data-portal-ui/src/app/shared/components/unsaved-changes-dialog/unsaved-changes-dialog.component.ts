@@ -39,6 +39,7 @@ import {StayOnPageContainer} from "../../../store/unsaved-changes/unsaved-change
   selector: 'app-unsaved-changes-dialog',
   templateUrl: './unsaved-changes-dialog.component.html',
   styleUrls: ['./unsaved-changes-dialog.component.scss'],
+  standalone: false
 })
 export class UnsavedChangesDialogComponent {
   stayOnPage$: Observable<StayOnPageContainer>;

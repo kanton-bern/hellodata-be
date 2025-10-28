@@ -47,7 +47,8 @@ import {map} from "rxjs/operators";
 
 @Component({
   templateUrl: 'dashboard-access.component.html',
-  styleUrls: ['./dashboard-access.component.scss']
+  styleUrls: ['./dashboard-access.component.scss'],
+  standalone: false
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
   dashboardAccess$: Observable<DashboardAccess[]>;

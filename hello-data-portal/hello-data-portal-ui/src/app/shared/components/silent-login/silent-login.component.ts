@@ -38,7 +38,8 @@ import {LOGGED_IN_AIRFLOW_USER} from "../../../pages/orchestration/embedded-orch
 @Component({
   selector: 'app-silent-login',
   templateUrl: './silent-login.component.html',
-  styleUrls: ['./silent-login.component.scss']
+  styleUrls: ['./silent-login.component.scss'],
+  standalone: false
 })
 export class SilentLoginComponent {
   supersetInfos$: Observable<MetaInfoResource[]>;

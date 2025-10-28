@@ -62,7 +62,8 @@ interface TableRow {
 @Component({
   selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
-  styleUrls: ['./users-overview.component.scss']
+  styleUrls: ['./users-overview.component.scss'],
+  standalone: false
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';

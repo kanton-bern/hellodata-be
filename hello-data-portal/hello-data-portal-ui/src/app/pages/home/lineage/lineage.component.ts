@@ -37,7 +37,8 @@ import {selectMyLineageDocs} from "../../../store/lineage-docs/lineage-docs.sele
 @Component({
   selector: 'app-lineage',
   templateUrl: './lineage.component.html',
-  styleUrls: ['./lineage.component.scss']
+  styleUrls: ['./lineage.component.scss'],
+  standalone: false
 })
 export class LineageComponent implements OnInit {
   projectDocsForm!: FormGroup;

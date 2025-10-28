@@ -37,7 +37,8 @@ import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.s
 
 @Component({
   templateUrl: 'advanced-analytics-viewer.component.html',
-  styleUrls: ['./advanced-analytics-viewer.component.scss']
+  styleUrls: ['./advanced-analytics-viewer.component.scss'],
+  standalone: false
 })
 export class AdvancedAnalyticsViewerComponent extends BaseComponent implements OnInit {
 
@@ -55,11 +56,10 @@ export class AdvancedAnalyticsViewerComponent extends BaseComponent implements O
     }));
     this.currentJupyterhubLink$ = this.store.select(selectCurrentJupyterhubLink).pipe(tap(url => {
       if (url) {
-        if(url.endsWith('/')) {
+        if (url.endsWith('/')) {
           this.url = url + 'hub/custom/login';
           this.openedSubsystemsService.rememberOpenedSubsystem(url + 'hub/logout')
-        }
-        else {
+        } else {
           this.url = url + '/hub/custom/login';
           this.openedSubsystemsService.rememberOpenedSubsystem(url + '/hub/logout')
         }

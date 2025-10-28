@@ -43,7 +43,8 @@ export interface Pipeline {
 @Component({
   selector: 'app-selected-workspace-pipelines',
   templateUrl: './selected-workspace-pipelines.component.html',
-  styleUrls: ['./selected-workspace-pipelines.component.scss']
+  styleUrls: ['./selected-workspace-pipelines.component.scss'],
+  standalone: false
 })
 export class SelectedWorkspacePipelinesComponent {
 

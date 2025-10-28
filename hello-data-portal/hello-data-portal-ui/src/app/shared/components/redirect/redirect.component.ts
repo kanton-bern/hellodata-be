@@ -33,6 +33,7 @@ import {HdCommonModule} from "../../../hd-common.module";
 @Component({
   selector: 'app-redirect',
   template: '',
+  standalone: false
 })
 export class RedirectComponent {
   constructor(private route: ActivatedRoute, private router: Router) {

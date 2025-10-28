@@ -31,7 +31,10 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedExternalDashboard} from "../../../../store/external-dashboards/external-dashboards.selector";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {ExternalDashboard, ExternalDashboardMetadata} from "../../../../store/external-dashboards/external-dashboards.model";
+import {
+  ExternalDashboard,
+  ExternalDashboardMetadata
+} from "../../../../store/external-dashboards/external-dashboards.model";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
 import {ConfirmationService} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
@@ -40,12 +43,17 @@ import {naviElements} from "../../../../app-navi-elements";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
-import {createExternalDashboard, deleteExternalDashboard, updateExternalDashboard} from "../../../../store/external-dashboards/external-dasboards.action";
+import {
+  createExternalDashboard,
+  deleteExternalDashboard,
+  updateExternalDashboard
+} from "../../../../store/external-dashboards/external-dasboards.action";
 
 @Component({
   selector: 'app-external-dashboard-edit',
   templateUrl: './external-dashboard-edit.component.html',
-  styleUrls: ['./external-dashboard-edit.component.scss']
+  styleUrls: ['./external-dashboard-edit.component.scss'],
+  standalone: false
 })
 export class ExternalDashboardEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedExternalDashboard$: Observable<any>;

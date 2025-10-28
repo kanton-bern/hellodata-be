@@ -50,6 +50,7 @@ import {take} from "rxjs/operators";
   template: `
     <div *ngIf="publishedAnnouncements$ | async">
     </div>`,
+  standalone: false
 })
 export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
 

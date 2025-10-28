@@ -52,7 +52,8 @@ import {ScrollTopModule} from "primeng/scrolltop";
 @Component({
   selector: 'app-docs',
   templateUrl: './lineage-docs.component.html',
-  styleUrls: ['./lineage-docs.component.scss']
+  styleUrls: ['./lineage-docs.component.scss'],
+  standalone: false
 })
 export class LineageDocsComponent extends BaseComponent implements OnInit {
   projectDocsForm!: FormGroup;

@@ -40,7 +40,8 @@ import {TranslateService} from "../../../shared/services/translate.service";
 @Component({
   selector: 'app-home-documentation',
   templateUrl: './home-documentation.component.html',
-  styleUrls: ['./home-documentation.component.scss']
+  styleUrls: ['./home-documentation.component.scss'],
+  standalone: false
 })
 export class HomeDocumentationComponent {
   @Output() rightSidebarVisible = new EventEmitter<boolean>();

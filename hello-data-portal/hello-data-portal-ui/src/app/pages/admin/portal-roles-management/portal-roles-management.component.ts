@@ -61,7 +61,8 @@ import {
 @Component({
   selector: 'app-roles-management',
   templateUrl: './portal-roles-management.component.html',
-  styleUrls: ['./portal-roles-management.component.scss']
+  styleUrls: ['./portal-roles-management.component.scss'],
+  standalone: false
 })
 export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
 

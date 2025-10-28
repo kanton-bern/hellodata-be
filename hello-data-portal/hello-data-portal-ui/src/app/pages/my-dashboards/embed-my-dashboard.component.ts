@@ -42,7 +42,8 @@ export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 
 @Component({
   templateUrl: 'embed-my-dashboard.component.html',
-  styleUrls: ['./embed-my-dashboard.component.scss']
+  styleUrls: ['./embed-my-dashboard.component.scss'],
+  standalone: false
 })
 export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   url!: string;

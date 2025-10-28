@@ -48,7 +48,8 @@ import {take} from "rxjs/operators";
 @Component({
   selector: 'app-announcement-edit',
   templateUrl: './announcement-edit.component.html',
-  styleUrls: ['./announcement-edit.component.scss']
+  styleUrls: ['./announcement-edit.component.scss'],
+  standalone: false
 })
 export class AnnouncementEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedAnnouncement$: Observable<any>;
