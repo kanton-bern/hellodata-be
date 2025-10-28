@@ -63,36 +63,41 @@
       </div>
     </div>
 
-    <p-tabView *ngIf="(supportedLanguages$ | async) as supportedLanguages">
-      <ng-template [ngForOf]="supportedLanguages" let-language ngFor>
-        <p-tabPanel>
-          <ng-template pTemplate="header">
+    <p-tabs *ngIf="(supportedLanguages$ | async) as supportedLanguages">
+      <p-tablist>
+        @for (lang of supportedLanguages; track lang) {
+          <p-tab>
             <div class="flex align-items-center gap-2">
               <span class="font-bold white-space-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
                     {{ getHeaderNameWithStatus(language) }}
-                </span>
+              </span>
             </div>
-          </ng-template>
-          <div class="field grid">
-            <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
-            <div class="col-12 md:col-10">
-              <input
-                [formControl]="getTitle(language)"
-                class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-                id="title"
-                type="text">
-              <small *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty" class="p-error block">
-                {{ '@Value has minimum length' | transloco: {min: titleMinLenght} }}
-              </small>
+          </p-tab>
+        }
+      </p-tablist>
+      <p-tabpanels>
+        @for (language of supportedLanguages; track language) {
+          <p-tabpanel [value]="language">
+            <div class="field grid">
+              <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
+              <div class="col-12 md:col-10">
+                <input
+                  [formControl]="getTitle(language)"
+                  class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+                  id="title"
+                  type="text">
+                <small *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty" class="p-error block">
+                  {{ '@Value has minimum length' | transloco: {min: titleMinLenght} }}
+                </small>
+              </div>
             </div>
-          </div>
-
-          <p-editor [formControl]="getMessage(language)"
-                    id="faqMessage">
-          </p-editor>
-        </p-tabPanel>
-      </ng-template>
-    </p-tabView>
+            <p-editor [formControl]="getMessage(language)"
+                      id="faqMessage">
+            </p-editor>
+          </p-tabpanel>
+        }
+      </p-tabpanels>
+    </p-tabs>
 
     <p-toolbar>
       <div class="p-toolbar-group-start">
