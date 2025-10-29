@@ -35,9 +35,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.CREATE_USER;
+import static ch.bedag.dap.hellodata.sidecars.cloudbeaver.listener.CbUserUtil.generateCbUser;
 
 @Log4j2
 @Service
@@ -66,12 +65,9 @@ public class CbCreateUserConsumer {
     }
 
     private User toCbUser(SubsystemUserUpdate supersetUserCreate) {
-        User dbtDocUser = new User(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
-        dbtDocUser.setRoles(new ArrayList<>());
-        dbtDocUser.setFirstName(supersetUserCreate.getFirstName());
-        dbtDocUser.setLastName(supersetUserCreate.getLastName());
-        dbtDocUser.setEnabled(true);
-        dbtDocUser.setSuperuser(false);
-        return dbtDocUser;
+        return generateCbUser(supersetUserCreate.getUsername(),
+                supersetUserCreate.getEmail(),
+                supersetUserCreate.getFirstName(),
+                supersetUserCreate.getLastName());
     }
 }
