@@ -82,7 +82,6 @@ public class CbUserContextRoleConsumer {
         }
         userRepository.saveAndFlush(user);
 
-        //ToDo: Move this to subscribeToUserContextRoleUpdate method
         if (userContextRoleUpdate.isSendBackUsersList()) {
             userResourceProviderService.publishUsers();
         }
