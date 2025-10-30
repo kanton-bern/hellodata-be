@@ -47,6 +47,7 @@ import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
 import {TieredMenuModule} from "primeng/tieredmenu";
 import {BadgeModule} from "primeng/badge";
 import {MenuItem} from "primeng/api";
+import {Ripple} from "primeng/ripple";
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
@@ -126,7 +127,7 @@ export class SideNavOuterToolbarComponent {
     ScrollTopModule,
     UnsavedChangesModule,
     MatomoTrackerDirective,
-    MatomoTrackClickDirective, TieredMenuModule, BadgeModule
+    MatomoTrackClickDirective, TieredMenuModule, BadgeModule, Ripple
   ],
   exports: [SideNavOuterToolbarComponent],
   declarations: [SideNavOuterToolbarComponent]

@@ -30,7 +30,8 @@ import {LangDefinition, TranslateParams, Translation, TranslocoScope, TranslocoS
 import {Observable, Subscription, switchMap, tap} from "rxjs";
 import {filter} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
-import {HashMap} from "@jsverse/transloco/lib/utils/type.utils";
+
+type HashMap<T = any> = { [key: string]: T };
 
 @Injectable({
   providedIn: 'root'

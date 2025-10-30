@@ -26,10 +26,9 @@
 ///
 
 import {Injectable, Type} from "@angular/core";
-import {FunctionalEffect} from "@ngrx/effects/src/models";
+import {Actions, createEffect, FunctionalEffect, ofType} from '@ngrx/effects';
 import {MetaInfoResourceEffects} from "../metainfo-resource/metainfo-resource.effects";
 import {UsersManagementEffects} from "../users-management/users-management.effects";
-import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {tap, withLatestFrom} from "rxjs";
 import {NotificationService} from "../../shared/services/notification.service";
 import {navigate, navigateToList, openWindow, showError, showInfo, showSuccess, trackEvent} from "./app.action";

@@ -4168,7 +4168,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@primeuix/styles@npm:^1.2.4":
+"@primeuix/styles@npm:^1.2.4, @primeuix/styles@npm:^1.2.5":
   version: 1.2.5
   resolution: "@primeuix/styles@npm:1.2.5"
   dependencies:
@@ -8322,6 +8322,7 @@ __metadata:
     "@ngrx/router-store": "npm:^20.1.0"
     "@ngrx/store": "npm:^20.1.0"
     "@ngrx/store-devtools": "npm:^20.1.0"
+    "@primeuix/styles": "npm:^1.2.5"
     "@primeuix/themes": "npm:^1.2.5"
     "@testing-library/angular": "npm:^18.1.0"
     "@testing-library/dom": "npm:^10.4.1"

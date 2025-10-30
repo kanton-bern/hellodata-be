@@ -87,6 +87,9 @@ import {MatomoModule, MatomoRouterModule} from 'ngx-matomo-client';
 import {QueriesModule} from "./pages/admin/queries/queries.module";
 import {DashboardAccessModule} from "./pages/admin/dashboard-access/dashboard-access.module";
 import {FormsModule} from "@angular/forms";
+import {providePrimeNG} from "primeng/config";
+import Material from '@primeuix/themes/material';
+import '@primeuix/styles';
 
 registerLocaleData(localeDECH);
 
@@ -170,7 +173,19 @@ registerLocaleData(localeDECH);
     },
     MessageService,
     ConfirmationService,
-    TitleCasePipe
+    TitleCasePipe,
+    providePrimeNG({
+      theme: {
+        preset: Material,
+        options: {
+          darkModeSelector: '.dark-mode', // optional
+          cssLayer: {
+            name: 'primeng',
+            order: 'theme, base, primeng'
+          }
+        }
+      }
+    })
   ],
   bootstrap: [AppComponent]
 })

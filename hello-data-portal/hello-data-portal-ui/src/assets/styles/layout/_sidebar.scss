@@ -90,35 +90,49 @@ body {
 }
 
 //new menu start
-.p-tieredmenu {
-  width: 100%;
+
+p-tieredmenu > div {
+  position: absolute !important;
+  width: 100% !important;
+  border: none !important;
+}
+
+p-tieredmenu > div > p-tieredmenusub {
+  position: absolute !important;
+}
+
+p-tieredmenu {
   border: none;
   width: auto !important;
 }
 
-.p-tieredmenu {
+p-tieredmenu {
   padding: 0;
 }
 
-.p-tieredmenu .p-submenu-list {
+p-tieredmenu > div > p-tieredmenusub > ul {
+  padding-left: 4px;
+}
+
+p-tieredmenu > div > p-tieredmenusub > ul > li {
+  padding-top: 2px;
+  padding-bottom: 10px;
+}
+
+.p-tieredmenu-submenu {
   width: auto !important;
   min-width: unset !important;
   white-space: nowrap !important;
 }
 
-.p-tieredmenu .p-menuitem-link {
+p-tieredmenu .p-menuitem-link {
   width: 100%;
   display: inline-block;
 }
 
-.first-level-item span {
-  color: $menu-item-text-color;
-  margin: 0;
-}
 
 p-tieredmenusub p-tieredmenusub ul li div a {
-  padding: 3px;
-  padding-left: 0;
+  padding: 3px 3px 3px 0;
 }
 
 p-tieredmenusub p-tieredmenusub ul li div a span {
