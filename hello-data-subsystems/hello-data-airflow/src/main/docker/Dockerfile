@@ -66,7 +66,7 @@ RUN pip install --no-cache-dir pyaxis pygdaltools
 # add helloDATA libraries
 RUN pip install \
     --extra-index-url https://pypi.fury.io/datenstreambedag/ \
-    hellodata_be_airflow_pod_operator_params==1.0.0 \
+    hellodata_be_airflow_pod_operator_params==3.0.0 \
     hellodata_be_dag_logs==1.0.0
 #USER root
 # Copy config files to container's $AIRFLOW_HOME
