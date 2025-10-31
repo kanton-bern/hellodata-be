@@ -44,6 +44,8 @@ import {MenuModule} from "primeng/menu";
 import {SelectModule} from 'primeng/select';
 import {TextareaModule} from "primeng/textarea";
 import {DashboardAccessComponent} from "./dashboard-access.component";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
 
 @NgModule({
   declarations: [DashboardAccessComponent],
@@ -65,7 +67,9 @@ import {DashboardAccessComponent} from "./dashboard-access.component";
     ToolbarModule,
     MenuModule,
     SelectModule,
-    TextareaModule
+    TextareaModule,
+    IconField,
+    InputIcon
   ]
 })
 export class DashboardAccessModule {

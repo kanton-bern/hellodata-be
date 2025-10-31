@@ -102,9 +102,11 @@
       <div>
         <div id="searchBox">
           <span class="p-input-icon-left p-ml-auto">
-          <i class="pi pi-search"></i>
-          <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                 placeholder="{{'@Search' | transloco}}" type="text"/>
+            <p-iconfield>
+              <p-inputicon class="pi pi-search"></p-inputicon>
+              <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
+            </p-iconfield>
           </span>
         </div>
       </div>

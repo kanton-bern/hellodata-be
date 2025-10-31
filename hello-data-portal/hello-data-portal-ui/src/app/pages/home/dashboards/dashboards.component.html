@@ -15,9 +15,11 @@
     <ng-template pTemplate="caption">
       <div class="flex">
           <span class="p-input-icon-left ml-auto">
-            <i class="pi pi-search"></i>
-            <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
-                   placeholder="{{'@Search' | transloco}}" type="text"/>
+            <p-iconfield>
+              <p-inputicon class="pi pi-search"></p-inputicon>
+              <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
+            </p-iconfield>
           </span>
       </div>
     </ng-template>

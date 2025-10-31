@@ -57,6 +57,8 @@ import {DrawerModule} from 'primeng/drawer';
 import {BadgeModule} from "primeng/badge";
 import {AdminInitModule} from "../../shared/components/admin-init/admin-init.component";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
 
 
 @NgModule({
@@ -86,7 +88,9 @@ import {MatomoTrackerDirective} from "ngx-matomo-client";
     DrawerModule,
     BadgeModule,
     AdminInitModule,
-    MatomoTrackerDirective
+    MatomoTrackerDirective,
+    IconField,
+    InputIcon
   ]
 })
 export class HomeModule {

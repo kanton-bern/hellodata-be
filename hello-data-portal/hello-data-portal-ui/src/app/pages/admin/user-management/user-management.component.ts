@@ -87,6 +87,8 @@ import {
 } from "../../../store/users-management/users-management.action";
 import {selectProfile} from "../../../store/auth/auth.selector";
 import {IUser} from "../../../store/auth/auth.model";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
 
 @Component({
   selector: 'app-user-management',
@@ -292,7 +294,9 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
     CheckboxModule,
     DividerModule,
     SelectModule,
-    MultiSelectModule
+    MultiSelectModule,
+    IconField,
+    InputIcon
   ],
   declarations: [
     UserManagementComponent,
