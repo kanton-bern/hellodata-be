@@ -24,12 +24,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 h1, h2, h3, h4, h5, h6 {
   margin: 1.5rem 0 1rem 0;
   font-family: inherit;
   font-weight: 500;
   line-height: 1.2;
-  color: var(--surface-900);
+  color: var(--surface-900) !important;
 
   &:first-child {
     margin-top: 0;

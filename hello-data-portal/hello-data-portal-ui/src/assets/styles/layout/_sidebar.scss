@@ -116,13 +116,17 @@ p-tieredmenu > div > p-tieredmenusub > ul {
 
 p-tieredmenu > div > p-tieredmenusub > ul > li {
   padding-top: 2px;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 }
 
 .p-tieredmenu-submenu {
   width: auto !important;
   min-width: unset !important;
   white-space: nowrap !important;
+}
+
+.p-tieredmenu-item-content a {
+  cursor: pointer;
 }
 
 p-tieredmenu .p-menuitem-link {
