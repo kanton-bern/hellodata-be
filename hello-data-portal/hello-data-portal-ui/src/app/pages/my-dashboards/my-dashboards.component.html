@@ -19,10 +19,12 @@
       <div class="flex align-items-center justify-content-between">
         <h5 class="m-0">&nbsp;</h5>
         <span class="p-input-icon-left">
-                    <i class="fas fa-magnifying-glass"></i>
-                    <input (input)="applyFilterGlobal($event, 'contains')" pInputText
-                           placeholder="{{'@Search' | transloco}}" type="text"/>
-                </span>
+          <p-iconfield>
+              <p-inputicon class="pi pi-search"></p-inputicon>
+              <input (input)="applyFilterGlobal($event, 'contains')" pInputText
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
+            </p-iconfield>
+        </span>
       </div>
     </ng-template>
     <ng-template pTemplate="header">

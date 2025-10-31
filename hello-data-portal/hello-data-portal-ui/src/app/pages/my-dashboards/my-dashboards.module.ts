@@ -50,6 +50,8 @@ import {
 } from './external-dashboards/external-dashboard-edit/external-dashboard-edit.component';
 import {SelectModule} from 'primeng/select';
 import {Tooltip} from "primeng/tooltip";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
 
 @NgModule({
   declarations: [
@@ -74,7 +76,9 @@ import {Tooltip} from "primeng/tooltip";
     ToolbarModule,
     MenuModule,
     SelectModule,
-    Tooltip
+    Tooltip,
+    IconField,
+    InputIcon
   ]
 })
 export class MyDashboardsModule {
