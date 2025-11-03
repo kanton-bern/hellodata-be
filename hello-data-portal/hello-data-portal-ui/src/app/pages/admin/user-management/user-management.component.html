@@ -5,7 +5,8 @@
     <div class="field grid">
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary">
+        <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary"
+              style="width: 100%; display: grid">
           <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
                           [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
                           name="user">
