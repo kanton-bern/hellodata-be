@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, inject, input } from '@angular/core';
+import { Component, ElementRef, Input, NgModule, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, inject, input, output } from '@angular/core';
 import { CommonModule, NgStyle } from "@angular/common";
 
 import {AuthService} from "../../services";
@@ -50,7 +50,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     [p: string]: any;
 } | null>(null);
   @Input() switchStyleOverflow = true;
-  @Output() iframeSetup = new EventEmitter<boolean>();
+  readonly iframeSetup = output<boolean>();
   frameUrl!: string;
   @ViewChild('iframe') iframe!: ElementRef<HTMLIFrameElement>;
 

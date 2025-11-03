@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, EventEmitter, Output, inject, input } from "@angular/core";
+import { Component, inject, input, output } from "@angular/core";
 import {Context} from "../../../../../store/users-management/context-role.model";
 import {DashboardForUser} from "../../../../../store/users-management/users-management.model";
 import {Observable, tap} from "rxjs";
@@ -59,8 +59,7 @@ export class DashboardViewerPermissionsComponent {
 
   selectedDashboards: DashboardForUser[] = [];
 
-  @Output()
-  selectedDashboardsEvent = new EventEmitter<DashboardForUser[]>();
+  readonly selectedDashboardsEvent = output<DashboardForUser[]>();
 
   constructor() {
     this.dashboardsFetched$ = this.store.select(selectAllDashboardsWithMarkedUserFetched).pipe(tap(fetched => console.debug("dashboards fetched?", fetched)));

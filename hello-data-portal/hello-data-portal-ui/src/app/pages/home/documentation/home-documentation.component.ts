@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -51,7 +51,7 @@ export class HomeDocumentationComponent {
   private store = inject<Store<AppState>>(Store);
   private translateService = inject(TranslateService);
 
-  @Output() rightSidebarVisible = new EventEmitter<boolean>();
+  readonly rightSidebarVisible = output<boolean>();
   currentUserPermissions$: Observable<string[]>;
   documentation$: Observable<any>;
   selectedLanguage$: Observable<any>;

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, EventEmitter, NgModule, Output, inject } from '@angular/core';
+import { Component, NgModule, inject, output } from '@angular/core';
 import { DrawerModule, Drawer } from 'primeng/drawer';
 import { ScrollPanelModule, ScrollPanel } from "primeng/scrollpanel";
 import { AsyncPipe, DatePipe, JsonPipe, NgClass, NgStyle } from "@angular/common";
@@ -76,7 +76,7 @@ export class SummaryComponent {
 
   currentUserPermissions$: Observable<string[]>;
   summarySidebarVisible = false;
-  @Output() rightSidebarVisible = new EventEmitter<boolean>();
+  readonly rightSidebarVisible = output<boolean>();
   overlaySidebarVisible = false;
 
   pipelines$: Observable<Pipeline[]>;

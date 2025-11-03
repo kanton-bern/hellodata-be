@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, EventEmitter, NgModule, Output, inject, input } from '@angular/core';
+import { Component, NgModule, inject, input, output } from '@angular/core';
 import { CommonModule, NgStyle, NgClass, AsyncPipe } from '@angular/common';
 
 import {Store} from "@ngrx/store";
@@ -86,8 +86,7 @@ export class HeaderComponent {
   private translateService = inject(TranslateService);
 
 
-  @Output()
-  menuToggle = new EventEmitter<boolean>();
+  readonly menuToggle = output<boolean>();
   readonly menuToggleEnabled = input(false);
   readonly title = input.required<string>();
 
