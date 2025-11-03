@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, Input, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
@@ -47,8 +47,7 @@ export class SelectedWorkspaceDashboardsComponent {
   private store = inject<Store<AppState>>(Store);
 
 
-  @Input()
-  dashboards!: any[];
+  readonly dashboards = input.required<any[]>();
 
   readonly instanceName = input.required<string>();
 

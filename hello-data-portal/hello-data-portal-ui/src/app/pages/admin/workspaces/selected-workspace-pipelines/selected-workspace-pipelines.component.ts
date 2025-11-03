@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, Input, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {navigate} from "../../../../store/app/app.action";
@@ -57,8 +57,7 @@ export class SelectedWorkspacePipelinesComponent {
   private store = inject<Store<AppState>>(Store);
 
 
-  @Input()
-  pipelines!: any[];
+  readonly pipelines = input.required<any[]>();
 
   readonly instanceName = input.required<string>();
 

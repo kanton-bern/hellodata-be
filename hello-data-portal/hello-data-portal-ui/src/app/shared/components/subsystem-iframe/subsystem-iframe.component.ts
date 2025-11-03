@@ -25,39 +25,50 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, Input, NgModule, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, input, output, viewChild } from '@angular/core';
-import { CommonModule, NgStyle } from "@angular/common";
+import {
+  Component,
+  ElementRef,
+  inject,
+  input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  output,
+  SimpleChanges,
+  viewChild
+} from '@angular/core';
+import {NgStyle} from "@angular/common";
 
 import {AuthService} from "../../services";
 import {Subscription} from "rxjs";
 import {environment} from "../../../../environments/environment";
-import { SafePipe } from '../../pipes/safe.pipe';
+import {SafePipe} from '../../pipes/safe.pipe';
 
 @Component({
-    selector: 'app-subsystem-iframe[url]',
-    templateUrl: './subsystem-iframe.component.html',
-    styleUrls: ['./subsystem-iframe.component.scss'],
-    imports: [NgStyle, SafePipe]
+  selector: 'app-subsystem-iframe[url]',
+  templateUrl: './subsystem-iframe.component.html',
+  styleUrls: ['./subsystem-iframe.component.scss'],
+  imports: [NgStyle, SafePipe]
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   private authService = inject(AuthService);
 
 
-  @Input() url!: string;
+  url = input.required<string>();
   readonly accessTokenInQueryParam = input(false);
   readonly delay = input(0);
   readonly style = input<{
     [p: string]: any;
-} | null>(null);
-  @Input() switchStyleOverflow = true;
+  } | null>(null);
+  readonly switchStyleOverflow = input(true);
   readonly iframeSetup = output<boolean>();
-  frameUrl!: string;
+  frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
 
   accessTokenSub!: Subscription;
 
   ngOnInit(): void {
-    console.debug('on init', this.url, this.delay());
+    console.debug('on init', this.url(), this.delay());
 
 
     this.accessTokenSub = this.authService.accessToken.subscribe({
@@ -66,9 +77,9 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
         document.cookie = 'auth.access_token=' + value + '; path=/; domain=.' + environment.baseDomain + '; secure;';
         setTimeout(() => {
-          this.frameUrl = this.accessTokenInQueryParam() ? this.url + '?auth.access_token=' + value : this.url;
+          this.frameUrl = this.accessTokenInQueryParam() ? this.url() + '?auth.access_token=' + value : this.url();
           this.iframeSetup.emit(true);
-          if (this.switchStyleOverflow) {
+          if (this.switchStyleOverflow()) {
             document.getElementById('mainContentDiv')!.style.overflow = 'hidden';
           }
           this.clickScrollTopIfExists();
@@ -90,7 +101,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
     }
-    if (this.switchStyleOverflow) {
+    if (this.switchStyleOverflow()) {
       document.getElementById('mainContentDiv')!.style.overflow = 'auto';
     }
   }
@@ -102,7 +113,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
       }
       this.accessTokenSub = this.authService.accessToken.subscribe({
         next: value => {
-          this.frameUrl = this.url;
+          this.frameUrl = this.url();
           this.iframeSetup.emit(true);
         }
       });

@@ -1,11 +1,11 @@
-@if (roles.length > 0) {
+@if (roles().length > 0) {
   <p-table
     #dt
     [paginator]="false"
     [rowHover]="true"
     [showCurrentPageReport]="true"
     [tableStyle]="{ 'min-width': '75rem' }"
-    [value]="roles"
+    [value]="roles()"
     dataKey="id"
     class="p-datatable-striped"
     >

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 
 import { TableModule } from 'primeng/table';
 import { PrimeTemplate } from 'primeng/api';
@@ -40,7 +40,6 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [TableModule, PrimeTemplate, Tag, Tooltip, TranslocoPipe]
 })
 export class SelectedWorkspaceRolesComponent {
-  @Input()
-  roles!: any[];
+  readonly roles = input.required<any[]>();
 
 }

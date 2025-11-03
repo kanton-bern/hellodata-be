@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ViewContainerRef, inject } from '@angular/core';
+import {Component, inject, ViewContainerRef} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAppInfoByModuleType} from "../../../store/metainfo-resource/metainfo-resource.selector";
@@ -34,13 +34,13 @@ import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resour
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {selectProfile} from "../../../store/auth/auth.selector";
 import {LOGGED_IN_AIRFLOW_USER} from "../../../pages/orchestration/embedded-orchestration.component";
-import { AsyncPipe } from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 
 @Component({
-    selector: 'app-silent-login',
-    templateUrl: './silent-login.component.html',
-    styleUrls: ['./silent-login.component.scss'],
-    imports: [AsyncPipe]
+  selector: 'app-silent-login',
+  templateUrl: './silent-login.component.html',
+  styleUrls: ['./silent-login.component.scss'],
+  imports: [AsyncPipe]
 })
 export class SilentLoginComponent {
   private store = inject<Store<AppState>>(Store);
@@ -62,13 +62,12 @@ export class SilentLoginComponent {
     if (!this.supersetsLoggedIn) {
       supersetInfos.forEach(supersetInfo => {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-        const instance = componentRef.instance;
-        instance.switchStyleOverflow = false;
+        componentRef.setInput('switchStyleOverflow', false);
 
         const supersetLogoutUrl = supersetInfo.data.url + 'logout';
         const supersetLoginUrl = supersetInfo.data.url + `login/keycloak`;
 
-        instance.url = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
+        componentRef.setInput('url', supersetLogoutUrl + `?redirect=${supersetLoginUrl}`);
         this.supersetsLoggedIn = true;
       });
     }
@@ -79,13 +78,12 @@ export class SilentLoginComponent {
     if (!this.airflowsLoggedIn) {
       airflowInfos.forEach(airflowInfo => {
         const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-        const instance = componentRef.instance;
-        instance.switchStyleOverflow = false;
+        componentRef.setInput('switchStyleOverflow', false);
 
         const airflowLogoutUrl = airflowInfo.data.url + 'logout';
         const airflowLoginUrl = airflowInfo.data.url + `login/keycloak`;
 
-        instance.url = airflowLogoutUrl + `?redirect=${airflowLoginUrl}`;
+        componentRef.setInput('url', airflowLogoutUrl + `?redirect=${airflowLoginUrl}`);
         sessionStorage.setItem(LOGGED_IN_AIRFLOW_USER, email);
         this.airflowsLoggedIn = true;
       });

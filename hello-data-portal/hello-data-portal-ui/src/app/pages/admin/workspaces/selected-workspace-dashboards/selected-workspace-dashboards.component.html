@@ -1,11 +1,11 @@
-@if (dashboards.length > 0) {
+@if (dashboards().length > 0) {
   <p-table
     #dt
     [paginator]="false"
     [rowHover]="true"
     [showCurrentPageReport]="true"
     [tableStyle]="{ 'min-width': '75rem' }"
-    [value]="dashboards"
+    [value]="dashboards()"
     dataKey="id"
     class="p-datatable-striped"
     >

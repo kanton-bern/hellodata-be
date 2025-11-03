@@ -1,11 +1,11 @@
-@if (pipelines.length > 0) {
+@if (pipelines().length > 0) {
   <p-table
     #dt
     [paginator]="false"
     [rowHover]="true"
     [showCurrentPageReport]="true"
     [tableStyle]="{ 'min-width': '75rem' }"
-    [value]="pipelines"
+    [value]="pipelines()"
     dataKey="id"
     class="p-datatable-striped"
     >

@@ -25,20 +25,20 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { AfterViewInit, Component, ViewContainerRef, inject } from '@angular/core';
+import {AfterViewInit, Component, inject, ViewContainerRef} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-dashboard.component";
 import {SubsystemIframeComponent} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {environment} from "../../../environments/environment";
 import {logout} from "../../store/auth/auth.action";
-import { TranslocoPipe } from '@jsverse/transloco';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-logout',
-    templateUrl: './logout.component.html',
-    styleUrls: ['./logout.component.scss'],
-    imports: [TranslocoPipe]
+  selector: 'app-logout',
+  templateUrl: './logout.component.html',
+  styleUrls: ['./logout.component.scss'],
+  imports: [TranslocoPipe]
 })
 export class LogoutComponent implements AfterViewInit {
   private store = inject<Store<AppState>>(Store);
@@ -51,8 +51,7 @@ export class LogoutComponent implements AfterViewInit {
       const storedSetArray: string[] = JSON.parse(openedSubsystems || '[]');
       storedSetArray.forEach(url => {
         const componentRefSupersetIframe = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-        const instanceSuperset = componentRefSupersetIframe.instance;
-        instanceSuperset.url = url;
+        componentRefSupersetIframe.setInput('url', url);
       })
     }
 
@@ -66,8 +65,7 @@ export class LogoutComponent implements AfterViewInit {
     const domain = environment.subSystemsConfig.filebrowser.domain;
     const filebrowserBaseUrl = protocol + host + domain;
     const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-    const instance = componentRef.instance;
-    instance.url = filebrowserBaseUrl + '/web/client/logout';
+    componentRef.setInput('url', filebrowserBaseUrl + '/web/client/logout');
   }
 
   private logoutAirflow() {
@@ -76,8 +74,7 @@ export class LogoutComponent implements AfterViewInit {
     const domain = environment.subSystemsConfig.airflow.domain;
     const airflowBaseUrl = protocol + host + domain;
     const componentRef = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
-    const instance = componentRef.instance;
-    instance.url = airflowBaseUrl + '/logout';
+    componentRef.setInput('url', airflowBaseUrl + '/logout');
   }
 
   ngAfterViewInit(): void {
