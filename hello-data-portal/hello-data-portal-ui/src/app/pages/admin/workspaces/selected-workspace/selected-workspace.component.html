@@ -1,63 +1,85 @@
-<h2 *ngIf="(headerInfo$ | async) as selectedResource" class="content-block">
-  {{ 'workspace: ' }}
-  <span *ngIf="selectedAppInfo$ | async">
-    <a href="{{selectedResourceUrl}}"
-       rel="noopener" target="_blank">{{ selectedResource.instanceName }}</a>
-    {{ '; module type: ' + selectedResource.moduleType + '; api version: ' + selectedResource.apiVersion }}
-  </span>
-</h2>
+@if ((headerInfo$ | async); as selectedResource) {
+  <h2 class="content-block">
+    {{ 'workspace: ' }}
+    @if (selectedAppInfo$ | async) {
+      <span>
+        <a href="{{selectedResourceUrl}}"
+        rel="noopener" target="_blank">{{ selectedResource.instanceName }}</a>
+        {{ '; module type: ' + selectedResource.moduleType + '; api version: ' + selectedResource.apiVersion }}
+      </span>
+    }
+  </h2>
+}
 
-<div *ngIf="(resources$ | async) as resources" class="card">
-  <div class="grid">
-    <div *ngFor="let item of resources" class="col-2">
-      <div (click)="navigateToSelectedResource(item)"
-           class="cursor-pointer p-5 bg-white flex flex-column border-2 border-transparent hover:border-primary transition-colors transition-duration-300 justify-content-center align-items-center shadow-2"
-           pRipple>
-        <table aria-describedby="selected workspace">
-          <tr>
-            <th id="item"></th>
-          </tr>
-          <tr>
-            <td style="text-align: center; padding: 5px; font-size: 1em">
-              {{ item.kind.replace('hellodata/', '') }}<br>
-            </td>
-          </tr>
-        </table>
+@if ((resources$ | async); as resources) {
+  <div class="card">
+    <div class="grid">
+      @for (item of resources; track item) {
+        <div class="col-2">
+          <div (click)="navigateToSelectedResource(item)"
+            class="cursor-pointer p-5 bg-white flex flex-column border-2 border-transparent hover:border-primary transition-colors transition-duration-300 justify-content-center align-items-center shadow-2"
+            pRipple>
+            <table aria-describedby="selected workspace">
+              <tr>
+                <th id="item"></th>
+              </tr>
+              <tr>
+                <td style="text-align: center; padding: 5px; font-size: 1em">
+                  {{ item.kind.replace('hellodata/', '') }}<br>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      }
+    </div>
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"
+          severity="secondary"/>
       </div>
-    </div>
+    </p-toolbar>
   </div>
-  <p-toolbar>
-    <div class="p-toolbar-group-start">
-      <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"
-                severity="secondary" />
-    </div>
-  </p-toolbar>
-</div>
+}
 
 
-<div *ngIf="(selectedResource$ | async) as selectedResource" class="card">
-  <div [ngSwitch]="selectedResource.kind">
-    <p-fieldset legend="{{selectedResource.kind.replace('hellodata/', '')}}">
-      <app-selected-workspace-dashboards *ngSwitchCase="'hellodata/Dashboards'"
-                                         [dashboards]="selectedResource.data"
-                                         [instanceName]="selectedResource.instanceName" />
-
-      <app-selected-workspace-roles *ngSwitchCase="'hellodata/Roles'"
-                                    [roles]="selectedResource.data" />
-
-      <app-selected-workspace-permissions *ngSwitchCase="'hellodata/Permissions'"
-                                          [permissions]="selectedResource.data" />
-
-      <app-selected-workspace-users *ngSwitchCase="'hellodata/Users'"
-                                    [users]="selectedResource.data" />
-
-      <app-selected-workspace-pipelines *ngSwitchCase="'hellodata/Pipelines'"
-                                        [instanceName]="selectedResource.instanceName"
-                                        [pipelines]="selectedResource.data" />
-    </p-fieldset>
-
-    <div *ngSwitchDefault>
-      component missing for: {{ selectedResource.kind }}
-    </div>
+@if ((selectedResource$ | async); as selectedResource) {
+  <div class="card">
+    @switch (selectedResource.kind) {
+      @case ('hellodata/Dashboards') {
+        <p-fieldset legend="{{ selectedResource.kind.replace('hellodata/', '') }}">
+          <app-selected-workspace-dashboards
+            [dashboards]="selectedResource.data"
+            [instanceName]="selectedResource.instanceName"/>
+        </p-fieldset>
+      }
+      @case ('hellodata/Roles') {
+        <p-fieldset legend="{{ selectedResource.kind.replace('hellodata/', '') }}">
+          <app-selected-workspace-roles [roles]="selectedResource.data"/>
+        </p-fieldset>
+      }
+      @case ('hellodata/Permissions') {
+        <p-fieldset legend="{{ selectedResource.kind.replace('hellodata/', '') }}">
+          <app-selected-workspace-permissions [permissions]="selectedResource.data"/>
+        </p-fieldset>
+      }
+      @case ('hellodata/Users') {
+        <p-fieldset legend="{{ selectedResource.kind.replace('hellodata/', '') }}">
+          <app-selected-workspace-users [users]="selectedResource.data"/>
+        </p-fieldset>
+      }
+      @case ('hellodata/Pipelines') {
+        <p-fieldset legend="{{ selectedResource.kind.replace('hellodata/', '') }}">
+          <app-selected-workspace-pipelines
+            [instanceName]="selectedResource.instanceName"
+            [pipelines]="selectedResource.data"/>
+        </p-fieldset>
+      }
+      @default {
+        <div>
+          component missing for: {{ selectedResource.kind }}
+        </div>
+      }
+    }
   </div>
-</div>
+}

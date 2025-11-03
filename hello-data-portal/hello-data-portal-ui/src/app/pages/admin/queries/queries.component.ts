@@ -20,7 +20,7 @@ import { Table, TableLazyLoadEvent, TableModule } from "primeng/table";
 import {map, take} from "rxjs/operators";
 import {scrollToTop} from "../../../shared/services/view-helpers";
 import {navigate} from "../../../store/app/app.action";
-import { NgIf, NgSwitch, NgSwitchCase, NgFor, AsyncPipe, DatePipe } from "@angular/common";
+import { AsyncPipe, DatePipe } from "@angular/common";
 import { PrimeTemplate } from "primeng/api";
 import { FormsModule } from "@angular/forms";
 import { InputText } from "primeng/inputtext";
@@ -34,7 +34,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
 @Component({
     templateUrl: 'queries.component.html',
     styleUrls: ['./queries.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, FormsModule, InputText, NgSwitch, NgSwitchCase, Tooltip, Tag, NgFor, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

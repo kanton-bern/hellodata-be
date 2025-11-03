@@ -1,126 +1,139 @@
-<div *ngIf="selectedDataDomain$ | async"></div>
-<div class="card" *ngIf="(paramContextKey$ | async) as contextKey">
-  <div *ngIf="(queries$ | async) as queries">
-    <p-table #dt
-             [lazy]="true"
-             (onLazyLoad)="loadQueries($event, contextKey)"
-             [loading]="(queriesLoading$ | async) ?? false"
-             [value]="queries"
-             [paginator]="true"
-             [rowHover]="true"
-             [rowsPerPageOptions]="[5, 10, 20]"
-             [rows]="10"
-             [totalRecords]="queriesTotalRecords"
-             [expandedRowKeys]="expandedRows"
-             [globalFilterFields]="['status','tabName','databaseName', 'schema', 'table', 'userFullname', 'sql']"
-             dataKey="id"
-             id="queries_table_{{ contextKey }}"
-             stateKey="portal-queries-table-{{ contextKey }}"
-             sortField="changedOn"
-             [sortOrder]="-1"
-             [(first)]="first"
-             stateStorage="session"
-             class="p-datatable-striped"
-             [tableStyle]="{ 'min-width': '50rem' }">
-
-      <ng-template pTemplate="caption">
-        <div>
-          <h3>{{ '@Queries' | transloco }}</h3>
-          <div id="searchBox">
-            <span class="p-input-icon-left p-ml-auto">
-              <i class="pi pi-search"></i>
-              <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                     placeholder="{{'@Search' | transloco}}" type="text"/>
-            </span>
-          </div>
-        </div>
-        <br><br><br>
-      </ng-template>
-
-      <ng-template pTemplate="header">
-        <tr>
-          <th id="statusHeader" pSortableColumn="status" style="max-width:5rem">
-            <p-sortIcon field="status" />
-          </th>
-          <th id="changedOnHeader" pSortableColumn="changedOn" style="max-width:5rem">
-            Time
-            <p-sortIcon field="changedOn" />
-          </th>
-          <th>Duration</th>
-          <th id="tabNameHeader" pSortableColumn="tabName" style="max-width:5rem">
-            Tab name
-            <p-sortIcon field="tabName" />
-          </th>
-          <th id="databaseNameHeader" pSortableColumn="databaseName" style="max-width:5rem">
-            Database
-            <p-sortIcon field="databaseName" />
-          </th>
-          <th id="schemaHeader" pSortableColumn="schema" style="max-width:5rem">
-            Schema
-            <p-sortIcon field="schema" />
-          </th>
-          <th id="sqlTablesHeader" pSortableColumn="sqlTables" style="max-width:5rem">
-            Tables
-            <p-sortIcon field="sqlTables" />
-          </th>
-          <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
-            User
-            <p-sortIcon field="userFullname" />
-          </th>
-          <th></th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-query let-expanded="expanded">
-        <tr [ngSwitch]="query.status">
-          <td>
-            <span *ngSwitchCase="'failed'" [pTooltip]="query.status" class="align-items-end pi pi-exclamation-circle"
-                  style="color: red"></span>
-            <span *ngSwitchCase="'success'" [pTooltip]="query.status" class="align-items-end pi pi-check-circle"
-                  style="color: green"></span>
-          </td>
-          <td>{{ query.changedOn | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
-          <td>
-            <p-tag *ngSwitchCase="'failed'" severity="danger"
-                   [value]="formatDuration(query.endTime - query.startTime)" />
-            <p-tag *ngSwitchCase="'success'" severity="success"
-                   [value]="formatDuration(query.endTime - query.startTime)" />
-          </td>
-          <td>{{ query.tabName }}</td>
-          <td>{{ query.databaseName }}</td>
-          <td>{{ query.schema }}</td>
-          <td>
-            <ng-container *ngFor="let table of JSON.parse(query.sqlTables); let last = last">
-              {{ table.table }}<span *ngIf="!last">, </span>
-            </ng-container>
-          </td>
-          <td>{{ query.userFullname }}</td>
-          <td>
-            <p-button type="button" pRipple [pRowToggler]="query" [text]="true" [rounded]="true"
-                      [plain]="true" pTooltip="SQL"
-                      [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="rowexpansion" let-query>
-        <tr>
-          <td colspan="9">
-            <div class="p-3">
-            <textarea
-              variant="filled"
-              [disabled]="true"
-              cols="30"
-              rows="5"
-              pTextarea
-              [autoResize]="true"
-              style="width: 100%"
-              [ngModel]="query.executedSql ? query.executedSql : query.sql">
-            </textarea>
+@if (selectedDataDomain$ | async) {
+  <div></div>
+}
+@if ((paramContextKey$ | async); as contextKey) {
+  <div class="card">
+    @if ((queries$ | async); as queries) {
+      <div>
+        <p-table #dt
+          [lazy]="true"
+          (onLazyLoad)="loadQueries($event, contextKey)"
+          [loading]="(queriesLoading$ | async) ?? false"
+          [value]="queries"
+          [paginator]="true"
+          [rowHover]="true"
+          [rowsPerPageOptions]="[5, 10, 20]"
+          [rows]="10"
+          [totalRecords]="queriesTotalRecords"
+          [expandedRowKeys]="expandedRows"
+          [globalFilterFields]="['status','tabName','databaseName', 'schema', 'table', 'userFullname', 'sql']"
+          dataKey="id"
+          id="queries_table_{{ contextKey }}"
+          stateKey="portal-queries-table-{{ contextKey }}"
+          sortField="changedOn"
+          [sortOrder]="-1"
+          [(first)]="first"
+          stateStorage="session"
+          class="p-datatable-striped"
+          [tableStyle]="{ 'min-width': '50rem' }">
+          <ng-template pTemplate="caption">
+            <div>
+              <h3>{{ '@Queries' | transloco }}</h3>
+              <div id="searchBox">
+                <span class="p-input-icon-left p-ml-auto">
+                  <i class="pi pi-search"></i>
+                  <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                    placeholder="{{'@Search' | transloco}}" type="text"/>
+                </span>
+              </div>
             </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+            <br><br><br>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <th id="statusHeader" pSortableColumn="status" style="max-width:5rem">
+                <p-sortIcon field="status"/>
+              </th>
+              <th id="changedOnHeader" pSortableColumn="changedOn" style="max-width:5rem">
+                Time
+                <p-sortIcon field="changedOn"/>
+              </th>
+              <th>Duration</th>
+              <th id="tabNameHeader" pSortableColumn="tabName" style="max-width:5rem">
+                Tab name
+                <p-sortIcon field="tabName"/>
+              </th>
+              <th id="databaseNameHeader" pSortableColumn="databaseName" style="max-width:5rem">
+                Database
+                <p-sortIcon field="databaseName"/>
+              </th>
+              <th id="schemaHeader" pSortableColumn="schema" style="max-width:5rem">
+                Schema
+                <p-sortIcon field="schema"/>
+              </th>
+              <th id="sqlTablesHeader" pSortableColumn="sqlTables" style="max-width:5rem">
+                Tables
+                <p-sortIcon field="sqlTables"/>
+              </th>
+              <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
+                User
+                <p-sortIcon field="userFullname"/>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-query let-expanded="expanded">
+            <tr>
+              <td>
+                @switch (query.status) {
+                  @case ('failed') {
+                    <span [pTooltip]="query.status" class="align-items-end pi pi-exclamation-circle"
+                    style="color: red"></span>
+                  }
+                  @case ('success') {
+                    <span [pTooltip]="query.status" class="align-items-end pi pi-check-circle" style="color: green"></span>
+                  }
+                }
+              </td>
+              <td>{{ query.changedOn | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
+              <td>
+                @switch (query.status) {
+                  @case ('failed') {
+                    <p-tag severity="danger" [value]="formatDuration(query.endTime - query.startTime)"/>
+                  }
+                  @case ('success') {
+                    <p-tag severity="success" [value]="formatDuration(query.endTime - query.startTime)"/>
+                  }
+                }
+              </td>
+              <td>{{ query.tabName }}</td>
+              <td>{{ query.databaseName }}</td>
+              <td>{{ query.schema }}</td>
+              <td>
+                @for (table of JSON.parse(query.sqlTables); track table; let last = $last) {
+                  {{ table.table }}@if (!last) {
+                  <span>, </span>
+                }
+              }
+            </td>
+            <td>{{ query.userFullname }}</td>
+            <td>
+              <p-button type="button" pRipple [pRowToggler]="query" [text]="true" [rounded]="true"
+                [plain]="true" pTooltip="SQL"
+                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="rowexpansion" let-query>
+          <tr>
+            <td colspan="9">
+              <div class="p-3">
+                <textarea
+                  variant="filled"
+                  [disabled]="true"
+                  cols="30"
+                  rows="5"
+                  pTextarea
+                  [autoResize]="true"
+                  style="width: 100%"
+                  [ngModel]="query.executedSql ? query.executedSql : query.sql">
+                </textarea>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
 </div>
+}

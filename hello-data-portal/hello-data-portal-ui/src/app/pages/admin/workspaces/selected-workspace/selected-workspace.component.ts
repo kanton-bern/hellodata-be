@@ -42,7 +42,7 @@ import {
   loadSelectedAppInfoResource,
   loadSelectedAppInfoResources
 } from "../../../../store/metainfo-resource/metainfo-resource.action";
-import { NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Ripple } from 'primeng/ripple';
 import { Toolbar } from 'primeng/toolbar';
 import { Button } from 'primeng/button';
@@ -59,7 +59,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-selected-workspace',
     templateUrl: './selected-workspace.component.html',
     styleUrls: ['./selected-workspace.component.scss'],
-    imports: [NgIf, NgFor, Ripple, Toolbar, Button, Tooltip, NgSwitch, Fieldset, NgSwitchCase, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, NgSwitchDefault, AsyncPipe, TranslocoPipe]
+    imports: [Ripple, Toolbar, Button, Tooltip, Fieldset, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
