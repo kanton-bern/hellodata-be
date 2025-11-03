@@ -29,7 +29,7 @@
   <p-toolbar>
     <div class="p-toolbar-group-start">
       <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"
-                severity="secondary"></p-button>
+                severity="secondary" />
     </div>
   </p-toolbar>
 </div>
@@ -40,20 +40,20 @@
     <p-fieldset legend="{{selectedResource.kind.replace('hellodata/', '')}}">
       <app-selected-workspace-dashboards *ngSwitchCase="'hellodata/Dashboards'"
                                          [dashboards]="selectedResource.data"
-                                         [instanceName]="selectedResource.instanceName"></app-selected-workspace-dashboards>
+                                         [instanceName]="selectedResource.instanceName" />
 
       <app-selected-workspace-roles *ngSwitchCase="'hellodata/Roles'"
-                                    [roles]="selectedResource.data"></app-selected-workspace-roles>
+                                    [roles]="selectedResource.data" />
 
       <app-selected-workspace-permissions *ngSwitchCase="'hellodata/Permissions'"
-                                          [permissions]="selectedResource.data"></app-selected-workspace-permissions>
+                                          [permissions]="selectedResource.data" />
 
       <app-selected-workspace-users *ngSwitchCase="'hellodata/Users'"
-                                    [users]="selectedResource.data"></app-selected-workspace-users>
+                                    [users]="selectedResource.data" />
 
       <app-selected-workspace-pipelines *ngSwitchCase="'hellodata/Pipelines'"
                                         [instanceName]="selectedResource.instanceName"
-                                        [pipelines]="selectedResource.data"></app-selected-workspace-pipelines>
+                                        [pipelines]="selectedResource.data" />
     </p-fieldset>
 
     <div *ngSwitchDefault>

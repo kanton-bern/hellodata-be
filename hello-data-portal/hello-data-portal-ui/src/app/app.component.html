@@ -1,12 +1,12 @@
 <ng-container >
   @if ((isMobile$ | async) === false) {
     <app-side-nav-outer-toolbar title="{{appInfo.title}}">
-      <router-outlet></router-outlet>
+      <router-outlet />
     </app-side-nav-outer-toolbar>
   }
   @if (isMobile$ | async) {
     <app-mobile>
-      <router-outlet></router-outlet>
+      <router-outlet />
     </app-mobile>
   }
 </ng-container>

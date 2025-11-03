@@ -27,7 +27,7 @@
               <div id="searchBox">
                 <span class="p-input-icon-left p-ml-auto">
                   <p-iconfield>
-                    <p-inputicon class="pi pi-search"></p-inputicon>
+                    <p-inputicon class="pi pi-search" />
                     <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
                       pInputText
                       placeholder="{{'@Search' | transloco}}" type="text"/>
@@ -41,19 +41,19 @@
             <tr>
               <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
                 {{ '@Name' | transloco }}
-                <p-sortIcon field="userFullname"></p-sortIcon>
+                <p-sortIcon field="userFullname" />
               </th>
               <th id="usernameHeader" pSortableColumn="username" style="max-width:5rem">
                 {{ '@Email' | transloco }}
-                <p-sortIcon field="username"></p-sortIcon>
+                <p-sortIcon field="username" />
               </th>
               <th id="dttmHeader" pSortableColumn="dttm" style="max-width:5rem">
                 {{ '@Time' | transloco }}
-                <p-sortIcon field="dttm"></p-sortIcon>
+                <p-sortIcon field="dttm" />
               </th>
               <th id="dashboardTitleHeader" pSortableColumn="dashboardTitle" style="max-width:5rem">
                 {{ '@Dashboard' | transloco }}
-                <p-sortIcon field="dashboardTitle"></p-sortIcon>
+                <p-sortIcon field="dashboardTitle" />
               </th>
               <th id="contextName">
                 {{ '@Data domain' | transloco }}

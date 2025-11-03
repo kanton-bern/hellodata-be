@@ -55,7 +55,7 @@
                     @for (value of row[col.field].split(','); track value) {
                       <p-tag [severity]="getTagSeverity(value)"
                         [value]="value.trim()"
-                      class="m-1"></p-tag>
+                      class="m-1" />
                     }
                   } @else {
                     @if (row[col.field] === 'true') {

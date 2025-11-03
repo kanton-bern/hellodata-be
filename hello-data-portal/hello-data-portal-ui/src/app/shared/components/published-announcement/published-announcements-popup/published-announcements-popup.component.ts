@@ -22,7 +22,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
 @Component({
     providers: [DialogService],
     template: `
-    <p-divider></p-divider>
+    <p-divider />
     @if ((defaultLanguage$ | async); as defaultLanguage) {
       <div>
         @if ((selectedLanguage$ | async); as selectedLanguage) {
@@ -37,7 +37,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
                     <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)" [disabled]="true"
                       [readonly]="true" class="p-editor-readonly"
                       [style]="{width: '100%'}">
-                      <p-header hidden></p-header>
+                      <p-header hidden />
                     </p-editor>
                   </div>
                   <div class="p-toolbar-group-end">
@@ -48,7 +48,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
                     }
                   </div>
                 </p-toolbar>
-                <p-divider></p-divider>
+                <p-divider />
               </div>
             }
           </div>

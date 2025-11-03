@@ -21,7 +21,7 @@
           <h5 class="m-0">&nbsp;</h5>
           <span class="p-input-icon-left">
             <p-iconfield>
-              <p-inputicon class="pi pi-search"></p-inputicon>
+              <p-inputicon class="pi pi-search" />
               <input (input)="applyFilterGlobal($event, 'contains')" pInputText
                 placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
@@ -31,25 +31,25 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
-            <p-sortIcon field="dashboardTitle"></p-sortIcon>
+            <p-sortIcon field="dashboardTitle" />
           </th>
           <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
-            <p-sortIcon field="contextName"></p-sortIcon>
+            <p-sortIcon field="contextName" />
           </th>
           <th id="businessProcessHeader" pSortableColumn="businessProcess">{{ '@Business process' | transloco }}
-            <p-sortIcon field="businessProcess"></p-sortIcon>
+            <p-sortIcon field="businessProcess" />
           </th>
           <th id="departmentHeader" pSortableColumn="department">{{ '@Department' | transloco }}
-            <p-sortIcon field="department"></p-sortIcon>
+            <p-sortIcon field="department" />
           </th>
           <th id="responsibilityHeader" pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
-            <p-sortIcon field="responsibility"></p-sortIcon>
+            <p-sortIcon field="responsibility" />
           </th>
           <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{ '@Data analyst' | transloco }}
-            <p-sortIcon field="dataAnalyst"></p-sortIcon>
+            <p-sortIcon field="dataAnalyst" />
           </th>
           <th id="status" pSortableColumn="status">{{ '@Status' | transloco }}
-            <p-sortIcon field="status"></p-sortIcon>
+            <p-sortIcon field="status" />
           </th>
           <th id="actions" style="min-width:9rem"></th>
         </tr>
@@ -84,14 +84,14 @@
               severity="info"
               icon="fas fa-up-right-from-square"
               pButton
-            pRipple></p-button>
+            pRipple />
             <p-button (click)="openInfoPanel(dashboard)"
               [pTooltip]="'@Info' | transloco"
               class="p-button-rounded mr-2"
               severity="help"
               icon="fas fa-circle-info"
               pButton
-            pRipple></p-button>
+            pRipple />
             @if (dashboard.currentUserAdmin || dashboard.currentUserEditor) {
               <p-button (click)="editDashboard(dashboard)"
                 [pTooltip]="'@Edit' | transloco"
@@ -99,7 +99,7 @@
                 class="p-button-rounded mr-2"
                 icon="fas fa-light fa-pen-to-square"
                 pButton
-              pRipple></p-button>
+              pRipple />
             }
           </td>
         </tr>
@@ -148,13 +148,13 @@
 
   <ng-template pTemplate="footer">
     <p-button (click)="hideEditMetadataDialog()" class="p-button-text" icon="fas fa-circle-xmark"
-    label="{{'@Cancel' | transloco}}" pButton pRipple severity="secondary"></p-button>
+    label="{{'@Cancel' | transloco}}" pButton pRipple severity="secondary" />
     <p-button (click)="updateDashboard(selectedDashboard)"
       class="p-button-text"
       icon="fas fa-check"
       label="{{'@Save' | transloco}}"
       pButton
-    pRipple></p-button>
+    pRipple />
   </ng-template>
 </p-dialog>
 
@@ -304,7 +304,7 @@
             id="rolesInfo">
             @for (role of selectedDashboard.roles; track role) {
               <p-tag icon="fas fa-tag" severity="info"
-              value="{{role.name}}"></p-tag>
+              value="{{role.name}}" />
             }
           </div>
         }
@@ -316,6 +316,6 @@
   <ng-template pTemplate="footer">
     <p-button (click)="hideInfoPanel()" class="p-button-text" icon="fas fa-circle-xmark"
       label="{{'@Cancel' | transloco}}" severity="secondary"
-    pButton pRipple></p-button>
+    pButton pRipple />
   </ng-template>
 </p-dialog>

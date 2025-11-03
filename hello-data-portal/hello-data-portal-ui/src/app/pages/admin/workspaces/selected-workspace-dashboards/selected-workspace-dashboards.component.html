@@ -41,12 +41,12 @@
         </td>
         <td>
           @for (owner of dashboard.owners; track owner) {
-            <p-tag icon="fas fa-user" value="{{owner.email}}"></p-tag>
+            <p-tag icon="fas fa-user" value="{{owner.email}}" />
           }
         </td>
         <td>
           @for (role of dashboard.roles; track role) {
-            <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}"></p-tag>
+            <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}" />
           }
         </td>
       </tr>

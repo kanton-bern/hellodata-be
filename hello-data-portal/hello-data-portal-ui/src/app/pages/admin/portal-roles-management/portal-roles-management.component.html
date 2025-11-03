@@ -33,7 +33,7 @@
             <td>
               @for (permission of role.permissions; track permission) {
                 <span style="margin: 2px">
-                  <p-tag severity="warn" value="{{permission}}"></p-tag>
+                  <p-tag severity="warn" value="{{permission}}" />
                 </span>
               }
             </td>
@@ -45,7 +45,7 @@
                   class="p-button-rounded"
                   icon="fas fa-light fa-pen-to-square"
                   pButton
-                pRipple></p-button>
+                pRipple />
               }
               @if (!role.systemDefault) {
                 <p-button (click)="showRoleDeletionPopup(role)"
@@ -54,7 +54,7 @@
                   class="p-button-rounded"
                   icon="fas fa-trash"
                   pButton
-                pRipple></p-button>
+                pRipple />
               }
             </td>
           </tr>
@@ -64,4 +64,4 @@
   }
 </div>
 
-<app-delete-role-popup [action]="getDeletionAction()"></app-delete-role-popup>
+<app-delete-role-popup [action]="getDeletionAction()" />

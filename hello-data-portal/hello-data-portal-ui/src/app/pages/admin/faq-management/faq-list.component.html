@@ -46,7 +46,7 @@
                 <td>
                   <p-editor [disabled]="true" [ngModel]="getMessage(faq, selectedLanguage)" [readonly]="true"
                     [style]="{ height: '320px' }" class="p-editor-readonly">
-                    <p-header hidden></p-header>
+                    <p-header hidden />
                   </p-editor>
                 </td>
                 <td>
@@ -56,7 +56,7 @@
                     class="p-button-rounded mr-2"
                     icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
                     pButton
-                  pRipple></p-button>
+                  pRipple />
                   <p-button (click)="showFaqDeletionPopup(faq)"
                     [pTooltip]="'@Delete' | transloco"
                     severity="danger"
@@ -64,7 +64,7 @@
                     icon="fas fa-trash"
                     id="{{'deleteFaq_' + faq.title}}"
                     pButton
-                  pRipple></p-button>
+                  pRipple />
                 </td>
               </tr>
             </ng-template>
@@ -75,4 +75,4 @@
   </div>
 }
 
-<app-delete-faq-popup [action]="getDeletionAction()"></app-delete-faq-popup>
+<app-delete-faq-popup [action]="getDeletionAction()" />

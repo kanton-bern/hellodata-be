@@ -11,7 +11,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
       </div>
       <div class="col">
         <p-checkbox [binary]="true" inputId="dont-show-again"
-                    (onChange)="onChange($event)"></p-checkbox>
+                    (onChange)="onChange($event)" />
         <label for="dont-show-again" class="ml-2"> {{ '@Do not show again' | transloco } </label>
       </div>
     </div>

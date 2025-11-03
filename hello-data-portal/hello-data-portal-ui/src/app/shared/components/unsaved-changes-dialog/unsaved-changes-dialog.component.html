@@ -7,21 +7,19 @@
     type="button" severity="secondary"></button>
     @if (stayOnPage$ | async; as stayOnPage) {
       @if (!stayOnPage.value) {
-        <p-button
-          (click)="cd.onAccept()"
+        <p-button (click)="cd.onAccept()"
           severity="success"
           icon="fas fa-floppy-disk"
           label="{{ '@Save' | transloco }}"
           type="button"
-        ></p-button>
+         />
       } @else {
-        <p-button
-          (click)="cd.hide()"
+        <p-button (click)="cd.hide()"
           severity="success"
           icon="fas fa-pen-to-square"
           label="{{ '@Continue edition' | transloco }}"
           type="button"
-        ></p-button>
+         />
       }
     }
   </ng-template>

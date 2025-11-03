@@ -85,23 +85,23 @@
             [multiple]="true"
             [suggestions]="filteredPermissions"
             class="w-full"
-          formControlName="permissions" id="permissions"></p-autoComplete>
+          formControlName="permissions" id="permissions" />
         </div>
       </div>
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToRoleList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-          icon="fas fa-arrow-left" severity="secondary"></p-button>
+          icon="fas fa-arrow-left" severity="secondary" />
         </div>
         <div class="p-toolbar-group-end">
           <p-button (click)="saveRole(editedRole)"
             [disabled]="roleForm.invalid||!roleForm.dirty"
             icon="fas fa-floppy-disk"
             label="{{'@Save' | transloco}}"
-          severity="success"></p-button>
+          severity="success" />
           @if (editedRole.id) {
             <p-button (click)="openDeletePopup(editedRole)" icon="fas fa-trash"
-            label="{{'@Delete' | transloco}}" severity="danger"></p-button>
+            label="{{'@Delete' | transloco}}" severity="danger" />
           }
         </div>
       </p-toolbar>
@@ -109,4 +109,4 @@
   }
 </div>
 
-<app-delete-role-popup [action]="getDeletionAction()"></app-delete-role-popup>
+<app-delete-role-popup [action]="getDeletionAction()" />

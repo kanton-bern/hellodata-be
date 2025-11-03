@@ -40,32 +40,32 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="statusHeader" pSortableColumn="status" style="max-width:5rem">
-            <p-sortIcon field="status"></p-sortIcon>
+            <p-sortIcon field="status" />
           </th>
           <th id="changedOnHeader" pSortableColumn="changedOn" style="max-width:5rem">
             Time
-            <p-sortIcon field="changedOn"></p-sortIcon>
+            <p-sortIcon field="changedOn" />
           </th>
           <th>Duration</th>
           <th id="tabNameHeader" pSortableColumn="tabName" style="max-width:5rem">
             Tab name
-            <p-sortIcon field="tabName"></p-sortIcon>
+            <p-sortIcon field="tabName" />
           </th>
           <th id="databaseNameHeader" pSortableColumn="databaseName" style="max-width:5rem">
             Database
-            <p-sortIcon field="databaseName"></p-sortIcon>
+            <p-sortIcon field="databaseName" />
           </th>
           <th id="schemaHeader" pSortableColumn="schema" style="max-width:5rem">
             Schema
-            <p-sortIcon field="schema"></p-sortIcon>
+            <p-sortIcon field="schema" />
           </th>
           <th id="sqlTablesHeader" pSortableColumn="sqlTables" style="max-width:5rem">
             Tables
-            <p-sortIcon field="sqlTables"></p-sortIcon>
+            <p-sortIcon field="sqlTables" />
           </th>
           <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
             User
-            <p-sortIcon field="userFullname"></p-sortIcon>
+            <p-sortIcon field="userFullname" />
           </th>
           <th></th>
         </tr>
@@ -82,9 +82,9 @@
           <td>{{ query.changedOn | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
           <td>
             <p-tag *ngSwitchCase="'failed'" severity="danger"
-                   [value]="formatDuration(query.endTime - query.startTime)"></p-tag>
+                   [value]="formatDuration(query.endTime - query.startTime)" />
             <p-tag *ngSwitchCase="'success'" severity="success"
-                   [value]="formatDuration(query.endTime - query.startTime)"></p-tag>
+                   [value]="formatDuration(query.endTime - query.startTime)" />
           </td>
           <td>{{ query.tabName }}</td>
           <td>{{ query.databaseName }}</td>

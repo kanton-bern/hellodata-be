@@ -63,7 +63,7 @@
           [disabled]="inviteForm.invalid"
           icon="fas fa-floppy-disk"
           label="{{'@Set permissions' | transloco}}"
-        severity="success"></p-button>
+        severity="success" />
       </div>
     </p-toolbar>
   </form>
@@ -81,7 +81,7 @@
           [pTooltip]="'@Sync Users Title' | transloco"
           icon="fas fa-arrows-rotate"
           label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
-        severity="success"></p-button>
+        severity="success" />
       </div>
     }
   </p-toolbar>
@@ -112,7 +112,7 @@
         <div id="searchBox">
           <span class="p-input-icon-left p-ml-auto">
             <p-iconfield>
-              <p-inputicon class="pi pi-search"></p-inputicon>
+              <p-inputicon class="pi pi-search" />
               <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
                 placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
@@ -125,27 +125,27 @@
       <tr>
         <th id="emailHeader" pSortableColumn="email" style="max-width:5rem">
           {{ '@E-mail' | transloco }}
-          <p-sortIcon field="email"></p-sortIcon>
+          <p-sortIcon field="email" />
         </th>
         <th id="firstNameHeader" pSortableColumn="firstName" style="max-width:5rem">
           {{ '@First name' | transloco }}
-          <p-sortIcon field="firstName"></p-sortIcon>
+          <p-sortIcon field="firstName" />
         </th>
         <th id="lastNameHeader" pSortableColumn="lastName" style="max-width:5rem">
           {{ '@Last name' | transloco }}
-          <p-sortIcon field="lastName"></p-sortIcon>
+          <p-sortIcon field="lastName" />
         </th>
         <th id="superuser" pSortableColumn="superuser">
           {{ '@Superuser' | transloco }}
-          <p-sortIcon field="superuser"></p-sortIcon>
+          <p-sortIcon field="superuser" />
         </th>
         <th id="enabled" pSortableColumn="enabled">
           {{ '@Enabled' | transloco }}
-          <p-sortIcon field="enabled"></p-sortIcon>
+          <p-sortIcon field="enabled" />
         </th>
         <th id="lastAccess" pSortableColumn="lastAccess" style="min-width:15rem">
           {{ '@Last login' | transloco }}
-          <p-sortIcon field="lastAccess"></p-sortIcon>
+          <p-sortIcon field="lastAccess" />
         </th>
         <th id="actions" style="min-width:10rem"></th>
       </tr>
@@ -191,27 +191,27 @@
               icon="fas fa-light fa-pen-to-square"
               pButton
               pRipple
-            pTooltip="{{'@Edit' | transloco}}"></p-button>
+            pTooltip="{{'@Edit' | transloco}}" />
             @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="enableUser(user)"
                 severity="success"
                 class="p-button-rounded mr-2"
                 icon="fas fa-circle-plus" pButton pRipple
-              pTooltip="{{'@Enable' | transloco}}"></p-button>
+              pTooltip="{{'@Enable' | transloco}}" />
             }
             @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="disableUser(user)"
                 severity="warn"
                 class="p-button-rounded mr-2"
                 icon="fas fa-circle-xmark" pButton pRipple
-              pTooltip="{{'@Disable' | transloco}}"></p-button>
+              pTooltip="{{'@Disable' | transloco}}" />
             }
             @if (!user.superuser && user.email !== loggedInUser.email) {
               <p-button (click)="showUserDeletionPopup(user)"
                 severity="danger"
                 class="p-button-rounded mr-2"
                 icon="fas fa-trash" pButton pRipple
-              pTooltip="{{'@Delete' | transloco}}"></p-button>
+              pTooltip="{{'@Delete' | transloco}}" />
             }
           </td>
         }
@@ -220,4 +220,4 @@
   </p-table>
 </div>
 
-<app-actions-user-popup></app-actions-user-popup>
+<app-actions-user-popup />

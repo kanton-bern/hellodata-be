@@ -57,7 +57,7 @@
       <div class="field grid">
         <label class="col-12 mb-2 md:col-2 md:mb-0" for="published">{{ '@Published' | transloco }}</label>
         <div class="col-12 md:col-10">
-          <p-checkbox [binary]="true" formControlName="published" id="published" inputId="published"></p-checkbox>
+          <p-checkbox [binary]="true" formControlName="published" id="published" inputId="published" />
         </div>
       </div>
       @if (editedAnnouncement.publishedDate) {
@@ -106,17 +106,17 @@
                           </select>
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Bold" class="ql-bold" type="button"></p-button>
-                          <p-button aria-label="Italic" class="ql-italic" type="button"></p-button>
-                          <p-button aria-label="Underline" class="ql-underline" type="button"></p-button>
+                          <p-button aria-label="Bold" class="ql-bold" type="button" />
+                          <p-button aria-label="Italic" class="ql-italic" type="button" />
+                          <p-button aria-label="Underline" class="ql-underline" type="button" />
                         </span>
                         <span class="ql-formats">
                           <select class="ql-color"></select>
                           <select class="ql-background"></select>
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Ordered List" class="ql-list" type="button" value="ordered"></p-button>
-                          <p-button aria-label="Unordered List" class="ql-list" type="button" value="bullet"></p-button>
+                          <p-button aria-label="Ordered List" class="ql-list" type="button" value="ordered" />
+                          <p-button aria-label="Unordered List" class="ql-list" type="button" value="bullet" />
                           <select class="ql-align">
                             <option selected></option>
                             <option value="center">center</option>
@@ -125,11 +125,11 @@
                           </select>
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Insert Link" class="ql-link" type="button"></p-button>
-                          <p-button aria-label="Insert Code Block" class="ql-code-block" type="button"></p-button>
+                          <p-button aria-label="Insert Link" class="ql-link" type="button" />
+                          <p-button aria-label="Insert Code Block" class="ql-code-block" type="button" />
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Remove Styles" class="ql-clean" type="button"></p-button>
+                          <p-button aria-label="Remove Styles" class="ql-clean" type="button" />
                         </span>
                       </ng-template>
                     </p-editor>
@@ -143,7 +143,7 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-          icon="fas fa-arrow-left" severity="secondary"></p-button>
+          icon="fas fa-arrow-left" severity="secondary" />
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
@@ -151,12 +151,12 @@
               [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
               icon="fas fa-floppy-disk" class="mr-2"
               label="{{'@Save' | transloco}}"
-            severity="success"></p-button>
+            severity="success" />
             @if (editedAnnouncement.id) {
               <p-button (click)="openDeletePopup(editedAnnouncement)"
                 icon="fas fa-trash" class="mr-2"
                 label="{{'@Delete' | transloco}}"
-              severity="danger"></p-button>
+              severity="danger" />
             }
           </div>
         }
@@ -165,4 +165,4 @@
   }
 </div>
 
-<app-delete-announcement-popup [action]="getDeletionAction()"></app-delete-announcement-popup>
+<app-delete-announcement-popup [action]="getDeletionAction()" />

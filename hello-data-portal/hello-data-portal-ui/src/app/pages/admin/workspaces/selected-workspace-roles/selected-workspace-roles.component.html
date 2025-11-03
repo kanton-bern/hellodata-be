@@ -22,13 +22,13 @@
     <ng-template let-role pTemplate="body">
       <tr>
         <td>
-          <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}"></p-tag>
+          <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}" />
         </td>
         <td>
           @for (permission of role.permissions; track permission) {
             <span style="margin: 2px">
               <p-tag [pTooltip]="'ViewMenuName: ' + permission.viewMenuName" severity="warn"
-              value="{{permission.permissionName}}"></p-tag>
+              value="{{permission.permissionName}}" />
             </span>
           }
         </td>

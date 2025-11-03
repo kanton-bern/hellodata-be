@@ -29,7 +29,7 @@
               <div class="ml-auto">
                 <p-button (click)="clear(dt, filterInput)" class="p-button-outlined mr-1" icon="pi pi-filter-slash"
                   label="{{'@Clear' | transloco}}"
-                pButton></p-button>
+                pButton />
                 <span class="p-input-icon-left ml-auto">
                   <i class="pi pi-search"></i>
                   <input
@@ -55,7 +55,7 @@
                 <td>
                   @if (shouldShowTag(row[col.field])) {
                     @for (value of row[col.field].split(','); track value) {
-                      <p-tag [value]="value.trim()" class="m-1"></p-tag>
+                      <p-tag [value]="value.trim()" class="m-1" />
                     }
                   } @else {
                     @if (row[col.field] === 'true') {

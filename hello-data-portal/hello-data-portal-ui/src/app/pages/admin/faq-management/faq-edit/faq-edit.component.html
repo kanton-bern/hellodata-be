@@ -62,7 +62,7 @@
               formControlName="dataDomain"
               id="dataDomainKey"
               optionLabel="label"
-            optionValue="key"></p-select>
+            optionValue="key" />
             <br/>
           </div>
         </div>
@@ -99,8 +99,7 @@
                   </div>
                 </div>
                 <p-editor [formControl]="getMessage(language)"
-                  id="faqMessage">
-                </p-editor>
+                  id="faqMessage" />
               </p-tabpanel>
             }
           </p-tabpanels>
@@ -109,7 +108,7 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-          icon="fas fa-arrow-left" severity="secondary"></p-button>
+          icon="fas fa-arrow-left" severity="secondary" />
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
@@ -119,10 +118,10 @@
               class="mr-2"
               id="saveFaqButton"
               label="{{'@Save' | transloco}}"
-            severity="success"></p-button>
+            severity="success" />
             @if (editedFaq.id) {
               <p-button (click)="openDeletePopup(editedFaq)" icon="fas fa-trash"
-              label="{{'@Delete' | transloco}}" severity="danger"></p-button>
+              label="{{'@Delete' | transloco}}" severity="danger" />
             }
           </div>
         }
@@ -130,4 +129,4 @@
     </form>
   }
 </div>
-<app-delete-faq-popup [action]="getDeletionAction()"></app-delete-faq-popup>
+<app-delete-faq-popup [action]="getDeletionAction()" />

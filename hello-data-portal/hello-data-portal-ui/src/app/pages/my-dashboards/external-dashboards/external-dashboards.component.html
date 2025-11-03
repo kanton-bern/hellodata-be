@@ -21,7 +21,7 @@
                   icon="fas fa-circle-plus"
                   label="{{'@Create' | transloco}}"
                   pButton
-                pRipple></p-button>
+                pRipple />
               }
               <h5 class="m-0">&nbsp;</h5>
               <span class="p-input-icon-left">
@@ -34,31 +34,31 @@
           <ng-template pTemplate="header">
             <tr>
               <th id="title" pSortableColumn="title">{{ '@Dashboard' | transloco }}
-                <p-sortIcon field="title"></p-sortIcon>
+                <p-sortIcon field="title" />
               </th>
               <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
-                <p-sortIcon field="contextName"></p-sortIcon>
+                <p-sortIcon field="contextName" />
               </th>
               <th id="businessProcess" pSortableColumn="businessProcess">{{ '@Business process' | transloco }}
-                <p-sortIcon field="businessProcess"></p-sortIcon>
+                <p-sortIcon field="businessProcess" />
               </th>
               <th id="department" pSortableColumn="department">{{ '@Department' | transloco }}
-                <p-sortIcon field="department"></p-sortIcon>
+                <p-sortIcon field="department" />
               </th>
               <th id="responsibility" pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
-                <p-sortIcon field="responsibility"></p-sortIcon>
+                <p-sortIcon field="responsibility" />
               </th>
               <th id="dataAnalyst" pSortableColumn="dataAnalyst">{{ '@Data analyst' | transloco }}
-                <p-sortIcon field="dataAnalyst"></p-sortIcon>
+                <p-sortIcon field="dataAnalyst" />
               </th>
               <th id="scheduled" pSortableColumn="scheduled">{{ '@Scheduled' | transloco }}
-                <p-sortIcon field="scheduled"></p-sortIcon>
+                <p-sortIcon field="scheduled" />
               </th>
               <th id="datasource" pSortableColumn="datasource">{{ '@Datasource' | transloco }}
-                <p-sortIcon field="datasource"></p-sortIcon>
+                <p-sortIcon field="datasource" />
               </th>
               <th id="modifiedDate" pSortableColumn="modifiedDate">{{ '@Modified date' | transloco }}
-                <p-sortIcon field="modifiedDate"></p-sortIcon>
+                <p-sortIcon field="modifiedDate" />
               </th>
               @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
                 <th id="permissions"
@@ -108,13 +108,13 @@
                       severity="success"
                       icon="fas fa-light fa-pen-to-square"
                       pButton
-                    pRipple></p-button>
+                    pRipple />
                     <p-button (click)="deleteExternalDashboard(dashboard)"
                       [pTooltip]="'@Delete' | transloco"
                       class="p-button-rounded p-button-warning"
                       icon="fas fa-trash"
                       pButton
-                    pRipple></p-button>
+                    pRipple />
                   </div>
                 </td>
               }
@@ -132,10 +132,10 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-    type="button" severity="secondary"></p-button>
+    type="button" severity="secondary" />
     <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
       pButton
-    type="button"></p-button>
+    type="button" />
   </ng-template>
 </p-confirmDialog>
 

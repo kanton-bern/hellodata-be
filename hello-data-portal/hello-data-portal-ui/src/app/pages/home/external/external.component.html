@@ -19,7 +19,7 @@
             <div class="flex">
               <span class="p-input-icon-left ml-auto">
                 <p-iconfield>
-                  <p-inputicon class="pi pi-search"></p-inputicon>
+                  <p-inputicon class="pi pi-search" />
                   <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
                     placeholder="{{'@Search' | transloco}}" type="text"/>
                 </p-iconfield>
@@ -30,10 +30,10 @@
             <tr>
               <th id="icon"></th>
               <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
-                <p-sortIcon field="contextName"></p-sortIcon>
+                <p-sortIcon field="contextName" />
               </th>
               <th id="title" pSortableColumn="title">{{ '@Dashboard' | transloco }}
-                <p-sortIcon field="title"></p-sortIcon>
+                <p-sortIcon field="title" />
               </th>
             </tr>
           </ng-template>

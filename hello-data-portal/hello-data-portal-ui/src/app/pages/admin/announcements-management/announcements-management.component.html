@@ -59,7 +59,7 @@
                 <td>
                   <p-editor [ngModel]="getMessage(announcement, selectedLanguage)" [disabled]="true" [readonly]="true"
                     [style]="{ height: '320px' }">
-                    <p-header hidden></p-header>
+                    <p-header hidden />
                   </p-editor>
                 </td>
                 <td>
@@ -69,14 +69,14 @@
                     icon="fas fa-light fa-pen-to-square"
                     class="p-button-rounded mr-2"
                     pButton
-                  pRipple></p-button>
+                  pRipple />
                   <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                     [pTooltip]="'@Delete' | transloco"
                     severity="danger"
                     icon="fas fa-trash"
                     class="p-button-rounded mr-2"
                     pButton
-                  pRipple></p-button>
+                  pRipple />
                 </td>
               </tr>
             </ng-template>
@@ -87,4 +87,4 @@
   </div>
 }
 
-<app-delete-announcement-popup [action]="getDeletionAction()"></app-delete-announcement-popup>
+<app-delete-announcement-popup [action]="getDeletionAction()" />

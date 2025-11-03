@@ -6,24 +6,24 @@
         <p-toolbar>
           <div class="p-toolbar-group-start">
             <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-            icon="fas fa-arrow-left" severity="secondary"></p-button>
+            icon="fas fa-arrow-left" severity="secondary" />
           </div>
           <div class="p-toolbar-group-end">
             @if (!editedUser.superuser && editedUser.enabled) {
               <p-button (click)="showUserDisablePopup(editedUser)"
                 icon="fas fa-circle-xmark"
                 label="{{'@Disable' | transloco}}"
-              class="mr-2 p-button-warning mr-2"></p-button>
+              class="mr-2 p-button-warning mr-2" />
             }
             @if (!editedUser.superuser && !editedUser.enabled) {
               <p-button (click)="showUserEnablePopup(editedUser)"
                 icon="fas fa-circle-plus"
                 label="{{'@Enable' | transloco}}"
-              severity="success"></p-button>
+              severity="success" />
             }
           </div>
         </p-toolbar>
-        <p-divider></p-divider>
+        <p-divider />
         <div class="field grid">
           <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
           <div class="col-12 md:col-10">
@@ -67,7 +67,7 @@
               }
             </div>
           </div>
-          <p-divider></p-divider>
+          <p-divider />
           @if (userForm) {
             <div>
               @if ((dataDomains$ | async); as dataDomains ) {
@@ -97,7 +97,7 @@
                                             [options]="availableBusinessDomainRoles$ | async"
                                             formControlName="{{businessDomain.contextKey}}"
                                             id="businessDomain"
-                                          optionLabel="name"></p-select>
+                                          optionLabel="name" />
                                         </div>
                                       </div>
                                     </div>
@@ -121,23 +121,21 @@
                                             <div class="col-12 md:col-10 mt-1">
                                               &nbsp;
                                             </div>
-                                            <p-select
-                                              (onChange)="onDataDomainRoleSelected($event, dataDomain)"
+                                            <p-select (onChange)="onDataDomainRoleSelected($event, dataDomain)"
                                               [options]="availableDataDomainRoles"
                                               formControlName="{{dataDomain.contextKey}}"
                                               id="dataDomain"
                                               optionLabel="name"
-                                            [style]="{'width': '100%'}"></p-select>
+                                            [style]="{'width': '100%'}" />
                                           </div>
                                           @if (dashboardTableVisibility.get(dataDomain.contextKey)) {
                                             <div class="col-12 md:col-6">
-                                              <app-dashboard-viewer-permissions
-                                                (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
-                                              [context]="dataDomain"></app-dashboard-viewer-permissions>
+                                              <app-dashboard-viewer-permissions (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
+                                              [context]="dataDomain" />
                                             </div>
                                           }
                                         </div>
-                                        <p-divider></p-divider>
+                                        <p-divider />
                                       </div>
                                     }
                                   </div>
@@ -151,19 +149,19 @@
                     <p-toolbar>
                       <div class="p-toolbar-group-start">
                         <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                        icon="fas fa-arrow-left" severity="secondary"></p-button>
+                        icon="fas fa-arrow-left" severity="secondary" />
                         @if (userSaveButtonDisabled$ | async) {
                           <p-button (click)="updateUser()"
                             [pTooltip]="'@Save' | transloco"
                             severity="success"
                             label="{{'@Save' | transloco}}" pButton [loading]="true"
-                          pRipple></p-button>
+                          pRipple />
                         } @else {
                           <p-button (click)="updateUser()"
                             [pTooltip]="'@Save' | transloco"
                             severity="success"
                             label="{{'@Save' | transloco}}"
-                          pRipple></p-button>
+                          pRipple />
                         }
                       </div>
                     </p-toolbar>
@@ -171,4 +169,4 @@
                 }
               </div>
             }
-            <app-actions-user-popup></app-actions-user-popup>
+            <app-actions-user-popup />

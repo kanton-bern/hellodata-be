@@ -70,9 +70,9 @@
 
 @if (isAuthenticated$ | async) {
   <app-published-announcements-wrapper class="published-announcements-container"
-  ></app-published-announcements-wrapper>
+   />
 }
-<app-breadcrumb class="breadcrumb-container"></app-breadcrumb>
+<app-breadcrumb class="breadcrumb-container" />
 <!--use p-menu here with reference above due to firefox issues with z-index-->
-<p-menu #menu [model]="userMenuItems" [popup]="true"></p-menu>
-<p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true"></p-menu>
+<p-menu #menu [model]="userMenuItems" [popup]="true" />
+<p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true" />

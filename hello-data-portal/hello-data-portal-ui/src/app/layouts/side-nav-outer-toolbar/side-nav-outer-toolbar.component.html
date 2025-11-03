@@ -58,25 +58,23 @@
 
 
 <section class="content-section">
-  <app-header
-    [title]="title()">
-  </app-header>
+  <app-header [title]="title()" />
   <div class="grid">
     <div [ngClass]="'col'" [style]="{height: 'calc(100vh)', 'overflow-y': 'scroll'}" id="mainContentDiv">
-      <ng-content ng-style="width: 100%"></ng-content>
+      <ng-content ng-style="width: 100%" />
       <p-scrollTop [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}" [threshold]="10" icon="fas fa-arrow-up"
-      target="parent"></p-scrollTop>
+      target="parent" />
     </div>
     @if (selectCurrentUserPermissionsLoaded$) {
       <div [ngClass]="['col-fixed', 'right-panel-close']"
         [ngStyle]="{'width': '30px'}" class="right-panel">
-        <app-summary></app-summary>
+        <app-summary />
       </div>
     }
   </div>
 
 </section>
 
-<p-toast></p-toast>
-<app-unsaved-changes-dialog></app-unsaved-changes-dialog>
+<p-toast />
+<app-unsaved-changes-dialog />
 
