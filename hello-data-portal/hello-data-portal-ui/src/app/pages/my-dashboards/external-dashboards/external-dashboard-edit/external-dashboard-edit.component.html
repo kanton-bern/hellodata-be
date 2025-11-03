@@ -104,7 +104,7 @@
     <p-toolbar>
       <div class="p-toolbar-group-start">
         <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                  icon="fas fa-arrow-left"></p-button>
+                  icon="fas fa-arrow-left" severity="secondary"></p-button>
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="deleteExternalDashboard(editedExternalDashboard)"
@@ -132,8 +132,8 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-              type="button"></p-button>
-    <p-button (click)="cd.onAccept()" class="p-button-danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
+              type="button" severity="secondary"></p-button>
+    <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
               pButton
               type="button"></p-button>
   </ng-template>

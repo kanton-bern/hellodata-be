@@ -8,8 +8,8 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-              type="button"></p-button>
-    <p-button (click)="cd.onAccept()" class="p-button-danger" icon="fas fa-trash"
+              type="button" severity="secondary"></p-button>
+    <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash"
               label="{{'@Delete' | transloco}}"
               pButton type="button"></p-button>
   </ng-template>

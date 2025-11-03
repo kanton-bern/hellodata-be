@@ -1,10 +1,9 @@
-
 <h2 *ngIf="(headerInfo$ | async) as selectedResource" class="content-block">
-  {{'workspace: '}}
+  {{ 'workspace: ' }}
   <span *ngIf="selectedAppInfo$ | async">
     <a href="{{selectedResourceUrl}}"
-       rel="noopener" target="_blank">{{selectedResource.instanceName}}</a>
-    {{'; module type: ' + selectedResource.moduleType + '; api version: ' + selectedResource.apiVersion}}
+       rel="noopener" target="_blank">{{ selectedResource.instanceName }}</a>
+    {{ '; module type: ' + selectedResource.moduleType + '; api version: ' + selectedResource.apiVersion }}
   </span>
 </h2>
 
@@ -20,7 +19,7 @@
           </tr>
           <tr>
             <td style="text-align: center; padding: 5px; font-size: 1em">
-              {{item.kind.replace('hellodata/', '')}}<br>
+              {{ item.kind.replace('hellodata/', '') }}<br>
             </td>
           </tr>
         </table>
@@ -29,7 +28,8 @@
   </div>
   <p-toolbar>
     <div class="p-toolbar-group-start">
-      <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"></p-button>
+      <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"
+                severity="secondary"></p-button>
     </div>
   </p-toolbar>
 </div>
@@ -56,7 +56,7 @@
     </p-fieldset>
 
     <div *ngSwitchDefault>
-      component missing for: {{selectedResource.kind}}
+      component missing for: {{ selectedResource.kind }}
     </div>
   </div>
 </div>

@@ -21,14 +21,14 @@
                 <p-button (click)="exportDashboards(dataDomain.data.key)"
                           [disabled]="getSelectedDashboards(dataDomain.data.key).length === 0"
                           [pTooltip]="'@Export dashboard' | transloco"
-                          class="mr-2"
+                          class="p-button-rounded mr-2"
                           severity="success"
                           icon="fas fa-light fa-download"
                           pButton
                           pRipple></p-button>
                 <p-button (click)="toggleImportVisible(dataDomain.data.key)"
                           [pTooltip]="'@Import dashboard' | transloco"
-                          class="mr-2"
+                          class="p-button-rounded mr-2" severity="primary"
                           icon="fas fa-light fa-upload"
                           pButton
                           pRipple></p-button>
