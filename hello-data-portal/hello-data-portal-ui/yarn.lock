@@ -3807,20 +3807,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngrx/eslint-plugin@npm:^20.0.0":
-  version: 20.1.0
-  resolution: "@ngrx/eslint-plugin@npm:20.1.0"
-  dependencies:
-    strip-json-comments: "npm:3.1.1"
-  peerDependencies:
-    "@typescript-eslint/utils": ^8.0.0
-    eslint: ^8.57.0 || ^9.0.0
-    typescript: "*"
-    typescript-eslint: ^8.0.0
-  checksum: 10c0/64e473e640e8179ae695dc0f998b88e59f0450c983d9d3e59df532342a1f9f3ccc2c267c8af027915aa4c952023ec365ef6d1cf12badc37e3d0cea0f6582b09a
-  languageName: node
-  linkType: hard
-
 "@ngrx/router-store@npm:^20.1.0":
   version: 20.1.0
   resolution: "@ngrx/router-store@npm:20.1.0"
@@ -8318,7 +8304,6 @@ __metadata:
     "@jsverse/transloco": "npm:^8.1.0"
     "@ngrx/core": "npm:^1.2.0"
     "@ngrx/effects": "npm:^20.1.0"
-    "@ngrx/eslint-plugin": "npm:^20.0.0"
     "@ngrx/router-store": "npm:^20.1.0"
     "@ngrx/store": "npm:^20.1.0"
     "@ngrx/store-devtools": "npm:^20.1.0"
