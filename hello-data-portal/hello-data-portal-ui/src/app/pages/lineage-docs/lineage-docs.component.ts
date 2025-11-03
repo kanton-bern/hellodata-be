@@ -26,7 +26,7 @@
 ///
 
 import { Component, ElementRef, NgModule, OnInit, ViewChild, inject } from '@angular/core';
-import { CommonModule, NgIf, AsyncPipe, DatePipe } from "@angular/common";
+import { CommonModule, AsyncPipe, DatePipe } from "@angular/common";
 import {Store} from "@ngrx/store";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { ButtonModule, Button, ButtonDirective } from "primeng/button";
@@ -54,7 +54,7 @@ import { PrimeTemplate } from 'primeng/api';
     selector: 'app-docs',
     templateUrl: './lineage-docs.component.html',
     styleUrls: ['./lineage-docs.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class LineageDocsComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

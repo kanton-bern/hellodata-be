@@ -26,7 +26,7 @@
 ///
 
 import { Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
-import { CommonModule, NgIf, NgStyle } from "@angular/common";
+import { CommonModule, NgStyle } from "@angular/common";
 
 import {AuthService} from "../../services";
 import {Subscription} from "rxjs";
@@ -37,7 +37,7 @@ import { SafePipe } from '../../pipes/safe.pipe';
     selector: 'app-subsystem-iframe[url]',
     templateUrl: './subsystem-iframe.component.html',
     styleUrls: ['./subsystem-iframe.component.scss'],
-    imports: [NgIf, NgStyle, SafePipe]
+    imports: [NgStyle, SafePipe]
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   private authService = inject(AuthService);

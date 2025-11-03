@@ -34,13 +34,13 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {Observable, tap} from "rxjs";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 @Component({
     templateUrl: 'embedded-dm-viewer.component.html',
     styleUrls: ['./embedded-dm-viewer.component.scss'],
-    imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
+    imports: [SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedDmViewerComponent {
   private store = inject<Store<AppState>>(Store);

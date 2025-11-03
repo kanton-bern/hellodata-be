@@ -46,7 +46,7 @@ import {
   selectUsersLoading,
   selectUsersTotalRecords
 } from "../../../store/users-management/users-management.selector";
-import { CommonModule, NgIf, AsyncPipe, DatePipe } from "@angular/common";
+import { CommonModule, AsyncPipe, DatePipe } from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {UserEditComponent} from "./user-edit/user-edit.component";
@@ -95,7 +95,7 @@ import { PrimeTemplate } from 'primeng/api';
     selector: 'app-user-management',
     templateUrl: './user-management.component.html',
     styleUrls: ['./user-management.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, NgIf, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

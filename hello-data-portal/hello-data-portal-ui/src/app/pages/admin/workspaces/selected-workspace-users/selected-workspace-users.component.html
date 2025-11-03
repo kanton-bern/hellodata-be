@@ -1,52 +1,55 @@
-<p-table
-  #dt
-  *ngIf="users.length > 0"
-  [paginator]="false"
-  [rowHover]="true"
-  [showCurrentPageReport]="true"
-  [tableStyle]="{ 'min-width': '75rem' }"
-  [value]="users"
-  dataKey="id"
-  class="p-datatable-striped"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th id="username">
-        {{ '@Username' | transloco }}
-      </th>
-      <th id="email">
-        {{ '@Email' | transloco }}
-      </th>
-      <th id="firstName">
-        {{ '@First name' | transloco }}
-      </th>
-      <th id="lastName">
-        {{ '@Last name' | transloco }}
-      </th>
-      <th id="roles">
-        {{ '@Roles' | transloco }}
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template let-user pTemplate="body">
-    <tr>
-      <td>
-        {{ user.username }}
-      </td>
-      <td>
-        {{ user.email }}
-      </td>
-      <td>
-        {{ user.first_name }}
-      </td>
-      <td>
-        {{ user.last_name }}
-      </td>
-      <td>
-        <span *ngFor="let role of user.roles" style="margin: 2px">
-          <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}"></p-tag>
-        </span>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+@if (users.length > 0) {
+  <p-table
+    #dt
+    [paginator]="false"
+    [rowHover]="true"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [value]="users"
+    dataKey="id"
+    class="p-datatable-striped"
+    >
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="username">
+          {{ '@Username' | transloco }}
+        </th>
+        <th id="email">
+          {{ '@Email' | transloco }}
+        </th>
+        <th id="firstName">
+          {{ '@First name' | transloco }}
+        </th>
+        <th id="lastName">
+          {{ '@Last name' | transloco }}
+        </th>
+        <th id="roles">
+          {{ '@Roles' | transloco }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template let-user pTemplate="body">
+      <tr>
+        <td>
+          {{ user.username }}
+        </td>
+        <td>
+          {{ user.email }}
+        </td>
+        <td>
+          {{ user.first_name }}
+        </td>
+        <td>
+          {{ user.last_name }}
+        </td>
+        <td>
+          @for (role of user.roles; track role) {
+            <span style="margin: 2px">
+              <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}"></p-tag>
+            </span>
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}

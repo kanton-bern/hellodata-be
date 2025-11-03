@@ -26,7 +26,7 @@
 ///
 
 import { Component, NgModule, OnInit, inject } from '@angular/core';
-import { CommonModule, NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { CommonModule, AsyncPipe } from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PortalRoleEditComponent} from './portal-role-edit/portal-role-edit.component';
 import {Action, Store} from "@ngrx/store";
@@ -62,7 +62,7 @@ import {
     selector: 'app-roles-management',
     templateUrl: './portal-roles-management.component.html',
     styleUrls: ['./portal-roles-management.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, NgFor, Tag, Button, ButtonDirective, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Tag, Button, ButtonDirective, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

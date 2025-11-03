@@ -10,7 +10,7 @@ import {selectDefaultLanguage, selectSelectedLanguage} from "../../store/auth/au
 import {Announcement} from "../../store/announcement/announcement.model";
 import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/announcement.selector";
 import {TranslateService} from "../../shared/services/translate.service";
-import { NgIf, NgFor, AsyncPipe, DatePipe } from "@angular/common";
+import { AsyncPipe, DatePipe } from "@angular/common";
 import { Toolbar } from "primeng/toolbar";
 import { Editor } from "primeng/editor";
 import { FormsModule } from "@angular/forms";
@@ -22,7 +22,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
     selector: 'app-published-announcements',
     templateUrl: './published-announcements.component.html',
     styleUrls: ['./published-announcements.component.scss'],
-    imports: [NgIf, NgFor, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PublishedAnnouncementsComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

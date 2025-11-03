@@ -43,15 +43,17 @@ import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-p
 import {selectUrl} from "../../../../store/router/router.selectors";
 import {naviElements} from "../../../../app-navi-elements";
 import {take} from "rxjs/operators";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
     providers: [DialogService],
     selector: 'app-published-announcements-wrapper',
     template: `
-    <div *ngIf="publishedAnnouncements$ | async">
-    </div>`,
-    imports: [NgIf, AsyncPipe]
+    @if (publishedAnnouncements$ | async) {
+      <div>
+      </div>
+    }`,
+    imports: [AsyncPipe]
 })
 export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
   private store = inject<Store<AppState>>(Store);

@@ -40,7 +40,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
 import { Table, TableModule } from "primeng/table";
 import {TranslateService} from "../../../shared/services/translate.service";
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { PrimeTemplate } from 'primeng/api';
 import { Button, ButtonDirective } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
@@ -57,7 +57,7 @@ interface TableRow {
     selector: 'app-subsystem-users',
     templateUrl: './subsystem-users.component.html',
     styleUrls: ['./subsystem-users.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, InputText, NgFor, Tag, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Button, ButtonDirective, InputText, Tag, AsyncPipe, TranslocoPipe]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

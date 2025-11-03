@@ -34,13 +34,13 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {selectCurrentJupyterhubLink} from "../../store/start-page/start-page.selector";
 import {Observable, tap} from "rxjs";
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 @Component({
     templateUrl: 'advanced-analytics-viewer.component.html',
     styleUrls: ['./advanced-analytics-viewer.component.scss'],
-    imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
+    imports: [SubsystemIframeComponent, AsyncPipe]
 })
 export class AdvancedAnalyticsViewerComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

@@ -44,7 +44,7 @@ import {selectAdminEmails} from "../../store/users-management/users-management.s
 import {loadAdminEmails} from "../../store/users-management/users-management.action";
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {ScreenService} from "../../shared/services";
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Tooltip } from 'primeng/tooltip';
 import { Fieldset } from 'primeng/fieldset';
 import { PrimeTemplate } from 'primeng/api';
@@ -61,7 +61,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
     templateUrl: 'home.component.html',
     styleUrls: ['./home.component.scss'],
-    imports: [NgIf, Tooltip, Fieldset, PrimeTemplate, Badge, NgFor, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
+    imports: [Tooltip, Fieldset, PrimeTemplate, Badge, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
 })
 export class HomeComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

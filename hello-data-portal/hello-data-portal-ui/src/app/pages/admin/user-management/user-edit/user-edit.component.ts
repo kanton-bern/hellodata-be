@@ -65,7 +65,7 @@ import {
   showUserActionPopup,
   updateUserRoles
 } from "../../../../store/users-management/users-management.action";
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Toolbar } from 'primeng/toolbar';
 import { Button, ButtonDirective } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
@@ -80,7 +80,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-user-edit',
     templateUrl: './user-edit.component.html',
     styleUrls: ['./user-edit.component.scss'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, NgFor, Select, DashboardViewerPermissionsComponent, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe]
+    imports: [FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, Select, DashboardViewerPermissionsComponent, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

@@ -42,7 +42,7 @@ import {
 import {Documentation} from "../../../store/summary/summary.model";
 import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {take} from "rxjs/operators";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { Ripple } from 'primeng/ripple';
 import { Editor } from 'primeng/editor';
@@ -55,7 +55,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-documentation',
     templateUrl: './documentation-management.component.html',
     styleUrls: ['./documentation-management.component.scss'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Toolbar, Button, AsyncPipe, TranslocoPipe]
+    imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Toolbar, Button, AsyncPipe, TranslocoPipe]
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

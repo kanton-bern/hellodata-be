@@ -36,7 +36,7 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../store/faq/faq.action";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Toolbar } from 'primeng/toolbar';
 import { PrimeTemplate, SharedModule } from 'primeng/api';
 import { ButtonDirective, Button } from 'primeng/button';
@@ -52,7 +52,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-faq-list',
     templateUrl: './faq-list.component.html',
     styleUrls: ['./faq-list.component.scss'],
-    imports: [NgIf, Toolbar, PrimeTemplate, ButtonDirective, Ripple, TableModule, Editor, FormsModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
+    imports: [Toolbar, PrimeTemplate, ButtonDirective, Ripple, TableModule, Editor, FormsModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

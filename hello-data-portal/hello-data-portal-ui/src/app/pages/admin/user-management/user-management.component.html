@@ -6,47 +6,53 @@
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
       <div class="col-12 md:col-10">
         <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary"
-              style="width: 100%; display: grid">
+          style="width: 100%; display: grid">
           <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
-                          [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
-                          name="user">
-              <ng-template let-user pTemplate="item">
-                <div class="flex align-items-center gap-1">
-                  <p [pTooltip]="user.label" class="glow top-menu-item" tooltipPosition="bottom">{{ user.label }}</p>
-                </div>
+            [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
+            name="user">
+            <ng-template let-user pTemplate="item">
+              <div class="flex align-items-center gap-1">
+                <p [pTooltip]="user.label" class="glow top-menu-item" tooltipPosition="bottom">{{ user.label }}</p>
+              </div>
             </ng-template>
           </p-autoComplete>
-          </span>
-        <small *ngIf="!inviteForm.controls['user'].valid && inviteForm.controls['user'].dirty"
-               class="p-error">{{ '@Email is invalid' | transloco }}</small>
+        </span>
+        @if (!inviteForm.controls['user'].valid && inviteForm.controls['user'].dirty) {
+          <small
+          class="p-error">{{ '@Email is invalid' | transloco }}</small>
+        }
       </div>
     </div>
     <div class="field grid">
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
       <div class="col-12 md:col-10">
         <input [readOnly]="true"
-               class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="firstName"
-               id="firstName"
-               name="firstName"
-               pInputText
-               type="text">
-        <small *ngIf="!inviteForm.controls['firstName'].valid && inviteForm.controls['firstName'].dirty"
-               class="p-error">{{ '@First name is invalid' | transloco }}</small>
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="firstName"
+          id="firstName"
+          name="firstName"
+          pInputText
+          type="text">
+        @if (!inviteForm.controls['firstName'].valid && inviteForm.controls['firstName'].dirty) {
+          <small
+          class="p-error">{{ '@First name is invalid' | transloco }}</small>
+        }
       </div>
     </div>
     <div class="field grid">
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
       <div class="col-12 md:col-10">
         <input [readOnly]="true"
-               class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="lastName"
-               id="lastName"
-               name="lastName"
-               pInputText
-               type="text">
-        <small *ngIf="!inviteForm.controls['lastName'].valid && inviteForm.controls['lastName'].dirty"
-               class="p-error">{{ '@Last name is invalid' | transloco }}</small>
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="lastName"
+          id="lastName"
+          name="lastName"
+          pInputText
+          type="text">
+        @if (!inviteForm.controls['lastName'].valid && inviteForm.controls['lastName'].dirty) {
+          <small
+          class="p-error">{{ '@Last name is invalid' | transloco }}</small>
+        }
       </div>
     </div>
     <p-toolbar>
@@ -54,10 +60,10 @@
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="createUser()"
-                  [disabled]="inviteForm.invalid"
-                  icon="fas fa-floppy-disk"
-                  label="{{'@Set permissions' | transloco}}"
-                  severity="success"></p-button>
+          [disabled]="inviteForm.invalid"
+          icon="fas fa-floppy-disk"
+          label="{{'@Set permissions' | transloco}}"
+        severity="success"></p-button>
       </div>
     </p-toolbar>
   </form>
@@ -69,13 +75,15 @@
       <h3>{{ '@Users' | transloco }}</h3>
 
     </div>
-    <div *ngIf="(syncStatus$ | async) as syncStatus " class="p-toolbar-group-end">
-      <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
-                [pTooltip]="'@Sync Users Title' | transloco"
-                icon="fas fa-arrows-rotate"
-                label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
-                severity="success"></p-button>
-    </div>
+    @if ((syncStatus$ | async); as syncStatus ) {
+      <div class="p-toolbar-group-end">
+        <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
+          [pTooltip]="'@Sync Users Title' | transloco"
+          icon="fas fa-arrows-rotate"
+          label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
+        severity="success"></p-button>
+      </div>
+    }
   </p-toolbar>
 
   <p-table
@@ -98,7 +106,7 @@
     class="p-datatable-striped"
     sortField="email"
     [sortOrder]="1"
-  >
+    >
     <ng-template pTemplate="caption">
       <div>
         <div id="searchBox">
@@ -106,7 +114,7 @@
             <p-iconfield>
               <p-inputicon class="pi pi-search"></p-inputicon>
               <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                     placeholder="{{'@Search' | transloco}}" type="text"/>
+                placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
           </span>
         </div>
@@ -154,46 +162,59 @@
           {{ user.lastName }}
         </td>
         <td>
-          <div *ngIf="user.superuser">
-            <i class="fas fa-check"></i>
-          </div>
+          @if (user.superuser) {
+            <div>
+              <i class="fas fa-check"></i>
+            </div>
+          }
         </td>
         <td>
-          <div *ngIf="user.enabled">
-            <i class="fas fa-check"></i>
-          </div>
+          @if (user.enabled) {
+            <div>
+              <i class="fas fa-check"></i>
+            </div>
+          }
         </td>
         <td>
-          <span *ngIf="user.lastAccess">{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
-          <span *ngIf="user.lastAccess === null">{{ '@Never' | transloco }}</span>
+          @if (user.lastAccess) {
+            <span>{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+          }
+          @if (user.lastAccess === null) {
+            <span>{{ '@Never' | transloco }}</span>
+          }
         </td>
-        <td *ngIf="(loggedInUser$ | async) as loggedInUser">
-          <p-button (click)="editUser(user)"
-                    severity="success"
-                    class="p-button-rounded mr-2"
-                    icon="fas fa-light fa-pen-to-square"
-                    pButton
-                    pRipple
-                    pTooltip="{{'@Edit' | transloco}}"></p-button>
-          <p-button (click)="enableUser(user)"
-                    *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
-                    severity="success"
-                    class="p-button-rounded mr-2"
-                    icon="fas fa-circle-plus" pButton pRipple
-                    pTooltip="{{'@Enable' | transloco}}"></p-button>
-          <p-button (click)="disableUser(user)"
-                    *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
-                    severity="warn"
-                    class="p-button-rounded mr-2"
-                    icon="fas fa-circle-xmark" pButton pRipple
-                    pTooltip="{{'@Disable' | transloco}}"></p-button>
-          <p-button (click)="showUserDeletionPopup(user)"
-                    *ngIf="!user.superuser && user.email !== loggedInUser.email"
-                    severity="danger"
-                    class="p-button-rounded mr-2"
-                    icon="fas fa-trash" pButton pRipple
-                    pTooltip="{{'@Delete' | transloco}}"></p-button>
-        </td>
+        @if ((loggedInUser$ | async); as loggedInUser) {
+          <td>
+            <p-button (click)="editUser(user)"
+              severity="success"
+              class="p-button-rounded mr-2"
+              icon="fas fa-light fa-pen-to-square"
+              pButton
+              pRipple
+            pTooltip="{{'@Edit' | transloco}}"></p-button>
+            @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
+              <p-button (click)="enableUser(user)"
+                severity="success"
+                class="p-button-rounded mr-2"
+                icon="fas fa-circle-plus" pButton pRipple
+              pTooltip="{{'@Enable' | transloco}}"></p-button>
+            }
+            @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
+              <p-button (click)="disableUser(user)"
+                severity="warn"
+                class="p-button-rounded mr-2"
+                icon="fas fa-circle-xmark" pButton pRipple
+              pTooltip="{{'@Disable' | transloco}}"></p-button>
+            }
+            @if (!user.superuser && user.email !== loggedInUser.email) {
+              <p-button (click)="showUserDeletionPopup(user)"
+                severity="danger"
+                class="p-button-rounded mr-2"
+                icon="fas fa-trash" pButton pRipple
+              pTooltip="{{'@Delete' | transloco}}"></p-button>
+            }
+          </td>
+        }
       </tr>
     </ng-template>
   </p-table>

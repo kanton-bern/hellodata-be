@@ -26,7 +26,7 @@
 ///
 
 import { Component, NgModule, OnDestroy, OnInit, inject } from "@angular/core";
-import { CommonModule, NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { CommonModule, AsyncPipe } from "@angular/common";
 import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
@@ -64,7 +64,7 @@ interface TableRow {
     selector: 'app-users-overview',
     templateUrl: './users-overview.component.html',
     styleUrls: ['./users-overview.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Button, NgFor, Tag, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

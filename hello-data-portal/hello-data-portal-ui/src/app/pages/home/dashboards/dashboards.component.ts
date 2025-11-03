@@ -35,7 +35,7 @@ import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-pag
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import { Table, TablePageEvent, TableModule } from "primeng/table";
 import {navigate, trackEvent} from "../../../store/app/app.action";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { PrimeTemplate } from 'primeng/api';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -47,7 +47,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-dashboards',
     templateUrl: './dashboards.component.html',
     styleUrls: ['./dashboards.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe]
 })
 export class DashboardsComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

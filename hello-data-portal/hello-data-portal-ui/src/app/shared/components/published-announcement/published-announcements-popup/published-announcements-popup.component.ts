@@ -12,7 +12,7 @@ import {
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../../store/auth/auth.selector";
 import {TranslateService} from "../../../services/translate.service";
 import { Divider } from "primeng/divider";
-import { NgIf, NgFor, AsyncPipe, DatePipe } from "@angular/common";
+import { AsyncPipe, DatePipe } from "@angular/common";
 import { Toolbar } from "primeng/toolbar";
 import { Editor } from "primeng/editor";
 import { FormsModule } from "@angular/forms";
@@ -23,31 +23,39 @@ import { TranslocoPipe } from "@jsverse/transloco";
     providers: [DialogService],
     template: `
     <p-divider></p-divider>
-    <div *ngIf="(defaultLanguage$ | async) as defaultLanguage">
-      <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
-        <div *ngFor="let announcement of publishedAnnouncements$ | async" id="ghettobox">
-          <p-toolbar>
-            <div class="p-toolbar-group-start">
-              <i class="fas fa-circle-info"></i>
-            </div>
-            <div class="p-toolbar-group-center" style="width: 65%">
-              <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)" [disabled]="true"
-                        [readonly]="true" class="p-editor-readonly"
-                        [style]="{width: '100%'}">
-                <p-header hidden></p-header>
-              </p-editor>
-            </div>
-            <div class="p-toolbar-group-end">
-              <div class="published-date" *ngIf="announcement.publishedDate">
-                [{{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}]
+    @if ((defaultLanguage$ | async); as defaultLanguage) {
+      <div>
+        @if ((selectedLanguage$ | async); as selectedLanguage) {
+          <div>
+            @for (announcement of publishedAnnouncements$ | async; track announcement) {
+              <div id="ghettobox">
+                <p-toolbar>
+                  <div class="p-toolbar-group-start">
+                    <i class="fas fa-circle-info"></i>
+                  </div>
+                  <div class="p-toolbar-group-center" style="width: 65%">
+                    <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)" [disabled]="true"
+                      [readonly]="true" class="p-editor-readonly"
+                      [style]="{width: '100%'}">
+                      <p-header hidden></p-header>
+                    </p-editor>
+                  </div>
+                  <div class="p-toolbar-group-end">
+                    @if (announcement.publishedDate) {
+                      <div class="published-date">
+                        [{{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}]
+                      </div>
+                    }
+                  </div>
+                </p-toolbar>
+                <p-divider></p-divider>
               </div>
-            </div>
-          </p-toolbar>
-          <p-divider></p-divider>
-        </div>
+            }
+          </div>
+        }
       </div>
-    </div>`,
-    imports: [Divider, NgIf, NgFor, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
+    }`,
+    imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewInit {
   private store = inject<Store<AppState>>(Store);

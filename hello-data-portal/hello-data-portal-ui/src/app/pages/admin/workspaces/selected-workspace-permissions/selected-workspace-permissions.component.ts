@@ -26,7 +26,7 @@
 ///
 
 import {Component, Input} from '@angular/core';
-import { NgIf } from '@angular/common';
+
 import { TableModule } from 'primeng/table';
 import { PrimeTemplate } from 'primeng/api';
 import { Tag } from 'primeng/tag';
@@ -36,7 +36,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-selected-workspace-permissions',
     templateUrl: './selected-workspace-permissions.component.html',
     styleUrls: ['./selected-workspace-permissions.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Tag, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Tag, TranslocoPipe]
 })
 export class SelectedWorkspacePermissionsComponent {
   @Input()

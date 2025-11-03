@@ -1,3 +1,5 @@
-<app-subsystem-iframe [delay]="500" [url]="url" *ngIf="lineageInfo$ | async"></app-subsystem-iframe>
+@if (lineageInfo$ | async) {
+  <app-subsystem-iframe [delay]="500" [url]="url"></app-subsystem-iframe>
+}
 
 

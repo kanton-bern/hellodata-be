@@ -48,7 +48,7 @@ import {
   deleteExternalDashboard,
   updateExternalDashboard
 } from "../../../../store/external-dashboards/external-dasboards.action";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Select } from 'primeng/select';
 import { Toolbar } from 'primeng/toolbar';
 import { Button, ButtonDirective } from 'primeng/button';
@@ -60,7 +60,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-external-dashboard-edit',
     templateUrl: './external-dashboard-edit.component.html',
     styleUrls: ['./external-dashboard-edit.component.scss'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, ButtonDirective, AsyncPipe, TranslocoPipe]
+    imports: [FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class ExternalDashboardEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);

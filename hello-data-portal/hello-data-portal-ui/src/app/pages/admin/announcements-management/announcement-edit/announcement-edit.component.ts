@@ -44,7 +44,7 @@ import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {selectDefaultLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
-import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Checkbox } from 'primeng/checkbox';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { Ripple } from 'primeng/ripple';
@@ -60,7 +60,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-announcement-edit',
     templateUrl: './announcement-edit.component.html',
     styleUrls: ['./announcement-edit.component.scss'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, Checkbox, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Button, Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [FormsModule, ReactiveFormsModule, Checkbox, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Button, Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class AnnouncementEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

@@ -36,7 +36,7 @@ import {
 } from "../../store/users-management/users-management.model";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PrimeTemplate } from 'primeng/api';
 import { Tooltip } from 'primeng/tooltip';
@@ -45,7 +45,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
     templateUrl: 'profile.component.html',
     styleUrls: ['./profile.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class ProfileComponent {
   private store = inject<Store<AppState>>(Store);

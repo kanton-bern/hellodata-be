@@ -26,7 +26,7 @@
 ///
 
 import { Component, NgModule, inject } from "@angular/core";
-import { CommonModule, NgIf, NgFor, NgClass, AsyncPipe } from "@angular/common";
+import { CommonModule, NgClass, AsyncPipe } from "@angular/common";
 import {RouterOutlet} from "@angular/router";
 import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {ToastModule} from "primeng/toast";
@@ -61,7 +61,7 @@ import { PrimeTemplate } from "primeng/api";
     selector: 'app-mobile',
     templateUrl: './mobile.component.html',
     styleUrls: ['./mobile.component.scss'],
-    imports: [NgIf, Button, Ripple, Drawer, PrimeTemplate, NgFor, NgClass, AsyncPipe, TranslocoPipe]
+    imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe]
 })
 export class MobileComponent {
   private store = inject<Store<AppState>>(Store);

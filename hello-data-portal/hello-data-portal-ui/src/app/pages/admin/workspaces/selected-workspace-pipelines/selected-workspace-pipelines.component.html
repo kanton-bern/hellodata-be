@@ -1,54 +1,71 @@
-<p-table
-  #dt
-  *ngIf="pipelines.length > 0"
-  [paginator]="false"
-  [rowHover]="true"
-  [showCurrentPageReport]="true"
-  [tableStyle]="{ 'min-width': '75rem' }"
-  [value]="pipelines"
-  dataKey="id"
-  class="p-datatable-striped"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th id="id">
-        {{ '@Id' | transloco }}
-      </th>
-      <th id="description">
-        {{ '@Description' | transloco }}
-      </th>
-      <th id="status">
-        {{ '@Status' | transloco }}
-      </th>
-      <th id="detail">
-        {{ '@Detail' | transloco }}
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template let-pipeline pTemplate="body">
-    <tr>
-      <td>
-        {{ pipeline.id }}
-      </td>
-      <td>
-        <p-tag severity="warn" value="{{pipeline.description}}"></p-tag>
-      </td>
-      <td>
-        <div *ngIf="pipeline.lastInstance.state" [ngSwitch]="pipeline.lastInstance.state" class="col-1">
-          <span *ngSwitchCase="'queued'" class="align-items-end pi pi-hourglass" style="color: gray"></span>
-          <span *ngSwitchCase="'running'" class="align-items-end pi pi-spin pi-cog" style="color: green"></span>
-          <span *ngSwitchCase="'success'" class="align-items-end pi pi-check-circle" style="color: green"></span>
-          <span *ngSwitchCase="'failed'" class="align-items-end pi pi-exclamation-circle" style="color: red"></span>
-          <span *ngSwitchDefault class="align-items-end pi pi-question-circle" style="color: gray"></span>
-        </div>
-        <div *ngIf="!pipeline.lastInstance.state">
-          <span class="align-items-end pi">&nbsp;-</span>
-        </div>
-      </td>
-      <td>
-        <p-button (click)="showDetails(pipeline.id)" [pTooltip]="'@Open' | transloco" class="mr-2"
-                  icon="p-button-icon fas fa-up-right-from-square"></p-button>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+@if (pipelines.length > 0) {
+  <p-table
+    #dt
+    [paginator]="false"
+    [rowHover]="true"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [value]="pipelines"
+    dataKey="id"
+    class="p-datatable-striped"
+    >
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="id">
+          {{ '@Id' | transloco }}
+        </th>
+        <th id="description">
+          {{ '@Description' | transloco }}
+        </th>
+        <th id="status">
+          {{ '@Status' | transloco }}
+        </th>
+        <th id="detail">
+          {{ '@Detail' | transloco }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template let-pipeline pTemplate="body">
+      <tr>
+        <td>
+          {{ pipeline.id }}
+        </td>
+        <td>
+          <p-tag severity="warn" value="{{pipeline.description}}"></p-tag>
+        </td>
+        <td>
+          @if (pipeline.lastInstance.state) {
+            <div class="col-1">
+              @switch (pipeline.lastInstance.state) {
+                @case ('queued') {
+                  <span class="align-items-end pi pi-hourglass" style="color: gray"></span>
+                }
+                @case ('running') {
+                  <span class="align-items-end pi pi-spin pi-cog" style="color: green"></span>
+                }
+                @case ('success') {
+                  <span class="align-items-end pi pi-check-circle" style="color: green"></span>
+                }
+                @case ('failed') {
+                  <span class="align-items-end pi pi-exclamation-circle" style="color: red"></span>
+                }
+                @default {
+                  <span class="align-items-end pi pi-question-circle" style="color: gray"></span>
+                }
+              }
+            </div>
+          }
+          @if (!pipeline.lastInstance.state) {
+            <div>
+              <span class="align-items-end pi">&nbsp;-</span>
+            </div>
+          }
+        </td>
+        <td>
+          <p-button (click)="showDetails(pipeline.id)" [pTooltip]="'@Open' | transloco" class="mr-2"
+          icon="p-button-icon fas fa-up-right-from-square"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}

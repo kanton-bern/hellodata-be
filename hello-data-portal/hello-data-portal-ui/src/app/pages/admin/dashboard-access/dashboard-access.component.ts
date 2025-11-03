@@ -44,7 +44,7 @@ import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {map} from "rxjs/operators";
-import { NgIf, AsyncPipe, DatePipe } from "@angular/common";
+import { AsyncPipe, DatePipe } from "@angular/common";
 import { PrimeTemplate } from "primeng/api";
 import { IconField } from "primeng/iconfield";
 import { InputIcon } from "primeng/inputicon";
@@ -55,7 +55,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
 @Component({
     templateUrl: 'dashboard-access.component.html',
     styleUrls: ['./dashboard-access.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

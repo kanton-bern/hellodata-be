@@ -4,17 +4,17 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton
-            type="button" severity="secondary"></button>
-    <ng-container *ngIf="stayOnPage$ | async as stayOnPage">
-      <p-button
-        (click)="cd.onAccept()"
-        *ngIf="!stayOnPage.value; else continueEditionButton"
-        severity="success"
-        icon="fas fa-floppy-disk"
-        label="{{ '@Save' | transloco }}"
-        type="button"
-      ></p-button>
-      <ng-template #continueEditionButton>
+    type="button" severity="secondary"></button>
+    @if (stayOnPage$ | async; as stayOnPage) {
+      @if (!stayOnPage.value) {
+        <p-button
+          (click)="cd.onAccept()"
+          severity="success"
+          icon="fas fa-floppy-disk"
+          label="{{ '@Save' | transloco }}"
+          type="button"
+        ></p-button>
+      } @else {
         <p-button
           (click)="cd.hide()"
           severity="success"
@@ -22,7 +22,7 @@
           label="{{ '@Continue edition' | transloco }}"
           type="button"
         ></p-button>
-      </ng-template>
-    </ng-container>
+      }
+    }
   </ng-template>
 </p-confirmDialog>

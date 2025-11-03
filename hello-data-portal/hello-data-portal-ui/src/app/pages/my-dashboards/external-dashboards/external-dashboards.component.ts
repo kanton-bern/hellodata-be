@@ -44,7 +44,7 @@ import {
   openExternalDashboardEdition
 } from "../../../store/external-dashboards/external-dasboards.action";
 import {trackEvent} from "../../../store/app/app.action";
-import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Button, ButtonDirective } from 'primeng/button';
 import { Ripple } from 'primeng/ripple';
 import { InputText } from 'primeng/inputtext';
@@ -57,7 +57,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-external-dashboards',
     templateUrl: './external-dashboards.component.html',
     styleUrls: ['./external-dashboards.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe, TranslocoPipe]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

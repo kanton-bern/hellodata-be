@@ -38,7 +38,7 @@ import {
 import {markUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
 import {take} from "rxjs/operators";
 import {updateUserRoles} from "../../../../../store/users-management/users-management.action";
-import { NgIf, AsyncPipe } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { MultiSelect } from "primeng/multiselect";
 import { FormsModule } from "@angular/forms";
 import { TranslocoPipe } from "@jsverse/transloco";
@@ -47,7 +47,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
     selector: 'app-dashboard-viewer-permissions',
     templateUrl: './dashboard-viewer-permissions.component.html',
     styleUrls: ['./dashboard-viewer-permissions.component.scss'],
-    imports: [NgIf, MultiSelect, FormsModule, AsyncPipe, TranslocoPipe]
+    imports: [MultiSelect, FormsModule, AsyncPipe, TranslocoPipe]
 })
 export class DashboardViewerPermissionsComponent {
   private store = inject<Store<AppState>>(Store);

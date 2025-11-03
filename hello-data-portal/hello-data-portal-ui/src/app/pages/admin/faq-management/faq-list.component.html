@@ -1,70 +1,78 @@
 <h2 class="content-block">{{ '@Faq management' | transloco }}</h2>
-<div *ngIf="(selectedLanguage$ | async) as selectedLanguage" class="card">
-  <p-toolbar class="mb-4 gap-2">
-    <ng-template pTemplate="left">
-      <button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
-              label="{{'@Create' | transloco }}" pButton pRipple></button>
-    </ng-template>
-  </p-toolbar>
-
-  <div *ngIf="(faq$ | async) as faq">
-    <p-table
-      #dt
-      *ngIf="faq.length > 0"
-      [paginator]="false"
-      [rowHover]="true"
-      [showCurrentPageReport]="true"
-      [tableStyle]="{ 'min-width': '75rem' }"
-      [value]="faq"
-      dataKey="id"
-      class="p-datatable-striped"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th id="title">
-            {{ '@Title' | transloco }}
-          </th>
-          <th id="dataDomain">
-            {{ '@Data domain' | transloco }}
-          </th>
-          <th id="message" style="min-width:15rem">
-            {{ '@Message' | transloco }}
-          </th>
-          <th id="actions" style="min-width:8rem"></th>
-        </tr>
+@if ((selectedLanguage$ | async); as selectedLanguage) {
+  <div class="card">
+    <p-toolbar class="mb-4 gap-2">
+      <ng-template pTemplate="left">
+        <button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
+        label="{{'@Create' | transloco }}" pButton pRipple></button>
       </ng-template>
-      <ng-template let-faq pTemplate="body">
-        <tr>
-          <td>{{ getTitle(faq, selectedLanguage) }}</td>
-          <td *ngIf="faq.contextName">{{ faq.contextName }}</td>
-          <td *ngIf="faq.contextName === null" class="font-italic">{{ '@All Data Domains' | transloco }}</td>
-          <td>
-            <p-editor [disabled]="true" [ngModel]="getMessage(faq, selectedLanguage)" [readonly]="true"
-                      [style]="{ height: '320px' }" class="p-editor-readonly">
-              <p-header hidden></p-header>
-            </p-editor>
-          </td>
-          <td>
-            <p-button (click)="editFaq(faq)"
-                      [pTooltip]="'@Edit' | transloco"
-                      severity="success"
-                      class="p-button-rounded mr-2"
-                      icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
-                      pButton
-                      pRipple></p-button>
-            <p-button (click)="showFaqDeletionPopup(faq)"
-                      [pTooltip]="'@Delete' | transloco"
-                      severity="danger"
-                      class="p-button-rounded mr-2"
-                      icon="fas fa-trash"
-                      id="{{'deleteFaq_' + faq.title}}"
-                      pButton
-                      pRipple></p-button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+    </p-toolbar>
+    @if ((faq$ | async); as faq) {
+      <div>
+        @if (faq.length > 0) {
+          <p-table
+            #dt
+            [paginator]="false"
+            [rowHover]="true"
+            [showCurrentPageReport]="true"
+            [tableStyle]="{ 'min-width': '75rem' }"
+            [value]="faq"
+            dataKey="id"
+            class="p-datatable-striped"
+            >
+            <ng-template pTemplate="header">
+              <tr>
+                <th id="title">
+                  {{ '@Title' | transloco }}
+                </th>
+                <th id="dataDomain">
+                  {{ '@Data domain' | transloco }}
+                </th>
+                <th id="message" style="min-width:15rem">
+                  {{ '@Message' | transloco }}
+                </th>
+                <th id="actions" style="min-width:8rem"></th>
+              </tr>
+            </ng-template>
+            <ng-template let-faq pTemplate="body">
+              <tr>
+                <td>{{ getTitle(faq, selectedLanguage) }}</td>
+                @if (faq.contextName) {
+                  <td>{{ faq.contextName }}</td>
+                }
+                @if (faq.contextName === null) {
+                  <td class="font-italic">{{ '@All Data Domains' | transloco }}</td>
+                }
+                <td>
+                  <p-editor [disabled]="true" [ngModel]="getMessage(faq, selectedLanguage)" [readonly]="true"
+                    [style]="{ height: '320px' }" class="p-editor-readonly">
+                    <p-header hidden></p-header>
+                  </p-editor>
+                </td>
+                <td>
+                  <p-button (click)="editFaq(faq)"
+                    [pTooltip]="'@Edit' | transloco"
+                    severity="success"
+                    class="p-button-rounded mr-2"
+                    icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
+                    pButton
+                  pRipple></p-button>
+                  <p-button (click)="showFaqDeletionPopup(faq)"
+                    [pTooltip]="'@Delete' | transloco"
+                    severity="danger"
+                    class="p-button-rounded mr-2"
+                    icon="fas fa-trash"
+                    id="{{'deleteFaq_' + faq.title}}"
+                    pButton
+                  pRipple></p-button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </div>
+    }
   </div>
-</div>
+}
 
 <app-delete-faq-popup [action]="getDeletionAction()"></app-delete-faq-popup>

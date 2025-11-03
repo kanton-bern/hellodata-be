@@ -37,7 +37,7 @@ import {
   hideUserPopupAction,
   invokeActionFromUserPopup
 } from "../../../../store/users-management/users-management.action";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Button, ButtonDirective } from 'primeng/button';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -46,7 +46,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-actions-user-popup',
     templateUrl: './actions-user-popup.component.html',
     styleUrls: ['./actions-user-popup.component.scss'],
-    imports: [NgIf, ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
+    imports: [ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class ActionsUserPopupComponent {
   private store = inject<Store<AppState>>(Store);

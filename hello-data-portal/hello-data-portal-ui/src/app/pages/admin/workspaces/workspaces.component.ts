@@ -30,7 +30,7 @@ import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource.selector";
 import {AppState} from "../../../store/app/app.state";
-import { CommonModule, NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { CommonModule, AsyncPipe } from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
 import { RippleModule, Ripple } from "primeng/ripple";
 import {SelectedWorkspaceComponent} from "./selected-workspace/selected-workspace.component";
@@ -63,7 +63,7 @@ import {loadAppInfoResources} from "../../../store/metainfo-resource/metainfo-re
     selector: 'app-workspaces',
     templateUrl: './workspaces.component.html',
     styleUrls: ['./workspaces.component.scss'],
-    imports: [NgIf, NgFor, Ripple, AsyncPipe, NgArrayPipesModule]
+    imports: [Ripple, AsyncPipe, NgArrayPipesModule]
 })
 export class WorkspacesComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

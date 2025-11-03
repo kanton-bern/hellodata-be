@@ -35,7 +35,7 @@ import {
 import {Observable} from "rxjs";
 import {Context} from "../../../../store/users-management/context-role.model";
 import {loadAvailableContexts} from "../../../../store/users-management/users-management.action";
-import { NgFor, AsyncPipe } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { Tooltip } from "primeng/tooltip";
 import { TranslocoPipe } from "@jsverse/transloco";
 
@@ -43,7 +43,7 @@ import { TranslocoPipe } from "@jsverse/transloco";
     selector: 'app-subscriptions',
     templateUrl: './subscriptions.component.html',
     styleUrls: ['./subscriptions.component.scss'],
-    imports: [NgFor, Tooltip, AsyncPipe, TranslocoPipe]
+    imports: [Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class SubscriptionsComponent {
   private store = inject<Store<AppState>>(Store);

@@ -26,7 +26,7 @@
 ///
 
 import {Component, Input} from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+
 import { TableModule } from 'primeng/table';
 import { PrimeTemplate } from 'primeng/api';
 import { Tag } from 'primeng/tag';
@@ -37,7 +37,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-selected-workspace-roles',
     templateUrl: './selected-workspace-roles.component.html',
     styleUrls: ['./selected-workspace-roles.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Tag, NgFor, Tooltip, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Tag, Tooltip, TranslocoPipe]
 })
 export class SelectedWorkspaceRolesComponent {
   @Input()

@@ -1,2 +1,4 @@
-<div *ngIf="selectedLanguage$ | async"></div>
+@if (selectedLanguage$ | async) {
+  <div></div>
+}
 <app-subsystem-iframe [delay]="600" [url]="iframeUrl" [style]="{height: '100vh'}"></app-subsystem-iframe>

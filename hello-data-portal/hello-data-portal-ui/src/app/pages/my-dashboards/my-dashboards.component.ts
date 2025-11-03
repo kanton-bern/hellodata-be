@@ -40,7 +40,7 @@ import {navigate, trackEvent} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
-import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { PrimeTemplate } from 'primeng/api';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -56,7 +56,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
     templateUrl: 'my-dashboards.component.html',
     styleUrls: ['./my-dashboards.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, NgFor, Tag, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

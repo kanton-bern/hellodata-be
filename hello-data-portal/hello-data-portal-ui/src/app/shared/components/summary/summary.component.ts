@@ -28,7 +28,7 @@
 import { Component, EventEmitter, NgModule, Output, inject } from '@angular/core';
 import { DrawerModule, Drawer } from 'primeng/drawer';
 import { ScrollPanelModule, ScrollPanel } from "primeng/scrollpanel";
-import { AsyncPipe, DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgFor } from "@angular/common";
+import { AsyncPipe, DatePipe, JsonPipe, NgClass, NgStyle } from "@angular/common";
 import { FieldsetModule, Fieldset } from "primeng/fieldset";
 import { AccordionModule, Accordion, AccordionPanel, AccordionHeader, AccordionContent } from "primeng/accordion";
 import { EditorModule, Editor } from "primeng/editor";
@@ -67,7 +67,7 @@ import { TruncatePipe } from '../../pipes/truncate.pipe';
     selector: 'app-summary',
     templateUrl: './summary.component.html',
     styleUrls: ['./summary.component.scss'],
-    imports: [NgIf, Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, DataView, NgFor, Tooltip, NgSwitch, NgSwitchCase, NgSwitchDefault, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TruncatePipe, TranslocoPipe, DatePipe]
+    imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, DataView, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TruncatePipe, TranslocoPipe, DatePipe]
 })
 export class SummaryComponent {
   private store = inject<Store<AppState>>(Store);

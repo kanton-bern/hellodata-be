@@ -34,7 +34,7 @@ import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PrimeTemplate, SharedModule } from 'primeng/api';
 import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
@@ -48,7 +48,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-faq',
     templateUrl: './faq.component.html',
     styleUrls: ['./faq.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, Accordion, NgFor, AccordionPanel, Ripple, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Accordion, AccordionPanel, Ripple, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
 })
 export class FaqComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

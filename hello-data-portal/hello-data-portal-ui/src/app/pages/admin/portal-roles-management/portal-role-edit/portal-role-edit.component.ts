@@ -50,7 +50,7 @@ import {
   saveChangesToPortalRole,
   showDeletePortalRolePopup
 } from "../../../../store/portal-roles-management/portal-roles-management.action";
-import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Textarea } from 'primeng/textarea';
 import { AutoComplete } from 'primeng/autocomplete';
 import { Toolbar } from 'primeng/toolbar';
@@ -63,7 +63,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-role-edit',
     templateUrl: './portal-role-edit.component.html',
     styleUrls: ['./portal-role-edit.component.scss'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PortalRoleEditComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

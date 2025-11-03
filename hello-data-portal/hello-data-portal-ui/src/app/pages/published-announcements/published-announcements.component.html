@@ -1,32 +1,40 @@
-<div *ngIf="(defaultLanguage$ | async) as defaultLanguage">
-  <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
-    <div *ngIf="(announcements$ | async) as announcements">
-      <ng-container *ngIf="announcements.length > 0; else emptyData">
-        <div *ngFor="let announcement of announcements" class="card">
-          <p-toolbar>
-            <div class="p-toolbar-group-start">
-              <i class="fas fa-circle-info"></i>
-            </div>
-            <div class="p-toolbar-group-center" style="width: 65%">
-              <p-editor [disabled]="true" [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"
+@if ((defaultLanguage$ | async); as defaultLanguage) {
+  <div>
+    @if ((selectedLanguage$ | async); as selectedLanguage) {
+      <div>
+        @if ((announcements$ | async); as announcements) {
+          <div>
+            @if (announcements.length > 0) {
+              @for (announcement of announcements; track announcement) {
+                <div class="card">
+                  <p-toolbar>
+                    <div class="p-toolbar-group-start">
+                      <i class="fas fa-circle-info"></i>
+                    </div>
+                    <div class="p-toolbar-group-center" style="width: 65%">
+                      <p-editor [disabled]="true" [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"
                         [readonly]="true" [style]="{width: '100%'}"
                         class="p-editor-readonly">
-                <p-header hidden></p-header>
-              </p-editor>
-            </div>
-            <div class="p-toolbar-group-end" style="width: 25%">
-              <div *ngIf="announcement.publishedDate" class="published-date">
-                [{{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}]
-              </div>
-            </div>
-          </p-toolbar>
-        </div>
-
-      </ng-container>
-      <ng-template #emptyData>
-        <!-- Observable is an empty array -->
-        <p class="m-2">{{ '@No data found' | transloco }}</p>
-      </ng-template>
-    </div>
+                        <p-header hidden></p-header>
+                      </p-editor>
+                    </div>
+                    <div class="p-toolbar-group-end" style="width: 25%">
+                      @if (announcement.publishedDate) {
+                        <div class="published-date">
+                          [{{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}]
+                        </div>
+                      }
+                    </div>
+                  </p-toolbar>
+                </div>
+              }
+            } @else {
+              <!-- Observable is an empty array -->
+              <p class="m-2">{{ '@No data found' | transloco }}</p>
+            }
+          </div>
+        }
+      </div>
+    }
   </div>
-</div>
+}

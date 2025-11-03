@@ -43,7 +43,7 @@ import {
   uploadDashboardsSuccess
 } from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PrimeTemplate } from 'primeng/api';
 import { Button, ButtonDirective } from 'primeng/button';
@@ -57,7 +57,7 @@ import { NgArrayPipesModule } from 'ngx-pipes';
     selector: 'app-dashboard-import-export',
     templateUrl: './dashboard-import-export.component.html',
     styleUrl: './dashboard-import-export.component.scss',
-    imports: [NgIf, NgFor, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule]
+    imports: [TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule]
 })
 export class DashboardImportExportComponent extends BaseComponent {
   private store = inject<Store<AppState>>(Store);

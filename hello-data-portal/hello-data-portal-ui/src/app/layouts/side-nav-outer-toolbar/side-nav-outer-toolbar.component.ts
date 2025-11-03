@@ -27,7 +27,7 @@
 
 import { Component, Input, NgModule, inject } from '@angular/core';
 
-import { CommonModule, NgIf, NgClass, NgStyle, AsyncPipe } from '@angular/common';
+import { CommonModule, NgClass, NgStyle, AsyncPipe } from '@angular/common';
 
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {ScrollPanelModule} from "primeng/scrollpanel";
@@ -55,7 +55,7 @@ import { SummaryComponent } from '../../shared/components/summary/summary.compon
     selector: 'app-side-nav-outer-toolbar',
     templateUrl: './side-nav-outer-toolbar.component.html',
     styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-    imports: [Tooltip, NgIf, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, ScrollTop, NgStyle, SummaryComponent, Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
+    imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, ScrollTop, NgStyle, SummaryComponent, Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
   private store = inject<Store<AppState>>(Store);

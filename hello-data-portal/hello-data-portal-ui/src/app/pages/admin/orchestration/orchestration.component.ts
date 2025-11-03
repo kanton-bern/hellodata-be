@@ -26,7 +26,7 @@
 ///
 
 import {Component, NgModule} from '@angular/core';
-import {CommonModule} from "@angular/common";
+
 import { SubsystemIframeComponent } from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {environment} from "../../../../environments/environment";
 

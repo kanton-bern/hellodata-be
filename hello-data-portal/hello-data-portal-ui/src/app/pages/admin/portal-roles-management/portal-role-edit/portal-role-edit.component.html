@@ -1,109 +1,112 @@
-<div *ngIf="availableDataPermissions$ | async"></div>
+@if (availableDataPermissions$ | async) {
+  <div></div>
+}
 <div class="card">
-  <form *ngIf="(editedRole$ | async) as editedRole" [formGroup]="roleForm">
-    <h5>{{ '@Portal role data' | transloco }}</h5>
-
-    <div *ngIf="editedRole.createdDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          disabled
-          id="createdDate"
-          type="text"
-          value="{{editedRole.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+  @if ((editedRole$ | async); as editedRole) {
+    <form [formGroup]="roleForm">
+      <h5>{{ '@Portal role data' | transloco }}</h5>
+      @if (editedRole.createdDate) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              disabled
+              id="createdDate"
+              type="text"
+              value="{{editedRole.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+          </div>
+        </div>
+      }
+      @if (editedRole.createdDate) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              disabled
+              id="createdBy"
+              type="text"
+              value="{{editedRole.createdBy}}">
+          </div>
+        </div>
+      }
+      @if (editedRole.modifiedDate) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              disabled
+              id="modifiedDate"
+              type="text"
+              value="{{editedRole.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+          </div>
+        </div>
+      }
+      @if (editedRole.modifiedBy) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+              disabled
+              id="modifiedBy"
+              type="text"
+              value="{{editedRole.modifiedBy}}">
+          </div>
+        </div>
+      }
+      <div class="field grid">
+        <label class="col-12 mb-2 md:col-2 md:mb-0" for="name">{{ '@Name' | transloco }}</label>
+        <div class="col-12 md:col-10">
+          <input
+            class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            formControlName="name"
+            id="name"
+            type="text">
+        </div>
       </div>
-    </div>
-
-    <div *ngIf="editedRole.createdDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          disabled
-          id="createdBy"
-          type="text"
-          value="{{editedRole.createdBy}}">
-      </div>
-    </div>
-
-
-    <div *ngIf="editedRole.modifiedDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          disabled
-          id="modifiedDate"
-          type="text"
-          value="{{editedRole.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
-      </div>
-    </div>
-
-
-    <div *ngIf="editedRole.modifiedBy" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
-          disabled
-          id="modifiedBy"
-          type="text"
-          value="{{editedRole.modifiedBy}}">
-      </div>
-    </div>
-
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="name">{{ '@Name' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          formControlName="name"
-          id="name"
-          type="text">
-      </div>
-    </div>
-
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="description">{{ '@Description' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <textarea
-          class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          cols="30" formControlName="description"
-          id="description" pTextarea rows="3"
+      <div class="field grid">
+        <label class="col-12 mb-2 md:col-2 md:mb-0" for="description">{{ '@Description' | transloco }}</label>
+        <div class="col-12 md:col-10">
+          <textarea
+            class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            cols="30" formControlName="description"
+            id="description" pTextarea rows="3"
           type="text"></textarea>
+        </div>
       </div>
-    </div>
-
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="permissions">{{ '@Permissions' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <p-autoComplete (completeMethod)="filterPermission($event)"
-                        [dropdown]="true"
-                        [multiple]="true"
-                        [suggestions]="filteredPermissions"
-                        class="w-full"
-                        formControlName="permissions" id="permissions"></p-autoComplete>
+      <div class="field grid">
+        <label class="col-12 mb-2 md:col-2 md:mb-0" for="permissions">{{ '@Permissions' | transloco }}</label>
+        <div class="col-12 md:col-10">
+          <p-autoComplete (completeMethod)="filterPermission($event)"
+            [dropdown]="true"
+            [multiple]="true"
+            [suggestions]="filteredPermissions"
+            class="w-full"
+          formControlName="permissions" id="permissions"></p-autoComplete>
+        </div>
       </div>
-    </div>
-
-    <p-toolbar>
-      <div class="p-toolbar-group-start">
-        <p-button (click)="navigateToRoleList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                  icon="fas fa-arrow-left" severity="secondary"></p-button>
-      </div>
-      <div class="p-toolbar-group-end">
-        <p-button (click)="saveRole(editedRole)"
-                  [disabled]="roleForm.invalid||!roleForm.dirty"
-                  icon="fas fa-floppy-disk"
-                  label="{{'@Save' | transloco}}"
-                  severity="success"></p-button>
-        <p-button (click)="openDeletePopup(editedRole)" *ngIf="editedRole.id" icon="fas fa-trash"
-                  label="{{'@Delete' | transloco}}" severity="danger"></p-button>
-      </div>
-    </p-toolbar>
-
-  </form>
+      <p-toolbar>
+        <div class="p-toolbar-group-start">
+          <p-button (click)="navigateToRoleList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+          icon="fas fa-arrow-left" severity="secondary"></p-button>
+        </div>
+        <div class="p-toolbar-group-end">
+          <p-button (click)="saveRole(editedRole)"
+            [disabled]="roleForm.invalid||!roleForm.dirty"
+            icon="fas fa-floppy-disk"
+            label="{{'@Save' | transloco}}"
+          severity="success"></p-button>
+          @if (editedRole.id) {
+            <p-button (click)="openDeletePopup(editedRole)" icon="fas fa-trash"
+            label="{{'@Delete' | transloco}}" severity="danger"></p-button>
+          }
+        </div>
+      </p-toolbar>
+    </form>
+  }
 </div>
 
 <app-delete-role-popup [action]="getDeletionAction()"></app-delete-role-popup>

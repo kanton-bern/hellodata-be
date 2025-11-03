@@ -35,7 +35,7 @@ import {selectExternalDashboards} from "../../../store/external-dashboards/exter
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {loadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
 import {trackEvent} from "../../../store/app/app.action";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { PrimeTemplate } from 'primeng/api';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -48,7 +48,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-external',
     templateUrl: './external.component.html',
     styleUrls: ['./external.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, MatomoTrackerDirective, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, MatomoTrackerDirective, AsyncPipe, TranslocoPipe]
 })
 export class ExternalComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

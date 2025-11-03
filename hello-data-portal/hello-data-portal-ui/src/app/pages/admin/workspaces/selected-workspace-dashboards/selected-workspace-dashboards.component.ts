@@ -31,7 +31,7 @@ import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {map} from "rxjs/operators";
 import {Observable} from "rxjs";
-import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PrimeTemplate } from 'primeng/api';
 import { Tag } from 'primeng/tag';
@@ -41,7 +41,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-selected-workspace-dashboards',
     templateUrl: './selected-workspace-dashboards.component.html',
     styleUrls: ['./selected-workspace-dashboards.component.scss'],
-    imports: [NgIf, TableModule, PrimeTemplate, NgFor, Tag, AsyncPipe, TranslocoPipe]
+    imports: [TableModule, PrimeTemplate, Tag, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceDashboardsComponent {
   private store = inject<Store<AppState>>(Store);

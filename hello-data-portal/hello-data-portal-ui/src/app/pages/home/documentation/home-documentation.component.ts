@@ -36,7 +36,7 @@ import {
   selectSelectedLanguage
 } from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Editor } from 'primeng/editor';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'primeng/api';
@@ -45,7 +45,7 @@ import { SharedModule } from 'primeng/api';
     selector: 'app-home-documentation',
     templateUrl: './home-documentation.component.html',
     styleUrls: ['./home-documentation.component.scss'],
-    imports: [NgIf, Editor, FormsModule, SharedModule, AsyncPipe]
+    imports: [Editor, FormsModule, SharedModule, AsyncPipe]
 })
 export class HomeDocumentationComponent {
   private store = inject<Store<AppState>>(Store);

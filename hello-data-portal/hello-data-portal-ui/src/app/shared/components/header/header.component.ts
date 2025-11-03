@@ -26,7 +26,7 @@
 ///
 
 import { Component, EventEmitter, Input, NgModule, Output, inject } from '@angular/core';
-import { CommonModule, NgIf, NgStyle, NgFor, NgClass, AsyncPipe } from '@angular/common';
+import { CommonModule, NgStyle, NgClass, AsyncPipe } from '@angular/common';
 
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -79,7 +79,7 @@ import { PublishedAnnouncementsWrapperComponent } from '../published-announcemen
     selector: 'app-header',
     templateUrl: 'header.component.html',
     styleUrls: ['./header.component.scss'],
-    imports: [NgIf, NgStyle, Tooltip, Ripple, NgFor, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
+    imports: [NgStyle, Tooltip, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
   private store = inject<Store<AppState>>(Store);

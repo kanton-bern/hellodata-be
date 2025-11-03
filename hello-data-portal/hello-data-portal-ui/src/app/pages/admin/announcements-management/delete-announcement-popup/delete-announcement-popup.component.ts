@@ -33,7 +33,7 @@ import {selectSelectedAnnouncementForDeletion} from "../../../../store/announcem
 import { ConfirmationService, PrimeTemplate } from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {hideDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
-import { NgIf, AsyncPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Button, ButtonDirective } from 'primeng/button';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -42,7 +42,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-delete-announcement-popup[action]',
     templateUrl: './delete-announcement-popup.component.html',
     styleUrls: ['./delete-announcement-popup.component.scss'],
-    imports: [NgIf, ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
+    imports: [ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class DeleteAnnouncementPopupComponent {
   private store = inject<Store<AppState>>(Store);

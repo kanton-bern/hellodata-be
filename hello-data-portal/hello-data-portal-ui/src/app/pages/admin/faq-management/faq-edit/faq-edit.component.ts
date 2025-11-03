@@ -43,7 +43,7 @@ import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../..
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {selectDefaultLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
-import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { Select } from 'primeng/select';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
 import { Ripple } from 'primeng/ripple';
@@ -58,7 +58,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     selector: 'app-faq-edit',
     templateUrl: './faq-edit.component.html',
     styleUrls: ['./faq-edit.component.scss'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+    imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);
