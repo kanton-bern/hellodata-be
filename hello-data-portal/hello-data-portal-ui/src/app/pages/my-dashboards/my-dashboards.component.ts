@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {combineLatest, map, Observable, tap} from "rxjs";
@@ -63,7 +63,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   private menuService = inject(MenuService);
 
 
-  @ViewChild('dt') dt!: Table | undefined;
+  readonly dt = viewChild.required<Table | undefined>('dt');
 
   dashboards$: Observable<SupersetDashboard[]>;
   editDashboardMetadataDialog = false;
@@ -152,8 +152,9 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   }
 
   applyFilterGlobal($event: any, stringVal: string) {
-    if (this.dt) {
-      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+    const dt = this.dt();
+    if (dt) {
+      dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
     }
     clearTimeout(this.filterTimer);
     // debounce

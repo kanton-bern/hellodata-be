@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, NgModule, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, NgModule, OnInit, inject, viewChild } from '@angular/core';
 import { CommonModule, AsyncPipe, DatePipe } from "@angular/common";
 import {Store} from "@ngrx/store";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -63,7 +63,7 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
 
-  @ViewChild('availableProjectDocs') availableProjectDocs!: ElementRef;
+  readonly availableProjectDocs = viewChild.required<ElementRef>('availableProjectDocs');
 
   constructor() {
     super();

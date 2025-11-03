@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -64,7 +64,7 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
 
-  @ViewChild('dt') dt!: Table | undefined;
+  readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
 
@@ -118,8 +118,9 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   }
 
   applyFilterGlobal($event: any, stringVal: string) {
-    if (this.dt) {
-      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+    const dt = this.dt();
+    if (dt) {
+      dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
     }
     clearTimeout(this.filterTimer);
     // debounce

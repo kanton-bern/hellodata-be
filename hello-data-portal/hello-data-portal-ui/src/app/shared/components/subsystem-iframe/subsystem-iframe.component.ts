@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, Input, NgModule, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, inject, input, output } from '@angular/core';
+import { Component, ElementRef, Input, NgModule, OnChanges, OnDestroy, OnInit, SimpleChanges, inject, input, output, viewChild } from '@angular/core';
 import { CommonModule, NgStyle } from "@angular/common";
 
 import {AuthService} from "../../services";
@@ -52,7 +52,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   @Input() switchStyleOverflow = true;
   readonly iframeSetup = output<boolean>();
   frameUrl!: string;
-  @ViewChild('iframe') iframe!: ElementRef<HTMLIFrameElement>;
+  readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
 
   accessTokenSub!: Subscription;
 

@@ -1,5 +1,5 @@
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import { Component, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
+import { Component, OnDestroy, OnInit, inject, viewChild } from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/queries.action";
@@ -48,7 +48,7 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
   expandedRows = {};
   filterValue = '';
   first = 0;
-  @ViewChild('dt') table!: Table;
+  readonly table = viewChild.required<Table>('dt');
   loadedQueriesForContextKey = '';
   selectedDataDomain$: Observable<any>;
 

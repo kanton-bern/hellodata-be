@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -55,8 +55,8 @@ export class EmbeddedLineageDocsComponent {
 
   lineageInfo$: Observable<any>;
 
-  @ViewChild('container') container!: ElementRef;
-  @ViewChild('doc') docIframe!: ElementRef;
+  readonly container = viewChild.required<ElementRef>('container');
+  readonly docIframe = viewChild.required<ElementRef>('doc');
 
   constructor() {
     this.store.dispatch(loadAvailableContexts());

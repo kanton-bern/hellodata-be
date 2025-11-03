@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, ViewChild, inject } from "@angular/core";
+import { Component, OnInit, inject, viewChild } from "@angular/core";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
@@ -64,7 +64,7 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
   selectedDataDomain$: Observable<DataDomain | null>;
   filterValue = '';
   first = 0;
-  @ViewChild('dt') table!: Table;
+  readonly table = viewChild.required<Table>('dt');
   totalRecords = 0;
   dataLoading$ = this.store.select(selectDashboardAccessDataLoading);
   usedContextKey: string | null = null;
@@ -83,11 +83,12 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
     );
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(
       tap((dataDomain) => {
-        if (this.table && this.usedContextKey !== dataDomain?.key) {
+        const table = this.table();
+        if (table && this.usedContextKey !== dataDomain?.key) {
           const contextKey = dataDomain?.key ? dataDomain?.key : null;
-          const sortField = this.table.sortField;
-          const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc';
-          const pageSize = this.table.rows as number;
+          const sortField = table.sortField;
+          const sortOrder = table.sortOrder > 0 ? 'asc' : 'desc';
+          const pageSize = table.rows as number;
           this.store.dispatch(loadDashboardAccessPaginated({
             page: 0, size: pageSize, sort: `${sortField}, ${sortOrder}`, search: '', contextKey
           }));

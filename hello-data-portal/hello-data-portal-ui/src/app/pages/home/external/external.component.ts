@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -53,7 +53,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 export class ExternalComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
 
-  @ViewChild('dt') dt!: Table | undefined;
+  readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
   filterValue = '';

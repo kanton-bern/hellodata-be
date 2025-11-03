@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
 import {debounceTime, Observable, of} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -76,7 +76,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
   adminEmails$: Observable<string[]>;
   currentUserContextRolesNotNone$: Observable<any>;
 
-  @ViewChild('iframe') iframe!: ElementRef;
+  readonly iframe = viewChild.required<ElementRef>('iframe');
 
   constructor() {
     super();

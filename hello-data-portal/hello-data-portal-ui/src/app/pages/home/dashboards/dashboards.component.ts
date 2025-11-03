@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -55,7 +55,7 @@ export class DashboardsComponent implements OnInit {
 
   dashboards$: Observable<SupersetDashboard[]>;
   filterValue = '';
-  @ViewChild('dt') dt!: Table | undefined;
+  readonly dt = viewChild.required<Table | undefined>('dt');
   private filterTimer: any;
 
   constructor() {
