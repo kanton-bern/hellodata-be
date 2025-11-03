@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
 import {Context} from "../../../../../store/users-management/context-role.model";
 import {DashboardForUser} from "../../../../../store/users-management/users-management.model";
 import {Observable, tap} from "rxjs";
@@ -50,6 +50,8 @@ import { TranslocoPipe } from "@jsverse/transloco";
     imports: [NgIf, MultiSelect, FormsModule, AsyncPipe, TranslocoPipe]
 })
 export class DashboardViewerPermissionsComponent {
+  private store = inject<Store<AppState>>(Store);
+
   @Input()
   context!: Context;
   allDashboardsForContext: DashboardForUser[] = [];
@@ -61,7 +63,7 @@ export class DashboardViewerPermissionsComponent {
   @Output()
   selectedDashboardsEvent = new EventEmitter<DashboardForUser[]>();
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.dashboardsFetched$ = this.store.select(selectAllDashboardsWithMarkedUserFetched).pipe(tap(fetched => console.debug("dashboards fetched?", fetched)));
     this.dashboards$ =
       this.store.select(selectAllDashboardsWithMarkedUser).pipe(

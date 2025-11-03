@@ -25,19 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  NgModule,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
 import { CommonModule, NgIf, NgStyle } from "@angular/common";
 
 import {AuthService} from "../../services";
@@ -52,6 +40,8 @@ import { SafePipe } from '../../pipes/safe.pipe';
     imports: [NgIf, NgStyle, SafePipe]
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
+  private authService = inject(AuthService);
+
 
   @Input() url!: string;
   @Input() accessTokenInQueryParam = false;
@@ -63,9 +53,6 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('iframe') iframe!: ElementRef<HTMLIFrameElement>;
 
   accessTokenSub!: Subscription;
-
-  constructor(private authService: AuthService) {
-  }
 
   ngOnInit(): void {
     console.debug('on init', this.url, this.delay);

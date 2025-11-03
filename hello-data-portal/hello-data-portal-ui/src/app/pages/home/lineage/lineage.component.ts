@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
@@ -46,10 +46,13 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, TableModule, PrimeTemplate, RouterLink, AsyncPipe, TranslocoPipe]
 })
 export class LineageComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     this.docs$ = this.store.select(selectMyLineageDocs);
   }
 

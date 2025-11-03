@@ -25,14 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Pipe, PipeTransform} from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 import {DomSanitizer, SafeHtml, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl} from '@angular/platform-browser';
 
 @Pipe({ name: 'safe' })
 export class SafePipe implements PipeTransform {
+  private sanitizer = inject(DomSanitizer);
 
-  constructor(private sanitizer: DomSanitizer) {
-  }
 
   public transform(value: string, type: string): SafeHtml | SafeStyle | SafeScript | SafeUrl | SafeResourceUrl {
     switch (type) {

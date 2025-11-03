@@ -37,12 +37,15 @@ import {
   loadStorageSize,
   loadStorageSizeSuccess,
 } from "./summary.actions";
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {showError, showSuccess} from "../app/app.action";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 
 @Injectable()
 export class SummaryEffects {
+  private _actions$ = inject(Actions);
+  private _summaryService = inject(SummaryService);
+
   loadDocumentation$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadDocumentation),
@@ -78,10 +81,4 @@ export class SummaryEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _summaryService: SummaryService
-  ) {
-  }
 }

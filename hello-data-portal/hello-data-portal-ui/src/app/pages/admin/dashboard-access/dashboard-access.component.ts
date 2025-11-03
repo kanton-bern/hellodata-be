@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from "@angular/core";
+import { Component, OnInit, ViewChild, inject } from "@angular/core";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
@@ -58,6 +58,8 @@ import { TranslocoPipe } from "@jsverse/transloco";
     imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+
   dashboardAccess$: Observable<DashboardAccess[]>;
   selectedDataDomain$: Observable<DataDomain | null>;
   filterValue = '';
@@ -67,7 +69,7 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
   dataLoading$ = this.store.select(selectDashboardAccessDataLoading);
   usedContextKey: string | null = null;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.createBreadcrumbs();
     this.dashboardAccess$ = combineLatest([

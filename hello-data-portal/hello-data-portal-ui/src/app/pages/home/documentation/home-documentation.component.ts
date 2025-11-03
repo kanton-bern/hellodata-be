@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, EventEmitter, Output} from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -48,13 +48,18 @@ import { SharedModule } from 'primeng/api';
     imports: [NgIf, Editor, FormsModule, SharedModule, AsyncPipe]
 })
 export class HomeDocumentationComponent {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   @Output() rightSidebarVisible = new EventEmitter<boolean>();
   currentUserPermissions$: Observable<string[]>;
   documentation$: Observable<any>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
+    const store = this.store;
+
     this.documentation$ = this.store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.selectedLanguage$ = store.select(selectSelectedLanguage);

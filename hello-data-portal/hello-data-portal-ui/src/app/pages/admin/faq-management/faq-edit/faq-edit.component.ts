@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {Store} from "@ngrx/store";
@@ -61,6 +61,10 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+  private translateService = inject(TranslateService);
+
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
@@ -70,7 +74,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   titleMinLenght = 3;
   messageMinLength = 3;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
+  constructor() {
     super();
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
     this.defaultLanguage$ = this.store.select(selectDefaultLanguage);

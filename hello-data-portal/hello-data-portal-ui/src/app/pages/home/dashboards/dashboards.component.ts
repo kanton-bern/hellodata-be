@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -50,13 +50,15 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe]
 })
 export class DashboardsComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private menuService = inject(MenuService);
+
   dashboards$: Observable<SupersetDashboard[]>;
   filterValue = '';
   @ViewChild('dt') dt!: Table | undefined;
   private filterTimer: any;
 
-  constructor(private store: Store<AppState>,
-              private menuService: MenuService) {
+  constructor() {
     this.dashboards$ = this.store.select(selectMyDashboards);
   }
 

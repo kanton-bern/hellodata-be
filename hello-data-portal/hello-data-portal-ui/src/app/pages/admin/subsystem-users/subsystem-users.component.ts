@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
@@ -60,6 +60,9 @@ interface TableRow {
     imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, InputText, NgFor, Tag, AsyncPipe, TranslocoPipe]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';
   private static readonly NO_PERMISSIONS = '@User has no permissions in the instance';
   tableData$: Observable<TableRow[]>;
@@ -67,8 +70,10 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   dataLoading$: Observable<boolean>;
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
     super();
+    const store = this.store;
+
     store.dispatch(loadSubsystemUsers());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
+import { Component, NgModule, OnDestroy, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {
@@ -98,6 +98,10 @@ import { PrimeTemplate } from 'primeng/api';
     imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, NgIf, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersManagementService);
+
 
   users$: Observable<any>;
   syncStatus$: Observable<string>;
@@ -112,7 +116,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   private readonly searchSubject = new Subject<string | undefined>();
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
+  constructor() {
     super();
     this.users$ = combineLatest([
       this.store.select(selectUsersCopy),

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
@@ -46,6 +46,12 @@ import {ScreenService} from "../../shared/services";
 
 @Injectable()
 export class MyDashboardsEffects {
+  private _actions$ = inject(Actions);
+  private _myDashboardsService = inject(MyDashboardsService);
+  private _notificationService = inject(NotificationService);
+  private _translateService = inject(TranslateService);
+  private _screenService = inject(ScreenService);
+
 
   loadMyDashboards$ = createEffect(() => {
     return this._actions$.pipe(
@@ -123,13 +129,4 @@ export class MyDashboardsEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _myDashboardsService: MyDashboardsService,
-    private _notificationService: NotificationService,
-    private _translateService: TranslateService,
-    private _screenService: ScreenService
-  ) {
-  }
 }

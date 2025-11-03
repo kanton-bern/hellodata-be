@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable, OnDestroy} from "@angular/core";
+import { Injectable, OnDestroy, inject } from "@angular/core";
 import {LangDefinition, TranslateParams, Translation, TranslocoScope, TranslocoService} from "@jsverse/transloco";
 import {Observable, Subscription, switchMap, tap} from "rxjs";
 import {filter} from "rxjs/operators";
@@ -37,11 +37,16 @@ type HashMap<T = any> = { [key: string]: T };
   providedIn: 'root'
 })
 export class TranslateService implements OnDestroy {
+  private translocoService = inject(TranslocoService);
+  private http = inject(HttpClient);
+
 
   private readonly loadSub: Subscription;
   private readonly eventSub: Subscription;
 
-  constructor(private translocoService: TranslocoService, private http: HttpClient) {
+  constructor() {
+    const translocoService = this.translocoService;
+
     const activeLang = translocoService.getActiveLang();
     this.loadSub = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
     this.eventSub = translocoService.events$.pipe(

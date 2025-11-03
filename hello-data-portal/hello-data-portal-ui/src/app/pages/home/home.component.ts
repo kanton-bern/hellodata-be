@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import {debounceTime, Observable, of} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -64,6 +64,9 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, Tooltip, Fieldset, PrimeTemplate, Badge, NgFor, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
 })
 export class HomeComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  protected readonly screenService = inject(ScreenService);
+
 
   userData$: Observable<IUser | undefined>;
   isAuthenticated$: Observable<boolean>;
@@ -75,7 +78,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
   @ViewChild('iframe') iframe!: ElementRef;
 
-  constructor(private store: Store<AppState>, protected readonly screenService: ScreenService) {
+  constructor() {
     super();
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);

@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
 import {showError} from "../app/app.action";
@@ -9,6 +9,10 @@ import {AppState} from "../app/app.state";
 
 @Injectable()
 export class QueriesEffects {
+  private _actions$ = inject(Actions);
+  private _queriesService = inject(QueriesService);
+  private _store = inject<Store<AppState>>(Store);
+
 
   loadQueriesPaginated$ = createEffect(() => {
     return this._actions$.pipe(
@@ -28,11 +32,4 @@ export class QueriesEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _queriesService: QueriesService,
-    private _store: Store<AppState>
-  ) {
-  }
 }

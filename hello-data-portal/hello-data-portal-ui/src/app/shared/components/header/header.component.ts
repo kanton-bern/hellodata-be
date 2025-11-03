@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, EventEmitter, Input, NgModule, Output} from '@angular/core';
+import { Component, EventEmitter, Input, NgModule, Output, inject } from '@angular/core';
 import { CommonModule, NgIf, NgStyle, NgFor, NgClass, AsyncPipe } from '@angular/common';
 
 import {Store} from "@ngrx/store";
@@ -82,6 +82,9 @@ import { PublishedAnnouncementsWrapperComponent } from '../published-announcemen
     imports: [NgIf, NgStyle, Tooltip, Ripple, NgFor, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
 
   @Output()
   menuToggle = new EventEmitter<boolean>();
@@ -107,7 +110,7 @@ export class HeaderComponent {
 
   selectedLanguage: string | null = null;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
     this.languages$ = this.getSupportedLanguages();

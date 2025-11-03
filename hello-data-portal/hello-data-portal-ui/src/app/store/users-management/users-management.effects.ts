@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {UsersManagementService} from "./users-management.service";
@@ -85,6 +85,13 @@ import {
 
 @Injectable()
 export class UsersManagementEffects {
+  private _router = inject(Router);
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _usersManagementService = inject(UsersManagementService);
+  private _contextRoleService = inject(ContextRoleService);
+  private _notificationService = inject(NotificationService);
+
 
   loadUsers$ = createEffect(() =>
     this._actions$.pipe(
@@ -353,14 +360,4 @@ export class UsersManagementEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _router: Router,
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _usersManagementService: UsersManagementService,
-    private _contextRoleService: ContextRoleService,
-    private _notificationService: NotificationService
-  ) {
-  }
 }

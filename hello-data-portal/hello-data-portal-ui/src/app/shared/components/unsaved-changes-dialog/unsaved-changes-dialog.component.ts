@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule} from '@angular/core';
+import { Component, NgModule, inject } from '@angular/core';
 import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import { ConfirmDialogModule, ConfirmDialog } from "primeng/confirmdialog";
 import {Observable} from "rxjs";
@@ -44,9 +44,11 @@ import { PrimeTemplate } from 'primeng/api';
     imports: [ConfirmDialog, PrimeTemplate, ButtonDirective, NgIf, Button, TranslocoPipe, AsyncPipe]
 })
 export class UnsavedChangesDialogComponent {
+  private store = inject<Store<AppState>>(Store);
+
   stayOnPage$: Observable<StayOnPageContainer>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.stayOnPage$ = this.store.select(selectStayOnPage);
   }
 }

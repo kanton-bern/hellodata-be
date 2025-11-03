@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {map, Observable, Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -63,15 +63,17 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class ExternalDashboardEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
+
   editedExternalDashboard$: Observable<any>;
   availableDataDomains$: Observable<any>;
   externalDashboardForm!: FormGroup;
   formValueChangedSub!: Subscription;
 
-  constructor(private fb: FormBuilder,
-              private store: Store<AppState>,
-              private confirmationService: ConfirmationService,
-              private translateService: TranslateService) {
+  constructor() {
 
     super();
     this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);

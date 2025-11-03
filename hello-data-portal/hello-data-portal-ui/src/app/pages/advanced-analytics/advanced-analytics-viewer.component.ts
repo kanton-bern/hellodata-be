@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
@@ -43,11 +43,14 @@ import { SubsystemIframeComponent } from '../../shared/components/subsystem-ifra
     imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
 })
 export class AdvancedAnalyticsViewerComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private openedSubsystemsService = inject(OpenedSubsystemsService);
+
 
   url!: string;
   currentJupyterhubLink$!: Observable<string>;
 
-  constructor(private store: Store<AppState>, private openedSubsystemsService: OpenedSubsystemsService) {
+  constructor() {
     super();
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [

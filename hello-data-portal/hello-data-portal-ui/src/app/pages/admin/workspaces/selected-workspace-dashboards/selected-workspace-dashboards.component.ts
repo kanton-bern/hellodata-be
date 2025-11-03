@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
@@ -44,16 +44,14 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, TableModule, PrimeTemplate, NgFor, Tag, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceDashboardsComponent {
+  private store = inject<Store<AppState>>(Store);
+
 
   @Input()
   dashboards!: any[];
 
   @Input()
   instanceName!: string;
-
-  constructor(private store: Store<AppState>) {
-
-  }
 
   createLink(dashboardResource: any): Observable<string> {
     return this.store.select(selectAppInfoByInstanceName(this.instanceName)).pipe(map(appinfos => {

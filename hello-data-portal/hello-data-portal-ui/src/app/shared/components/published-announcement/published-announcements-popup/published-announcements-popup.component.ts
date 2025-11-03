@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ComponentRef,
-  OnInit,
-  Renderer2,
-  RendererFactory2,
-  ViewContainerRef
-} from "@angular/core";
+import { AfterViewInit, Component, ComponentRef, OnInit, Renderer2, RendererFactory2, ViewContainerRef, inject } from "@angular/core";
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -58,6 +50,11 @@ import { TranslocoPipe } from "@jsverse/transloco";
     imports: [Divider, NgIf, NgFor, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewInit {
+  private store = inject<Store<AppState>>(Store);
+  private viewContainerRef = inject(ViewContainerRef);
+  private readonly rendererFactory = inject(RendererFactory2);
+  private translateService = inject(TranslateService);
+
 
   publishedAnnouncements$: Observable<any>;
   selectedLanguage$: Observable<any>;
@@ -65,10 +62,9 @@ export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewIn
   private renderer: Renderer2;
   private headerComponentRef!: ComponentRef<PublishedAnnouncementsPopupHeaderComponent>;
 
-  constructor(private store: Store<AppState>,
-              private viewContainerRef: ViewContainerRef,
-              private readonly rendererFactory: RendererFactory2,
-              private translateService: TranslateService) {
+  constructor() {
+    const store = this.store;
+
     this.publishedAnnouncements$ = this.store.select(selectPublishedAndFilteredAnnouncements);
     this.renderer = this.rendererFactory.createRenderer(null, null);
     this.selectedLanguage$ = store.select(selectSelectedLanguage);

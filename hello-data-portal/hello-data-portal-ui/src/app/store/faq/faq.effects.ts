@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
@@ -53,6 +53,11 @@ import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class FaqEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _faqService = inject(FaqService);
+  private _notificationService = inject(NotificationService);
+
   loadAllFaq$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadFaq),
@@ -157,12 +162,4 @@ export class FaqEffects {
       switchMap(() => of(navigate({url: 'faq-management'}), hideDeleteFaqPopup()))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _faqService: FaqService,
-    private _notificationService: NotificationService
-  ) {
-  }
 }

@@ -29,13 +29,16 @@ import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {clearUnsavedChanges, runSaveAction} from "./unsaved-changes.actions";
 import {selectActionToRun} from "./unsaved-changes.selector";
 import {showError} from "../app/app.action";
 
 @Injectable()
 export class UnsavedChangesEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+
   runSaveAction = createEffect(() => {
     return this._actions$.pipe(
       ofType(runSaveAction),
@@ -49,11 +52,4 @@ export class UnsavedChangesEffects {
       catchError(e => of(showError({error: e}), clearUnsavedChanges()))
     )
   });
-
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-  ) {
-  }
 }

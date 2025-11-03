@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
 import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {Store} from "@ngrx/store";
@@ -63,13 +63,16 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, FormsModule, ReactiveFormsModule, Checkbox, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Button, Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class AnnouncementEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
   editedAnnouncement$: Observable<any>;
   announcementForm!: FormGroup;
   formValueChangedSub!: Subscription;
   supportedLanguages$: Observable<string[]>;
   defaultLanguage$: Observable<string | null>;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     super();
     this.editedAnnouncement$ = this.store.select(selectEditedAnnouncement);
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);

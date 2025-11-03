@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -48,11 +48,15 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class DeletePortalRolePopupComponent {
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
+
   @Input()
   action!: Action;
   roleToBeDeleted$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private confirmationService: ConfirmationService, private translateService: TranslateService) {
+  constructor() {
     this.roleToBeDeleted$ = this.store.select(selectSelectedPortalRoleForDeletion).pipe(tap(portalRoleForDeletion => {
       this.confirmDeleteRole(portalRoleForDeletion);
     }));

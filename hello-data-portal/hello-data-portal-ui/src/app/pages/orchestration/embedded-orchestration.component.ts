@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Observable, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
@@ -46,12 +46,15 @@ export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
     imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedOrchestrationComponent extends BaseComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private store = inject<Store<AppState>>(Store);
+
 
   url!: string;
 
   currentPipelineInfo$: Observable<any>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor() {
     super();
     this.currentPipelineInfo$ = this.store.select(selectCurrentPipelineInfo).pipe(tap((pipelineInfo) => {
       const pipelineId = pipelineInfo.pipelineId;

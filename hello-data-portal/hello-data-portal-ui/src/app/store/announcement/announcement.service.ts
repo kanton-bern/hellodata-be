@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {BehaviorSubject, Observable, of} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {Announcement, AnnouncementCreate, AnnouncementUpdate} from "./announcement.model";
@@ -35,12 +35,14 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class AnnouncementService {
+  protected httpClient = inject(HttpClient);
+
 
   baseUrl = `${environment.portalApi}/announcements`;
   public hiddenAnnouncements = new BehaviorSubject<Announcement[]>([]);
   private readonly HIDDEN_ANNOUNCEMENTS_KEY = 'hidden_announcements';
 
-  constructor(protected httpClient: HttpClient) {
+  constructor() {
     const announcementsStringLocalStorage = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
     if (announcementsStringLocalStorage) {
       const announcements = JSON.parse(announcementsStringLocalStorage);

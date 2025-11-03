@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input, NgModule} from '@angular/core';
+import { Component, Input, NgModule, inject } from '@angular/core';
 
 import { CommonModule, NgIf, NgClass, NgStyle, AsyncPipe } from '@angular/common';
 
@@ -58,6 +58,8 @@ import { SummaryComponent } from '../../shared/components/summary/summary.compon
     imports: [Tooltip, NgIf, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, ScrollTop, NgStyle, SummaryComponent, Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
+  private store = inject<Store<AppState>>(Store);
+
 
   @Input()
   title!: string;
@@ -65,7 +67,7 @@ export class SideNavOuterToolbarComponent {
   selectCurrentUserPermissionsLoaded$: Observable<boolean>;
   mouseEnterTimeoutId: number[] = [];
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.navItems$ = this.store.select(selectNavItems);
     this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
   }

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from "@angular/core";
+import { Component, inject } from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {
@@ -46,10 +46,12 @@ import { TranslocoPipe } from "@jsverse/transloco";
     imports: [NgFor, Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class SubscriptionsComponent {
+  private store = inject<Store<AppState>>(Store);
+
   businessDomains$: Observable<Context[]>;
   dataDomains$: Observable<Context[]>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.store.dispatch(loadAvailableContexts());
     this.businessDomains$ = this.store.select(selectAllBusinessDomains);
     this.dataDomains$ = this.store.select(selectAllDataDomains);

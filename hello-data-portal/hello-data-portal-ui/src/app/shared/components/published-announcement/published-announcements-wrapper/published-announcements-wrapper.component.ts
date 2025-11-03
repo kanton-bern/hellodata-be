@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component} from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
@@ -54,13 +54,17 @@ import { NgIf, AsyncPipe } from '@angular/common';
     imports: [NgIf, AsyncPipe]
 })
 export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
+  private store = inject<Store<AppState>>(Store);
+  dialogService = inject(DialogService);
+  private hideAllCurrentAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
+
 
   publishedAnnouncements$: Observable<any>;
   ref: DynamicDialogRef | undefined;
 
-  constructor(private store: Store<AppState>,
-              public dialogService: DialogService,
-              private hideAllCurrentAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
+  constructor() {
+    const store = this.store;
+
     this.publishedAnnouncements$ =
       combineLatest([
         this.store.select(selectPublishedAndFilteredAnnouncements),

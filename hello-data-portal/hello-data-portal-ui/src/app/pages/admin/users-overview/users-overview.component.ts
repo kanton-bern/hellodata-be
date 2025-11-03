@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule, OnDestroy, OnInit} from "@angular/core";
+import { Component, NgModule, OnDestroy, OnInit, inject } from "@angular/core";
 import { CommonModule, NgIf, NgFor, AsyncPipe } from "@angular/common";
 import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
@@ -67,6 +67,9 @@ interface TableRow {
     imports: [NgIf, TableModule, PrimeTemplate, Button, NgFor, Tag, AsyncPipe, TranslocoPipe]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   readonly NO_TAG = '_no_tag';
   tableData$: Observable<TableRow[]>;
@@ -74,8 +77,10 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   dataLoading$: Observable<boolean>;
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
     super();
+    const store = this.store;
+
     store.dispatch(loadSubsystemUsersForDashboards());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();

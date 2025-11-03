@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable, of} from "rxjs";
 import {LineageDoc} from "./lineage-docs.model";
@@ -40,12 +40,15 @@ import {switchMap} from "rxjs/operators";
 })
 
 export class LineageDocsService {
+  protected httpClient = inject(HttpClient);
+  private store = inject<Store<AppState>>(Store);
+
   dbtDocsCfg = environment.subSystemsConfig.dbtDocs;
   url = this.dbtDocsCfg.protocol + this.dbtDocsCfg.host + this.dbtDocsCfg.domain;
   baseDocsUrl = `${this.url}/api/projects-docs`;
   currentUserPermissions$: Observable<any>;
 
-  constructor(protected httpClient: HttpClient, private store: Store<AppState>) {
+  constructor() {
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
 

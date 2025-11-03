@@ -25,16 +25,18 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Output, Injectable, EventEmitter } from '@angular/core';
+import { Output, Injectable, EventEmitter, inject } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import {map} from "rxjs/operators";
 import {Observable} from "rxjs";
 
 @Injectable()
 export class ScreenService {
+  private breakpointObserver = inject(BreakpointObserver);
+
   @Output() changed = new EventEmitter();
 
-  constructor(private breakpointObserver: BreakpointObserver) {
+  constructor() {
     this.breakpointObserver
       .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large])
       .subscribe(() => this.changed.next(true));

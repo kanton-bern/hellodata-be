@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
@@ -83,6 +83,9 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, NgFor, Select, DashboardViewerPermissionsComponent, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
 
   editedUser$: Observable<any>;
   businessDomains$: Observable<any>;
@@ -100,7 +103,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   private userContextRolesSub!: Subscription;
   private editedUserSuperuser = false;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     super();
     this.store.dispatch(loadDashboards());
     this.store.dispatch(loadAvailableContextRoles());

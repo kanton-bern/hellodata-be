@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {Action, Store} from "@ngrx/store";
 import {Observable, tap, withLatestFrom} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
@@ -46,11 +46,15 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class DeleteFaqPopupComponent {
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
+
   @Input()
   action!: Action;
   faqToBeDeleted$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private confirmationService: ConfirmationService, private translateService: TranslateService) {
+  constructor() {
     this.faqToBeDeleted$ = this.store.select(selectSelectedFaqForDeletion)
       .pipe(
         withLatestFrom(this.translateService.selectTranslate('@Delete faq question'))

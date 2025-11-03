@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -43,9 +43,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [TableModule, PrimeTemplate, RouterLink, AsyncPipe, TranslocoPipe]
 })
 export class DmComponent {
+  private route = inject(ActivatedRoute);
+  private store = inject<Store<AppState>>(Store);
+
   dataMarts$: Observable<any>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor() {
     this.dataMarts$ =
       combineLatest([
         this.store.select(selectAvailableDataDomainItems),

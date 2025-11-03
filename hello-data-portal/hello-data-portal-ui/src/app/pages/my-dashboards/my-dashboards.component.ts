@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {combineLatest, map, Observable, tap} from "rxjs";
@@ -59,6 +59,9 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, NgFor, Tag, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private menuService = inject(MenuService);
+
 
   @ViewChild('dt') dt!: Table | undefined;
 
@@ -69,7 +72,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   private filterTimer: any;
 
-  constructor(private store: Store<AppState>, private menuService: MenuService) {
+  constructor() {
     super();
     this.dashboards$ =
       combineLatest([

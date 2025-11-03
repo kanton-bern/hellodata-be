@@ -1,5 +1,5 @@
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {Component, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import { Component, OnDestroy, OnInit, ViewChild, inject } from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/queries.action";
@@ -37,6 +37,8 @@ import { TranslocoPipe } from "@jsverse/transloco";
     imports: [NgIf, TableModule, PrimeTemplate, FormsModule, InputText, NgSwitch, NgSwitchCase, Tooltip, Tag, NgFor, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+
 
   paramContextKey$: Observable<any>;
   queries$: Observable<any>;
@@ -50,7 +52,7 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
   loadedQueriesForContextKey = '';
   selectedDataDomain$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.queries$ = combineLatest([
       this.store.select(selectQueries),

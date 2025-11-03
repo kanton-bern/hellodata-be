@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable, Type} from "@angular/core";
+import { Injectable, Type, inject } from "@angular/core";
 import {Actions, createEffect, FunctionalEffect, ofType} from '@ngrx/effects';
 import {MetaInfoResourceEffects} from "../metainfo-resource/metainfo-resource.effects";
 import {UsersManagementEffects} from "../users-management/users-management.effects";
@@ -57,6 +57,13 @@ import {DashboardAccessEffects} from "../dashboard-access/dashboard-access.effec
 
 @Injectable()
 export class AppEffects {
+  private _store = inject<Store<AppState>>(Store);
+  private _router = inject(Router);
+  private _actions$ = inject(Actions);
+  private _notificationService = inject(NotificationService);
+  private _tracker = inject(MatomoTracker);
+  private _windowManagementService = inject(WindowManagementService);
+
   showError$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(showError),
@@ -130,16 +137,6 @@ export class AppEffects {
       }),
     )
   }, {dispatch: false});
-
-  constructor(
-    private _store: Store<AppState>,
-    private _router: Router,
-    private _actions$: Actions,
-    private _notificationService: NotificationService,
-    private _tracker: MatomoTracker,
-    private _windowManagementService: WindowManagementService
-  ) {
-  }
 
 }
 

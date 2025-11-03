@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -60,15 +60,17 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe, TranslocoPipe]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
+
   @ViewChild('dt') dt!: Table | undefined;
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
 
   private filterTimer: any;
 
-  constructor(private store: Store<AppState>,
-              private confirmationService: ConfirmationService,
-              private translateService: TranslateService) {
+  constructor() {
     super();
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);

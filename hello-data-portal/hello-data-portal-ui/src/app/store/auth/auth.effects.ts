@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, EMPTY, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {
@@ -63,6 +63,15 @@ import {WindowManagementService} from "../../shared/services/window-management.s
 
 @Injectable()
 export class AuthEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _authService = inject(AuthService);
+  private _usersManagementService = inject(UsersManagementService);
+  private _translateService = inject(TranslateService);
+  private _cloudbeaverService = inject(CloudbeaverService);
+  private _cloudbeaverSessionService = inject(CloudbeaverSessionService);
+  private _windowManagementService = inject(WindowManagementService);
+
   login$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(login),
@@ -282,16 +291,4 @@ export class AuthEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _authService: AuthService,
-    private _usersManagementService: UsersManagementService,
-    private _translateService: TranslateService,
-    private _cloudbeaverService: CloudbeaverService,
-    private _cloudbeaverSessionService: CloudbeaverSessionService,
-    private _windowManagementService: WindowManagementService
-  ) {
-  }
 }

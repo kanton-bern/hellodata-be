@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, HostBinding, OnInit} from '@angular/core';
+import { Component, HostBinding, OnInit, inject } from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
@@ -46,6 +46,11 @@ import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
   imports: [NgIf, RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent]
 })
 export class AppComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private screen = inject(ScreenService);
+  appInfo = inject(AppInfoService);
+  private title = inject(Title);
+
 
   private static readonly REDIRECT_TO_PARAM = 'redirectTo';
 
@@ -55,8 +60,9 @@ export class AppComponent implements OnInit {
   redirectTo$: Observable<any>;
   isMobile$: Observable<boolean>;
 
-  constructor(private store: Store<AppState>, private screen: ScreenService, public appInfo: AppInfoService,
-              private title: Title) {
+  constructor() {
+    const appInfo = this.appInfo;
+
     setTimeout(() => {
       this.checkAuth = true;
     }, 1500);

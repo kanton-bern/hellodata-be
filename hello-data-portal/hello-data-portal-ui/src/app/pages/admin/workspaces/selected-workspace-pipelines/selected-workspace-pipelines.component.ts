@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {navigate} from "../../../../store/app/app.action";
@@ -54,15 +54,14 @@ export interface Pipeline {
     imports: [NgIf, TableModule, PrimeTemplate, Tag, NgSwitch, NgSwitchCase, NgSwitchDefault, Button, Tooltip, TranslocoPipe]
 })
 export class SelectedWorkspacePipelinesComponent {
+  private store = inject<Store<AppState>>(Store);
+
 
   @Input()
   pipelines!: any[];
 
   @Input()
   instanceName!: string;
-
-  constructor(private store: Store<AppState>) {
-  }
 
   showDetails(pipelineId: string) {
     this.store.dispatch(navigate({url: `/embedded-orchestration/details/${pipelineId}`}));

@@ -28,7 +28,7 @@
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATED, ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
 import {catchError, EMPTY, of, switchMap} from "rxjs";
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {loadAnnouncementById} from "../announcement/announcement.action";
 import {showError} from "../app/app.action";
 import {loadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
@@ -38,6 +38,8 @@ import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 
 @Injectable()
 export class RouterEffects {
+  private _actions$ = inject(Actions);
+
 
   openEditionFinished$ = createEffect(() => {
     return this._actions$.pipe(
@@ -71,11 +73,6 @@ export class RouterEffects {
       catchError(e => of(showError({error: e})))
     )
   })
-
-  constructor(
-    private _actions$: Actions,
-  ) {
-  }
 
 }
 

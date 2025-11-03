@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -48,10 +48,13 @@ export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
     imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private openedSupersetsService = inject(OpenedSubsystemsService);
+
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
 
-  constructor(private store: Store<AppState>, private openedSupersetsService: OpenedSubsystemsService) {
+  constructor() {
     super();
     this.currentMyDashboardInfo$ = combineLatest([
       this.store.select(selectCurrentMyDashboardInfo),

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentContextRoles, selectProfile, selectSelectedLanguage} from "../../store/auth/auth.selector";
@@ -48,13 +48,15 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class ProfileComponent {
+  private store = inject<Store<AppState>>(Store);
+
   userDetails$: Observable<any>;
   userContextRoles$: Observable<any[]>;
   selectedLanguage$: Observable<any>;
   protected readonly BUSINESS_DOMAIN_CONTEXT_TYPE = BUSINESS_DOMAIN_CONTEXT_TYPE;
   protected readonly DATA_DOMAIN_CONTEXT_TYPE = DATA_DOMAIN_CONTEXT_TYPE;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.userDetails$ = this.store.select(selectProfile);
     this.userContextRoles$ = this.store.select(selectCurrentContextRoles);
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);

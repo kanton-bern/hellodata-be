@@ -26,7 +26,7 @@
 ///
 
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {environment} from "../../../environments/environment";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
@@ -36,11 +36,10 @@ import {DashboardAccess} from "./dashboard-access.model";
   providedIn: 'root'
 })
 export class DashboardAccessService {
+  protected httpClient = inject(HttpClient);
+
 
   baseUrl = `${environment.portalApi}/superset/dashboard_access`;
-
-  constructor(protected httpClient: HttpClient) {
-  }
 
   public getDashboardAccessPaginated(contextKey: string | null, page: number, size: number, sort: string, search: string): Observable<{
     content: DashboardAccess[],

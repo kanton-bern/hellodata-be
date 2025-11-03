@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -41,10 +41,13 @@ import { SubsystemIframeComponent } from '../../shared/components/subsystem-ifra
     imports: [SubsystemIframeComponent]
 })
 export class DataWarehouseViewerComponent extends BaseComponent {
+  private store = inject<Store<AppState>>(Store);
+  private cloudbeaverSessionService = inject(CloudbeaverSessionService);
+
 
   url!: string;
 
-  constructor(private store: Store<AppState>, private cloudbeaverSessionService: CloudbeaverSessionService) {
+  constructor() {
     super();
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [

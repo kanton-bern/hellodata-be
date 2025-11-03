@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from 'rxjs';
 import {Store} from "@ngrx/store";
@@ -56,6 +56,11 @@ import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class AnnouncementEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _announcementService = inject(AnnouncementService);
+  private _notificationService = inject(NotificationService);
+
 
   loadAllAnnouncements$ = createEffect(() => {
     return this._actions$.pipe(
@@ -192,13 +197,4 @@ export class AnnouncementEffects {
       })
     )
   });
-
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _announcementService: AnnouncementService,
-    private _notificationService: NotificationService
-  ) {
-  }
 }

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, HostListener} from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import {environment} from "../../../environments/environment";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -43,12 +43,15 @@ import { SubsystemIframeComponent } from '../../shared/components/subsystem-ifra
     imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedDmViewerComponent {
+  private store = inject<Store<AppState>>(Store);
+  private cloudbeaverSessionService = inject(CloudbeaverSessionService);
+
   baseUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain;
   iframeUrl = '';
   selectedLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private cloudbeaverSessionService: CloudbeaverSessionService) {
+  constructor() {
     this.iframeUrl = this.baseUrl;
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage).pipe(tap(selectedLang => {
       if (selectedLang) {

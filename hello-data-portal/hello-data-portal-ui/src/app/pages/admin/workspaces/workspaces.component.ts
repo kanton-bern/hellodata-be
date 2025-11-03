@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule, OnInit} from '@angular/core';
+import { Component, NgModule, OnInit, inject } from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource.selector";
@@ -66,10 +66,12 @@ import {loadAppInfoResources} from "../../../store/metainfo-resource/metainfo-re
     imports: [NgIf, NgFor, Ripple, AsyncPipe, NgArrayPipesModule]
 })
 export class WorkspacesComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+
 
   appInfos$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.store.dispatch(loadAppInfoResources());
     this.appInfos$ = this.store.select(selectAppInfos);

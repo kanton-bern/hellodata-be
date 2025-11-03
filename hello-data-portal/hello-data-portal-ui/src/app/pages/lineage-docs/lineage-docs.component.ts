@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, NgModule, OnInit, ViewChild} from '@angular/core';
+import { Component, ElementRef, NgModule, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule, NgIf, AsyncPipe, DatePipe } from "@angular/common";
 import {Store} from "@ngrx/store";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -57,12 +57,15 @@ import { PrimeTemplate } from 'primeng/api';
     imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class LineageDocsComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
 
   @ViewChild('availableProjectDocs') availableProjectDocs!: ElementRef;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     super();
     this.docs$ = combineLatest([
       this.store.select(selectMyLineageDocsFiltered),

@@ -1,19 +1,18 @@
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {interval} from "rxjs";
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {prolongCBSession} from "../../store/auth/auth.action";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CloudbeaverSessionService {
+  private store = inject<Store<AppState>>(Store);
+
 
   renewSessionInterval$ = interval(60000 * 5);
   private readonly CLOUD_BEAVER_SESSION_COOKIE_NAME = 'cloudbeaver-session-renewal-timer';
-
-  constructor(private store: Store<AppState>) {
-  }
 
   // call to maintain the session
   public createInterval(): void {

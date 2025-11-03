@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {combineLatest, map, Observable} from "rxjs";
 import {Faq} from "../../../store/faq/faq.model";
 import {Store} from "@ngrx/store";
@@ -51,11 +51,16 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, TableModule, PrimeTemplate, Accordion, NgFor, AccordionPanel, Ripple, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
 })
 export class FaqComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   faq$: Observable<GroupedFaq[]>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
+    const store = this.store;
+
     this.faq$ = this._getGroupedFaqs();
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
     this.defaultLanguage$ = store.select(selectDefaultLanguage);

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, HostListener, ViewChild} from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -46,6 +46,10 @@ import { SubsystemIframeComponent } from '../../../shared/components/subsystem-i
     imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedLineageDocsComponent {
+  private store = inject<Store<AppState>>(Store);
+  private docsService = inject(LineageDocsService);
+  private translateService = inject(TranslateService);
+
   url!: string;
   projectId!: string;
 
@@ -54,7 +58,7 @@ export class EmbeddedLineageDocsComponent {
   @ViewChild('container') container!: ElementRef;
   @ViewChild('doc') docIframe!: ElementRef;
 
-  constructor(private store: Store<AppState>, private docsService: LineageDocsService, private translateService: TranslateService) {
+  constructor() {
     this.store.dispatch(loadAvailableContexts());
     this.lineageInfo$ = this.store.select(selectLineageInfo).pipe(tap((lineageInfo) => {
       if (lineageInfo) {

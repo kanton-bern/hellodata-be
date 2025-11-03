@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CheckboxChangeEvent, Checkbox } from "primeng/checkbox";
 import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-current-published-announcements.service";
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -19,9 +19,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [Checkbox, TranslocoPipe]
 })
 export class PublishedAnnouncementsPopupHeaderComponent {
+  private hideAllCurrentPublishedAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
 
-  constructor(private hideAllCurrentPublishedAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
-  }
 
   onChange($event: CheckboxChangeEvent) {
     this.hideAllCurrentPublishedAnnouncementsService.hide = $event.checked;

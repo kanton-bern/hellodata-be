@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
@@ -53,6 +53,11 @@ import {
 
 @Injectable()
 export class PortalRolesManagementEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _portalRoleService = inject(PortalRolesManagementService);
+  private _notificationService = inject(NotificationService);
+
 
   loadRoles$ = createEffect(() => {
     return this._actions$.pipe(
@@ -161,12 +166,4 @@ export class PortalRolesManagementEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _portalRoleService: PortalRolesManagementService,
-    private _notificationService: NotificationService
-  ) {
-  }
 }

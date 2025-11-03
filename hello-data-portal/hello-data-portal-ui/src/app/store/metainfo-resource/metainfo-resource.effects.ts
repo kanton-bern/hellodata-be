@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {catchError, of, switchMap, withLatestFrom} from 'rxjs';
 import {MetaInfoResourceService} from "./metainfo-resource.service";
@@ -46,6 +46,10 @@ import {showError} from "../app/app.action";
 
 @Injectable()
 export class MetaInfoResourceEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _metaInfoResourceService = inject(MetaInfoResourceService);
+
 
   loadAppInfoResources$ = createEffect(() => {
     return this._actions$.pipe(
@@ -83,11 +87,4 @@ export class MetaInfoResourceEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _metaInfoResourceService: MetaInfoResourceService,
-  ) {
-  }
 }

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule} from "@angular/core";
+import { Component, NgModule, inject } from "@angular/core";
 import { CommonModule, NgIf, NgFor, NgClass, AsyncPipe } from "@angular/common";
 import {RouterOutlet} from "@angular/router";
 import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
@@ -64,6 +64,10 @@ import { PrimeTemplate } from "primeng/api";
     imports: [NgIf, Button, Ripple, Drawer, PrimeTemplate, NgFor, NgClass, AsyncPipe, TranslocoPipe]
 })
 export class MobileComponent {
+  private store = inject<Store<AppState>>(Store);
+  appInfo = inject(AppInfoService);
+  translateService = inject(TranslateService);
+
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
   showDashboardMenu = false;
   showUserMenu = false;
@@ -82,9 +86,7 @@ export class MobileComponent {
   groupedDashboards$: Observable<Map<string, any[]>>;
   languages$: Observable<any[]>;
 
-  constructor(private store: Store<AppState>,
-              public appInfo: AppInfoService,
-              public translateService: TranslateService) {
+  constructor() {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.groupedDashboards$ = this.store.select(selectMyDashboards).pipe(
       map((dashboards: any[]) => {

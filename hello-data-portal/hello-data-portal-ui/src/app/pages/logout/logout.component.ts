@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component, ViewContainerRef} from '@angular/core';
+import { AfterViewInit, Component, ViewContainerRef, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-dashboard.component";
@@ -41,7 +41,10 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [TranslocoPipe]
 })
 export class LogoutComponent implements AfterViewInit {
-  constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
+  private store = inject<Store<AppState>>(Store);
+  private dynamicComponentContainer = inject(ViewContainerRef);
+
+  constructor() {
     // check if superset was opened in an iframe, if so call for logout there as well
     const openedSubsystems = sessionStorage.getItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY);
     if (openedSubsystems) {

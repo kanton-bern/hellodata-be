@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -55,11 +55,15 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, Toolbar, PrimeTemplate, ButtonDirective, Ripple, TableModule, Editor, FormsModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+
   faq$: Observable<any>;
   selectedLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
+    const store = this.store;
+
     this.faq$ = this.store.select(selectAllFaq);
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     store.dispatch(loadFaq());

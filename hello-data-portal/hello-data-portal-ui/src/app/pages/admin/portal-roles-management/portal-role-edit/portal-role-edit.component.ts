@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -66,6 +66,9 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PortalRoleEditComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
 
   editedRole$: Observable<any>;
   workspaces$: Observable<any>;
@@ -77,7 +80,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   filteredPermissions: any[] = [];
   formValueChangedSub!: Subscription;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
     this.editedRole$ = this.store.select(selectEditedPortalRole);
     this.availableDataPermissions$ = this.store.select(selectAvailablePermissions).pipe(

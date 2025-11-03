@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
@@ -58,13 +58,16 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, FormsModule, ReactiveFormsModule, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Toolbar, Button, AsyncPipe, TranslocoPipe]
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
   documentationForm!: FormGroup;
   initForm$: Observable<any>;
   selectedLanguage$: Observable<any>;
   supportedLanguages$: Observable<string[]>;
   defaultLanguage$: Observable<string | null>;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     super();
     this.defaultLanguage$ = this.store.select(selectDefaultLanguage);
     this.store.dispatch(loadDocumentation());

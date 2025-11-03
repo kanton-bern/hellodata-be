@@ -1,4 +1,4 @@
-import {Component, NgModule} from "@angular/core";
+import { Component, NgModule, inject } from "@angular/core";
 import { CommonModule, AsyncPipe } from "@angular/common";
 import {SharedModule} from "primeng/api";
 import {AppState} from "../../../store/app/app.state";
@@ -18,9 +18,11 @@ import {
     imports: [AsyncPipe]
 })
 export class AdminInitComponent {
+  private store = inject<Store<AppState>>(Store);
+
   initStuffForAdmin$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.initStuffForAdmin$ = combineLatest([
       this.store.select(selectIsSuperuser),
       this.store.select(selectIsBusinessDomainAdmin)

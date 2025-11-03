@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {Observable} from "rxjs";
 import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resource.model";
 import {Store} from "@ngrx/store";
@@ -60,6 +60,8 @@ import { NgArrayPipesModule } from 'ngx-pipes';
     imports: [NgIf, NgFor, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule]
 })
 export class DashboardImportExportComponent extends BaseComponent {
+  private store = inject<Store<AppState>>(Store);
+
   supersetInfos$: Observable<MetaInfoResource[]>;
   dashboards$: Observable<SupersetDashboard[]>;
   availableDataDomains$: Observable<any>;
@@ -69,7 +71,7 @@ export class DashboardImportExportComponent extends BaseComponent {
 
   uploadDashboardsUrl = `${environment.portalApi}/superset/upload-dashboards/`;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
     this.dashboards$ = this.store.select(selectMyDashboards);

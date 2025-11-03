@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import { Component, OnInit, inject } from "@angular/core";
 import {DialogService} from "primeng/dynamicdialog";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -25,11 +25,16 @@ import { TranslocoPipe } from "@jsverse/transloco";
     imports: [NgIf, NgFor, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PublishedAnnouncementsComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   announcements$: Observable<any>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
+    const store = this.store;
+
     this.announcements$ = this.store.select(selectAllAnnouncementsByPublishedFlag(true));
     store.dispatch(loadAllAnnouncements());
     this.selectedLanguage$ = store.select(selectSelectedLanguage);

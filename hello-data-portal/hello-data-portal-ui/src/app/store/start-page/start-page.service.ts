@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {DashboardMetadata, SupersetDashboardWithMetadata} from "./start-page.model";
@@ -35,10 +35,9 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class StartPageService {
-  supersetDashboardsBaseUrl = `${environment.portalApi}/superset/dashboards`;
+  protected httpClient = inject(HttpClient);
 
-  constructor(protected httpClient: HttpClient) {
-  }
+  supersetDashboardsBaseUrl = `${environment.portalApi}/superset/dashboards`;
 
   public updateDashboardMetadata(dashboard: SupersetDashboardWithMetadata): Observable<void> {
     const updatePayload: DashboardMetadata = {

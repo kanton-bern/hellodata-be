@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -62,6 +62,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
     imports: [NgIf, NgFor, Ripple, Toolbar, Button, Tooltip, NgSwitch, Fieldset, NgSwitchCase, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, NgSwitchDefault, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+
 
   resources$: Observable<any>;
   selectedResource$: Observable<any>;
@@ -69,7 +71,7 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
   selectedResourceUrl: any;
   selectedAppInfo$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.store.dispatch(loadAppInfoResources());
     this.store.dispatch(loadSelectedAppInfoResources());

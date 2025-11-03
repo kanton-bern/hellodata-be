@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, EventEmitter, NgModule, Output} from '@angular/core';
+import { Component, EventEmitter, NgModule, Output, inject } from '@angular/core';
 import { DrawerModule, Drawer } from 'primeng/drawer';
 import { ScrollPanelModule, ScrollPanel } from "primeng/scrollpanel";
 import { AsyncPipe, DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgFor } from "@angular/common";
@@ -70,6 +70,10 @@ import { TruncatePipe } from '../../pipes/truncate.pipe';
     imports: [NgIf, Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, DataView, NgFor, Tooltip, NgSwitch, NgSwitchCase, NgSwitchDefault, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TruncatePipe, TranslocoPipe, DatePipe]
 })
 export class SummaryComponent {
+  private store = inject<Store<AppState>>(Store);
+  appInfo = inject(AppInfoService);
+  private translateService = inject(TranslateService);
+
   currentUserPermissions$: Observable<string[]>;
   summarySidebarVisible = false;
   @Output() rightSidebarVisible = new EventEmitter<boolean>();
@@ -81,7 +85,9 @@ export class SummaryComponent {
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, public appInfo: AppInfoService, private translateService: TranslateService) {
+  constructor() {
+    const store = this.store;
+
     this.documentation$ = store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.pipelines$ = this.store.select(selectPipelines);

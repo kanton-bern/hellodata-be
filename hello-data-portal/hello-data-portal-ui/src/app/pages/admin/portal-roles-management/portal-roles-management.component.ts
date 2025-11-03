@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule, OnInit} from '@angular/core';
+import { Component, NgModule, OnInit, inject } from '@angular/core';
 import { CommonModule, NgIf, NgFor, AsyncPipe } from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
 import {PortalRoleEditComponent} from './portal-role-edit/portal-role-edit.component';
@@ -65,10 +65,12 @@ import {
     imports: [NgIf, TableModule, PrimeTemplate, NgFor, Tag, Button, ButtonDirective, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+
 
   roles$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.roles$ = this.store.select(selectPortalRoles);
     this.store.dispatch(loadPortalRoles());

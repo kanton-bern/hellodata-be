@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {environment} from "../../../environments/environment";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
@@ -7,10 +7,9 @@ import {Observable} from "rxjs";
   providedIn: 'root'
 })
 export class QueriesService {
-  baseUrl = `${environment.portalApi}/superset/queries/`;
+  protected httpClient = inject(HttpClient);
 
-  constructor(protected httpClient: HttpClient) {
-  }
+  baseUrl = `${environment.portalApi}/superset/queries/`;
 
   public getQueries(contextKey: string): Observable<any[]> {
     return this.httpClient.get<any[]>(`${this.baseUrl}${contextKey}`);
