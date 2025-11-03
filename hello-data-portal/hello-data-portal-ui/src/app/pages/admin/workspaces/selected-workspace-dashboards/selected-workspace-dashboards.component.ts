@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, input } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
@@ -50,11 +50,10 @@ export class SelectedWorkspaceDashboardsComponent {
   @Input()
   dashboards!: any[];
 
-  @Input()
-  instanceName!: string;
+  readonly instanceName = input.required<string>();
 
   createLink(dashboardResource: any): Observable<string> {
-    return this.store.select(selectAppInfoByInstanceName(this.instanceName)).pipe(map(appinfos => {
+    return this.store.select(selectAppInfoByInstanceName(this.instanceName())).pipe(map(appinfos => {
       if (appinfos) {
         let dashboardId = dashboardResource.id;
         if (dashboardResource.slug) {
@@ -63,7 +62,7 @@ export class SelectedWorkspaceDashboardsComponent {
         const supersetUrl = appinfos.data.url;
         return supersetUrl + 'superset/dashboard/' + dashboardId + '/?standalone=1';
       } else {
-        console.warn('Could not find app-info by the instance name: ' + this.instanceName);
+        console.warn('Could not find app-info by the instance name: ' + this.instanceName());
         return '';
       }
     }))

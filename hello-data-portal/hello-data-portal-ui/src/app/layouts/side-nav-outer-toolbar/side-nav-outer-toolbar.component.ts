@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, Input, NgModule, inject } from '@angular/core';
+import { Component, NgModule, inject, input } from '@angular/core';
 
 import { CommonModule, NgClass, NgStyle, AsyncPipe } from '@angular/common';
 
@@ -61,8 +61,7 @@ export class SideNavOuterToolbarComponent {
   private store = inject<Store<AppState>>(Store);
 
 
-  @Input()
-  title!: string;
+  readonly title = input.required<string>();
   navItems$: Observable<any[]>;
   selectCurrentUserPermissionsLoaded$: Observable<boolean>;
   mouseEnterTimeoutId: number[] = [];

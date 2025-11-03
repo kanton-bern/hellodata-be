@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input, NgModule} from '@angular/core';
+import {Component, NgModule, input} from '@angular/core';
 import {AppInfoService} from "../../services";
 import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {environment} from "../../../../environments/environment";
@@ -40,8 +40,7 @@ import { RouterModule, RouterLink } from "@angular/router";
 
 
 export class FooterComponent {
-  @Input()
-  appInfo!: AppInfoService;
+  readonly appInfo = input.required<AppInfoService>();
 
   openSourceDataPlatformUrl = environment.footerConfig.openSourceDataPlatformUrl;
   licenseUrl = environment.footerConfig.licenseUrl;

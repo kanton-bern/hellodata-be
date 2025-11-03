@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -52,8 +52,7 @@ export class DeletePortalRolePopupComponent {
   private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
 
-  @Input()
-  action!: Action;
+  readonly action = input.required<Action>();
   roleToBeDeleted$: Observable<any>;
 
   constructor() {
@@ -63,7 +62,7 @@ export class DeletePortalRolePopupComponent {
   }
 
   deleteRole() {
-    this.store.dispatch(this.action);
+    this.store.dispatch(this.action());
   }
 
   hideDeletionPopup(): void {

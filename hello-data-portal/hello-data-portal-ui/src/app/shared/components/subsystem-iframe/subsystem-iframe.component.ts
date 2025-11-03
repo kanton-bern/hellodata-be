@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, inject, input } from '@angular/core';
 import { CommonModule, NgStyle } from "@angular/common";
 
 import {AuthService} from "../../services";
@@ -44,9 +44,11 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
 
   @Input() url!: string;
-  @Input() accessTokenInQueryParam = false;
-  @Input() delay = 0;
-  @Input() style: { [p: string]: any } | null = null;
+  readonly accessTokenInQueryParam = input(false);
+  readonly delay = input(0);
+  readonly style = input<{
+    [p: string]: any;
+} | null>(null);
   @Input() switchStyleOverflow = true;
   @Output() iframeSetup = new EventEmitter<boolean>();
   frameUrl!: string;
@@ -55,7 +57,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   accessTokenSub!: Subscription;
 
   ngOnInit(): void {
-    console.debug('on init', this.url, this.delay);
+    console.debug('on init', this.url, this.delay());
 
 
     this.accessTokenSub = this.authService.accessToken.subscribe({
@@ -64,13 +66,13 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
         document.cookie = 'auth.access_token=' + value + '; path=/; domain=.' + environment.baseDomain + '; secure;';
         setTimeout(() => {
-          this.frameUrl = this.accessTokenInQueryParam ? this.url + '?auth.access_token=' + value : this.url;
+          this.frameUrl = this.accessTokenInQueryParam() ? this.url + '?auth.access_token=' + value : this.url;
           this.iframeSetup.emit(true);
           if (this.switchStyleOverflow) {
             document.getElementById('mainContentDiv')!.style.overflow = 'hidden';
           }
           this.clickScrollTopIfExists();
-        }, this.delay)
+        }, this.delay())
       }
     });
   }

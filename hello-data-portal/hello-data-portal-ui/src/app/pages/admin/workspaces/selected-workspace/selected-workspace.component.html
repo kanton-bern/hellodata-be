@@ -52,6 +52,7 @@
                                     [users]="selectedResource.data"></app-selected-workspace-users>
 
       <app-selected-workspace-pipelines *ngSwitchCase="'hellodata/Pipelines'"
+                                        [instanceName]="selectedResource.instanceName"
                                         [pipelines]="selectedResource.data"></app-selected-workspace-pipelines>
     </p-fieldset>
 

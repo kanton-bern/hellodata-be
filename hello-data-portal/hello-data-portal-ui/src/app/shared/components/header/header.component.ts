@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, EventEmitter, Input, NgModule, Output, inject } from '@angular/core';
+import { Component, EventEmitter, NgModule, Output, inject, input } from '@angular/core';
 import { CommonModule, NgStyle, NgClass, AsyncPipe } from '@angular/common';
 
 import {Store} from "@ngrx/store";
@@ -88,10 +88,8 @@ export class HeaderComponent {
 
   @Output()
   menuToggle = new EventEmitter<boolean>();
-  @Input()
-  menuToggleEnabled = false;
-  @Input()
-  title!: string;
+  readonly menuToggleEnabled = input(false);
+  readonly title = input.required<string>();
 
   userData$: Observable<IUser>;
   languages$: Observable<any[]>;

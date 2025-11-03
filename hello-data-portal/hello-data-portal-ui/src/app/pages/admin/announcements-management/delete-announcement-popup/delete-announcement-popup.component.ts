@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {Action, Store} from "@ngrx/store";
 import {combineLatest, Observable, tap} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
@@ -49,8 +49,7 @@ export class DeleteAnnouncementPopupComponent {
   private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
 
-  @Input()
-  action!: Action;
+  readonly action = input.required<Action>();
   announcementToBeDeleted$: Observable<any>;
 
   constructor() {
@@ -67,7 +66,7 @@ export class DeleteAnnouncementPopupComponent {
   }
 
   deleteAnnouncement() {
-    this.store.dispatch(this.action);
+    this.store.dispatch(this.action());
   }
 
   hideDeletionPopup(): void {

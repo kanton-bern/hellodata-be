@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, input } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {navigate} from "../../../../store/app/app.action";
@@ -60,8 +60,7 @@ export class SelectedWorkspacePipelinesComponent {
   @Input()
   pipelines!: any[];
 
-  @Input()
-  instanceName!: string;
+  readonly instanceName = input.required<string>();
 
   showDetails(pipelineId: string) {
     this.store.dispatch(navigate({url: `/embedded-orchestration/details/${pipelineId}`}));
