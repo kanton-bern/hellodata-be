@@ -7,7 +7,7 @@
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
               type="button"></p-button>
     <p-button (click)="cd.onAccept()"
-              [class]="getButtonTypeForAction(userForPopup)"
+              [severity]="getButtonTypeForAction(userForPopup)"
               label="{{getActionTranslationKey(userForPopup) | transloco}}"
               pButton
               type="button"></p-button>

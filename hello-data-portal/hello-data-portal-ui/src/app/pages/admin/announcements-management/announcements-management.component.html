@@ -2,7 +2,7 @@
 <div class="card" *ngIf="(selectedLanguage$ | async) as selectedLanguage">
   <p-toolbar class="mb-4 gap-2">
     <ng-template pTemplate="left">
-      <p-button (click)="createAnnouncement()" class="p-button-success mr-2" icon="fas fa-circle-plus"
+      <p-button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
                 label="{{'@Create announcement' | transloco }}" pButton pRipple></p-button>
     </ng-template>
   </p-toolbar>
@@ -60,13 +60,13 @@
           <td>
             <p-button (click)="editAnnouncement(announcement)"
                       [pTooltip]="'@Edit' | transloco"
-                      class="p-button-rounded p-button-success mr-2"
+                      severity="success"
                       icon="fas fa-light fa-pen-to-square"
                       pButton
                       pRipple></p-button>
             <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                       [pTooltip]="'@Delete' | transloco"
-                      class="p-button-rounded p-button-danger"
+                      severity="danger"
                       icon="fas fa-trash"
                       pButton
                       pRipple></p-button>

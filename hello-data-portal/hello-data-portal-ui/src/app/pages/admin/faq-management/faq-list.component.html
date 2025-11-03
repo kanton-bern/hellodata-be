@@ -2,7 +2,7 @@
 <div *ngIf="(selectedLanguage$ | async) as selectedLanguage" class="card">
   <p-toolbar class="mb-4 gap-2">
     <ng-template pTemplate="left">
-      <p-button (click)="createFaq()" class="p-button-success mr-2" icon="fas fa-circle-plus" id="createFaqButton"
+      <p-button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
                 label="{{'@Create' | transloco }}" pButton pRipple></p-button>
     </ng-template>
   </p-toolbar>
@@ -47,13 +47,15 @@
           <td>
             <p-button (click)="editFaq(faq)"
                       [pTooltip]="'@Edit' | transloco"
-                      class="p-button-rounded p-button-success mr-2"
+                      severity="success"
+                      class="p-button-rounded"
                       icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
                       pButton
                       pRipple></p-button>
             <p-button (click)="showFaqDeletionPopup(faq)"
                       [pTooltip]="'@Delete' | transloco"
-                      class="p-button-rounded p-button-danger"
+                      severity="danger"
+                      class="p-button-rounded"
                       icon="fas fa-trash"
                       id="{{'deleteFaq_' + faq.title}}"
                       pButton

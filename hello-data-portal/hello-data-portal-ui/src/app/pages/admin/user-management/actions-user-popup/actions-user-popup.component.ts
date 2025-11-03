@@ -58,9 +58,9 @@ export class ActionsUserPopupComponent {
   getButtonTypeForAction(userForPopup: any) {
     switch (userForPopup.action) {
       case UserAction.ENABLE:
-        return 'p-button-success';
+        return 'success';
       default:
-        return 'p-button-danger'
+        return 'danger'
     }
   }
 

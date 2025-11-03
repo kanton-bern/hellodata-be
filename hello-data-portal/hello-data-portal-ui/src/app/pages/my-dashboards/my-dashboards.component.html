@@ -79,19 +79,22 @@
         <td>
           <p-button (click)="openDashboard(dashboard)"
                     [pTooltip]="'@Open' | transloco"
-                    class="p-button-rounded p-button-info mr-2"
+                    class="p-button-rounded mr-2"
+                    severity="info"
                     icon="fas fa-up-right-from-square"
                     pButton
                     pRipple></p-button>
           <p-button (click)="openInfoPanel(dashboard)"
                     [pTooltip]="'@Info' | transloco"
-                    class="p-button-rounded p-button-help mr-2"
+                    class="p-button-rounded mr-2"
+                    severity="help"
                     icon="fas fa-circle-info"
                     pButton
                     pRipple></p-button>
           <p-button (click)="editDashboard(dashboard)" *ngIf="dashboard.currentUserAdmin || dashboard.currentUserEditor"
                     [pTooltip]="'@Edit' | transloco"
-                    class="p-button-rounded p-button-success mr-2"
+                    severity="success"
+                    class="p-button-rounded mr-2"
                     icon="fas fa-light fa-pen-to-square"
                     pButton
                     pRipple></p-button>

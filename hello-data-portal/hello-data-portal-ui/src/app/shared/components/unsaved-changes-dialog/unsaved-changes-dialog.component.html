@@ -9,7 +9,7 @@
       <p-button
         (click)="cd.onAccept()"
         *ngIf="!stayOnPage.value; else continueEditionButton"
-        class="p-button-success"
+        severity="success"
         icon="fas fa-floppy-disk"
         label="{{ '@Save' | transloco }}"
         type="button"
@@ -17,7 +17,7 @@
       <ng-template #continueEditionButton>
         <p-button
           (click)="cd.hide()"
-          class="p-button-success"
+          severity="success"
           icon="fas fa-pen-to-square"
           label="{{ '@Continue edition' | transloco }}"
           type="button"

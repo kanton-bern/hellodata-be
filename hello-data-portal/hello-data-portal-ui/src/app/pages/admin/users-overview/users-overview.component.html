@@ -15,13 +15,13 @@
             <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-replay"
                       label="{{ '@Reload' | transloco }}"
-                      class="p-button-success"/>
+                      severity="success"/>
           </div>
           <div class="ml-1" style="text-align: left">
             <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
                       icon="pi pi-times-circle"
                       label="{{ '@Clear cache' | transloco }}"
-                      class="p-button-help"/>
+                      severity="help"/>
           </div>
         </div>
       </ng-template>

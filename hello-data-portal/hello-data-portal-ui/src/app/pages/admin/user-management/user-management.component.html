@@ -56,7 +56,7 @@
                   [disabled]="inviteForm.invalid"
                   icon="fas fa-floppy-disk"
                   label="{{'@Set permissions' | transloco}}"
-                  class="p-button-success mr-2"></p-button>
+                  severity="success"></p-button>
       </div>
     </p-toolbar>
   </form>
@@ -73,7 +73,7 @@
                 [pTooltip]="'@Sync Users Title' | transloco"
                 icon="fas fa-arrows-rotate"
                 label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
-                class="p-button-success mr-2"></p-button>
+                severity="success"></p-button>
     </div>
   </p-toolbar>
 
@@ -168,24 +168,28 @@
         </td>
         <td *ngIf="(loggedInUser$ | async) as loggedInUser">
           <p-button (click)="editUser(user)"
-                    class="p-button-rounded p-button-success mr-2"
+                    severity="success"
+                    class="p-button-rounded mr-2"
                     icon="fas fa-light fa-pen-to-square"
                     pButton
                     pRipple
                     pTooltip="{{'@Edit' | transloco}}"></p-button>
           <p-button (click)="enableUser(user)"
                     *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
-                    class="p-button-rounded p-button-success mr-2"
+                    severity="success"
+                    class="p-button-rounded mr-2"
                     icon="fas fa-circle-plus" pButton pRipple
                     pTooltip="{{'@Enable' | transloco}}"></p-button>
           <p-button (click)="disableUser(user)"
                     *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
-                    class="p-button-rounded p-button-warning mr-2"
+                    severity="warn"
+                    class="p-button-rounded mr-2"
                     icon="fas fa-circle-xmark" pButton pRipple
                     pTooltip="{{'@Disable' | transloco}}"></p-button>
           <p-button (click)="showUserDeletionPopup(user)"
                     *ngIf="!user.superuser && user.email !== loggedInUser.email"
-                    class="p-button-rounded p-button-danger mr-2"
+                    severity="danger"
+                    class="p-button-rounded mr-2"
                     icon="fas fa-trash" pButton pRipple
                     pTooltip="{{'@Delete' | transloco}}"></p-button>
         </td>
