@@ -32,12 +32,13 @@ import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-
 import {SubsystemIframeComponent} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {environment} from "../../../environments/environment";
 import {logout} from "../../store/auth/auth.action";
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-logout',
-  templateUrl: './logout.component.html',
-  styleUrls: ['./logout.component.scss'],
-  standalone: false
+    selector: 'app-logout',
+    templateUrl: './logout.component.html',
+    styleUrls: ['./logout.component.scss'],
+    imports: [TranslocoPipe]
 })
 export class LogoutComponent implements AfterViewInit {
   constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {

@@ -26,13 +26,13 @@
 ///
 
 import {Component, EventEmitter, Input, NgModule, Output} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import { CommonModule, NgIf, NgStyle, NgFor, NgClass, AsyncPipe } from '@angular/common';
 
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
-import {PublishedAnnouncementsModule} from "../published-announcement/published-announcements.module";
+
 import {
   selectCurrentBusinessDomain,
   selectCurrentContextRolesFilterOffNone,
@@ -44,12 +44,12 @@ import {
 } from "../../../store/auth/auth.selector";
 import {MenubarModule} from "primeng/menubar";
 import {MegaMenuModule} from "primeng/megamenu";
-import {MenuModule} from "primeng/menu";
+import { MenuModule, Menu } from "primeng/menu";
 import {ButtonModule} from "primeng/button";
 import {DrawerModule} from 'primeng/drawer';
 import {BreadcrumbComponent} from "../breadcrumb/breadcrumb.component";
 import {BreadcrumbModule} from "primeng/breadcrumb";
-import {TranslocoModule} from "@jsverse/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {SelectModule} from 'primeng/select';
 import {FormsModule} from "@angular/forms";
 import {ToolbarModule} from "primeng/toolbar";
@@ -58,7 +58,7 @@ import {
   selectSelectedDataDomain
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
-import {RippleModule} from "primeng/ripple";
+import { RippleModule, Ripple } from "primeng/ripple";
 import {environment} from "../../../../environments/environment";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
@@ -73,12 +73,13 @@ import {setSelectedLanguage} from "../../../store/auth/auth.action";
 import {DividerModule} from "primeng/divider";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
 import {Tooltip} from "primeng/tooltip";
+import { PublishedAnnouncementsWrapperComponent } from '../published-announcement/published-announcements-wrapper/published-announcements-wrapper.component';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: 'header.component.html',
-  styleUrls: ['./header.component.scss'],
-  standalone: false
+    selector: 'app-header',
+    templateUrl: 'header.component.html',
+    styleUrls: ['./header.component.scss'],
+    imports: [NgIf, NgStyle, Tooltip, Ripple, NgFor, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
 
@@ -200,37 +201,7 @@ export class HeaderComponent {
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    PublishedAnnouncementsModule,
-    MenubarModule,
-    MegaMenuModule,
-    MenuModule,
-    ButtonModule,
-    DrawerModule,
-    BreadcrumbModule,
-    TranslocoModule,
-    SelectModule,
-    FormsModule,
-    ToolbarModule,
-    RippleModule,
-    ConfirmDialogModule,
-    BrowserModule,
-    BrowserAnimationsModule,
-    MenubarModule,
-    InputTextModule,
-    TabsModule,
-    SharedModule,
-    DividerModule,
-    MatomoTrackerDirective,
-    Tooltip
-  ],
-  declarations: [HeaderComponent, BreadcrumbComponent],
-  exports: [HeaderComponent]
-})
-export class HeaderModule {
-}
+
 
 
 export interface Environment {

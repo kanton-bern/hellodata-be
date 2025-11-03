@@ -42,12 +42,24 @@ import {
   loadSelectedAppInfoResource,
   loadSelectedAppInfoResources
 } from "../../../../store/metainfo-resource/metainfo-resource.action";
+import { NgIf, NgFor, NgSwitch, NgSwitchCase, NgSwitchDefault, AsyncPipe } from '@angular/common';
+import { Ripple } from 'primeng/ripple';
+import { Toolbar } from 'primeng/toolbar';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { Fieldset } from 'primeng/fieldset';
+import { SelectedWorkspaceDashboardsComponent } from '../selected-workspace-dashboards/selected-workspace-dashboards.component';
+import { SelectedWorkspaceRolesComponent } from '../selected-workspace-roles/selected-workspace-roles.component';
+import { SelectedWorkspacePermissionsComponent } from '../selected-workspace-permissions/selected-workspace-permissions.component';
+import { SelectedWorkspaceUsersComponent } from '../selected-workspace-users/selected-workspace-users.component';
+import { SelectedWorkspacePipelinesComponent } from '../selected-workspace-pipelines/selected-workspace-pipelines.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-selected-workspace',
-  templateUrl: './selected-workspace.component.html',
-  styleUrls: ['./selected-workspace.component.scss'],
-  standalone: false
+    selector: 'app-selected-workspace',
+    templateUrl: './selected-workspace.component.html',
+    styleUrls: ['./selected-workspace.component.scss'],
+    imports: [NgIf, NgFor, Ripple, Toolbar, Button, Tooltip, NgSwitch, Fieldset, NgSwitchCase, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, NgSwitchDefault, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
 

@@ -33,14 +33,21 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {MenuService} from "../../../store/menu/menu.service";
 import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-page.model";
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
-import {Table, TablePageEvent} from "primeng/table";
+import { Table, TablePageEvent, TableModule } from "primeng/table";
 import {navigate, trackEvent} from "../../../store/app/app.action";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { PrimeTemplate } from 'primeng/api';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { FormsModule } from '@angular/forms';
+import { InputText } from 'primeng/inputtext';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-dashboards',
-  templateUrl: './dashboards.component.html',
-  styleUrls: ['./dashboards.component.scss'],
-  standalone: false
+    selector: 'app-dashboards',
+    templateUrl: './dashboards.component.html',
+    styleUrls: ['./dashboards.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe]
 })
 export class DashboardsComponent implements OnInit {
   dashboards$: Observable<SupersetDashboard[]>;

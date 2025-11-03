@@ -31,18 +31,22 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectUserForPopup} from "../../../../store/users-management/users-management.selector";
 import {UserAction} from "../../../../store/users-management/users-management.model";
-import {ConfirmationService, ConfirmEventType} from "primeng/api";
+import { ConfirmationService, ConfirmEventType, PrimeTemplate } from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {
   hideUserPopupAction,
   invokeActionFromUserPopup
 } from "../../../../store/users-management/users-management.action";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Button, ButtonDirective } from 'primeng/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-actions-user-popup',
-  templateUrl: './actions-user-popup.component.html',
-  styleUrls: ['./actions-user-popup.component.scss'],
-  standalone: false
+    selector: 'app-actions-user-popup',
+    templateUrl: './actions-user-popup.component.html',
+    styleUrls: ['./actions-user-popup.component.scss'],
+    imports: [NgIf, ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class ActionsUserPopupComponent {
   selectUserForPopup$: Observable<any>;

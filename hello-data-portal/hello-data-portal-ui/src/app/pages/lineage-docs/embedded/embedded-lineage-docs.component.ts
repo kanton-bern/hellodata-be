@@ -37,11 +37,13 @@ import {selectLineageInfo} from "../../../store/lineage-docs/lineage-docs.select
 import {navigate} from "../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {TranslateService} from "../../../shared/services/translate.service";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { SubsystemIframeComponent } from '../../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 @Component({
-  templateUrl: 'embedded-lineage-docs.component.html',
-  styleUrls: ['./embedded-lineage-docs.component.scss'],
-  standalone: false
+    templateUrl: 'embedded-lineage-docs.component.html',
+    styleUrls: ['./embedded-lineage-docs.component.scss'],
+    imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedLineageDocsComponent {
   url!: string;

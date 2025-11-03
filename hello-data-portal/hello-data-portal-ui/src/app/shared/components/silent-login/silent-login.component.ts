@@ -34,12 +34,13 @@ import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resour
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {selectProfile} from "../../../store/auth/auth.selector";
 import {LOGGED_IN_AIRFLOW_USER} from "../../../pages/orchestration/embedded-orchestration.component";
+import { NgIf, AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-silent-login',
-  templateUrl: './silent-login.component.html',
-  styleUrls: ['./silent-login.component.scss'],
-  standalone: false
+    selector: 'app-silent-login',
+    templateUrl: './silent-login.component.html',
+    styleUrls: ['./silent-login.component.scss'],
+    imports: [NgIf, AsyncPipe]
 })
 export class SilentLoginComponent {
   supersetInfos$: Observable<MetaInfoResource[]>;

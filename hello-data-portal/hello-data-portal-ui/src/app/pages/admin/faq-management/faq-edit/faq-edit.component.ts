@@ -27,7 +27,7 @@
 
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
@@ -43,12 +43,22 @@ import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../..
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {selectDefaultLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
+import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { Select } from 'primeng/select';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { Ripple } from 'primeng/ripple';
+import { Editor } from 'primeng/editor';
+import { Toolbar } from 'primeng/toolbar';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { DeleteFaqPopupComponent } from '../delete-faq-popup/delete-faq-popup.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-faq-edit',
-  templateUrl: './faq-edit.component.html',
-  styleUrls: ['./faq-edit.component.scss'],
-  standalone: false
+    selector: 'app-faq-edit',
+    templateUrl: './faq-edit.component.html',
+    styleUrls: ['./faq-edit.component.scss'],
+    imports: [NgIf, FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedFaq$: Observable<Faq>;

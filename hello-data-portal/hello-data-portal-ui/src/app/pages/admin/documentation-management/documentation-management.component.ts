@@ -40,14 +40,22 @@ import {
   selectSupportedLanguages
 } from "../../../store/auth/auth.selector";
 import {Documentation} from "../../../store/summary/summary.model";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {take} from "rxjs/operators";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { Ripple } from 'primeng/ripple';
+import { Editor } from 'primeng/editor';
+import { PrimeTemplate } from 'primeng/api';
+import { Toolbar } from 'primeng/toolbar';
+import { Button } from 'primeng/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-documentation',
-  templateUrl: './documentation-management.component.html',
-  styleUrls: ['./documentation-management.component.scss'],
-  standalone: false
+    selector: 'app-documentation',
+    templateUrl: './documentation-management.component.html',
+    styleUrls: ['./documentation-management.component.scss'],
+    imports: [NgIf, FormsModule, ReactiveFormsModule, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Toolbar, Button, AsyncPipe, TranslocoPipe]
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   documentationForm!: FormGroup;

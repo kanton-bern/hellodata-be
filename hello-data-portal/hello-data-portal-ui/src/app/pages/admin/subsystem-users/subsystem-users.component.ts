@@ -38,8 +38,14 @@ import {
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
-import {Table} from "primeng/table";
+import { Table, TableModule } from "primeng/table";
 import {TranslateService} from "../../../shared/services/translate.service";
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { PrimeTemplate } from 'primeng/api';
+import { Button, ButtonDirective } from 'primeng/button';
+import { InputText } from 'primeng/inputtext';
+import { Tag } from 'primeng/tag';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 interface TableRow {
   email: string;
@@ -48,10 +54,10 @@ interface TableRow {
 }
 
 @Component({
-  selector: 'app-subsystem-users',
-  templateUrl: './subsystem-users.component.html',
-  styleUrls: ['./subsystem-users.component.scss'],
-  standalone: false
+    selector: 'app-subsystem-users',
+    templateUrl: './subsystem-users.component.html',
+    styleUrls: ['./subsystem-users.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, InputText, NgFor, Tag, AsyncPipe, TranslocoPipe]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';

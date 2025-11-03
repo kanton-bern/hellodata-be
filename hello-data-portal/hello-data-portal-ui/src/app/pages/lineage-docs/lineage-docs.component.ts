@@ -26,19 +26,19 @@
 ///
 
 import {Component, ElementRef, NgModule, OnInit, ViewChild} from '@angular/core';
-import {CommonModule} from "@angular/common";
+import { CommonModule, NgIf, AsyncPipe, DatePipe } from "@angular/common";
 import {Store} from "@ngrx/store";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {ButtonModule} from "primeng/button";
-import {RippleModule} from "primeng/ripple";
+import { ButtonModule, Button, ButtonDirective } from "primeng/button";
+import { RippleModule, Ripple } from "primeng/ripple";
 import {EmbeddedLineageDocsComponent} from "./embedded/embedded-lineage-docs.component";
-import {TranslocoModule} from "@jsverse/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {SelectModule} from 'primeng/select';
-import {TooltipModule} from "primeng/tooltip";
+import { TooltipModule, Tooltip } from "primeng/tooltip";
 import {LineageDoc} from "../../store/lineage-docs/lineage-docs.model";
 import {AppState} from "../../store/app/app.state";
-import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
-import {HdCommonModule} from "../../hd-common.module";
+
+
 import {naviElements} from "../../app-navi-elements";
 import {combineLatest, map, Observable, tap} from "rxjs";
 import {selectFilteredBy, selectMyLineageDocsFiltered} from "../../store/lineage-docs/lineage-docs.selector";
@@ -48,12 +48,13 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {ScrollTopModule} from "primeng/scrolltop";
+import { PrimeTemplate } from 'primeng/api';
 
 @Component({
-  selector: 'app-docs',
-  templateUrl: './lineage-docs.component.html',
-  styleUrls: ['./lineage-docs.component.scss'],
-  standalone: false
+    selector: 'app-docs',
+    templateUrl: './lineage-docs.component.html',
+    styleUrls: ['./lineage-docs.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class LineageDocsComponent extends BaseComponent implements OnInit {
   projectDocsForm!: FormGroup;
@@ -121,24 +122,4 @@ export class LineageDocsComponent extends BaseComponent implements OnInit {
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    SubsystemIframeModule,
-    FormsModule,
-    ButtonModule,
-    RippleModule,
-    HdCommonModule,
-    TranslocoModule,
-    SelectModule,
-    ReactiveFormsModule,
-    TooltipModule,
-    RouterLink,
-    TableModule,
-    ScrollTopModule
-  ],
-  declarations: [LineageDocsComponent, EmbeddedLineageDocsComponent],
-  exports: [LineageDocsComponent]
-})
-export class DocsModule {
-}
+

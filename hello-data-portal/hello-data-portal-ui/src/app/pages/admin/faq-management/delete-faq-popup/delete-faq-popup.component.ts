@@ -30,16 +30,20 @@ import {Action, Store} from "@ngrx/store";
 import {Observable, tap, withLatestFrom} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedFaqForDeletion} from "../../../../store/faq/faq.selector";
-import {ConfirmationService, MessageService} from "primeng/api";
+import { ConfirmationService, MessageService, PrimeTemplate } from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {hideDeleteFaqPopup} from "../../../../store/faq/faq.action";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Button, ButtonDirective } from 'primeng/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-delete-faq-popup',
-  templateUrl: './delete-faq-popup.component.html',
-  styleUrls: ['./delete-faq-popup.component.scss'],
-  providers: [ConfirmationService, MessageService],
-  standalone: false
+    selector: 'app-delete-faq-popup',
+    templateUrl: './delete-faq-popup.component.html',
+    styleUrls: ['./delete-faq-popup.component.scss'],
+    providers: [ConfirmationService, MessageService],
+    imports: [NgIf, ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class DeleteFaqPopupComponent {
   @Input()

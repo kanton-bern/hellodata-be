@@ -26,8 +26,8 @@
 ///
 
 import {Component, NgModule} from '@angular/core';
-import {TranslocoModule} from "@jsverse/transloco";
-import {ConfirmDialogModule} from "primeng/confirmdialog";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
+import { ConfirmDialogModule, ConfirmDialog } from "primeng/confirmdialog";
 import {Observable} from "rxjs";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
@@ -35,12 +35,13 @@ import {selectStayOnPage} from "../../../store/unsaved-changes/unsaved-changes.s
 import {AsyncPipe, NgIf} from "@angular/common";
 import {StayOnPageContainer} from "../../../store/unsaved-changes/unsaved-changes.state";
 import {Button, ButtonDirective} from "primeng/button";
+import { PrimeTemplate } from 'primeng/api';
 
 @Component({
-  selector: 'app-unsaved-changes-dialog',
-  templateUrl: './unsaved-changes-dialog.component.html',
-  styleUrls: ['./unsaved-changes-dialog.component.scss'],
-  standalone: false
+    selector: 'app-unsaved-changes-dialog',
+    templateUrl: './unsaved-changes-dialog.component.html',
+    styleUrls: ['./unsaved-changes-dialog.component.scss'],
+    imports: [ConfirmDialog, PrimeTemplate, ButtonDirective, NgIf, Button, TranslocoPipe, AsyncPipe]
 })
 export class UnsavedChangesDialogComponent {
   stayOnPage$: Observable<StayOnPageContainer>;
@@ -51,17 +52,4 @@ export class UnsavedChangesDialogComponent {
 }
 
 
-@NgModule({
-  declarations: [UnsavedChangesDialogComponent],
-  imports: [
-    TranslocoModule,
-    ConfirmDialogModule,
-    AsyncPipe,
-    NgIf,
-    Button,
-    ButtonDirective
-  ],
-  exports: [UnsavedChangesDialogComponent]
-})
-export class UnsavedChangesModule {
-}
+

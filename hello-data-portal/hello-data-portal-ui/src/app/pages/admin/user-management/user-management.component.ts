@@ -46,25 +46,25 @@ import {
   selectUsersLoading,
   selectUsersTotalRecords
 } from "../../../store/users-management/users-management.selector";
-import {CommonModule} from "@angular/common";
+import { CommonModule, NgIf, AsyncPipe, DatePipe } from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {UserEditComponent} from "./user-edit/user-edit.component";
 import {ActionsUserPopupComponent} from "./actions-user-popup/actions-user-popup.component";
-import {TranslocoModule} from "@jsverse/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
 import {TableLazyLoadEvent, TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";
-import {TooltipModule} from "primeng/tooltip";
-import {InputTextModule} from "primeng/inputtext";
-import {ButtonModule} from "primeng/button";
-import {ToolbarModule} from "primeng/toolbar";
+import { TooltipModule, Tooltip } from "primeng/tooltip";
+import { InputTextModule, InputText } from "primeng/inputtext";
+import { ButtonModule, Button, ButtonDirective } from "primeng/button";
+import { ToolbarModule, Toolbar } from "primeng/toolbar";
 import {EditorModule} from "primeng/editor";
-import {RippleModule} from "primeng/ripple";
+import { RippleModule, Ripple } from "primeng/ripple";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {StyleClassModule} from "primeng/styleclass";
 import {TabsModule} from 'primeng/tabs';
-import {AutoCompleteModule} from "primeng/autocomplete";
+import { AutoCompleteModule, AutoComplete } from "primeng/autocomplete";
 import {CheckboxModule} from "primeng/checkbox";
 import {DividerModule} from "primeng/divider";
 import {switchMap} from "rxjs/operators";
@@ -89,12 +89,13 @@ import {selectProfile} from "../../../store/auth/auth.selector";
 import {IUser} from "../../../store/auth/auth.model";
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
+import { PrimeTemplate } from 'primeng/api';
 
 @Component({
-  selector: 'app-user-management',
-  templateUrl: './user-management.component.html',
-  styleUrls: ['./user-management.component.scss'],
-  standalone: false
+    selector: 'app-user-management',
+    templateUrl: './user-management.component.html',
+    styleUrls: ['./user-management.component.scss'],
+    imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, NgIf, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
 
@@ -272,39 +273,4 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    TranslocoModule,
-    RouterLink,
-    TableModule,
-    TagModule,
-    TooltipModule,
-    InputTextModule,
-    ButtonModule,
-    ToolbarModule,
-    EditorModule,
-    RippleModule,
-    FormsModule,
-    ConfirmDialogModule,
-    StyleClassModule,
-    TabsModule,
-    AutoCompleteModule,
-    CheckboxModule,
-    DividerModule,
-    SelectModule,
-    MultiSelectModule,
-    IconField,
-    InputIcon
-  ],
-  declarations: [
-    UserManagementComponent,
-    UserEditComponent,
-    ActionsUserPopupComponent,
-    DashboardViewerPermissionsComponent
-  ],
-  exports: [UserManagementComponent]
-})
-export class UserManagementModule {
-}
+

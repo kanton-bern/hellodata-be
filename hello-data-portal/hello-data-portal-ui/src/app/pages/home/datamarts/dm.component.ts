@@ -26,17 +26,21 @@
 ///
 
 import {Component} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAvailableDataDomainItems} from "../../../store/my-dashboards/my-dashboards.selector";
 import {combineLatest, map, Observable} from "rxjs";
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { AsyncPipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-dm',
-  templateUrl: './dm.component.html',
-  styleUrls: ['./dm.component.scss'],
-  standalone: false
+    selector: 'app-dm',
+    templateUrl: './dm.component.html',
+    styleUrls: ['./dm.component.scss'],
+    imports: [TableModule, PrimeTemplate, RouterLink, AsyncPipe, TranslocoPipe]
 })
 export class DmComponent {
   dataMarts$: Observable<any>;

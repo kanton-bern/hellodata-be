@@ -28,7 +28,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
 import {
   selectAvailablePermissions,
@@ -50,12 +50,20 @@ import {
   saveChangesToPortalRole,
   showDeletePortalRolePopup
 } from "../../../../store/portal-roles-management/portal-roles-management.action";
+import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { Textarea } from 'primeng/textarea';
+import { AutoComplete } from 'primeng/autocomplete';
+import { Toolbar } from 'primeng/toolbar';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { DeletePortalRolePopupComponent } from '../delete-portal-role-popup/delete-portal-role-popup.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-role-edit',
-  templateUrl: './portal-role-edit.component.html',
-  styleUrls: ['./portal-role-edit.component.scss'],
-  standalone: false
+    selector: 'app-role-edit',
+    templateUrl: './portal-role-edit.component.html',
+    styleUrls: ['./portal-role-edit.component.scss'],
+    imports: [NgIf, FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PortalRoleEditComponent implements OnInit, OnDestroy {
 

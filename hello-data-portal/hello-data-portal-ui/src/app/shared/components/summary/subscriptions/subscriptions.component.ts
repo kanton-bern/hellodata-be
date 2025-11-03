@@ -35,12 +35,15 @@ import {
 import {Observable} from "rxjs";
 import {Context} from "../../../../store/users-management/context-role.model";
 import {loadAvailableContexts} from "../../../../store/users-management/users-management.action";
+import { NgFor, AsyncPipe } from "@angular/common";
+import { Tooltip } from "primeng/tooltip";
+import { TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  selector: 'app-subscriptions',
-  templateUrl: './subscriptions.component.html',
-  styleUrls: ['./subscriptions.component.scss'],
-  standalone: false
+    selector: 'app-subscriptions',
+    templateUrl: './subscriptions.component.html',
+    styleUrls: ['./subscriptions.component.scss'],
+    imports: [NgFor, Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class SubscriptionsComponent {
   businessDomains$: Observable<Context[]>;

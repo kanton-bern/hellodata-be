@@ -35,12 +35,15 @@ import {Title} from "@angular/platform-browser";
 import {checkAuth, checkProfile} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
 import {navigate} from "./store/app/app.action";
+import {AsyncPipe, NgIf} from '@angular/common';
+import {RouterOutlet} from '@angular/router';
+import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  standalone: false
+  imports: [NgIf, RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent]
 })
 export class AppComponent implements OnInit {
 

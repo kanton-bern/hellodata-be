@@ -34,12 +34,21 @@ import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate, SharedModule } from 'primeng/api';
+import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
+import { Ripple } from 'primeng/ripple';
+import { MatomoTrackerDirective } from 'ngx-matomo-client';
+import { Editor } from 'primeng/editor';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-faq',
-  templateUrl: './faq.component.html',
-  styleUrls: ['./faq.component.scss'],
-  standalone: false
+    selector: 'app-faq',
+    templateUrl: './faq.component.html',
+    styleUrls: ['./faq.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, Accordion, NgFor, AccordionPanel, Ripple, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
 })
 export class FaqComponent implements OnInit {
   faq$: Observable<GroupedFaq[]>;

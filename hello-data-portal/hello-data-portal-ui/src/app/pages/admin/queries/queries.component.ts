@@ -16,15 +16,25 @@ import {
   selectAllAvailableDataDomains,
   selectSelectedDataDomain
 } from "../../../store/my-dashboards/my-dashboards.selector";
-import {Table, TableLazyLoadEvent} from "primeng/table";
+import { Table, TableLazyLoadEvent, TableModule } from "primeng/table";
 import {map, take} from "rxjs/operators";
 import {scrollToTop} from "../../../shared/services/view-helpers";
 import {navigate} from "../../../store/app/app.action";
+import { NgIf, NgSwitch, NgSwitchCase, NgFor, AsyncPipe, DatePipe } from "@angular/common";
+import { PrimeTemplate } from "primeng/api";
+import { FormsModule } from "@angular/forms";
+import { InputText } from "primeng/inputtext";
+import { Tooltip } from "primeng/tooltip";
+import { Tag } from "primeng/tag";
+import { Button } from "primeng/button";
+import { Ripple } from "primeng/ripple";
+import { Textarea } from "primeng/textarea";
+import { TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  templateUrl: 'queries.component.html',
-  styleUrls: ['./queries.component.scss'],
-  standalone: false
+    templateUrl: 'queries.component.html',
+    styleUrls: ['./queries.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, FormsModule, InputText, NgSwitch, NgSwitchCase, Tooltip, Tag, NgFor, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
 

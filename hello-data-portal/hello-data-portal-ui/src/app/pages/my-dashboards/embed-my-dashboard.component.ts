@@ -37,13 +37,15 @@ import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {filter} from "rxjs/operators";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 
 @Component({
-  templateUrl: 'embed-my-dashboard.component.html',
-  styleUrls: ['./embed-my-dashboard.component.scss'],
-  standalone: false
+    templateUrl: 'embed-my-dashboard.component.html',
+    styleUrls: ['./embed-my-dashboard.component.scss'],
+    imports: [NgIf, SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   url!: string;

@@ -44,11 +44,24 @@ import {selectAdminEmails} from "../../store/users-management/users-management.s
 import {loadAdminEmails} from "../../store/users-management/users-management.action";
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {ScreenService} from "../../shared/services";
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
+import { Tooltip } from 'primeng/tooltip';
+import { Fieldset } from 'primeng/fieldset';
+import { PrimeTemplate } from 'primeng/api';
+import { Badge } from 'primeng/badge';
+import { DashboardsComponent } from './dashboards/dashboards.component';
+import { ExternalComponent } from './external/external.component';
+import { DmComponent } from './datamarts/dm.component';
+import { LineageComponent } from './lineage/lineage.component';
+import { FaqComponent } from './faq/faq.component';
+import { HomeDocumentationComponent } from './documentation/home-documentation.component';
+import { AdminInitComponent } from '../../shared/components/admin-init/admin-init.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  templateUrl: 'home.component.html',
-  styleUrls: ['./home.component.scss'],
-  standalone: false
+    templateUrl: 'home.component.html',
+    styleUrls: ['./home.component.scss'],
+    imports: [NgIf, Tooltip, Fieldset, PrimeTemplate, Badge, NgFor, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
 })
 export class HomeComponent extends BaseComponent implements OnInit {
 

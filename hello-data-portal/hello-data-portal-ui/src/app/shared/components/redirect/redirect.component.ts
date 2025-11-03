@@ -28,12 +28,11 @@
 import {Component, NgModule} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CommonModule} from "@angular/common";
-import {HdCommonModule} from "../../../hd-common.module";
+
 
 @Component({
-  selector: 'app-redirect',
-  template: '',
-  standalone: false
+    selector: 'app-redirect',
+    template: ''
 })
 export class RedirectComponent {
   constructor(private route: ActivatedRoute, private router: Router) {
@@ -47,13 +46,4 @@ export class RedirectComponent {
 }
 
 
-@NgModule({
-  imports: [
-    CommonModule,
-    HdCommonModule
-  ],
-  declarations: [RedirectComponent],
-  exports: [RedirectComponent]
-})
-export class RedirectModule {
-}
+

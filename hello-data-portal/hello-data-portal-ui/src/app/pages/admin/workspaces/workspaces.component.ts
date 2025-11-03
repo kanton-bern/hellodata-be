@@ -30,9 +30,9 @@ import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {selectAppInfos} from "../../../store/metainfo-resource/metainfo-resource.selector";
 import {AppState} from "../../../store/app/app.state";
-import {CommonModule} from "@angular/common";
+import { CommonModule, NgIf, NgFor, AsyncPipe } from "@angular/common";
 import {ReactiveFormsModule} from "@angular/forms";
-import {RippleModule} from "primeng/ripple";
+import { RippleModule, Ripple } from "primeng/ripple";
 import {SelectedWorkspaceComponent} from "./selected-workspace/selected-workspace.component";
 import {SelectedWorkspaceRolesComponent} from "./selected-workspace-roles/selected-workspace-roles.component";
 import {
@@ -60,10 +60,10 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {loadAppInfoResources} from "../../../store/metainfo-resource/metainfo-resource.action";
 
 @Component({
-  selector: 'app-workspaces',
-  templateUrl: './workspaces.component.html',
-  styleUrls: ['./workspaces.component.scss'],
-  standalone: false
+    selector: 'app-workspaces',
+    templateUrl: './workspaces.component.html',
+    styleUrls: ['./workspaces.component.scss'],
+    imports: [NgIf, NgFor, Ripple, AsyncPipe, NgArrayPipesModule]
 })
 export class WorkspacesComponent extends BaseComponent implements OnInit {
 
@@ -93,29 +93,4 @@ export class WorkspacesComponent extends BaseComponent implements OnInit {
 
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RippleModule,
-    TableModule,
-    TranslocoModule,
-    TagModule,
-    TooltipModule,
-    ToolbarModule,
-    ButtonModule,
-    FieldsetModule,
-    NgArrayPipesModule,
-  ],
-  declarations: [
-    WorkspacesComponent,
-    SelectedWorkspaceComponent,
-    SelectedWorkspaceRolesComponent,
-    SelectedWorkspaceDashboardsComponent,
-    SelectedWorkspacePermissionsComponent,
-    SelectedWorkspaceUsersComponent,
-    SelectedWorkspacePipelinesComponent
-  ],
-})
-export class WorkspacesModule {
-}
+

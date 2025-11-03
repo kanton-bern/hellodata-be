@@ -27,15 +27,15 @@
 
 import {Component, Input, NgModule} from '@angular/core';
 import {AppInfoService} from "../../services";
-import {TranslocoModule} from "@jsverse/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {environment} from "../../../../environments/environment";
-import {RouterModule} from "@angular/router";
+import { RouterModule, RouterLink } from "@angular/router";
 
 @Component({
-  selector: 'app-footer',
-  templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.scss'],
-  standalone: false
+    selector: 'app-footer',
+    templateUrl: './footer.component.html',
+    styleUrls: ['./footer.component.scss'],
+    imports: [RouterLink, TranslocoPipe]
 })
 
 
@@ -50,13 +50,4 @@ export class FooterComponent {
 
 }
 
-@NgModule({
-  declarations: [FooterComponent],
-  imports: [
-    TranslocoModule,
-    RouterModule
-  ],
-  exports: [FooterComponent]
-})
-export class FooterModule {
-}
+

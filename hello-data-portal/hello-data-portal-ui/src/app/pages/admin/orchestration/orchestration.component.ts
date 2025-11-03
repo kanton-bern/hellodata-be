@@ -27,27 +27,18 @@
 
 import {Component, NgModule} from '@angular/core';
 import {CommonModule} from "@angular/common";
-import {SubsystemIframeModule} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
+import { SubsystemIframeComponent } from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {environment} from "../../../../environments/environment";
 
 @Component({
-  selector: 'app-orchestration',
-  templateUrl: './orchestration.component.html',
-  styleUrls: ['./orchestration.component.scss'],
-  standalone: false
+    selector: 'app-orchestration',
+    templateUrl: './orchestration.component.html',
+    styleUrls: ['./orchestration.component.scss'],
+    imports: [SubsystemIframeComponent]
 })
 export class OrchestrationComponent {
   airflowCfg = environment.subSystemsConfig.airflow;
   url = this.airflowCfg.protocol + this.airflowCfg.host + this.airflowCfg.domain;
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    SubsystemIframeModule
-  ],
-  declarations: [OrchestrationComponent],
-  exports: [OrchestrationComponent]
-})
-export class OrchestrationModule {
-}
+

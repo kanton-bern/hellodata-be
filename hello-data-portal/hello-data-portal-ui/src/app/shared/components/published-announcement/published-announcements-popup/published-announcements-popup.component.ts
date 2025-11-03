@@ -19,10 +19,17 @@ import {
 } from "./published-annoucements-popup-header/published-announcements-popup-header.component";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../../store/auth/auth.selector";
 import {TranslateService} from "../../../services/translate.service";
+import { Divider } from "primeng/divider";
+import { NgIf, NgFor, AsyncPipe, DatePipe } from "@angular/common";
+import { Toolbar } from "primeng/toolbar";
+import { Editor } from "primeng/editor";
+import { FormsModule } from "@angular/forms";
+import { SharedModule } from "primeng/api";
+import { TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  providers: [DialogService],
-  template: `
+    providers: [DialogService],
+    template: `
     <p-divider></p-divider>
     <div *ngIf="(defaultLanguage$ | async) as defaultLanguage">
       <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
@@ -48,7 +55,7 @@ import {TranslateService} from "../../../services/translate.service";
         </div>
       </div>
     </div>`,
-  standalone: false
+    imports: [Divider, NgIf, NgFor, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewInit {
 

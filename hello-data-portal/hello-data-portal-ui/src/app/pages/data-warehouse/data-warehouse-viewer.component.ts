@@ -33,11 +33,12 @@ import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
+import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 @Component({
-  templateUrl: 'data-warehouse-viewer.component.html',
-  styleUrls: ['./data-warehouse-viewer.component.scss'],
-  standalone: false
+    templateUrl: 'data-warehouse-viewer.component.html',
+    styleUrls: ['./data-warehouse-viewer.component.scss'],
+    imports: [SubsystemIframeComponent]
 })
 export class DataWarehouseViewerComponent extends BaseComponent {
 

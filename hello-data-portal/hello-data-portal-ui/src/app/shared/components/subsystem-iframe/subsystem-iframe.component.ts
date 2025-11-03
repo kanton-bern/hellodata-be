@@ -38,17 +38,18 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {CommonModule} from "@angular/common";
-import {HdCommonModule} from "../../../hd-common.module";
+import { CommonModule, NgIf, NgStyle } from "@angular/common";
+
 import {AuthService} from "../../services";
 import {Subscription} from "rxjs";
 import {environment} from "../../../../environments/environment";
+import { SafePipe } from '../../pipes/safe.pipe';
 
 @Component({
-  selector: 'app-subsystem-iframe[url]',
-  templateUrl: './subsystem-iframe.component.html',
-  styleUrls: ['./subsystem-iframe.component.scss'],
-  standalone: false
+    selector: 'app-subsystem-iframe[url]',
+    templateUrl: './subsystem-iframe.component.html',
+    styleUrls: ['./subsystem-iframe.component.scss'],
+    imports: [NgIf, NgStyle, SafePipe]
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
@@ -121,13 +122,4 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    HdCommonModule
-  ],
-  declarations: [SubsystemIframeComponent],
-  exports: [SubsystemIframeComponent]
-})
-export class SubsystemIframeModule {
-}
+

@@ -29,6 +29,13 @@ import {Component, Input} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {navigate} from "../../../../store/app/app.action";
+import { NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { Tag } from 'primeng/tag';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 export interface PipelineInstance {
   state: "queued" | "running" | "success" | "failed";
@@ -41,10 +48,10 @@ export interface Pipeline {
 }
 
 @Component({
-  selector: 'app-selected-workspace-pipelines',
-  templateUrl: './selected-workspace-pipelines.component.html',
-  styleUrls: ['./selected-workspace-pipelines.component.scss'],
-  standalone: false
+    selector: 'app-selected-workspace-pipelines',
+    templateUrl: './selected-workspace-pipelines.component.html',
+    styleUrls: ['./selected-workspace-pipelines.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, Tag, NgSwitch, NgSwitchCase, NgSwitchDefault, Button, Tooltip, TranslocoPipe]
 })
 export class SelectedWorkspacePipelinesComponent {
 

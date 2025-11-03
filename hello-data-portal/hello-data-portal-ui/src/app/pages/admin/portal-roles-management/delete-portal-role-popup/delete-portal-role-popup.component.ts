@@ -32,16 +32,20 @@ import {AppState} from "../../../../store/app/app.state";
 import {
   selectSelectedPortalRoleForDeletion
 } from "../../../../store/portal-roles-management/portal-roles-management.selector";
-import {ConfirmationService, ConfirmEventType} from "primeng/api";
+import { ConfirmationService, ConfirmEventType, PrimeTemplate } from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
 import {hideDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Button, ButtonDirective } from 'primeng/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-delete-role-popup[action]',
-  templateUrl: './delete-portal-role-popup.component.html',
-  styleUrls: ['./delete-portal-role-popup.component.scss'],
-  standalone: false
+    selector: 'app-delete-role-popup[action]',
+    templateUrl: './delete-portal-role-popup.component.html',
+    styleUrls: ['./delete-portal-role-popup.component.scss'],
+    imports: [NgIf, ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class DeletePortalRolePopupComponent {
   @Input()

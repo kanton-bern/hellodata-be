@@ -36,7 +36,7 @@ import {
   selectDashboardAccessDataLoading,
   selectDashboardAccessTotalRecords
 } from "../../../store/dashboard-access/dashboard-access.selector";
-import {Table, TableLazyLoadEvent} from "primeng/table";
+import { Table, TableLazyLoadEvent, TableModule } from "primeng/table";
 import {loadDashboardAccessPaginated} from "../../../store/dashboard-access/dashboard-access.action";
 import {selectSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.selector";
 import {scrollToTop} from "../../../shared/services/view-helpers";
@@ -44,11 +44,18 @@ import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {map} from "rxjs/operators";
+import { NgIf, AsyncPipe, DatePipe } from "@angular/common";
+import { PrimeTemplate } from "primeng/api";
+import { IconField } from "primeng/iconfield";
+import { InputIcon } from "primeng/inputicon";
+import { FormsModule } from "@angular/forms";
+import { InputText } from "primeng/inputtext";
+import { TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  templateUrl: 'dashboard-access.component.html',
-  styleUrls: ['./dashboard-access.component.scss'],
-  standalone: false
+    templateUrl: 'dashboard-access.component.html',
+    styleUrls: ['./dashboard-access.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
   dashboardAccess$: Observable<DashboardAccess[]>;

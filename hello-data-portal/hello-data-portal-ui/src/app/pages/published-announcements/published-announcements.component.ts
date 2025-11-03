@@ -10,13 +10,19 @@ import {selectDefaultLanguage, selectSelectedLanguage} from "../../store/auth/au
 import {Announcement} from "../../store/announcement/announcement.model";
 import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/announcement.selector";
 import {TranslateService} from "../../shared/services/translate.service";
+import { NgIf, NgFor, AsyncPipe, DatePipe } from "@angular/common";
+import { Toolbar } from "primeng/toolbar";
+import { Editor } from "primeng/editor";
+import { FormsModule } from "@angular/forms";
+import { SharedModule } from "primeng/api";
+import { TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  providers: [DialogService],
-  selector: 'app-published-announcements',
-  templateUrl: './published-announcements.component.html',
-  styleUrls: ['./published-announcements.component.scss'],
-  standalone: false
+    providers: [DialogService],
+    selector: 'app-published-announcements',
+    templateUrl: './published-announcements.component.html',
+    styleUrls: ['./published-announcements.component.scss'],
+    imports: [NgIf, NgFor, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PublishedAnnouncementsComponent implements OnInit {
   announcements$: Observable<any>;

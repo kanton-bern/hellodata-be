@@ -26,14 +26,14 @@
 ///
 
 import {Component, NgModule, OnDestroy, OnInit} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {TranslocoModule} from "@jsverse/transloco";
+import { CommonModule, NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
-import {TagModule} from "primeng/tag";
+import { TagModule, Tag } from "primeng/tag";
 import {TooltipModule} from "primeng/tooltip";
 import {InputTextModule} from "primeng/inputtext";
-import {ButtonModule} from "primeng/button";
+import { ButtonModule, Button } from "primeng/button";
 import {ToolbarModule} from "primeng/toolbar";
 import {RippleModule} from "primeng/ripple";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
@@ -52,6 +52,7 @@ import {
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {TranslateService} from "../../../shared/services/translate.service";
+import { PrimeTemplate } from "primeng/api";
 
 interface TableRow {
   email: string;
@@ -60,10 +61,10 @@ interface TableRow {
 }
 
 @Component({
-  selector: 'app-users-overview',
-  templateUrl: './users-overview.component.html',
-  styleUrls: ['./users-overview.component.scss'],
-  standalone: false
+    selector: 'app-users-overview',
+    templateUrl: './users-overview.component.html',
+    styleUrls: ['./users-overview.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, Button, NgFor, Tag, AsyncPipe, TranslocoPipe]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
@@ -182,24 +183,4 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    TranslocoModule,
-    RouterLink,
-    TableModule,
-    TagModule,
-    TooltipModule,
-    InputTextModule,
-    ButtonModule,
-    ToolbarModule,
-    RippleModule,
-    ProgressSpinnerModule,
-  ],
-  declarations: [
-    UsersOverviewComponent
-  ],
-  exports: []
-})
-export class UsersOverviewModule {
-}
+

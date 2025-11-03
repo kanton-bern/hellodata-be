@@ -1,5 +1,5 @@
 import {Component, NgModule} from "@angular/core";
-import {CommonModule} from "@angular/common";
+import { CommonModule, AsyncPipe } from "@angular/common";
 import {SharedModule} from "primeng/api";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
@@ -12,10 +12,10 @@ import {
 } from "../../../store/users-management/users-management.action";
 
 @Component({
-  selector: 'app-admin-init',
-  templateUrl: 'admin-init.component.html',
-  styleUrls: ['./admin-init.component.scss'],
-  standalone: false
+    selector: 'app-admin-init',
+    templateUrl: 'admin-init.component.html',
+    styleUrls: ['./admin-init.component.scss'],
+    imports: [AsyncPipe]
 })
 export class AdminInitComponent {
   initStuffForAdmin$: Observable<any>;
@@ -43,13 +43,4 @@ export class AdminInitComponent {
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    SharedModule,
-  ],
-  declarations: [AdminInitComponent],
-  exports: [AdminInitComponent]
-})
-export class AdminInitModule {
-}
+

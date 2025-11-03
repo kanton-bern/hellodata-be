@@ -26,12 +26,12 @@
 ///
 
 import {Component, NgModule} from "@angular/core";
-import {CommonModule} from "@angular/common";
+import { CommonModule, NgIf, NgFor, NgClass, AsyncPipe } from "@angular/common";
 import {RouterOutlet} from "@angular/router";
-import {TranslocoModule} from "@jsverse/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
-import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
+
 import {MenuModule} from "primeng/menu";
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
@@ -49,18 +49,19 @@ import {Ripple} from "primeng/ripple";
 import {map} from "rxjs/operators";
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../store/auth/auth.selector";
 import {setSelectedLanguage} from "../../store/auth/auth.action";
-import {FooterModule} from "../../shared/components";
+
 import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
-import {DrawerModule} from "primeng/drawer";
+import { DrawerModule, Drawer } from "primeng/drawer";
 import {Button} from "primeng/button";
+import { PrimeTemplate } from "primeng/api";
 
 @Component({
-  selector: 'app-mobile',
-  templateUrl: './mobile.component.html',
-  styleUrls: ['./mobile.component.scss'],
-  standalone: false
+    selector: 'app-mobile',
+    templateUrl: './mobile.component.html',
+    styleUrls: ['./mobile.component.scss'],
+    imports: [NgIf, Button, Ripple, Drawer, PrimeTemplate, NgFor, NgClass, AsyncPipe, TranslocoPipe]
 })
 export class MobileComponent {
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
@@ -179,24 +180,4 @@ export class MobileComponent {
 
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    DrawerModule,
-    ToastModule,
-    UnsavedChangesModule,
-    ScrollTopModule,
-    MenuModule,
-    Ripple,
-    TranslocoModule,
-    FooterModule,
-    MatomoTrackerDirective,
-    Button
-  ],
-  exports: [MobileComponent],
-  declarations: [MobileComponent]
-})
-export class MobileModule {
 
-}

@@ -26,23 +26,12 @@
 ///
 
 import {Component, EventEmitter, NgModule, Output} from '@angular/core';
-import {DrawerModule} from 'primeng/drawer';
-import {ScrollPanelModule} from "primeng/scrollpanel";
-import {
-  AsyncPipe,
-  DatePipe,
-  JsonPipe,
-  NgClass,
-  NgForOf,
-  NgIf,
-  NgStyle,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault
-} from "@angular/common";
-import {FieldsetModule} from "primeng/fieldset";
-import {AccordionModule} from "primeng/accordion";
-import {EditorModule} from "primeng/editor";
+import { DrawerModule, Drawer } from 'primeng/drawer';
+import { ScrollPanelModule, ScrollPanel } from "primeng/scrollpanel";
+import { AsyncPipe, DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault, NgFor } from "@angular/common";
+import { FieldsetModule, Fieldset } from "primeng/fieldset";
+import { AccordionModule, Accordion, AccordionPanel, AccordionHeader, AccordionContent } from "primeng/accordion";
+import { EditorModule, Editor } from "primeng/editor";
 import {FormsModule} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -51,31 +40,34 @@ import {
   selectPipelines,
   selectStorageSize
 } from "../../../store/summary/summary.selector";
-import {ButtonModule} from "primeng/button";
-import {RippleModule} from "primeng/ripple";
+import { ButtonModule, Button, ButtonDirective } from "primeng/button";
+import { RippleModule, Ripple } from "primeng/ripple";
 import {Observable} from "rxjs";
 import {
   selectCurrentUserPermissions,
   selectDefaultLanguage,
   selectSelectedLanguage
 } from "../../../store/auth/auth.selector";
-import {HdCommonModule} from "../../../hd-common.module";
-import {TranslocoModule} from "@jsverse/transloco";
-import {TooltipModule} from "primeng/tooltip";
-import {DataViewModule} from "primeng/dataview";
+
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
+import { TooltipModule, Tooltip } from "primeng/tooltip";
+import { DataViewModule, DataView } from "primeng/dataview";
 import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
-import {FooterModule} from "../footer/footer.component";
+import { FooterComponent } from "../footer/footer.component";
 import {AppInfoService} from "../../services";
 import {TranslateService} from "../../services/translate.service";
+import { PrimeTemplate } from 'primeng/api';
+import { ContainsPipe } from '../../pipes/contains.pipe';
+import { TruncatePipe } from '../../pipes/truncate.pipe';
 
 
 @Component({
-  selector: 'app-summary',
-  templateUrl: './summary.component.html',
-  styleUrls: ['./summary.component.scss'],
-  standalone: false
+    selector: 'app-summary',
+    templateUrl: './summary.component.html',
+    styleUrls: ['./summary.component.scss'],
+    imports: [NgIf, Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, DataView, NgFor, Tooltip, NgSwitch, NgSwitchCase, NgSwitchDefault, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TruncatePipe, TranslocoPipe, DatePipe]
 })
 export class SummaryComponent {
   currentUserPermissions$: Observable<string[]>;
@@ -121,34 +113,4 @@ export class SummaryComponent {
 }
 
 
-@NgModule({
-  imports: [
-    DrawerModule,
-    ScrollPanelModule,
-    NgIf,
-    NgClass,
-    NgStyle,
-    FieldsetModule,
-    AccordionModule,
-    EditorModule,
-    FormsModule,
-    ButtonModule,
-    RippleModule,
-    AsyncPipe,
-    HdCommonModule,
-    TranslocoModule,
-    TooltipModule,
-    NgForOf,
-    DataViewModule,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
-    JsonPipe,
-    DatePipe,
-    FooterModule,
-  ],
-  declarations: [SummaryComponent, SubscriptionsComponent],
-  exports: [SummaryComponent]
-})
-export class SummaryModule {
-}
+

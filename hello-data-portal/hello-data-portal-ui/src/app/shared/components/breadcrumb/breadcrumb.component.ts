@@ -28,12 +28,14 @@
 import {Component} from '@angular/core';
 import {Observable} from "rxjs";
 import {BreadcrumbService} from "../../services/breadcrumb.service";
+import { Breadcrumb } from 'primeng/breadcrumb';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-breadcrumb',
-  templateUrl: './breadcrumb.component.html',
-  styleUrls: ['./breadcrumb.component.scss'],
-  standalone: false
+    selector: 'app-breadcrumb',
+    templateUrl: './breadcrumb.component.html',
+    styleUrls: ['./breadcrumb.component.scss'],
+    imports: [Breadcrumb, AsyncPipe]
 })
 export class BreadcrumbComponent {
   crumbs$: Observable<any>;

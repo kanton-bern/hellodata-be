@@ -29,12 +29,12 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {ConfirmationService} from "primeng/api";
+import { ConfirmationService, PrimeTemplate } from "primeng/api";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
-import {Table, TablePageEvent} from "primeng/table";
+import { Table, TablePageEvent, TableModule } from "primeng/table";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
@@ -44,12 +44,20 @@ import {
   openExternalDashboardEdition
 } from "../../../store/external-dashboards/external-dasboards.action";
 import {trackEvent} from "../../../store/app/app.action";
+import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { Button, ButtonDirective } from 'primeng/button';
+import { Ripple } from 'primeng/ripple';
+import { InputText } from 'primeng/inputtext';
+import { Tooltip } from 'primeng/tooltip';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ContainsPipe } from '../../../shared/pipes/contains.pipe';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-external-dashboards',
-  templateUrl: './external-dashboards.component.html',
-  styleUrls: ['./external-dashboards.component.scss'],
-  standalone: false
+    selector: 'app-external-dashboards',
+    templateUrl: './external-dashboards.component.html',
+    styleUrls: ['./external-dashboards.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe, TranslocoPipe]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
   @ViewChild('dt') dt!: Table | undefined;

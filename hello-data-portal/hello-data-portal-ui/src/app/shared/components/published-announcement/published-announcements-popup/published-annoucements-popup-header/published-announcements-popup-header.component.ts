@@ -1,9 +1,10 @@
 import {Component} from '@angular/core';
-import {CheckboxChangeEvent} from "primeng/checkbox";
+import { CheckboxChangeEvent, Checkbox } from "primeng/checkbox";
 import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-current-published-announcements.service";
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  template: `
+    template: `
     <div class="grid">
       <div class="col-10">
         <h3><b>{{ '@Announcements' | transloco }}</b></h3>
@@ -15,7 +16,7 @@ import {HideAllCurrentPublishedAnnouncementsService} from "../../hide-all-curren
       </div>
     </div>
   `,
-  standalone: false
+    imports: [Checkbox, TranslocoPipe]
 })
 export class PublishedAnnouncementsPopupHeaderComponent {
 

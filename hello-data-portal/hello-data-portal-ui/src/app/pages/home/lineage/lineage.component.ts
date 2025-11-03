@@ -33,12 +33,17 @@ import {naviElements} from "../../../app-navi-elements";
 import {LineageDoc} from "../../../store/lineage-docs/lineage-docs.model";
 import {Observable} from "rxjs";
 import {selectMyLineageDocs} from "../../../store/lineage-docs/lineage-docs.selector";
+import { NgIf, AsyncPipe } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-lineage',
-  templateUrl: './lineage.component.html',
-  styleUrls: ['./lineage.component.scss'],
-  standalone: false
+    selector: 'app-lineage',
+    templateUrl: './lineage.component.html',
+    styleUrls: ['./lineage.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, RouterLink, AsyncPipe, TranslocoPipe]
 })
 export class LineageComponent implements OnInit {
   projectDocsForm!: FormGroup;

@@ -32,7 +32,7 @@ import {combineLatest, map, Observable, tap} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
-import {Table, TablePageEvent} from "primeng/table";
+import { Table, TablePageEvent, TableModule } from "primeng/table";
 import {naviElements} from "../../app-navi-elements";
 import {selectFilteredBy, selectMyDashboardsFiltered} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
@@ -40,11 +40,23 @@ import {navigate, trackEvent} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
+import { NgIf, NgFor, AsyncPipe, DatePipe } from '@angular/common';
+import { PrimeTemplate } from 'primeng/api';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Button, ButtonDirective } from 'primeng/button';
+import { Ripple } from 'primeng/ripple';
+import { Tooltip } from 'primeng/tooltip';
+import { Dialog } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { Tag } from 'primeng/tag';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  templateUrl: 'my-dashboards.component.html',
-  styleUrls: ['./my-dashboards.component.scss'],
-  standalone: false
+    templateUrl: 'my-dashboards.component.html',
+    styleUrls: ['./my-dashboards.component.scss'],
+    imports: [NgIf, TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, NgFor, Tag, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
