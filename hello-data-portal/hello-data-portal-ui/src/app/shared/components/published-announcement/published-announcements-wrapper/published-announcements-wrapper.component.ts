@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { AfterViewInit, Component, inject } from '@angular/core';
+import {AfterViewInit, Component, inject} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
@@ -43,17 +43,17 @@ import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-p
 import {selectUrl} from "../../../../store/router/router.selectors";
 import {naviElements} from "../../../../app-navi-elements";
 import {take} from "rxjs/operators";
-import { AsyncPipe } from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 
 @Component({
-    providers: [DialogService],
-    selector: 'app-published-announcements-wrapper',
-    template: `
+  providers: [DialogService],
+  selector: 'app-published-announcements-wrapper',
+  template: `
     @if (publishedAnnouncements$ | async) {
       <div>
       </div>
     }`,
-    imports: [AsyncPipe]
+  imports: [AsyncPipe]
 })
 export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
   private store = inject<Store<AppState>>(Store);
@@ -62,7 +62,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
 
 
   publishedAnnouncements$: Observable<any>;
-  ref: DynamicDialogRef | undefined;
+  ref: DynamicDialogRef | null = null;
 
   constructor() {
     const store = this.store;
@@ -100,23 +100,24 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
       contentStyle: {overflow: 'auto'},
       height: 'auto',
     });
-    this.ref.onClose.subscribe(_ => {
-      if (this.hideAllCurrentAnnouncementsService.hide) {
-        for (const announcement of announcements) {
-          this.hide(announcement);
+    if (this.ref) {
+      this.ref.onClose.subscribe(_ => {
+        if (this.hideAllCurrentAnnouncementsService.hide) {
+          for (const announcement of announcements) {
+            this.hide(announcement);
+          }
+          this.hideAllCurrentAnnouncementsService.hide = false;
         }
-        this.hideAllCurrentAnnouncementsService.hide = false;
-      }
-    });
-    this.ref.onClose.pipe(take(1)).subscribe(() => {
-      if (this.hideAllCurrentAnnouncementsService.hide) {
-        for (const announcement of announcements) {
-          this.hide(announcement);
+      });
+      this.ref.onClose.pipe(take(1)).subscribe(() => {
+        if (this.hideAllCurrentAnnouncementsService.hide) {
+          for (const announcement of announcements) {
+            this.hide(announcement);
+          }
+          this.hideAllCurrentAnnouncementsService.hide = false;
         }
-        this.hideAllCurrentAnnouncementsService.hide = false;
-      }
-    });
-
+      });
+    }
   }
 
 }
