@@ -51,7 +51,6 @@ import {
 
 import {TranslocoPipe} from "@jsverse/transloco";
 import {Tooltip} from "primeng/tooltip";
-import {DataView} from "primeng/dataview";
 import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
@@ -60,14 +59,14 @@ import {AppInfoService} from "../../services";
 import {TranslateService} from "../../services/translate.service";
 import {PrimeTemplate} from 'primeng/api';
 import {ContainsPipe} from '../../pipes/contains.pipe';
-import {TruncatePipe} from '../../pipes/truncate.pipe';
+import {TruncatePipe} from "../../pipes/truncate.pipe";
 
 
 @Component({
   selector: 'app-summary',
   templateUrl: './summary.component.html',
   styleUrls: ['./summary.component.scss'],
-  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, DataView, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TruncatePipe, TranslocoPipe, DatePipe, JsonPipe]
+  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TranslocoPipe, JsonPipe, TruncatePipe, DatePipe]
 })
 export class SummaryComponent {
   private store = inject<Store<AppState>>(Store);
