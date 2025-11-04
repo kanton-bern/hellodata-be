@@ -10,9 +10,10 @@ import {TranslocoPipe} from '@jsverse/transloco';
         <h3><b>{{ '@Announcements' | transloco }}</b></h3>
       </div>
       <div class="col">
-        <p-checkbox [binary]="true" inputId="dont-show-again"
-                    (onChange)="onChange($event)"/>
-        <label for="dont-show-again" class="ml-2"> {{ '@Do not show again' | transloco }} </label>
+        <div class="flex align-items-center mt-2">
+          <p-checkbox [binary]="true" inputId="dont-show-again" (onChange)="onChange($event)"></p-checkbox>
+          <label for="dont-show-again" class="ml-2">{{ '@Do not show again' | transloco }}</label>
+        </div>
       </div>
     </div>
   `,

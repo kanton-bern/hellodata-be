@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ComponentRef, OnInit, Renderer2, RendererFactory2, ViewContainerRef, inject } from "@angular/core";
+import {
+  AfterViewInit,
+  Component,
+  ComponentRef,
+  inject,
+  OnInit,
+  Renderer2,
+  RendererFactory2,
+  ViewContainerRef
+} from "@angular/core";
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -11,18 +20,18 @@ import {
 } from "./published-annoucements-popup-header/published-announcements-popup-header.component";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../../store/auth/auth.selector";
 import {TranslateService} from "../../../services/translate.service";
-import { Divider } from "primeng/divider";
-import { AsyncPipe, DatePipe } from "@angular/common";
-import { Toolbar } from "primeng/toolbar";
-import { Editor } from "primeng/editor";
-import { FormsModule } from "@angular/forms";
-import { SharedModule } from "primeng/api";
-import { TranslocoPipe } from "@jsverse/transloco";
+import {Divider} from "primeng/divider";
+import {AsyncPipe, DatePipe} from "@angular/common";
+import {Toolbar} from "primeng/toolbar";
+import {Editor} from "primeng/editor";
+import {FormsModule} from "@angular/forms";
+import {SharedModule} from "primeng/api";
+import {TranslocoPipe} from "@jsverse/transloco";
 
 @Component({
-    providers: [DialogService],
-    template: `
-    <p-divider />
+  providers: [DialogService],
+  template: `
+    <p-divider/>
     @if ((defaultLanguage$ | async); as defaultLanguage) {
       <div>
         @if ((selectedLanguage$ | async); as selectedLanguage) {
@@ -34,28 +43,30 @@ import { TranslocoPipe } from "@jsverse/transloco";
                     <i class="fas fa-circle-info"></i>
                   </div>
                   <div class="p-toolbar-group-center" style="width: 65%">
-                    <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)" [disabled]="true"
-                      [readonly]="true" class="p-editor-readonly"
-                      [style]="{width: '100%'}">
-                      <p-header hidden />
+                    <p-editor [ngModel]="getMessage(announcement, selectedLanguage.code, defaultLanguage)"
+                              [disabled]="true"
+                              [readonly]="true" class="p-editor-readonly"
+                              [style]="{width: '100%'}">
+                      <p-header hidden/>
                     </p-editor>
                   </div>
                   <div class="p-toolbar-group-end">
                     @if (announcement.publishedDate) {
                       <div class="published-date">
-                        [{{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}]
-                      </div>
+                        [{{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}
+                        ]
+                      </div> test
                     }
                   </div>
                 </p-toolbar>
-                <p-divider />
+                <p-divider/>
               </div>
             }
           </div>
         }
       </div>
     }`,
-    imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewInit {
   private store = inject<Store<AppState>>(Store);

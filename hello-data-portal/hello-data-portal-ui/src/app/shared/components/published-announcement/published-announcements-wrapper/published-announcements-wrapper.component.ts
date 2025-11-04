@@ -99,6 +99,8 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
       width: '90vw',
       contentStyle: {overflow: 'auto'},
       height: 'auto',
+      closable: true,
+      modal: true,
     });
     if (this.ref) {
       this.ref.onClose.subscribe(_ => {
