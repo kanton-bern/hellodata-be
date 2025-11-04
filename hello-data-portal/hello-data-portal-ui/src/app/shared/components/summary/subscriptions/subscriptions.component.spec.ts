@@ -58,8 +58,17 @@ describe('SubscriptionsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [SubscriptionsComponent],
-      imports: [TranslocoTestingModule],
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+        SubscriptionsComponent
+      ],
       providers: [{provide: Store, useValue: mockStore}],
     });
 
