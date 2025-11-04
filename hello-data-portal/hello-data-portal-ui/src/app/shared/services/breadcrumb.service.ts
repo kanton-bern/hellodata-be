@@ -51,7 +51,6 @@ export class BreadcrumbService {
       map(([breadcrumbs, _]) => {
         const translatedBreadCrumbs: MenuItem[] = []
         breadcrumbs.forEach(breadcrumb => {
-          console.log('breadcrumb', breadcrumb);
           const labelTranslated = breadcrumb.label?.startsWith('@') ? this.translateService.translate(breadcrumb.label as string) : breadcrumb.label
           translatedBreadCrumbs.push({
             ...breadcrumb,
