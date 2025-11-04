@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, inject, input, output } from '@angular/core';
-import { CommonModule, NgStyle, NgClass, AsyncPipe } from '@angular/common';
+import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
+import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -42,44 +42,32 @@ import {
   selectSelectedLanguage,
   selectSupportedLanguages
 } from "../../../store/auth/auth.selector";
-import {MenubarModule} from "primeng/menubar";
-import {MegaMenuModule} from "primeng/megamenu";
-import { MenuModule, Menu } from "primeng/menu";
-import {ButtonModule} from "primeng/button";
-import {DrawerModule} from 'primeng/drawer';
+import {Menu} from "primeng/menu";
 import {BreadcrumbComponent} from "../breadcrumb/breadcrumb.component";
-import {BreadcrumbModule} from "primeng/breadcrumb";
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import {SelectModule} from 'primeng/select';
-import {FormsModule} from "@angular/forms";
-import {ToolbarModule} from "primeng/toolbar";
+import {TranslocoPipe} from "@jsverse/transloco";
 import {
   selectAvailableDataDomains,
   selectSelectedDataDomain
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
-import { RippleModule, Ripple } from "primeng/ripple";
+import {Ripple} from "primeng/ripple";
 import {environment} from "../../../../environments/environment";
-import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
 import {navigate, trackEvent} from "../../../store/app/app.action";
 import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
-import {MenuItem, SharedModule} from "primeng/api";
-import {TabsModule} from 'primeng/tabs';
-import {InputTextModule} from "primeng/inputtext";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {BrowserModule} from "@angular/platform-browser";
+import {MenuItem} from "primeng/api";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
-import {DividerModule} from "primeng/divider";
-import {MatomoTrackerDirective} from "ngx-matomo-client";
 import {Tooltip} from "primeng/tooltip";
-import { PublishedAnnouncementsWrapperComponent } from '../published-announcement/published-announcements-wrapper/published-announcements-wrapper.component';
+import {
+  PublishedAnnouncementsWrapperComponent
+} from '../published-announcement/published-announcements-wrapper/published-announcements-wrapper.component';
 
 @Component({
-    selector: 'app-header',
-    templateUrl: 'header.component.html',
-    styleUrls: ['./header.component.scss'],
-    imports: [NgStyle, Tooltip, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
+  selector: 'app-header',
+  templateUrl: 'header.component.html',
+  styleUrls: ['./header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgStyle, Tooltip, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
   private store = inject<Store<AppState>>(Store);
@@ -200,8 +188,6 @@ export class HeaderComponent {
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 }
-
-
 
 
 export interface Environment {
