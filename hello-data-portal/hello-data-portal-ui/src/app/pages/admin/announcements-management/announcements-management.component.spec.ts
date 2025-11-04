@@ -43,6 +43,7 @@ import {
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {ConfirmationService} from "primeng/api";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {provideNoopAnimations} from "@angular/platform-browser/animations";
 
 describe('AnnouncementsManagementComponent', () => {
   let component: AnnouncementsManagementComponent;
@@ -73,7 +74,11 @@ describe('AnnouncementsManagementComponent', () => {
           },
           preloadLangs: true,
         }),],
-      providers: [{provide: Store, useValue: mockStore}, ConfirmationService],
+      providers: [
+        {provide: Store, useValue: mockStore},
+        ConfirmationService,
+        provideNoopAnimations(),
+      ],
     });
 
     fixture = TestBed.createComponent(AnnouncementsManagementComponent);
