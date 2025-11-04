@@ -40,8 +40,6 @@ import {RippleModule} from "primeng/ripple";
 import {TranslocoTestingModule} from "@jsverse/transloco";
 import {SelectModule} from 'primeng/select';
 import {TooltipModule} from "primeng/tooltip";
-import {SubsystemIframeModule} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
-import {HdCommonModule} from "../../hd-common.module";
 import {TableModule} from "primeng/table";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
@@ -63,12 +61,23 @@ describe('LineageDocsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [LineageDocsComponent],
       providers: [
         {provide: Store, useValue: mockStore},
         {provide: LineageDocsService, useClass: MockLineageDocsService}, // Replace with your LineageDocsService mock
       ],
-      imports: [FormsModule, ReactiveFormsModule, ButtonModule, RippleModule, TranslocoTestingModule, SelectModule, TooltipModule, SubsystemIframeModule, HdCommonModule, TableModule],
+      imports: [
+        FormsModule, ReactiveFormsModule, ButtonModule,
+        RippleModule, TranslocoTestingModule, SelectModule,
+        TooltipModule, TableModule, LineageDocsComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
     });
 
     fixture = TestBed.createComponent(LineageDocsComponent);
