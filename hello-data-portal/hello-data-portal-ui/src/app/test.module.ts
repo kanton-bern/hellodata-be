@@ -26,32 +26,18 @@
 ///
 
 import {LOCALE_ID, NgModule} from "@angular/core";
-import {AppComponent} from "./app.component";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AsyncPipe, CommonModule, JsonPipe} from "@angular/common";
 import {AppRoutingModule} from "./app-routing.module";
 import {BrowserModule} from "@angular/platform-browser";
-import {SubsystemIframeModule} from "./shared/components/subsystem-iframe/subsystem-iframe.component";
 import {StoreModule} from "@ngrx/store";
 import {appReducers} from "./store/app/app.reducer";
 import {EffectsModule} from "@ngrx/effects";
 import {appEffects} from "./store/app/app.effects";
 import {StoreDevtoolsModule} from "@ngrx/store-devtools";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {SideNavOuterToolbarModule} from "./layouts";
-import {FooterModule, HeaderModule, SummaryModule} from "./shared/components";
 import {StoreRouterConnectingModule} from "@ngrx/router-store";
 import {AuthConfigModule} from "./auth/auth-config.module";
-import {HdCommonModule} from "./hd-common.module";
-import {MyDashboardsModule} from "./pages/my-dashboards/my-dashboards.module";
-import {UserManagementModule} from "./pages/admin/user-management/user-management.component";
-import {WorkspacesModule} from "./pages/admin/workspaces/workspaces.component";
-import {RolesManagementModule} from "./pages/admin/portal-roles-management/portal-roles-management.component";
-import {AnnouncementsManagementModule} from "./pages/admin/announcements-management/announcements-management.module";
-import {FaqManagementModule} from "./pages/admin/faq-management/faq-management.module";
-import {OrchestrationModule} from "./pages/orchestration/orchestration.module";
-import {DataMartModule} from "./pages/data-mart/data-mart.module";
-import {LogoutModule} from "./pages/logout/logout.module";
 import {ToastModule} from "primeng/toast";
 import {ButtonModule} from "primeng/button";
 import {ToolbarModule} from "primeng/toolbar";
@@ -59,12 +45,9 @@ import {EditorModule} from "primeng/editor";
 import {RippleModule} from "primeng/ripple";
 import {TableModule} from "primeng/table";
 import {PaginatorModule} from "primeng/paginator";
-import {DocumentationManagementModule} from "./pages/admin/documentation-management/documentation-management.module";
 import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
 import {NgPipesModule} from "ngx-pipes";
 import {TooltipModule} from "primeng/tooltip";
-import {UnsavedChangesModule} from "./shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {RedirectModule} from "./shared/components/redirect/redirect.component";
 import {AppInfoService, ScreenService} from "./shared/services";
 import {environment} from "../environments/environment";
 import {TokenInterceptor} from "./shared/interceptor/token-interceptor.service";
@@ -88,25 +71,12 @@ import {TranslocoTestingModule} from "@jsverse/transloco";
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    SideNavOuterToolbarModule,
-    FooterModule,
     AppRoutingModule,
     StoreRouterConnectingModule.forRoot(),
     AuthConfigModule,
     CommonModule,
-    HdCommonModule,
-    SubsystemIframeModule,
-    MyDashboardsModule,
     AsyncPipe,
     JsonPipe,
-    UserManagementModule,
-    WorkspacesModule,
-    RolesManagementModule,
-    AnnouncementsManagementModule,
-    FaqManagementModule,
-    OrchestrationModule,
-    DataMartModule,
-    LogoutModule,
     ToastModule,
     ButtonModule,
     ToolbarModule,
@@ -114,14 +84,9 @@ import {TranslocoTestingModule} from "@jsverse/transloco";
     RippleModule,
     TableModule,
     PaginatorModule,
-    SummaryModule,
-    DocumentationManagementModule,
     FontAwesomeModule,
     NgPipesModule,
     TooltipModule,
-    UnsavedChangesModule,
-    RedirectModule,
-    HeaderModule,
     TranslocoTestingModule
   ],
   providers: [
@@ -136,7 +101,6 @@ import {TranslocoTestingModule} from "@jsverse/transloco";
     MessageService,
     ConfirmationService
   ],
-  bootstrap: [AppComponent]
 })
 export class TestModule {
 
