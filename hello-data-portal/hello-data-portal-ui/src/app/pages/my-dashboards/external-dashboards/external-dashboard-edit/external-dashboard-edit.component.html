@@ -1,7 +1,7 @@
 <div class="card">
   @if ((editedExternalDashboard$ | async); as editedExternalDashboard) {
     <form [formGroup]="externalDashboardForm"
-      class="form">
+          class="form">
       <div class="field grid">
         <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
         <div class="col-12 md:col-10">
@@ -11,7 +11,7 @@
             type="text">
           @if (!externalDashboardForm.controls['title'].valid && externalDashboardForm.controls['title'].dirty) {
             <small
-            class="p-error">{{ '@Title is invalid' | transloco }}</small>
+              class="p-error">{{ '@Title is invalid' | transloco }}</small>
           }
         </div>
       </div>
@@ -24,7 +24,7 @@
             type="text">
           @if (!externalDashboardForm.controls['url'].valid && externalDashboardForm.controls['url'].dirty) {
             <small
-            class="p-error">{{ '@Url is invalid' | transloco }}</small>
+              class="p-error">{{ '@Url is invalid' | transloco }}</small>
           }
         </div>
       </div>
@@ -33,14 +33,14 @@
           <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomain">{{ '@Data domain' | transloco }}</label>
           <div class="col-12 md:col-10">
             <p-select [options]="availableDataDomains"
-              formControlName="dataDomain"
-              id="dataDomain"
-              optionValue="data.key"
-            placeholder="Select a Data Domain" />
+                      formControlName="dataDomain"
+                      id="dataDomain"
+                      optionValue="data.key"
+                      placeholder="Select a Data Domain"/>
             <br/>
             @if (!externalDashboardForm.controls['dataDomain'].valid && externalDashboardForm.controls['dataDomain'].dirty) {
               <small
-              class="p-error">{{ '@Data domain is invalid' | transloco }}</small>
+                class="p-error">{{ '@Data domain is invalid' | transloco }}</small>
             }
           </div>
         </div>
@@ -65,7 +65,7 @@
       </div>
       <div class="field grid">
         <label class="col-12 mb-2 md:col-2 md:mb-0"
-        for="responsibility">{{ '@Professional responsibility' | transloco }}</label>
+               for="responsibility">{{ '@Professional responsibility' | transloco }}</label>
         <div class="col-12 md:col-10">
           <input
             class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
@@ -103,22 +103,22 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-          icon="fas fa-arrow-left" severity="secondary" />
+                    icon="fas fa-arrow-left" severity="secondary"/>
         </div>
         <div class="p-toolbar-group-end">
           @if (externalDashboardForm.controls['id'].getRawValue() !== '') {
             <p-button (click)="deleteExternalDashboard(editedExternalDashboard)"
-              class="mr-2"
-              icon="fa-regular fa-trash-can"
-              label="{{'@Delete' | transloco}}"
-            class="mr-2 p-button-warning mr-2" />
+                      severity="danger"
+                      icon="fa-regular fa-trash-can"
+                      label="{{'@Delete' | transloco}}"
+                      class="mr-2 p-button-warning mr-2"/>
           }
           <p-button (click)="saveChanges(editedExternalDashboard)"
-            [disabled]="externalDashboardForm.invalid||!externalDashboardForm.dirty"
-            class="mr-2"
-            icon="fas fa-arrow-up-right-from-square"
-            label="{{'@Save' | transloco}}"
-          severity="success" />
+                    [disabled]="externalDashboardForm.invalid||!externalDashboardForm.dirty"
+                    class="mr-2"
+                    icon="fas fa-arrow-up-right-from-square"
+                    label="{{'@Save' | transloco}}"
+                    severity="success"/>
         </div>
       </p-toolbar>
     </form>
@@ -132,9 +132,9 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-    type="button" severity="secondary" />
+              type="button" severity="secondary"/>
     <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
-      pButton
-    type="button" />
+              pButton
+              type="button"/>
   </ng-template>
 </p-confirmDialog>

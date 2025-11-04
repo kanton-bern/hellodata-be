@@ -2,28 +2,28 @@
 @if ((dashboards$ | async); as dashboards) {
   <div class="card">
     <p-table #dt (onRowSelect)="onRowSelect($event)"
-      [filterDelay]="0"
-      [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
-      [paginator]="true"
-      [rowHover]="true"
-      [rows]="10"
-      [selectionPageOnly]="true"
-      [showCurrentPageReport]="true"
-      [tableStyle]="{ 'min-width': '50rem' }"
-      [value]="dashboards"
-      sortField="dashboardTitle"
-      [sortOrder]="1"
-      (onPage)="onPageChange($event)"
-      dataKey="id"
-      selectionMode="single">
+             [filterDelay]="0"
+             [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
+             [paginator]="true"
+             [rowHover]="true"
+             [rows]="10"
+             [selectionPageOnly]="true"
+             [showCurrentPageReport]="true"
+             [tableStyle]="{ 'min-width': '50rem' }"
+             [value]="dashboards"
+             sortField="dashboardTitle"
+             [sortOrder]="1"
+             (onPage)="onPageChange($event)"
+             dataKey="id"
+             selectionMode="single">
       <ng-template pTemplate="caption">
         <div class="flex align-items-center justify-content-between">
           <h5 class="m-0">&nbsp;</h5>
           <span class="p-input-icon-left">
             <p-iconfield>
-              <p-inputicon class="pi pi-search" />
+              <p-inputicon class="pi pi-search"/>
               <input (input)="applyFilterGlobal($event, 'contains')" pInputText
-                placeholder="{{'@Search' | transloco}}" type="text"/>
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
           </span>
         </div>
@@ -31,25 +31,26 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
-            <p-sortIcon field="dashboardTitle" />
+            <p-sortIcon field="dashboardTitle"/>
           </th>
           <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
-            <p-sortIcon field="contextName" />
+            <p-sortIcon field="contextName"/>
           </th>
           <th id="businessProcessHeader" pSortableColumn="businessProcess">{{ '@Business process' | transloco }}
-            <p-sortIcon field="businessProcess" />
+            <p-sortIcon field="businessProcess"/>
           </th>
           <th id="departmentHeader" pSortableColumn="department">{{ '@Department' | transloco }}
-            <p-sortIcon field="department" />
+            <p-sortIcon field="department"/>
           </th>
-          <th id="responsibilityHeader" pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
-            <p-sortIcon field="responsibility" />
+          <th id="responsibilityHeader"
+              pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
+            <p-sortIcon field="responsibility"/>
           </th>
           <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{ '@Data analyst' | transloco }}
-            <p-sortIcon field="dataAnalyst" />
+            <p-sortIcon field="dataAnalyst"/>
           </th>
           <th id="status" pSortableColumn="status">{{ '@Status' | transloco }}
-            <p-sortIcon field="status" />
+            <p-sortIcon field="status"/>
           </th>
           <th id="actions" style="min-width:9rem"></th>
         </tr>
@@ -79,27 +80,27 @@
           </td>
           <td>
             <p-button (click)="openDashboard(dashboard)"
-              [pTooltip]="'@Open' | transloco"
-              class="p-button-rounded mr-2"
-              severity="info"
-              icon="fas fa-up-right-from-square"
-              pButton
-            pRipple />
+                      [pTooltip]="'@Open' | transloco"
+                      class="p-button-rounded mr-2"
+                      severity="info"
+                      icon="fas fa-up-right-from-square"
+                      pButton
+                      pRipple/>
             <p-button (click)="openInfoPanel(dashboard)"
-              [pTooltip]="'@Info' | transloco"
-              class="p-button-rounded mr-2"
-              severity="help"
-              icon="fas fa-circle-info"
-              pButton
-            pRipple />
+                      [pTooltip]="'@Info' | transloco"
+                      class="p-button-rounded mr-2"
+                      severity="help"
+                      icon="fas fa-circle-info"
+                      pButton
+                      pRipple/>
             @if (dashboard.currentUserAdmin || dashboard.currentUserEditor) {
               <p-button (click)="editDashboard(dashboard)"
-                [pTooltip]="'@Edit' | transloco"
-                severity="success"
-                class="p-button-rounded mr-2"
-                icon="fas fa-light fa-pen-to-square"
-                pButton
-              pRipple />
+                        [pTooltip]="'@Edit' | transloco"
+                        severity="success"
+                        class="p-button-rounded mr-2"
+                        icon="fas fa-light fa-pen-to-square"
+                        pButton
+                        pRipple/>
             }
           </td>
         </tr>
@@ -114,10 +115,10 @@
 }
 <br/>
 <p-dialog [(visible)]="editDashboardMetadataDialog"
-  [modal]="true"
-  [style]="{ width: '550px' }"
-  header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}"
-  class="p-fluid">
+          [modal]="true"
+          [style]="{ width: '550px' }"
+          header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}"
+          class="p-fluid">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}" style="max-width: 500px"/>
     <div class="field">
@@ -148,26 +149,24 @@
 
   <ng-template pTemplate="footer">
     <p-button (click)="hideEditMetadataDialog()" class="p-button-text" icon="fas fa-circle-xmark"
-    label="{{'@Cancel' | transloco}}" pButton pRipple severity="secondary" />
+              label="{{'@Cancel' | transloco}}" severity="secondary"/>
     <p-button (click)="updateDashboard(selectedDashboard)"
-      class="p-button-text"
-      icon="fas fa-check"
-      label="{{'@Save' | transloco}}"
-      pButton
-    pRipple />
+              class="p-button-text"
+              icon="fas fa-check"
+              label="{{'@Save' | transloco}}"/>
   </ng-template>
 </p-dialog>
 
 
 <p-dialog [(visible)]="viewDashboardDataDialog" [modal]="true"
-  header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}" class="p-fluid">
+          header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}" class="p-fluid">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}"/>
     <div class="formgrid grid">
       <div class="field col">
         @if (selectedDashboard.contextName) {
           <label class="p2 font-semibold m-0"
-          for="contextNameInfo">{{ '@Context name' | transloco }}:</label>
+                 for="contextNameInfo">{{ '@Context name' | transloco }}:</label>
         }
         @if (selectedDashboard.contextName) {
           <div
@@ -178,7 +177,7 @@
 
         @if (selectedDashboard.instanceName) {
           <label class="p2 font-semibold m-0"
-          for="instanceNameInfo">{{ '@Instance name' | transloco }}:</label>
+                 for="instanceNameInfo">{{ '@Instance name' | transloco }}:</label>
         }
         @if (selectedDashboard.instanceName) {
           <div
@@ -189,7 +188,7 @@
 
         @if (selectedDashboard.businessProcess) {
           <label class="p2 font-semibold m-0"
-          for="businessProcessInfo">{{ '@Business process' | transloco }}:</label>
+                 for="businessProcessInfo">{{ '@Business process' | transloco }}:</label>
         }
         @if (selectedDashboard.businessProcess) {
           <div
@@ -200,7 +199,7 @@
 
         @if (selectedDashboard.department) {
           <label class="p2 font-semibold m-0"
-          for="departmentInfo">{{ '@Department' | transloco }}:</label>
+                 for="departmentInfo">{{ '@Department' | transloco }}:</label>
         }
         @if (selectedDashboard.department) {
           <div
@@ -211,7 +210,7 @@
 
         @if (selectedDashboard.dataAnalyst) {
           <label class="p2 font-semibold m-0"
-          for="dataAnalystInfo">{{ '@Data analyst' | transloco }}:</label>
+                 for="dataAnalystInfo">{{ '@Data analyst' | transloco }}:</label>
         }
         @if (selectedDashboard.dataAnalyst) {
           <div
@@ -222,7 +221,7 @@
 
         @if (selectedDashboard.datasource) {
           <label class="p2 font-semibold m-0"
-          for="dataSourceInfo">{{ '@Datasource' | transloco }}:</label>
+                 for="dataSourceInfo">{{ '@Datasource' | transloco }}:</label>
         }
         @if (selectedDashboard.datasource) {
           <div
@@ -233,7 +232,7 @@
 
         @if (selectedDashboard.responsibility) {
           <label class="p2 font-semibold m-0"
-          for="responsibilityInfo">{{ '@Professional responsibility' | transloco }}:</label>
+                 for="responsibilityInfo">{{ '@Professional responsibility' | transloco }}:</label>
         }
         @if (selectedDashboard.responsibility) {
           <div
@@ -246,7 +245,7 @@
       <div class="field col">
         @if (selectedDashboard.status) {
           <label class="p2 font-semibold m-0"
-          for="statusInfo">{{ '@Status' | transloco }}:</label>
+                 for="statusInfo">{{ '@Status' | transloco }}:</label>
         }
         @if (selectedDashboard.status) {
           <div
@@ -257,7 +256,7 @@
 
         @if (selectedDashboard.slug) {
           <label class="p2 font-semibold m-0" for="slugInfo">{{ '@Slug' | transloco }}
-          :</label>
+            :</label>
         }
         @if (selectedDashboard.slug) {
           <div
@@ -268,7 +267,7 @@
 
         @if (selectedDashboard.instanceUrl) {
           <label class="p2 font-semibold m-0"
-          for="urlInfo">{{ '@Instance url' | transloco }}:</label>
+                 for="urlInfo">{{ '@Instance url' | transloco }}:</label>
         }
         @if (selectedDashboard.instanceUrl) {
           <div
@@ -279,7 +278,7 @@
 
         @if (selectedDashboard.modified) {
           <label class="p2 font-semibold m-0"
-          for="modifiedInfo">{{ '@Modified date' | transloco }}:</label>
+                 for="modifiedInfo">{{ '@Modified date' | transloco }}:</label>
         }
         @if (selectedDashboard.modified) {
           <div
@@ -296,7 +295,7 @@
 
         @if (selectedDashboard.roles) {
           <label class="p2 font-semibold m-0" for="rolesInfo">{{ '@Roles' | transloco }}
-          :</label>
+            :</label>
         }
         @if (selectedDashboard.roles) {
           <div
@@ -304,7 +303,7 @@
             id="rolesInfo">
             @for (role of selectedDashboard.roles; track role) {
               <p-tag icon="fas fa-tag" severity="info"
-              value="{{role.name}}" />
+                     value="{{role.name}}"/>
             }
           </div>
         }
@@ -315,7 +314,6 @@
 
   <ng-template pTemplate="footer">
     <p-button (click)="hideInfoPanel()" class="p-button-text" icon="fas fa-circle-xmark"
-      label="{{'@Cancel' | transloco}}" severity="secondary"
-    pButton pRipple />
+              label="{{'@Cancel' | transloco}}" severity="secondary"/>
   </ng-template>
 </p-dialog>
