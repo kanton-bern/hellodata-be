@@ -31,7 +31,7 @@ import {environment} from './environments/environment';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {TokenInterceptor} from './app/shared/interceptor/token-interceptor.service';
 import {ConfirmationService, MessageService} from 'primeng/api';
-import {AsyncPipe, CommonModule, JsonPipe, TitleCasePipe} from '@angular/common';
+import {AsyncPipe, CommonModule, JsonPipe, registerLocaleData, TitleCasePipe} from '@angular/common';
 import {providePrimeNG} from 'primeng/config';
 import {StoreModule} from '@ngrx/store';
 import {appReducers} from './app/store/app/app.reducer';
@@ -59,43 +59,89 @@ import {FormsModule} from '@angular/forms';
 import {AppComponent} from './app/app.component';
 import Material from "@primeuix/themes/material";
 
+async function loadLocaleData(locale: string) {
+  switch (locale) {
+    case 'de-CH':
+      const {default: deCh} = await import('@angular/common/locales/de-CH');
+      registerLocaleData(deCh);
+      break;
+    case 'fr-CH':
+      const {default: frCh} = await import('@angular/common/locales/fr-CH');
+      registerLocaleData(frCh);
+      break;
+    case 'en-US':
+      const {default: enUs} = await import('@angular/common/locales/en');
+      registerLocaleData(enUs);
+      break;
+    default:
+      const {default: en} = await import('@angular/common/locales/en');
+      registerLocaleData(en);
+      console.warn(`Locale data for '${locale}' not found, falling back to 'en-US'`);
+  }
+}
 
-bootstrapApplication(AppComponent, {
-  providers: [
-    importProvidersFrom(StoreModule.forRoot(appReducers), EffectsModule.forRoot(appEffects),
-      // Instrumentation must be imported after importing StoreModule (config is optional)
-      StoreDevtoolsModule.instrument({
-        maxAge: 25, // Retains last 25 states
-        // logOnly: environment.production, // Restrict extension to log-only mode
-      }), BrowserModule, HttpClientModule, TranslocoRootModule, AppRoutingModule, StoreRouterConnectingModule.forRoot(), AuthConfigModule, CommonModule, AsyncPipe, JsonPipe, ToastModule, ButtonModule, ToolbarModule, EditorModule, RippleModule, TableModule, PaginatorModule, FontAwesomeModule, NgPipesModule, TooltipModule, MatomoModule.forRoot({
-        disabled: environment.matomoConfig ? !environment.matomoConfig.enabled : false,
-        siteId: environment.matomoConfig ? environment.matomoConfig.siteId : 0,
-        trackerUrl: environment.matomoConfig ? environment.matomoConfig.trackerUrl : '',
-      }), MatomoRouterModule, FormsModule),
-    ScreenService,
-    AppInfoService,
-    {provide: LOCALE_ID, useValue: environment.locale},
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true
-    },
-    MessageService,
-    ConfirmationService,
-    TitleCasePipe,
-    providePrimeNG({
-      theme: {
-        preset: Material,
-        options: {
-          darkModeSelector: '.dark-mode', // optional
-          cssLayer: {
-            name: 'primeng',
-            order: 'theme, base, primeng'
+
+(async () => {
+  // Dynamically load locale data before bootstrapping
+  await loadLocaleData(environment.locale);
+
+  await bootstrapApplication(AppComponent, {
+    providers: [
+      importProvidersFrom(
+        StoreModule.forRoot(appReducers),
+        EffectsModule.forRoot(appEffects),
+        StoreDevtoolsModule.instrument({maxAge: 25}),
+        BrowserModule,
+        HttpClientModule,
+        TranslocoRootModule,
+        AppRoutingModule,
+        StoreRouterConnectingModule.forRoot(),
+        AuthConfigModule,
+        CommonModule,
+        AsyncPipe,
+        JsonPipe,
+        ToastModule,
+        ButtonModule,
+        ToolbarModule,
+        EditorModule,
+        RippleModule,
+        TableModule,
+        PaginatorModule,
+        FontAwesomeModule,
+        NgPipesModule,
+        TooltipModule,
+        MatomoModule.forRoot({
+          disabled: environment.matomoConfig ? !environment.matomoConfig.enabled : false,
+          siteId: environment.matomoConfig ? environment.matomoConfig.siteId : 0,
+          trackerUrl: environment.matomoConfig ? environment.matomoConfig.trackerUrl : '',
+        }),
+        MatomoRouterModule,
+        FormsModule
+      ),
+      ScreenService,
+      AppInfoService,
+      {provide: LOCALE_ID, useValue: environment.locale},
+      {
+        provide: HTTP_INTERCEPTORS,
+        useClass: TokenInterceptor,
+        multi: true
+      },
+      MessageService,
+      ConfirmationService,
+      TitleCasePipe,
+      providePrimeNG({
+        theme: {
+          preset: Material,
+          options: {
+            darkModeSelector: '.dark-mode',
+            cssLayer: {
+              name: 'primeng',
+              order: 'theme, base, primeng'
+            }
           }
         }
-      }
-    }),
-    provideAnimations()
-  ]
-})
-  .catch(err => console.error(err));
+      }),
+      provideAnimations()
+    ]
+  }).catch(err => console.error(err));
+})();

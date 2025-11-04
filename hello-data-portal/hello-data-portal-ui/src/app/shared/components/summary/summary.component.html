@@ -1,19 +1,20 @@
 @if ((currentUserPermissions$ | async); as permissions) {
   <div id="summaryComponent">
-    <p-drawer [(visible)]="overlaySidebarVisible" position="right" class="w-30rem">
+    <p-drawer [(visible)]="overlaySidebarVisible" position="right" [style]="{ width: '30rem' }">
       <ng-template pTemplate="header">
         <div class="font-semibold" id="summaryHeader"> {{ '@Summary header' | transloco }}</div>
       </ng-template>
       <ng-template pTemplate="content">
         @if (permissions.length !== 0) {
           <p-fieldset id="statusHeader" legend="Status">
-            <p-accordion>
-              <p-accordion-panel>
+            <p-accordion value="0">
+              <p-accordion-panel value="0">
                 <p-accordion-header>Data pipelines</p-accordion-header>
                 <p-accordion-content>
-                  <p-dataView [value]="(pipelines$ | async)!" emptyMessage="{{ '@No data found' | transloco }}">
-                    <ng-template let-pipelines pTemplate="list">
+                  @if ((pipelines$ | async); as pipelines) {
+                    <p-data-view #dv [value]="pipelines" emptyMessage="{{ '@No data found' | transloco }}">
                       @for (pipeline of pipelines; track pipeline; let first = $first) {
+                        {{ pipeline | json }}
                         <div class="p-grid grid">
                           <div class="col-8">
                             <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
@@ -21,128 +22,130 @@
                             <!--                          pButton tooltipPosition="left"-->
                             <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
                             <!--                          type="button">-->
-                          <!--                  </button>-->
-                          <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"
-                            placeholder="Left"
-                            style="font-size: 0.9rem; font-weight: 400"
-                          tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</label>
-                        </div>
-                        <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
-                          @if (pipeline?.lastInstance?.startDate) {
-                            <span
-                            >{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
-                          }
-                        </div>
-                        @if (pipeline?.lastInstance) {
-                          <div class="col-1">
-                            @switch (pipeline.lastInstance.state) {
-                              @case ('queued') {
-                                <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="align-items-end pi pi-hourglass"
-                                style="color: gray"></span>
-                              }
-                              @case ('running') {
-                                <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="align-items-end pi pi-spin pi-cog"
-                                style="color: green"></span>
-                              }
-                              @case ('success') {
-                                <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="align-items-end pi pi-check-circle"
-                                style="color: green"></span>
-                              }
-                              @case ('failed') {
-                                <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="align-items-end pi pi-exclamation-circle"
-                                style="color: red"></span>
-                              }
-                              @default {
-                                <span [pTooltip]="'unknown'" class="align-items-end pi pi-question-circle"
-                                style="color: gray"></span>
-                              }
+                            <!--                  </button>-->
+                            <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"
+                                   placeholder="Left"
+                                   style="font-size: 0.9rem; font-weight: 400"
+                                   tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</label>
+                          </div>
+                          <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
+                            @if (pipeline?.lastInstance?.startDate) {
+                              <span
+                              >{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
                             }
                           </div>
-                        }
-                      </div>
-                    }
-                  </ng-template>
-                </p-dataView>
-              </p-accordion-content>
-            </p-accordion-panel>
-          </p-accordion>
-        </p-fieldset>
-      }
-      @if ((documentation$ | async); as documentation) {
-        <p-fieldset>
-          <ng-template pTemplate="header">
+                          @if (pipeline?.lastInstance) {
+                            <div class="col-1">
+                              @switch (pipeline.lastInstance.state) {
+                                @case ('queued') {
+                                  <span [pTooltip]="pipeline.lastInstance.state"
+                                        class="align-items-end pi pi-hourglass"
+                                        style="color: gray"></span>
+                                }
+                                @case ('running') {
+                                  <span [pTooltip]="pipeline.lastInstance.state"
+                                        class="align-items-end pi pi-spin pi-cog"
+                                        style="color: green"></span>
+                                }
+                                @case ('success') {
+                                  <span [pTooltip]="pipeline.lastInstance.state"
+                                        class="align-items-end pi pi-check-circle"
+                                        style="color: green"></span>
+                                }
+                                @case ('failed') {
+                                  <span [pTooltip]="pipeline.lastInstance.state"
+                                        class="align-items-end pi pi-exclamation-circle"
+                                        style="color: red"></span>
+                                }
+                                @default {
+                                  <span [pTooltip]="'unknown'" class="align-items-end pi pi-question-circle"
+                                        style="color: gray"></span>
+                                }
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </p-data-view>
+                  }
+
+                </p-accordion-content>
+              </p-accordion-panel>
+            </p-accordion>
+          </p-fieldset>
+        }
+        @if ((documentation$ | async); as documentation) {
+          <p-fieldset>
+            <ng-template pTemplate="header">
+              <div>
+                <span>{{ '@Documentation' | transloco }}</span>
+                @if (permissions | contains: 'DOCUMENTATION_MANAGEMENT') {
+                  <p-button (click)="editDocumentation()"
+                            [pTooltip]="'@Edit' | transloco"
+                            severity="success" icon="fas fa-light fa-pen-to-square" class="p-button-rounded"
+                            id="editDocumentationBtnOvrl" pButton pRipple/>
+                }
+              </div>
+            </ng-template>
+            @if ((defaultLanguage$ | async); as defaultLanguage) {
+              <div>
+                @if ((selectedLanguage$ | async); as selectedLanguage) {
+                  <div>
+                    <p-editor [disabled]="true"
+                              [ngModel]="getText(documentation, selectedLanguage.code, defaultLanguage)"
+                              [readonly]="true"
+                              class="p-editor-readonly">
+                      <p-header hidden/>
+                    </p-editor>
+                  </div>
+                }
+              </div>
+            }
+          </p-fieldset>
+        }
+        @if (permissions.length !== 0) {
+          <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}">
+            <app-subscriptions/>
+          </p-fieldset>
+        }
+        @if ((storeSize$ | async); as storeSize) {
+          <p-fieldset id="storageSizeHeader"
+                      legend="{{'@Storage size' | transloco}}">
             <div>
-              <span>{{ '@Documentation' | transloco }}</span>
-              @if (permissions | contains: 'DOCUMENTATION_MANAGEMENT') {
-                <p-button (click)="editDocumentation()"
-                  [pTooltip]="'@Edit' | transloco"
-                  severity="success" icon="fas fa-light fa-pen-to-square" class="p-button-rounded"
-                  id="editDocumentationBtnOvrl" pButton pRipple />
+              @for (storageSize of storeSize.storageSizes; track storageSize) {
+                <ul>
+                  <li>
+                    {{ storageSize.name + ' ' }}
+                    <b>{{ storageSize.usedSize }}</b>
+                  </li>
+                </ul>
               }
             </div>
-          </ng-template>
-          @if ((defaultLanguage$ | async); as defaultLanguage) {
+          </p-fieldset>
+        }
+        @if ((storeSize$ | async); as storeSize) {
+          <p-fieldset id="dbSizeHeader" legend="{{'@Database size' | transloco}}">
             <div>
-              @if ((selectedLanguage$ | async); as selectedLanguage) {
-                <div>
-                  <p-editor [disabled]="true" [ngModel]="getText(documentation, selectedLanguage.code, defaultLanguage)"
-                    [readonly]="true"
-                    class="p-editor-readonly">
-                    <p-header hidden />
-                  </p-editor>
-                </div>
+              @for (databaseSize of storeSize.databaseSizes; track databaseSize) {
+                <ul>
+                  <li>
+                    {{ databaseSize.name + ' ' }}
+                    <b>{{ databaseSize.usedSize }}</b>
+                  </li>
+                </ul>
               }
             </div>
-          }
-        </p-fieldset>
-      }
-      @if (permissions.length !== 0) {
-        <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}">
-          <app-subscriptions />
-        </p-fieldset>
-      }
-      @if ((storeSize$ | async); as storeSize) {
-        <p-fieldset id="storageSizeHeader"
-          legend="{{'@Storage size' | transloco}}">
-          <div>
-            @for (storageSize of storeSize.storageSizes; track storageSize) {
-              <ul>
-                <li>
-                  {{ storageSize.name + ' ' }}
-                  <b>{{ storageSize.usedSize }}</b>
-                </li>
-              </ul>
-            }
-          </div>
-        </p-fieldset>
-      }
-      @if ((storeSize$ | async); as storeSize) {
-        <p-fieldset id="dbSizeHeader" legend="{{'@Database size' | transloco}}">
-          <div>
-            @for (databaseSize of storeSize.databaseSizes; track databaseSize) {
-              <ul>
-                <li>
-                  {{ databaseSize.name + ' ' }}
-                  <b>{{ databaseSize.usedSize }}</b>
-                </li>
-              </ul>
-            }
-          </div>
-        </p-fieldset>
-      }
-      <app-footer [appInfo]="appInfo" />
-    </ng-template>
-  </p-drawer>
-  <p-scrollPanel [style]="{ width: '100%', height: 'calc(100vh - 4rem)' }">
-    <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
-      class="summary-header">
-      {{ '@Summary header' | transloco }}
-    </div>
-  </p-scrollPanel>
-</div>
+          </p-fieldset>
+        }
+        <app-footer [appInfo]="appInfo"/>
+      </ng-template>
+    </p-drawer>
+    <p-scrollPanel [style]="{ width: '100%', height: 'calc(100vh - 4rem)' }">
+      <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
+           class="summary-header">
+        {{ '@Summary header' | transloco }}
+      </div>
+    </p-scrollPanel>
+  </div>
 }
 

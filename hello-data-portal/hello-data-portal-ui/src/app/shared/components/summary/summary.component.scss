@@ -24,17 +24,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-::ng-deep .ql-toolbar.ql-snow {
-  border-bottom: none !important;
-}
-
-::ng-deep .p-editor-readonly .p-editor-container .p-editor-toolbar.ql-snow {
-  border: none;
-}
-
-::ng-deep .p-editor-readonly .ql-toolbar.ql-snow + .ql-container.ql-snow {
-  border: none;
-}
 
 
 ::ng-deep #editDocumentationBtn, ::ng-deep #editDocumentationBtnOvrl {

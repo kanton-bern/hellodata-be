@@ -25,13 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, inject, output } from '@angular/core';
-import { DrawerModule, Drawer } from 'primeng/drawer';
-import { ScrollPanelModule, ScrollPanel } from "primeng/scrollpanel";
-import { AsyncPipe, DatePipe, JsonPipe, NgClass, NgStyle } from "@angular/common";
-import { FieldsetModule, Fieldset } from "primeng/fieldset";
-import { AccordionModule, Accordion, AccordionPanel, AccordionHeader, AccordionContent } from "primeng/accordion";
-import { EditorModule, Editor } from "primeng/editor";
+import {Component, inject, output} from '@angular/core';
+import {Drawer} from 'primeng/drawer';
+import {ScrollPanel, ScrollPanelModule} from "primeng/scrollpanel";
+import {AsyncPipe, DatePipe, JsonPipe, NgClass} from "@angular/common";
+import {Fieldset} from "primeng/fieldset";
+import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from "primeng/accordion";
+import {Editor} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -40,8 +40,8 @@ import {
   selectPipelines,
   selectStorageSize
 } from "../../../store/summary/summary.selector";
-import { ButtonModule, Button, ButtonDirective } from "primeng/button";
-import { RippleModule, Ripple } from "primeng/ripple";
+import {Button, ButtonDirective} from "primeng/button";
+import {Ripple} from "primeng/ripple";
 import {Observable} from "rxjs";
 import {
   selectCurrentUserPermissions,
@@ -49,25 +49,25 @@ import {
   selectSelectedLanguage
 } from "../../../store/auth/auth.selector";
 
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import { TooltipModule, Tooltip } from "primeng/tooltip";
-import { DataViewModule, DataView } from "primeng/dataview";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {Tooltip} from "primeng/tooltip";
+import {DataView} from "primeng/dataview";
 import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
-import { FooterComponent } from "../footer/footer.component";
+import {FooterComponent} from "../footer/footer.component";
 import {AppInfoService} from "../../services";
 import {TranslateService} from "../../services/translate.service";
-import { PrimeTemplate } from 'primeng/api';
-import { ContainsPipe } from '../../pipes/contains.pipe';
-import { TruncatePipe } from '../../pipes/truncate.pipe';
+import {PrimeTemplate} from 'primeng/api';
+import {ContainsPipe} from '../../pipes/contains.pipe';
+import {TruncatePipe} from '../../pipes/truncate.pipe';
 
 
 @Component({
-    selector: 'app-summary',
-    templateUrl: './summary.component.html',
-    styleUrls: ['./summary.component.scss'],
-    imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, DataView, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TruncatePipe, TranslocoPipe, DatePipe]
+  selector: 'app-summary',
+  templateUrl: './summary.component.html',
+  styleUrls: ['./summary.component.scss'],
+  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, DataView, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TruncatePipe, TranslocoPipe, DatePipe, JsonPipe]
 })
 export class SummaryComponent {
   private store = inject<Store<AppState>>(Store);
