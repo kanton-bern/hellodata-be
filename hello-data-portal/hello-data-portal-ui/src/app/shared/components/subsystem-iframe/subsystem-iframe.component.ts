@@ -101,8 +101,9 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
     }
-    if (this.switchStyleOverflow()) {
-      document.getElementById('mainContentDiv')!.style.overflow = 'auto';
+    const mainContentDiv = document.getElementById('mainContentDiv');
+    if (this.switchStyleOverflow() && mainContentDiv) {
+      mainContentDiv!.style.overflow = 'auto';
     }
   }
 
