@@ -6,34 +6,37 @@
     @if ((queries$ | async); as queries) {
       <div>
         <p-table #dt
-          [lazy]="true"
-          (onLazyLoad)="loadQueries($event, contextKey)"
-          [loading]="(queriesLoading$ | async) ?? false"
-          [value]="queries"
-          [paginator]="true"
-          [rowHover]="true"
-          [rowsPerPageOptions]="[5, 10, 20]"
-          [rows]="10"
-          [totalRecords]="queriesTotalRecords"
-          [expandedRowKeys]="expandedRows"
-          [globalFilterFields]="['status','tabName','databaseName', 'schema', 'table', 'userFullname', 'sql']"
-          dataKey="id"
-          id="queries_table_{{ contextKey }}"
-          stateKey="portal-queries-table-{{ contextKey }}"
-          sortField="changedOn"
-          [sortOrder]="-1"
-          [(first)]="first"
-          stateStorage="session"
-          class="p-datatable-striped"
-          [tableStyle]="{ 'min-width': '50rem' }">
+                 [lazy]="true"
+                 (onLazyLoad)="loadQueries($event, contextKey)"
+                 [loading]="(queriesLoading$ | async) ?? false"
+                 [value]="queries"
+                 [paginator]="true"
+                 [rowHover]="true"
+                 [rowsPerPageOptions]="[5, 10, 20]"
+                 [rows]="10"
+                 [totalRecords]="queriesTotalRecords"
+                 [expandedRowKeys]="expandedRows"
+                 [globalFilterFields]="['status','tabName','databaseName', 'schema', 'table', 'userFullname', 'sql']"
+                 dataKey="id"
+                 id="queries_table_{{ contextKey }}"
+                 stateKey="portal-queries-table-{{ contextKey }}"
+                 sortField="changedOn"
+                 [sortOrder]="-1"
+                 [(first)]="first"
+                 stateStorage="session"
+                 class="p-datatable-striped"
+                 [tableStyle]="{ 'min-width': '50rem' }">
           <ng-template pTemplate="caption">
             <div>
               <h3>{{ '@Queries' | transloco }}</h3>
               <div id="searchBox">
                 <span class="p-input-icon-left p-ml-auto">
-                  <i class="pi pi-search"></i>
-                  <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                    placeholder="{{'@Search' | transloco}}" type="text"/>
+                  <p-iconfield>
+                    <p-inputicon class="pi pi-search"/>
+                    <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
+                           pInputText
+                           placeholder="{{'@Search' | transloco}}" type="text"/>
+                  </p-iconfield>
                 </span>
               </div>
             </div>
@@ -78,10 +81,11 @@
                 @switch (query.status) {
                   @case ('failed') {
                     <span [pTooltip]="query.status" class="align-items-end pi pi-exclamation-circle"
-                    style="color: red"></span>
+                          style="color: red"></span>
                   }
                   @case ('success') {
-                    <span [pTooltip]="query.status" class="align-items-end pi pi-check-circle" style="color: green"></span>
+                    <span [pTooltip]="query.status" class="align-items-end pi pi-check-circle"
+                          style="color: green"></span>
                   }
                 }
               </td>
@@ -100,24 +104,24 @@
               <td>{{ query.databaseName }}</td>
               <td>{{ query.schema }}</td>
               <td>
-                @for (table of JSON.parse(query.sqlTables); track table; let last = $last) {
+                @for (table of query.parsedTables; track table; let last = $last) {
                   {{ table.table }}@if (!last) {
-                  <span>, </span>
+                    <span>, </span>
+                  }
                 }
-              }
-            </td>
-            <td>{{ query.userFullname }}</td>
-            <td>
-              <p-button type="button" pRipple [pRowToggler]="query" [text]="true" [rounded]="true"
-                [plain]="true" pTooltip="SQL"
-                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="rowexpansion" let-query>
-          <tr>
-            <td colspan="9">
-              <div class="p-3">
+              </td>
+              <td>{{ query.userFullname }}</td>
+              <td>
+                <p-button type="button" pRipple [pRowToggler]="query" [text]="true" [rounded]="true"
+                          [plain]="true" pTooltip="SQL"
+                          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #expandedrow let-query>
+            <tr>
+              <td colspan="9">
+                <div class="p-3">
                 <textarea
                   variant="filled"
                   [disabled]="true"
@@ -128,12 +132,12 @@
                   style="width: 100%"
                   [ngModel]="query.executedSql ? query.executedSql : query.sql">
                 </textarea>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-  }
-</div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+  </div>
 }

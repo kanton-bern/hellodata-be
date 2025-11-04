@@ -1,5 +1,5 @@
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import { Component, OnDestroy, OnInit, inject, viewChild } from "@angular/core";
+import {Component, inject, OnDestroy, OnInit, viewChild} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {loadQueriesPaginated, resetQueriesState} from "../../../store/queries/queries.action";
@@ -16,25 +16,27 @@ import {
   selectAllAvailableDataDomains,
   selectSelectedDataDomain
 } from "../../../store/my-dashboards/my-dashboards.selector";
-import { Table, TableLazyLoadEvent, TableModule } from "primeng/table";
+import {Table, TableLazyLoadEvent, TableModule} from "primeng/table";
 import {map, take} from "rxjs/operators";
 import {scrollToTop} from "../../../shared/services/view-helpers";
 import {navigate} from "../../../store/app/app.action";
-import { AsyncPipe, DatePipe } from "@angular/common";
-import { PrimeTemplate } from "primeng/api";
-import { FormsModule } from "@angular/forms";
-import { InputText } from "primeng/inputtext";
-import { Tooltip } from "primeng/tooltip";
-import { Tag } from "primeng/tag";
-import { Button } from "primeng/button";
-import { Ripple } from "primeng/ripple";
-import { Textarea } from "primeng/textarea";
-import { TranslocoPipe } from "@jsverse/transloco";
+import {AsyncPipe, DatePipe} from "@angular/common";
+import {PrimeTemplate} from "primeng/api";
+import {FormsModule} from "@angular/forms";
+import {InputText} from "primeng/inputtext";
+import {Tooltip} from "primeng/tooltip";
+import {Tag} from "primeng/tag";
+import {Button} from "primeng/button";
+import {Ripple} from "primeng/ripple";
+import {Textarea} from "primeng/textarea";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
 
 @Component({
-    templateUrl: 'queries.component.html',
-    styleUrls: ['./queries.component.scss'],
-    imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe]
+  templateUrl: 'queries.component.html',
+  styleUrls: ['./queries.component.scss'],
+  imports: [TableModule, PrimeTemplate, FormsModule, InputText, Tooltip, Tag, Button, Ripple, Textarea, AsyncPipe, DatePipe, TranslocoPipe, IconField, InputIcon]
 })
 export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);
@@ -58,10 +60,13 @@ export class QueriesComponent extends BaseComponent implements OnInit, OnDestroy
       this.store.select(selectQueries),
       this.store.select(selectQueriesTotalRecords)
     ]).pipe(
-      tap(([_, queriesTotalRecords]) => {
-        this.queriesTotalRecords = queriesTotalRecords;
+      map(([queries, total]) => {
+        this.queriesTotalRecords = total;
+        return queries.map(q => ({
+          ...q,
+          parsedTables: JSON.parse(q.sqlTables ?? '[]')
+        }));
       }),
-      map(([queries, _]) => queries),
     );
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(tap((dataDomain) => {
       if (this.loadedQueriesForContextKey !== '' && dataDomain && (dataDomain.key !== '' && dataDomain.key !== this.loadedQueriesForContextKey)) {
