@@ -3,8 +3,8 @@
   <div class="card">
     <p-toolbar class="mb-4 gap-2">
       <ng-template pTemplate="left">
-        <button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
-        label="{{'@Create' | transloco }}" pButton pRipple></button>
+        <p-button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
+                  label="{{'@Create' | transloco }}"></p-button>
       </ng-template>
     </p-toolbar>
     @if ((faq$ | async); as faq) {
@@ -19,7 +19,7 @@
             [value]="faq"
             dataKey="id"
             class="p-datatable-striped"
-            >
+          >
             <ng-template pTemplate="header">
               <tr>
                 <th id="title">
@@ -45,26 +45,26 @@
                 }
                 <td>
                   <p-editor [disabled]="true" [ngModel]="getMessage(faq, selectedLanguage)" [readonly]="true"
-                    [style]="{ height: '320px' }" class="p-editor-readonly">
-                    <p-header hidden />
+                            [style]="{ height: '320px' }" class="p-editor-readonly">
+                    <p-header hidden/>
                   </p-editor>
                 </td>
                 <td>
                   <p-button (click)="editFaq(faq)"
-                    [pTooltip]="'@Edit' | transloco"
-                    severity="success"
-                    class="p-button-rounded mr-2"
-                    icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
-                    pButton
-                  pRipple />
+                            [pTooltip]="'@Edit' | transloco"
+                            severity="success"
+                            class="p-button-rounded mr-2"
+                            icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
+                            pButton
+                            pRipple/>
                   <p-button (click)="showFaqDeletionPopup(faq)"
-                    [pTooltip]="'@Delete' | transloco"
-                    severity="danger"
-                    class="p-button-rounded mr-2"
-                    icon="fas fa-trash"
-                    id="{{'deleteFaq_' + faq.title}}"
-                    pButton
-                  pRipple />
+                            [pTooltip]="'@Delete' | transloco"
+                            severity="danger"
+                            class="p-button-rounded mr-2"
+                            icon="fas fa-trash"
+                            id="{{'deleteFaq_' + faq.title}}"
+                            pButton
+                            pRipple/>
                 </td>
               </tr>
             </ng-template>
@@ -75,4 +75,4 @@
   </div>
 }
 
-<app-delete-faq-popup [action]="getDeletionAction()" />
+<app-delete-faq-popup [action]="getDeletionAction()"/>

@@ -3,10 +3,10 @@
   @if ((initForm$ | async); as result) {
     <form [formGroup]="documentationForm">
       @if ((supportedLanguages$ | async); as supportedLanguages) {
-        <p-tabs>
+        <p-tabs [value]="0">
           <p-tablist>
-            @for (lang of supportedLanguages; track lang) {
-              <p-tab>
+            @for (lang of supportedLanguages; track $index) {
+              <p-tab [value]="$index">
                 <div class="flex align-items-center gap-2">
                   <span class="font-bold white-space-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
                     {{ lang.slice(0, 2).toUpperCase() }}
@@ -16,8 +16,8 @@
             }
           </p-tablist>
           <p-tabpanels>
-            @for (language of supportedLanguages; track language) {
-              <p-tabpanel [value]="language">
+            @for (language of supportedLanguages; track $index) {
+              <p-tabpanel [value]="$index">
                 <p-editor [formControl]="getText(language)">
                   <ng-template pTemplate="header">
                     <span class="ql-formats">
@@ -70,10 +70,10 @@
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
             <p-button (click)="createOrUpdateDocumentation(result.doc)"
-              [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-              icon="fas fa-floppy-disk"
-              label="{{'@Save' | transloco}}"
-            severity="success" />
+                      [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
+                      icon="fas fa-floppy-disk"
+                      label="{{'@Save' | transloco}}"
+                      severity="success"/>
           </div>
         }
       </p-toolbar>

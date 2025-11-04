@@ -57,7 +57,7 @@
       <div class="field grid">
         <label class="col-12 mb-2 md:col-2 md:mb-0" for="published">{{ '@Published' | transloco }}</label>
         <div class="col-12 md:col-10">
-          <p-checkbox [binary]="true" formControlName="published" id="published" inputId="published" />
+          <p-checkbox [binary]="true" formControlName="published" id="published" inputId="published"/>
         </div>
       </div>
       @if (editedAnnouncement.publishedDate) {
@@ -74,10 +74,10 @@
         </div>
       }
       @if ((supportedLanguages$ | async); as supportedLanguages) {
-        <p-tabs>
+        <p-tabs [value]="0">
           <p-tablist>
-            @for (language of supportedLanguages; track language) {
-              <p-tab>
+            @for (language of supportedLanguages; track $index) {
+              <p-tab [value]="$index">
                 <div class="flex align-items-center gap-2">
                   <span class="font-bold white-space-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
                     {{ language.slice(0, 2).toUpperCase() }}
@@ -87,8 +87,8 @@
             }
           </p-tablist>
           <p-tabpanels>
-            @for (language of supportedLanguages; track language) {
-              <p-tabpanel [value]="language">
+            @for (language of supportedLanguages; track $index) {
+              <p-tabpanel [value]="$index">
                 <div class="field grid">
                   <div class="col-12 md:col-12">
                     <p-editor [formControl]="getMessage(language)" [style]="{ width: '100%' }">
@@ -106,17 +106,17 @@
                           </select>
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Bold" class="ql-bold" type="button" />
-                          <p-button aria-label="Italic" class="ql-italic" type="button" />
-                          <p-button aria-label="Underline" class="ql-underline" type="button" />
+                          <p-button aria-label="Bold" class="ql-bold" type="button"/>
+                          <p-button aria-label="Italic" class="ql-italic" type="button"/>
+                          <p-button aria-label="Underline" class="ql-underline" type="button"/>
                         </span>
                         <span class="ql-formats">
                           <select class="ql-color"></select>
                           <select class="ql-background"></select>
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Ordered List" class="ql-list" type="button" value="ordered" />
-                          <p-button aria-label="Unordered List" class="ql-list" type="button" value="bullet" />
+                          <p-button aria-label="Ordered List" class="ql-list" type="button" value="ordered"/>
+                          <p-button aria-label="Unordered List" class="ql-list" type="button" value="bullet"/>
                           <select class="ql-align">
                             <option selected></option>
                             <option value="center">center</option>
@@ -125,11 +125,11 @@
                           </select>
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Insert Link" class="ql-link" type="button" />
-                          <p-button aria-label="Insert Code Block" class="ql-code-block" type="button" />
+                          <p-button aria-label="Insert Link" class="ql-link" type="button"/>
+                          <p-button aria-label="Insert Code Block" class="ql-code-block" type="button"/>
                         </span>
                         <span class="ql-formats">
-                          <p-button aria-label="Remove Styles" class="ql-clean" type="button" />
+                          <p-button aria-label="Remove Styles" class="ql-clean" type="button"/>
                         </span>
                       </ng-template>
                     </p-editor>
@@ -143,20 +143,20 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-          icon="fas fa-arrow-left" severity="secondary" />
+                    icon="fas fa-arrow-left" severity="secondary"/>
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
             <p-button (click)="saveAnnouncement(editedAnnouncement)"
-              [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-              icon="fas fa-floppy-disk" class="mr-2"
-              label="{{'@Save' | transloco}}"
-            severity="success" />
+                      [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
+                      icon="fas fa-floppy-disk" class="mr-2"
+                      label="{{'@Save' | transloco}}"
+                      severity="success"/>
             @if (editedAnnouncement.id) {
               <p-button (click)="openDeletePopup(editedAnnouncement)"
-                icon="fas fa-trash" class="mr-2"
-                label="{{'@Delete' | transloco}}"
-              severity="danger" />
+                        icon="fas fa-trash" class="mr-2"
+                        label="{{'@Delete' | transloco}}"
+                        severity="danger"/>
             }
           </div>
         }
@@ -165,4 +165,4 @@
   }
 </div>
 
-<app-delete-announcement-popup [action]="getDeletionAction()" />
+<app-delete-announcement-popup [action]="getDeletionAction()"/>
