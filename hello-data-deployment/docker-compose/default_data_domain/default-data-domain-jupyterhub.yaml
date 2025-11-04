@@ -81,6 +81,7 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       CONTEXT_KEY: Default_Data_Domain
+      SIDECAR_API_URL: http://hello-data-sidecar-jupyterhub-default-data-domain:8089/create-temporary-user
 
   jupyterhub-proxy-default-data-domain:
     image: jupyterhub/configurable-http-proxy:latest
@@ -101,6 +102,7 @@ services:
     build:
       context: ./base/jupyterhub
       dockerfile: Dockerfile.base_notebook
+    image: hellodata-jupyterhub-notebook-default-data-domain:latest
     environment:
       - JUPYTER_ENABLE_LAB=yes
     depends_on:
@@ -135,17 +137,33 @@ services:
     image: bedag/hello-data-sidecar-jupyterhub
     env_file: .env
     environment:
-      - HELLO_DATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://host.docker.internal:35432/hellodata_product_development_default_data_domain_dwh
+      - HELLO_DATA_JUPYTERHUB_DWH_URL=jdbc:postgresql://postgres:5432/hellodata_product_development_default_data_domain_dwh
       - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:35432/hd_metainfo
       - NATS_SPRING_SERVER=nats://nats:4222
       - HELLO_DATA_INSTANCE_URL=http://localhost:8088/
       - HELLO_DATA_INSTANCE_NAME=Jupyterhub Default Data Domain
       - HELLO_DATA_CONTEXTS_0=Data Domain | Default_Data_Domain | Default Data Domain
       - HELLO_DATA_SIDECAR_PUBLISH_INTERVAL_SECONDS=30
+      - HELLO_DATA_JUPYTERHUB_DWH_TEMP_USER_SCHEMAS=public,lzn
     depends_on:
-      - postgres
-      - keycloak
-      - jupyterhub-default-data-domain
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      hello-data-portal-sidecar:
+        condition: service_started
+      hello-data-portal-api:
+        condition: service_healthy
+      hello-data-portal-ui:
+        condition: service_started
+      jupyterhub-default-data-domain:
+        condition: service_started
+      hello-data-jupyterhub-gateway-default-data-domain:
+        condition: service_started
+      jupyterhub-proxy-default-data-domain:
+        condition: service_started
+      jupyterhub-notebook-default-data-domain:
+        condition: service_started
     restart: always
     ports:
       - "8091:8089"

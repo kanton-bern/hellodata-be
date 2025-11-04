@@ -132,21 +132,19 @@ The two public objects are the function `get_pod_operator_params` and the class 
 
 Call the function `get_pod_operator_params` to get a dictionary with parameters to be passed to `kubernetes_pod_operator`.
 
-| Parameter                       | Type                      | Default                | Description                                                                                                   |
-|----------------------------------|---------------------------|------------------------|---------------------------------------------------------------------------------------------------------------|
-| `image`                         | `str`                     | _required_             | The Docker image to use for the pod.                                                                          |
-| `namespace`                     | `str`                     | _required_             | The Kubernetes namespace in which to create the pod.                                                          |
-| `secret_names`                  | `Optional[List[str]]`     | `None`                 | List of Kubernetes secret names to mount in the pod as environment variables.                                 |
-| `configmap_names`               | `Optional[List[str]]`     | `None`                 | List of Kubernetes configmap names to mount in the pod as environment variables.                              |
-| `cpus`                          | `float`                   | `1.0`                  | Number of CPU cores to allocate to the pod.                                                                   |
-| `memory_in_Gi`                  | `float`                   | `1.0`                  | Amount of memory (in GiB) to allocate to the pod.                                                             |
-| `mount_storage_hellodata_pvc`   | `bool`                    | `True`                 | Whether to mount the `storage-hellodata` volume under `/mnt/storage-hellodata`.                               |
-| `local_ephemeral_storage_in_Gi` | `float`                   | `1.0`                  | Amount of local ephemeral storage (in GiB) to allocate to the pod.                                            |
-| `startup_timeout_in_seconds`    | `int`                     | `120`                  | Timeout in seconds for the pod to start up.                                                                   |
-| `large_ephemeral_storage_volume`| `Optional[EphemeralVolume]`| `None`                | Large ephemeral storage volume to allocate to the pod.                                                        |
-| `env_vars`                      | `Optional[Dict[str, str]]`| `None`                 | Additional environment variables to set in the pod.                                                           |
-
-The class `EphemeralVolume` takes the following arguments for it's constructor:
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `image` | `str` | `true` | - | The Docker image to use for the pod |
+| `namespace` | `str` | `false` | `"default"` | The Kubernetes namespace in which to create the pod |
+| `image_pull_secrets` | `Optional[List[str]]` | `false` | `None` | List of image pull secrets for private registries |
+| `secrets` | `Optional[List[str]]` | `false` | `None` | List of Kubernetes secret names to mount in the pod as environment variables |
+| `configmaps` | `Optional[List[str]]` | `false` | `None` | List of Kubernetes configmap names to mount in the pod as environment variables |
+| `cpus` | `float` | `false` | `1.0` | Number of CPU cores to allocate to the pod |
+| `memory_in_Gi` | `float` | `false` | `1.0` | Amount of memory in GiB to allocate to the pod |
+| `local_ephemeral_storage_in_Gi` | `float` | `false` | `1.0` | Amount of local ephemeral storage in GiB to allocate to the pod |
+| `startup_timeout_in_seconds` | `int` | `false` | `120` | Timeout in seconds for the pod to start up |
+| `large_ephemeral_storage_volume` | `Optional[EphemeralVolume]` | `false` | `None` | Large ephemeral storage volume to allocate to the pod |
+| `env_vars` | `Optional[Dict[str, str]]` | `false` | `None` | Additional environment variables to set in the pod |
 
 | Parameter      | Type    | Description                                                      |
 |----------------|---------|------------------------------------------------------------------|
@@ -160,51 +158,59 @@ The class `EphemeralVolume` takes the following arguments for it's constructor:
 The following python code contains an Airflow DAG that makes full usage of the library to schedule a pod on airflow.
 
 ```python
-import sys
-import os
 from datetime import timedelta
 from pendulum import datetime
 from airflow import DAG
-from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
-from hellodata_be_airflow_pod_operator_params import get_pod_operator_params, EphemeralVolume # library import
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
+    KubernetesPodOperator,
+)
+
+from hellodata_be_airflow_pod_operator_params import (
+    get_pod_operator_params,
+    EphemeralVolume,
+)  # library import
 
 operator_params = get_pod_operator_params(
-    'my-image:latest',
-    ['my-secret-to-mount-as-env-vars'],
-    ['my-configmap-to-mount-as-env-vars'],
-    cpus=8, 
-    memory_in_Gi=10, 
-    local_ephemeral_storage_in_Gi=6,
-    startup_timeout_in_seconds=10 * 60 ,
-    large_ephemeral_storage_volume=EphemeralVolume('my-storage', 50, '/app/large_ephemeral_storage', 'default'),
-    env_vars={'key': 'value'}
+    "alpine:latest",
+    namespace="my-namespace",
+    secrets=["my-secret"],
+    configmaps=["my-configmap"],
+    cpus=0.5,
+    memory_in_Gi=0.5,
+    local_ephemeral_storage_in_Gi=1,
+    startup_timeout_in_seconds=10 * 60,
+    large_ephemeral_storage_volume=EphemeralVolume(
+        "my-storage", 5, "/app/large_ephemeral_storage", "my-storage-type"
+    ),
+    env_vars={"key": "value"},
 )
 
 default_args = {
-    'owner': 'airflow',
-    'depend_on_past': False,
+    "owner": "airflow",
+    "depend_on_past": False,
     "start_date": datetime(2025, 8, 1, tz="Europe/Zurich"),
 }
 
 with DAG(
-    dag_id='run-container-on-kubernetes',
-    schedule='@once',
+    dag_id="example_dag",
+    schedule="@once",
     default_args=default_args,
     max_active_runs=1,
-    dagrun_timeout=timedelta(minutes=60*5),
+    dagrun_timeout=timedelta(minutes=60 * 5),
 ) as dag:
 
     my_task = KubernetesPodOperator(
         **operator_params,
-        name='my_task',
-        task_id='my_task',
+        name="my_task",
+        task_id="my_task",
         arguments=[
-'''
-echo "I run on kubernetes and have the following env vars" &&
-printenv
-'''
+            """
+    echo "I run on kubernetes and have the following env vars" &&
+    printenv
+    """
         ],
     )
+
 ```
 
 ##### Default DAG: HelloDATA Monitoring

@@ -361,6 +361,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
       createbuckets:
         condition: service_completed_successfully
     ports:

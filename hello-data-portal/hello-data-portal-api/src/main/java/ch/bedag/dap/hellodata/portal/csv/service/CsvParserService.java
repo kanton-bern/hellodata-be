@@ -25,8 +25,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.DATA_DOMAIN_VIEWER;
-import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.getByContextType;
+import static ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName.*;
 
 @Log4j2
 @Service
@@ -135,8 +134,11 @@ public class CsvParserService {
                 // Convert comma-separated Superset roles into a List
                 List<String> supersetRoles = supersetRoleRaw.isEmpty() ? List.of() : List.of(supersetRoleRaw.split(ROLE_DELIMITER));
                 log.debug("Superset roles for email {}: {}", email, supersetRoles);
-                // Ensure supersetRoles is empty if dataDomainRole is not "DATA_DOMAIN_VIEWER"
-                List<String> roles = DATA_DOMAIN_VIEWER.name().equals(dataDomainRole) ? supersetRoles : new ArrayList<>();
+                // Ensure supersetRoles is empty if dataDomainRole is not "DATA_DOMAIN_VIEWER" or "DATA_DOMAIN_BUSINESS_SPECIALIST"
+                List<String> roles = (DATA_DOMAIN_VIEWER.name().equals(dataDomainRole) ||
+                        DATA_DOMAIN_BUSINESS_SPECIALIST.name().equals(dataDomainRole))
+                        ? supersetRoles
+                        : new ArrayList<>();
                 CsvUserRole record = new CsvUserRole(email, businessDomainRole, context, dataDomainRole, roles);
                 log.debug("Adding record: {}", record);
                 records.add(record);

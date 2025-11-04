@@ -40,6 +40,7 @@ import {
 } from "../../../../store/users-management/users-management.selector";
 import {
   DashboardForUser,
+  DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE,
   DATA_DOMAIN_VIEWER_ROLE,
   NONE_ROLE,
   User,
@@ -101,7 +102,6 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   userSaveButtonDisabled$: Observable<boolean>;
   private userContextRoles$: Observable<any>;
   private userContextRolesSub!: Subscription;
-  private editedUserSuperuser = false;
 
   constructor() {
     super();
@@ -187,9 +187,9 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   onDataDomainRoleSelected($event: any, dataDomain: Context) {
-    if ($event.value.name === DATA_DOMAIN_VIEWER_ROLE) {
+    if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes($event.value.name)) {
       this.dashboardTableVisibility.set(dataDomain.contextKey as string, true);
-    } else if ($event.value.name !== DATA_DOMAIN_VIEWER_ROLE) {
+    } else if (![DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes($event.value.name)) {
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey: dataDomain.contextKey as string}));
       this.dashboardTableVisibility.set(dataDomain.contextKey as string, false);
     }
@@ -229,7 +229,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     if (userContextRoles.length > 0) {
       this.userForm = this.fb.group({});
       userContextRoles.forEach(userContextRole => {
-        if (userContextRole.role.name === DATA_DOMAIN_VIEWER_ROLE) {
+        if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes(userContextRole.role.name)) {
           this.dashboardTableVisibility.set(userContextRole.context.contextKey as string, true);
         }
         const disabled = editedUserSuperuser && !isCurrentSuperuser;

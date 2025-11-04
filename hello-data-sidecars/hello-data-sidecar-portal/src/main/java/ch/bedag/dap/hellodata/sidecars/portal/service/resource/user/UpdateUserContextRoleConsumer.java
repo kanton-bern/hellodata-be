@@ -82,6 +82,8 @@ public class UpdateUserContextRoleConsumer {
             case DATA_DOMAIN_ADMIN -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_ADMIN;
             case DATA_DOMAIN_EDITOR -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_EDITOR;
             case DATA_DOMAIN_VIEWER -> portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_VIEWER;
+            case DATA_DOMAIN_BUSINESS_SPECIALIST ->
+                    portalRoleName = SystemDefaultPortalRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST;
             default -> portalRoleName = null;
         }
         return portalRoleName;
