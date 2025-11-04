@@ -27,12 +27,11 @@
 
 import {TestBed} from '@angular/core/testing';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
-import {OidcSecurityService} from 'angular-auth-oidc-client';
+import {OidcSecurityService, UserDataResult} from 'angular-auth-oidc-client';
 import {of} from 'rxjs';
 import {AppInfoService} from './app-info.service';
 import {ActuatorInfo} from './interfaces/actuator-info';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
-import {UserDataResult} from "angular-auth-oidc-client/lib/user-data/userdata-result";
 import {AuthConfigModule} from "../../auth/auth-config.module";
 
 describe('AppInfoService', () => {
@@ -102,7 +101,7 @@ describe('AppInfoService', () => {
   });
 
   it('should return the title', () => {
-    expect(appInfoService.title).toBe('HelloDATA | Portal');
+    expect(appInfoService.title).toBe('HelloDATA BE | Portal');
   });
 
   it('should return the current year', () => {
