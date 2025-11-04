@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectBreadcrumbs} from "../../store/breadcrumb/breadcrumb.selector";
@@ -51,6 +51,7 @@ export class BreadcrumbService {
       map(([breadcrumbs, _]) => {
         const translatedBreadCrumbs: MenuItem[] = []
         breadcrumbs.forEach(breadcrumb => {
+          console.log('breadcrumb', breadcrumb);
           const labelTranslated = breadcrumb.label?.startsWith('@') ? this.translateService.translate(breadcrumb.label as string) : breadcrumb.label
           translatedBreadCrumbs.push({
             ...breadcrumb,
