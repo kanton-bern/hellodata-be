@@ -34,8 +34,15 @@ import {naviElements} from '../../../app-navi-elements';
 import {Announcement} from '../../../store/announcement/announcement.model';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {TranslocoTestingModule} from "@jsverse/transloco";
-import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
+import {
+  deleteAnnouncement,
+  loadAllAnnouncements,
+  openAnnouncementEdition,
+  showDeleteAnnouncementPopup
+} from "../../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {ConfirmationService} from "primeng/api";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('AnnouncementsManagementComponent', () => {
   let component: AnnouncementsManagementComponent;
@@ -50,15 +57,23 @@ describe('AnnouncementsManagementComponent', () => {
 
   const mockAnnouncement: Announcement = {
     id: '1',
-    message: 'Test Announcement',
     published: true,
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [AnnouncementsManagementComponent],
-      imports: [TranslocoTestingModule],
-      providers: [{provide: Store, useValue: mockStore}],
+      imports: [
+        AnnouncementsManagementComponent,
+        HttpClientTestingModule,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),],
+      providers: [{provide: Store, useValue: mockStore}, ConfirmationService],
     });
 
     fixture = TestBed.createComponent(AnnouncementsManagementComponent);
@@ -97,7 +112,6 @@ describe('AnnouncementsManagementComponent', () => {
   it('should dispatch openAnnouncementEdition with data when editAnnouncement is called', () => {
     const mockData: Announcement = {
       id: '2',
-      message: 'Another Announcement',
       published: false,
     };
     component.editAnnouncement(mockData);

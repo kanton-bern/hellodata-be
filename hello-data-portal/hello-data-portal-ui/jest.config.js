@@ -39,11 +39,12 @@ module.exports = {
       {
         tsconfig: '<rootDir>/tsconfig.spec.json',
         stringifyContentPathRegex: '\\.html$',
+        useESM: true
       },
     ],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!.*\\.mjs$|(@angular|rxjs|primeng)/)',
+    'node_modules/(?!.*\\.mjs$|(@angular|rxjs|primeng|@jsverse)/)',
   ],
   collectCoverageFrom: ['src/**/*.{ts,js}', '!src/main.ts', '!src/polyfills.ts'],
   coverageDirectory: 'target/coverage',
