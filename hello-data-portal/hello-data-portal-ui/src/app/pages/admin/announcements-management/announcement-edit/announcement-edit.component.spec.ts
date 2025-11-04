@@ -33,7 +33,13 @@ import {AnnouncementEditComponent} from './announcement-edit.component';
 import {AppState} from '../../../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {TestModule} from "../../../../test.module";
-import {deleteEditedAnnouncement, showDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
+import {
+  deleteEditedAnnouncement,
+  showDeleteAnnouncementPopup
+} from "../../../../store/announcement/announcement.action";
+import {ConfirmationService} from "primeng/api";
+import {TranslocoTestingModule} from "@jsverse/transloco";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
 
 describe('AnnouncementEditComponent', () => {
   let component: AnnouncementEditComponent;
@@ -48,9 +54,24 @@ describe('AnnouncementEditComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [AnnouncementEditComponent],
-      imports: [ReactiveFormsModule],
-      providers: [{provide: Store, useValue: mockStore}, TestModule],
+      imports: [
+        ReactiveFormsModule,
+        AnnouncementEditComponent,
+        HttpClientTestingModule,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        {provide: Store, useValue: mockStore},
+        TestModule,
+        ConfirmationService,
+      ],
     });
 
     fixture = TestBed.createComponent(AnnouncementEditComponent);

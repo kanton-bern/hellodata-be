@@ -73,7 +73,8 @@ describe('AnnouncementsManagementComponent', () => {
             defaultLang: 'en',
           },
           preloadLangs: true,
-        }),],
+        }),
+      ],
       providers: [
         {provide: Store, useValue: mockStore},
         ConfirmationService,
