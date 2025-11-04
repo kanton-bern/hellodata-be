@@ -63,14 +63,21 @@ describe('MyDashboardsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [MyDashboardsComponent],
       providers: [
         {provide: Store, useValue: mockStore},
         {provide: ActivatedRoute, useValue: mockActivatedRoute},
         {provide: MenuService, useValue: mockMenuService},
       ],
       imports: [
-        TranslocoTestingModule
+        TranslocoTestingModule, MyDashboardsComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
       ],
     });
 
