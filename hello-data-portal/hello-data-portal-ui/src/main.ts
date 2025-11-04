@@ -61,22 +61,26 @@ import Material from "@primeuix/themes/material";
 
 async function loadLocaleData(locale: string) {
   switch (locale) {
-    case 'de-CH':
+    case 'de-CH': {
       const {default: deCh} = await import('@angular/common/locales/de-CH');
       registerLocaleData(deCh);
       break;
-    case 'fr-CH':
+    }
+    case 'fr-CH': {
       const {default: frCh} = await import('@angular/common/locales/fr-CH');
       registerLocaleData(frCh);
       break;
-    case 'en-US':
+    }
+    case 'en-US': {
       const {default: enUs} = await import('@angular/common/locales/en');
       registerLocaleData(enUs);
       break;
-    default:
+    }
+    default: {
       const {default: en} = await import('@angular/common/locales/en');
       registerLocaleData(en);
       console.warn(`Locale data for '${locale}' not found, falling back to 'en-US'`);
+    }
   }
 }
 

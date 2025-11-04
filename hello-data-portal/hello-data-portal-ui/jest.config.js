@@ -24,45 +24,50 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+/**
+ * Jest configuration for Angular 17+ with jest-preset-angular
+ */
 module.exports = {
-  "preset": "jest-preset-angular",
-  "setupFilesAfterEnv": [
-    "<rootDir>/setup-jest.ts"
-  ],
-  "collectCoverageFrom": [
-    "src/**/*.{ts,js}"
-  ],
-  "coverageDirectory": "target/coverage",
-  "coverageReporters": [
-    "lcov"
-  ],
-  "coveragePathIgnorePatterns": [
-    "<rootDir>/src/app/core/"
-  ],
-  "modulePaths": [
-    "<rootDir>"
-  ],
-  "moduleDirectories": [
-    "node_modules",
-    "src"
-  ],
-  "reporters": [
-    "default",
-    [
-      "jest-junit",
+  preset: 'jest-preset-angular',
+  testEnvironment: 'jsdom', // 👈 required since Jest 28+
+  setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
+  testMatch: ['**/__tests__/**/*.spec.ts', '**/?(*.)+(spec|test).ts'],
+  moduleFileExtensions: ['ts', 'html', 'js', 'json'],
+  transform: {
+    '^.+\\.(ts|mjs|js|html)$': [
+      'jest-preset-angular',
       {
-        "outputDirectory": "target",
-        "outputName": "jest-junit.xml"
-      }
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        stringifyContentPathRegex: '\\.html$',
+      },
+    ],
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!.*\\.mjs$|(@angular|rxjs|primeng)/)',
+  ],
+  collectCoverageFrom: ['src/**/*.{ts,js}', '!src/main.ts', '!src/polyfills.ts'],
+  coverageDirectory: 'target/coverage',
+  coverageReporters: ['lcov', 'text-summary'],
+  coveragePathIgnorePatterns: ['<rootDir>/src/app/core/'],
+  modulePaths: ['<rootDir>'],
+  moduleDirectories: ['node_modules', 'src'],
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: 'target',
+        outputName: 'jest-junit.xml',
+      },
     ],
     [
-      "jest-sonar",
+      'jest-sonar',
       {
-        "outputDirectory": "target",
-        "outputName": "jest-sonar.xml",
-        "reportedFilePath": "relative",
-        "relativeRootDir": ".."
-      }
-    ]
-  ]
+        outputDirectory: 'target',
+        outputName: 'jest-sonar.xml',
+        reportedFilePath: 'relative',
+        relativeRootDir: '..',
+      },
+    ],
+  ],
 };
