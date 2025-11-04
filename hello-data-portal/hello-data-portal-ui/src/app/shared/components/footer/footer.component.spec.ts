@@ -30,7 +30,9 @@ import {FooterComponent} from './footer.component';
 import {AppInfoService} from '../../services';
 import {TestModule} from "../../../test.module";
 import {TitleCasePipe} from "@angular/common";
-import {beforeEach, describe, expect, it} from "@jest/globals";
+import {beforeEach, describe, expect, it, jest} from "@jest/globals";
+import {TranslocoTestingModule} from "@jsverse/transloco";
+import {MatomoTracker} from "ngx-matomo-client";
 
 class MockAppInfoService {
   getAppInfo() {
@@ -46,11 +48,22 @@ describe('FooterComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [FooterComponent],
-      imports: [TestModule],
+      imports: [
+        TestModule,
+        FooterComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
       providers: [
         {provide: AppInfoService, useClass: MockAppInfoService},
         TitleCasePipe,
+        {provide: MatomoTracker, useValue: {trackEvent: jest.fn(), trackPageView: jest.fn()}},
       ],
     });
     fixture = TestBed.createComponent(FooterComponent);
