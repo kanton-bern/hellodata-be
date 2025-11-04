@@ -92,7 +92,6 @@ body {
 //new menu start
 
 p-tieredmenu > div {
-  position: absolute !important;
   width: 100% !important;
   border: none !important;
 }
@@ -111,7 +110,7 @@ p-tieredmenu {
 }
 
 p-tieredmenu > div > p-tieredmenusub > ul {
-  padding-left: 4px;
+  padding: 0 2px 0 0;
 }
 
 p-tieredmenu > div > p-tieredmenusub > ul > li {
@@ -134,6 +133,10 @@ p-tieredmenu .p-menuitem-link {
   display: inline-block;
 }
 
+p-tieredmenusub {
+  width: 100%;
+}
+
 
 p-tieredmenusub p-tieredmenusub ul li div a {
   padding: 3px 3px 3px 0;
@@ -144,6 +147,13 @@ p-tieredmenusub p-tieredmenusub ul li div a span {
   margin-left: 0;
   font-size: 1.1rem;
   font-weight: 300;
+}
+
+.first-level-item .text-container {
+  /* Ensure text wraps within container */
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 // new menu end

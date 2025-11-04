@@ -25,37 +25,33 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, inject, input } from '@angular/core';
+import {Component, inject, input} from '@angular/core';
 
-import { CommonModule, NgClass, NgStyle, AsyncPipe } from '@angular/common';
-
-import {RouterLink, RouterOutlet} from '@angular/router';
-import {ScrollPanelModule} from "primeng/scrollpanel";
+import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import { TooltipModule, Tooltip } from "primeng/tooltip";
-import {DividerModule} from "primeng/divider";
-import { ToastModule, Toast } from "primeng/toast";
-import { ScrollTopModule, ScrollTop } from "primeng/scrolltop";
-import { UnsavedChangesDialogComponent } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {Tooltip} from "primeng/tooltip";
+import {Toast} from "primeng/toast";
+import {ScrollTop} from "primeng/scrolltop";
+import {
+  UnsavedChangesDialogComponent
+} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
 import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
-import {MatomoTrackClickDirective, MatomoTrackerDirective} from "ngx-matomo-client";
 import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
-import { TieredMenuModule, TieredMenu } from "primeng/tieredmenu";
-import { BadgeModule, Badge } from "primeng/badge";
-import { MenuItem, PrimeTemplate } from "primeng/api";
+import {TieredMenu} from "primeng/tieredmenu";
+import {Badge} from "primeng/badge";
+import {MenuItem, PrimeTemplate} from "primeng/api";
 import {Ripple} from "primeng/ripple";
-import { HeaderComponent } from '../../shared/components/header/header.component';
-import { SummaryComponent } from '../../shared/components/summary/summary.component';
+import {HeaderComponent, SummaryComponent} from '../../shared/components';
 
 @Component({
-    selector: 'app-side-nav-outer-toolbar',
-    templateUrl: './side-nav-outer-toolbar.component.html',
-    styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-    imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, ScrollTop, NgStyle, SummaryComponent, Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
+  selector: 'app-side-nav-outer-toolbar',
+  templateUrl: './side-nav-outer-toolbar.component.html',
+  styleUrls: ['./side-nav-outer-toolbar.component.scss'],
+  imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, ScrollTop, NgStyle, SummaryComponent, Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
   private store = inject<Store<AppState>>(Store);
