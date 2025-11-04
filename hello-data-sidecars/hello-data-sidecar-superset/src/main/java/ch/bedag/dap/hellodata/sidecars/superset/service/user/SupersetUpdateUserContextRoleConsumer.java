@@ -112,7 +112,7 @@ public class SupersetUpdateUserContextRoleConsumer {
                     assignRoleToUser(SlugifyUtil.BI_EDITOR_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SQL_LAB_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
-                case DATA_DOMAIN_VIEWER ->
+                case DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST ->
                         assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 case NONE -> {
                     removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);

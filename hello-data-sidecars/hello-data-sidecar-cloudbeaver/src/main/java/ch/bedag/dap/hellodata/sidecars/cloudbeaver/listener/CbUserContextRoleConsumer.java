@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_USER_CONTEXT_ROLE;
+import static ch.bedag.dap.hellodata.sidecars.cloudbeaver.listener.CbUserUtil.generateCbUser;
 
 @Log4j2
 @Service
@@ -59,7 +60,7 @@ public class CbUserContextRoleConsumer {
     public void subscribeToUserContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("[UPDATE_USER_CONTEXT_ROLE] Received user context role update {}", userContextRoleUpdate);
         processContextRoleUpdate(userContextRoleUpdate);
-   }
+    }
 
     public void processContextRoleUpdate(UserContextRoleUpdate userContextRoleUpdate) {
         log.info("--> process email: {}", userContextRoleUpdate.getEmail());
@@ -72,7 +73,7 @@ public class CbUserContextRoleConsumer {
         }
         Set<UserContextRoleUpdate.ContextRole> userDataDomainKeys = getRelevantUserDataDomainContextKeys(userContextRoleUpdate);
         if (!userDataDomainKeys.isEmpty()) {
-            List<Role> userRoles = mapUserRoles(user, userDataDomainKeys);
+            List<Role> userRoles = mapUserRoles(userDataDomainKeys);
             user.setRoles(userRoles);
             log.info("Update roles {} for user: {}", userRoles, user.getEmail());
         } else {
@@ -81,7 +82,6 @@ public class CbUserContextRoleConsumer {
         }
         userRepository.saveAndFlush(user);
 
-        //ToDo: Move this to subscribeToUserContextRoleUpdate method
         if (userContextRoleUpdate.isSendBackUsersList()) {
             userResourceProviderService.publishUsers();
         }
@@ -97,41 +97,43 @@ public class CbUserContextRoleConsumer {
     }
 
     private User toCbUser(UserContextRoleUpdate userContextRoleUpdate) {
-        User dbtDocUser = new User(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
-        dbtDocUser.setRoles(new ArrayList<>());
-        dbtDocUser.setFirstName(userContextRoleUpdate.getFirstName());
-        dbtDocUser.setLastName(userContextRoleUpdate.getLastName());
-        dbtDocUser.setEnabled(true);
-        dbtDocUser.setSuperuser(false);
-        return dbtDocUser;
+        return generateCbUser(userContextRoleUpdate.getUsername(),
+                userContextRoleUpdate.getEmail(),
+                userContextRoleUpdate.getFirstName(),
+                userContextRoleUpdate.getLastName());
     }
 
-    private List<Role> mapUserRoles(User user, Set<UserContextRoleUpdate.ContextRole> dataDomainContexts) {
+    private List<Role> mapUserRoles(Set<UserContextRoleUpdate.ContextRole> dataDomainContexts) {
         log.debug("--> mapping context to roles {}", dataDomainContexts);
         List<Role> allCbRoles = roleRepository.findAll();
-        return mapRoles(user, dataDomainContexts, allCbRoles);
+        return mapRoles(dataDomainContexts, allCbRoles);
     }
 
-    static List<Role> mapRoles(User user, Set<UserContextRoleUpdate.ContextRole> dataDomainContexts, List<Role> allCbRoles) {
+    static List<Role> mapRoles(Set<UserContextRoleUpdate.ContextRole> dataDomainContexts, List<Role> allCbRoles) {
         Set<Role> newDistinctUserRoles = new HashSet<>();
-        // do the mapping in between HelloDATA and Cloudbeaver roles
-        allCbRoles.forEach(role -> dataDomainContexts.forEach(dataDomainContext -> {
-            if (dataDomainContext.getRoleName() == HdRoleName.HELLODATA_ADMIN && role.getKey().equalsIgnoreCase(Role.ADMIN_ROLE_KEY)) {
-                newDistinctUserRoles.add(role);
-            } else {
+        for (Role role : allCbRoles) {
+            dataDomainContexts.forEach(dataDomainContext -> {
+                if (dataDomainContext.getRoleName() == HdRoleName.HELLODATA_ADMIN && role.getKey().equalsIgnoreCase(Role.ADMIN_ROLE_KEY)) {
+                    newDistinctUserRoles.add(role);
+                    return;
+                }
+
                 String contextKeyUppercase = dataDomainContext.getContextKey().toUpperCase(Locale.ROOT);
+
                 if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_ADMIN &&
-                    role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DWH_PRIVILEGE)) {
+                        role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DWH_PRIVILEGE)) {
                     newDistinctUserRoles.add(role);
-                } else if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_ADMIN &&
-                    role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DM_PRIVILEGE)) {
-                    newDistinctUserRoles.add(role);
-                } else if (dataDomainContext.getRoleName() == HdRoleName.DATA_DOMAIN_EDITOR &&
-                    role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DM_PRIVILEGE)) {
+                    return;
+                }
+
+                List<HdRoleName> dmViewRoleNames = List.of(HdRoleName.DATA_DOMAIN_ADMIN, HdRoleName.DATA_DOMAIN_EDITOR, HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST);
+                if (dmViewRoleNames.contains(dataDomainContext.getRoleName()) &&
+                        role.getKey().equalsIgnoreCase(contextKeyUppercase + "_" + Privilege.READ_DM_PRIVILEGE)) {
                     newDistinctUserRoles.add(role);
                 }
-            }
-        }));
+            });
+        }
         return new ArrayList<>(newDistinctUserRoles);
     }
+
 }

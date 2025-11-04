@@ -42,7 +42,8 @@ public enum SystemDefaultPortalRoleName {
             Permission.DATA_JUPYTER, Permission.USERS_OVERVIEW, Permission.DATA_FILEBROWSER, Permission.DASHBOARD_ACCESS)),
     DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG, Permission.DATA_JUPYTER, Permission.DATA_FILEBROWSER)),
     DATA_DOMAIN_EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_FILEBROWSER)),
-    DATA_DOMAIN_VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE));
+    DATA_DOMAIN_VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE)),
+    DATA_DOMAIN_BUSINESS_SPECIALIST(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS));
 
     private final List<Permission> permissions;
 }
