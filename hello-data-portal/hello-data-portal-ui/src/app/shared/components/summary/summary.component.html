@@ -12,7 +12,7 @@
                 <p-accordion-header>Data pipelines</p-accordion-header>
                 <p-accordion-content>
                   @if ((pipelines$ | async); as pipelines) {
-                    @for (pipeline of pipelines; track pipeline; let first = $first) {
+                    @for (pipeline of pipelines; track pipeline.id; let first = $first) {
                       <div class="p-grid grid">
                         <div class="col-8">
                           <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
