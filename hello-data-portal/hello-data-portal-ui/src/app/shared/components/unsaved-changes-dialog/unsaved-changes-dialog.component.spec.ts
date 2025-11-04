@@ -49,8 +49,7 @@ describe('UnsavedChangesDialogComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [UnsavedChangesDialogComponent],
-      imports: [ConfirmDialogModule],
+      imports: [ConfirmDialogModule, UnsavedChangesDialogComponent],
       providers: [{provide: Store, useValue: mockStore}, ConfirmationService],
     });
 
