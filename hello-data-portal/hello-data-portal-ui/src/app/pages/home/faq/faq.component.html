@@ -5,20 +5,20 @@
         @if ((faq$ | async); as faq) {
           <div>
             <p-table [paginator]="true"
-              [rowHover]="true"
-              [rows]="5"
-              [showCurrentPageReport]="true"
-              [tableStyle]="{ 'min-width': '20rem' }"
-              [value]="faq"
-              dataKey="id">
+                     [rowHover]="true"
+                     [rows]="5"
+                     [showCurrentPageReport]="true"
+                     [tableStyle]="{ 'min-width': '20rem' }"
+                     [value]="faq"
+                     dataKey="id">
               <ng-template pTemplate="header">
                 <tr>
                   <th id="icon"></th>
                   <th id="dataDomain" pSortableColumn="contextKey">{{ '@Data domain' | transloco }}
-                    <p-sortIcon field="contextKey" />
+                    <p-sortIcon field="contextKey"/>
                   </th>
                   <th id="name" pSortableColumn="name">{{ '@Faq' | transloco }}
-                    <p-sortIcon field="name" />
+                    <p-sortIcon field="name"/>
                   </th>
                 </tr>
               </ng-template>
@@ -31,23 +31,23 @@
                     {{ item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName }}
                   </td>
                   <td>
-                    <p-accordion>
-                      @for (domainFaq of item.faqs; track domainFaq) {
-                        <p-accordion-panel style="white-space: pre-wrap;">
+                    <p-accordion value="0">
+                      @for (domainFaq of item.faqs; track $index) {
+                        <p-accordion-panel style="white-space: pre-wrap;" [value]="$index">
                           <p-accordion-header>
                             <span matomoCategory="FAQ"
-                              matomoAction="[Click] - Open FAQ question"
-                              [matomoTracker]="['click']">
+                                  matomoAction="[Click] - Open FAQ question"
+                                  [matomoTracker]="['click']">
                               {{ getTitle(domainFaq, selectedLanguage.code, defaultLanguage) }}
                             </span>
                           </p-accordion-header>
                           <p-accordion-content>
                             <p-editor [disabled]="true"
-                              [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
-                              [readonly]="true"
-                              [style]="{ height: '320px', 'white-space': 'pre-wrap' }"
-                              class="p-editor-readonly">
-                              <p-header hidden />
+                                      [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
+                                      [readonly]="true"
+                                      [style]="{ height: '320px', 'white-space': 'pre-wrap' }"
+                                      class="p-editor-readonly">
+                              <p-header hidden/>
                             </p-editor>
                           </p-accordion-content>
                         </p-accordion-panel>

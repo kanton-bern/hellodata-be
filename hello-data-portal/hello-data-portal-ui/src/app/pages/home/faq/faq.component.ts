@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {combineLatest, map, Observable} from "rxjs";
 import {Faq} from "../../../store/faq/faq.model";
 import {Store} from "@ngrx/store";
@@ -34,21 +34,20 @@ import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
-import { AsyncPipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate, SharedModule } from 'primeng/api';
-import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
-import { Ripple } from 'primeng/ripple';
-import { MatomoTrackerDirective } from 'ngx-matomo-client';
-import { Editor } from 'primeng/editor';
-import { FormsModule } from '@angular/forms';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate, SharedModule} from 'primeng/api';
+import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
+import {MatomoTrackerDirective} from 'ngx-matomo-client';
+import {Editor} from 'primeng/editor';
+import {FormsModule} from '@angular/forms';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-faq',
-    templateUrl: './faq.component.html',
-    styleUrls: ['./faq.component.scss'],
-    imports: [TableModule, PrimeTemplate, Accordion, AccordionPanel, Ripple, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
+  selector: 'app-faq',
+  templateUrl: './faq.component.html',
+  styleUrls: ['./faq.component.scss'],
+  imports: [TableModule, PrimeTemplate, Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
 })
 export class FaqComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
@@ -111,7 +110,6 @@ export class FaqComponent implements OnInit {
     )
   }
 
-  protected readonly onclick = onclick;
 }
 
 export interface GroupedFaq {
