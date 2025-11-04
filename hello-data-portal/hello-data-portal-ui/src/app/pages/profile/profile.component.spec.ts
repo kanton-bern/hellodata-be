@@ -48,10 +48,17 @@ describe('ProfileComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ProfileComponent],
       providers: [{provide: Store, useValue: mockStore}],
       imports: [
-        TranslocoTestingModule
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+        ProfileComponent
       ],
     });
 
