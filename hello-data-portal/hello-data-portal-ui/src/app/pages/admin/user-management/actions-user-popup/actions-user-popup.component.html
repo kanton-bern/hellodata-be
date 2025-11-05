@@ -5,13 +5,12 @@
     </ng-template>
     {{ confirmAction(userForPopup) }}
     <ng-template pTemplate="footer">
-      <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-      type="button" severity="secondary" />
+      <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+                type="button" severity="secondary"/>
       <p-button (click)="cd.onAccept()"
-        [severity]="getButtonTypeForAction(userForPopup)"
-        label="{{getActionTranslationKey(userForPopup) | transloco}}"
-        pButton
-      type="button" />
+                [severity]="getButtonTypeForAction(userForPopup)"
+                label="{{getActionTranslationKey(userForPopup) | transloco}}"
+                type="button"/>
     </ng-template>
   </p-confirmDialog>
 }
