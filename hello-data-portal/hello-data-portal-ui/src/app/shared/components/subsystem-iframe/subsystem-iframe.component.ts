@@ -80,7 +80,9 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
           this.frameUrl = this.accessTokenInQueryParam() ? this.url() + '?auth.access_token=' + value : this.url();
           this.iframeSetup.emit(true);
           if (this.switchStyleOverflow()) {
-            document.getElementById('mainContentDiv')!.style.overflow = 'hidden';
+            const mainContentDiv = document.getElementById('mainContentDiv');
+            mainContentDiv!.style.overflow = 'hidden';
+            mainContentDiv!.style.height = '100vh';
           }
           this.clickScrollTopIfExists();
         }, this.delay())
@@ -104,6 +106,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (this.switchStyleOverflow() && mainContentDiv) {
       mainContentDiv!.style.overflow = 'auto';
+      mainContentDiv!.style.height = '';
     }
   }
 
