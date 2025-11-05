@@ -3,11 +3,10 @@
 <!-- Top Bar -->
 <div class="grid w-full bg-white surface-border border-bottom-1 fixed top-0 left-0 z-5" style="height: 4rem;">
   <div class="col-12 flex pt-1">
-    <div class="col-2 flex align-items-center justify-content-start h-full">
-      <p-button
-        type="button" severity="secondary"
-        (click)="showDashboardMenu = true"
-        aria-label="Open menu">
+    <div class="col-2 flex align-items-center justify-content-start h-full pl-3">
+      <p-button type="button" severity="secondary"
+                (click)="showDashboardMenu = true"
+                aria-label="Open menu">
         <i class="pi pi-bars text-2xl" style="color: black"></i>
       </p-button>
     </div>
@@ -24,7 +23,7 @@
       }
     </div>
 
-    <div class="col-2 flex align-items-center justify-content-end h-full">
+    <div class="col-2 flex align-items-end justify-content-end h-full">
       <p-button pRipple
                 type="button" severity="secondary"
                 aria-label="User Profile">
