@@ -28,7 +28,7 @@
 import {Component, inject, output} from '@angular/core';
 import {Drawer} from 'primeng/drawer';
 import {ScrollPanel, ScrollPanelModule} from "primeng/scrollpanel";
-import {AsyncPipe, DatePipe, JsonPipe, NgClass} from "@angular/common";
+import {AsyncPipe, DatePipe, NgClass} from "@angular/common";
 import {Fieldset} from "primeng/fieldset";
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from "primeng/accordion";
 import {Editor} from "primeng/editor";
@@ -66,7 +66,10 @@ import {TruncatePipe} from "../../pipes/truncate.pipe";
   selector: 'app-summary',
   templateUrl: './summary.component.html',
   styleUrls: ['./summary.component.scss'],
-  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader, AccordionContent, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule, SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe, TranslocoPipe, JsonPipe, TruncatePipe, DatePipe]
+  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader,
+    AccordionContent, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule,
+    SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe,
+    TranslocoPipe, TruncatePipe, DatePipe]
 })
 export class SummaryComponent {
   private store = inject<Store<AppState>>(Store);
