@@ -29,7 +29,7 @@ import {Component, inject} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
-import {combineLatest, debounceTime, Observable, tap} from "rxjs";
+import {combineLatest, debounceTime, Observable, Subscription, tap} from "rxjs";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {
   loadPublishedAnnouncementsFiltered,
@@ -63,6 +63,7 @@ export class PublishedAnnouncementsWrapperComponent {
 
   publishedAnnouncements$: Observable<any>;
   ref: DynamicDialogRef | null = null;
+  onCloseSubscription!: Subscription | undefined;
 
   constructor() {
     this.hide = this.hide.bind(this);
@@ -100,7 +101,10 @@ export class PublishedAnnouncementsWrapperComponent {
       closable: true,
       modal: true,
     });
-    this.ref?.onClose.pipe(take(1)).subscribe(() => {
+    if (this.onCloseSubscription) {
+      this.onCloseSubscription.unsubscribe();
+    }
+    this.onCloseSubscription = this.ref?.onClose.pipe(take(1)).subscribe(() => {
       if (this.hideAllCurrentAnnouncementsService.hide) {
         for (const announcement of announcements) {
           this.hide(announcement);
