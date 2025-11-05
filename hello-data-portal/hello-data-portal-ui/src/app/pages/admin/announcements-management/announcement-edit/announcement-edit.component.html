@@ -91,48 +91,7 @@
               <p-tabpanel [value]="$index">
                 <div class="field grid">
                   <div class="col-12 md:col-12">
-                    <p-editor [formControl]="getMessage(language)" [style]="{ width: '100%' }">
-                      <ng-template pTemplate="header">
-                        <span class="ql-formats">
-                          <select class="ql-header">
-                            <option value="1">Heading</option>
-                            <option value="2">Subheading</option>
-                            <option selected>Normal</option>
-                          </select>
-                          <select class="ql-font">
-                            <option selected>Sans Serif</option>
-                            <option value="serif">Serif</option>
-                            <option value="monospace">Monospace</option>
-                          </select>
-                        </span>
-                        <span class="ql-formats">
-                          <p-button aria-label="Bold" class="ql-bold" type="button"/>
-                          <p-button aria-label="Italic" class="ql-italic" type="button"/>
-                          <p-button aria-label="Underline" class="ql-underline" type="button"/>
-                        </span>
-                        <span class="ql-formats">
-                          <select class="ql-color"></select>
-                          <select class="ql-background"></select>
-                        </span>
-                        <span class="ql-formats">
-                          <p-button aria-label="Ordered List" class="ql-list" type="button" value="ordered"/>
-                          <p-button aria-label="Unordered List" class="ql-list" type="button" value="bullet"/>
-                          <select class="ql-align">
-                            <option selected></option>
-                            <option value="center">center</option>
-                            <option value="right">right</option>
-                            <option value="justify">justify</option>
-                          </select>
-                        </span>
-                        <span class="ql-formats">
-                          <p-button aria-label="Insert Link" class="ql-link" type="button"/>
-                          <p-button aria-label="Insert Code Block" class="ql-code-block" type="button"/>
-                        </span>
-                        <span class="ql-formats">
-                          <p-button aria-label="Remove Styles" class="ql-clean" type="button"/>
-                        </span>
-                      </ng-template>
-                    </p-editor>
+                    <p-editor [formControl]="getMessage(language)" [style]="{ width: '100%' }"/>
                   </div>
                 </div>
               </p-tabpanel>
