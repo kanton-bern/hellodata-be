@@ -49,8 +49,8 @@
 <section class="content-section">
   <app-header [title]="title()"/>
   <div class="grid">
-    <div [ngClass]="'col'" [style]="{height: 'calc(100vh)', 'overflow-y': 'scroll'}" id="mainContentDiv">
-      <ng-content ng-style="width: 100%"/>
+    <div [ngClass]="'col'" [style]="{ 'overflow-y': 'scroll'}" id="mainContentDiv">
+      <ng-content/>
       <p-scrollTop [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}" [threshold]="10" icon="fas fa-arrow-up"
                    target="parent"/>
     </div>

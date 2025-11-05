@@ -17,7 +17,7 @@
       @if ((selectedDataDomain$ | async); as selectedDataDomain) {
         <span>
           <a (click)="showDataDomainMenu = true" style="cursor: pointer; font-size: 0.9rem"
-            class="route-link p-button-link align-self-end layout-topbar-button" pRipple>
+             class="route-link p-button-link align-self-end layout-topbar-button" pRipple>
             <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
             <i class="fas fa-chevron-down p-1"></i>
           </a>
@@ -27,9 +27,9 @@
 
     <div class="col-2 flex align-items-center justify-content-end h-full">
       <p-button pRipple
-        type="button"
-        class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
-        aria-label="User Profile">
+                type="button"
+                class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
+                aria-label="User Profile">
         <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
       </p-button>
     </div>
@@ -52,7 +52,7 @@
           <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
           @for (dash of groupedDashboards.get(context); track dash) {
             <a class="cursor-pointer hover:underline ml-2 text-black"
-              (click)="openDashboard(dash)">
+               (click)="openDashboard(dash)">
               {{ dash.dashboardTitle }}
             </a>
             <hr class="my-1 border-top-1 surface-border"/>
@@ -77,7 +77,7 @@
       <span class="mr-3 top-menu-item">
         @for (item of supportedLanguages; track item; let i = $index; let last = $last) {
           <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
-            (click)="onLanguageChange(item.code)">
+             (click)="onLanguageChange(item.code)">
             {{ item.label }}
           </a>
           @if (!last) {
@@ -91,16 +91,16 @@
     <div class="flex flex-column gap-3 text-900">
       <hr class="m-0 border-top-1 surface-border"/>
       <a (click)="navigateToProfile()"
-        class="cursor-pointer hover:underline"
-        style="color: black;">
+         class="cursor-pointer hover:underline"
+         style="color: black;">
         {{ '@Profile' | transloco }}
       </a>
 
       <hr class="m-0 border-top-1 surface-border"/>
 
       <a (click)="logout()"
-        class="cursor-pointer hover:underline"
-        style="color: black;">
+         class="cursor-pointer hover:underline"
+         style="color: black;">
         {{ '@Logout' | transloco }}
       </a>
 
@@ -138,8 +138,8 @@
       <hr class="m-0 border-top-1 surface-border"/>
       @for (item of dataDomainSelectionItems; track item) {
         <a class="cursor-pointer hover:underline"
-          style="color: black;"
-          (click)="onDataDomainClicked(item)">
+           style="color: black;"
+           (click)="onDataDomainClicked(item)">
           {{ item.label | transloco }}
         </a>
         <hr class="m-0 border-top-1 surface-border"/>
@@ -149,9 +149,9 @@
 </p-drawer>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
-  <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}"
-    id="mainContentDiv">
-    <ng-content ng-style="width: 100%" />
+  <div [ngClass]="'col'" [style]="{'overflow-y': 'scroll', 'margin-top': '3rem'}"
+       id="mainContentDiv">
+    <ng-content ng-style="width: 100%"/>
   </div>
 </div>
 

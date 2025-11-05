@@ -137,7 +137,7 @@
         <app-footer [appInfo]="appInfo"/>
       </ng-template>
     </p-drawer>
-    <p-scrollPanel [style]="{ width: '100%', height: 'calc(100vh - 4rem)' }">
+    <p-scrollPanel [style]="{ width: '100%' }">
       <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
            class="summary-header">
         {{ '@Summary header' | transloco }}
