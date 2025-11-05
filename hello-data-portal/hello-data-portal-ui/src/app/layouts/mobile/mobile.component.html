@@ -5,8 +5,7 @@
   <div class="col-12 flex pt-1">
     <div class="col-2 flex align-items-center justify-content-start h-full">
       <p-button
-        type="button" pRipple
-        class="p-button p-button-text h-full flex align-items-center justify-content-center"
+        type="button" severity="secondary"
         (click)="showDashboardMenu = true"
         aria-label="Open menu">
         <i class="pi pi-bars text-2xl" style="color: black"></i>
@@ -17,7 +16,7 @@
       @if ((selectedDataDomain$ | async); as selectedDataDomain) {
         <span>
           <a (click)="showDataDomainMenu = true" style="cursor: pointer; font-size: 0.9rem"
-             class="route-link p-button-link align-self-end layout-topbar-button" pRipple>
+             class="align-self-end layout-topbar-button">
             <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
             <i class="fas fa-chevron-down p-1"></i>
           </a>
@@ -27,8 +26,7 @@
 
     <div class="col-2 flex align-items-center justify-content-end h-full">
       <p-button pRipple
-                type="button"
-                class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
+                type="button" severity="secondary"
                 aria-label="User Profile">
         <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
       </p-button>
@@ -40,7 +38,6 @@
 <p-drawer
   [(visible)]="showDashboardMenu"
   position="left"
-  [modal]="true"
   [baseZIndex]="10000">
   <ng-template pTemplate="header">
     <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Dashboard' | transloco }}</div>
@@ -67,10 +64,8 @@
 <p-drawer
   [(visible)]="showUserMenu"
   position="top"
-  [modal]="true"
   [baseZIndex]="10000"
   class="p-4"
-  [fullScreen]="false"
   [style]="{'height': 'auto'}">
   <ng-template pTemplate="header">
     @if ((languages$ | async); as languages) {
@@ -127,9 +122,8 @@
   position="top"
   [modal]="true"
   [baseZIndex]="10000"
-  class="p-4"
-  [fullScreen]="false"
-  [style]="{'height': 'auto'}">
+  [style]="{'height': 'auto'}"
+  class="p-4">
   <ng-template pTemplate="header">
     <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Data Domain' | transloco }}</div>
   </ng-template>
@@ -149,9 +143,9 @@
 </p-drawer>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
-  <div [ngClass]="'col'" [style]="{'overflow-y': 'scroll', 'margin-top': '3rem'}"
+  <div [ngClass]="'col'" [style]="{'height':'100vh', 'overflow-y': 'scroll', 'margin-top': '3rem'}"
        id="mainContentDiv">
-    <ng-content ng-style="width: 100%"/>
+    <ng-content/>
   </div>
 </div>
 

@@ -82,7 +82,6 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
           if (this.switchStyleOverflow()) {
             const mainContentDiv = document.getElementById('mainContentDiv');
             mainContentDiv!.style.overflow = 'hidden';
-            mainContentDiv!.style.height = '100vh';
           }
           this.clickScrollTopIfExists();
         }, this.delay())
@@ -105,8 +104,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     }
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (this.switchStyleOverflow() && mainContentDiv) {
-      mainContentDiv!.style.overflow = 'auto';
-      mainContentDiv!.style.height = '';
+      mainContentDiv!.style.overflow = 'scroll';
     }
   }
 
