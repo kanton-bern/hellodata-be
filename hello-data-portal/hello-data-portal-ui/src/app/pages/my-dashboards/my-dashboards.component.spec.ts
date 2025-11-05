@@ -28,7 +28,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MyDashboardsComponent} from './my-dashboards.component';
 import {Store} from '@ngrx/store';
-import {of} from 'rxjs';
+import {asyncScheduler, scheduled} from 'rxjs';
 import {SupersetDashboard} from '../../store/my-dashboards/my-dashboards.model';
 import {naviElements} from '../../app-navi-elements';
 import {ActivatedRoute} from '@angular/router';
@@ -85,7 +85,7 @@ describe('MyDashboardsComponent', () => {
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.select.mockReturnValue(of(mockDashboards)); // Mock the select method to return an Observable with mock data
+    mockStore.select.mockReturnValue(scheduled([mockDashboards], asyncScheduler)); // Mock the select method to return an Observable with mock data
 
     fixture.detectChanges();
   });

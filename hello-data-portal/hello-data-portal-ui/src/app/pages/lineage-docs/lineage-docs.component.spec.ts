@@ -31,7 +31,6 @@ import {Store} from '@ngrx/store';
 import {LineageDoc} from '../../store/lineage-docs/lineage-docs.model';
 import {naviElements} from '../../app-navi-elements';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {of} from 'rxjs';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {LineageDocsService} from "../../store/lineage-docs/lineage-docs.service";
@@ -43,6 +42,7 @@ import {TooltipModule} from "primeng/tooltip";
 import {TableModule} from "primeng/table";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {asyncScheduler, scheduled} from "rxjs";
 
 describe('LineageDocsComponent', () => {
   let component: LineageDocsComponent;
@@ -84,7 +84,7 @@ describe('LineageDocsComponent', () => {
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.select.mockReturnValue(of(mockLineageDocs)); // Mock the select method to return an Observable with mock data
+    mockStore.select.mockReturnValue(scheduled([mockLineageDocs], asyncScheduler)); // Mock the select method to return an Observable with mock data
 
     fixture.detectChanges();
   });

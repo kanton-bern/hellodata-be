@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
-import {debounceTime, Observable, of} from "rxjs";
+import {Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
+import {asyncScheduler, debounceTime, Observable, scheduled} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {
@@ -44,24 +44,24 @@ import {selectAdminEmails} from "../../store/users-management/users-management.s
 import {loadAdminEmails} from "../../store/users-management/users-management.action";
 import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {ScreenService} from "../../shared/services";
-import { AsyncPipe } from '@angular/common';
-import { Tooltip } from 'primeng/tooltip';
-import { Fieldset } from 'primeng/fieldset';
-import { PrimeTemplate } from 'primeng/api';
-import { Badge } from 'primeng/badge';
-import { DashboardsComponent } from './dashboards/dashboards.component';
-import { ExternalComponent } from './external/external.component';
-import { DmComponent } from './datamarts/dm.component';
-import { LineageComponent } from './lineage/lineage.component';
-import { FaqComponent } from './faq/faq.component';
-import { HomeDocumentationComponent } from './documentation/home-documentation.component';
-import { AdminInitComponent } from '../../shared/components/admin-init/admin-init.component';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {Tooltip} from 'primeng/tooltip';
+import {Fieldset} from 'primeng/fieldset';
+import {PrimeTemplate} from 'primeng/api';
+import {Badge} from 'primeng/badge';
+import {DashboardsComponent} from './dashboards/dashboards.component';
+import {ExternalComponent} from './external/external.component';
+import {DmComponent} from './datamarts/dm.component';
+import {LineageComponent} from './lineage/lineage.component';
+import {FaqComponent} from './faq/faq.component';
+import {HomeDocumentationComponent} from './documentation/home-documentation.component';
+import {AdminInitComponent} from '../../shared/components/admin-init/admin-init.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    templateUrl: 'home.component.html',
-    styleUrls: ['./home.component.scss'],
-    imports: [Tooltip, Fieldset, PrimeTemplate, Badge, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
+  templateUrl: 'home.component.html',
+  styleUrls: ['./home.component.scss'],
+  imports: [Tooltip, Fieldset, PrimeTemplate, Badge, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
 })
 export class HomeComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
@@ -105,7 +105,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
           );
         }));
     }
-    return of(true);
+    return scheduled([true], asyncScheduler);
   }
 
 }

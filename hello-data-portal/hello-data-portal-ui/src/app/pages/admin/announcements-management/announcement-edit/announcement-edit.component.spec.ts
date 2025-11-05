@@ -28,7 +28,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ReactiveFormsModule} from '@angular/forms';
 import {Store} from '@ngrx/store';
-import {of} from 'rxjs';
+import {asyncScheduler, scheduled} from 'rxjs';
 import {AnnouncementEditComponent} from './announcement-edit.component';
 import {AppState} from '../../../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
@@ -78,7 +78,7 @@ describe('AnnouncementEditComponent', () => {
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.select.mockReturnValue(of({}));
+    mockStore.select.mockReturnValue(scheduled([{}], asyncScheduler));
   });
 
   it('should create the announcementEditComponent', () => {

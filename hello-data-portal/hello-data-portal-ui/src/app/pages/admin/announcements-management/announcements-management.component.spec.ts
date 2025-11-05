@@ -27,7 +27,7 @@
 
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {Action, Store} from '@ngrx/store';
-import {of} from 'rxjs';
+import {asyncScheduler, scheduled} from 'rxjs';
 import {AnnouncementsManagementComponent} from './announcements-management.component';
 import {AppState} from '../../../store/app/app.state';
 import {naviElements} from '../../../app-navi-elements';
@@ -86,8 +86,8 @@ describe('AnnouncementsManagementComponent', () => {
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.pipe.mockReturnValue(of([mockAnnouncement])); // Mock the pipe method to return an Observable with mock data
-    mockStore.select.mockReturnValue(of([mockAnnouncement])); // Mock the select method to return an Observable with mock data
+    mockStore.pipe.mockReturnValue(scheduled([mockAnnouncement], asyncScheduler)); // Mock the pipe method to return an Observable with mock data
+    mockStore.select.mockReturnValue(scheduled([mockAnnouncement], asyncScheduler)); // Mock the select method to return an Observable with mock data
 
     fixture.detectChanges();
   });

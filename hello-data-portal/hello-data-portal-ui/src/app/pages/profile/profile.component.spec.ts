@@ -28,7 +28,7 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ProfileComponent} from './profile.component';
 import {Store} from '@ngrx/store';
-import {of} from 'rxjs';
+import {asyncScheduler, scheduled} from 'rxjs';
 import {naviElements} from '../../app-navi-elements';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
@@ -66,7 +66,7 @@ describe('ProfileComponent', () => {
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.pipe.mockReturnValue(of({}));
+    mockStore.pipe.mockReturnValue(scheduled([{}], asyncScheduler));
 
     fixture.detectChanges();
   });
