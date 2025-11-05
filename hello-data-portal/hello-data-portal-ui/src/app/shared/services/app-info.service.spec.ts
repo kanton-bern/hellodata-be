@@ -28,7 +28,7 @@
 import {TestBed} from '@angular/core/testing';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {OidcSecurityService, UserDataResult} from 'angular-auth-oidc-client';
-import {of} from 'rxjs';
+import {asyncScheduler, of, scheduled} from 'rxjs';
 import {AppInfoService} from './app-info.service';
 import {ActuatorInfo} from './interfaces/actuator-info';
 import {beforeEach, describe, expect, it, jest} from '@jest/globals';
@@ -80,7 +80,7 @@ describe('AppInfoService', () => {
 
     httpMock = TestBed.inject(HttpTestingController);
 
-    jest.spyOn(oidcSecurityService, 'userData$', 'get').mockReturnValue(of(userDataResult));
+    jest.spyOn(oidcSecurityService, 'userData$', 'get').mockReturnValue(scheduled([userDataResult], asyncScheduler));
   });
 
   it('should be created', () => {

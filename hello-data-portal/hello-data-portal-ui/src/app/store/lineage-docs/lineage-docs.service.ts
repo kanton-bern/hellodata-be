@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
-import {Observable, of} from "rxjs";
+import {asyncScheduler, Observable, scheduled} from "rxjs";
 import {LineageDoc} from "./lineage-docs.model";
 import {environment} from "../../../environments/environment";
 import {selectCurrentUserPermissions} from "../auth/auth.selector";
@@ -56,7 +56,7 @@ export class LineageDocsService {
     return this.currentUserPermissions$.pipe(
       switchMap(permissions => {
         if (!permissions || permissions.length === 0) {
-          return of([]);
+          return scheduled([[]], asyncScheduler);
         } else {
           return this.httpClient.get<LineageDoc[]>(`${this.baseDocsUrl}`);
         }
