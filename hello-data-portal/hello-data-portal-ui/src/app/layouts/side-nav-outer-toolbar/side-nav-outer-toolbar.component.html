@@ -49,10 +49,9 @@
 <section class="content-section">
   <app-header [title]="title()"/>
   <div class="grid">
-    <div [ngClass]="'col'" [style]="{'overflow-y': 'auto'}" id="mainContentDiv">
+    <div [ngClass]="'col'" [style]="{'height': '90vh', 'overflow-y': 'scroll'}" id="mainContentDiv">
       <ng-content/>
-      <p-scrollTop [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}" [threshold]="10" icon="fas fa-arrow-up"
-                   target="parent"/>
+
     </div>
     @if (selectCurrentUserPermissionsLoaded$) {
       <div [ngClass]="['col-fixed', 'right-panel-close']"
