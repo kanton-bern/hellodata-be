@@ -97,9 +97,9 @@ export class PublishedAnnouncementsWrapperComponent {
       width: '90vw',
       contentStyle: {overflow: 'auto'},
       height: 'auto',
-      closable: true,
+      closable: false,
       modal: true,
-      
+
     });
     if (this.onCloseSubscription) {
       this.onCloseSubscription.unsubscribe();

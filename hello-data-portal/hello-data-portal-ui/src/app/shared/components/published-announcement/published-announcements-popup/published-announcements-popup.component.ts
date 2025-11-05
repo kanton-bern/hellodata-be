@@ -43,9 +43,8 @@ import {TranslocoPipe} from "@jsverse/transloco";
                   <div class="p-toolbar-group-end">
                     @if (announcement.publishedDate) {
                       <div class="published-date">
-                        [{{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}
-                        ]
-                      </div> test
+                        {{ '@Published date' | transloco }} {{ announcement.publishedDate | date: 'dd.MM.yyyy, HH:mm:ss' }}
+                      </div>
                     }
                   </div>
                 </p-toolbar>
