@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
-import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedAnnouncement} from "../../../../store/announcement/announcement.selector";
@@ -44,23 +44,22 @@ import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {selectDefaultLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
-import { AsyncPipe, DatePipe } from '@angular/common';
-import { Checkbox } from 'primeng/checkbox';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
-import { Ripple } from 'primeng/ripple';
-import { Editor } from 'primeng/editor';
-import { PrimeTemplate } from 'primeng/api';
-import { Button } from 'primeng/button';
-import { Toolbar } from 'primeng/toolbar';
-import { Tooltip } from 'primeng/tooltip';
-import { DeleteAnnouncementPopupComponent } from '../delete-announcement-popup/delete-announcement-popup.component';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe, DatePipe} from '@angular/common';
+import {Checkbox} from 'primeng/checkbox';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
+import {Editor} from 'primeng/editor';
+import {Button} from 'primeng/button';
+import {Toolbar} from 'primeng/toolbar';
+import {Tooltip} from 'primeng/tooltip';
+import {DeleteAnnouncementPopupComponent} from '../delete-announcement-popup/delete-announcement-popup.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-announcement-edit',
-    templateUrl: './announcement-edit.component.html',
-    styleUrls: ['./announcement-edit.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, Checkbox, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Button, Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  selector: 'app-announcement-edit',
+  templateUrl: './announcement-edit.component.html',
+  styleUrls: ['./announcement-edit.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, Checkbox, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Button,
+    Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class AnnouncementEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectDocumentation} from "../../../store/summary/summary.selector";
@@ -40,22 +40,20 @@ import {
   selectSupportedLanguages
 } from "../../../store/auth/auth.selector";
 import {Documentation} from "../../../store/summary/summary.model";
-import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {take} from "rxjs/operators";
-import { AsyncPipe } from '@angular/common';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
-import { Ripple } from 'primeng/ripple';
-import { Editor } from 'primeng/editor';
-import { PrimeTemplate } from 'primeng/api';
-import { Toolbar } from 'primeng/toolbar';
-import { Button } from 'primeng/button';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
+import {Editor} from 'primeng/editor';
+import {Toolbar} from 'primeng/toolbar';
+import {Button} from 'primeng/button';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-documentation',
-    templateUrl: './documentation-management.component.html',
-    styleUrls: ['./documentation-management.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, PrimeTemplate, Toolbar, Button, AsyncPipe, TranslocoPipe]
+  selector: 'app-documentation',
+  templateUrl: './documentation-management.component.html',
+  styleUrls: ['./documentation-management.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, AsyncPipe, TranslocoPipe]
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

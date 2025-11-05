@@ -25,28 +25,28 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectUserForPopup} from "../../../../store/users-management/users-management.selector";
 import {UserAction} from "../../../../store/users-management/users-management.model";
-import { ConfirmationService, ConfirmEventType, PrimeTemplate } from "primeng/api";
+import {ConfirmationService, ConfirmEventType, PrimeTemplate} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {
   hideUserPopupAction,
   invokeActionFromUserPopup
 } from "../../../../store/users-management/users-management.action";
-import { AsyncPipe } from '@angular/common';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { Button, ButtonDirective } from 'primeng/button';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {Button} from 'primeng/button';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-actions-user-popup',
-    templateUrl: './actions-user-popup.component.html',
-    styleUrls: ['./actions-user-popup.component.scss'],
-    imports: [ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
+  selector: 'app-actions-user-popup',
+  templateUrl: './actions-user-popup.component.html',
+  styleUrls: ['./actions-user-popup.component.scss'],
+  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe]
 })
 export class ActionsUserPopupComponent {
   private store = inject<Store<AppState>>(Store);

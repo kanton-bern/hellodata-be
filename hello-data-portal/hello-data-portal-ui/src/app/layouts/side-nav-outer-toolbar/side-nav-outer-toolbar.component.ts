@@ -35,7 +35,6 @@ import {selectNavItems} from "../../store/menu/menu.selector";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {Tooltip} from "primeng/tooltip";
 import {Toast} from "primeng/toast";
-import {ScrollTop} from "primeng/scrolltop";
 import {
   UnsavedChangesDialogComponent
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
@@ -51,7 +50,8 @@ import {HeaderComponent, SummaryComponent} from '../../shared/components';
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-  imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, ScrollTop, NgStyle, SummaryComponent, Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
+  imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, NgStyle, SummaryComponent,
+    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
   private store = inject<Store<AppState>>(Store);
