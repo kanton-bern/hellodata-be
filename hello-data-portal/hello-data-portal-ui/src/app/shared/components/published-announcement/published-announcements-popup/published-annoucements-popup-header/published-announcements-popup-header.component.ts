@@ -13,9 +13,10 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
       <div class="col">
         <div class="flex align-items-center mt-2">
           <p-checkbox [binary]="true" inputId="dont-show-again" (onChange)="onChange($event)"></p-checkbox>
-          <label for="dont-show-again" class="ml-2">{{ '@Do not show again' | transloco }}</label>
+          <label for="dont-show-again" class="ml-2"
+                 style="font-size: 0.9rem">{{ '@Do not show again' | transloco }}</label>
           <a (click)="closeDialog()" style="cursor: pointer;"
-             class="align-self-end layout-topbar-button pl-7">
+             class="align-self-end layout-topbar-button pl-8">
             <i class="fas fa-times"></i>
           </a>
         </div>
