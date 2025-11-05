@@ -42,7 +42,6 @@ import {
 import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-published-announcements.service";
 import {selectUrl} from "../../../../store/router/router.selectors";
 import {naviElements} from "../../../../app-navi-elements";
-import {take} from "rxjs/operators";
 import {AsyncPipe} from '@angular/common';
 
 @Component({
@@ -100,11 +99,13 @@ export class PublishedAnnouncementsWrapperComponent {
       height: 'auto',
       closable: true,
       modal: true,
+      
     });
     if (this.onCloseSubscription) {
       this.onCloseSubscription.unsubscribe();
     }
-    this.onCloseSubscription = this.ref?.onClose.pipe(take(1)).subscribe(() => {
+    this.onCloseSubscription = this.ref?.onClose.subscribe(() => {
+      console.debug('Dialog closed, hiding announcements');
       if (this.hideAllCurrentAnnouncementsService.hide) {
         for (const announcement of announcements) {
           this.hide(announcement);

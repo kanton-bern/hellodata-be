@@ -1,18 +1,8 @@
-import {
-  AfterViewInit,
-  Component,
-  ComponentRef,
-  inject,
-  OnInit,
-  Renderer2,
-  RendererFactory2,
-  ViewContainerRef
-} from "@angular/core";
+import {Component, ComponentRef, inject, OnInit, Renderer2, RendererFactory2, ViewContainerRef} from "@angular/core";
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
-import {markAnnouncementAsRead} from "../../../../store/announcement/announcement.action";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {DialogService} from "primeng/dynamicdialog";
 import {
@@ -68,7 +58,7 @@ import {TranslocoPipe} from "@jsverse/transloco";
     }`,
   imports: [Divider, Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
 })
-export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewInit {
+export class PublishedAnnouncementsPopupComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
   private viewContainerRef = inject(ViewContainerRef);
   private readonly rendererFactory = inject(RendererFactory2);
@@ -88,14 +78,6 @@ export class PublishedAnnouncementsPopupComponent implements OnInit, AfterViewIn
     this.renderer = this.rendererFactory.createRenderer(null, null);
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
     this.defaultLanguage$ = store.select(selectDefaultLanguage);
-  }
-
-  ngAfterViewInit(): void {
-    this.hide = this.hide.bind(this);
-  }
-
-  hide(announcement: Announcement): void {
-    this.store.dispatch(markAnnouncementAsRead({announcement}));
   }
 
   ngOnInit(): void {
