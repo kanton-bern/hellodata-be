@@ -50,6 +50,7 @@
   <app-header [title]="title()"/>
   <div class="grid">
     <div [ngClass]="'col'" [style]="{'height': '90vh', 'overflow-y': 'scroll'}" id="mainContentDiv">
+
       <ng-content/>
 
     </div>
@@ -60,7 +61,6 @@
       </div>
     }
   </div>
-
 </section>
 
 <p-toast/>
