@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
@@ -55,7 +55,7 @@ import {AsyncPipe} from '@angular/common';
     }`,
   imports: [AsyncPipe]
 })
-export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
+export class PublishedAnnouncementsWrapperComponent {
   private store = inject<Store<AppState>>(Store);
   dialogService = inject(DialogService);
   private hideAllCurrentAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
@@ -65,6 +65,7 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
   ref: DynamicDialogRef | null = null;
 
   constructor() {
+    this.hide = this.hide.bind(this);
     const store = this.store;
 
     this.publishedAnnouncements$ =
@@ -85,9 +86,6 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
     store.dispatch(loadPublishedAnnouncementsFiltered());
   }
 
-  ngAfterViewInit(): void {
-    this.hide = this.hide.bind(this);
-  }
 
   hide(announcement: Announcement): void {
     this.store.dispatch(markAnnouncementAsRead({announcement}));
@@ -102,24 +100,14 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
       closable: true,
       modal: true,
     });
-    if (this.ref) {
-      this.ref.onClose.subscribe(_ => {
-        if (this.hideAllCurrentAnnouncementsService.hide) {
-          for (const announcement of announcements) {
-            this.hide(announcement);
-          }
-          this.hideAllCurrentAnnouncementsService.hide = false;
+    this.ref?.onClose.pipe(take(1)).subscribe(() => {
+      if (this.hideAllCurrentAnnouncementsService.hide) {
+        for (const announcement of announcements) {
+          this.hide(announcement);
         }
-      });
-      this.ref.onClose.pipe(take(1)).subscribe(() => {
-        if (this.hideAllCurrentAnnouncementsService.hide) {
-          for (const announcement of announcements) {
-            this.hide(announcement);
-          }
-          this.hideAllCurrentAnnouncementsService.hide = false;
-        }
-      });
-    }
+        this.hideAllCurrentAnnouncementsService.hide = false;
+      }
+    });
   }
 
 }
