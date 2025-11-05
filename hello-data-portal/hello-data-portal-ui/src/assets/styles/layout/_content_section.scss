@@ -65,14 +65,10 @@ p-toolbar {
   border: none;
 }
 
-.p-editor-toolbar {
+p-editor > .ql-toolbar.ql-snow {
   border-bottom: none;
 }
 
-p-editor > .ql-toolbar.ql-snow {
-  border: none;
-}
-
-p-editor > .ql-container.ql-snow {
+p-editor.p-editor-readonly > .ql-toolbar.ql-snow, p-editor.p-editor-readonly > .ql-container.ql-snow {
   border: none;
 }

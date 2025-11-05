@@ -58,6 +58,9 @@
               "node_modules/quill/dist/quill.snow.css",
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "src/styles.scss"
+            ],
+            "allowedCommonJsDependencies": [
+              "quill"
             ]
           },
           "configurations": {

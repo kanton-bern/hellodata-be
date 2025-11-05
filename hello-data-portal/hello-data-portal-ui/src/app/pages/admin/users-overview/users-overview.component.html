@@ -3,27 +3,28 @@
   <div class="card">
     @if ((columns$ | async); as columns) {
       <div>
-        <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData" [scrollable]="true"
-          scrollDirection="horizontal" scrollHeight="flex">
+        <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData"
+                 [scrollable]="true"
+                 scrollHeight="flex">
           <ng-template pTemplate="caption">
             <div class="flex">
               <div style="text-align: left">
                 <p-button (onClick)="dt.exportCSV()"
-                  [disabled]="(dataLoading$ | async) ?? false"
-                  icon="pi pi-external-link"
-                  label="{{ '@Export' | transloco }}"/>
+                          [disabled]="(dataLoading$ | async) ?? false"
+                          icon="pi pi-external-link"
+                          label="{{ '@Export' | transloco }}"/>
               </div>
               <div class="ml-1" style="text-align: left">
                 <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
-                  icon="pi pi-replay"
-                  label="{{ '@Reload' | transloco }}"
-                  severity="success"/>
+                          icon="pi pi-replay"
+                          label="{{ '@Reload' | transloco }}"
+                          severity="success"/>
               </div>
               <div class="ml-1" style="text-align: left">
                 <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
-                  icon="pi pi-times-circle"
-                  label="{{ '@Clear cache' | transloco }}"
-                  severity="help"/>
+                          icon="pi pi-times-circle"
+                          label="{{ '@Clear cache' | transloco }}"
+                          severity="help"/>
               </div>
             </div>
           </ng-template>
@@ -54,8 +55,8 @@
                   @if (shouldShowTag(row[col.field], row[col.field + NO_TAG])) {
                     @for (value of row[col.field].split(','); track value) {
                       <p-tag [severity]="getTagSeverity(value)"
-                        [value]="value.trim()"
-                      class="m-1" />
+                             [value]="value.trim()"
+                             class="m-1"/>
                     }
                   } @else {
                     @if (row[col.field] === 'true') {
