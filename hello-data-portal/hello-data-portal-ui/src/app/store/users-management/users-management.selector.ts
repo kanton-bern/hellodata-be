@@ -205,11 +205,6 @@ export const selectAdminEmails = createSelector(
   (state: UsersManagementState) => state.adminEmails
 );
 
-export const selectUserSaveButtonDisabled = createSelector(
-  usersManagementState,
-  (state: UsersManagementState) => state.userSaveButtonDisabled
-);
-
 export const selectSubsystemUsersLoading = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.subsystemUsersLoading
