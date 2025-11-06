@@ -4204,7 +4204,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@primeuix/styled@npm:^0.7.3":
+"@primeuix/styled@npm:^0.7.3, @primeuix/styled@npm:^0.7.4":
   version: 0.7.4
   resolution: "@primeuix/styled@npm:0.7.4"
   dependencies:
@@ -4213,7 +4213,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@primeuix/styles@npm:^1.2.4, @primeuix/styles@npm:^1.2.5":
+"@primeuix/styles@npm:^1.2.5":
   version: 1.2.5
   resolution: "@primeuix/styles@npm:1.2.5"
   dependencies:
@@ -4231,7 +4231,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@primeuix/utils@npm:^0.6.1":
+"@primeuix/utils@npm:^0.6.1, @primeuix/utils@npm:^0.6.2":
   version: 0.6.2
   resolution: "@primeuix/utils@npm:0.6.2"
   checksum: 10c0/15014eac0a3c62a5d154fd5ba730417099643645545f04a01d107cd11e8c8578d8696c7901d6154dd9185c760073cd2336527744920e24ba148028b0fb8369b9
@@ -11427,12 +11427,12 @@ __metadata:
   linkType: hard
 
 "primeng@npm:^20.2.0":
-  version: 20.2.0
-  resolution: "primeng@npm:20.2.0"
+  version: 20.3.0
+  resolution: "primeng@npm:20.3.0"
   dependencies:
-    "@primeuix/styled": "npm:^0.7.3"
-    "@primeuix/styles": "npm:^1.2.4"
-    "@primeuix/utils": "npm:^0.6.1"
+    "@primeuix/styled": "npm:^0.7.4"
+    "@primeuix/styles": "npm:^1.2.5"
+    "@primeuix/utils": "npm:^0.6.2"
     tslib: "npm:^2.3.0"
   peerDependencies:
     "@angular/animations": ^20.0.4
@@ -11443,7 +11443,7 @@ __metadata:
     "@angular/platform-browser": ^20.0.4
     "@angular/router": ^20.0.4
     rxjs: ^6.0.0 || ^7.8.1
-  checksum: 10c0/953535cd9b257363072954e0611b1caa379355f3d587286a411a0e8d5d3d0688773465d7ca36a9e6714df9e3cc67fa48a44f33e04e66c449704d549a0afbdfbd
+  checksum: 10c0/e9b63282a755f0340760f7e33e8791f88b4202791cf71fd98298cd9c079107cc8a2f441005928e4f747737d2e3a0d7de281073d6922b7ffb3130736b6b17650a
   languageName: node
   linkType: hard
 
