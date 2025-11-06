@@ -25,12 +25,12 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
+import {inject, Injectable} from "@angular/core";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {asyncScheduler, catchError, map, scheduled, switchMap, tap, withLatestFrom} from 'rxjs';
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
-import {catchError, map, of, switchMap, tap} from "rxjs";
 import {
   deleteAnnouncement,
   deleteAnnouncementSuccess,
@@ -56,13 +56,18 @@ import {navigate, showError} from "../app/app.action";
 
 @Injectable()
 export class AnnouncementEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _announcementService = inject(AnnouncementService);
+  private _notificationService = inject(NotificationService);
+
 
   loadAllAnnouncements$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadAllAnnouncements),
       switchMap(() => this._announcementService.getAllAnnouncements()),
-      switchMap(result => of(loadAllAnnouncementsSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadAllAnnouncementsSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -80,7 +85,7 @@ export class AnnouncementEffects {
             });
           })
         )),
-        switchMap((result) => of(loadPublishedAnnouncementsFilteredSuccess({payload: result}))),
+        switchMap((result) => scheduled([loadPublishedAnnouncementsFilteredSuccess({payload: result})], asyncScheduler)),
       )
     }
   );
@@ -90,21 +95,21 @@ export class AnnouncementEffects {
       ofType(openAnnouncementEdition),
       switchMap(action => {
         if (action.announcement.id) {
-          return of(navigate({url: `announcements-management/edit/${action.announcement.id}`}));
+          return scheduled([navigate({url: `announcements-management/edit/${action.announcement.id}`})], asyncScheduler);
         }
-        return of(navigate({url: 'announcements-management/create'}));
+        return scheduled([navigate({url: 'announcements-management/create'})], asyncScheduler);
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
   loadAnnouncementById$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadAnnouncementById),
-      concatLatestFrom(() => this._store.select(selectParamAnnouncementId)),
+      withLatestFrom(this._store.select(selectParamAnnouncementId)),
       switchMap(([action, announcementId]) => this._announcementService.getAnnouncementById(announcementId as string)),
-      switchMap(result => of(loadAnnouncementByIdSuccess({announcement: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadAnnouncementByIdSuccess({announcement: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -135,18 +140,18 @@ export class AnnouncementEffects {
   saveChangesToAnnouncementSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToAnnouncementSuccess),
-      switchMap(action => of(navigate({url: 'announcements-management'}), clearUnsavedChanges())),
-      catchError(e => of(showError({error: e})))
+      switchMap(action => scheduled([navigate({url: 'announcements-management'}), clearUnsavedChanges()], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
   deleteAnnouncement$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteAnnouncement),
-      concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
+      withLatestFrom(this._store.select(selectSelectedAnnouncementForDeletion)),
       switchMap(([action, announcement]) => this._announcementService.deleteAnnouncementById((announcement as Announcement).id as string).pipe(
         map(() => deleteAnnouncementSuccess({announcement: announcement as Announcement})),
-        catchError(e => of(showError({error: e})))
+        catchError(e => scheduled([showError({error: e})], asyncScheduler))
       )),
     )
   });
@@ -155,18 +160,18 @@ export class AnnouncementEffects {
     return this._actions$.pipe(
       ofType(deleteAnnouncementSuccess),
       tap(action => this._notificationService.success('@Announcement deleted successfully')),
-      switchMap(() => of(loadAllAnnouncements(), hideDeleteAnnouncementPopup()))
+      switchMap(() => scheduled([loadAllAnnouncements(), hideDeleteAnnouncementPopup()], asyncScheduler))
     )
   });
 
   deleteEditedAnnouncement$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteEditedAnnouncement),
-      concatLatestFrom(() => this._store.select(selectSelectedAnnouncementForDeletion)),
+      withLatestFrom(this._store.select(selectSelectedAnnouncementForDeletion)),
       switchMap(([action, announcementToBeDeleted]) => {
           return this._announcementService.deleteAnnouncementById((announcementToBeDeleted as Announcement).id as string).pipe(
             map(() => deleteEditedAnnouncementSuccess()),
-            catchError(e => of(showError({error: e})))
+            catchError(e => scheduled([showError({error: e})], asyncScheduler))
           )
         }
       ),
@@ -177,7 +182,7 @@ export class AnnouncementEffects {
     return this._actions$.pipe(
       ofType(deleteEditedAnnouncementSuccess),
       tap(action => this._notificationService.success('@Announcement deleted successfully')),
-      switchMap(() => of(navigate({url: 'announcements-management'}), hideDeleteAnnouncementPopup()))
+      switchMap(() => scheduled([navigate({url: 'announcements-management'}), hideDeleteAnnouncementPopup()], asyncScheduler))
     )
   });
 
@@ -187,18 +192,9 @@ export class AnnouncementEffects {
       switchMap(action => {
         return this._announcementService.hideAnnouncement(action.announcement).pipe(
           map(() => loadPublishedAnnouncementsFiltered()),
-          catchError(e => of(showError({error: e})))
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         )
       })
     )
   });
-
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _announcementService: AnnouncementService,
-    private _notificationService: NotificationService
-  ) {
-  }
 }

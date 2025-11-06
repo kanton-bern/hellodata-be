@@ -25,10 +25,17 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {navigate} from "../../../../store/app/app.action";
+
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { Tag } from 'primeng/tag';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 export interface PipelineInstance {
   state: "queued" | "running" | "success" | "failed";
@@ -41,20 +48,18 @@ export interface Pipeline {
 }
 
 @Component({
-  selector: 'app-selected-workspace-pipelines',
-  templateUrl: './selected-workspace-pipelines.component.html',
-  styleUrls: ['./selected-workspace-pipelines.component.scss']
+    selector: 'app-selected-workspace-pipelines',
+    templateUrl: './selected-workspace-pipelines.component.html',
+    styleUrls: ['./selected-workspace-pipelines.component.scss'],
+    imports: [TableModule, PrimeTemplate, Tag, Button, Tooltip, TranslocoPipe]
 })
 export class SelectedWorkspacePipelinesComponent {
+  private store = inject<Store<AppState>>(Store);
 
-  @Input()
-  pipelines!: any[];
 
-  @Input()
-  instanceName!: string;
+  readonly pipelines = input.required<any[]>();
 
-  constructor(private store: Store<AppState>) {
-  }
+  readonly instanceName = input.required<string>();
 
   showDetails(pipelineId: string) {
     this.store.dispatch(navigate({url: `/embedded-orchestration/details/${pipelineId}`}));

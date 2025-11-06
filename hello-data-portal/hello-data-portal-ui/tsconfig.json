@@ -15,13 +15,18 @@
     "esModuleInterop": true,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "es2020",
+    "module": "ES2022",
     "useDefineForClassFields": false,
+    "paths": {
+      "primeng/*": [
+        "./node_modules/primeng/*"
+      ]
+    },
     "lib": [
-      "es2020",
+      "ES2022",
       "dom"
     ],
     "types": [
@@ -39,7 +44,9 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": true,
+    "enableControlFlow": true,
+    "strictNullChecks": false
   },
   "exclude": [
     "node_modules"

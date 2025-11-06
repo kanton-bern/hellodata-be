@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
@@ -37,14 +37,33 @@ import {
 } from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {navigate} from "../../../../store/app/app.action";
-import {loadAppInfoResources, loadSelectedAppInfoResource, loadSelectedAppInfoResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
+import {
+  loadAppInfoResources,
+  loadSelectedAppInfoResource,
+  loadSelectedAppInfoResources
+} from "../../../../store/metainfo-resource/metainfo-resource.action";
+import { AsyncPipe } from '@angular/common';
+import { Ripple } from 'primeng/ripple';
+import { Toolbar } from 'primeng/toolbar';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { Fieldset } from 'primeng/fieldset';
+import { SelectedWorkspaceDashboardsComponent } from '../selected-workspace-dashboards/selected-workspace-dashboards.component';
+import { SelectedWorkspaceRolesComponent } from '../selected-workspace-roles/selected-workspace-roles.component';
+import { SelectedWorkspacePermissionsComponent } from '../selected-workspace-permissions/selected-workspace-permissions.component';
+import { SelectedWorkspaceUsersComponent } from '../selected-workspace-users/selected-workspace-users.component';
+import { SelectedWorkspacePipelinesComponent } from '../selected-workspace-pipelines/selected-workspace-pipelines.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-selected-workspace',
-  templateUrl: './selected-workspace.component.html',
-  styleUrls: ['./selected-workspace.component.scss']
+    selector: 'app-selected-workspace',
+    templateUrl: './selected-workspace.component.html',
+    styleUrls: ['./selected-workspace.component.scss'],
+    imports: [Ripple, Toolbar, Button, Tooltip, Fieldset, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+
 
   resources$: Observable<any>;
   selectedResource$: Observable<any>;
@@ -52,7 +71,7 @@ export class SelectedWorkspaceComponent extends BaseComponent implements OnInit 
   selectedResourceUrl: any;
   selectedAppInfo$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.store.dispatch(loadAppInfoResources());
     this.store.dispatch(loadSelectedAppInfoResources());

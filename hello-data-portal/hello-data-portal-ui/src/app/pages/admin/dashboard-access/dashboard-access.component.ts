@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from "@angular/core";
+import {Component, inject, OnInit, viewChild} from "@angular/core";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
@@ -36,7 +36,7 @@ import {
   selectDashboardAccessDataLoading,
   selectDashboardAccessTotalRecords
 } from "../../../store/dashboard-access/dashboard-access.selector";
-import {Table, TableLazyLoadEvent} from "primeng/table";
+import {Table, TableLazyLoadEvent, TableModule} from "primeng/table";
 import {loadDashboardAccessPaginated} from "../../../store/dashboard-access/dashboard-access.action";
 import {selectSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.selector";
 import {scrollToTop} from "../../../shared/services/view-helpers";
@@ -44,22 +44,32 @@ import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
 import {map} from "rxjs/operators";
+import {AsyncPipe, DatePipe} from "@angular/common";
+import {PrimeTemplate} from "primeng/api";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
+import {FormsModule} from "@angular/forms";
+import {InputText} from "primeng/inputtext";
+import {TranslocoPipe} from "@jsverse/transloco";
 
 @Component({
   templateUrl: 'dashboard-access.component.html',
-  styleUrls: ['./dashboard-access.component.scss']
+  styleUrls: ['./dashboard-access.component.scss'],
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+
   dashboardAccess$: Observable<DashboardAccess[]>;
   selectedDataDomain$: Observable<DataDomain | null>;
   filterValue = '';
   first = 0;
-  @ViewChild('dt') table!: Table;
+  readonly table = viewChild<Table>('dt');
   totalRecords = 0;
   dataLoading$ = this.store.select(selectDashboardAccessDataLoading);
   usedContextKey: string | null = null;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     super();
     this.createBreadcrumbs();
     this.dashboardAccess$ = combineLatest([
@@ -73,11 +83,12 @@ export class DashboardAccessComponent extends BaseComponent implements OnInit {
     );
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain).pipe(
       tap((dataDomain) => {
-        if (this.table && this.usedContextKey !== dataDomain?.key) {
+        const table = this.table();
+        if (table && this.usedContextKey !== dataDomain?.key) {
           const contextKey = dataDomain?.key ? dataDomain?.key : null;
-          const sortField = this.table.sortField;
-          const sortOrder = this.table.sortOrder > 0 ? 'asc' : 'desc';
-          const pageSize = this.table.rows as number;
+          const sortField = table.sortField;
+          const sortOrder = table.sortOrder > 0 ? 'asc' : 'desc';
+          const pageSize = table.rows as number;
           this.store.dispatch(loadDashboardAccessPaginated({
             page: 0, size: pageSize, sort: `${sortField}, ${sortOrder}`, search: '', contextKey
           }));

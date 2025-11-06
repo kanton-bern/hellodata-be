@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
-import {Actions, concatLatestFrom, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import { Injectable, inject } from "@angular/core";
+import {Actions, createEffect, ofType} from "@ngrx/effects";
+import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {processNavigation} from "../menu/menu.action";
@@ -46,6 +46,12 @@ import {ScreenService} from "../../shared/services";
 
 @Injectable()
 export class MyDashboardsEffects {
+  private _actions$ = inject(Actions);
+  private _myDashboardsService = inject(MyDashboardsService);
+  private _notificationService = inject(NotificationService);
+  private _translateService = inject(TranslateService);
+  private _screenService = inject(ScreenService);
+
 
   loadMyDashboards$ = createEffect(() => {
     return this._actions$.pipe(
@@ -66,7 +72,7 @@ export class MyDashboardsEffects {
   setSelectedDataDomain$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(setSelectedDataDomain),
-      concatLatestFrom(() => this._screenService.isMobile),
+      withLatestFrom(this._screenService.isMobile),
       switchMap(([action, isMobile]) => {
           const successMsg = {
             message: '@Data domain changed',
@@ -123,13 +129,4 @@ export class MyDashboardsEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _myDashboardsService: MyDashboardsService,
-    private _notificationService: NotificationService,
-    private _translateService: TranslateService,
-    private _screenService: ScreenService
-  ) {
-  }
 }

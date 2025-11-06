@@ -25,14 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule} from "@angular/core";
-import {CommonModule} from "@angular/common";
+import { Component, NgModule, inject } from "@angular/core";
+import { CommonModule, NgClass, AsyncPipe } from "@angular/common";
 import {RouterOutlet} from "@angular/router";
-import {TranslocoModule} from "@jsverse/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {ToastModule} from "primeng/toast";
 import {ScrollTopModule} from "primeng/scrolltop";
-import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {SidebarModule} from "primeng/sidebar";
+
 import {MenuModule} from "primeng/menu";
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
@@ -46,22 +45,29 @@ import {
 } from "../../store/my-dashboards/my-dashboards.selector";
 import {setSelectedDataDomain} from "../../store/my-dashboards/my-dashboards.action";
 import {DataDomain, SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
-import {AnimateModule} from "primeng/animate";
 import {Ripple} from "primeng/ripple";
 import {map} from "rxjs/operators";
 import {selectSelectedLanguage, selectSupportedLanguages} from "../../store/auth/auth.selector";
 import {setSelectedLanguage} from "../../store/auth/auth.action";
-import {FooterModule} from "../../shared/components";
+
 import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
 import {MatomoTrackerDirective} from "ngx-matomo-client";
+import { DrawerModule, Drawer } from "primeng/drawer";
+import {Button} from "primeng/button";
+import { PrimeTemplate } from "primeng/api";
 
 @Component({
-  selector: 'app-mobile',
-  templateUrl: './mobile.component.html',
-  styleUrls: ['./mobile.component.scss']
+    selector: 'app-mobile',
+    templateUrl: './mobile.component.html',
+    styleUrls: ['./mobile.component.scss'],
+    imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe]
 })
 export class MobileComponent {
+  private store = inject<Store<AppState>>(Store);
+  appInfo = inject(AppInfoService);
+  translateService = inject(TranslateService);
+
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
   showDashboardMenu = false;
   showUserMenu = false;
@@ -80,9 +86,7 @@ export class MobileComponent {
   groupedDashboards$: Observable<Map<string, any[]>>;
   languages$: Observable<any[]>;
 
-  constructor(private store: Store<AppState>,
-              public appInfo: AppInfoService,
-              public translateService: TranslateService) {
+  constructor() {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.groupedDashboards$ = this.store.select(selectMyDashboards).pipe(
       map((dashboards: any[]) => {
@@ -178,24 +182,4 @@ export class MobileComponent {
 
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    SidebarModule,
-    ToastModule,
-    UnsavedChangesModule,
-    ScrollTopModule,
-    MenuModule,
-    AnimateModule,
-    Ripple,
-    TranslocoModule,
-    FooterModule,
-    MatomoTrackerDirective
-  ],
-  exports: [MobileComponent],
-  declarations: [MobileComponent]
-})
-export class MobileModule {
 
-}

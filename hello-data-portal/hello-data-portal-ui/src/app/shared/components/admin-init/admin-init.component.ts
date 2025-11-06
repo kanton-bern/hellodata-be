@@ -1,5 +1,5 @@
-import {Component, NgModule} from "@angular/core";
-import {CommonModule} from "@angular/common";
+import { Component, NgModule, inject } from "@angular/core";
+import { CommonModule, AsyncPipe } from "@angular/common";
 import {SharedModule} from "primeng/api";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
@@ -12,14 +12,17 @@ import {
 } from "../../../store/users-management/users-management.action";
 
 @Component({
-  selector: 'app-admin-init',
-  templateUrl: 'admin-init.component.html',
-  styleUrls: ['./admin-init.component.scss']
+    selector: 'app-admin-init',
+    templateUrl: 'admin-init.component.html',
+    styleUrls: ['./admin-init.component.scss'],
+    imports: [AsyncPipe]
 })
 export class AdminInitComponent {
+  private store = inject<Store<AppState>>(Store);
+
   initStuffForAdmin$: Observable<any>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.initStuffForAdmin$ = combineLatest([
       this.store.select(selectIsSuperuser),
       this.store.select(selectIsBusinessDomainAdmin)
@@ -42,13 +45,4 @@ export class AdminInitComponent {
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    SharedModule,
-  ],
-  declarations: [AdminInitComponent],
-  exports: [AdminInitComponent]
-})
-export class AdminInitModule {
-}
+

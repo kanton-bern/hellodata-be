@@ -25,19 +25,24 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {Observable} from "rxjs";
 import {BreadcrumbService} from "../../services/breadcrumb.service";
+import { Breadcrumb } from 'primeng/breadcrumb';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-breadcrumb',
-  templateUrl: './breadcrumb.component.html',
-  styleUrls: ['./breadcrumb.component.scss'],
+    selector: 'app-breadcrumb',
+    templateUrl: './breadcrumb.component.html',
+    styleUrls: ['./breadcrumb.component.scss'],
+    imports: [Breadcrumb, AsyncPipe]
 })
 export class BreadcrumbComponent {
+  private breadcrumbService = inject(BreadcrumbService);
+
   crumbs$: Observable<any>;
 
-  constructor(private breadcrumbService: BreadcrumbService) {
+  constructor() {
     this.crumbs$ = this.breadcrumbService.getBreadCrumbs();
   }
 

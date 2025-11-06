@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Documentation, Pipeline, StorageMonitoringResult} from "./summary.model";
@@ -35,10 +35,9 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class SummaryService {
-  baseSummaryUrl = `${environment.portalApi}/summary`;
+  protected httpClient = inject(HttpClient);
 
-  constructor(protected httpClient: HttpClient) {
-  }
+  baseSummaryUrl = `${environment.portalApi}/summary`;
 
   public getDocumentation(): Observable<Documentation> {
     return this.httpClient.get<Documentation>(`${this.baseSummaryUrl}/documentation`);

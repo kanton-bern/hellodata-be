@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {combineLatest, map, Observable, switchMap} from "rxjs";
 import {DataDomain, SupersetDashboard} from "../my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
@@ -61,16 +61,13 @@ import {ALL_MENU_ITEMS} from "./menu.state";
   providedIn: 'root'
 })
 export class MenuService {
+  private _store = inject<Store<AppState>>(Store);
+  private _translateService = inject(TranslateService);
+  private _openedSubsystemsService = inject(OpenedSubsystemsService);
+
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
   private static readonly QUERY_LIST = '/queries/list/';
   private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
-
-  constructor(
-    private _store: Store<AppState>,
-    private _translateService: TranslateService,
-    private _openedSubsystemsService: OpenedSubsystemsService
-  ) {
-  }
 
   public processNavigation(compactMode: boolean): Observable<any[]> {
     return this._store.select(selectCurrentUserPermissions).pipe(

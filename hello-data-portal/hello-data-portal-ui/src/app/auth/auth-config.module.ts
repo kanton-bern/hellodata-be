@@ -32,6 +32,7 @@ import {environment} from "../../environments/environment";
 @Injectable({providedIn: 'root'})
 export class AuthConfigService {
   getConfig(): OpenIdConfiguration {
+    const redirectUrl = environment.authConfig.redirectUrl;
     return {
       triggerAuthorizationResultEvent: true,
       postLoginRoute: '/home',
@@ -40,7 +41,7 @@ export class AuthConfigService {
       logLevel: environment.authConfig.logLevel,
       historyCleanupOff: false,
       authority: environment.authConfig.authority,
-      redirectUrl: `${environment.authConfig.redirectUrl}/callback`,
+      redirectUrl: redirectUrl.endsWith('/') ? redirectUrl + 'callback' : redirectUrl + '/callback',
       postLogoutRedirectUri: environment.authConfig.postLogoutRedirectUri,
       clientId: environment.authConfig.clientId,
       scope: environment.authConfig.scope ? environment.authConfig.scope : 'openid profile email',

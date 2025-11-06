@@ -27,7 +27,7 @@
 
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {ModuleResourceKindModel} from "../../shared/models/module-resource-kind.model";
 import {MetaInfoResource} from "./metainfo-resource.model";
 import {environment} from "../../../environments/environment";
@@ -36,11 +36,10 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class MetaInfoResourceService {
+  protected httpClient = inject(HttpClient);
+
 
   baseMetainfoUrl = `${environment.portalApi}/metainfo`;
-
-  constructor(protected httpClient: HttpClient) {
-  }
 
   public getAppInfoResources(): Observable<MetaInfoResource[]> {
     const params: any = {

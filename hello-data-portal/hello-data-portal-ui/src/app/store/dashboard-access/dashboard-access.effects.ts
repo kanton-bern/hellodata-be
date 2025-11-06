@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
 import {showError} from "../app/app.action";
@@ -34,6 +34,9 @@ import {DashboardAccessService} from "./dashboard-access.service";
 
 @Injectable()
 export class DashboardAccessEffects {
+  private _actions$ = inject(Actions);
+  private _dashboardAccessService = inject(DashboardAccessService);
+
 
   loadDashboardAccessPaginated$ = createEffect(() => {
     return this._actions$.pipe(
@@ -53,11 +56,5 @@ export class DashboardAccessEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _dashboardAccessService: DashboardAccessService,
-  ) {
-  }
 
 }

@@ -1,82 +1,85 @@
-<ng-container *ngIf="availableDataDomains$ | async"></ng-container>
+@if (availableDataDomains$ | async) {
+}
 <!-- Top Bar -->
 <div class="grid w-full bg-white surface-border border-bottom-1 fixed top-0 left-0 z-5" style="height: 4rem;">
   <div class="col-12 flex pt-1">
-    <div class="col-2 flex align-items-center justify-content-start h-full">
-      <button
-        type="button" pAnimate pRipple
-        class="p-button p-button-text h-full flex align-items-center justify-content-center"
-        (click)="showDashboardMenu = true"
-        aria-label="Open menu">
+    <div class="col-2 flex align-items-center justify-content-start h-full pl-3">
+      <p-button type="button" severity="secondary"
+                (click)="showDashboardMenu = true"
+                aria-label="Open menu">
         <i class="pi pi-bars text-2xl" style="color: black"></i>
-      </button>
+      </p-button>
     </div>
 
     <div class="col-8 flex align-items-center justify-content-center h-full">
-      <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
+      @if ((selectedDataDomain$ | async); as selectedDataDomain) {
+        <span>
           <a (click)="showDataDomainMenu = true" style="cursor: pointer; font-size: 0.9rem"
-             class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
+             class="align-self-end layout-topbar-button">
             <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
             <i class="fas fa-chevron-down p-1"></i>
           </a>
-       </span>
+        </span>
+      }
     </div>
 
-    <div class="col-2 flex align-items-center justify-content-end h-full">
-      <button pAnimate pRipple
-              type="button"
-              class="p-button p-button-text p-0 h-full flex align-items-center justify-content-center"
-              aria-label="User Profile">
+    <div class="col-2 flex align-items-end justify-content-end h-full">
+      <p-button pRipple
+                type="button" severity="secondary"
+                aria-label="User Profile">
         <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
-      </button>
+      </p-button>
     </div>
   </div>
 </div>
 
 <!--Dashboard menu-->
-<p-sidebar
+<p-drawer
   [(visible)]="showDashboardMenu"
   position="left"
-  [modal]="true"
   [baseZIndex]="10000">
   <ng-template pTemplate="header">
     <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Dashboard' | transloco }}</div>
   </ng-template>
   <ng-template pTemplate="content">
-    <div class="flex flex-column gap-3 text-900" *ngIf="groupedDashboards$ | async as groupedDashboards">
-      <ng-container *ngFor="let context of groupedDashboards.keys()">
-        <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
-        <ng-container *ngFor="let dash of groupedDashboards.get(context)">
-          <a class="cursor-pointer hover:underline ml-2 text-black"
-             (click)="openDashboard(dash)">
-            {{ dash.dashboardTitle }}
-          </a>
-          <hr class="my-1 border-top-1 surface-border"/>
-        </ng-container>
-      </ng-container>
-    </div>
+    @if (groupedDashboards$ | async; as groupedDashboards) {
+      <div class="flex flex-column gap-3 text-900">
+        @for (context of groupedDashboards.keys(); track context) {
+          <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
+          @for (dash of groupedDashboards.get(context); track dash) {
+            <a class="cursor-pointer hover:underline ml-2 text-black"
+               (click)="openDashboard(dash)">
+              {{ dash.dashboardTitle }}
+            </a>
+            <hr class="my-1 border-top-1 surface-border"/>
+          }
+        }
+      </div>
+    }
   </ng-template>
-</p-sidebar>
+</p-drawer>
 
 <!--User menu-->
-<p-sidebar
+<p-drawer
   [(visible)]="showUserMenu"
   position="top"
-  [modal]="true"
   [baseZIndex]="10000"
-  styleClass="p-4"
-  [fullScreen]="false"
+  class="p-4"
   [style]="{'height': 'auto'}">
   <ng-template pTemplate="header">
-     <span class="mr-3 top-menu-item" *ngIf="(languages$ | async) as languages">
-        <ng-template [ngForOf]="supportedLanguages" let-i="index" let-last="last" let-item ngFor>
+    @if ((languages$ | async); as languages) {
+      <span class="mr-3 top-menu-item">
+        @for (item of supportedLanguages; track item; let i = $index; let last = $last) {
           <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
              (click)="onLanguageChange(item.code)">
             {{ item.label }}
           </a>
-          <span *ngIf="!last">|</span>
-        </ng-template>
-    </span>
+          @if (!last) {
+            <span>|</span>
+          }
+        }
+      </span>
+    }
   </ng-template>
   <ng-template pTemplate="content">
     <div class="flex flex-column gap-3 text-900">
@@ -110,39 +113,38 @@
     </div>
 
   </ng-template>
-</p-sidebar>
+</p-drawer>
 
 <!--Data Domain menu-->
-<p-sidebar
+<p-drawer
   [(visible)]="showDataDomainMenu"
   position="top"
   [modal]="true"
   [baseZIndex]="10000"
-  styleClass="p-4"
-  [fullScreen]="false"
-  [style]="{'height': 'auto'}">
+  [style]="{'height': 'auto'}"
+  class="p-4">
   <ng-template pTemplate="header">
     <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Data Domain' | transloco }}</div>
   </ng-template>
   <ng-template pTemplate="content">
     <div class="flex flex-column gap-3 text-900">
       <hr class="m-0 border-top-1 surface-border"/>
-      <ng-container *ngFor="let item of dataDomainSelectionItems">
+      @for (item of dataDomainSelectionItems; track item) {
         <a class="cursor-pointer hover:underline"
            style="color: black;"
            (click)="onDataDomainClicked(item)">
           {{ item.label | transloco }}
         </a>
         <hr class="m-0 border-top-1 surface-border"/>
-      </ng-container>
+      }
     </div>
   </ng-template>
-</p-sidebar>
+</p-drawer>
 
 <div class="pt-14 bg-gray-50 min-h-screen">
-  <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 4rem)', 'overflow-y': 'scroll', 'margin-top': '3rem'}"
+  <div [ngClass]="'col'" [style]="{'height':'100vh', 'overflow-y': 'scroll', 'margin-top': '3rem'}"
        id="mainContentDiv">
-    <ng-content ng-style="width: 100%"></ng-content>
+    <ng-content/>
   </div>
 </div>
 

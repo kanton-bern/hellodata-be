@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule, OnDestroy, OnInit} from '@angular/core';
+import { Component, NgModule, OnDestroy, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {
@@ -46,29 +46,29 @@ import {
   selectUsersLoading,
   selectUsersTotalRecords
 } from "../../../store/users-management/users-management.selector";
-import {CommonModule} from "@angular/common";
+import { CommonModule, AsyncPipe, DatePipe } from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {UserEditComponent} from "./user-edit/user-edit.component";
 import {ActionsUserPopupComponent} from "./actions-user-popup/actions-user-popup.component";
-import {TranslocoModule} from "@jsverse/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
 import {TableLazyLoadEvent, TableModule} from "primeng/table";
 import {TagModule} from "primeng/tag";
-import {TooltipModule} from "primeng/tooltip";
-import {InputTextModule} from "primeng/inputtext";
-import {ButtonModule} from "primeng/button";
-import {ToolbarModule} from "primeng/toolbar";
+import { TooltipModule, Tooltip } from "primeng/tooltip";
+import { InputTextModule, InputText } from "primeng/inputtext";
+import { ButtonModule, Button, ButtonDirective } from "primeng/button";
+import { ToolbarModule, Toolbar } from "primeng/toolbar";
 import {EditorModule} from "primeng/editor";
-import {RippleModule} from "primeng/ripple";
+import { RippleModule, Ripple } from "primeng/ripple";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {StyleClassModule} from "primeng/styleclass";
-import {TabViewModule} from "primeng/tabview";
-import {AutoCompleteModule} from "primeng/autocomplete";
+import {TabsModule} from 'primeng/tabs';
+import { AutoCompleteModule, AutoComplete } from "primeng/autocomplete";
 import {CheckboxModule} from "primeng/checkbox";
 import {DividerModule} from "primeng/divider";
 import {switchMap} from "rxjs/operators";
-import {DropdownModule} from "primeng/dropdown";
+import {SelectModule} from 'primeng/select';
 import {
   DashboardViewerPermissionsComponent
 } from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
@@ -87,13 +87,21 @@ import {
 } from "../../../store/users-management/users-management.action";
 import {selectProfile} from "../../../store/auth/auth.selector";
 import {IUser} from "../../../store/auth/auth.model";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
+import { PrimeTemplate } from 'primeng/api';
 
 @Component({
-  selector: 'app-user-management',
-  templateUrl: './user-management.component.html',
-  styleUrls: ['./user-management.component.scss']
+    selector: 'app-user-management',
+    templateUrl: './user-management.component.html',
+    styleUrls: ['./user-management.component.scss'],
+    imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersManagementService);
+
 
   users$: Observable<any>;
   syncStatus$: Observable<string>;
@@ -108,7 +116,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   private readonly searchSubject = new Subject<string | undefined>();
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder, private userService: UsersManagementService) {
+  constructor() {
     super();
     this.users$ = combineLatest([
       this.store.select(selectUsersCopy),
@@ -269,37 +277,4 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    TranslocoModule,
-    RouterLink,
-    TableModule,
-    TagModule,
-    TooltipModule,
-    InputTextModule,
-    ButtonModule,
-    ToolbarModule,
-    EditorModule,
-    RippleModule,
-    FormsModule,
-    ConfirmDialogModule,
-    StyleClassModule,
-    TabViewModule,
-    AutoCompleteModule,
-    CheckboxModule,
-    DividerModule,
-    DropdownModule,
-    MultiSelectModule
-  ],
-  declarations: [
-    UserManagementComponent,
-    UserEditComponent,
-    ActionsUserPopupComponent,
-    DashboardViewerPermissionsComponent
-  ],
-  exports: [UserManagementComponent]
-})
-export class UserManagementModule {
-}
+

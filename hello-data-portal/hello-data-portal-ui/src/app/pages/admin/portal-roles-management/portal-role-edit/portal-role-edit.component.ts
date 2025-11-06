@@ -25,12 +25,15 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
-import {selectAvailablePermissions, selectEditedPortalRole} from "../../../../store/portal-roles-management/portal-roles-management.selector";
+import {
+  selectAvailablePermissions,
+  selectEditedPortalRole
+} from "../../../../store/portal-roles-management/portal-roles-management.selector";
 import {PortalRole} from "../../../../store/portal-roles-management/portal-roles-management.model";
 import {selectAppInfos} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
@@ -38,15 +41,34 @@ import {naviElements} from "../../../../app-navi-elements";
 import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {navigate} from "../../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
-import {loadAppInfoResources, loadPermissionResources} from "../../../../store/metainfo-resource/metainfo-resource.action";
-import {deleteEditedPortalRole, saveChangesToPortalRole, showDeletePortalRolePopup} from "../../../../store/portal-roles-management/portal-roles-management.action";
+import {
+  loadAppInfoResources,
+  loadPermissionResources
+} from "../../../../store/metainfo-resource/metainfo-resource.action";
+import {
+  deleteEditedPortalRole,
+  saveChangesToPortalRole,
+  showDeletePortalRolePopup
+} from "../../../../store/portal-roles-management/portal-roles-management.action";
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { Textarea } from 'primeng/textarea';
+import { AutoComplete } from 'primeng/autocomplete';
+import { Toolbar } from 'primeng/toolbar';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { DeletePortalRolePopupComponent } from '../delete-portal-role-popup/delete-portal-role-popup.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-role-edit',
-  templateUrl: './portal-role-edit.component.html',
-  styleUrls: ['./portal-role-edit.component.scss']
+    selector: 'app-role-edit',
+    templateUrl: './portal-role-edit.component.html',
+    styleUrls: ['./portal-role-edit.component.scss'],
+    imports: [FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class PortalRoleEditComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
 
   editedRole$: Observable<any>;
   workspaces$: Observable<any>;
@@ -58,7 +80,7 @@ export class PortalRoleEditComponent implements OnInit, OnDestroy {
   filteredPermissions: any[] = [];
   formValueChangedSub!: Subscription;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
     this.editedRole$ = this.store.select(selectEditedPortalRole);
     this.availableDataPermissions$ = this.store.select(selectAvailablePermissions).pipe(

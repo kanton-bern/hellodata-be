@@ -25,18 +25,17 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
+import {combineLatest, Observable, Subscription, tap} from "rxjs";
 import {
   selectAllBusinessDomains,
   selectAllDataDomains,
   selectAvailableRolesForBusinessDomain,
   selectAvailableRolesForDataDomain,
   selectEditedUser,
-  selectUserContextRoles,
-  selectUserSaveButtonDisabled
+  selectUserContextRoles
 } from "../../../../store/users-management/users-management.selector";
 import {
   DashboardForUser,
@@ -47,7 +46,7 @@ import {
   UserAction
 } from "../../../../store/users-management/users-management.model";
 import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
-import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {Context} from "../../../../store/users-management/context-role.model";
 import {naviElements} from "../../../../app-navi-elements";
 import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
@@ -66,13 +65,29 @@ import {
   showUserActionPopup,
   updateUserRoles
 } from "../../../../store/users-management/users-management.action";
+import {AsyncPipe} from '@angular/common';
+import {Toolbar} from 'primeng/toolbar';
+import {Button} from 'primeng/button';
+import {Tooltip} from 'primeng/tooltip';
+import {Divider} from 'primeng/divider';
+import {Select} from 'primeng/select';
+import {
+  DashboardViewerPermissionsComponent
+} from './dashboard-viewer-permissions/dashboard-viewer-permissions.component';
+import {Ripple} from 'primeng/ripple';
+import {ActionsUserPopupComponent} from '../actions-user-popup/actions-user-popup.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
-  styleUrls: ['./user-edit.component.scss']
+  styleUrls: ['./user-edit.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, Select, DashboardViewerPermissionsComponent, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
 
   editedUser$: Observable<any>;
   businessDomains$: Observable<any>;
@@ -85,11 +100,12 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   dashboardTableVisibility = new Map<string, boolean>();
   userForm!: FormGroup;
 
-  userSaveButtonDisabled$: Observable<boolean>;
+  saveDisabled = false;
+
   private userContextRoles$: Observable<any>;
   private userContextRolesSub!: Subscription;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     super();
     this.store.dispatch(loadDashboards());
     this.store.dispatch(loadAvailableContextRoles());
@@ -103,9 +119,6 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.dataDomains$ = this.store.select(selectAllDataDomains);
     this.availableBusinessDomainRoles$ = this.store.select(selectAvailableRolesForBusinessDomain);
     this.availableDataDomainRoles$ = this.store.select(selectAvailableRolesForDataDomain);
-    this.userSaveButtonDisabled$ = this.store.select(selectUserSaveButtonDisabled).pipe(map(userSaveButtonDisabled => {
-      return userSaveButtonDisabled;
-    }));
     this.userContextRoles$ = combineLatest([
       this.store.select(selectUserContextRoles),
       this.store.select(selectIsSuperuser),
@@ -219,6 +232,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
           this.dashboardTableVisibility.set(userContextRole.context.contextKey as string, true);
         }
         const disabled = editedUserSuperuser && !isCurrentSuperuser;
+        this.saveDisabled = disabled;
         const control = new FormControl({
           value: userContextRole.role,
           disabled

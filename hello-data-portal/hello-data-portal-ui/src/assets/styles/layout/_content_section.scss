@@ -60,3 +60,15 @@
   width: 100%;
 }
 
+p-toolbar {
+  background: none;
+  border: none;
+}
+
+p-editor > .ql-toolbar.ql-snow {
+  border-bottom: none;
+}
+
+p-editor.p-editor-readonly > .ql-toolbar.ql-snow, p-editor.p-editor-readonly > .ql-container.ql-snow {
+  border: none;
+}

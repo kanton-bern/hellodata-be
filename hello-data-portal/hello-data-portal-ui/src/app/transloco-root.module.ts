@@ -27,12 +27,12 @@
 
 import {HttpClient} from '@angular/common/http';
 import {provideTransloco, Translation, TranslocoLoader, TranslocoModule} from '@jsverse/transloco';
-import {Injectable, isDevMode, NgModule} from '@angular/core';
+import { Injectable, isDevMode, NgModule, inject } from '@angular/core';
 
 @Injectable({providedIn: 'root'})
 export class TranslocoHttpLoader implements TranslocoLoader {
-  constructor(private http: HttpClient) {
-  }
+  private http = inject(HttpClient);
+
 
   getTranslation(lang: string) {
     const timestamp = new Date().getTime();

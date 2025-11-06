@@ -29,8 +29,8 @@ import {Component, OnInit} from '@angular/core';
 import {scrollToTop} from "../../services/view-helpers";
 
 @Component({
-  selector: 'app-base',
-  template: ''
+    selector: 'app-base',
+    template: ''
 })
 export class BaseComponent implements OnInit {
 

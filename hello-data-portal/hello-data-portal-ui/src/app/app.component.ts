@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, HostBinding, OnInit} from '@angular/core';
+import { Component, HostBinding, OnInit, inject } from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
@@ -35,13 +35,22 @@ import {Title} from "@angular/platform-browser";
 import {checkAuth, checkProfile} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
 import {navigate} from "./store/app/app.action";
+import { AsyncPipe } from '@angular/common';
+import {RouterOutlet} from '@angular/router';
+import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  imports: [RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent]
 })
 export class AppComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private screen = inject(ScreenService);
+  appInfo = inject(AppInfoService);
+  private title = inject(Title);
+
 
   private static readonly REDIRECT_TO_PARAM = 'redirectTo';
 
@@ -51,8 +60,9 @@ export class AppComponent implements OnInit {
   redirectTo$: Observable<any>;
   isMobile$: Observable<boolean>;
 
-  constructor(private store: Store<AppState>, private screen: ScreenService, public appInfo: AppInfoService,
-              private title: Title) {
+  constructor() {
+    const appInfo = this.appInfo;
+
     setTimeout(() => {
       this.checkAuth = true;
     }, 1500);
@@ -72,7 +82,7 @@ export class AppComponent implements OnInit {
       // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks the new tab fullscreen DWH viewer opening
       console.debug('enabled redirect param?', param);
       if (param) {
-        sessionStorage.setItem(AppComponent.REDIRECT_TO_PARAM, param);
+        sessionStorage.setItem(AppComponent.REDIRECT_TO_PARAM, param as string);
         console.debug('saved redirect param to the session storage', param);
       }
     }));

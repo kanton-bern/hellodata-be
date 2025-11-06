@@ -29,7 +29,6 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {RedirectComponent} from './redirect.component';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CommonModule} from '@angular/common';
-import {HdCommonModule} from '../../../hd-common.module';
 import {of} from 'rxjs';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 
@@ -49,8 +48,7 @@ describe('RedirectComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RedirectComponent],
-      imports: [CommonModule, HdCommonModule],
+      imports: [CommonModule, RedirectComponent],
       providers: [
         {provide: ActivatedRoute, useValue: mockActivatedRoute},
         {provide: Router, useValue: mockRouter},

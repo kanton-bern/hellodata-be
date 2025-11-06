@@ -25,14 +25,14 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, EventEmitter, Input, NgModule, Output} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
+import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {combineLatest, Observable, tap} from "rxjs";
 import {IUser} from "../../../store/auth/auth.model";
-import {PublishedAnnouncementsModule} from "../published-announcement/published-announcements.module";
+
 import {
   selectCurrentBusinessDomain,
   selectCurrentContextRolesFilterOffNone,
@@ -42,51 +42,41 @@ import {
   selectSelectedLanguage,
   selectSupportedLanguages
 } from "../../../store/auth/auth.selector";
-import {MenubarModule} from "primeng/menubar";
-import {MegaMenuModule} from "primeng/megamenu";
-import {MenuModule} from "primeng/menu";
-import {ButtonModule} from "primeng/button";
-import {SidebarModule} from "primeng/sidebar";
+import {Menu} from "primeng/menu";
 import {BreadcrumbComponent} from "../breadcrumb/breadcrumb.component";
-import {BreadcrumbModule} from "primeng/breadcrumb";
-import {TranslocoModule} from "@jsverse/transloco";
-import {DropdownModule} from "primeng/dropdown";
-import {FormsModule} from "@angular/forms";
-import {ToolbarModule} from "primeng/toolbar";
+import {TranslocoPipe} from "@jsverse/transloco";
 import {
   selectAvailableDataDomains,
   selectSelectedDataDomain
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {DataDomain} from "../../../store/my-dashboards/my-dashboards.model";
-import {RippleModule} from "primeng/ripple";
-import {AnimateModule} from "primeng/animate";
+import {Ripple} from "primeng/ripple";
 import {environment} from "../../../../environments/environment";
-import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {TranslateService} from "../../services/translate.service";
 import {navigate, trackEvent} from "../../../store/app/app.action";
 import {setSelectedDataDomain} from "../../../store/my-dashboards/my-dashboards.action";
-import {MenuItem, SharedModule} from "primeng/api";
-import {TabViewModule} from "primeng/tabview";
-import {InputTextModule} from "primeng/inputtext";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {BrowserModule} from "@angular/platform-browser";
+import {MenuItem} from "primeng/api";
 import {setSelectedLanguage} from "../../../store/auth/auth.action";
-import {DividerModule} from "primeng/divider";
-import {MatomoTrackerDirective} from "ngx-matomo-client";
+import {Tooltip} from "primeng/tooltip";
+import {
+  PublishedAnnouncementsWrapperComponent
+} from '../published-announcement/published-announcements-wrapper/published-announcements-wrapper.component';
 
 @Component({
   selector: 'app-header',
   templateUrl: 'header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [NgStyle, Tooltip, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
 
-  @Output()
-  menuToggle = new EventEmitter<boolean>();
-  @Input()
-  menuToggleEnabled = false;
-  @Input()
-  title!: string;
+
+  readonly menuToggle = output<boolean>();
+  readonly menuToggleEnabled = input(false);
+  readonly title = input.required<string>();
 
   userData$: Observable<IUser>;
   languages$: Observable<any[]>;
@@ -105,7 +95,7 @@ export class HeaderComponent {
 
   selectedLanguage: string | null = null;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
     this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
     this.userData$ = this.store.select(selectProfile);
     this.languages$ = this.getSupportedLanguages();
@@ -197,38 +187,6 @@ export class HeaderComponent {
     }));
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
-}
-
-@NgModule({
-  imports: [
-    CommonModule,
-    PublishedAnnouncementsModule,
-    MenubarModule,
-    MegaMenuModule,
-    MenuModule,
-    ButtonModule,
-    SidebarModule,
-    BreadcrumbModule,
-    TranslocoModule,
-    DropdownModule,
-    FormsModule,
-    ToolbarModule,
-    RippleModule,
-    AnimateModule,
-    ConfirmDialogModule,
-    BrowserModule,
-    BrowserAnimationsModule,
-    MenubarModule,
-    InputTextModule,
-    TabViewModule,
-    SharedModule,
-    DividerModule,
-    MatomoTrackerDirective
-  ],
-  declarations: [HeaderComponent, BreadcrumbComponent],
-  exports: [HeaderComponent]
-})
-export class HeaderModule {
 }
 
 

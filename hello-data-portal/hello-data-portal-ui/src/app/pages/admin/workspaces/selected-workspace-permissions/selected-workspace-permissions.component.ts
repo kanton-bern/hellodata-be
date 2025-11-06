@@ -25,14 +25,19 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
+
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { Tag } from 'primeng/tag';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-selected-workspace-permissions',
-  templateUrl: './selected-workspace-permissions.component.html',
-  styleUrls: ['./selected-workspace-permissions.component.scss']
+    selector: 'app-selected-workspace-permissions',
+    templateUrl: './selected-workspace-permissions.component.html',
+    styleUrls: ['./selected-workspace-permissions.component.scss'],
+    imports: [TableModule, PrimeTemplate, Tag, TranslocoPipe]
 })
 export class SelectedWorkspacePermissionsComponent {
-  @Input()
-  permissions!: any[];
+  readonly permissions = input.required<any[]>();
 }

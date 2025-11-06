@@ -1,37 +1,53 @@
 <h2 class="content-block">Workspaces</h2>
-<div *ngIf="(appInfos$ | async) as appInfos" class="card">
-  <div class="grid">
-    <div *ngFor="let item of appInfos | orderBy: 'moduleType'" class="col-2">
-      <div (click)="navigateToSelectedWorkspace(item)"
-           class="cursor-pointer p-5 bg-white flex flex-column align-items-center border-2 border-transparent hover:border-primary focus:border-primary active:border-primary transition-colors transition-duration-300 justify-content-center shadow-2"
-           pRipple style="height: 100%">
-        <table aria-describedby="workspaces">
-          <tr>
-            <th id="instanceName"></th>
-          </tr>
-          <tr>
-            <td style="text-align: center; padding: 5px; font-size: 1em">
-              {{ item.instanceName }}<br>
-            </td>
-          </tr>
-          <tr>
-            <td style="text-align: center">
-              <img *ngIf="item.moduleType === 'SUPERSET'" alt="Superset" class="logo"
-                   src="assets/workspaces/logos/superset.png"/>
-              <img *ngIf="item.moduleType === 'AIRFLOW'" alt="Airflow" class="logo"
-                   src="assets/workspaces/logos/airflow.png"/>
-              <img *ngIf="item.moduleType === 'DBT_DOCS'" alt="DBT Docs" class="logo"
-                   src="assets/workspaces/logos/dbt.svg"/>
-              <img *ngIf="item.moduleType === 'CLOUDBEAVER'" alt="Cloudbeaver" class="logo"
-                   src="assets/workspaces/logos/cloudbeaver.png"/>
-              <img *ngIf="item.moduleType === 'JUPYTERHUB'" alt="Jupyterhub" class="logo"
-                   src="assets/workspaces/logos/jupyterhub.png"/>
-              <img *ngIf="item.moduleType === 'SFTPGO'" alt="SftpGO" class="logo"
-                   src="assets/workspaces/logos/sftpgo-logo.png"/>
-            </td>
-          </tr>
-        </table>
-      </div>
+@if ((appInfos$ | async); as appInfos) {
+  <div class="card">
+    <div class="grid">
+      @for (item of appInfos | orderBy: 'moduleType'; track item) {
+        <div class="col-2">
+          <div (click)="navigateToSelectedWorkspace(item)"
+            class="cursor-pointer p-5 bg-white flex flex-column align-items-center border-2 border-transparent hover:border-primary focus:border-primary active:border-primary transition-colors transition-duration-300 justify-content-center shadow-2"
+            pRipple style="height: 100%">
+            <table aria-describedby="workspaces">
+              <tr>
+                <th id="instanceName"></th>
+              </tr>
+              <tr>
+                <td style="text-align: center; padding: 5px; font-size: 1em">
+                  {{ item.instanceName }}<br>
+                </td>
+              </tr>
+              <tr>
+                <td style="text-align: center">
+                  @if (item.moduleType === 'SUPERSET') {
+                    <img alt="Superset" class="logo"
+                      src="assets/workspaces/logos/superset.png"/>
+                  }
+                  @if (item.moduleType === 'AIRFLOW') {
+                    <img alt="Airflow" class="logo"
+                      src="assets/workspaces/logos/airflow.png"/>
+                  }
+                  @if (item.moduleType === 'DBT_DOCS') {
+                    <img alt="DBT Docs" class="logo"
+                      src="assets/workspaces/logos/dbt.svg"/>
+                  }
+                  @if (item.moduleType === 'CLOUDBEAVER') {
+                    <img alt="Cloudbeaver" class="logo"
+                      src="assets/workspaces/logos/cloudbeaver.png"/>
+                  }
+                  @if (item.moduleType === 'JUPYTERHUB') {
+                    <img alt="Jupyterhub" class="logo"
+                      src="assets/workspaces/logos/jupyterhub.png"/>
+                  }
+                  @if (item.moduleType === 'SFTPGO') {
+                    <img alt="SftpGO" class="logo"
+                      src="assets/workspaces/logos/sftpgo-logo.png"/>
+                  }
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      }
     </div>
   </div>
-</div>
+}

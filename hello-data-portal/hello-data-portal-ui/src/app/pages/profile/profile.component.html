@@ -1,75 +1,84 @@
 <h2 class="content-block">{{ '@Profile' | transloco }}</h2>
 
-<div *ngIf="(userDetails$ | async) as userDetails" class="card">
-  <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
-    <div class="col-12 md:col-10">
-      <input
-        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-        disabled id="firstName" type="text"
-        value="{{userDetails.given_name}}">
+@if ((userDetails$ | async); as userDetails) {
+  <div class="card">
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
+      <div class="col-12 md:col-10">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled id="firstName" type="text"
+          value="{{userDetails.given_name}}">
+      </div>
     </div>
-  </div>
-  <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
-    <div class="col-12 md:col-10">
-      <input
-        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-        disabled id="lastName" type="text"
-        value="{{userDetails.family_name}}">
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
+      <div class="col-12 md:col-10">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled id="lastName" type="text"
+          value="{{userDetails.family_name}}">
+      </div>
     </div>
-  </div>
-  <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
-    <div class="col-12 md:col-10">
-      <input
-        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-        disabled id="email" type="text"
-        value="{{userDetails.email}}">
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
+      <div class="col-12 md:col-10">
+        <input
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled id="email" type="text"
+          value="{{userDetails.email}}">
+      </div>
     </div>
-  </div>
-  <div class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="selectedLanguage">{{ '@Selected language' | transloco }}</label>
-    <div class="col-12 md:col-10">
-      <input
-        [value]="(selectedLanguage$ | async)?.code + ' ' + ((selectedLanguage$ | async)?.typeTranslationKey | transloco)"
-        class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full" disabled id="selectedLanguage"
-        type="text"/>
+    <div class="field grid">
+      <label class="col-12 mb-2 md:col-2 md:mb-0" for="selectedLanguage">{{ '@Selected language' | transloco }}</label>
+      <div class="col-12 md:col-10">
+        <input
+          [value]="(selectedLanguage$ | async)?.code + ' ' + ((selectedLanguage$ | async)?.typeTranslationKey | transloco)"
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          disabled id="selectedLanguage"
+          type="text"/>
+      </div>
     </div>
+    @if ((userContextRoles$ | async); as roles) {
+      <div class="field grid">
+        <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@Roles' | transloco }}</label>
+        <div class="col-12 md:col-10">
+          <p-table
+            [multiSortMeta]="[{field: 'context.type', order: 1}, {field: 'role.name', order: 1}]"
+            [rowHover]="true"
+            [tableStyle]="{ 'min-width': '50rem' }"
+            [value]="roles"
+            dataKey="id"
+            id="role-table"
+            sortMode="multiple"
+            class="p-datatable-striped"
+            >
+            <ng-template pTemplate="header">
+              <tr style="text-align: left;">
+                <th id="domain">{{ '@Domain' | transloco }}</th>
+                <th id="domainType">{{ '@Domain type' | transloco }}</th>
+                <th id="role">{{ '@Role' | transloco }}</th>
+              </tr>
+            </ng-template>
+            <ng-template let-contextRoleEntry pTemplate="body">
+              <tr>
+                <td>{{ contextRoleEntry.context.name }}</td>
+                @if (contextRoleEntry.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE) {
+                  <td>
+                    <i class="fa-solid fa-business-time" pTooltip="{{ contextRoleEntry.context.type }}"></i>
+                  </td>
+                }
+                @if (contextRoleEntry.context.type === DATA_DOMAIN_CONTEXT_TYPE) {
+                  <td>
+                    <i class="fa-solid fa-database" pTooltip="{{ contextRoleEntry.context.type }}"></i>
+                  </td>
+                }
+                <td>{{ contextRoleEntry.role.name }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    }
   </div>
-  <div *ngIf="(userContextRoles$ | async) as roles" class="field grid">
-    <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@Roles' | transloco }}</label>
-    <div class="col-12 md:col-10">
-      <p-table
-        [multiSortMeta]="[{field: 'context.type', order: 1}, {field: 'role.name', order: 1}]"
-        [rowHover]="true"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        [value]="roles"
-        dataKey="id"
-        id="role-table"
-        sortMode="multiple"
-        styleClass="p-datatable-striped"
-      >
-        <ng-template pTemplate="header">
-          <tr style="text-align: left;">
-            <th id="domain">{{ '@Domain' | transloco }}</th>
-            <th id="domainType">{{ '@Domain type' | transloco }}</th>
-            <th id="role">{{ '@Role' | transloco }}</th>
-          </tr>
-        </ng-template>
-        <ng-template let-contextRoleEntry pTemplate="body">
-          <tr>
-            <td>{{ contextRoleEntry.context.name }}</td>
-            <td *ngIf="contextRoleEntry.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE">
-              <i class="fa-solid fa-business-time" pTooltip="{{ contextRoleEntry.context.type }}"></i>
-            </td>
-            <td *ngIf="contextRoleEntry.context.type === DATA_DOMAIN_CONTEXT_TYPE">
-              <i class="fa-solid fa-database" pTooltip="{{ contextRoleEntry.context.type }}"></i>
-            </td>
-            <td>{{ contextRoleEntry.role.name }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-  </div>
-</div>
+}

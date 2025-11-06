@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {MenuService} from "./menu.service";
 import {catchError, of, switchMap} from "rxjs";
@@ -34,6 +34,9 @@ import {showError} from "../app/app.action";
 
 @Injectable()
 export class MenuEffects {
+  private _actions$ = inject(Actions);
+  private _menuService = inject(MenuService);
+
 
   processNavigation$ = createEffect(() => {
     return this._actions$.pipe(
@@ -44,10 +47,4 @@ export class MenuEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _menuService: MenuService,
-  ) {
-  }
 }

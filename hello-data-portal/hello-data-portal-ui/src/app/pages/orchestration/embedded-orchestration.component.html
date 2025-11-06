@@ -1,4 +1,6 @@
 
-<div *ngIf="currentPipelineInfo$ | async" style="padding-left: 20px;padding-top: 20px">
-  <app-subsystem-iframe [delay]="600" [url]="url"></app-subsystem-iframe>
-</div>
+@if (currentPipelineInfo$ | async) {
+  <div style="padding-left: 20px;padding-top: 20px">
+    <app-subsystem-iframe [delay]="600" [url]="url" />
+  </div>
+}

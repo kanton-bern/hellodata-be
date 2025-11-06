@@ -25,26 +25,34 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {Action, Store} from "@ngrx/store";
 import {combineLatest, Observable, tap} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedAnnouncementForDeletion} from "../../../../store/announcement/announcement.selector";
-import {ConfirmationService} from "primeng/api";
+import { ConfirmationService, PrimeTemplate } from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {hideDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
+import { AsyncPipe } from '@angular/common';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Button, ButtonDirective } from 'primeng/button';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-delete-announcement-popup[action]',
-  templateUrl: './delete-announcement-popup.component.html',
-  styleUrls: ['./delete-announcement-popup.component.scss']
+    selector: 'app-delete-announcement-popup[action]',
+    templateUrl: './delete-announcement-popup.component.html',
+    styleUrls: ['./delete-announcement-popup.component.scss'],
+    imports: [ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
 })
 export class DeleteAnnouncementPopupComponent {
-  @Input()
-  action!: Action;
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
+
+  readonly action = input.required<Action>();
   announcementToBeDeleted$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private confirmationService: ConfirmationService, private translateService: TranslateService) {
+  constructor() {
     this.announcementToBeDeleted$ = combineLatest([
       this.store.select(selectSelectedAnnouncementForDeletion),
       this.translateService.selectTranslate('@Delete announcement question')
@@ -58,7 +66,7 @@ export class DeleteAnnouncementPopupComponent {
   }
 
   deleteAnnouncement() {
-    this.store.dispatch(this.action);
+    this.store.dispatch(this.action());
   }
 
   hideDeletionPopup(): void {

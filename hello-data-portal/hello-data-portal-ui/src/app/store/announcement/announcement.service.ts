@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
-import {BehaviorSubject, Observable, of} from "rxjs";
+import {inject, Injectable} from "@angular/core";
+import {asyncScheduler, BehaviorSubject, Observable, scheduled} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {Announcement, AnnouncementCreate, AnnouncementUpdate} from "./announcement.model";
 import {environment} from "../../../environments/environment";
@@ -35,12 +35,14 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class AnnouncementService {
+  protected httpClient = inject(HttpClient);
+
 
   baseUrl = `${environment.portalApi}/announcements`;
   public hiddenAnnouncements = new BehaviorSubject<Announcement[]>([]);
   private readonly HIDDEN_ANNOUNCEMENTS_KEY = 'hidden_announcements';
 
-  constructor(protected httpClient: HttpClient) {
+  constructor() {
     const announcementsStringLocalStorage = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
     if (announcementsStringLocalStorage) {
       const announcements = JSON.parse(announcementsStringLocalStorage);
@@ -73,6 +75,7 @@ export class AnnouncementService {
   }
 
   public hideAnnouncement(announcement: Announcement) {
+    console.debug('Hiding announcement', announcement);
     const hiddenAnnouncementsFromStorage = localStorage.getItem(this.HIDDEN_ANNOUNCEMENTS_KEY);
     let announcements: Announcement[];
     if (hiddenAnnouncementsFromStorage) {
@@ -83,7 +86,7 @@ export class AnnouncementService {
     }
     localStorage.setItem(this.HIDDEN_ANNOUNCEMENTS_KEY, JSON.stringify(announcements));
     this.hiddenAnnouncements.next(announcements);
-    return of(announcement);
+    return scheduled([announcement], asyncScheduler);
   }
 
   public getHiddenAnnouncements(): Observable<Announcement[]> {

@@ -25,32 +25,34 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {map} from "rxjs/operators";
 import {Observable} from "rxjs";
+import { AsyncPipe } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { Tag } from 'primeng/tag';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-selected-workspace-dashboards',
-  templateUrl: './selected-workspace-dashboards.component.html',
-  styleUrls: ['./selected-workspace-dashboards.component.scss']
+    selector: 'app-selected-workspace-dashboards',
+    templateUrl: './selected-workspace-dashboards.component.html',
+    styleUrls: ['./selected-workspace-dashboards.component.scss'],
+    imports: [TableModule, PrimeTemplate, Tag, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceDashboardsComponent {
+  private store = inject<Store<AppState>>(Store);
 
-  @Input()
-  dashboards!: any[];
 
-  @Input()
-  instanceName!: string;
+  readonly dashboards = input.required<any[]>();
 
-  constructor(private store: Store<AppState>) {
-
-  }
+  readonly instanceName = input.required<string>();
 
   createLink(dashboardResource: any): Observable<string> {
-    return this.store.select(selectAppInfoByInstanceName(this.instanceName)).pipe(map(appinfos => {
+    return this.store.select(selectAppInfoByInstanceName(this.instanceName())).pipe(map(appinfos => {
       if (appinfos) {
         let dashboardId = dashboardResource.id;
         if (dashboardResource.slug) {
@@ -59,7 +61,7 @@ export class SelectedWorkspaceDashboardsComponent {
         const supersetUrl = appinfos.data.url;
         return supersetUrl + 'superset/dashboard/' + dashboardId + '/?standalone=1';
       } else {
-        console.warn('Could not find app-info by the instance name: ' + this.instanceName);
+        console.warn('Could not find app-info by the instance name: ' + this.instanceName());
         return '';
       }
     }))

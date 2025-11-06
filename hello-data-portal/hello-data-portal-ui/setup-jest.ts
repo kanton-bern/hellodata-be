@@ -25,9 +25,12 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import 'jest-preset-angular/setup-jest';
+// import 'jest-preset-angular';
 import {NgModule} from "@angular/core";
 import {jest} from "@jest/globals";
+import {setupZoneTestEnv} from 'jest-preset-angular/setup-env/zone';
+
+setupZoneTestEnv();
 
 Object.defineProperty(window, 'CSS', {value: null});
 Object.defineProperty(document, 'doctype', {

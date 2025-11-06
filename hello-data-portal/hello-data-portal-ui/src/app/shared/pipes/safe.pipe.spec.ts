@@ -28,6 +28,8 @@
 import {SafePipe} from './safe.pipe';
 import {DomSanitizer} from '@angular/platform-browser';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
+import {TestBed} from "@angular/core/testing";
+
 
 describe('SafePipe', () => {
   let pipe: SafePipe;
@@ -40,9 +42,15 @@ describe('SafePipe', () => {
       bypassSecurityTrustScript: jest.fn(),
       bypassSecurityTrustUrl: jest.fn(),
       bypassSecurityTrustResourceUrl: jest.fn(),
-    } as any;
+    } as unknown as DomSanitizer;
 
-    pipe = new SafePipe(sanitizer);
+    TestBed.configureTestingModule({
+      providers: [{provide: DomSanitizer, useValue: sanitizer}],
+    });
+
+    TestBed.runInInjectionContext(() => {
+      pipe = new SafePipe(); // ✅ now inside an injection context
+    });
   });
 
   it('should create an instance', () => {
@@ -93,6 +101,6 @@ describe('SafePipe', () => {
     const value = 'Invalid Value';
     const invalidType = 'invalidType';
 
-    expect(() => pipe.transform(value, invalidType)).toThrowError(`Invalid safe type specified: ${invalidType}`);
+    expect(() => pipe.transform(value, invalidType)).toThrow(`Invalid safe type specified: ${invalidType}`);
   });
 });

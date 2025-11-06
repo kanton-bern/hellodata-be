@@ -25,35 +25,43 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, EventEmitter, Input, Output} from "@angular/core";
+import { Component, inject, input, output } from "@angular/core";
 import {Context} from "../../../../../store/users-management/context-role.model";
 import {DashboardForUser} from "../../../../../store/users-management/users-management.model";
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../../store/app/app.state";
-import {selectAllDashboardsWithMarkedUser, selectAllDashboardsWithMarkedUserFetched} from "../../../../../store/users-management/users-management.selector";
+import {
+  selectAllDashboardsWithMarkedUser,
+  selectAllDashboardsWithMarkedUserFetched
+} from "../../../../../store/users-management/users-management.selector";
 import {markUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
 import {take} from "rxjs/operators";
 import {updateUserRoles} from "../../../../../store/users-management/users-management.action";
+import { AsyncPipe } from "@angular/common";
+import { MultiSelect } from "primeng/multiselect";
+import { FormsModule } from "@angular/forms";
+import { TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  selector: 'app-dashboard-viewer-permissions',
-  templateUrl: './dashboard-viewer-permissions.component.html',
-  styleUrls: ['./dashboard-viewer-permissions.component.scss']
+    selector: 'app-dashboard-viewer-permissions',
+    templateUrl: './dashboard-viewer-permissions.component.html',
+    styleUrls: ['./dashboard-viewer-permissions.component.scss'],
+    imports: [MultiSelect, FormsModule, AsyncPipe, TranslocoPipe]
 })
 export class DashboardViewerPermissionsComponent {
-  @Input()
-  context!: Context;
+  private store = inject<Store<AppState>>(Store);
+
+  readonly context = input.required<Context>();
   allDashboardsForContext: DashboardForUser[] = [];
   dashboards$: Observable<any>;
   dashboardsFetched$: Observable<boolean>;
 
   selectedDashboards: DashboardForUser[] = [];
 
-  @Output()
-  selectedDashboardsEvent = new EventEmitter<DashboardForUser[]>();
+  readonly selectedDashboardsEvent = output<DashboardForUser[]>();
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.dashboardsFetched$ = this.store.select(selectAllDashboardsWithMarkedUserFetched).pipe(tap(fetched => console.debug("dashboards fetched?", fetched)));
     this.dashboards$ =
       this.store.select(selectAllDashboardsWithMarkedUser).pipe(
@@ -71,16 +79,16 @@ export class DashboardViewerPermissionsComponent {
   }
 
   private extractDashboardsForSelectedContext(allDashboards: DashboardForUser[]) {
-    const allDashboardsForContext = allDashboards.filter(dashboard => dashboard.contextKey === this.context.contextKey);
+    const allDashboardsForContext = allDashboards.filter(dashboard => dashboard.contextKey === this.context().contextKey);
     this.allDashboardsForContext = allDashboardsForContext.map((item) => {
       return {...item}
     });
-    console.debug(`${this.context.contextKey}` + " - all dashboards for context ", this.allDashboardsForContext);
+    console.debug(`${this.context().contextKey}` + " - all dashboards for context ", this.allDashboardsForContext);
   }
 
   private extractSelectedDashboards() {
     this.selectedDashboards = this.allDashboardsForContext.filter(dashboard => dashboard.viewer);
-    console.debug(`${this.context.contextKey}` + " - selected dashboards " + this.context.contextKey, this.selectedDashboards);
+    console.debug(`${this.context().contextKey}` + " - selected dashboards " + this.context().contextKey, this.selectedDashboards);
   }
 
 }

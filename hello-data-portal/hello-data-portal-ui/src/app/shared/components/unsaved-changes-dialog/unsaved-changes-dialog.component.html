@@ -1,30 +1,26 @@
-
 <p-confirmDialog #cd [style]="{width: '50vw'}" key="unsavedChangesConfirmation">
   <ng-template pTemplate="header">
-    <h3>{{"@Unsaved changes title" | transloco}}</h3>
+    <h3>{{ "@Unsaved changes title" | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton type="button"></button>
-    <ng-container *ngIf="stayOnPage$ | async as stayOnPage">
-      <button
-        (click)="cd.accept()"
-        *ngIf="!stayOnPage.value; else continueEditionButton"
-        class="p-button-success"
-        icon="fas fa-floppy-disk"
-        label="{{ '@Save' | transloco }}"
-        pButton
-        type="button"
-      ></button>
-      <ng-template #continueEditionButton>
-        <button
-          (click)="cd.hide()"
-          class="p-button-success"
+    <button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton
+    type="button" severity="secondary"></button>
+    @if (stayOnPage$ | async; as stayOnPage) {
+      @if (!stayOnPage.value) {
+        <p-button (click)="cd.onAccept()"
+          severity="success"
+          icon="fas fa-floppy-disk"
+          label="{{ '@Save' | transloco }}"
+          type="button"
+         />
+      } @else {
+        <p-button (click)="cd.hide()"
+          severity="success"
           icon="fas fa-pen-to-square"
           label="{{ '@Continue edition' | transloco }}"
-          pButton
           type="button"
-        ></button>
-      </ng-template>
-    </ng-container>
+         />
+      }
+    }
   </ng-template>
 </p-confirmDialog>

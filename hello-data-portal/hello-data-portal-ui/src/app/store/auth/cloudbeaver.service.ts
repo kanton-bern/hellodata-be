@@ -1,5 +1,5 @@
 // services/user-preferences.service.ts
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from "../../../environments/environment";
@@ -8,11 +8,10 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root',
 })
 export class CloudbeaverService {
+  private http = inject(HttpClient);
+
   private apiUrl = environment.subSystemsConfig.dmViewer.protocol + environment.subSystemsConfig.dmViewer.host
     + environment.subSystemsConfig.dmViewer.domain + 'api/gql';
-
-  constructor(private http: HttpClient) {
-  }
 
   updateUserPreferences(selectedLang: string): Observable<any> {
     const preferences = {

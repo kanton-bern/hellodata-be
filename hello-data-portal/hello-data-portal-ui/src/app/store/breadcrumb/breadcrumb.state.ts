@@ -27,7 +27,7 @@
 
 import {MenuItem} from "primeng/api";
 
-export const HOME_BREADCRUMB = {icon: 'fas fa-house', routerLink: ['home']};
+export const HOME_BREADCRUMB = {icon: 'fas fa-house', routerLink: ['home'], label: '\u200B'};
 
 export interface BreadcrumbState {
   breadcrumbs: MenuItem[];

@@ -25,24 +25,33 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from "@angular/core";
+import { Component, inject } from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {selectAllBusinessDomains, selectAllDataDomains} from "../../../../store/users-management/users-management.selector";
+import {
+  selectAllBusinessDomains,
+  selectAllDataDomains
+} from "../../../../store/users-management/users-management.selector";
 import {Observable} from "rxjs";
 import {Context} from "../../../../store/users-management/context-role.model";
 import {loadAvailableContexts} from "../../../../store/users-management/users-management.action";
+import { AsyncPipe } from "@angular/common";
+import { Tooltip } from "primeng/tooltip";
+import { TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  selector: 'app-subscriptions',
-  templateUrl: './subscriptions.component.html',
-  styleUrls: ['./subscriptions.component.scss']
+    selector: 'app-subscriptions',
+    templateUrl: './subscriptions.component.html',
+    styleUrls: ['./subscriptions.component.scss'],
+    imports: [Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class SubscriptionsComponent {
+  private store = inject<Store<AppState>>(Store);
+
   businessDomains$: Observable<Context[]>;
   dataDomains$: Observable<Context[]>;
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.store.dispatch(loadAvailableContexts());
     this.businessDomains$ = this.store.select(selectAllBusinessDomains);
     this.dataDomains$ = this.store.select(selectAllDataDomains);

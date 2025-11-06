@@ -29,9 +29,11 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {BreadcrumbComponent} from './breadcrumb.component';
 import {BreadcrumbService} from '../../services/breadcrumb.service';
 import {of} from 'rxjs';
-import {beforeEach, describe, expect, it} from '@jest/globals';
+import {beforeEach, describe, expect, it, jest} from '@jest/globals';
 import {TestModule} from "../../../test.module";
 import {TitleCasePipe} from "@angular/common";
+import {TranslocoTestingModule} from "@jsverse/transloco";
+import {MatomoTracker} from "ngx-matomo-client";
 
 class MockTranslateService {
   get(key: any): any {
@@ -47,9 +49,23 @@ describe('BreadcrumbComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [BreadcrumbComponent],
-      imports: [TestModule],
-      providers: [BreadcrumbService, TitleCasePipe],
+      imports: [
+        TestModule,
+        BreadcrumbComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        BreadcrumbService,
+        TitleCasePipe,
+        {provide: MatomoTracker, useValue: {trackEvent: jest.fn(), trackPageView: jest.fn()}},
+      ],
     });
     fixture = TestBed.createComponent(BreadcrumbComponent);
     component = fixture.componentInstance;

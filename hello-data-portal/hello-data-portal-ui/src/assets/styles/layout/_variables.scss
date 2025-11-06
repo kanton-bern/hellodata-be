@@ -28,3 +28,79 @@
 $scale: 14px; /* main font size */
 $borderRadius: 2px; /* border radius of layout element e.g. card, sidebar */
 $transitionDuration: .2s; /* transition duration of layout elements e.g. sidebar, overlay menus */
+
+$text-color: black;
+
+:root {
+  --success-color: #689f38;
+  /* Surface Colors */
+  --surface-a: #ffffff;
+  --surface-b: #fafafa;
+  --surface-c: rgba(0, 0, 0, .04);
+  --surface-d: rgba(0, 0, 0, .12);
+  --surface-e: #ffffff;
+  --surface-f: #ffffff;
+
+  /* Text Colors */
+  --text-color: rgba(0, 0, 0, .87);
+  --text-color-secondary: rgba(0, 0, 0, .6);
+
+  /* Primary Colors */
+  --primary-color: #3F51B5;
+  --primary-color-text: #ffffff;
+  --p-primary-color: var(--primary-color);
+
+  // Various PrimeNG Overrides
+  --p-highlight-color: var(--text-color);
+  --p-datatable-header-cell-selected-color: var(--text-color);
+  //--p-paginator-nav-button-selected-color: var(--text-color);
+  //--p-button-success-background: var(--success-color);
+  //--p-button-success-border-color: var(--success-color);
+  //--p-button-primary-background: var(--success-color);
+  //--p-button-primary-border-color: var(--success-color);
+
+  /* Surface Scale */
+  --surface-0: #ffffff;
+  --surface-50: #fafafa;
+  --surface-100: #f5f5f5;
+  --surface-200: #eeeeee;
+  --surface-300: #e0e0e0;
+  --surface-400: #bdbdbd;
+  --surface-500: #9e9e9e;
+  --surface-600: #757575;
+  --surface-700: #616161;
+  --surface-800: #424242;
+  --surface-900: #212121;
+
+  /* Gray Scale */
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-200: #eeeeee;
+  --gray-300: #e0e0e0;
+  --gray-400: #bdbdbd;
+  --gray-500: #9e9e9e;
+  --gray-600: #757575;
+  --gray-700: #616161;
+  --gray-800: #424242;
+  --gray-900: #212121;
+
+  /* Layout */
+  --content-padding: 1rem;
+  --inline-spacing: .5rem;
+  --border-radius: 4px;
+
+  /* Semantic Colors */
+  --surface-ground: #fafafa;
+  --surface-section: #ffffff;
+  --surface-card: #ffffff;
+  --surface-overlay: #ffffff;
+  --surface-border: rgba(0, 0, 0, .12);
+  --surface-hover: rgba(0, 0, 0, .04);
+
+  /* Misc */
+  --maskbg: rgba(0, 0, 0, .32);
+  --highlight-bg: rgba(63, 81, 181, .12);
+  --highlight-text-color: #3F51B5;
+  --focus-ring: none;
+}
+

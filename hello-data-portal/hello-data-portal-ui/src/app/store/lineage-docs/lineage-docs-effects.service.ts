@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
@@ -40,13 +40,10 @@ import {processNavigation} from "../menu/menu.action";
 
 @Injectable()
 export class LineageDocsEffects {
+  private _actions$ = inject(Actions);
+  private _docsService = inject(LineageDocsService);
+  private _store = inject<Store<AppState>>(Store);
 
-  constructor(
-    private _actions$: Actions,
-    private _docsService: LineageDocsService,
-    private _store: Store<AppState>
-  ) {
-  }
 
   loadMyLineageDocs$ = createEffect(() => {
     return this._actions$.pipe(

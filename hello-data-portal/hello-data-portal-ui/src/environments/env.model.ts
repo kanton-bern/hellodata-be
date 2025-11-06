@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {LogLevel} from "angular-auth-oidc-client/lib/logging/log-level";
+
+import {LogLevel} from "angular-auth-oidc-client";
 
 export interface Environment {
   appTitle?: string;

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {BaseComponent} from "../../../shared/components/base/base.component";
@@ -38,8 +38,18 @@ import {
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {map} from "rxjs/operators";
-import {Table} from "primeng/table";
+import {Table, TableModule} from "primeng/table";
 import {TranslateService} from "../../../shared/services/translate.service";
+import {AsyncPipe} from '@angular/common';
+import {PrimeTemplate} from 'primeng/api';
+import {Button, ButtonDirective, ButtonIcon} from 'primeng/button';
+import {InputText} from 'primeng/inputtext';
+import {Tag} from 'primeng/tag';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {FormsModule} from "@angular/forms";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
+import {Ripple} from "primeng/ripple";
 
 interface TableRow {
   email: string;
@@ -50,9 +60,13 @@ interface TableRow {
 @Component({
   selector: 'app-subsystem-users',
   templateUrl: './subsystem-users.component.html',
-  styleUrls: ['./subsystem-users.component.scss']
+  styleUrls: ['./subsystem-users.component.scss'],
+  imports: [TableModule, PrimeTemplate, Button, InputText, Tag, AsyncPipe, TranslocoPipe, FormsModule, IconField, InputIcon, ButtonIcon, ButtonDirective, Ripple]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';
   private static readonly NO_PERMISSIONS = '@User has no permissions in the instance';
   tableData$: Observable<TableRow[]>;
@@ -60,8 +74,10 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   dataLoading$: Observable<boolean>;
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
     super();
+    const store = this.store;
+
     store.dispatch(loadSubsystemUsers());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();

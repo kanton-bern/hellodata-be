@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectBreadcrumbs} from "../../store/breadcrumb/breadcrumb.selector";
@@ -38,9 +38,9 @@ import {selectSelectedLanguage} from "../../store/auth/auth.selector";
   providedIn: 'root'
 })
 export class BreadcrumbService {
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
 
-  }
 
   getBreadCrumbs(): Observable<MenuItem[]> {
     return combineLatest([

@@ -42,12 +42,10 @@ import {navigate} from "../../store/app/app.action";
   providedIn: 'root',
 })
 export class UnsavedChangesGuard {
-  constructor(
-    private confirmationService: ConfirmationService,
-    private store: Store<AppState>,
-    private translateService: TranslateService
-  ) {
-  }
+  private confirmationService = inject(ConfirmationService);
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
 
   canDeactivate(
     component: any,

@@ -1,59 +1,67 @@
-
-<h2 class="content-block">{{'@Portal roles management' | transloco}}</h2>
+<h2 class="content-block">{{ '@Portal roles management' | transloco }}</h2>
 <div class="card">
-  <div *ngIf="(roles$ | async) as roles">
-    <p-table
-      #dt
-      [paginator]="false"
-      [rowHover]="true"
-      [showCurrentPageReport]="true"
-      [tableStyle]="{ 'min-width': '75rem' }"
-      [value]="roles"
-      dataKey="id"
-      styleClass="p-datatable-striped"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th id="name">
-            {{'@Name' | transloco}}
-          </th>
-          <th id="description">
-            {{'@Description' | transloco}}
-          </th>
-          <th id="permissions" style="min-width:20rem">
-            {{'@Permissions' | transloco}}
-          </th>
-          <th id="actions" style="min-width:8rem"></th>
-        </tr>
-      </ng-template>
-      <ng-template let-role pTemplate="body">
-        <tr>
-          <td>{{ role.name }}</td>
-          <td>{{ role.description }}</td>
-          <td>
-            <span *ngFor="let permission of role.permissions" style="margin: 2px">
-              <p-tag severity="warning" value="{{permission}}"></p-tag>
-            </span>
-          </td>
-          <td>
-            <button (click)="editRole(role)" *ngIf="!role.systemDefault"
-                    [pTooltip]="'@Edit' | transloco"
-                    class="p-button-rounded p-button-success mr-2"
-                    icon="fas fa-light fa-pen-to-square"
-                    pButton
-                    pRipple></button>
-            <button (click)="showRoleDeletionPopup(role)"
-                    *ngIf="!role.systemDefault"
-                    [pTooltip]="'@Delete' | transloco"
-                    class="p-button-rounded p-button-danger"
-                    icon="fas fa-trash"
-                    pButton
-                    pRipple></button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  @if ((roles$ | async); as roles) {
+    <div>
+      <p-table
+        #dt
+        [paginator]="false"
+        [rowHover]="true"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [value]="roles"
+        dataKey="id"
+        class="p-datatable-striped"
+        >
+        <ng-template pTemplate="header">
+          <tr>
+            <th id="name">
+              {{ '@Name' | transloco }}
+            </th>
+            <th id="description">
+              {{ '@Description' | transloco }}
+            </th>
+            <th id="permissions" style="min-width:20rem">
+              {{ '@Permissions' | transloco }}
+            </th>
+            <th id="actions" style="min-width:8rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template let-role pTemplate="body">
+          <tr>
+            <td>{{ role.name }}</td>
+            <td>{{ role.description }}</td>
+            <td>
+              @for (permission of role.permissions; track permission) {
+                <span style="margin: 2px">
+                  <p-tag severity="warn" value="{{permission}}" />
+                </span>
+              }
+            </td>
+            <td>
+              @if (!role.systemDefault) {
+                <p-button (click)="editRole(role)"
+                  [pTooltip]="'@Edit' | transloco"
+                  severity="success"
+                  class="p-button-rounded"
+                  icon="fas fa-light fa-pen-to-square"
+                  pButton
+                pRipple />
+              }
+              @if (!role.systemDefault) {
+                <p-button (click)="showRoleDeletionPopup(role)"
+                  [pTooltip]="'@Delete' | transloco"
+                  severity="danger"
+                  class="p-button-rounded"
+                  icon="fas fa-trash"
+                  pButton
+                pRipple />
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
 </div>
 
-<app-delete-role-popup [action]="getDeletionAction()"></app-delete-role-popup>
+<app-delete-role-popup [action]="getDeletionAction()" />

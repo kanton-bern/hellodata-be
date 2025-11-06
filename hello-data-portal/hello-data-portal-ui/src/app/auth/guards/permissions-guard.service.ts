@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, Router, RouterStateSnapshot} from '@angular/router';
-import {Observable, of} from 'rxjs';
+import {asyncScheduler, Observable, scheduled} from 'rxjs';
 import {filter, map, switchMap, take} from 'rxjs/operators';
 import {Store} from '@ngrx/store';
 import {AppState} from "../../store/app/app.state";
@@ -37,8 +37,9 @@ import {selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "
   providedIn: 'root'
 })
 export class PermissionsGuard {
-  constructor(private store: Store<AppState>, private router: Router) {
-  }
+  private store = inject<Store<AppState>>(Store);
+  private router = inject(Router);
+
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
     return this.store.select(selectCurrentUserPermissions).pipe(
@@ -52,7 +53,7 @@ export class PermissionsGuard {
           );
         } else {
           // Permissions already loaded, check them immediately
-          return of(this.checkPermissions(next, state, currentUserPermissions));
+          return scheduled([this.checkPermissions(next, state, currentUserPermissions)], asyncScheduler);
         }
       })
     );

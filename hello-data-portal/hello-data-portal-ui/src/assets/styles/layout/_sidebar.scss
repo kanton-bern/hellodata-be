@@ -90,35 +90,56 @@ body {
 }
 
 //new menu start
-.p-tieredmenu {
-  width: 100%;
+
+p-tieredmenu > div {
+  width: 100% !important;
+  border: none !important;
+}
+
+p-tieredmenu > div > p-tieredmenusub {
+  position: absolute !important;
+}
+
+p-tieredmenu {
   border: none;
   width: auto !important;
 }
 
-.p-tieredmenu {
+p-tieredmenu {
   padding: 0;
 }
 
-.p-tieredmenu .p-submenu-list {
+p-tieredmenu > div > p-tieredmenusub > ul {
+  padding: 0 2px 0 0;
+}
+
+p-tieredmenu > div > p-tieredmenusub > ul > li {
+  padding-top: 2px;
+  padding-bottom: 20px;
+}
+
+.p-tieredmenu-submenu {
   width: auto !important;
   min-width: unset !important;
   white-space: nowrap !important;
 }
 
-.p-tieredmenu .p-menuitem-link {
+.p-tieredmenu-item-content a {
+  cursor: pointer;
+}
+
+p-tieredmenu .p-menuitem-link {
   width: 100%;
   display: inline-block;
 }
 
-.first-level-item span {
-  color: $menu-item-text-color;
-  margin: 0;
+p-tieredmenusub {
+  width: 100%;
 }
 
+
 p-tieredmenusub p-tieredmenusub ul li div a {
-  padding: 3px;
-  padding-left: 0;
+  padding: 3px 3px 3px 0;
 }
 
 p-tieredmenusub p-tieredmenusub ul li div a span {
@@ -126,6 +147,13 @@ p-tieredmenusub p-tieredmenusub ul li div a span {
   margin-left: 0;
   font-size: 1.1rem;
   font-weight: 300;
+}
+
+.first-level-item .text-container {
+  /* Ensure text wraps within container */
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 // new menu end
@@ -219,7 +247,6 @@ p-tieredmenusub p-tieredmenusub ul li div a span {
 .content-section {
   top: -8px;
   position: relative;
-  height: 100vh;
   left: 260px;
   width: calc(100% - 260px);
   transition: all 0.5s ease;

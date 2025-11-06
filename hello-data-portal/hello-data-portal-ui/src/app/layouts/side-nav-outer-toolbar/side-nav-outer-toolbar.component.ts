@@ -25,43 +25,44 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input, NgModule} from '@angular/core';
-import {HeaderModule, SummaryModule} from '../../shared/components';
-import {CommonModule} from '@angular/common';
+import {Component, inject, input} from '@angular/core';
 
-import {RouterLink, RouterOutlet} from '@angular/router';
-import {ScrollPanelModule} from "primeng/scrollpanel";
+import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
-import {TranslocoModule} from "@jsverse/transloco";
-import {TooltipModule} from "primeng/tooltip";
-import {DividerModule} from "primeng/divider";
-import {ToastModule} from "primeng/toast";
-import {ScrollTopModule} from "primeng/scrolltop";
-import {UnsavedChangesModule} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {Tooltip} from "primeng/tooltip";
+import {Toast} from "primeng/toast";
+import {
+  UnsavedChangesDialogComponent
+} from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
 import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
-import {MatomoTrackClickDirective, MatomoTrackerDirective} from "ngx-matomo-client";
 import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
-import {TieredMenuModule} from "primeng/tieredmenu";
-import {BadgeModule} from "primeng/badge";
-import {MenuItem} from "primeng/api";
+import {TieredMenu} from "primeng/tieredmenu";
+import {Badge} from "primeng/badge";
+import {MenuItem, PrimeTemplate} from "primeng/api";
+import {Ripple} from "primeng/ripple";
+import {HeaderComponent, SummaryComponent} from '../../shared/components';
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
-  styleUrls: ['./side-nav-outer-toolbar.component.scss']
+  styleUrls: ['./side-nav-outer-toolbar.component.scss'],
+  imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, NgStyle, SummaryComponent,
+    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
+  private store = inject<Store<AppState>>(Store);
 
-  @Input()
-  title!: string;
+
+  readonly title = input.required<string>();
   navItems$: Observable<any[]>;
   selectCurrentUserPermissionsLoaded$: Observable<boolean>;
   mouseEnterTimeoutId: number[] = [];
 
-  constructor(private store: Store<AppState>) {
+  constructor() {
     this.navItems$ = this.store.select(selectNavItems);
     this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
   }
@@ -111,24 +112,4 @@ export class SideNavOuterToolbarComponent {
   }
 }
 
-@NgModule({
-  imports: [HeaderModule,
-    CommonModule,
-    RouterOutlet,
-    ScrollPanelModule,
-    RouterLink,
-    TranslocoModule,
-    TooltipModule,
-    DividerModule,
-    SummaryModule,
-    ToastModule,
-    ScrollTopModule,
-    UnsavedChangesModule,
-    MatomoTrackerDirective,
-    MatomoTrackClickDirective, TieredMenuModule, BadgeModule
-  ],
-  exports: [SideNavOuterToolbarComponent],
-  declarations: [SideNavOuterToolbarComponent]
-})
-export class SideNavOuterToolbarModule {
-}
+

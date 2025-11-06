@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, HostListener, ViewChild} from '@angular/core';
+import { Component, ElementRef, HostListener, inject, viewChild } from '@angular/core';
 import {Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -37,21 +37,28 @@ import {selectLineageInfo} from "../../../store/lineage-docs/lineage-docs.select
 import {navigate} from "../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {TranslateService} from "../../../shared/services/translate.service";
+import { AsyncPipe } from '@angular/common';
+import { SubsystemIframeComponent } from '../../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 @Component({
-  templateUrl: 'embedded-lineage-docs.component.html',
-  styleUrls: ['./embedded-lineage-docs.component.scss']
+    templateUrl: 'embedded-lineage-docs.component.html',
+    styleUrls: ['./embedded-lineage-docs.component.scss'],
+    imports: [SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedLineageDocsComponent {
+  private store = inject<Store<AppState>>(Store);
+  private docsService = inject(LineageDocsService);
+  private translateService = inject(TranslateService);
+
   url!: string;
   projectId!: string;
 
   lineageInfo$: Observable<any>;
 
-  @ViewChild('container') container!: ElementRef;
-  @ViewChild('doc') docIframe!: ElementRef;
+  readonly container = viewChild.required<ElementRef>('container');
+  readonly docIframe = viewChild.required<ElementRef>('doc');
 
-  constructor(private store: Store<AppState>, private docsService: LineageDocsService, private translateService: TranslateService) {
+  constructor() {
     this.store.dispatch(loadAvailableContexts());
     this.lineageInfo$ = this.store.select(selectLineageInfo).pipe(tap((lineageInfo) => {
       if (lineageInfo) {

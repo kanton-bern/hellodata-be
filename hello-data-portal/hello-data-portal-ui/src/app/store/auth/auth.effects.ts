@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, EMPTY, map, of, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, EMPTY, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   authError,
   checkAuth,
@@ -63,11 +63,20 @@ import {WindowManagementService} from "../../shared/services/window-management.s
 
 @Injectable()
 export class AuthEffects {
+  private _actions$ = inject(Actions);
+  private _store = inject<Store<AppState>>(Store);
+  private _authService = inject(AuthService);
+  private _usersManagementService = inject(UsersManagementService);
+  private _translateService = inject(TranslateService);
+  private _cloudbeaverService = inject(CloudbeaverService);
+  private _cloudbeaverSessionService = inject(CloudbeaverSessionService);
+  private _windowManagementService = inject(WindowManagementService);
+
   login$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(login),
       tap(() => this._authService.doLogin()),
-      catchError(e => of(authError(e)))
+      catchError(e => scheduled([authError(e)], asyncScheduler))
     )
   }, {dispatch: false});
 
@@ -79,7 +88,7 @@ export class AuthEffects {
         this._windowManagementService.closeAllWindows();
       }),
       switchMap(() => this._authService.signOut()),
-      catchError(e => of(authError(e)))
+      catchError(e => scheduled([authError(e)], asyncScheduler))
     )
   });
 
@@ -93,11 +102,11 @@ export class AuthEffects {
               accessToken: authResult.accessToken,
               profile: authResult.userData
             })),
-            catchError(e => of(authError(e)))
+            catchError(e => scheduled([authError(e)], asyncScheduler))
           )
         }
       ),
-      catchError(e => of(authError(e)))
+      catchError(e => scheduled([authError(e)], asyncScheduler))
     )
   });
 
@@ -124,16 +133,16 @@ export class AuthEffects {
                 })
               );
             }
-            return of(loginComplete({
+            return scheduled([loginComplete({
               profile: action.profile,
               isLoggedIn: action.isLoggedIn,
               accessToken: action.accessToken
-            }));
+            })], asyncScheduler);
           }
-          return of(navigate({url: 'home'}));
+          return scheduled([navigate({url: 'home'})], asyncScheduler);
         }
       ),
-      catchError(e => of(authError(e)))
+      catchError(e => scheduled([authError(e)], asyncScheduler))
     )
   });
 
@@ -144,20 +153,20 @@ export class AuthEffects {
       switchMap((currentUserAuthData) => {
         console.debug("Check profile, current data", currentUserAuthData)
         if (currentUserAuthData && !currentUserAuthData.userDisabled) {
-          return of(fetchPermissionSuccess({currentUserAuthData}))
+          return scheduled([fetchPermissionSuccess({currentUserAuthData})], asyncScheduler)
         }
         console.error("!!! User disabled !!!");
-        return of(userForbidden());
+        return scheduled([userForbidden()], asyncScheduler);
       }),
-      catchError(e => of(authError(e)))
+      catchError(e => scheduled([authError(e)], asyncScheduler))
     )
   })
 
   loginComplete$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loginComplete),
-      switchMap(() => of(checkProfile())),
-      catchError(e => of(authError(e)))
+      switchMap(() => scheduled([checkProfile()], asyncScheduler)),
+      catchError(e => scheduled([authError(e)], asyncScheduler))
     )
   });
 
@@ -169,7 +178,7 @@ export class AuthEffects {
         const availableLangs = this._translateService.getAvailableLangs();
         const permissions = action.currentUserAuthData.permissions;
         if (!permissions || permissions.length === 0 || !permissions.includes('DASHBOARDS')) {
-          return of(
+          return scheduled([
             setAvailableLanguages({langs: availableLangs}),
             setDefaultLanguage({lang: defaultLanguage}),
             loadAvailableDataDomains(),
@@ -178,9 +187,9 @@ export class AuthEffects {
             loadMyLineageDocs(),
             fetchContextRoles(),
             loadPipelines(),
-            loadStorageSize());
+            loadStorageSize()], asyncScheduler);
         }
-        return of(
+        return scheduled([
           setAvailableLanguages({langs: availableLangs}),
           setDefaultLanguage({lang: defaultLanguage}),
           loadAvailableDataDomains(),
@@ -190,7 +199,7 @@ export class AuthEffects {
           loadMyLineageDocs(),
           fetchContextRoles(),
           loadPipelines(),
-          loadStorageSize());
+          loadStorageSize()], asyncScheduler);
       }),
     )
   });
@@ -198,7 +207,7 @@ export class AuthEffects {
   authError$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(authError),
-      switchMap(action => of(showError({error: action.error})))
+      switchMap(action => scheduled([showError({error: action.error})], asyncScheduler))
     )
   }, {dispatch: false});
 
@@ -206,8 +215,8 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(fetchContextRoles),
       switchMap(() => this._usersManagementService.getCurrentContextRoles()),
-      switchMap(result => of(fetchContextRolesSuccess({contextRoles: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([fetchContextRolesSuccess({contextRoles: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -229,7 +238,7 @@ export class AuthEffects {
       switchMap(() => {
         return EMPTY;
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -237,12 +246,12 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(prolongCBSession),
       switchMap(() => this._cloudbeaverService.renewSession().pipe(
-        catchError(e => of(showError({error: e}))))
+        catchError(e => scheduled([showError({error: e})], asyncScheduler)))
       ),
       switchMap(() => {
         return EMPTY;
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -250,9 +259,9 @@ export class AuthEffects {
     return this._actions$.pipe(
       ofType(setAvailableLanguages),
       switchMap(() => {
-        return of(setActiveTranslocoLanguage());
+        return scheduled([setActiveTranslocoLanguage()], asyncScheduler);
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -279,19 +288,7 @@ export class AuthEffects {
       switchMap(() => {
         return EMPTY;
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _store: Store<AppState>,
-    private _authService: AuthService,
-    private _usersManagementService: UsersManagementService,
-    private _translateService: TranslateService,
-    private _cloudbeaverService: CloudbeaverService,
-    private _cloudbeaverSessionService: CloudbeaverSessionService,
-    private _windowManagementService: WindowManagementService
-  ) {
-  }
 }
