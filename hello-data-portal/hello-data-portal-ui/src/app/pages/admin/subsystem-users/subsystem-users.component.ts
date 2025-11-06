@@ -42,14 +42,13 @@ import {Table, TableModule} from "primeng/table";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {AsyncPipe} from '@angular/common';
 import {PrimeTemplate} from 'primeng/api';
-import {Button, ButtonDirective, ButtonIcon} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {Tag} from 'primeng/tag';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {FormsModule} from "@angular/forms";
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
-import {Ripple} from "primeng/ripple";
 
 interface TableRow {
   email: string;
@@ -61,7 +60,8 @@ interface TableRow {
   selector: 'app-subsystem-users',
   templateUrl: './subsystem-users.component.html',
   styleUrls: ['./subsystem-users.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, InputText, Tag, AsyncPipe, TranslocoPipe, FormsModule, IconField, InputIcon, ButtonIcon, ButtonDirective, Ripple]
+  imports: [TableModule, PrimeTemplate, Button, InputText, Tag, AsyncPipe, TranslocoPipe, FormsModule, IconField,
+    InputIcon, ButtonDirective]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);
