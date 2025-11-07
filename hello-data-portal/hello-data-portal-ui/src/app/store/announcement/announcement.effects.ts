@@ -140,7 +140,7 @@ export class AnnouncementEffects {
   saveChangesToAnnouncementSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToAnnouncementSuccess),
-      switchMap(action => scheduled([navigate({url: 'announcements-management'}), clearUnsavedChanges()], asyncScheduler)),
+      switchMap(action => scheduled([clearUnsavedChanges(), navigate({url: 'announcements-management'})], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
