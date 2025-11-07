@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
@@ -58,7 +58,7 @@ export class LineageDocsEffects {
   loadMyLineageDocsSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadMyLineageDocsSuccess),
-      switchMap(() => of(processNavigation({compactMode: false}))),
+      switchMap(() => of(processNavigation())),
     )
   });
 

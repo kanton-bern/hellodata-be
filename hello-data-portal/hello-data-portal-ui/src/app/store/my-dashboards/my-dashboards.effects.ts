@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
@@ -65,7 +65,7 @@ export class MyDashboardsEffects {
   loadMyDashboardsSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadMyDashboardsSuccess),
-      switchMap(() => of(processNavigation({compactMode: false}))),
+      switchMap(() => of(processNavigation())),
     )
   });
 

@@ -33,8 +33,7 @@ export enum MenuActionType {
 }
 
 export const processNavigation = createAction(
-  MenuActionType.PROCESS_NAVIGATION,
-  props<{ compactMode: boolean }>()
+  MenuActionType.PROCESS_NAVIGATION
 );
 
 export const processNavigationSuccess = createAction(

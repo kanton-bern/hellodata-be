@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {MenuService} from "./menu.service";
 import {catchError, of, switchMap} from "rxjs";
@@ -42,7 +42,7 @@ export class MenuEffects {
     return this._actions$.pipe(
       ofType(processNavigation),
       switchMap((action) =>
-        this._menuService.processNavigation(action.compactMode)),
+        this._menuService.processNavigation()),
       switchMap(result => of(processNavigationSuccess({navItems: result}))),
       catchError(e => of(showError({error: e})))
     )

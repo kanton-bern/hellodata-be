@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {combineLatest, map, Observable, switchMap} from "rxjs";
 import {DataDomain, SupersetDashboard} from "../my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
@@ -69,7 +69,7 @@ export class MenuService {
   private static readonly QUERY_LIST = '/queries/list/';
   private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
 
-  public processNavigation(compactMode: boolean): Observable<any[]> {
+  public processNavigation(): Observable<any[]> {
     return this._store.select(selectCurrentUserPermissions).pipe(
       switchMap((currentUserPermissions) => {
         if (!currentUserPermissions || currentUserPermissions.length === 0) {
@@ -78,12 +78,12 @@ export class MenuService {
             filter((loaded) => loaded),
             take(1),
             switchMap(() => {
-              return this.permissionsLoadedProcessNavigation(compactMode);
+              return this.permissionsLoadedProcessNavigation();
             })
           );
         } else {
           // Permissions already loaded, check them immediately
-          return this.internalProcessNavigation(compactMode, currentUserPermissions);
+          return this.internalProcessNavigation(currentUserPermissions);
         }
       })
     );
@@ -102,7 +102,7 @@ export class MenuService {
     }
   }
 
-  private internalProcessNavigation(compactMode: boolean, currentUserPermissions: string[]): Observable<any[]> {
+  private internalProcessNavigation(currentUserPermissions: string[]): Observable<any[]> {
     this._store.dispatch(loadAppInfoResources());
     return combineLatest([
       this._store.select(selectMyDashboards),
@@ -119,7 +119,7 @@ export class MenuService {
           if (item.routerLink && !(/^\//.test(item.routerLink))) {
             item.routerLink = `/${item.routerLink}`;
           }
-          const menuItem = {...item, expanded: !compactMode};
+          const menuItem = {...item};
 
           // inject the users dashboards into the menu
           if (menuItem.label === '@Dashboards') {
@@ -201,10 +201,10 @@ export class MenuService {
     return filteredNavigationElements;
   }
 
-  private permissionsLoadedProcessNavigation(compactMode: boolean): Observable<any[]> {
+  private permissionsLoadedProcessNavigation(): Observable<any[]> {
     return this._store.select(selectCurrentUserPermissions).pipe(
       switchMap((permissions) => {
-        return this.internalProcessNavigation(compactMode, permissions);
+        return this.internalProcessNavigation(permissions);
       })
     )
   }
