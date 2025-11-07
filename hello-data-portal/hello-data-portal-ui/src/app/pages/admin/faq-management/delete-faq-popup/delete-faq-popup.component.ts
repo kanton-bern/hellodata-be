@@ -25,25 +25,25 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject, input } from '@angular/core';
+import {Component, inject, input} from '@angular/core';
 import {Action, Store} from "@ngrx/store";
 import {Observable, tap, withLatestFrom} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedFaqForDeletion} from "../../../../store/faq/faq.selector";
-import { ConfirmationService, MessageService, PrimeTemplate } from "primeng/api";
+import {ConfirmationService, MessageService, PrimeTemplate} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {hideDeleteFaqPopup} from "../../../../store/faq/faq.action";
-import { AsyncPipe } from '@angular/common';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { Button, ButtonDirective } from 'primeng/button';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {Button} from 'primeng/button';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-delete-faq-popup',
-    templateUrl: './delete-faq-popup.component.html',
-    styleUrls: ['./delete-faq-popup.component.scss'],
-    providers: [ConfirmationService, MessageService],
-    imports: [ConfirmDialog, PrimeTemplate, Button, ButtonDirective, AsyncPipe, TranslocoPipe]
+  selector: 'app-delete-faq-popup',
+  templateUrl: './delete-faq-popup.component.html',
+  styleUrls: ['./delete-faq-popup.component.scss'],
+  providers: [ConfirmationService, MessageService],
+  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe]
 })
 export class DeleteFaqPopupComponent {
   private store = inject<Store<AppState>>(Store);
