@@ -160,7 +160,7 @@
                       icon="fas fa-arrow-left" severity="secondary"/>
             <p-button (click)="updateUser()"
                       [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled"
-                      severity="success"
+                      severity="success" [loading]="userSaveButtonDisabled$ | async"
                       label="{{'@Save' | transloco}}"
                       pRipple/>
           </div>

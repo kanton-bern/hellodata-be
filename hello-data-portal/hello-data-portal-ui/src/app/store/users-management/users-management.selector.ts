@@ -220,4 +220,9 @@ export const selectCurrentPagination = createSelector(
   (state: UsersManagementState) => state.currentPagination
 );
 
+export const selectUserSaveButtonDisabled = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.userSaveButtonDisabled
+);
+
 

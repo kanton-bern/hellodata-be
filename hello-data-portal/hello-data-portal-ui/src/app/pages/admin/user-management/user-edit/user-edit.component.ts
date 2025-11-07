@@ -35,7 +35,8 @@ import {
   selectAvailableRolesForBusinessDomain,
   selectAvailableRolesForDataDomain,
   selectEditedUser,
-  selectUserContextRoles
+  selectUserContextRoles,
+  selectUserSaveButtonDisabled
 } from "../../../../store/users-management/users-management.selector";
 import {
   DashboardForUser,
@@ -77,6 +78,7 @@ import {
 import {Ripple} from 'primeng/ripple';
 import {ActionsUserPopupComponent} from '../actions-user-popup/actions-user-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-user-edit',
@@ -94,6 +96,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   dataDomains$: Observable<any>;
   availableBusinessDomainRoles$: Observable<any>;
   availableDataDomainRoles$: Observable<any>;
+  userSaveButtonDisabled$: Observable<boolean>;
   /**
    * data domain context key as a key
    */
@@ -125,6 +128,9 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       this.store.select(selectEditedUser)
     ]).pipe(tap(([userContextRoles, isCurrentSuperuser, editedUser]) => {
       this.generateForm(userContextRoles, isCurrentSuperuser, editedUser ? editedUser.superuser : false);
+    }));
+    this.userSaveButtonDisabled$ = this.store.select(selectUserSaveButtonDisabled).pipe(map(userSaveButtonDisabled => {
+      return userSaveButtonDisabled;
     }));
   }
 
