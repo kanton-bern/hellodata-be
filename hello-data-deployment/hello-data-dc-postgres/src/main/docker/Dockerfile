@@ -25,6 +25,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM postgres:14
+FROM postgres:18
 
 ADD init-scripts/* /docker-entrypoint-initdb.d/
