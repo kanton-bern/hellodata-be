@@ -93,15 +93,14 @@
                       icon="fas fa-circle-info"
                       pButton
                       pRipple/>
-            @if (dashboard.currentUserAdmin || dashboard.currentUserEditor) {
-              <p-button (click)="editDashboard(dashboard)"
-                        [pTooltip]="'@Edit' | transloco"
-                        severity="success"
-                        class="p-button-rounded mr-2"
-                        icon="fas fa-light fa-pen-to-square"
-                        pButton
-                        pRipple/>
-            }
+            <p-button (click)="editDashboard(dashboard)"
+                      [pTooltip]="'@Edit' | transloco"
+                      severity="success"
+                      class="p-button-rounded mr-2"
+                      icon="fas fa-light fa-pen-to-square"
+                      [hidden]="!(dashboard.currentUserAdmin || dashboard.currentUserEditor)"
+                      pButton
+                      pRipple/>
           </td>
         </tr>
       </ng-template>
@@ -167,8 +166,6 @@
         @if (selectedDashboard.contextName) {
           <label class="p2 font-semibold m-0"
                  for="contextNameInfo">{{ '@Context name' | transloco }}:</label>
-        }
-        @if (selectedDashboard.contextName) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="contextNameInfo">{{ selectedDashboard.contextName }}
@@ -178,8 +175,6 @@
         @if (selectedDashboard.instanceName) {
           <label class="p2 font-semibold m-0"
                  for="instanceNameInfo">{{ '@Instance name' | transloco }}:</label>
-        }
-        @if (selectedDashboard.instanceName) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="instanceNameInfo">{{ selectedDashboard.instanceName }}
@@ -189,8 +184,6 @@
         @if (selectedDashboard.businessProcess) {
           <label class="p2 font-semibold m-0"
                  for="businessProcessInfo">{{ '@Business process' | transloco }}:</label>
-        }
-        @if (selectedDashboard.businessProcess) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="businessProcessInfo">{{ selectedDashboard.businessProcess }}
@@ -200,8 +193,6 @@
         @if (selectedDashboard.department) {
           <label class="p2 font-semibold m-0"
                  for="departmentInfo">{{ '@Department' | transloco }}:</label>
-        }
-        @if (selectedDashboard.department) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="departmentInfo">{{ selectedDashboard.department }}
@@ -211,8 +202,6 @@
         @if (selectedDashboard.dataAnalyst) {
           <label class="p2 font-semibold m-0"
                  for="dataAnalystInfo">{{ '@Data analyst' | transloco }}:</label>
-        }
-        @if (selectedDashboard.dataAnalyst) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="dataAnalystInfo">{{ selectedDashboard.dataAnalyst }}
@@ -222,8 +211,6 @@
         @if (selectedDashboard.datasource) {
           <label class="p2 font-semibold m-0"
                  for="dataSourceInfo">{{ '@Datasource' | transloco }}:</label>
-        }
-        @if (selectedDashboard.datasource) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="dataSourceInfo">{{ selectedDashboard.datasource }}
@@ -233,8 +220,6 @@
         @if (selectedDashboard.responsibility) {
           <label class="p2 font-semibold m-0"
                  for="responsibilityInfo">{{ '@Professional responsibility' | transloco }}:</label>
-        }
-        @if (selectedDashboard.responsibility) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="responsibilityInfo">{{ selectedDashboard.responsibility }}
@@ -246,8 +231,6 @@
         @if (selectedDashboard.status) {
           <label class="p2 font-semibold m-0"
                  for="statusInfo">{{ '@Status' | transloco }}:</label>
-        }
-        @if (selectedDashboard.status) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="statusInfo">{{ selectedDashboard.status }}
@@ -257,8 +240,6 @@
         @if (selectedDashboard.slug) {
           <label class="p2 font-semibold m-0" for="slugInfo">{{ '@Slug' | transloco }}
             :</label>
-        }
-        @if (selectedDashboard.slug) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="slugInfo">{{ selectedDashboard.slug }}
@@ -268,8 +249,6 @@
         @if (selectedDashboard.instanceUrl) {
           <label class="p2 font-semibold m-0"
                  for="urlInfo">{{ '@Instance url' | transloco }}:</label>
-        }
-        @if (selectedDashboard.instanceUrl) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="urlInfo">{{ selectedDashboard.instanceUrl }}
@@ -279,35 +258,29 @@
         @if (selectedDashboard.modified) {
           <label class="p2 font-semibold m-0"
                  for="modifiedInfo">{{ '@Modified date' | transloco }}:</label>
-        }
-        @if (selectedDashboard.modified) {
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="modifiedInfo">
-            @if (selectedDashboard.modified) {
-              <span>{{ selectedDashboard.modified | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
-            }
-            @if (!selectedDashboard.modified) {
-              <span>{{ '@Never' | transloco }}</span>
-            }
+            <span>{{ selectedDashboard.modified | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+            <span>{{ '@Never' | transloco }}</span>
           </div>
         }
 
         @if (selectedDashboard.roles) {
-          <label class="p2 font-semibold m-0" for="rolesInfo">{{ '@Roles' | transloco }}
-            :</label>
-        }
-        @if (selectedDashboard.roles) {
+          <label class="p2 font-semibold m-0" for="rolesInfo">
+            {{ '@Roles' | transloco }}:
+          </label>
           <div
             class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
             id="rolesInfo">
             @for (role of selectedDashboard.roles; track role) {
-              <p-tag icon="fas fa-tag" severity="info"
-                     value="{{role.name}}"/>
+              <p-tag
+                icon="fas fa-tag"
+                severity="info"
+                [value]="role.name"/>
             }
           </div>
         }
-
       </div>
     </div>
   </ng-template>
