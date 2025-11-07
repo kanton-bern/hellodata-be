@@ -34,7 +34,7 @@
     <frontend-maven-plugin.npmVersion>9.9.2</frontend-maven-plugin.npmVersion>
     <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
     <main.class>YarnPackageFinder</main.class>
-    <kotlin.version>1.9.23</kotlin.version>
+    <kotlin.version>2.2.21</kotlin.version>
     <classpathScope>compile</classpathScope>
   </properties>
 
