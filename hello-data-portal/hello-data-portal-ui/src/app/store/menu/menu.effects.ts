@@ -28,7 +28,7 @@
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {MenuService} from "./menu.service";
-import {catchError, of, switchMap} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap} from "rxjs";
 import {processNavigation, processNavigationSuccess} from "./menu.action";
 import {showError} from "../app/app.action";
 
@@ -43,8 +43,10 @@ export class MenuEffects {
       ofType(processNavigation),
       switchMap((action) =>
         this._menuService.processNavigation()),
-      switchMap(result => of(processNavigationSuccess({navItems: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([
+        processNavigationSuccess({navItems: result}),
+      ], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 }

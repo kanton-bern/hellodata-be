@@ -30,7 +30,6 @@ import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
-import {processNavigation} from "../menu/menu.action";
 import {
   loadAvailableDataDomains,
   loadAvailableDataDomainsSuccess,
@@ -59,13 +58,6 @@ export class MyDashboardsEffects {
       switchMap(() => this._myDashboardsService.getMyDashboards()),
       switchMap(result => of(loadMyDashboardsSuccess({payload: result}))),
       catchError(e => of(showError({error: e})))
-    )
-  });
-
-  loadMyDashboardsSuccess$ = createEffect(() => {
-    return this._actions$.pipe(
-      ofType(loadMyDashboardsSuccess),
-      switchMap(() => of(processNavigation())),
     )
   });
 

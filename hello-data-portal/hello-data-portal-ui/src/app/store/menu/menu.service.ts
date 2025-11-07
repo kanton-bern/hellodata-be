@@ -35,7 +35,6 @@ import {
   selectCurrentUserPermissions,
   selectCurrentUserPermissionsLoaded
 } from "../auth/auth.selector";
-import {filter, take} from "rxjs/operators";
 import {
   selectAvailableDataDomainItems,
   selectMyDashboards,
@@ -56,6 +55,7 @@ import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.actio
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 import {environment} from "../../../environments/environment";
 import {ALL_MENU_ITEMS} from "./menu.state";
+import {filter} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -70,22 +70,15 @@ export class MenuService {
   private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
 
   public processNavigation(): Observable<any[]> {
-    return this._store.select(selectCurrentUserPermissions).pipe(
+    return combineLatest([
+      this._store.select(selectCurrentUserPermissionsLoaded),
+      this._store.select(selectCurrentUserPermissions),
+    ]).pipe(
+      filter(([loaded]) => loaded), // wait until permissions loaded = true
+      map(([, currentUserPermissions]) => currentUserPermissions),
       switchMap((currentUserPermissions) => {
-        if (!currentUserPermissions || currentUserPermissions.length === 0) {
-          // Permissions not yet loaded, return observable that will wait for them to be loaded
-          return this._store.select(selectCurrentUserPermissionsLoaded).pipe(
-            filter((loaded) => loaded),
-            take(1),
-            switchMap(() => {
-              return this.permissionsLoadedProcessNavigation();
-            })
-          );
-        } else {
-          // Permissions already loaded, check them immediately
-          return this.internalProcessNavigation(currentUserPermissions);
-        }
-      })
+        return this.internalProcessNavigation(currentUserPermissions);
+      }),
     );
   }
 
@@ -199,14 +192,6 @@ export class MenuService {
       }
     });
     return filteredNavigationElements;
-  }
-
-  private permissionsLoadedProcessNavigation(): Observable<any[]> {
-    return this._store.select(selectCurrentUserPermissions).pipe(
-      switchMap((permissions) => {
-        return this.internalProcessNavigation(permissions);
-      })
-    )
   }
 
   private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[]) {

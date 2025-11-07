@@ -60,6 +60,7 @@ import {selectProfile, selectSelectedLanguage, selectSupportedLanguages} from ".
 import {CloudbeaverService} from "./cloudbeaver.service";
 import {CloudbeaverSessionService} from "../../shared/services/cloudbeaver-session.service";
 import {WindowManagementService} from "../../shared/services/window-management.service";
+import {processNavigation} from "../menu/menu.action";
 
 @Injectable()
 export class AuthEffects {
@@ -176,19 +177,6 @@ export class AuthEffects {
       switchMap((action) => {
         const defaultLanguage = this._translateService.getDefaultLanguage();
         const availableLangs = this._translateService.getAvailableLangs();
-        const permissions = action.currentUserAuthData.permissions;
-        if (!permissions || permissions.length === 0 || !permissions.includes('DASHBOARDS')) {
-          return scheduled([
-            setAvailableLanguages({langs: availableLangs}),
-            setDefaultLanguage({lang: defaultLanguage}),
-            loadAvailableDataDomains(),
-            loadAppInfoResources(),
-            loadDocumentation(),
-            loadMyLineageDocs(),
-            fetchContextRoles(),
-            loadPipelines(),
-            loadStorageSize()], asyncScheduler);
-        }
         return scheduled([
           setAvailableLanguages({langs: availableLangs}),
           setDefaultLanguage({lang: defaultLanguage}),
@@ -199,7 +187,9 @@ export class AuthEffects {
           loadMyLineageDocs(),
           fetchContextRoles(),
           loadPipelines(),
-          loadStorageSize()], asyncScheduler);
+          loadStorageSize(),
+          processNavigation()
+        ], asyncScheduler);
       }),
     )
   });

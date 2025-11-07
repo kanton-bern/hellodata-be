@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, HostBinding, OnInit, inject } from '@angular/core';
+import {Component, HostBinding, inject, OnInit} from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
@@ -35,7 +35,7 @@ import {Title} from "@angular/platform-browser";
 import {checkAuth, checkProfile} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
 import {navigate} from "./store/app/app.action";
-import { AsyncPipe } from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 
@@ -114,6 +114,6 @@ export class AppComponent implements OnInit {
     setInterval(() => {
       console.debug("Check profile")
       this.store.dispatch(checkProfile());
-    }, 30000);
+    }, 60000);
   }
 }

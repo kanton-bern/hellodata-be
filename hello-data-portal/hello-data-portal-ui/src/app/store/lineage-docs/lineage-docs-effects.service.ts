@@ -36,7 +36,6 @@ import {DataDomain} from "../my-dashboards/my-dashboards.model";
 import {LineageDoc} from "./lineage-docs.model";
 import {showError} from "../app/app.action";
 import {loadMyLineageDocs, loadMyLineageDocsSuccess} from "./lineage-docs.action";
-import {processNavigation} from "../menu/menu.action";
 
 @Injectable()
 export class LineageDocsEffects {
@@ -55,12 +54,6 @@ export class LineageDocsEffects {
     )
   });
 
-  loadMyLineageDocsSuccess$ = createEffect(() => {
-    return this._actions$.pipe(
-      ofType(loadMyLineageDocsSuccess),
-      switchMap(() => of(processNavigation())),
-    )
-  });
 
   private _enhanceResult(result: LineageDoc[], dataDomains: DataDomain[]): LineageDoc[] {
     if (result) {
