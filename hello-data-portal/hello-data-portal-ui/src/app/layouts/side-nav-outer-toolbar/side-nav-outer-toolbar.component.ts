@@ -30,7 +30,7 @@ import {Component, inject, input} from '@angular/core';
 import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {Observable} from "rxjs";
+import {distinctUntilChanged, Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {Tooltip} from "primeng/tooltip";
@@ -63,7 +63,7 @@ export class SideNavOuterToolbarComponent {
   mouseEnterTimeoutId: number[] = [];
 
   constructor() {
-    this.navItems$ = this.store.select(selectNavItems);
+    this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
     this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
   }
 

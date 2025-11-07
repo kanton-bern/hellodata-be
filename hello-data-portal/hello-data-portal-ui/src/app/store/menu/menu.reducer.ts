@@ -29,9 +29,19 @@ import {processNavigationSuccess} from "./menu.action";
 import {initialMenuState, MenuState} from "./menu.state";
 import {createReducer, on} from "@ngrx/store";
 
+function areNavItemsEqual(a: any[], b: any[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((item, idx) => {
+    return JSON.stringify(item) === JSON.stringify(b[idx]);
+  });
+}
+
 export const menuReducer = createReducer(
   initialMenuState,
   on(processNavigationSuccess, (state: MenuState, {navItems}): MenuState => {
+    if (areNavItemsEqual(state.navItems, navItems)) {
+      return state;
+    }
     return {
       ...state,
       navItems: navItems

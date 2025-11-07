@@ -114,6 +114,6 @@ export class AppComponent implements OnInit {
     setInterval(() => {
       console.debug("Check profile")
       this.store.dispatch(checkProfile());
-    }, 60000);
+    }, 10000);
   }
 }

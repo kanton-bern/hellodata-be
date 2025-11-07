@@ -26,6 +26,7 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
+import {MenuItem} from "primeng/api";
 
 export enum MenuActionType {
   PROCESS_NAVIGATION = "[MENU] Process navigation",
@@ -38,5 +39,5 @@ export const processNavigation = createAction(
 
 export const processNavigationSuccess = createAction(
   MenuActionType.PROCESS_NAVIGATION_SUCCESS,
-  props<{ navItems: any[] }>()
+  props<{ navItems: MenuItem[] }>()
 );
