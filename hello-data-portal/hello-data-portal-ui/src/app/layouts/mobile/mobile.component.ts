@@ -25,14 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, inject } from "@angular/core";
-import { CommonModule, NgClass, AsyncPipe } from "@angular/common";
-import {RouterOutlet} from "@angular/router";
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import {ToastModule} from "primeng/toast";
-import {ScrollTopModule} from "primeng/scrolltop";
-
-import {MenuModule} from "primeng/menu";
+import {Component, inject} from "@angular/core";
+import {AsyncPipe, NgClass} from "@angular/common";
+import {TranslocoPipe} from "@jsverse/transloco";
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -52,16 +47,15 @@ import {setSelectedLanguage} from "../../store/auth/auth.action";
 
 import {AppInfoService} from "../../shared/services";
 import {environment} from "../../../environments/environment";
-import {MatomoTrackerDirective} from "ngx-matomo-client";
-import { DrawerModule, Drawer } from "primeng/drawer";
+import {Drawer} from "primeng/drawer";
 import {Button} from "primeng/button";
-import { PrimeTemplate } from "primeng/api";
+import {PrimeTemplate} from "primeng/api";
 
 @Component({
-    selector: 'app-mobile',
-    templateUrl: './mobile.component.html',
-    styleUrls: ['./mobile.component.scss'],
-    imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe]
+  selector: 'app-mobile',
+  templateUrl: './mobile.component.html',
+  styleUrls: ['./mobile.component.scss'],
+  imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe]
 })
 export class MobileComponent {
   private store = inject<Store<AppState>>(Store);
@@ -91,14 +85,19 @@ export class MobileComponent {
     this.groupedDashboards$ = this.store.select(selectMyDashboards).pipe(
       map((dashboards: any[]) => {
         const grouped = new Map<string, any[]>();
-
-        dashboards.forEach(dashboard => {
-          const context = dashboard.contextName;
-          if (!grouped.has(context)) {
-            grouped.set(context, []);
-          }
-          grouped.get(context)!.push(dashboard);
-        });
+        const prefix = environment.mobileDashboardPrefix;
+        dashboards
+          .filter(dashboard => {
+            if (!prefix) return true;
+            return dashboard.dashboardTitle?.startsWith(prefix);
+          })
+          .forEach(dashboard => {
+            const context = dashboard.contextName;
+            if (!grouped.has(context)) {
+              grouped.set(context, []);
+            }
+            grouped.get(context)!.push(dashboard);
+          });
 
         return grouped;
       })

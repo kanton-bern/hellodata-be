@@ -42,6 +42,7 @@ export interface Environment {
   locale: string;
   footerConfig: FooterConfig;
   matomoConfig: MatomoConfig;
+  mobileDashboardPrefix?: string;
 }
 
 export interface FooterConfig {
