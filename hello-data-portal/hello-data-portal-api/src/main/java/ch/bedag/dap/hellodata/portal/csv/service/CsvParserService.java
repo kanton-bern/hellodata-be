@@ -103,9 +103,7 @@ public class CsvParserService {
 
     List<CsvUserRole> parseCsvFile(InputStream inputStream) throws IOException {
         List<CsvUserRole> records = new ArrayList<>();
-
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-
              CSVParser csvParser = new CSVParser(reader, CSVFormat.Builder.create()
                      .setDelimiter(CSV_DELIMITER)
                      .setHeader(CSV_HEADERS)
@@ -133,13 +131,14 @@ public class CsvParserService {
                 String dataDomainRole = csvRecord.get(DATA_DOMAIN_ROLE).toUpperCase(Locale.ROOT);
                 verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
                 String supersetRoleRaw = csvRecord.get(SUPERSET_ROLE);
+                log.debug("Superset Roles Raw: {}", supersetRoleRaw);
                 // Convert comma-separated Superset roles into a List
                 List<String> supersetRoles = supersetRoleRaw.isEmpty() ? List.of() : List.of(supersetRoleRaw.split(ROLE_DELIMITER));
-
+                log.debug("Superset roles for email {}: {}", email, supersetRoles);
                 // Ensure supersetRoles is empty if dataDomainRole is not "DATA_DOMAIN_VIEWER"
                 List<String> roles = DATA_DOMAIN_VIEWER.name().equals(dataDomainRole) ? supersetRoles : new ArrayList<>();
                 CsvUserRole record = new CsvUserRole(email, businessDomainRole, context, dataDomainRole, roles);
-
+                log.debug("Adding record: {}", record);
                 records.add(record);
             }
         }

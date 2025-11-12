@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ViewContainerRef} from '@angular/core';
+import {Component} from '@angular/core';
 import {Observable} from "rxjs";
 import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resource.model";
 import {Store} from "@ngrx/store";
@@ -36,7 +36,6 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {selectAvailableDataDomainItems, selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
-import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {FileSelectEvent, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
 import {
   loadMyDashboards,
@@ -44,7 +43,6 @@ import {
   uploadDashboardsSuccess
 } from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
-import {showError, showInfo, showSuccess} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-dashboard-import-export',
@@ -59,11 +57,12 @@ export class DashboardImportExportComponent extends BaseComponent {
   selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
   showUploadForContextMap = new Map<string, boolean>();
 
-  baseUrl = `${environment.portalApi}/superset/upload-dashboards/`;
+  uploadDashboardsUrl = `${environment.portalApi}/superset/upload-dashboards/`;
 
-  constructor(private store: Store<AppState>, private dynamicComponentContainer: ViewContainerRef) {
+  constructor(private store: Store<AppState>) {
     super();
     this.supersetInfos$ = this.store.select(selectAppInfoByModuleType('SUPERSET'));
+    this.dashboards$ = this.store.select(selectMyDashboards);
     this.dashboards$ = this.store.select(selectMyDashboards);
     this.availableDataDomains$ = this.store.select(selectAvailableDataDomainItems);
     this.store.dispatch(createBreadcrumbs({
@@ -117,44 +116,8 @@ export class DashboardImportExportComponent extends BaseComponent {
     const exportApiUrl = `${instanceUrl}api/v1/dashboard/export?q=!(${idsString})`;
 
     // Dispatch loader start
-    this.store.dispatch(showInfo({message: '@Dashboard export started'}));
-
-    // Fetch with cookies (if logged in)
-    fetch(exportApiUrl, {
-      method: 'GET',
-      credentials: 'include' // include cookies for auth
-    })
-      .then(async response => {
-        if (!response.ok) {
-          throw new Error(`Export failed with status ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        const formatDateForFilename = (): string => {
-          const now = new Date();
-          const pad = (n: number): string => n.toString().padStart(2, '0');
-          return `${now.getFullYear()}_${pad(now.getMonth() + 1)}_${pad(now.getDate())}_${pad(now.getHours())}_${pad(now.getMinutes())}_${pad(now.getSeconds())}`;
-        };
-        const fileName = `dashboards_export_${formatDateForFilename()}.zip`;
-
-        const objectUrl: string = URL.createObjectURL(blob);
-        const a: HTMLAnchorElement = document.createElement('a') as HTMLAnchorElement;
-
-        a.href = objectUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-
-        document.body.removeChild(a);
-        URL.revokeObjectURL(objectUrl);
-
-        this.store.dispatch(showSuccess({ message: '@Dashboard export completed' }));
-
-      })
-      .catch(err => {
-        console.error('Dashboard export error:', err);
-        this.store.dispatch(showError({ error: 'Dashboard export failed' }));
-      });
+    console.debug("Exporting dashboards from URL:", exportApiUrl);
+    window.open(exportApiUrl, '_blank');
   }
 
   toggleImportVisible(contextKey: string) {

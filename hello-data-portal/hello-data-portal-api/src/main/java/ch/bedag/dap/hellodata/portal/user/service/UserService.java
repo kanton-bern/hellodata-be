@@ -279,16 +279,9 @@ public class UserService {
 
     private void deleteKeycloakUser(UserEntity userEntity, boolean isUserFederated) {
         UserResource userResource = getUserResource(userEntity);
-        if (userResource == null) {
-            if(isUserFederated) {
-                return;
-            }
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with specified id not found in keycloak");//NOSONAR
-        }
-        else{
-            if (deleteUsersInProvider && !isUserFederated) {
-                userResource.remove();
-            }
+        if (userResource != null && deleteUsersInProvider && !isUserFederated) {
+            userResource.remove();
+            log.info("User {} removed from provider", userEntity.getEmail());
         }
     }
 
@@ -410,11 +403,11 @@ public class UserService {
     }
 
     @Transactional
-    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto) {
+    public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
         UserEntity userEntity = getUserEntity(userId);
-        synchronizeContextRolesWithSubsystems(userEntity, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
+        synchronizeContextRolesWithSubsystems(userEntity, sendBackUserList, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 
