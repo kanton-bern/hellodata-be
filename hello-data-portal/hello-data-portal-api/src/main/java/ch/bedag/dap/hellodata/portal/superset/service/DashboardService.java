@@ -27,9 +27,9 @@
 package ch.bedag.dap.hellodata.portal.superset.service;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
@@ -40,7 +40,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
@@ -50,21 +50,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Message;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -74,6 +59,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -129,7 +121,7 @@ public class DashboardService {
         for (SupersetDashboard dashboard : dashboards) {
             Set<String> dashboardRoles = dashboard.getRoles().stream().map(SubsystemRole::getName).collect(Collectors.toSet());
             log.debug(String.format("Instance: '%s', Dashboard: '%s', requires any of following roles: %s", dashboardResource.getInstanceName(), dashboard.getDashboardTitle(),
-                                    dashboardRoles));
+                    dashboardRoles));
             checkRBACRoles(dashboardsWithAccess, metaInfoResource, dashboardResource, rolesOfCurrentUser, isAdmin, isEditor, instanceUrl, dashboard, dashboardRoles);
         }
     }
@@ -148,7 +140,7 @@ public class DashboardService {
                 String contextKey = context != null ? context.getContextKey() : null;
                 SupersetDashboardWithMetadataDto dashboardDto =
                         new SupersetDashboardWithMetadataDto(dashboard, dashboardResource.getInstanceName(), instanceUrl, isAdmin, isEditor, isViewer, contextName, contextId,
-                                                             contextKey);
+                                contextKey);
                 fetchMetadata(dashboardResource.getInstanceName(), dashboard, dashboardDto);
                 log.debug("Adding dashboard {}", dashboardDto);
                 dashboardsWithAccess.add(dashboardDto);

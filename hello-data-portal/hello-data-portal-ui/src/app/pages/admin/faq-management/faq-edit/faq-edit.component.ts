@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import {combineLatest, map, Observable, Subscription, tap} from "rxjs";
-import {FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedFaq} from "../../../../store/faq/faq.selector";
@@ -43,13 +43,28 @@ import {deleteEditedFaq, saveChangesToFaq, showDeleteFaqPopup} from "../../../..
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {selectDefaultLanguage, selectSupportedLanguages} from "../../../../store/auth/auth.selector";
 import {take} from "rxjs/operators";
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { Select } from 'primeng/select';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'primeng/tabs';
+import { Ripple } from 'primeng/ripple';
+import { Editor } from 'primeng/editor';
+import { Toolbar } from 'primeng/toolbar';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { DeleteFaqPopupComponent } from '../delete-faq-popup/delete-faq-popup.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-faq-edit',
-  templateUrl: './faq-edit.component.html',
-  styleUrls: ['./faq-edit.component.scss']
+    selector: 'app-faq-edit',
+    templateUrl: './faq-edit.component.html',
+    styleUrls: ['./faq-edit.component.scss'],
+    imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+  private translateService = inject(TranslateService);
+
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
@@ -59,7 +74,7 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   titleMinLenght = 3;
   messageMinLength = 3;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder, private translateService: TranslateService) {
+  constructor() {
     super();
     this.supportedLanguages$ = this.store.select(selectSupportedLanguages);
     this.defaultLanguage$ = this.store.select(selectDefaultLanguage);

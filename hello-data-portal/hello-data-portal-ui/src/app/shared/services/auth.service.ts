@@ -25,16 +25,15 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {OidcSecurityService} from "angular-auth-oidc-client";
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private oidcSecurityService: OidcSecurityService) {
-  }
+  private oidcSecurityService = inject(OidcSecurityService);
+
 
   get isLoggedIn() {
     return this.oidcSecurityService.isAuthenticated$;

@@ -83,18 +83,6 @@ spring:
         - local-user-search
   application:
     name: HelloDATA Portal
-  boot:
-    admin:
-      client:
-        url: http://localhost:9090
-        api-path: instances
-        username: "user"       #These two are needed so that the client
-        password: "password"   #can register at the protected server api
-        #instance:
-        #  metadata:
-        #    user:
-        #      name: "user"         #These two are needed so that the server
-        #      password: "password" #can access the protected client endpoints
   data:
     redis:
       host: localhost

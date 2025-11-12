@@ -43,6 +43,32 @@ at [localhost:8080](http://localhost:8080) (default: admin/admin).
     the [docker-compose README](hello-data-deployment/docker-compose/README.md).
 > - Specific setup information for [Windows users](hello-data-deployment/docker-compose/README.md#windows).
 
+### Hint
+
+If you don't have enough resources, you can try to start the portal and basic services only with:
+
+```sh
+ docker compose up -d hello-data-portal-ui
+```
+
+If you see any service unhealthy, try to repeat the command. If this doesn't help, please check the logs of the
+unhealthy services and create an issue on GitHub.
+
+The above command will start only the Portal, Keycloak, dbt and the Postgres database. However, other services like
+Airflow and
+the Superset will not be available.
+You can later start the other services by running:
+
+```sh
+ docker compose up -d hello-data-airflow-sidecar hello-data-superset-sidecar-default-data-domain hello-data-sftpgo-sidecar
+```
+
+Or just pick one of required services by analyzing the docker compose yaml files:
+
+```sh
+ docker compose up -d <service-name>
+```
+
 ## Key Features
 
 HelloDATA BE is more than a platform; it's a holistic data solution:

@@ -27,9 +27,7 @@
 
 import {Pipe, PipeTransform} from '@angular/core';
 
-@Pipe({
-  name: 'truncate'
-})
+@Pipe({ name: 'truncate' })
 export class TruncatePipe implements PipeTransform {
   transform(value: string, limit = 25, completeWords = false, ellipsis = '...') {
     if (!value) {
@@ -38,7 +36,6 @@ export class TruncatePipe implements PipeTransform {
     if (completeWords) {
       limit = value.substr(0, limit).lastIndexOf(' ');
     }
-    console.log('inside truncate pipe', value)
     return value.length > limit ? value.substr(0, limit) + ellipsis : value;
   }
 }

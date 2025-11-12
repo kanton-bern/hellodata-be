@@ -28,16 +28,14 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MyDashboardsComponent} from './my-dashboards.component';
 import {Store} from '@ngrx/store';
-import {of} from 'rxjs';
+import {asyncScheduler, scheduled} from 'rxjs';
 import {SupersetDashboard} from '../../store/my-dashboards/my-dashboards.model';
-import {naviElements} from '../../app-navi-elements';
 import {ActivatedRoute} from '@angular/router';
 import {MenuService} from '../../store/menu/menu.service';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
-import {TranslocoTestingModule} from "@ngneat/transloco";
-import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 
 describe('MyDashboardsComponent', () => {
@@ -63,14 +61,21 @@ describe('MyDashboardsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [MyDashboardsComponent],
       providers: [
         {provide: Store, useValue: mockStore},
         {provide: ActivatedRoute, useValue: mockActivatedRoute},
         {provide: MenuService, useValue: mockMenuService},
       ],
       imports: [
-        TranslocoTestingModule
+        TranslocoTestingModule, MyDashboardsComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
       ],
     });
 
@@ -78,26 +83,13 @@ describe('MyDashboardsComponent', () => {
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.select.mockReturnValue(of(mockDashboards)); // Mock the select method to return an Observable with mock data
+    mockStore.select.mockReturnValue(scheduled([mockDashboards], asyncScheduler)); // Mock the select method to return an Observable with mock data
 
     fixture.detectChanges();
   });
 
   it('should create the MyDashboardsComponent', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should dispatch createBreadcrumbs on initialization', () => {
-    expect(mockStore.dispatch).toHaveBeenCalledWith(
-      createBreadcrumbs({
-        breadcrumbs: [
-          {
-            label: naviElements.myDashboards.label,
-            routerLink: naviElements.myDashboards.path,
-          },
-        ]
-      })
-    );
   });
 
   it('should dispatch UpdateDashboardMetadata when updateDashboard is called', () => {

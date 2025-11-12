@@ -6,13 +6,13 @@
     </div>
     <div class="col-12 text-left text-sm">
       <span><a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">OpenSource Data Platform</a></span><span>{{ ' | '}}</span>
-      <span>{{appInfo.currentYear}}</span><span>{{ ' | '}}</span>
+      <span>{{appInfo().currentYear}}</span><span>{{ ' | '}}</span>
       <span><a href="{{licenseUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">License</a></span><span>{{ ' | '}}</span>
       <span><a href="{{githubUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">GitHub</a></span>
     </div>
     <div class="col-12 text-left text-sm">
       <span><a href="{{versionLink}}" rel="noopener" target="_blank" style="font-size: 0.9em; color: black"><b>{{ '@Version' | transloco}}
-        :</b>{{' '}}{{appInfo.buildInfo}}</a></span>
+        :</b>{{' '}}{{appInfo().buildInfo}}</a></span>
     </div>
   </div>
 </footer>

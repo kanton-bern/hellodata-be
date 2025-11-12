@@ -25,27 +25,35 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import {Component, inject, input} from '@angular/core';
 import {Action, Store} from "@ngrx/store";
 import {Observable, tap, withLatestFrom} from "rxjs";
 import {AppState} from "../../../../store/app/app.state";
 import {selectSelectedFaqForDeletion} from "../../../../store/faq/faq.selector";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmationService, MessageService, PrimeTemplate} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {hideDeleteFaqPopup} from "../../../../store/faq/faq.action";
+import {AsyncPipe} from '@angular/common';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {Button} from 'primeng/button';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-delete-faq-popup',
   templateUrl: './delete-faq-popup.component.html',
   styleUrls: ['./delete-faq-popup.component.scss'],
-  providers: [ConfirmationService, MessageService]
+  providers: [ConfirmationService, MessageService],
+  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe]
 })
 export class DeleteFaqPopupComponent {
-  @Input()
-  action!: Action;
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
+
+  readonly action = input.required<Action>();
   faqToBeDeleted$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private confirmationService: ConfirmationService, private translateService: TranslateService) {
+  constructor() {
     this.faqToBeDeleted$ = this.store.select(selectSelectedFaqForDeletion)
       .pipe(
         withLatestFrom(this.translateService.selectTranslate('@Delete faq question'))
@@ -69,7 +77,7 @@ export class DeleteFaqPopupComponent {
   }
 
   deleteFaq() {
-    this.store.dispatch(this.action);
+    this.store.dispatch(this.action());
   }
 
   hideDeletionPopup(): void {

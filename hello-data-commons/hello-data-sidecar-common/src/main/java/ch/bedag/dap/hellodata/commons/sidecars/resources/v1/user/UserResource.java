@@ -29,17 +29,19 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.Metadata;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserResource implements HdResource {
     @EqualsAndHashCode.Include
     private final String apiVersion = "v1";
@@ -49,20 +51,17 @@ public class UserResource implements HdResource {
     private ModuleType moduleType;
     @EqualsAndHashCode.Include
     private String instanceName;
-    private Metadata metadata;
     private List<SubsystemUser> data;
 
     /**
      * @param instanceName instance name
-     * @param namespace    namespace
      * @param data         superset users information
      */
-    public UserResource(ModuleType moduleType, String instanceName, String namespace, List<SubsystemUser> data) {
+    public UserResource(ModuleType moduleType, String instanceName, List<SubsystemUser> data) {
         this.moduleType = moduleType;
         this.instanceName = instanceName;
         Map<String, Object> labels = new HashMap<>();
         labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-        this.metadata = new Metadata(instanceName, namespace, labels);
 
         this.data = new ArrayList<>(data);
     }

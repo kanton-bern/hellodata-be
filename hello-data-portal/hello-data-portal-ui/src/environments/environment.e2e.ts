@@ -61,7 +61,6 @@ export const environment: Environment = window.environment != undefined ? window
     dwhViewer: {protocol: 'http://', host: 'dwh-db', domain: '.cluster.local'},
     filebrowser: {protocol: 'http://', host: 'fs', domain: '.cluster.local'},
     advancedAnalyticsViewer: {protocol: 'http://', host: 'jupyterhub', domain: '.cluster.local'},
-    monitoringStatus: {protocol: 'http://', host: 'status', domain: '.cluster.local'},
     devToolsMailbox: {protocol: 'http://', host: 'mb', domain: '.cluster.local'},
     devToolsFileBrowser: {protocol: 'http://', host: 'fs', domain: '.cluster.local'}
   },
@@ -70,5 +69,10 @@ export const environment: Environment = window.environment != undefined ? window
     licenseUrl: 'https://github.com/kanton-bern/hellodata-be/blob/main/LICENSE',
     githubUrl: 'https://github.com/kanton-bern/hellodata-be',
     versionLink: 'https://github.com/kanton-bern/hellodata-be/releases/'
+  },
+  matomoConfig: {
+    enabled: false,
+    siteId: 1, // <-- Replace with your real Site ID
+    trackerUrl: 'http://localhost:8081/' // <-- Replace with your real Matomo URL
   }
 };

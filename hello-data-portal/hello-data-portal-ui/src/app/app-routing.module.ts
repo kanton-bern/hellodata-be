@@ -27,69 +27,28 @@
 
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {HomeComponent} from './pages/home/home.component';
-import {ProfileComponent} from './pages/profile/profile.component';
-import {WorkspacesComponent} from "./pages/admin/workspaces/workspaces.component";
-import {UserManagementComponent} from "./pages/admin/user-management/user-management.component";
-import {MyDashboardsComponent} from "./pages/my-dashboards/my-dashboards.component";
-import {SelectedWorkspaceComponent} from "./pages/admin/workspaces/selected-workspace/selected-workspace.component";
-import {UserEditComponent} from "./pages/admin/user-management/user-edit/user-edit.component";
-import {PortalRolesManagementComponent} from "./pages/admin/portal-roles-management/portal-roles-management.component";
-import {
-  PortalRoleEditComponent
-} from "./pages/admin/portal-roles-management/portal-role-edit/portal-role-edit.component";
 import {AutoLoginPartialRoutesGuard} from "angular-auth-oidc-client";
-import {
-  AnnouncementsManagementComponent
-} from "./pages/admin/announcements-management/announcements-management.component";
-import {
-  AnnouncementEditComponent
-} from "./pages/admin/announcements-management/announcement-edit/announcement-edit.component";
-import {CallbackComponent} from "./callback/callback.component";
 import {PermissionsGuard} from "./auth/guards/permissions-guard.service";
-import {ForbiddenComponent} from "./shared/components/not-allowed/forbidden.component";
-import {EmbedMyDashboardComponent} from "./pages/my-dashboards/embed-my-dashboard.component";
-import {FaqListComponent} from "./pages/admin/faq-management/faq-list.component";
-import {FaqEditComponent} from "./pages/admin/faq-management/faq-edit/faq-edit.component";
-import {LogoutComponent} from "./pages/logout/logout.component";
-import {
-  DocumentationManagementComponent
-} from "./pages/admin/documentation-management/documentation-management.component";
-import {ExternalDashboardsComponent} from "./pages/my-dashboards/external-dashboards/external-dashboards.component";
-import {
-  ExternalDashboardEditComponent
-} from "./pages/my-dashboards/external-dashboards/external-dashboard-edit/external-dashboard-edit.component";
-import {OrchestrationComponent} from "./pages/admin/orchestration/orchestration.component";
-import {EmbeddedOrchestrationComponent} from "./pages/orchestration/embedded-orchestration.component";
-import {EmbeddedDmViewerComponent} from "./pages/data-mart/embedded-dm-viewer.component";
-import {EmbeddedLineageDocsComponent} from "./pages/lineage-docs/embedded/embedded-lineage-docs.component";
-import {LineageDocsComponent} from "./pages/lineage-docs/lineage-docs.component";
 import {naviElements} from "./app-navi-elements";
 import {unsavedChangesGuard} from "./shared/guards/unsaved-changes.guard";
-import {RedirectComponent} from "./shared/components/redirect/redirect.component";
-import {DashboardImportExportComponent} from "./pages/admin/dashboard-import-export/dashboard-import-export.component";
-import {PublishedAnnouncementsComponent} from "./pages/published-announcements/published-announcements.component";
-import {AdvancedAnalyticsViewerComponent} from "./pages/advanced-analytics/advanced-analytics-viewer.component";
-import {DataWarehouseViewerComponent} from "./pages/data-warehouse/data-warehouse-viewer.component";
-import {SubsystemUsersComponent} from "./pages/admin/subsystem-users/subsystem-users.component";
-import {UsersOverviewComponent} from "./pages/admin/users-overview/users-overview.component";
+
 
 const routes: Routes = [
 
   {path: '', pathMatch: 'full', redirectTo: 'home'},
   {
     path: naviElements.home.path,
-    component: HomeComponent,
+    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
     canActivate: [AutoLoginPartialRoutesGuard]
   },
   {
     path: naviElements.profile.path,
-    component: ProfileComponent,
+    loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AutoLoginPartialRoutesGuard],
   },
   {
     path: naviElements.publishedAnnouncements.path,
-    component: PublishedAnnouncementsComponent,
+    loadComponent: () => import('./pages/published-announcements/published-announcements.component').then(m => m.PublishedAnnouncementsComponent),
     canActivate: [AutoLoginPartialRoutesGuard],
   },
   {
@@ -101,19 +60,19 @@ const routes: Routes = [
     children: [
       {
         path: naviElements.lineageDocsList.path,
-        component: LineageDocsComponent,
+        loadComponent: () => import('./pages/lineage-docs/lineage-docs.component').then(m => m.LineageDocsComponent),
         canActivate: [AutoLoginPartialRoutesGuard],
       },
       {
         path: naviElements.lineageDocsDetail.path,
-        component: EmbeddedLineageDocsComponent,
+        loadComponent: () => import('./pages/lineage-docs/embedded/embedded-lineage-docs.component').then(m => m.EmbeddedLineageDocsComponent),
         canActivate: [AutoLoginPartialRoutesGuard],
       },
     ]
   },
   {
     path: naviElements.orchestration.path,
-    component: OrchestrationComponent,
+    loadComponent: () => import('./pages/admin/orchestration/orchestration.component').then(m => m.OrchestrationComponent),
     canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
   },
   {
@@ -125,7 +84,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: UserManagementComponent,
+        loadComponent: () => import('./pages/admin/user-management/user-management.component').then(m => m.UserManagementComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['USER_MANAGEMENT'],
@@ -133,7 +92,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.userEdit.path,
-        component: UserEditComponent,
+        loadComponent: () => import('./pages/admin/user-management/user-edit/user-edit.component').then(m => m.UserEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -151,10 +110,27 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: SubsystemUsersComponent,
+        loadComponent: () => import('./pages/admin/subsystem-users/subsystem-users.component').then(m => m.SubsystemUsersComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['USER_MANAGEMENT'],
+        }
+      }
+    ]
+  },
+  {
+    path: naviElements.dashboardAccess.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARD_ACCESS'],
+    },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/admin/dashboard-access/dashboard-access.component').then(m => m.DashboardAccessComponent),
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['DASHBOARD_ACCESS'],
         }
       }
     ]
@@ -168,7 +144,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: UsersOverviewComponent,
+        loadComponent: () => import('./pages/admin/users-overview/users-overview.component').then(m => m.UsersOverviewComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['USERS_OVERVIEW'],
@@ -185,7 +161,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: PortalRolesManagementComponent,
+        loadComponent: () => import('./pages/admin/portal-roles-management/portal-roles-management.component').then(m => m.PortalRolesManagementComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['ROLE_MANAGEMENT'],
@@ -193,7 +169,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.roleCreate.path,
-        component: PortalRoleEditComponent,
+        loadComponent: () => import('./pages/admin/portal-roles-management/portal-role-edit/portal-role-edit.component').then(m => m.PortalRoleEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -202,7 +178,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.roleEdit.path,
-        component: PortalRoleEditComponent,
+        loadComponent: () => import('./pages/admin/portal-roles-management/portal-role-edit/portal-role-edit.component').then(m => m.PortalRoleEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -220,7 +196,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: WorkspacesComponent,
+        loadComponent: () => import('./pages/admin/workspaces/workspaces.component').then(m => m.WorkspacesComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['WORKSPACES'],
@@ -228,7 +204,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.selectedWorkspace.path,
-        component: SelectedWorkspaceComponent,
+        loadComponent: () => import('./pages/admin/workspaces/selected-workspace/selected-workspace.component').then(m => m.SelectedWorkspaceComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['WORKSPACES'],
@@ -245,7 +221,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: EmbeddedDmViewerComponent,
+        loadComponent: () => import('./pages/data-mart/embedded-dm-viewer.component').then(m => m.EmbeddedDmViewerComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DATA_MARTS'],
@@ -262,7 +238,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: DataWarehouseViewerComponent,
+        loadComponent: () => import('./pages/data-warehouse/data-warehouse-viewer.component').then(m => m.DataWarehouseViewerComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DATA_DWH'],
@@ -279,7 +255,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: EmbeddedOrchestrationComponent,
+        loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DATA_ENG'],
@@ -287,7 +263,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.embeddedOrchestrationDetails.path,
-        component: EmbeddedOrchestrationComponent,
+        loadComponent: () => import('./pages/orchestration/embedded-orchestration.component').then(m => m.EmbeddedOrchestrationComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DATA_ENG'],
@@ -304,7 +280,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: AdvancedAnalyticsViewerComponent,
+        loadComponent: () => import('./pages/advanced-analytics/advanced-analytics-viewer.component').then(m => m.AdvancedAnalyticsViewerComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DATA_JUPYTER'],
@@ -312,20 +288,40 @@ const routes: Routes = [
       }
     ]
   },
-  {path: naviElements.redirect.path, component: RedirectComponent},
+  {
+    path: naviElements.redirect.path,
+    loadComponent: () => import('./shared/components/redirect/redirect.component').then(m => m.RedirectComponent)
+  },
   {
     path: naviElements.myDashboards.path,
     canActivate: [AutoLoginPartialRoutesGuard],
     children: [
       {
         path: '',
-        component: MyDashboardsComponent,
+        loadComponent: () => import('./pages/my-dashboards/my-dashboards.component').then(m => m.MyDashboardsComponent),
         canActivate: [AutoLoginPartialRoutesGuard],
       },
       {
         path: naviElements.myDashboardDetail.path,
-        component: EmbedMyDashboardComponent,
+        loadComponent: () => import('./pages/my-dashboards/embed-my-dashboard.component').then(m => m.EmbedMyDashboardComponent),
         canActivate: [AutoLoginPartialRoutesGuard],
+      },
+    ]
+  },
+  {
+    path: naviElements.query.path,
+    canActivate: [AutoLoginPartialRoutesGuard],
+    data: {
+      requiredPermissions: []
+    },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/admin/queries/queries.component').then(m => m.QueriesComponent),
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: []
+        }
       },
     ]
   },
@@ -338,7 +334,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: ExternalDashboardsComponent,
+        loadComponent: () => import('./pages/my-dashboards/external-dashboards/external-dashboards.component').then(m => m.ExternalDashboardsComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: []
@@ -346,7 +342,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.externalDashboardEdit.path,
-        component: ExternalDashboardEditComponent,
+        loadComponent: () => import('./pages/my-dashboards/external-dashboards/external-dashboard-edit/external-dashboard-edit.component').then(m => m.ExternalDashboardEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -355,7 +351,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.externalDashboardCreate.path,
-        component: ExternalDashboardEditComponent,
+        loadComponent: () => import('./pages/my-dashboards/external-dashboards/external-dashboard-edit/external-dashboard-edit.component').then(m => m.ExternalDashboardEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -373,7 +369,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: AnnouncementsManagementComponent,
+        loadComponent: () => import('./pages/admin/announcements-management/announcements-management.component').then(m => m.AnnouncementsManagementComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['ANNOUNCEMENT_MANAGEMENT'],
@@ -381,7 +377,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.announcementEdit.path,
-        component: AnnouncementEditComponent,
+        loadComponent: () => import('./pages/admin/announcements-management/announcement-edit/announcement-edit.component').then(m => m.AnnouncementEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -390,7 +386,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.announcementCreate.path,
-        component: AnnouncementEditComponent,
+        loadComponent: () => import('./pages/admin/announcements-management/announcement-edit/announcement-edit.component').then(m => m.AnnouncementEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -408,7 +404,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: FaqListComponent,
+        loadComponent: () => import('./pages/admin/faq-management/faq-list.component').then(m => m.FaqListComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['FAQ_MANAGEMENT'],
@@ -416,7 +412,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.faqEdit.path,
-        component: FaqEditComponent,
+        loadComponent: () => import('./pages/admin/faq-management/faq-edit/faq-edit.component').then(m => m.FaqEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -425,7 +421,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.faqCreate.path,
-        component: FaqEditComponent,
+        loadComponent: () => import('./pages/admin/faq-management/faq-edit/faq-edit.component').then(m => m.FaqEditComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         canDeactivate: [unsavedChangesGuard],
         data: {
@@ -444,7 +440,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: DocumentationManagementComponent,
+        loadComponent: () => import('./pages/admin/documentation-management/documentation-management.component').then(m => m.DocumentationManagementComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DOCUMENTATION_MANAGEMENT'],
@@ -461,7 +457,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        component: DashboardImportExportComponent,
+        loadComponent: () => import('./pages/admin/dashboard-import-export/dashboard-import-export.component').then(m => m.DashboardImportExportComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
           requiredPermissions: ['DASHBOARD_IMPORT_EXPORT'],
@@ -469,14 +465,25 @@ const routes: Routes = [
       },
     ]
   },
-  {path: naviElements.callback.path, component: CallbackComponent},
+  {
+    path: naviElements.callback.path,
+    loadComponent: () => import('./callback/callback.component').then(m => m.CallbackComponent)
+  },
   {
     path: naviElements.logout.path,
-    component: LogoutComponent,
+    loadComponent: () => import('./pages/logout/logout.component').then(m => m.LogoutComponent),
     canActivate: [AutoLoginPartialRoutesGuard],
   },
-  {path: naviElements.forbidden.path, component: ForbiddenComponent, canActivate: [AutoLoginPartialRoutesGuard]},
-  {path: naviElements.forbidden.path, component: ForbiddenComponent, canActivate: [AutoLoginPartialRoutesGuard]},
+  {
+    path: naviElements.forbidden.path,
+    loadComponent: () => import('./shared/components/not-allowed/forbidden.component').then(m => m.ForbiddenComponent),
+    canActivate: [AutoLoginPartialRoutesGuard]
+  },
+  {
+    path: naviElements.forbidden.path,
+    loadComponent: () => import('./shared/components/not-allowed/forbidden.component').then(m => m.ForbiddenComponent),
+    canActivate: [AutoLoginPartialRoutesGuard]
+  },
 ];
 
 @NgModule({

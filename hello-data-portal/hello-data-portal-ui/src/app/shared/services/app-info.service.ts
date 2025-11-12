@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable, OnDestroy} from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {ActuatorInfo} from "./interfaces/actuator-info";
 import {OidcSecurityService} from "angular-auth-oidc-client";
@@ -34,19 +34,20 @@ import {environment} from "../../../environments/environment";
 
 @Injectable()
 export class AppInfoService implements OnDestroy {
+  private http = inject(HttpClient);
+  private oidcSecurityService = inject(OidcSecurityService);
+
 
   readonly userData$: Subscription;
   private baseUrl = `${environment.portalApi}`;
   private _timestamp!: string;
   private _branch!: string;
-  private _version!: string;
   private _tag!: string;
   private _gitHash!: string;
 
-  constructor(private http: HttpClient, private oidcSecurityService: OidcSecurityService) {
+  constructor() {
     this.userData$ = this.oidcSecurityService.userData$.subscribe(u => {
       this.http.get<ActuatorInfo>(this.baseUrl + `/actuator/info`).subscribe(actuatorInfo => {
-        this._version = actuatorInfo.build.version;
         this._branch = actuatorInfo.git.branch;
         this._timestamp = actuatorInfo.git.commit.time;
         this._gitHash = actuatorInfo.git.commit.id;

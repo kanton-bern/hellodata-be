@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {TranslateService} from "./translate.service";
 import {MessageService} from "primeng/api";
 import {TitleCasePipe} from "@angular/common";
@@ -34,10 +34,10 @@ import {TitleCasePipe} from "@angular/common";
   providedIn: 'root'
 })
 export class NotificationService {
+  private translateService = inject(TranslateService);
+  private messageService = inject(MessageService);
+  private titlecasePipe = inject(TitleCasePipe);
 
-  constructor(private translateService: TranslateService, private messageService: MessageService,
-              private titlecasePipe:TitleCasePipe) {
-  }
 
   public success(message: string, interpolateParams?: Record<string, unknown>): void {
     console.debug('Success message:', message);

@@ -1,50 +1,65 @@
-<div *ngIf="(defaultLanguage$ | async) as defaultLanguage">
-  <div *ngIf="(selectedLanguage$ | async) as selectedLanguage">
-    <div *ngIf="(faq$ | async) as faq">
-      <p-table [paginator]="true"
-               [rowHover]="true"
-               [rows]="5"
-               [showCurrentPageReport]="true"
-               [tableStyle]="{ 'min-width': '20rem' }"
-               [value]="faq"
-               dataKey="id">
-        <ng-template pTemplate="header">
-          <tr>
-            <th id="icon"></th>
-            <th id="dataDomain" pSortableColumn="contextKey">{{ '@Data domain' | transloco }}
-              <p-sortIcon field="contextKey"></p-sortIcon>
-            </th>
-            <th id="name" pSortableColumn="name">{{ '@Faq' | transloco }}
-              <p-sortIcon field="name"></p-sortIcon>
-            </th>
-          </tr>
-        </ng-template>
-        <ng-template let-item pTemplate="body">
-          <tr>
-            <td>
-              <i class="fa fa-question-circle fa-lg"></i>
-            </td>
-            <td>
-              {{ item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName }}
-            </td>
-            <td>
-              <p-accordion>
-                <ng-container *ngFor="let domainFaq of item.faqs">
-                  <p-accordionTab header="{{ getTitle(domainFaq, selectedLanguage.code, defaultLanguage) }}"
-                                  style="white-space: pre-wrap;">
-                    <p-editor [disabled]="true" [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
-                              [readonly]="true"
-                              [style]="{ height: '320px', 'white-space': 'pre-wrap' }"
-                              class="p-editor-readonly">
-                      <p-header hidden></p-header>
-                    </p-editor>
-                  </p-accordionTab>
-                </ng-container>
-              </p-accordion>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+@if ((defaultLanguage$ | async); as defaultLanguage) {
+  <div>
+    @if ((selectedLanguage$ | async); as selectedLanguage) {
+      <div>
+        @if ((faq$ | async); as faq) {
+          <div>
+            <p-table [paginator]="true"
+                     [rowHover]="true"
+                     [rows]="5"
+                     [showCurrentPageReport]="true"
+                     [tableStyle]="{ 'min-width': '20rem' }"
+                     [value]="faq"
+                     dataKey="id">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th id="icon"></th>
+                  <th id="dataDomain" pSortableColumn="contextKey">{{ '@Data domain' | transloco }}
+                    <p-sortIcon field="contextKey"/>
+                  </th>
+                  <th id="name" pSortableColumn="name">{{ '@Faq' | transloco }}
+                    <p-sortIcon field="name"/>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template let-item pTemplate="body">
+                <tr>
+                  <td>
+                    <i class="fa fa-question-circle fa-lg"></i>
+                  </td>
+                  <td>
+                    {{ item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName }}
+                  </td>
+                  <td>
+                    <p-accordion value="0">
+                      @for (domainFaq of item.faqs; track $index) {
+                        <p-accordion-panel style="white-space: pre-wrap;" [value]="$index">
+                          <p-accordion-header>
+                            <span matomoCategory="FAQ"
+                                  matomoAction="[Click] - Open FAQ question"
+                                  [matomoTracker]="['click']">
+                              {{ getTitle(domainFaq, selectedLanguage.code, defaultLanguage) }}
+                            </span>
+                          </p-accordion-header>
+                          <p-accordion-content>
+                            <p-editor [disabled]="true"
+                                      [ngModel]="getMessage(domainFaq, selectedLanguage.code, defaultLanguage)"
+                                      [readonly]="true"
+                                      [style]="{ height: '320px', 'white-space': 'pre-wrap' }"
+                                      class="p-editor-readonly">
+                              <p-header hidden/>
+                            </p-editor>
+                          </p-accordion-content>
+                        </p-accordion-panel>
+                      }
+                    </p-accordion>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        }
+      </div>
+    }
   </div>
-</div>
+}

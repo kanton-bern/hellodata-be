@@ -25,35 +25,50 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, ElementRef, EventEmitter, Input, NgModule, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild} from '@angular/core';
-import {CommonModule} from "@angular/common";
-import {HdCommonModule} from "../../../hd-common.module";
+import {
+  Component,
+  ElementRef,
+  inject,
+  input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  output,
+  SimpleChanges,
+  viewChild
+} from '@angular/core';
+import {NgStyle} from "@angular/common";
+
 import {AuthService} from "../../services";
 import {Subscription} from "rxjs";
 import {environment} from "../../../../environments/environment";
+import {SafePipe} from '../../pipes/safe.pipe';
 
 @Component({
   selector: 'app-subsystem-iframe[url]',
   templateUrl: './subsystem-iframe.component.html',
-  styleUrls: ['./subsystem-iframe.component.scss']
+  styleUrls: ['./subsystem-iframe.component.scss'],
+  imports: [NgStyle, SafePipe]
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
+  private authService = inject(AuthService);
 
-  @Input() url!: string;
-  @Input() accessTokenInQueryParam = false;
-  @Input() delay = 0;
-  @Input() style: { [p: string]: any } | null = null;
-  @Output() iframeSetup = new EventEmitter<boolean>();
-  frameUrl!: string;
-  @ViewChild('iframe') iframe!: ElementRef<HTMLIFrameElement>;
+
+  url = input.required<string>();
+  readonly accessTokenInQueryParam = input(false);
+  readonly delay = input(0);
+  readonly style = input<{
+    [p: string]: any;
+  } | null>(null);
+  readonly switchStyleOverflow = input(true);
+  readonly iframeSetup = output<boolean>();
+  frameUrl: string | undefined;
+  readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
 
   accessTokenSub!: Subscription;
 
-  constructor(private authService: AuthService, private elementRef: ElementRef, private renderer: Renderer2) {
-  }
-
   ngOnInit(): void {
-    console.debug('on init', this.url, this.delay);
+    console.debug('on init', this.url(), this.delay());
 
 
     this.accessTokenSub = this.authService.accessToken.subscribe({
@@ -62,11 +77,14 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
         console.debug("creating an auth cookie for a domain: ." + environment.baseDomain);
         document.cookie = 'auth.access_token=' + value + '; path=/; domain=.' + environment.baseDomain + '; secure;';
         setTimeout(() => {
-          this.frameUrl = this.accessTokenInQueryParam ? this.url + '?auth.access_token=' + value : this.url;
+          this.frameUrl = this.accessTokenInQueryParam() ? this.url() + '?auth.access_token=' + value : this.url();
           this.iframeSetup.emit(true);
-          document.getElementById('mainContentDiv')!.style.overflow = 'hidden';
+          if (this.switchStyleOverflow()) {
+            const mainContentDiv = document.getElementById('mainContentDiv');
+            mainContentDiv!.style.overflow = 'hidden';
+          }
           this.clickScrollTopIfExists();
-        }, this.delay)
+        }, this.delay())
       }
     });
   }
@@ -84,7 +102,10 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     if (this.accessTokenSub) {
       this.accessTokenSub.unsubscribe();
     }
-    document.getElementById('mainContentDiv')!.style.overflow = 'auto';
+    const mainContentDiv = document.getElementById('mainContentDiv');
+    if (this.switchStyleOverflow() && mainContentDiv) {
+      mainContentDiv!.style.overflow = 'scroll';
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -94,7 +115,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
       }
       this.accessTokenSub = this.authService.accessToken.subscribe({
         next: value => {
-          this.frameUrl = this.url;
+          this.frameUrl = this.url();
           this.iframeSetup.emit(true);
         }
       });
@@ -103,13 +124,4 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
 
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    HdCommonModule
-  ],
-  declarations: [SubsystemIframeComponent],
-  exports: [SubsystemIframeComponent]
-})
-export class SubsystemIframeModule {
-}
+

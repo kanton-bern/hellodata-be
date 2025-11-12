@@ -26,28 +26,21 @@
 ///
 
 import {Component, NgModule} from '@angular/core';
-import {TranslocoModule} from "@ngneat/transloco";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 
 @Component({
-  selector: 'app-not-allowed',
-  template: `
+    selector: 'app-not-allowed',
+    template: `
     <div>
       <h2 class="content-block forbidden-header">{{'@Not Allowed' | transloco}}</h2>
       <div class="content-block">
         <p class="forbidden-message">{{'@You are not allowed to access this page' | transloco}}</p>
       </div>
     </div>
-  `
+  `,
+    imports: [TranslocoPipe]
 })
 export class ForbiddenComponent {
 }
 
-@NgModule({
-  declarations: [ForbiddenComponent],
-  imports: [
-    TranslocoModule
-  ],
-  exports: [ForbiddenComponent]
-})
-export class ForbiddenModule {
-}
+

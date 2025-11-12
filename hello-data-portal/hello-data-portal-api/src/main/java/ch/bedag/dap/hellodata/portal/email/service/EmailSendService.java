@@ -68,11 +68,12 @@ class EmailSendService {
         sendEmail(toSimpleMailMessage(templateData));
     }
 
-    private void sendEmail(SimpleMailMessage email) {
-        validateEmail(email);
+    private void sendEmail(SimpleMailMessage simpleMailMessage) {
+        log.debug("Sending email : {}", simpleMailMessage);
+        validateEmail(simpleMailMessage);
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
-            MimeMessageHelper helper = getMimeMessageHelper(email, message);
+            MimeMessageHelper helper = getMimeMessageHelper(simpleMailMessage, message);
             if (helper != null) {
                 javaMailSender.send(message);
             }

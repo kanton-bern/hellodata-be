@@ -25,11 +25,11 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectPublishedAndFilteredAnnouncements} from "../../../../store/announcement/announcement.selector";
-import {combineLatest, debounceTime, Observable, tap} from "rxjs";
+import {combineLatest, debounceTime, Observable, Subscription, tap} from "rxjs";
 import {Announcement} from "../../../../store/announcement/announcement.model";
 import {
   loadPublishedAnnouncementsFiltered,
@@ -42,23 +42,32 @@ import {
 import {HideAllCurrentPublishedAnnouncementsService} from "../hide-all-current-published-announcements.service";
 import {selectUrl} from "../../../../store/router/router.selectors";
 import {naviElements} from "../../../../app-navi-elements";
-import {take} from "rxjs/operators";
+import {AsyncPipe} from '@angular/common';
 
 @Component({
   providers: [DialogService],
   selector: 'app-published-announcements-wrapper',
   template: `
-    <div *ngIf="publishedAnnouncements$ | async">
-    </div>`,
+    @if (publishedAnnouncements$ | async) {
+      <div>
+      </div>
+    }`,
+  imports: [AsyncPipe]
 })
-export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
+export class PublishedAnnouncementsWrapperComponent {
+  private store = inject<Store<AppState>>(Store);
+  dialogService = inject(DialogService);
+  private hideAllCurrentAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
+
 
   publishedAnnouncements$: Observable<any>;
-  ref: DynamicDialogRef | undefined;
+  ref: DynamicDialogRef | null = null;
+  onCloseSubscription!: Subscription | undefined;
 
-  constructor(private store: Store<AppState>,
-              public dialogService: DialogService,
-              private hideAllCurrentAnnouncementsService: HideAllCurrentPublishedAnnouncementsService) {
+  constructor() {
+    this.hide = this.hide.bind(this);
+    const store = this.store;
+
     this.publishedAnnouncements$ =
       combineLatest([
         this.store.select(selectPublishedAndFilteredAnnouncements),
@@ -77,9 +86,6 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
     store.dispatch(loadPublishedAnnouncementsFiltered());
   }
 
-  ngAfterViewInit(): void {
-    this.hide = this.hide.bind(this);
-  }
 
   hide(announcement: Announcement): void {
     this.store.dispatch(markAnnouncementAsRead({announcement}));
@@ -91,24 +97,22 @@ export class PublishedAnnouncementsWrapperComponent implements AfterViewInit {
       width: '90vw',
       contentStyle: {overflow: 'auto'},
       height: 'auto',
-    });
-    this.ref.onClose.subscribe(_ => {
-      if (this.hideAllCurrentAnnouncementsService.hide) {
-        for (const announcement of announcements) {
-          this.hide(announcement);
-        }
-        this.hideAllCurrentAnnouncementsService.hide = false;
-      }
-    });
-    this.ref.onClose.pipe(take(1)).subscribe(() => {
-      if (this.hideAllCurrentAnnouncementsService.hide) {
-        for (const announcement of announcements) {
-          this.hide(announcement);
-        }
-        this.hideAllCurrentAnnouncementsService.hide = false;
-      }
-    });
+      closable: false,
+      modal: true,
 
+    });
+    if (this.onCloseSubscription) {
+      this.onCloseSubscription.unsubscribe();
+    }
+    this.onCloseSubscription = this.ref?.onClose.subscribe(() => {
+      console.debug('Dialog closed, hiding announcements');
+      if (this.hideAllCurrentAnnouncementsService.hide) {
+        for (const announcement of announcements) {
+          this.hide(announcement);
+        }
+        this.hideAllCurrentAnnouncementsService.hide = false;
+      }
+    });
   }
 
 }

@@ -25,23 +25,28 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable, OnDestroy} from "@angular/core";
-import {LangDefinition, Translation, TranslocoService} from "@ngneat/transloco";
+import { Injectable, OnDestroy, inject } from "@angular/core";
+import {LangDefinition, TranslateParams, Translation, TranslocoScope, TranslocoService} from "@jsverse/transloco";
 import {Observable, Subscription, switchMap, tap} from "rxjs";
-import {HashMap, TranslateParams, TranslocoScope} from "@ngneat/transloco/lib/types";
 import {filter} from "rxjs/operators";
 import {HttpClient} from "@angular/common/http";
-import {PrimeNGConfig} from "primeng/api";
+
+type HashMap<T = any> = { [key: string]: T };
 
 @Injectable({
   providedIn: 'root'
 })
 export class TranslateService implements OnDestroy {
+  private translocoService = inject(TranslocoService);
+  private http = inject(HttpClient);
+
 
   private readonly loadSub: Subscription;
   private readonly eventSub: Subscription;
 
-  constructor(private translocoService: TranslocoService, private http: HttpClient, private primengConfig: PrimeNGConfig) {
+  constructor() {
+    const translocoService = this.translocoService;
+
     const activeLang = translocoService.getActiveLang();
     this.loadSub = translocoService.load(activeLang).subscribe(() => console.debug('Loaded translations for ' + activeLang));
     this.eventSub = translocoService.events$.pipe(
@@ -51,7 +56,7 @@ export class TranslateService implements OnDestroy {
         const url = `./assets/i18n/primeng/${event.payload.langName}.json?ts=${timestamp}`;
         return this.http.get<Translation>(url).pipe(
           tap(primengTranslations => {
-            this.primengConfig.setTranslation(primengTranslations);
+            // this.primengConfig.setTranslation(primengTranslations);//FIXME change primeng translations
           }));
       })
     ).subscribe();

@@ -25,14 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable, Type} from "@angular/core";
-import {FunctionalEffect} from "@ngrx/effects/src/models";
+import { Injectable, Type, inject } from "@angular/core";
+import {Actions, createEffect, FunctionalEffect, ofType} from '@ngrx/effects';
 import {MetaInfoResourceEffects} from "../metainfo-resource/metainfo-resource.effects";
 import {UsersManagementEffects} from "../users-management/users-management.effects";
-import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {tap, withLatestFrom} from "rxjs";
 import {NotificationService} from "../../shared/services/notification.service";
-import {navigate, navigateToList, showError, showInfo, showSuccess} from "./app.action";
+import {navigate, navigateToList, openWindow, showError, showInfo, showSuccess, trackEvent} from "./app.action";
 import {AuthEffects} from "../auth/auth.effects";
 import {Router} from "@angular/router";
 import {PortalRolesManagementEffects} from "../portal-roles-management/portal-roles-management.effects";
@@ -51,21 +50,33 @@ import {Store} from "@ngrx/store";
 import {AppState} from "./app.state";
 import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 import {ALL_DATA_DOMAINS} from "./app.constants";
+import {QueriesEffects} from "../queries/queries.effects";
+import {MatomoTracker} from "ngx-matomo-client";
+import {WindowManagementService} from "../../shared/services/window-management.service";
+import {DashboardAccessEffects} from "../dashboard-access/dashboard-access.effects";
 
 @Injectable()
 export class AppEffects {
+  private _store = inject<Store<AppState>>(Store);
+  private _router = inject(Router);
+  private _actions$ = inject(Actions);
+  private _notificationService = inject(NotificationService);
+  private _tracker = inject(MatomoTracker);
+  private _windowManagementService = inject(WindowManagementService);
+
   showError$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(showError),
       tap(action => {
         console.error(action.error);
+        let errorMessage = '@Unexpected error occurred';
         if (action?.error?.error?.message) {
-          this._notificationService.error(action.error.error.message);
+          errorMessage = action.error.error.message;
         } else if (action?.error?.message) {
-          this._notificationService.error(action.error.message);
-        } else {
-          this._notificationService.error('@Unexpected error occurred');
+          errorMessage = action.error.message;
         }
+        this._notificationService.error(errorMessage);
+        this._tracker.trackEvent("Error", errorMessage);
       })
     )
   }, {dispatch: false});
@@ -109,16 +120,43 @@ export class AppEffects {
     )
   }, {dispatch: false});
 
-  constructor(
-    private _store: Store<AppState>,
-    private _router: Router,
-    private _actions$: Actions,
-    private _notificationService: NotificationService
-  ) {
-  }
+  trackEvent$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(trackEvent),
+      tap((action) => {
+        this._tracker.trackEvent(action.eventCategory, action.eventAction, action.eventName, action.eventValue);
+      }),
+    )
+  }, {dispatch: false});
+
+  openWindow$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(openWindow),
+      tap((action) => {
+        this._windowManagementService.openWindow(action.url, action.target)
+      }),
+    )
+  }, {dispatch: false});
 
 }
 
 export const appEffects: Array<Type<unknown> | Record<string, FunctionalEffect>> =
-  [AppEffects, AuthEffects, RouterEffects, MetaInfoResourceEffects, UsersManagementEffects, PortalRolesManagementEffects, AnnouncementEffects,
-    MyDashboardsEffects, MenuEffects, StartPageEffects, FaqEffects, SummaryEffects, ExternalDashboardsEffects, LineageDocsEffects, UnsavedChangesEffects]
+  [
+    AppEffects,
+    AuthEffects,
+    RouterEffects,
+    MetaInfoResourceEffects,
+    UsersManagementEffects,
+    PortalRolesManagementEffects,
+    AnnouncementEffects,
+    MyDashboardsEffects,
+    MenuEffects,
+    StartPageEffects,
+    FaqEffects,
+    SummaryEffects,
+    ExternalDashboardsEffects,
+    LineageDocsEffects,
+    UnsavedChangesEffects,
+    QueriesEffects,
+    DashboardAccessEffects,
+  ]

@@ -5,47 +5,54 @@
     <div class="field grid">
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
       <div class="col-12 md:col-10">
-        <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary">
+        <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary"
+          style="width: 100%; display: grid">
           <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
-                          [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
-                          name="user">
-              <ng-template let-user pTemplate="item">
-                <div class="flex align-items-center gap-1">
-                  <p [pTooltip]="user.label" class="glow top-menu-item" tooltipPosition="bottom">{{ user.label }}</p>
-                </div>
+            [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
+            name="user">
+            <ng-template let-user pTemplate="item">
+              <div class="flex align-items-center gap-1">
+                <p [pTooltip]="user.label" class="glow top-menu-item" tooltipPosition="bottom">{{ user.label }}</p>
+              </div>
             </ng-template>
           </p-autoComplete>
-          </span>
-        <small *ngIf="!inviteForm.controls['user'].valid && inviteForm.controls['user'].dirty"
-               class="p-error">{{ '@Email is invalid' | transloco }}</small>
+        </span>
+        @if (!inviteForm.controls['user'].valid && inviteForm.controls['user'].dirty) {
+          <small
+          class="p-error">{{ '@Email is invalid' | transloco }}</small>
+        }
       </div>
     </div>
     <div class="field grid">
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
       <div class="col-12 md:col-10">
         <input [readOnly]="true"
-               class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="firstName"
-               id="firstName"
-               name="firstName"
-               pInputText
-               type="text">
-        <small *ngIf="!inviteForm.controls['firstName'].valid && inviteForm.controls['firstName'].dirty"
-               class="p-error">{{ '@First name is invalid' | transloco }}</small>
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="firstName"
+          id="firstName"
+          name="firstName"
+          pInputText
+          type="text">
+        @if (!inviteForm.controls['firstName'].valid && inviteForm.controls['firstName'].dirty) {
+          <small
+          class="p-error">{{ '@First name is invalid' | transloco }}</small>
+        }
       </div>
     </div>
     <div class="field grid">
       <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
       <div class="col-12 md:col-10">
         <input [readOnly]="true"
-               class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-               formControlName="lastName"
-               id="lastName"
-               name="lastName"
-               pInputText
-               type="text">
-        <small *ngIf="!inviteForm.controls['lastName'].valid && inviteForm.controls['lastName'].dirty"
-               class="p-error">{{ '@Last name is invalid' | transloco }}</small>
+          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          formControlName="lastName"
+          id="lastName"
+          name="lastName"
+          pInputText
+          type="text">
+        @if (!inviteForm.controls['lastName'].valid && inviteForm.controls['lastName'].dirty) {
+          <small
+          class="p-error">{{ '@Last name is invalid' | transloco }}</small>
+        }
       </div>
     </div>
     <p-toolbar>
@@ -53,10 +60,10 @@
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="createUser()"
-                  [disabled]="inviteForm.invalid"
-                  icon="fas fa-floppy-disk"
-                  label="{{'@Set permissions' | transloco}}"
-                  styleClass="p-button-success mr-2"></p-button>
+          [disabled]="inviteForm.invalid"
+          icon="fas fa-floppy-disk"
+          label="{{'@Set permissions' | transloco}}"
+        severity="success" />
       </div>
     </p-toolbar>
   </form>
@@ -68,13 +75,15 @@
       <h3>{{ '@Users' | transloco }}</h3>
 
     </div>
-    <div *ngIf="(syncStatus$ | async) as syncStatus " class="p-toolbar-group-end">
-      <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
-                [pTooltip]="'@Sync Users Title' | transloco"
-                icon="fas fa-arrows-rotate"
-                label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
-                styleClass="p-button-success mr-2"></p-button>
-    </div>
+    @if ((syncStatus$ | async); as syncStatus ) {
+      <div class="p-toolbar-group-end">
+        <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
+          [pTooltip]="'@Sync Users Title' | transloco"
+          icon="fas fa-arrows-rotate"
+          label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
+        severity="success" />
+      </div>
+    }
   </p-toolbar>
 
   <p-table
@@ -94,15 +103,19 @@
     id="userTable"
     stateKey="portal-users-table"
     stateStorage="session"
-    styleClass="p-datatable-striped"
-  >
+    class="p-datatable-striped"
+    sortField="email"
+    [sortOrder]="1"
+    >
     <ng-template pTemplate="caption">
       <div>
         <div id="searchBox">
           <span class="p-input-icon-left p-ml-auto">
-          <i class="pi pi-search"></i>
-          <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                 placeholder="{{'@Search' | transloco}}" type="text"/>
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                placeholder="{{'@Search' | transloco}}" type="text"/>
+            </p-iconfield>
           </span>
         </div>
       </div>
@@ -112,27 +125,27 @@
       <tr>
         <th id="emailHeader" pSortableColumn="email" style="max-width:5rem">
           {{ '@E-mail' | transloco }}
-          <p-sortIcon field="email"></p-sortIcon>
+          <p-sortIcon field="email" />
         </th>
         <th id="firstNameHeader" pSortableColumn="firstName" style="max-width:5rem">
           {{ '@First name' | transloco }}
-          <p-sortIcon field="firstName"></p-sortIcon>
+          <p-sortIcon field="firstName" />
         </th>
         <th id="lastNameHeader" pSortableColumn="lastName" style="max-width:5rem">
           {{ '@Last name' | transloco }}
-          <p-sortIcon field="lastName"></p-sortIcon>
+          <p-sortIcon field="lastName" />
         </th>
         <th id="superuser" pSortableColumn="superuser">
           {{ '@Superuser' | transloco }}
-          <p-sortIcon field="superuser"></p-sortIcon>
+          <p-sortIcon field="superuser" />
         </th>
         <th id="enabled" pSortableColumn="enabled">
           {{ '@Enabled' | transloco }}
-          <p-sortIcon field="enabled"></p-sortIcon>
+          <p-sortIcon field="enabled" />
         </th>
         <th id="lastAccess" pSortableColumn="lastAccess" style="min-width:15rem">
           {{ '@Last login' | transloco }}
-          <p-sortIcon field="lastAccess"></p-sortIcon>
+          <p-sortIcon field="lastAccess" />
         </th>
         <th id="actions" style="min-width:10rem"></th>
       </tr>
@@ -149,45 +162,62 @@
           {{ user.lastName }}
         </td>
         <td>
-          <div *ngIf="user.superuser">
-            <i class="fas fa-check"></i>
-          </div>
+          @if (user.superuser) {
+            <div>
+              <i class="fas fa-check"></i>
+            </div>
+          }
         </td>
         <td>
-          <div *ngIf="user.enabled">
-            <i class="fas fa-check"></i>
-          </div>
+          @if (user.enabled) {
+            <div>
+              <i class="fas fa-check"></i>
+            </div>
+          }
         </td>
         <td>
-          <span *ngIf="user.lastAccess">{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
-          <span *ngIf="user.lastAccess === null">{{ '@Never' | transloco }}</span>
+          @if (user.lastAccess) {
+            <span>{{ user.lastAccess | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+          }
+          @if (user.lastAccess === null) {
+            <span>{{ '@Never' | transloco }}</span>
+          }
         </td>
-        <td *ngIf="(loggedInUser$ | async) as loggedInUser">
-          <button (click)="editUser(user)"
-                  class="p-button-rounded p-button-success mr-2"
-                  icon="fas fa-light fa-pen-to-square"
-                  pButton
-                  pRipple
-                  pTooltip="{{'@Edit' | transloco}}"></button>
-          <button (click)="enableUser(user)"
-                  *ngIf="!user.superuser && !user.enabled && user.email !== loggedInUser.email"
-                  class="p-button-rounded p-button-success mr-2"
-                  icon="fas fa-circle-plus" pButton pRipple
-                  pTooltip="{{'@Enable' | transloco}}"></button>
-          <button (click)="disableUser(user)"
-                  *ngIf="!user.superuser && user.enabled && user.email !== loggedInUser.email"
-                  class="p-button-rounded p-button-warning mr-2"
-                  icon="fas fa-circle-xmark" pButton pRipple
-                  pTooltip="{{'@Disable' | transloco}}"></button>
-          <button (click)="showUserDeletionPopup(user)"
-                  *ngIf="!user.superuser && user.email !== loggedInUser.email"
-                  class="p-button-rounded p-button-danger mr-2"
-                  icon="fas fa-trash" pButton pRipple
-                  pTooltip="{{'@Delete' | transloco}}"></button>
-        </td>
+        @if ((loggedInUser$ | async); as loggedInUser) {
+          <td>
+            <p-button (click)="editUser(user)"
+              severity="success"
+              class="p-button-rounded mr-2"
+              icon="fas fa-light fa-pen-to-square"
+              pButton
+              pRipple
+            pTooltip="{{'@Edit' | transloco}}" />
+            @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
+              <p-button (click)="enableUser(user)"
+                severity="success"
+                class="p-button-rounded mr-2"
+                icon="fas fa-circle-plus" pButton pRipple
+              pTooltip="{{'@Enable' | transloco}}" />
+            }
+            @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
+              <p-button (click)="disableUser(user)"
+                severity="warn"
+                class="p-button-rounded mr-2"
+                icon="fas fa-circle-xmark" pButton pRipple
+              pTooltip="{{'@Disable' | transloco}}" />
+            }
+            @if (!user.superuser && user.email !== loggedInUser.email) {
+              <p-button (click)="showUserDeletionPopup(user)"
+                severity="danger"
+                class="p-button-rounded mr-2"
+                icon="fas fa-trash" pButton pRipple
+              pTooltip="{{'@Delete' | transloco}}" />
+            }
+          </td>
+        }
       </tr>
     </ng-template>
   </p-table>
 </div>
 
-<app-actions-user-popup></app-actions-user-popup>
+<app-actions-user-popup />

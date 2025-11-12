@@ -26,8 +26,8 @@
  */
 package ch.bedag.dap.hellodata.portal.faq.service;
 
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqCreateDto;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqDto;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;

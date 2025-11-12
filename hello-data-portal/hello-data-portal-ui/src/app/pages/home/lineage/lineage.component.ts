@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
@@ -33,17 +33,26 @@ import {naviElements} from "../../../app-navi-elements";
 import {LineageDoc} from "../../../store/lineage-docs/lineage-docs.model";
 import {Observable} from "rxjs";
 import {selectMyLineageDocs} from "../../../store/lineage-docs/lineage-docs.selector";
+import { AsyncPipe } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-lineage',
-  templateUrl: './lineage.component.html',
-  styleUrls: ['./lineage.component.scss']
+    selector: 'app-lineage',
+    templateUrl: './lineage.component.html',
+    styleUrls: ['./lineage.component.scss'],
+    imports: [TableModule, PrimeTemplate, RouterLink, AsyncPipe, TranslocoPipe]
 })
 export class LineageComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private fb: FormBuilder) {
+  constructor() {
     this.docs$ = this.store.select(selectMyLineageDocs);
   }
 

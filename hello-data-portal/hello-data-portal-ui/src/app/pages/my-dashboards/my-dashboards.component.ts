@@ -25,36 +25,54 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {combineLatest, map, Observable, tap} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
-import {Table} from "primeng/table";
+import { Table, TablePageEvent, TableModule } from "primeng/table";
 import {naviElements} from "../../app-navi-elements";
 import {selectFilteredBy, selectMyDashboardsFiltered} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
-import {navigate} from "../../store/app/app.action";
+import {navigate, trackEvent} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
+import { AsyncPipe, DatePipe } from '@angular/common';
+import { PrimeTemplate } from 'primeng/api';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Button, ButtonDirective } from 'primeng/button';
+import { Ripple } from 'primeng/ripple';
+import { Tooltip } from 'primeng/tooltip';
+import { Dialog } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { Tag } from 'primeng/tag';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  templateUrl: 'my-dashboards.component.html',
-  styleUrls: ['./my-dashboards.component.scss']
+    templateUrl: 'my-dashboards.component.html',
+    styleUrls: ['./my-dashboards.component.scss'],
+    imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private menuService = inject(MenuService);
 
-  @ViewChild('dt') dt!: Table | undefined;
+
+  readonly dt = viewChild.required<Table | undefined>('dt');
 
   dashboards$: Observable<SupersetDashboard[]>;
   editDashboardMetadataDialog = false;
   viewDashboardDataDialog = false;
   selectedDashboard!: SupersetDashboardWithMetadata;
 
-  constructor(private store: Store<AppState>, private menuService: MenuService) {
+  private filterTimer: any;
+
+  constructor() {
     super();
     this.dashboards$ =
       combineLatest([
@@ -71,7 +89,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   }
 
-  private createBreadcrumbs(filteredBy: string | undefined, myDashboards: SupersetDashboardWithMetadata[]) {
+  private createBreadcrumbs(filteredBy: string | string[] | undefined, myDashboards: SupersetDashboardWithMetadata[]) {
     if (filteredBy && myDashboards && myDashboards.length > 0 && myDashboards.filter(dashboard => dashboard.contextId === filteredBy).length > 0) {
       this.store.dispatch(createBreadcrumbs({
         breadcrumbs: [
@@ -134,9 +152,19 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   }
 
   applyFilterGlobal($event: any, stringVal: string) {
-    if (this.dt) {
-      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+    const dt = this.dt();
+    if (dt) {
+      dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
     }
+    clearTimeout(this.filterTimer);
+    // debounce
+    this.filterTimer = setTimeout(() => {
+      const val = ($event.target as HTMLInputElement).value || '(cleared)';
+      this.store.dispatch(trackEvent({
+        eventCategory: 'Dashboard',
+        eventAction: '[Search] - Searched for ' + val
+      }));
+    }, 400);
   }
 
   openDashboard(dashboard: SupersetDashboardWithMetadata) {
@@ -151,5 +179,15 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
 
   hideInfoPanel() {
     this.viewDashboardDataDialog = false;
+  }
+
+  onPageChange($event: TablePageEvent) {
+    const pageIndex = $event.first / $event.rows;   // 0-based
+    const pageNumber = pageIndex + 1;
+
+    this.store.dispatch(trackEvent({
+      eventCategory: 'Dashboard',
+      eventAction: '[Click Paging] - Moved to page ' + pageNumber
+    }));
   }
 }

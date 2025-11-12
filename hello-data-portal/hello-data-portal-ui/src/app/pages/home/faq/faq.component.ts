@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {combineLatest, map, Observable} from "rxjs";
 import {Faq} from "../../../store/faq/faq.model";
 import {Store} from "@ngrx/store";
@@ -34,18 +34,32 @@ import {selectFaq} from "../../../store/start-page/start-page.selector";
 import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
+import {AsyncPipe} from '@angular/common';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate, SharedModule} from 'primeng/api';
+import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
+import {MatomoTrackerDirective} from 'ngx-matomo-client';
+import {Editor} from 'primeng/editor';
+import {FormsModule} from '@angular/forms';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   selector: 'app-faq',
   templateUrl: './faq.component.html',
-  styleUrls: ['./faq.component.scss']
+  styleUrls: ['./faq.component.scss'],
+  imports: [TableModule, PrimeTemplate, Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
 })
 export class FaqComponent implements OnInit {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   faq$: Observable<GroupedFaq[]>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
+    const store = this.store;
+
     this.faq$ = this._getGroupedFaqs();
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
     this.defaultLanguage$ = store.select(selectDefaultLanguage);
@@ -95,6 +109,7 @@ export class FaqComponent implements OnInit {
       })
     )
   }
+
 }
 
 export interface GroupedFaq {

@@ -27,9 +27,10 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.SlugifyUtil;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entities.MetaInfoResourceEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.repositories.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
@@ -44,7 +45,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
-import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
@@ -129,6 +129,7 @@ public class UserService {
             if (isFederated) {
                 //For federated users that are not in keycloak yet, we will just fake the keycloak id
                 keycloakUserId = UUID.randomUUID().toString();
+                log.info("Federated user {}, creating with random user id {}", email, keycloakUserId);
             } else {
                 log.info("User {} doesn't not exist in the keycloak, creating", email);
                 keycloakUserId = createKeycloakUser(email, firstName, lastName);
@@ -145,10 +146,9 @@ public class UserService {
 
         createPortalUserWithRoles(email, username_, firstname_, lastname_, isFederated, keycloakUserId);
 
-        if(isFederated){
+        if (isFederated) {
             createFederatedUserInSubsystems(email, username_, firstname_, lastname_);
-        }
-        else {
+        } else {
             createUserInSubsystems(keycloakUserId);
         }
         return keycloakUserId;
@@ -164,6 +164,7 @@ public class UserService {
         user.setEnabled(true);
         user.setRequiredActions(REQUIRED_ACTIONS);
         keycloakUserId = keycloakService.createUser(user);
+        log.info("Created keycloak user {} with id {}", email, keycloakUserId);
         return keycloakUserId;
     }
 
@@ -336,8 +337,7 @@ public class UserService {
             userResource.update(representation);
             userResource.logout();
             log.debug("User {} disabled and logged out from keycloak", userId);
-        }
-        catch (NotFoundException nfe) {
+        } catch (NotFoundException nfe) {
             log.warn("User {} not found in keycloak, skipping keycloak-deactivation.", userId);
         }
     }
@@ -366,8 +366,7 @@ public class UserService {
             representation.setEnabled(true);
             userResource.update(representation);
             log.debug("User {} enabled in keycloak", userId);
-        }
-        catch (NotFoundException nfe) {
+        } catch (NotFoundException nfe) {
             log.warn("User {} not found in keycloak, skipping keycloak-activation.", userId);
         }
     }
@@ -404,6 +403,10 @@ public class UserService {
 
     @Transactional
     public void updateContextRolesForUser(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
+        boolean isCurrentUserHDAdmin = SecurityUtils.isSuperuser();
+        if (!isCurrentUserHDAdmin && HdRoleName.HELLODATA_ADMIN.name().equalsIgnoreCase(updateContextRolesForUserDto.getBusinessDomainRole().getName())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only a HelloData Admin can assign the HelloData Admin role to another user");
+        }
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
         UserEntity userEntity = getUserEntity(userId);
@@ -748,9 +751,9 @@ public class UserService {
             dashboardForUserDto.setInstanceUserId(subsystemUser.getId());
             dashboardForUserDto.setViewer(userHasSlugifyDashboardRole && userHasDashboardViewerRole);
         }
-        dashboardForUserDto.setInstanceName(dashboardResource.getMetadata().instanceName());
+        dashboardForUserDto.setInstanceName(dashboardResource.getInstanceName());
         dashboardForUserDto.setChangedOnUtc(supersetDashboard.getChangedOnUtc());
-        dashboardForUserDto.setCompositeId(dashboardResource.getMetadata().instanceName() + "_" + supersetDashboard.getId());
+        dashboardForUserDto.setCompositeId(dashboardResource.getInstanceName() + "_" + supersetDashboard.getId());
         dashboardForUserDto.setContextKey(contextKey);
         return dashboardForUserDto;
     }

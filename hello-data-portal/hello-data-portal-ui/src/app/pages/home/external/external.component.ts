@@ -25,29 +25,41 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import {Observable} from "rxjs";
-import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {Table} from "primeng/table";
+import { Table, TablePageEvent, TableModule } from "primeng/table";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {loadExternalDashboards} from "../../../store/external-dashboards/external-dasboards.action";
+import {trackEvent} from "../../../store/app/app.action";
+import { AsyncPipe } from '@angular/common';
+import { PrimeTemplate } from 'primeng/api';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { FormsModule } from '@angular/forms';
+import { InputText } from 'primeng/inputtext';
+import { MatomoTrackerDirective } from 'ngx-matomo-client';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-external',
-  templateUrl: './external.component.html',
-  styleUrls: ['./external.component.scss']
+    selector: 'app-external',
+    templateUrl: './external.component.html',
+    styleUrls: ['./external.component.scss'],
+    imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, MatomoTrackerDirective, AsyncPipe, TranslocoPipe]
 })
 export class ExternalComponent implements OnInit {
-  @ViewChild('dt') dt!: Table | undefined;
+  private store = inject<Store<AppState>>(Store);
+
+  readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
   filterValue = '';
+  private filterTimer: any;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor() {
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
   }
@@ -78,9 +90,30 @@ export class ExternalComponent implements OnInit {
     return url;
   }
 
-  applyFilterGlobal($event: any, stringVal: string) {
-    if (this.dt) {
-      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
-    }
+  onPageChange($event: TablePageEvent) {
+    const pageIndex = $event.first / $event.rows;   // 0-based
+    const pageNumber = pageIndex + 1;
+
+    this.store.dispatch(trackEvent({
+      eventCategory: 'External Dashboard (Home Page)',
+      eventAction: '[Click Paging] - Moved to page ' + pageNumber
+    }));
+  }
+
+  onFilter(event: Event, table: Table) {
+    clearTimeout(this.filterTimer);
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    table.filterGlobal(value, 'contains');
+    // debounce
+    this.filterTimer = setTimeout(() => {
+      table.filterGlobal(value, 'contains');
+      const val = value || '(cleared)';
+      console.debug('Global filter:', value);
+      this.store.dispatch(trackEvent({
+        eventCategory: 'External Dashboard (Home Page)',
+        eventAction: '[Search] - Searched for ' + val
+      }));
+    }, 400);
   }
 }

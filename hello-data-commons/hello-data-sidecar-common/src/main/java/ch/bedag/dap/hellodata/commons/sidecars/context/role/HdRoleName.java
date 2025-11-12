@@ -38,8 +38,13 @@ import java.util.stream.Collectors;
  */
 @Getter
 public enum HdRoleName {
-    HELLODATA_ADMIN(HdContextType.BUSINESS_DOMAIN), BUSINESS_DOMAIN_ADMIN(HdContextType.BUSINESS_DOMAIN), DATA_DOMAIN_VIEWER(HdContextType.DATA_DOMAIN),
-    DATA_DOMAIN_EDITOR(HdContextType.DATA_DOMAIN), DATA_DOMAIN_ADMIN(HdContextType.DATA_DOMAIN), NONE();
+    HELLODATA_ADMIN(HdContextType.BUSINESS_DOMAIN),
+    BUSINESS_DOMAIN_ADMIN(HdContextType.BUSINESS_DOMAIN),
+    DATA_DOMAIN_VIEWER(HdContextType.DATA_DOMAIN),
+    DATA_DOMAIN_EDITOR(HdContextType.DATA_DOMAIN),
+    DATA_DOMAIN_ADMIN(HdContextType.DATA_DOMAIN),
+    DATA_DOMAIN_BUSINESS_SPECIALIST(HdContextType.DATA_DOMAIN),
+    NONE();
     private final HdContextType contextType;
 
     HdRoleName(HdContextType contextType) {

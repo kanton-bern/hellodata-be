@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="uuid_type" value="uuid" dbms="postgresql"/>
+    <property name="uuid_function" value="uuid_generate_v4()" dbms="postgresql"/>
+
+    <changeSet id="43-create-sql-lab-queries" author="hellodata">
+        <createTable tableName="query" schemaName="public">
+            <column name="id" type="${uuid_type}" defaultValueComputed="${uuid_function}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="subsystem_id" type="serial">
+                <constraints nullable="false"/>
+            </column>
+            <column name="database_name" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_key" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tmp_table_name" type="varchar(256)"/>
+            <column name="tab_name" type="varchar(256)"/>
+            <column name="user_fullname" type="varchar(256)"/>
+            <column name="username" type="varchar(256)"/>
+            <column name="status" type="varchar(16)"/>
+            <column name="schema" type="varchar(256)"/>
+            <column name="sql" type="varchar"/>
+            <column name="executed_sql" type="varchar"/>
+            <column name="rows" type="int"/>
+            <column name="start_time" type="numeric(20,6)"/>
+            <column name="changed_on" type="timestamp"/>
+            <column name="end_time" type="numeric(20,6)"/>
+            <column name="tracking_url" type="varchar"/>
+            <column name="tmp_schema_name" type="varchar(256)"/>
+            <column name="sql_tables" type="varchar"/>
+
+            <column name="created_date" type="timestamp"/>
+            <column name="created_by" type="varchar(150)"/>
+            <column name="modified_date" type="timestamp"/>
+            <column name="modified_by" type="varchar(150)"/>
+
+        </createTable>
+
+        <comment>Add foreign key constraint between query and context</comment>
+        <addForeignKeyConstraint baseTableName="query"
+                                 baseColumnNames="context_key"
+                                 constraintName="fk_query_context"
+                                 referencedTableName="context"
+                                 referencedColumnNames="context_key"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+
+        <comment>Add unique constraint on (context_key, subsystem_id)</comment>
+        <addUniqueConstraint
+                tableName="query"
+                columnNames="context_key,subsystem_id"
+                constraintName="uk_query_context_subsystem"/>
+
+    </changeSet>
+
+</databaseChangeLog>

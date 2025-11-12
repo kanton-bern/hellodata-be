@@ -1,116 +1,132 @@
 <div class="card">
-  <form *ngIf="(editedFaq$ | async) as editedFaq" [formGroup]="faqForm">
-    <h5>{{ '@Faq' | transloco }}</h5>
-
-    <div *ngIf="editedFaq.createdDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          disabled
-          id="createdDate"
-          type="text"
-          value="{{editedFaq.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
-      </div>
-    </div>
-
-    <div *ngIf="editedFaq.createdDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          disabled
-          id="createdBy"
-          type="text"
-          value="{{editedFaq.createdBy}}">
-      </div>
-    </div>
-
-    <div *ngIf="editedFaq.modifiedDate" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          disabled
-          id="modifiedDate"
-          type="text"
-          value="{{editedFaq.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
-      </div>
-    </div>
-
-    <div *ngIf="editedFaq.modifiedBy" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <input
-          class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
-          disabled
-          id="modifiedBy"
-          type="text"
-          value="{{editedFaq.modifiedBy}}">
-      </div>
-    </div>
-
-
-    <div *ngIf="(availableDataDomains$ | async) as availableDataDomains" class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomainKey">{{ '@Data domain' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <p-dropdown [options]="availableDataDomains"
-                    formControlName="dataDomain"
-                    id="dataDomainKey"
-                    optionLabel="label"
-                    optionValue="key"></p-dropdown>
-        <br/>
-      </div>
-    </div>
-
-    <p-tabView *ngIf="(supportedLanguages$ | async) as supportedLanguages">
-      <ng-template [ngForOf]="supportedLanguages" let-language ngFor>
-        <p-tabPanel>
-          <ng-template pTemplate="header">
-            <div class="flex align-items-center gap-2">
-              <span class="font-bold white-space-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
-                    {{ getHeaderNameWithStatus(language) }}
-                </span>
-            </div>
-          </ng-template>
-          <div class="field grid">
-            <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
-            <div class="col-12 md:col-10">
-              <input
-                [formControl]="getTitle(language)"
-                class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-                id="title"
-                type="text">
-              <small *ngIf="getTitle(language)?.invalid && getTitle(language)?.dirty" class="p-error block">
-                {{ '@Value has minimum length' | transloco: {min: titleMinLenght} }}
-              </small>
-            </div>
+  @if ((editedFaq$ | async); as editedFaq) {
+    <form [formGroup]="faqForm">
+      <h5>{{ '@Faq' | transloco }}</h5>
+      @if (editedFaq.createdDate) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              disabled
+              id="createdDate"
+              type="text"
+              value="{{editedFaq.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
           </div>
-
-          <p-editor [formControl]="getMessage(language)"
-                    id="faqMessage">
-          </p-editor>
-        </p-tabPanel>
-      </ng-template>
-    </p-tabView>
-
-    <p-toolbar>
-      <div class="p-toolbar-group-start">
-        <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                  icon="fas fa-arrow-left"></p-button>
-      </div>
-      <div *ngIf="(defaultLanguage$ | async) as defaultLanguage" class="p-toolbar-group-end">
-        <p-button (click)="saveFaq(editedFaq)"
-                  [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-                  icon="fas fa-floppy-disk"
-                  id="saveFaqButton"
-                  label="{{'@Save' | transloco}}"
-                  styleClass="p-button-success mr-2"></p-button>
-        <p-button (click)="openDeletePopup(editedFaq)" *ngIf="editedFaq.id" icon="fas fa-trash"
-                  label="{{'@Delete' | transloco}}" styleClass="p-button-danger"></p-button>
-      </div>
-    </p-toolbar>
-
-  </form>
+        </div>
+      }
+      @if (editedFaq.createdDate) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              disabled
+              id="createdBy"
+              type="text"
+              value="{{editedFaq.createdBy}}">
+          </div>
+        </div>
+      }
+      @if (editedFaq.modifiedDate) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              disabled
+              id="modifiedDate"
+              type="text"
+              value="{{editedFaq.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+          </div>
+        </div>
+      }
+      @if (editedFaq.modifiedBy) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <input
+              class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+              disabled
+              id="modifiedBy"
+              type="text"
+              value="{{editedFaq.modifiedBy}}">
+          </div>
+        </div>
+      }
+      @if ((availableDataDomains$ | async); as availableDataDomains) {
+        <div class="field grid">
+          <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomainKey">{{ '@Data domain' | transloco }}</label>
+          <div class="col-12 md:col-10">
+            <p-select [options]="availableDataDomains"
+                      formControlName="dataDomain"
+                      id="dataDomainKey"
+                      optionLabel="label"
+                      optionValue="key"/>
+            <br/>
+          </div>
+        </div>
+      }
+      @if ((supportedLanguages$ | async); as supportedLanguages) {
+        <p-tabs [value]="0">
+          <p-tablist>
+            @for (lang of supportedLanguages; track $index) {
+              <p-tab [value]="$index">
+                <div class="flex align-items-center gap-2">
+                  <span class="font-bold white-space-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
+                    {{ getHeaderNameWithStatus(lang) }}
+                  </span>
+                </div>
+              </p-tab>
+            }
+          </p-tablist>
+          <p-tabpanels>
+            @for (language of supportedLanguages; track $index) {
+              <p-tabpanel [value]="$index">
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
+                  <div class="col-12 md:col-10">
+                    <input
+                      [formControl]="getTitle(language)"
+                      class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+                      id="title"
+                      type="text">
+                    @if (getTitle(language)?.invalid && getTitle(language)?.dirty) {
+                      <small class="p-error block">
+                        {{ '@Value has minimum length' | transloco: {min: titleMinLenght} }}
+                      </small>
+                    }
+                  </div>
+                </div>
+                <p-editor [formControl]="getMessage(language)"
+                          id="faqMessage"/>
+              </p-tabpanel>
+            }
+          </p-tabpanels>
+        </p-tabs>
+      }
+      <p-toolbar>
+        <div class="p-toolbar-group-start">
+          <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                    icon="fas fa-arrow-left" severity="secondary"/>
+        </div>
+        @if ((defaultLanguage$ | async); as defaultLanguage) {
+          <div class="p-toolbar-group-end">
+            <p-button (click)="saveFaq(editedFaq)"
+                      [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
+                      icon="fas fa-floppy-disk"
+                      class="mr-2"
+                      id="saveFaqButton"
+                      label="{{'@Save' | transloco}}"
+                      severity="success"/>
+            @if (editedFaq.id) {
+              <p-button (click)="openDeletePopup(editedFaq)" icon="fas fa-trash"
+                        label="{{'@Delete' | transloco}}" severity="danger"/>
+            }
+          </div>
+        }
+      </p-toolbar>
+    </form>
+  }
 </div>
-<app-delete-faq-popup [action]="getDeletionAction()"></app-delete-faq-popup>
+<app-delete-faq-popup [action]="getDeletionAction()"/>

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
@@ -46,12 +46,11 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class UsersManagementService {
+  protected httpClient = inject(HttpClient);
+
   baseUsersUrl = `${environment.portalApi}/users`;
   baseUsersSyncUrl = `${environment.portalApi}/user-sync`;
   baseMetainfoUrl = `${environment.portalApi}/metainfo`;
-
-  constructor(protected httpClient: HttpClient) {
-  }
 
   getUsers(page: number, size: number, sort: string, search: string): Observable<{
     content: User[],

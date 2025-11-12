@@ -1,30 +1,30 @@
-
-<p-confirmDialog #cd [style]="{width: '50vw'}" key="unsavedChangesConfirmation">
+<p-confirmDialog #cd [style]="{width: '50vw'}" key="unsavedChangesConfirmation" [closable]="false">
   <ng-template pTemplate="header">
-    <h3>{{"@Unsaved changes title" | transloco}}</h3>
+    <div class="flex justify-content-between align-items-center w-full">
+      <h4 class="m-0">{{ "@Unsaved changes title" | transloco }}</h4>
+      <button pButton icon="pi pi-times" class="p-button-text" (click)="cd.hide()"
+              [pTooltip]="'@Cancel' | transloco"></button>
+    </div>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.reject()" icon="fas fa-circle-xmark" label="{{'@Dismiss' | transloco}}" pButton type="button"></button>
-    <ng-container *ngIf="stayOnPage$ | async as stayOnPage">
-      <button
-        (click)="cd.accept()"
-        *ngIf="!stayOnPage.value; else continueEditionButton"
-        class="p-button-success"
-        icon="fas fa-floppy-disk"
-        label="{{ '@Save' | transloco }}"
-        pButton
-        type="button"
-      ></button>
-      <ng-template #continueEditionButton>
-        <button
-          (click)="cd.hide()"
-          class="p-button-success"
-          icon="fas fa-pen-to-square"
-          label="{{ '@Continue edition' | transloco }}"
-          pButton
-          type="button"
-        ></button>
-      </ng-template>
-    </ng-container>
+    <button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Discard changes' | transloco}}" pButton
+            type="button" severity="secondary"></button>
+    @if (stayOnPage$ | async; as stayOnPage) {
+      @if (!stayOnPage.value) {
+        <p-button (click)="cd.onAccept()"
+                  severity="success"
+                  icon="fas fa-floppy-disk"
+                  label="{{ '@Save changes' | transloco }}"
+                  type="button"
+        />
+      } @else {
+        <p-button (click)="cd.hide()"
+                  severity="success"
+                  icon="fas fa-pen-to-square"
+                  label="{{ '@Continue edition' | transloco }}"
+                  type="button"
+        />
+      }
+    }
   </ng-template>
 </p-confirmDialog>

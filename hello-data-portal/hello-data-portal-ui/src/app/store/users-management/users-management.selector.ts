@@ -98,7 +98,12 @@ export const selectAllBusinessDomains = createSelector(
 
 export const selectAllDataDomains = createSelector(
   usersManagementState,
-  (state: UsersManagementState) => state.allAvailableContexts.filter(context => context.type === DATA_DOMAIN_CONTEXT_TYPE)
+  (state: UsersManagementState) => state.allAvailableContexts.filter(context => context.type === DATA_DOMAIN_CONTEXT_TYPE).sort((a, b) => {
+    if (a.name && b.name) {
+      return a.name?.localeCompare(b.name)
+    }
+    return 0;
+  })
 );
 
 export const selectUserContextRoles = createSelector(
@@ -122,12 +127,14 @@ export const selectEditedUserIsAdminAndCurrentIsSuperuser = createSelector(
   (state: UsersManagementState, isCurrentUserSuperuser) => {
     if (state.userContextRoles.length > 0) {
       return {
-        isBusinessDomainAdmin: state.userContextRoles.some(userContextRole => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE && (userContextRole.role.name === HELLODATA_ADMIN_ROLE || userContextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE)),
+        isEditedUserBDAdmin: state.userContextRoles.some(userContextRole => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE && userContextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE),
+        isEditedUserHDAdmin: state.userContextRoles.some(userContextRole => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE && userContextRole.role.name === HELLODATA_ADMIN_ROLE),
         isCurrentUserSuperuser
       }
     }
     return {
-      isBusinessDomainAdmin: false,
+      isEditedUserBDAdmin: false,
+      isEditedUserHDAdmin: false,
       isCurrentUserSuperuser
     };
   }
@@ -138,10 +145,13 @@ export const selectAvailableRolesForBusinessDomain = createSelector(
   selectCurrentUserPermissions,
   selectEditedUserIsAdminAndCurrentIsSuperuser,
   (state: UsersManagementState, currentUserPermissions, result) => {
-    if (!result.isCurrentUserSuperuser && currentUserPermissions.some(permission => permission === 'USER_MANAGEMENT')) {
-      return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE || role.contextType === BUSINESS_DOMAIN_CONTEXT_TYPE);
+    if (!result.isCurrentUserSuperuser && result.isEditedUserHDAdmin) {
+      return state.allAvailableContextRoles.filter(role => role.name === HELLODATA_ADMIN_ROLE);
     }
-    if (!result.isBusinessDomainAdmin && !result.isCurrentUserSuperuser) {
+    if (!result.isCurrentUserSuperuser && currentUserPermissions.some(permission => permission === 'USER_MANAGEMENT')) {
+      return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
+    }
+    if (!result.isEditedUserBDAdmin && !result.isCurrentUserSuperuser) {
       return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE);
     }
     return state.allAvailableContextRoles.filter(role => role.contextType === BUSINESS_DOMAIN_CONTEXT_TYPE || role.contextType === null);
@@ -195,11 +205,6 @@ export const selectAdminEmails = createSelector(
   (state: UsersManagementState) => state.adminEmails
 );
 
-export const selectUserSaveButtonDisabled = createSelector(
-  usersManagementState,
-  (state: UsersManagementState) => state.userSaveButtonDisabled
-);
-
 export const selectSubsystemUsersLoading = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.subsystemUsersLoading
@@ -208,6 +213,16 @@ export const selectSubsystemUsersLoading = createSelector(
 export const selectSubsystemUsersForDashboardsLoading = createSelector(
   usersManagementState,
   (state: UsersManagementState) => state.subsystemUsersForDashboardsLoading
+);
+
+export const selectCurrentPagination = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.currentPagination
+);
+
+export const selectUserSaveButtonDisabled = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.userSaveButtonDisabled
 );
 
 

@@ -25,7 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {LogLevel} from "angular-auth-oidc-client/lib/logging/log-level";
+
+import {LogLevel} from "angular-auth-oidc-client";
 
 export interface Environment {
   appTitle?: string;
@@ -40,6 +41,8 @@ export interface Environment {
   subSystemsConfig: SubSystemsConfig;
   locale: string;
   footerConfig: FooterConfig;
+  matomoConfig: MatomoConfig;
+  mobileDashboardPrefix?: string;
 }
 
 export interface FooterConfig {
@@ -71,7 +74,6 @@ export interface SubSystemsConfig {
   dwhViewer: SubSystemHost;
   filebrowser: SubSystemHost;
   advancedAnalyticsViewer: SubSystemHost;
-  monitoringStatus: SubSystemHost;
   devToolsMailbox: SubSystemHost;
   devToolsFileBrowser: SubSystemHost;
 }
@@ -80,4 +82,10 @@ export interface SubSystemHost {
   protocol: 'https://' | 'http://'; // the protocol
   host: string; // the host name
   domain: string; // the domain name
+}
+
+export interface MatomoConfig {
+  enabled: boolean;
+  siteId: number;
+  trackerUrl: string;
 }

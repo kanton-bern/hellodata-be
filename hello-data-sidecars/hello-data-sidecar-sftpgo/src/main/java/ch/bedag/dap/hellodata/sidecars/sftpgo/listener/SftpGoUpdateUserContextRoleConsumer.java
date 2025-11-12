@@ -9,7 +9,6 @@ import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.GroupMapping;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.client.model.User;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.resource.SftpGoUserResourceProviderService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,7 +72,7 @@ public class SftpGoUpdateUserContextRoleConsumer {
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + ADMIN_GROUP_POSTFIX, user);
                         case DATA_DOMAIN_EDITOR ->
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + EDITOR_GROUP_POSTFIX, user);
-                        case DATA_DOMAIN_VIEWER -> {
+                        case DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST -> {
                             if (!viewerDisabled) {
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + VIEWER_GROUP_POSTFIX, user);
                             }

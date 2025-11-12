@@ -33,6 +33,8 @@ export enum AppActionType {
   APP_SHOW_ERROR = '[APP] Show error',
   NAVIGATE = '[APP] Navigate',
   NAVIGATE_TO_LIST = '[APP] Navigate to list',
+  TRACK_EVENT = '[APP] Track event',
+  OPEN_WINDOW = '[APP] Open window',
 }
 
 export const showError = createAction(
@@ -57,4 +59,14 @@ export const navigate = createAction(
 
 export const navigateToList = createAction(
   AppActionType.NAVIGATE_TO_LIST,
+);
+
+export const trackEvent = createAction(
+  AppActionType.TRACK_EVENT,
+  props<{ eventCategory: string, eventAction: string, eventName?: string, eventValue?: number }>()
+);
+
+export const openWindow = createAction(
+  AppActionType.OPEN_WINDOW,
+  props<{ url: string, target: string }>()
 );

@@ -34,33 +34,35 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
+
 import static ch.bedag.dap.hellodata.portal.base.TestJwtProvider.JWT_EXPIRATION_IN_MS;
 import static ch.bedag.dap.hellodata.portal.base.TestJwtProvider.JWT_SECRET;
 
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = { TestSecurityConfig.class, HellodataAuthenticationConverter.class })
+@ContextConfiguration(classes = {TestSecurityConfig.class, HellodataAuthenticationConverter.class})
 public abstract class HDControllerTest {
 
     @Autowired
     protected MockMvc mockMvc;
-    @MockBean
+    @MockitoBean
     protected UserRepository userRepository;
-    @MockBean
+    @MockitoBean
     private RedisTemplate<String, UserCache> redisTemplate;
-    @MockBean
+    @MockitoBean
     private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
 
     protected byte[] asJsonString(Object object) throws IOException {
@@ -75,16 +77,16 @@ public abstract class HDControllerTest {
 
     protected String generateToken(UUID userId, String firstname, String lastName, String email, boolean superuser, Set<String> permissions) {
         return "Bearer " + Jwts.builder()
-                               .setSubject(email)
-                               .claim("userId", userId)
-                               .claim("email", email)
-                               .claim("given_name", firstname)
-                               .claim("family_name", lastName)
-                               .claim("is_superuser", superuser)
-                               .claim("authorities", !permissions.isEmpty() ? permissions.stream().collect(Collectors.joining(",")) : "NONE")
-                               .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_IN_MS))
-                               .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
-                               .compact();
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("email", email)
+                .claim("given_name", firstname)
+                .claim("family_name", lastName)
+                .claim("is_superuser", superuser)
+                .claim("authorities", !permissions.isEmpty() ? permissions.stream().collect(Collectors.joining(",")) : "NONE")
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_IN_MS))
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .compact();
     }
 
     protected String generateToken(String firstname, String lastName, String email, boolean superuser, Set<String> permissions) {

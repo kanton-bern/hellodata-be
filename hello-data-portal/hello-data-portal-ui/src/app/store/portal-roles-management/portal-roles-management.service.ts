@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {PortalRole, PortalRoleCreate, PortalRoleUpdate} from "./portal-roles-management.model";
@@ -35,11 +35,10 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class PortalRolesManagementService {
+  protected httpClient = inject(HttpClient);
+
 
   baseUrl = `${environment.portalApi}/portal-roles`;
-
-  constructor(protected httpClient: HttpClient) {
-  }
 
   public getPortalRoles(): Observable<PortalRole[]> {
     return this.httpClient.get<PortalRole[]>(`${this.baseUrl}`);

@@ -25,15 +25,21 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
+
+import { TableModule } from 'primeng/table';
+import { PrimeTemplate } from 'primeng/api';
+import { Tag } from 'primeng/tag';
+import { Tooltip } from 'primeng/tooltip';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-selected-workspace-roles',
-  templateUrl: './selected-workspace-roles.component.html',
-  styleUrls: ['./selected-workspace-roles.component.scss']
+    selector: 'app-selected-workspace-roles',
+    templateUrl: './selected-workspace-roles.component.html',
+    styleUrls: ['./selected-workspace-roles.component.scss'],
+    imports: [TableModule, PrimeTemplate, Tag, Tooltip, TranslocoPipe]
 })
 export class SelectedWorkspaceRolesComponent {
-  @Input()
-  roles!: any[];
+  readonly roles = input.required<any[]>();
 
 }

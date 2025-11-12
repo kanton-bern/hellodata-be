@@ -24,7 +24,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
+hello-data:
+  synchronize-query-in-minutes: 60
 spring:
   application:
     name: HelloDATA Sidecar for Portal
@@ -46,18 +47,6 @@ spring:
     redis:
       host: localhost
       port: 6379
-  boot:
-    admin:
-      client:
-        url: http://localhost:9090
-        api-path: instances
-        username: "user"       #These two are needed so that the client
-        password: "password"   #can register at the protected server api
-        #instance:
-        #  metadata:
-        #    user:
-        #      name: "user"         #These two are needed so that the server
-        #      password: "password" #can access the protected client endpoints
 
 nats:
   spring:

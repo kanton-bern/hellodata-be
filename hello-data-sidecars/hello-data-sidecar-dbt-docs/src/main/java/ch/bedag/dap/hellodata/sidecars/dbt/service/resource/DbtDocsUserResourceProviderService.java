@@ -36,13 +36,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.Role;
 import ch.bedag.dap.hellodata.sidecars.dbt.entities.User;
 import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
-import ch.bedag.dap.hellodata.sidecars.dbt.service.cloud.PodUtilsProvider;
-import io.kubernetes.client.openapi.models.V1Pod;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.kubernetes.commons.PodUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +62,6 @@ public class DbtDocsUserResourceProviderService {
 
     private final UserRepository userRepository;
     private final NatsSenderService natsSenderService;
-    private final PodUtilsProvider podUtilsProvider;
     @Value("${hello-data.instance.name}")
     private String instanceName;
 
@@ -80,25 +75,16 @@ public class DbtDocsUserResourceProviderService {
     @Transactional(readOnly = true)
     public void publishUsers() {
         log.info("--> publishUsers()");
-        PodUtils<V1Pod> podUtils = podUtilsProvider.getIfAvailable();
-        //ToDo: Remove this conversion to SupersetUsers, should use a generic interface
         List<User> allUsers = userRepository.findAll();
-        List<SubsystemUser> subsystemUsers = toSupsetSetUsers(allUsers);
-        if (podUtils != null) {
-            V1Pod current = podUtils.currentPod().get();
-            UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, current.getMetadata().getNamespace(), subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        } else {
-            //dummy info for tests
-            UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, "local", subsystemUsers);
-            natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
-        }
+        List<SubsystemUser> subsystemUsers = toSubsystemUsers(allUsers);
+        UserResource userResource = new UserResource(ModuleType.DBT_DOCS, this.instanceName, subsystemUsers);
+        natsSenderService.publishMessageToJetStream(PUBLISH_USER_RESOURCES, userResource);
     }
 
     /**
      * Since dbt doesn't return an id for a user, we just invent one of our own
      */
-    private List<SubsystemUser> toSupsetSetUsers(List<User> dbtUsers) {
+    private List<SubsystemUser> toSubsystemUsers(List<User> dbtUsers) {
         if (dbtUsers.isEmpty()) {
             return new ArrayList<>();
         }
@@ -107,7 +93,6 @@ public class DbtDocsUserResourceProviderService {
         return IntStream.range(0, modifiableList.size()).mapToObj(i -> toSubsystemUser(i + 2, modifiableList.get(i))).toList();
     }
 
-    @NotNull
     private SubsystemUser toSubsystemUser(int index, User dbtUser) {
         SubsystemUser subsystemUser = new SubsystemUser();
         subsystemUser.setId(index);
@@ -116,15 +101,15 @@ public class DbtDocsUserResourceProviderService {
         subsystemUser.setFirstName(dbtUser.getFirstName());
         subsystemUser.setLastName(dbtUser.getLastName());
         subsystemUser.setActive(dbtUser.isEnabled());
-        subsystemUser.setRoles(toSupersetRoles(dbtUser.getRoles()));
+        subsystemUser.setRoles(toSubsystemRoles(dbtUser.getRoles()));
         return subsystemUser;
     }
 
-    private List<SubsystemRole> toSupersetRoles(Collection<Role> dbtUserRoles) {
-        return dbtUserRoles.stream().map(this::toSupersetRole).toList();
+    private List<SubsystemRole> toSubsystemRoles(Collection<Role> dbtUserRoles) {
+        return dbtUserRoles.stream().map(this::toSubsystemRole).toList();
     }
 
-    private SubsystemRole toSupersetRole(Role dbtRole) {
+    private SubsystemRole toSubsystemRole(Role dbtRole) {
         SubsystemRole supersetRole = new SubsystemRole();
         supersetRole.setId(getRoleId(dbtRole));
         supersetRole.setName(dbtRole.getName());
@@ -134,7 +119,7 @@ public class DbtDocsUserResourceProviderService {
     /**
      * Some small arbitrary mapping of dbt rolename to an Integer
      */
-    private int getRoleId(Role airflowUserRole) {
-        return airflowUserRole.getKey().equalsIgnoreCase(Role.ADMIN_ROLE_KEY) ? 1 : 2;
+    private int getRoleId(Role dbtUserRole) {
+        return dbtUserRole.getKey().equalsIgnoreCase(Role.ADMIN_ROLE_KEY) ? 1 : 2;
     }
 }

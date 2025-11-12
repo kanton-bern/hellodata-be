@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {ExternalDashboard, ExternalDashboardMetadata} from "./external-dashboards.model";
@@ -35,10 +35,9 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class ExternalDashboardsService {
-  externalDashboardsBaseUrl = `${environment.portalApi}/external-dashboards`;
+  protected httpClient = inject(HttpClient);
 
-  constructor(protected httpClient: HttpClient) {
-  }
+  externalDashboardsBaseUrl = `${environment.portalApi}/external-dashboards`;
 
   public getExternalDashboards(): Observable<ExternalDashboard[]> {
     return this.httpClient.get<ExternalDashboard[]>(`${this.externalDashboardsBaseUrl}`);

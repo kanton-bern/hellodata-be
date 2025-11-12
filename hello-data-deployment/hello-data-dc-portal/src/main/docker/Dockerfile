@@ -60,7 +60,6 @@ RUN echo "window.environment = { \
               dwhViewer: {protocol: 'http://', host: 'localhost', domain: ':8087/cloudbeaver/'}, \
               advancedAnalyticsViewer: {protocol: 'http://', host: 'localhost', domain: ':8088'}, \
               filebrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'}, \
-              monitoringStatus: {protocol: 'http://', host: 'localhost', domain: ':5099'}, \
               devToolsMailbox: {protocol: 'http://', host: 'localhost', domain: ':8001'}, \
               devToolsFileBrowser: {protocol: 'http://', host: 'localhost', domain: ':8090'} \
             }, \
@@ -69,7 +68,12 @@ RUN echo "window.environment = { \
               licenseUrl: 'https://github.com/kanton-bern/hellodata-be/blob/main/LICENSE', \
               githubUrl: 'https://github.com/kanton-bern/hellodata-be', \
               versionLink: 'https://github.com/kanton-bern/hellodata-be/releases/' \
-            } \
+            }, \
+    		matomoConfig: { \
+			  enabled: false, \
+			  siteId: 1, \
+			  trackerUrl: 'https://demo.matomo.cloud/' \
+			} \
           }" > /app/config/environment.js
 
 RUN chown -R nginx: /app

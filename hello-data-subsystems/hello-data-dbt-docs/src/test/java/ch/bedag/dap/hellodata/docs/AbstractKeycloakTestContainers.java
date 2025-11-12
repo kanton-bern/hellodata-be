@@ -37,7 +37,6 @@ import jakarta.persistence.metamodel.Metamodel;
 import jakarta.servlet.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.http.client.utils.URIBuilder;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +46,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
@@ -74,12 +74,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -87,16 +86,28 @@ import java.util.List;
 @ActiveProfiles("test-containers")
 @Import({AbstractKeycloakTestContainers.OverrideBean.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@Testcontainers
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public abstract class AbstractKeycloakTestContainers {
 
-    static final KeycloakContainer KEYCLOAK_CONTAINER;
-    @Container
-    static PostgreSQLContainer postgresqlContainer = new PostgreSQLContainer("postgres:11.1").withDatabaseName("test").withUsername("sa").withPassword("sa");
+    @SuppressWarnings("unused")
+    @ServiceConnection
+    static final PostgreSQLContainer POSTGRESQL_CONTAINER = new PostgreSQLContainer("postgres:11.1")
+            .withDatabaseName("test")
+            .withUsername("sa")
+            .withPassword("sa");
+
+    static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:26.4")
+            .withAdminUsername("admin")
+            .withAdminPassword("admin")
+            .withRealmImportFile("keycloak/realm.json")
+            .waitingFor(
+                    Wait.forHttp("/realms/hellodata")
+                            .forPort(8080)
+                            .forStatusCode(200)
+                            .withStartupTimeout(Duration.ofMinutes(3))
+            );
 
     static {
-        KEYCLOAK_CONTAINER = new KeycloakContainer().withAdminUsername("admin").withAdminPassword("admin").withRealmImportFile("keycloak/realm.json").waitingFor(Wait.forHttp("/"));
         KEYCLOAK_CONTAINER.start();
     }
 
@@ -110,13 +121,6 @@ public abstract class AbstractKeycloakTestContainers {
     private int port;
 
     @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgresqlContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgresqlContainer::getUsername);
-        registry.add("spring.datasource.password", postgresqlContainer::getPassword);
-    }
-
-    @DynamicPropertySource
     static void registerResourceServerIssuerProperty(DynamicPropertyRegistry registry) {
         registry.add("hello-data.auth-server.url", () -> {
             String authServerUrl = KEYCLOAK_CONTAINER.getAuthServerUrl();
@@ -127,7 +131,6 @@ public abstract class AbstractKeycloakTestContainers {
         });
     }
 
-    @Nullable
     private static String getUserBearerToken(String userName, String password) {
         try {
             URI authorizationURI = new URIBuilder(KEYCLOAK_CONTAINER.getAuthServerUrl() + "/realms/hellodata/protocol/openid-connect/token").build();

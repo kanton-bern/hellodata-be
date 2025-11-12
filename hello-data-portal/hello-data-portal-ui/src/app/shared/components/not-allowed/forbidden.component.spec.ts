@@ -26,7 +26,7 @@
 ///
 
 import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {TranslocoService, TranslocoTestingModule} from '@ngneat/transloco';
+import {TranslocoService, TranslocoTestingModule} from '@jsverse/transloco';
 import {ForbiddenComponent} from './forbidden.component';
 import {beforeEach, describe, expect, it} from "@jest/globals";
 
@@ -36,8 +36,17 @@ describe('ForbiddenComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ForbiddenComponent],
-      imports: [TranslocoTestingModule],
+      imports: [
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+        ForbiddenComponent
+      ],
     });
 
     fixture = TestBed.createComponent(ForbiddenComponent);
@@ -65,7 +74,7 @@ describe('ForbiddenComponent', () => {
     // expect(headerText).toBe('You are not allowed');
     // expect(paragraphText).toBe('You do not have permission to access this page');
 
-    expect(headerText).toBe('en.@Not Allowed');
-    expect(paragraphText).toBe('en.@You are not allowed to access this page');
+    expect(headerText).toBe('You are not allowed');
+    expect(paragraphText).toBe('You do not have permission to access this page');
   });
 });

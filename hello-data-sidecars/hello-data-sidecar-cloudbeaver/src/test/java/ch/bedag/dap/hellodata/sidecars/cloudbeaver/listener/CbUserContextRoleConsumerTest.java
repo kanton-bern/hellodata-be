@@ -91,7 +91,7 @@ public class CbUserContextRoleConsumerTest {
 
         // Call the method you want to test
         Set<ContextRole> dataDomainContexts = new HashSet<>(createSampleUserContextRoleUpdate().getContextRoles());
-        List<Role> newUserRoles = CbUserContextRoleConsumer.mapRoles(user, dataDomainContexts, roleRepository.findAll());
+        List<Role> newUserRoles = CbUserContextRoleConsumer.mapRoles(dataDomainContexts, roleRepository.findAll());
 
         assertEquals(1, (newUserRoles.size()));
         assertEquals("CB_ADMIN", newUserRoles.get(0).getName());

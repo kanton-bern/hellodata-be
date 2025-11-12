@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Observable, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
@@ -35,20 +35,26 @@ import {AppState} from "../../store/app/app.state";
 import {selectCurrentPipelineInfo} from "../../store/orchestration/orchestration.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
+import { AsyncPipe } from '@angular/common';
+import { SubsystemIframeComponent } from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 
 export const LOGGED_IN_AIRFLOW_USER = 'logged_in_airflow_user';
 
 @Component({
-  templateUrl: 'embedded-orchestration.component.html',
-  styleUrls: ['./embedded-orchestration.component.scss']
+    templateUrl: 'embedded-orchestration.component.html',
+    styleUrls: ['./embedded-orchestration.component.scss'],
+    imports: [SubsystemIframeComponent, AsyncPipe]
 })
 export class EmbeddedOrchestrationComponent extends BaseComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private store = inject<Store<AppState>>(Store);
+
 
   url!: string;
 
   currentPipelineInfo$: Observable<any>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+  constructor() {
     super();
     this.currentPipelineInfo$ = this.store.select(selectCurrentPipelineInfo).pipe(tap((pipelineInfo) => {
       const pipelineId = pipelineInfo.pipelineId;

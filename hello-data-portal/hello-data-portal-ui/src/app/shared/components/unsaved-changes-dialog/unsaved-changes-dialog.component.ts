@@ -25,39 +25,29 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule} from '@angular/core';
-import {TranslocoModule} from "@ngneat/transloco";
-import {ConfirmDialogModule} from "primeng/confirmdialog";
-import {Observable} from "rxjs";
+import {Component, inject} from '@angular/core';
+import {TranslocoPipe} from "@jsverse/transloco";
+import {ConfirmDialog} from "primeng/confirmdialog";
 import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
 import {selectStayOnPage} from "../../../store/unsaved-changes/unsaved-changes.selector";
-import {AsyncPipe, NgIf} from "@angular/common";
-import {StayOnPageContainer} from "../../../store/unsaved-changes/unsaved-changes.state";
+import {AsyncPipe} from "@angular/common";
+import {Button, ButtonDirective} from "primeng/button";
+import {PrimeTemplate} from 'primeng/api';
+import {Tooltip} from "primeng/tooltip";
 
 @Component({
   selector: 'app-unsaved-changes-dialog',
   templateUrl: './unsaved-changes-dialog.component.html',
   styleUrls: ['./unsaved-changes-dialog.component.scss'],
+  imports: [ConfirmDialog, PrimeTemplate, ButtonDirective, Button, TranslocoPipe, AsyncPipe, Tooltip]
 })
 export class UnsavedChangesDialogComponent {
-  stayOnPage$: Observable<StayOnPageContainer>;
+  private store = inject<Store<AppState>>(Store);
 
-  constructor(private store: Store<AppState>) {
-    this.stayOnPage$ = this.store.select(selectStayOnPage);
-  }
+  stayOnPage$ = this.store.select(selectStayOnPage);
+
 }
 
 
-@NgModule({
-  declarations: [UnsavedChangesDialogComponent],
-  imports: [
-    TranslocoModule,
-    ConfirmDialogModule,
-    AsyncPipe,
-    NgIf
-  ],
-  exports: [UnsavedChangesDialogComponent]
-})
-export class UnsavedChangesModule {
-}
+

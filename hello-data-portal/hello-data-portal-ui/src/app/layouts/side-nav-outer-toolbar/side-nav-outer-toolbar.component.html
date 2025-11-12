@@ -1,71 +1,68 @@
-<div class="sidebar close">
+<div class="sidebar close" id="appSidebar">
   <div [pTooltip]="'@HelloDATA' | transloco" class="logo-details" tooltipPosition="bottom">
-    <img alt="logo" routerLink="/home" src="/assets/img/hd.png" style="cursor: pointer"/>
+    <img alt="logo" src="/assets/img/hd.png" style="cursor: pointer" (click)="navigateHome()"/>
     <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
   </div>
-  <ul *ngIf="(navItems$ | async) as navItems" class="nav-links">
-    <ng-template [ngForOf]="navItems" let-i="index" let-item ngFor>
-      <li>
-        <a *ngIf="item.routerLink" [id]="item.id" [routerLink]="item.routerLink">
-          <i [ngClass]="item.icon"></i>
-          <span class="link_name">{{ item.text | transloco }}</span>
-        </a>
-        <a *ngIf="!item.routerLink && item.items && item.items.length > 0" [attr.href]="item.url"
-           [attr.target]="item.target" [id]="item.id">
-          <i [ngClass]="item.icon"></i>
-          <span class="link_name">{{ item.text | transloco }}</span>
-        </a>
-        <ul *ngIf="item.items && item.items.length > 0" class="second-level-menu">
-          <ng-template [ngForOf]="item.items" let-i="index" let-last="last" let-subItem ngFor>
-            <li>
-              <a *ngIf="subItem.routerLink" [id]="subItem.id" [routerLink]="subItem.routerLink">
-                <span class="link_name">{{ subItem.text | transloco }}</span>
-                <i *ngIf="subItem.items" class='fas fa-angle-right'></i>
-              </a>
-              <a *ngIf="!subItem.routerLink" [attr.href]="subItem.url" [attr.target]="subItem.target" [id]="subItem.id">
-                <span class="link_name">{{ subItem.text | transloco }}</span>
-                <i *ngIf="subItem.items && subItem.items.length > 0" class='fas fa-angle-right'></i>
-              </a>
-              <ul *ngIf="subItem.items && subItem.items.length > 0" class="third-level-menu">
-                <ng-template [ngForOf]="subItem.items" let-i="index" let-subSubItem ngFor>
-                  <li>
-                    <a *ngIf="subSubItem.routerLink" [id]="subSubItem.id" [routerLink]="subSubItem.routerLink">
-                      <span class="link_name">{{ subSubItem.text | transloco }}</span>
-                    </a>
-                    <a *ngIf="!subSubItem.routerLink" [attr.href]="subSubItem.url" [attr.target]="subSubItem.target"
-                       [id]="subSubItem.id">
-                      <span class="link_name">{{ subSubItem.text | transloco }}</span>
-                    </a>
-                  </li>
-                </ng-template>
-              </ul>
-            </li>
-          </ng-template>
-        </ul>
-      </li>
-    </ng-template>
-  </ul>
+  @if ((navItems$ | async); as navItems) {
+    <div class="sidebar close">
+      <div [pTooltip]="'@HelloDATA' | transloco" class="logo-details" tooltipPosition="bottom">
+        <img alt="logo" src="/assets/img/hd.png" style="cursor: pointer" (click)="navigateHome()"/>
+        <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
+      </div>
+      <p-tieredMenu [model]="navItems" id="menu" [autoDisplay]="true" (mouseleave)="onMouseleave()"
+                    (mouseenter)="onMouseEnter()">
+        <ng-template pTemplate="item" let-item let-hasSubmenu="hasSubmenu">
+          <a pRipple class="flex p-menuitem-link"
+             [ngClass]="{'first-level-item flex-column align-items-center justify-content-center':
+                            item.isFirstLevel,
+                          'align-items-center': !item.isFirstLevel
+                        }" (click)="openWindow(item)">
+            <!-- FIRST LEVEL -->
+            @if (item.isFirstLevel) {
+              <span [class]="item.icon" class="p-menuitem-icon text-center" style="font-size: 2rem"></span>
+              <span class="text-center" style="font-size: 0.6rem; font-weight: 300">{{ item.label | transloco }}</span>
+            } @else {
+              <span [class]="item.icon" class="p-menuitem-icon"></span>
+              <span class="ml-2">{{ item.label | transloco }}</span>
+              @if (item.badge) {
+                <p-badge class="ml-auto" [value]="item.badge"/>
+              }
+              @if (item.shortcut) {
+                <span class="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">
+                  {{ item.shortcut }}
+                </span>
+              }
+              @if (hasSubmenu) {
+                <i class="pi pi-angle-right ml-auto text-primary"></i>
+              }
+            }
+            <!-- SUBMENU ITEMS -->
+          </a>
+        </ng-template>
+      </p-tieredMenu>
+    </div>
+  }
+
 </div>
 
 
 <section class="content-section">
-  <app-header
-    [title]="title">
-  </app-header>
+  <app-header [title]="title()"/>
   <div class="grid">
-    <div [ngClass]="'col'" [style]="{height: 'calc(100vh - 6rem)', 'overflow-y': 'scroll'}" id="mainContentDiv">
-      <ng-content ng-style="width: 100%"></ng-content>
-      <p-scrollTop [style]="{position: 'fixed', bottom: '2rem', right: '2rem'}" [threshold]="10" icon="fas fa-arrow-up"
-                   target="parent"></p-scrollTop>
-    </div>
-    <div *ngIf="selectCurrentUserPermissionsLoaded$" [ngClass]="['col-fixed', 'right-panel-close']"
-         [ngStyle]="{'width': '30px'}" class="right-panel">
-      <app-summary></app-summary>
-    </div>
-  </div>
+    <div [ngClass]="'col'" [style]="{'height': '90vh', 'overflow-y': 'scroll'}" id="mainContentDiv">
 
+      <ng-content/>
+
+    </div>
+    @if (selectCurrentUserPermissionsLoaded$) {
+      <div [ngClass]="['col-fixed', 'right-panel-close']"
+           [ngStyle]="{'width': '30px'}" class="right-panel">
+        <app-summary/>
+      </div>
+    }
+  </div>
 </section>
 
-<p-toast></p-toast>
-<app-unsaved-changes-dialog></app-unsaved-changes-dialog>
+<p-toast/>
+<app-unsaved-changes-dialog/>
 

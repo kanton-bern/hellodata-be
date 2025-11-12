@@ -27,15 +27,23 @@
 
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {Action, Store} from '@ngrx/store';
-import {of} from 'rxjs';
+import {asyncScheduler, scheduled} from 'rxjs';
 import {AnnouncementsManagementComponent} from './announcements-management.component';
 import {AppState} from '../../../store/app/app.state';
 import {naviElements} from '../../../app-navi-elements';
 import {Announcement} from '../../../store/announcement/announcement.model';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@ngneat/transloco";
-import {deleteAnnouncement, loadAllAnnouncements, openAnnouncementEdition, showDeleteAnnouncementPopup} from "../../../store/announcement/announcement.action";
+import {TranslocoTestingModule} from "@jsverse/transloco";
+import {
+  deleteAnnouncement,
+  loadAllAnnouncements,
+  openAnnouncementEdition,
+  showDeleteAnnouncementPopup
+} from "../../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {ConfirmationService} from "primeng/api";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {provideNoopAnimations} from "@angular/platform-browser/animations";
 
 describe('AnnouncementsManagementComponent', () => {
   let component: AnnouncementsManagementComponent;
@@ -50,23 +58,36 @@ describe('AnnouncementsManagementComponent', () => {
 
   const mockAnnouncement: Announcement = {
     id: '1',
-    message: 'Test Announcement',
     published: true,
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [AnnouncementsManagementComponent],
-      imports: [TranslocoTestingModule],
-      providers: [{provide: Store, useValue: mockStore}],
+      imports: [
+        AnnouncementsManagementComponent,
+        HttpClientTestingModule,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+      ],
+      providers: [
+        {provide: Store, useValue: mockStore},
+        ConfirmationService,
+        provideNoopAnimations(),
+      ],
     });
 
     fixture = TestBed.createComponent(AnnouncementsManagementComponent);
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.pipe.mockReturnValue(of([mockAnnouncement])); // Mock the pipe method to return an Observable with mock data
-    mockStore.select.mockReturnValue(of([mockAnnouncement])); // Mock the select method to return an Observable with mock data
+    mockStore.pipe.mockReturnValue(scheduled([mockAnnouncement], asyncScheduler)); // Mock the pipe method to return an Observable with mock data
+    mockStore.select.mockReturnValue(scheduled([mockAnnouncement], asyncScheduler)); // Mock the select method to return an Observable with mock data
 
     fixture.detectChanges();
   });
@@ -97,7 +118,6 @@ describe('AnnouncementsManagementComponent', () => {
   it('should dispatch openAnnouncementEdition with data when editAnnouncement is called', () => {
     const mockData: Announcement = {
       id: '2',
-      message: 'Another Announcement',
       published: false,
     };
     component.editAnnouncement(mockData);

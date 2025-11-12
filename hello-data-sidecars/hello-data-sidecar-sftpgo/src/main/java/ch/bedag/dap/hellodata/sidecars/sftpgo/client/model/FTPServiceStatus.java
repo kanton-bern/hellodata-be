@@ -29,13 +29,13 @@ import java.util.*;
         FTPServiceStatus.JSON_PROPERTY_BINDINGS,
         FTPServiceStatus.JSON_PROPERTY_PASSIVE_PORT_RANGE
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-12-10T09:15:17.190691+01:00[Europe/Warsaw]", comments = "Generator version: 7.9.0")
 public class FTPServiceStatus {
     public static final String JSON_PROPERTY_IS_ACTIVE = "is_active";
     public static final String JSON_PROPERTY_BINDINGS = "bindings";
     public static final String JSON_PROPERTY_PASSIVE_PORT_RANGE = "passive_port_range";
     private Boolean isActive;
-    private JsonNullable<List<FTPDBinding>> bindings = JsonNullable.<List<FTPDBinding>>undefined();
+    private JsonNullable<List<FTPDBinding>> bindings = JsonNullable.undefined();
     private FTPPassivePortRange passivePortRange;
 
     public FTPServiceStatus() {
@@ -78,14 +78,14 @@ public class FTPServiceStatus {
     }
 
     public FTPServiceStatus bindings(List<FTPDBinding> bindings) {
-        this.bindings = JsonNullable.<List<FTPDBinding>>of(bindings);
+        this.bindings = JsonNullable.of(bindings);
 
         return this;
     }
 
     public FTPServiceStatus addBindingsItem(FTPDBinding bindingsItem) {
         if (this.bindings == null || !this.bindings.isPresent()) {
-            this.bindings = JsonNullable.<List<FTPDBinding>>of(new ArrayList<>());
+            this.bindings = JsonNullable.of(new ArrayList<>());
         }
         try {
             this.bindings.get().add(bindingsItem);
@@ -108,7 +108,7 @@ public class FTPServiceStatus {
     }
 
     public void setBindings(List<FTPDBinding> bindings) {
-        this.bindings = JsonNullable.<List<FTPDBinding>>of(bindings);
+        this.bindings = JsonNullable.of(bindings);
     }
 
     @JsonProperty(JSON_PROPERTY_BINDINGS)
@@ -169,13 +169,12 @@ public class FTPServiceStatus {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class FTPServiceStatus {\n");
-        sb.append("    isActive: ").append(toIndentedString(isActive)).append("\n");
-        sb.append("    bindings: ").append(toIndentedString(bindings)).append("\n");
-        sb.append("    passivePortRange: ").append(toIndentedString(passivePortRange)).append("\n");
-        sb.append("}");
-        return sb.toString();
+        String sb = "class FTPServiceStatus {\n" +
+                "    isActive: " + toIndentedString(isActive) + "\n" +
+                "    bindings: " + toIndentedString(bindings) + "\n" +
+                "    passivePortRange: " + toIndentedString(passivePortRange) + "\n" +
+                "}";
+        return sb;
     }
 
     /**

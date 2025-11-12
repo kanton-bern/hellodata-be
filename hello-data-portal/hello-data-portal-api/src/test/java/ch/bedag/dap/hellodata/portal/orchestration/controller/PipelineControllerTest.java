@@ -28,21 +28,23 @@ package ch.bedag.dap.hellodata.portal.orchestration.controller;
 
 import ch.bedag.dap.hellodata.portal.base.HDControllerTest;
 import ch.bedag.dap.hellodata.portal.orchestration.service.OrchestrationService;
-import java.util.HashSet;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.HashSet;
+import java.util.List;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PipelineController.class)
-@ContextConfiguration(classes = { PipelineController.class })
+@ContextConfiguration(classes = {PipelineController.class})
 class PipelineControllerTest extends HDControllerTest {
-    @MockBean
+    @MockitoBean
     private OrchestrationService orchestrationService;
 
     @Test
@@ -61,7 +63,7 @@ class PipelineControllerTest extends HDControllerTest {
 
         // when then
         mockMvc.perform(MockMvcRequestBuilders.get("/pipelines").header("authorization", generateToken(new HashSet<>())))
-               .andExpect(status().isOk())
-               .andExpect(content().json("[]"));
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 }

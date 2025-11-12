@@ -1,10 +1,14 @@
-<ul *ngFor="let businessDomain of businessDomains$ | async">
-  <li>
-    {{ ('@Business domain' | transloco) + ' ' + businessDomain.name }}
-    <ul *ngFor="let dataDomain of dataDomains$ | async">
-      <li [pTooltip]="dataDomain.contextKey">
-        {{ ('@Data domain' | transloco) + ' ' + dataDomain.name + ' | ' + (dataDomain.extra ? 'Extra' : 'Standard') }}
-      </li>
-    </ul>
-  </li>
-</ul>
+@for (businessDomain of businessDomains$ | async; track businessDomain) {
+  <ul>
+    <li>
+      {{ ('@Business domain' | transloco) + ' ' + businessDomain.name }}
+      @for (dataDomain of dataDomains$ | async; track dataDomain) {
+        <ul>
+          <li [pTooltip]="dataDomain.contextKey">
+            {{ ('@Data domain' | transloco) + ' ' + dataDomain.name + ' | ' + (dataDomain.extra ? 'Extra' : 'Standard') }}
+          </li>
+        </ul>
+      }
+    </li>
+  </ul>
+}

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Faq, FaqCreate, FaqUpdate} from "./faq.model";
@@ -35,10 +35,9 @@ import {environment} from "../../../environments/environment";
   providedIn: 'root'
 })
 export class FaqService {
-  baseUrl = `${environment.portalApi}/faq`;
+  protected httpClient = inject(HttpClient);
 
-  constructor(protected httpClient: HttpClient) {
-  }
+  baseUrl = `${environment.portalApi}/faq`;
 
   public getFaq(): Observable<Faq[]> {
     return this.httpClient.get<Faq[]>(`${this.baseUrl}`);

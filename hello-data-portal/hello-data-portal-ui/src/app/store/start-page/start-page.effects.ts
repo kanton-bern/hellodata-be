@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {catchError, of, switchMap} from "rxjs";
 import {loadFaqStartPage, loadFaqStartPageSuccess, updateDashboardMetadata,} from "./start-page.action";
@@ -36,6 +36,10 @@ import {loadMyDashboards} from "../my-dashboards/my-dashboards.action";
 
 @Injectable()
 export class StartPageEffects {
+  private _actions$ = inject(Actions);
+  private _startPageService = inject(StartPageService);
+  private _faqService = inject(FaqService);
+
 
   updateDashboardsMetadata$ = createEffect(() => {
     return this._actions$.pipe(
@@ -54,11 +58,4 @@ export class StartPageEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _startPageService: StartPageService,
-    private _faqService: FaqService,
-  ) {
-  }
 }

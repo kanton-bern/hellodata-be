@@ -25,18 +25,20 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../store/app/app.state";
 import {checkAuth} from "../store/auth/auth.action";
 
 @Component({
-  selector: 'app-callback',
-  templateUrl: './callback.component.html',
-  styleUrls: ['./callback.component.css'],
+    selector: 'app-callback',
+    templateUrl: './callback.component.html',
+    styleUrls: ['./callback.component.css']
 })
 export class CallbackComponent {
-  constructor(private store: Store<AppState>) {
+  private store = inject<Store<AppState>>(Store);
+
+  constructor() {
     this.store.dispatch(checkAuth());
   }
 

@@ -1,4 +1,4 @@
-# HelloDATA Portal UI E2E Module
+# HelloDATA Portal UI E2E Tests Module
 
 This module contains Cypress E2E Infrastructure and Tests for the application.
 

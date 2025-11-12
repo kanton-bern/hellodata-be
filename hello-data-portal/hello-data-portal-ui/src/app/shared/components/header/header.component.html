@@ -1,61 +1,78 @@
-<ng-container *ngIf="availableDataDomains$ | async"></ng-container>
-<ng-container *ngIf="translationsLoaded$ | async"></ng-container>
+@if (availableDataDomains$ | async) {
+}
+@if (translationsLoaded$ | async) {
+}
 <div [ngStyle]="environment.color && { 'background-color': environment.color} || null" class="layout-topbar">
   <div class="card-container topbar-container overflow-hidden">
     <div class="flex">
-      <div *ngIf="environment.showEnvironment"
-           class="flex align-items-center justify-content-center m-1 px-1 py-1 font-bold text-xl mr-4">
-        <p [pTooltip]="'@Environment' | transloco" class="glow top-menu-item"
-           tooltipPosition="bottom">{{ "@Env " + environment.name | transloco }}</p>
-      </div>
-      <div *ngIf="(businessDomain$ | async) as businessDomain"
-           class="flex align-items-center justify-content-center m-1 px-1 py-1 font-medium text-xl">
-        <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item"
-           tooltipPosition="bottom">{{ businessDomain }}</p>
-      </div>
-      <div class="flex-auto flex align-items-center m-1 px-1 py-1"
-           *ngIf="(currentUserContextRolesNotNone$ | async )?.length > 0">
-        <section [pTooltip]="'@Selected Data Domain' | transloco" class="top-menu-item" tooltipPosition="bottom">
-
-
-           <span *ngIf="(selectedDataDomain$ | async) as selectedDataDomain">
-              <a (click)="selectedDataDomainMenu.toggle($event)"
-                 class="route-link p-button-link align-self-end layout-topbar-button" pAnimate pRipple>
-                <span class="pl-2" style="cursor: pointer">{{ selectedDataDomain.name | transloco }}</span>
-                <i class="fas fa-chevron-down p-1" style="cursor: pointer"></i>
+      @if (environment.showEnvironment) {
+        <div
+          class="flex align-items-center justify-content-center m-1 px-1 py-1 font-bold text-xl mr-4">
+          <p [pTooltip]="'@Environment' | transloco" class="glow top-menu-item"
+             tooltipPosition="bottom">{{ "@Env " + environment.name | transloco }}</p>
+        </div>
+      }
+      @if ((businessDomain$ | async); as businessDomain) {
+        <div
+          class="flex align-items-center justify-content-center m-1 px-1 py-1 font-medium text-xl">
+          <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item hide-on-small"
+             tooltipPosition="bottom">{{ businessDomain }}</p>
+        </div>
+      }
+      @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
+        <div class="flex-auto flex align-items-center m-1 px-1 py-1"
+        >
+          <section [pTooltip]="'@Selected Data Domain' | transloco" class="top-menu-item" tooltipPosition="bottom">
+            @if ((selectedDataDomain$ | async); as selectedDataDomain) {
+              <span>
+                <a (click)="selectedDataDomainMenu.toggle($event)"
+                   class="route-link p-button-link align-self-end layout-topbar-button" pRipple>
+                  <span class="pl-2" style="cursor: pointer">
+                  {{ selectedDataDomain.name | transloco }}</span>
+                  <i class="fas fa-chevron-down p-1" style="cursor: pointer"></i>
+                </a>
+              </span>
+            }
+          </section>
+        </div>
+      }
+      @if ((userData$ | async); as userData) {
+        <div class="flex-auto flex align-items-center justify-content-end m-1 px-1 py-1"
+        >
+          @if ((languages$ | async); as languages) {
+            <span class="mr-3 top-menu-item">
+              @for (item of supportedLanguages; track item.code; let i = $index; let last = $last) {
+                <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
+                   (click)="onLanguageChange(item.code)">
+                  {{ item.label }}
+                </a>
+                @if (!last) {
+                  <span>|</span>
+                }
+              }
+            </span>
+          }
+          <span class="mr-4 top-menu-item">
+            <span>
+              <a (click)="menu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button"
+                 id="userMenu">
+                <i class="fas fa-light fa-user" style="cursor: pointer"></i>
+                <span class="pl-2 hide-on-small" style="cursor: pointer">{{ userData.email }}</span>
               </a>
-           </span>
-        </section>
-      </div>
-      <div class="flex-auto flex align-items-center justify-content-end m-1 px-1 py-1"
-           *ngIf="(userData$ | async) as userData">
-        <span class="mr-3 top-menu-item" *ngIf="(languages$ | async) as languages">
-            <ng-template [ngForOf]="supportedLanguages" let-i="index" let-last="last" let-item ngFor>
-              <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
-                 (click)="onLanguageChange(item.code)">
-                {{ item.label }}
-              </a>
-              <span *ngIf="!last">|</span>
-            </ng-template>
-        </span>
-        <span class="mr-4 top-menu-item">
-           <span>
-             <a (click)="menu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button"
-                id="userMenu">
-               <i class="fas fa-light fa-user" style="cursor: pointer"></i>
-               <span class="pl-2" style="cursor: pointer">{{ userData.email }}</span>
-             </a>
-           </span>
-         </span>
-      </div>
+            </span>
+          </span>
+        </div>
+      }
     </div>
   </div>
 </div>
 
 
-<app-published-announcements-wrapper class="published-announcements-container"
-                                     *ngIf="isAuthenticated$ | async"></app-published-announcements-wrapper>
-<app-breadcrumb class="breadcrumb-container"></app-breadcrumb>
+@if (isAuthenticated$ | async) {
+  <app-published-announcements-wrapper class="published-announcements-container"
+  />
+}
+<app-breadcrumb class="breadcrumb-container"/>
 <!--use p-menu here with reference above due to firefox issues with z-index-->
-<p-menu #menu [model]="userMenuItems" [popup]="true"></p-menu>
-<p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true"></p-menu>
+<p-menu #menu [model]="userMenuItems" [popup]="true"/>
+<p-menu #selectedDataDomainMenu [model]="dataDomainSelectionItems" [popup]="true"/>

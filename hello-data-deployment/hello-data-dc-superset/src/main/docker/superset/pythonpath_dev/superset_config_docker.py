@@ -69,8 +69,6 @@ from flask_appbuilder.security.views import AuthView
 from flask_appbuilder.utils.base import get_safe_redirect
 from flask_appbuilder.views import expose
 from flask_login import login_user, logout_user
-from pyctuator.auth import BasicAuth
-from pyctuator.pyctuator import Pyctuator
 from random import SystemRandom
 from superset.security import SupersetSecurityManager
 from typing import Optional
@@ -80,7 +78,6 @@ log = logging.getLogger(__name__)
 logging.getLogger(__name__).setLevel(logging.DEBUG)
 logging.getLogger('flask_appbuilder.security.manager').setLevel(logging.DEBUG)
 logging.getLogger('flask_appbuilder.security').setLevel(logging.DEBUG)
-
 
 keycloak_metadata_url = os.getenv('KEYCLOAK_SERVER_METADATA_URL',
                                   'http://keycloak.localhost:38080/realms/hellodata/.well-known/openid-configuration')
@@ -99,22 +96,6 @@ req = requests.get(OIDC_ISSUER)
 key_der_base64 = req.json()["public_key"]
 key_der = b64decode(key_der_base64.encode())
 public_key = serialization.load_der_public_key(key_der)
-
-
-# pyctuator
-def FLASK_APP_MUTATOR(app):
-    superset_app_name = os.getenv('SUPERSET_APP_NAME')
-    superset_app_url = os.getenv('SUPERSET_APP_URL')
-    pyctuator_endpoint_url = os.getenv('PYCTUATOR_ENDPOINT_URL')
-    Pyctuator(
-        app,
-        app_name=superset_app_name,
-        app_url=superset_app_url,
-        pyctuator_endpoint_url=pyctuator_endpoint_url,
-        registration_url="http://monitoring-sba:8080/instances",
-        registration_auth=BasicAuth("user", "password")
-    )
-
 
 LETTERS_AND_DIGITS = string.ascii_letters + string.digits
 
@@ -278,8 +259,6 @@ AUTH_TYPE = AUTH_OAUTH
 
 logging.getLogger('flask_appbuilder.security.manager').setLevel(logging.DEBUG)
 
-
-
 OAUTH_PROVIDERS = [
     {
         "name": "keycloak",
@@ -306,12 +285,10 @@ AUTH_USER_REGISTRATION_ROLE_JMESPATH = "contains(['admin@hellodata.ch'], email) 
 FAB_ADD_SECURITY_API = True
 SESSION_REFRESH_EACH_REQUEST = True
 
-
 # --Enable these to add custom Securitymanager---------------------
 SECURITY_MANAGER_CLASS = HdSecurityManager
 CUSTOM_SECURITY_MANAGER = HdSecurityManager
 # --Enable these to add custom Securitymanager---------------------
-
 
 
 TALISMAN_ENABLED = False

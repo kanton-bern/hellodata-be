@@ -30,8 +30,16 @@ import {SummaryComponent} from './summary.component';
 import {Store} from '@ngrx/store';
 import {of} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {Pipeline} from "../../../store/summary/summary.model";
+import {AppInfoService} from "../../services";
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+
+class MockAppInfoService {
+  getAppInfo() {
+    return {};
+  }
+}
 
 describe('SummaryComponent', () => {
   let component: SummaryComponent;
@@ -48,15 +56,39 @@ describe('SummaryComponent', () => {
   const documentation = 'Sample Documentation';
   const currentUserPermissions = ['permission1', 'permission2'];
   const pipelines: Pipeline[] = [
-    {id: '1', description: 'Pipeline 1', contextKey: 'contextKey1', lastInstance: {state: 'success'}},
-    {id: '2', description: 'Pipeline 2', contextKey: 'contextKey2', lastInstance: {state: 'failed'}},
+    {
+      id: '1',
+      description: 'Pipeline 1',
+      contextKey: 'contextKey1',
+      lastInstance: {state: 'success', startDate: 0, endDate: 1}
+    },
+    {
+      id: '2',
+      description: 'Pipeline 2',
+      contextKey: 'contextKey2',
+      lastInstance: {state: 'failed', startDate: 0, endDate: 1}
+    },
   ];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [SummaryComponent],
-      imports: [TranslocoTestingModule],
-      providers: [{provide: Store, useValue: mockStore}],
+      imports: [
+        TranslocoTestingModule,
+        SummaryComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+        HttpClientTestingModule
+      ],
+      providers: [
+        {provide: Store, useValue: mockStore},
+        {provide: AppInfoService, useClass: MockAppInfoService},
+      ],
     });
 
     fixture = TestBed.createComponent(SummaryComponent);

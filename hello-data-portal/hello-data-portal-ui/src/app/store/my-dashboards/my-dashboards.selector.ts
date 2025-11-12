@@ -49,9 +49,18 @@ export const selectAvailableDataDomains = createSelector(
   selectSelectedDataDomain,
   (state: MyDashboardsState, selectedDataDomain) => {
     if (selectedDataDomain) {
-      return state.availableDataDomains.filter(dataDomain => dataDomain.id !== selectedDataDomain.id);
+      return state.availableDataDomains.filter(dataDomain => dataDomain.id !== selectedDataDomain.id).sort((a, b) => a.name.localeCompare(b.name));
     }
-    return state.availableDataDomains;
+    return state.availableDataDomains.sort((a, b) => a.name.localeCompare(b.name));
+
+  }
+);
+
+export const selectAllAvailableDataDomains = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => {
+    return [...state.availableDataDomains].sort((a, b) => a.name.localeCompare(b.name));
+
   }
 );
 
@@ -59,7 +68,7 @@ export const selectMyDashboards = createSelector(
   myDashboardsState,
   selectSelectedDataDomain,
   (state: MyDashboardsState, selectedDataDomain) => {
-    const allDashboards = [...state.myDashboards]
+    const allDashboards = [...state.myDashboards].sort((a, b) => a.dashboardTitle.localeCompare(b.dashboardTitle));
     if (selectedDataDomain === null || selectedDataDomain.id === '') {
       return allDashboards;
     }
@@ -72,7 +81,7 @@ export const selectMyDashboardsFiltered = createSelector(
   selectSelectedDataDomain,
   selectFilteredBy,
   (state: MyDashboardsState, selectedDataDomain, filteredByParam) => {
-    let allDashboards = [...state.myDashboards]
+    let allDashboards = [...state.myDashboards].sort((a, b) => a.dashboardTitle.localeCompare(b.dashboardTitle));
     if (filteredByParam) {
       allDashboards = allDashboards.filter(dashboard => dashboard.contextId === filteredByParam);
     }

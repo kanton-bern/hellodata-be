@@ -25,12 +25,11 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {catchError, of, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {navigate, navigateToList, showError, showSuccess} from "../app/app.action";
-import {processNavigation} from "../menu/menu.action";
+import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {
   loadAvailableDataDomains,
   loadAvailableDataDomainsSuccess,
@@ -42,9 +41,16 @@ import {
 } from "./my-dashboards.action";
 import {NotificationService} from "../../shared/services/notification.service";
 import {TranslateService} from "../../shared/services/translate.service";
+import {ScreenService} from "../../shared/services";
 
 @Injectable()
 export class MyDashboardsEffects {
+  private _actions$ = inject(Actions);
+  private _myDashboardsService = inject(MyDashboardsService);
+  private _notificationService = inject(NotificationService);
+  private _translateService = inject(TranslateService);
+  private _screenService = inject(ScreenService);
+
 
   loadMyDashboards$ = createEffect(() => {
     return this._actions$.pipe(
@@ -55,21 +61,33 @@ export class MyDashboardsEffects {
     )
   });
 
-  loadMyDashboardsSuccess$ = createEffect(() => {
-    return this._actions$.pipe(
-      ofType(loadMyDashboardsSuccess),
-      switchMap(() => of(processNavigation({compactMode: false}))),
-    )
-  });
-
   setSelectedDataDomain$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(setSelectedDataDomain),
-      switchMap((action) => {
+      withLatestFrom(this._screenService.isMobile),
+      switchMap(([action, isMobile]) => {
+          const successMsg = {
+            message: '@Data domain changed',
+            interpolateParams: {'dataDomainName': this._translateService.translate(action.dataDomain.name)}
+          };
+          if (isMobile) {
+            return of(
+              trackEvent({
+                eventCategory: 'Mobile',
+                eventAction: '[Click] - Data Domain changed to ' + action.dataDomain.name
+              }),
+              showSuccess(successMsg),
+              navigate({url: 'home'})
+            );
+          }
           return of(
-            showSuccess({message: '@Data domain changed', interpolateParams: {'dataDomainName': this._translateService.translate(action.dataDomain.name)}}),
+            trackEvent({
+              eventCategory: 'Data Domain',
+              eventAction: '[Click] - Data Domain changed to ' + action.dataDomain.name
+            }),
+            showSuccess(successMsg),
             navigateToList()
-          )
+          );
         }
       ),
     )
@@ -103,12 +121,4 @@ export class MyDashboardsEffects {
       catchError(e => of(showError({error: e})))
     )
   });
-
-  constructor(
-    private _actions$: Actions,
-    private _myDashboardsService: MyDashboardsService,
-    private _notificationService: NotificationService,
-    private _translateService: TranslateService
-  ) {
-  }
 }

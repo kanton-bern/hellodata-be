@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
 import {catchError, of, switchMap, withLatestFrom} from "rxjs";
@@ -36,17 +36,13 @@ import {DataDomain} from "../my-dashboards/my-dashboards.model";
 import {LineageDoc} from "./lineage-docs.model";
 import {showError} from "../app/app.action";
 import {loadMyLineageDocs, loadMyLineageDocsSuccess} from "./lineage-docs.action";
-import {processNavigation} from "../menu/menu.action";
 
 @Injectable()
 export class LineageDocsEffects {
+  private _actions$ = inject(Actions);
+  private _docsService = inject(LineageDocsService);
+  private _store = inject<Store<AppState>>(Store);
 
-  constructor(
-    private _actions$: Actions,
-    private _docsService: LineageDocsService,
-    private _store: Store<AppState>
-  ) {
-  }
 
   loadMyLineageDocs$ = createEffect(() => {
     return this._actions$.pipe(
@@ -58,12 +54,6 @@ export class LineageDocsEffects {
     )
   });
 
-  loadMyLineageDocsSuccess$ = createEffect(() => {
-    return this._actions$.pipe(
-      ofType(loadMyLineageDocsSuccess),
-      switchMap(() => of(processNavigation({compactMode: false}))),
-    )
-  });
 
   private _enhanceResult(result: LineageDoc[], dataDomains: DataDomain[]): LineageDoc[] {
     if (result) {

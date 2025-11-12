@@ -105,7 +105,7 @@ Please find all setting and features in the [CloudBeaver Documentation](https://
 #### Orchestration
 
 The orchestrator is your task manager. You
-tell[Airflow](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&Concepts-TaskOrchestration-Airflow),
+tell [Airflow](https://wiki.bedag.ch/pages/viewpage.action?pageId=1040683176#HDTechArchitecture&Concepts-TaskOrchestration-Airflow),
 our orchestrator, in which order the task will run. This is usually done ahead of time, and in the portal, you can see
 the latest runs and their status (successful, failed, etc.).
 
@@ -118,6 +118,207 @@ the latest runs and their status (successful, failed, etc.).
 
 ![](../images/1068204596.png)
 ![](../images/1068204607.png)
+
+##### Helper Library for Scheduling Jobs on Kubernetes
+
+To unlock the full power of airflow on kubernetes, you will need to run your jobs in containers on the cluster.
+To make this a bit easier, we provide a (preinstalled helper library)[https://github.com/bedag/hellodata-be-airflow-pod-operator-params] for you to use.
+
+###### Library description
+
+The helper library consists mainly of a function, that returns properly formatted parameters to use with (airflows kubernetes pod operator)[https://airflow.apache.org/docs/apache-airflow/1.10.10/_api/airflow/contrib/operators/kubernetes_pod_operator/index.html].
+It is named `hellodata_be_airflow_pod_operator_params` and can be imported with `import hellodata_be_airflow_pod_operator_params`.
+The two public objects are the function `get_pod_operator_params` and the class `EphemeralVolume`.
+
+Call the function `get_pod_operator_params` to get a dictionary with parameters to be passed to `kubernetes_pod_operator`.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `image` | `str` | `true` | - | The Docker image to use for the pod |
+| `namespace` | `str` | `false` | `"default"` | The Kubernetes namespace in which to create the pod |
+| `image_pull_secrets` | `Optional[List[str]]` | `false` | `None` | List of image pull secrets for private registries |
+| `secrets` | `Optional[List[str]]` | `false` | `None` | List of Kubernetes secret names to mount in the pod as environment variables |
+| `configmaps` | `Optional[List[str]]` | `false` | `None` | List of Kubernetes configmap names to mount in the pod as environment variables |
+| `cpus` | `float` | `false` | `1.0` | Number of CPU cores to allocate to the pod |
+| `memory_in_Gi` | `float` | `false` | `1.0` | Amount of memory in GiB to allocate to the pod |
+| `local_ephemeral_storage_in_Gi` | `float` | `false` | `1.0` | Amount of local ephemeral storage in GiB to allocate to the pod |
+| `startup_timeout_in_seconds` | `int` | `false` | `120` | Timeout in seconds for the pod to start up |
+| `large_ephemeral_storage_volume` | `Optional[EphemeralVolume]` | `false` | `None` | Large ephemeral storage volume to allocate to the pod |
+| `env_vars` | `Optional[Dict[str, str]]` | `false` | `None` | Additional environment variables to set in the pod |
+
+| Parameter      | Type    | Description                                                      |
+|----------------|---------|------------------------------------------------------------------|
+| `name`         | `str`   | The name of the ephemeral volume.                                |
+| `size_in_Gi`   | `float` | The size of the volume in GiB (Gibibytes).                       |
+| `mount_path`   | `str`   | The file system path inside the pod where the volume is mounted.  |
+| `storage_class`| `str`   | The Kubernetes storage class to use for provisioning the volume.  |
+
+###### Example usage
+
+The following python code contains an Airflow DAG that makes full usage of the library to schedule a pod on airflow.
+
+```python
+from datetime import timedelta
+from pendulum import datetime
+from airflow import DAG
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
+    KubernetesPodOperator,
+)
+
+from hellodata_be_airflow_pod_operator_params import (
+    get_pod_operator_params,
+    EphemeralVolume,
+)  # library import
+
+operator_params = get_pod_operator_params(
+    "alpine:latest",
+    namespace="my-namespace",
+    secrets=["my-secret"],
+    configmaps=["my-configmap"],
+    cpus=0.5,
+    memory_in_Gi=0.5,
+    local_ephemeral_storage_in_Gi=1,
+    startup_timeout_in_seconds=10 * 60,
+    large_ephemeral_storage_volume=EphemeralVolume(
+        "my-storage", 5, "/app/large_ephemeral_storage", "my-storage-type"
+    ),
+    env_vars={"key": "value"},
+)
+
+default_args = {
+    "owner": "airflow",
+    "depend_on_past": False,
+    "start_date": datetime(2025, 8, 1, tz="Europe/Zurich"),
+}
+
+with DAG(
+    dag_id="example_dag",
+    schedule="@once",
+    default_args=default_args,
+    max_active_runs=1,
+    dagrun_timeout=timedelta(minutes=60 * 5),
+) as dag:
+
+    my_task = KubernetesPodOperator(
+        **operator_params,
+        name="my_task",
+        task_id="my_task",
+        arguments=[
+            """
+    echo "I run on kubernetes and have the following env vars" &&
+    printenv
+    """
+        ],
+    )
+
+```
+
+##### Default DAG: HelloDATA Monitoring
+
+This is a DAG provided by us that gives you a summary of DAG runs. It will send you an email reporting which DAGs
+have failed since the monitoring DAG last ran, which have run successfully, which have not run and which are still running.
+
+![Screenshot of the monitoring DAG Email](../images/monitoring-dag-email.png)
+
+The email contains three sections:
+1. **Monitored DAGs** – A table with an overview of DAG runs tagged as `monitored`.
+2. **Changes to DAGs** – Lists DAGs that have been paused/unpaused, are new, deleted, newly monitored (added the `monitored` tag) or newly unmonitored.
+3. **General Overview** – A table with all DAG runs.
+
+You can modify the behavior of the DAG using environment variables on the Airflow worker:
+
+| Variable Name                    | Default Value                                                                 | Effect                                                                                                                                                                                                                       |
+|----------------------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `MONITORING_DAG_STATE_FILE`      | `/opt/airflow/dag_state_cache.json`                                          | Path to a file where the state is saved. On Kubernetes, this could be on a PVC to ensure it persists after a pod restart.                                                             |
+| `MONITORING_DAG_NOTIFY_EMAIL`    | `moiraine@tarvalon.org,rand.althor@aielwaste.net`                           | Comma-separated list of email addresses to send the report to. Airflow's mail server settings are used for sending the email.                                                         |
+| `MONITORING_DAG_AIRFLOW_LINK`    | `your administrator has forgotten to set the MONITORING_DAG_AIRFLOW_LINK env variable` | Value used to generate direct links to the DAG runs.                                                                                                                                  |
+| `MONITORING_DAG_INSTANCE_NAME`   | `HelloDATA`                                                                 | Used to generate the email title: `<MONITORING_DAG_INSTANCE_NAME> monitoring, <date and time> - DAG monitoring report`.                                                               |
+| `MONITORING_DAG_RUNTIME_SCHEDULE`| `0 5 * * *`                                                                 | [Cron expression](https://en.wikipedia.org/wiki/Cron) for when to run the DAG.                                                                                                        |
+
+#### Prebuilt Mechanism for logging DAG runs
+
+HelloDATA offers an easy way to log your DAG run stats to your DWH database through the `log_dag_run` function in the
+preinstalled python package `hellodata_be_dag_logs`. The library is opensource, of course. You can have a look at the code
+on [GitHub](https://github.com/bedag/hellodata-be-dag-logs).
+
+##### `log_dag_run` function
+
+The `log_dag_run` function logs statistics for all tasks in the current Airflow DAG run,
+excluding any specified task IDs, and inserts this data into a database table.
+This helps in monitoring and analyzing DAG performance over time.
+
+**Return type:** `None`
+The function does not return a value; it performs logging and database insertion as side effects.
+
+These are the input parameters.
+
+| Parameter         | Type             | Default Value         | Usage                                                                                      |
+|-------------------|------------------|-----------------------|--------------------------------------------------------------------------------------------|
+| `kwargs`          | `dict[str, Any]` | *required*            | Airflow context dictionary containing information about the current DAG run.               |
+| `exclude_task_ids`| `list[str]`      | `[]`                  | List of task IDs to exclude from logging and database insertion.                           |
+| `connection_id`   | `str`            | `"default_connection"`| Airflow connection ID used to connect to the target database.                              |
+| `schema_name`     | `str`            | `"public"`            | Name of the database schema where the task statistics table resides.                       |
+| `table_name`      | `str`            | `"dag_runs_stats"`    | Name of the table where task statistics will be inserted.                                  |
+
+###### Notes
+
+- Ensure your Airflow connection (`connection_id`) is correctly configured for your database.
+- The function should be called after the DAG run to capture accurate statistics.
+- Adjust parameters as needed for your environment.
+- You might want to ignore the task that logs the stats for the logs (see parameter `exclude_task_ids`)
+
+###### Example usage
+
+The following example demonstrates how to use the `log_dag_run` function within an Airflow DAG. It defines several simple tasks and a logging task that records DAG run statistics to a database. The logging task is configured to run after the main tasks, ensuring that all relevant information is captured.
+
+```python
+import pendulum
+from airflow.decorators import dag, task
+from hellodata_be_dag_logs import log_dag_run
+
+@dag(
+    schedule=None,
+    start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
+    catchup=False,
+    tags=["example"],
+)
+def tutorial_taskflow_api():
+    @task(task_id="dt1")
+    def dt1():
+        return "Some dummy task 1"
+
+    @task(task_id="dt2")
+    def dt2():
+        return "Some dummy task 2"
+
+    @task(task_id="dt3")
+    def dt3():
+        return "Some dummy task 3"
+
+    @task(task_id="dt4")
+    def dt4():
+        return "Some dummy task 4"
+
+    @task(task_id="hd_log_dag_run", provide_context=True)
+    def log_stats(**kwargs):
+        log_dag_run(
+            kwargs,
+            connection_id="your-connection-id",
+            schema_name="udm",
+            table_name="dag_run_stats",
+            exclude_task_ids=["hd_log_dag_run"],
+        )
+
+    dt1_task = dt1()
+    dt2_task = dt2()
+    dt3_task = dt3()
+    dt4_task = dt4()
+    print_context_task = log_stats()
+    dt1_task >> dt2_task
+    [dt2_task, dt3_task] >> print_context_task
+
+tutorial_taskflow_api()
+```
 
 #### Jupyter Notebooks (Jupyter Hub)
 

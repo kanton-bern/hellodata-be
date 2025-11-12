@@ -25,10 +25,17 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+
 FROM apache/airflow:slim-2.8.1-python3.10
 
-ENV AIRFLOW_VERSION=2.8.1
-ENV PYTHON_VERSION=3.10
+ARG ARG_AIRFLOW_VERSION=2.8.1
+ARG ARG_PYTHON_VERSION=3.10
+ARG AUTHLIB_VERSION=0.15.5
+ARG DBT_CORE_VERSION=1.5.0
+ARG DBT_POSTGRES_VERSION=1.5.0
+
+ENV AIRFLOW_VERSION=${ARG_AIRFLOW_VERSION}
+ENV PYTHON_VERSION=${ARG_PYTHON_VERSION}
 
 ## Change container image to root user to allow for global
 ## installation of software
@@ -46,16 +53,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 USER airflow
 RUN python -m pip install --upgrade pip
 RUN pip install --upgrade pip  \
-  &&  pip install --no-cache-dir psycopg2-binary Redis authlib==0.15.5 \
+  &&  pip install --no-cache-dir psycopg2-binary Redis authlib==${AUTHLIB_VERSION} \
   &&  pip install --no-cache-dir "apache-airflow[celery,postgres,kubernetes,statsd,mssql]==${AIRFLOW_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt" \
   &&  pip install --no-cache-dir virtualenv
 
 # dbt dependencies
-RUN pip install --no-cache-dir dbt-core==1.5.0 dbt-postgres==1.5.0
+RUN pip install --no-cache-dir dbt-core==${DBT_CORE_VERSION} dbt-postgres==${DBT_POSTGRES_VERSION}
 
 # add additional python requirements
-RUN pip install --no-cache-dir pyaxis pygdaltools pyctuator
+RUN pip install --no-cache-dir pyaxis pygdaltools
 
+# add helloDATA libraries
+RUN pip install \
+    --extra-index-url https://pypi.fury.io/datenstreambedag/ \
+    hellodata_be_airflow_pod_operator_params==3.0.0 \
+    hellodata_be_dag_logs==1.0.0
 #USER root
 # Copy config files to container's $AIRFLOW_HOME
 #COPY webserver_config.py $AIRFLOW_HOME/webserver_config.py
@@ -107,5 +119,14 @@ RUN dos2unix /db/wait-and-migrate.sh && apt-get --purge remove -y dos2unix && rm
 
 # Switching back to using the `airflow` user
 USER airflow
+
+# Copy standard DAGs to the image
+# Have a look at entrypoint.sh to see how the DAGs are copied to the right place
+# This is done to enable mounting a k8s PVC in the /opt/airflow/dags directory
+# and still have the standard DAGs available in the image. Otherwise, the
+# mounted directory would overwrite the standard DAGs.
+RUN mkdir -p /opt/airflow/dags/hellodata-standard-dags/
+COPY ./hellodata-standard-dags/* /tmp/hellodata-standard-dags/
+
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "/app/entrypoint.sh"]

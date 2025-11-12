@@ -37,7 +37,6 @@ import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.RoleRepository;
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.compress.utils.Sets;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,7 +77,7 @@ public class SecurityService {
         });
 
         // create an admin user role
-        createRoleIfNotFound(Role.ADMIN_ROLE_KEY, Role.ADMIN_ROLE_NAME, Sets.newHashSet(readOnDwhPrivilege, readOnLznPrivilege));
+        createRoleIfNotFound(Role.ADMIN_ROLE_KEY, Role.ADMIN_ROLE_NAME, Set.of(readOnDwhPrivilege, readOnLznPrivilege));
     }
 
     private void createCbTeamIfNotFound(String teamId, boolean dwh, String contextKey) {
@@ -109,7 +108,7 @@ public class SecurityService {
     private void createCbRole(String contextKey, Privilege privilege) {
         String roleName = SlugifyUtil.slugify(contextKey, "").toUpperCase() + "_" + privilege.getName().toUpperCase();
         String roleKey = contextKey + "_" + privilege.getName().toUpperCase();
-        createRoleIfNotFound(roleKey, roleName, Sets.newHashSet(privilege));
+        createRoleIfNotFound(roleKey, roleName, Set.of(privilege));
     }
 
     private void createRoleIfNotFound(String key, String name, Collection<Privilege> privileges) {

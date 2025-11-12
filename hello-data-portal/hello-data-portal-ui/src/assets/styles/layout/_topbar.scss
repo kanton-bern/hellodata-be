@@ -42,6 +42,7 @@ $background-color: #ffffff;
   padding: 5px;
   transition: all 0.3s ease;
   visibility: visible !important;
+  color: var(--text-color);
 }
 
 .layout-topbar .layout-topbar-button:hover {
@@ -71,4 +72,6 @@ p-breadcrumb {
 .p-breadcrumb {
   background-color: var(--surface-ground) !important;
   border-radius: 0 !important;
+  border: 1px solid #e5e5e5;
+
 }

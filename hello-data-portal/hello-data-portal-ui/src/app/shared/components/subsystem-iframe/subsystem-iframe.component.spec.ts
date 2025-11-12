@@ -30,7 +30,6 @@ import {SubsystemIframeComponent} from './subsystem-iframe.component';
 import {ElementRef, SimpleChanges} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {CommonModule} from '@angular/common';
-import {HdCommonModule} from '../../../hd-common.module';
 import {afterEach, beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {AuthService} from "../../services";
 
@@ -57,8 +56,7 @@ describe('SubsystemIframeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [SubsystemIframeComponent],
-      imports: [CommonModule, HdCommonModule],
+      imports: [CommonModule, SubsystemIframeComponent],
       providers: [
         {provide: ElementRef, useValue: mockElementRef},
         {provide: AuthService, useValue: mockAuthService},
@@ -70,10 +68,9 @@ describe('SubsystemIframeComponent', () => {
     fixture = TestBed.createComponent(SubsystemIframeComponent);
     component = fixture.componentInstance;
 
-    component.url = 'https://example.com';
-    component.accessTokenInQueryParam = false;
-    component.delay = 0;
-    component.style = null;
+    fixture.componentRef.setInput('url', 'https://example.com');
+    fixture.componentRef.setInput('accessTokenInQueryParam', false);
+    fixture.componentRef.setInput('delay', 0);
 
     // Initialize component
     fixture.detectChanges();

@@ -25,34 +25,54 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
 import {Observable} from "rxjs";
-import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {ConfirmationService} from "primeng/api";
+import {ConfirmationService, PrimeTemplate} from "primeng/api";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {selectCurrentUserPermissions} from "../../../store/auth/auth.selector";
 import {ExternalDashboard} from "../../../store/external-dashboards/external-dashboards.model";
 import {selectExternalDashboards} from "../../../store/external-dashboards/external-dashboards.selector";
-import {Table} from "primeng/table";
+import {Table, TableModule, TablePageEvent} from "primeng/table";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {deleteExternalDashboard, loadExternalDashboards, openExternalDashboardEdition} from "../../../store/external-dashboards/external-dasboards.action";
+import {
+  deleteExternalDashboard,
+  loadExternalDashboards,
+  openExternalDashboardEdition
+} from "../../../store/external-dashboards/external-dasboards.action";
+import {trackEvent} from "../../../store/app/app.action";
+import {AsyncPipe, DatePipe} from '@angular/common';
+import {Button, ButtonDirective} from 'primeng/button';
+import {InputText} from 'primeng/inputtext';
+import {Tooltip} from 'primeng/tooltip';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {ContainsPipe} from '../../../shared/pipes/contains.pipe';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
+import {Ripple} from "primeng/ripple";
 
 @Component({
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
-  styleUrls: ['./external-dashboards.component.scss']
+  styleUrls: ['./external-dashboards.component.scss'],
+  imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe, TranslocoPipe, IconField, InputIcon, Ripple, ButtonDirective]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
-  @ViewChild('dt') dt!: Table | undefined;
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
+
+  readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
 
-  constructor(private route: ActivatedRoute, private store: Store<AppState>, private confirmationService: ConfirmationService,
-              private translateService: TranslateService) {
+  private filterTimer: any;
+
+  constructor() {
     super();
     this.externalDashboards$ = this.store.select(selectExternalDashboards);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
@@ -100,9 +120,28 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   }
 
   applyFilterGlobal($event: any, stringVal: string) {
-    if (this.dt) {
-      this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+    const dt = this.dt();
+    if (dt) {
+      dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
     }
+    clearTimeout(this.filterTimer);
+    // debounce
+    this.filterTimer = setTimeout(() => {
+      const val = ($event.target as HTMLInputElement).value || '(cleared)';
+      this.store.dispatch(trackEvent({
+        eventCategory: 'External Dashboard',
+        eventAction: '[Search] - Searched for ' + val
+      }));
+    }, 400);
   }
 
+  onPageChange($event: TablePageEvent) {
+    const pageIndex = $event.first / $event.rows;   // 0-based
+    const pageNumber = pageIndex + 1;
+
+    this.store.dispatch(trackEvent({
+      eventCategory: 'External Dashboard',
+      eventAction: '[Click Paging] - Moved to page ' + pageNumber
+    }));
+  }
 }

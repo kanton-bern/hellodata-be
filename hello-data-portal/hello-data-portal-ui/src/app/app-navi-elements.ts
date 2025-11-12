@@ -109,6 +109,14 @@ export const naviElements: any = {
     path: 'detail/:instanceName/:id',
     label: '@Detail'
   },
+  query: {
+    path: 'queries/list/:contextKey',
+    label: '@Queries'
+  },
+  dashboardAccess: {
+    path: 'dashboard-access/list',
+    label: '@Dashboard access'
+  },
   externalDashboards: {
     path: 'external-dashboards',
     label: '@External dashboards'

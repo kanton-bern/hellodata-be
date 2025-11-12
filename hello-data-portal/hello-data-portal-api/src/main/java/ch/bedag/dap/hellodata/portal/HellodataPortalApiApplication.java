@@ -26,12 +26,16 @@
  */
 package ch.bedag.dap.hellodata.portal;
 
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @EnableScheduling
 @SpringBootApplication(scanBasePackages = {"ch.bedag.dap.hellodata"})
@@ -51,6 +55,15 @@ public class HellodataPortalApiApplication {
 
     @Bean
     public ModelMapper modelMapper() {
+        ModelMapper mapper = new ModelMapper();
+
+        Converter<OffsetDateTime, LocalDateTime> offsetToLocal =
+                ctx -> ctx.getSource() == null ? null : ctx.getSource().toLocalDateTime();
+        mapper.addConverter(offsetToLocal);
+
+        Converter<OffsetDateTime, Long> offsetToEpochMilli =
+                ctx -> ctx.getSource() == null ? null : ctx.getSource().toInstant().toEpochMilli();
+        mapper.addConverter(offsetToEpochMilli);
         return new ModelMapper();
     }
 }

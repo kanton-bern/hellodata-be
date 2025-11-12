@@ -28,11 +28,11 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {ProfileComponent} from './profile.component';
 import {Store} from '@ngrx/store';
-import {of} from 'rxjs';
+import {asyncScheduler, scheduled} from 'rxjs';
 import {naviElements} from '../../app-navi-elements';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@ngneat/transloco";
+import {TranslocoTestingModule} from "@jsverse/transloco";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 
 describe('ProfileComponent', () => {
@@ -48,10 +48,17 @@ describe('ProfileComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ProfileComponent],
       providers: [{provide: Store, useValue: mockStore}],
       imports: [
-        TranslocoTestingModule
+        TranslocoTestingModule.forRoot({
+          langs: {en: {}},
+          translocoConfig: {
+            availableLangs: ['en'],
+            defaultLang: 'en',
+          },
+          preloadLangs: true,
+        }),
+        ProfileComponent
       ],
     });
 
@@ -59,7 +66,7 @@ describe('ProfileComponent', () => {
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
 
-    mockStore.pipe.mockReturnValue(of({}));
+    mockStore.pipe.mockReturnValue(scheduled([{}], asyncScheduler));
 
     fixture.detectChanges();
   });

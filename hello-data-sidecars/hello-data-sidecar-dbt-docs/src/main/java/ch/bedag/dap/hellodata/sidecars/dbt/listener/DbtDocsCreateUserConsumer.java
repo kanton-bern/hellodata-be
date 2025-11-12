@@ -33,7 +33,6 @@ import ch.bedag.dap.hellodata.sidecars.dbt.repository.UserRepository;
 import ch.bedag.dap.hellodata.sidecars.dbt.service.resource.DbtDocsUserResourceProviderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -67,7 +66,6 @@ public class DbtDocsCreateUserConsumer {
         }
     }
 
-    @NotNull
     private User toDbtDocUser(SubsystemUserUpdate supersetUserCreate) {
         User dbtDocUser = new User(supersetUserCreate.getUsername(), supersetUserCreate.getEmail());
         dbtDocUser.setRoles(new ArrayList<>());

@@ -44,7 +44,6 @@ describe('Menu', () => {
         cy.get('#faqManagementMenu').should('exist');
         cy.get('#documentationManagementMenu').should('exist');
         cy.get('#monitoringMenu').should('exist');
-        cy.get('#monitoringStatusMenu').should('exist');
         cy.get('#monitoringWorkspacesMenu').should('exist');
         cy.get('#devToolsMenu').should('exist');
         cy.get('#devToolsMailboxMenu').should('exist');

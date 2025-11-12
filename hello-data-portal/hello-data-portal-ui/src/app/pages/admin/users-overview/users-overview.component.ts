@@ -25,15 +25,15 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule, OnDestroy, OnInit} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {TranslocoModule} from "@ngneat/transloco";
+import { Component, NgModule, OnDestroy, OnInit, inject } from "@angular/core";
+import { CommonModule, AsyncPipe } from "@angular/common";
+import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
 import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
-import {TagModule} from "primeng/tag";
+import { TagModule, Tag } from "primeng/tag";
 import {TooltipModule} from "primeng/tooltip";
 import {InputTextModule} from "primeng/inputtext";
-import {ButtonModule} from "primeng/button";
+import { ButtonModule, Button } from "primeng/button";
 import {ToolbarModule} from "primeng/toolbar";
 import {RippleModule} from "primeng/ripple";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
@@ -52,6 +52,7 @@ import {
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {TranslateService} from "../../../shared/services/translate.service";
+import { PrimeTemplate } from "primeng/api";
 
 interface TableRow {
   email: string;
@@ -60,11 +61,15 @@ interface TableRow {
 }
 
 @Component({
-  selector: 'app-users-overview',
-  templateUrl: './users-overview.component.html',
-  styleUrls: ['./users-overview.component.scss']
+    selector: 'app-users-overview',
+    templateUrl: './users-overview.component.html',
+    styleUrls: ['./users-overview.component.scss'],
+    imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
+
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   readonly NO_TAG = '_no_tag';
   tableData$: Observable<TableRow[]>;
@@ -72,8 +77,10 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   dataLoading$: Observable<boolean>;
   private destroy$ = new Subject<void>();
 
-  constructor(private store: Store<AppState>, private translateService: TranslateService) {
+  constructor() {
     super();
+    const store = this.store;
+
     store.dispatch(loadSubsystemUsersForDashboards());
     this.columns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
@@ -100,7 +107,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     return false;
   }
 
-  getTagSeverity(value: string): "success" | "secondary" | "info" | "warning" | "danger" | "contrast" | undefined {
+  getTagSeverity(value: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
     const valTrimmed = value.trim();
     if (valTrimmed.includes('Admin')) {
       return 'danger';
@@ -181,24 +188,4 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 }
 
-@NgModule({
-  imports: [
-    CommonModule,
-    TranslocoModule,
-    RouterLink,
-    TableModule,
-    TagModule,
-    TooltipModule,
-    InputTextModule,
-    ButtonModule,
-    ToolbarModule,
-    RippleModule,
-    ProgressSpinnerModule,
-  ],
-  declarations: [
-    UsersOverviewComponent
-  ],
-  exports: []
-})
-export class UsersOverviewModule {
-}
+

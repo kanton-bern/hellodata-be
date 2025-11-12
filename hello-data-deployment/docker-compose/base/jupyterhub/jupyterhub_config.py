@@ -113,7 +113,9 @@ db_conn_url = 'postgresql://' + os.environ['DB_USERNAME'] + ':' + os.environ['DB
 engine = create_engine(db_conn_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
+c.DockerSpawner.environment = {
+    "API_URL": os.environ['SIDECAR_API_URL']
+}
 
 class HelloDataBearerTokenAuthenticator(GenericOAuthenticator):
 

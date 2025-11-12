@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {combineLatest, map, Observable, switchMap} from "rxjs";
 import {DataDomain, SupersetDashboard} from "../my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
@@ -35,7 +35,6 @@ import {
   selectCurrentUserPermissions,
   selectCurrentUserPermissionsLoaded
 } from "../auth/auth.selector";
-import {filter, take} from "rxjs/operators";
 import {
   selectAvailableDataDomainItems,
   selectMyDashboards,
@@ -44,47 +43,47 @@ import {
 import {selectMyLineageDocs} from "../lineage-docs/lineage-docs.selector";
 import {LineageDoc} from "../lineage-docs/lineage-docs.model";
 import {TranslateService} from "../../shared/services/translate.service";
-import {ALL_MENU_ITEMS} from "./menu.model";
 import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
-import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_EDITOR_ROLE} from "../users-management/users-management.model";
+import {
+  BUSINESS_DOMAIN_ADMIN_ROLE,
+  DATA_DOMAIN_ADMIN_ROLE,
+  DATA_DOMAIN_EDITOR_ROLE,
+  HELLODATA_ADMIN_ROLE
+} from "../users-management/users-management.model";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
 import {environment} from "../../../environments/environment";
+import {ALL_MENU_ITEMS} from "./menu.state";
+import {filter} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
-  private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
-  private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
-  dbMenuItemPrefix = ' > ';
+  private _store = inject<Store<AppState>>(Store);
+  private _translateService = inject(TranslateService);
+  private _openedSubsystemsService = inject(OpenedSubsystemsService);
 
-  constructor(
-    private _store: Store<AppState>,
-    private _translateService: TranslateService,
-    private _openedSubsystemsService: OpenedSubsystemsService
-  ) {
+  private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
+  private static readonly QUERY_LIST = '/queries/list/';
+  private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
+
+  public processNavigation(): Observable<any[]> {
+    return combineLatest([
+      this._store.select(selectCurrentUserPermissionsLoaded),
+      this._store.select(selectCurrentUserPermissions),
+    ]).pipe(
+      filter(([loaded]) => loaded), // wait until permissions loaded = true
+      map(([, currentUserPermissions]) => currentUserPermissions),
+      switchMap((currentUserPermissions) => {
+        return this.internalProcessNavigation(currentUserPermissions);
+      }),
+    );
   }
 
-  public processNavigation(compactMode: boolean): Observable<any[]> {
-    return this._store.select(selectCurrentUserPermissions).pipe(
-      switchMap((currentUserPermissions) => {
-        if (!currentUserPermissions || currentUserPermissions.length === 0) {
-          // Permissions not yet loaded, return observable that will wait for them to be loaded
-          return this._store.select(selectCurrentUserPermissionsLoaded).pipe(
-            filter((loaded) => loaded),
-            take(1),
-            switchMap(() => {
-              return this.permissionsLoadedProcessNavigation(compactMode);
-            })
-          );
-        } else {
-          // Permissions already loaded, check them immediately
-          return this.internalProcessNavigation(compactMode, currentUserPermissions);
-        }
-      })
-    );
+  public createQueryLink(contextKey: string): string {
+    return MenuService.QUERY_LIST + contextKey;
   }
 
   public createDashboardLink(db: SupersetDashboard): string {
@@ -96,7 +95,7 @@ export class MenuService {
     }
   }
 
-  private internalProcessNavigation(compactMode: boolean, currentUserPermissions: string[]): Observable<any[]> {
+  private internalProcessNavigation(currentUserPermissions: string[]): Observable<any[]> {
     this._store.dispatch(loadAppInfoResources());
     return combineLatest([
       this._store.select(selectMyDashboards),
@@ -108,23 +107,22 @@ export class MenuService {
     ]).pipe(
       map(([myDashboards, myDocs,
              appInfos, contextRoles, availableDomainItems, selectedDataDomain]) => {
-
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
           if (item.routerLink && !(/^\//.test(item.routerLink))) {
             item.routerLink = `/${item.routerLink}`;
           }
-          const menuItem = {...item, expanded: !compactMode};
+          const menuItem = {...item};
 
           // inject the users dashboards into the menu
-          if (menuItem.text === '@Dashboards') {
+          if (menuItem.label === '@Dashboards') {
             menuItem.items = this.createMyDashboardsSubNav(myDashboards, appInfos, contextRoles);
           }
           // inject the users lineage docs into the menu
-          if (menuItem.text === '@Lineage') {
+          if (menuItem.label === '@Lineage') {
             menuItem.items = this.createLineageDocsSubNav(myDocs, availableDomainItems);
           }
-          if (menuItem.text === '@Data Marts') {
+          if (menuItem.label === '@Data Marts') {
             menuItem.items = this.createDataMartsSubNav(availableDomainItems);
           }
           if (menuItem.id === 'dataEngMenu') {
@@ -132,7 +130,7 @@ export class MenuService {
             if (sftpgo && sftpgo.length > 0) {
               menuItem.items.push({
                 id: 'filebrowserMenu',
-                text: '@Filebrowser',
+                label: '@Filebrowser',
                 url: environment.subSystemsConfig.filebrowser.protocol + environment.subSystemsConfig.filebrowser.host + environment.subSystemsConfig.filebrowser.domain,
                 target: '_blank',
                 requiredPermissions: ['DATA_FILEBROWSER']
@@ -143,10 +141,34 @@ export class MenuService {
               menuItem.items.push(jupyterhubSubNav);
             }
           }
+          if (menuItem.id === 'devToolsMenu') {
+            if (this.displayQueries(contextRoles)) {
+              const queriesMenu = menuItem.items.filter((item: {
+                id: string;
+              }) => item.id === 'queriesMenu')[0];
+              queriesMenu.items = this.createQueriesSubNav(menuItem, availableDomainItems);
+            }
+          }
           return menuItem;
         });
       })
     )
+  }
+
+  private createQueriesSubNav(menuItem: any[], availableDomainItems: any[]) {
+    const result: any[] = [];
+    const dataDomains = availableDomainItems.map(item => item.data).sort((a, b) => a!.key.toLowerCase().localeCompare(b!.key.toLowerCase()));
+    for (const dataDomain of dataDomains) {
+      if (dataDomain?.key) {
+        result.push({
+          id: 'queries_' + dataDomain!.key,
+          label: dataDomain!.name,
+          routerLink: this.createQueryLink(dataDomain!.key),
+          requiredPermissions: ['QUERIES']
+        });
+      }
+    }
+    return result;
   }
 
   private filterNavigationByPermissions(navigationElements: any[], currentUserPermissions: string[]) {
@@ -172,18 +194,21 @@ export class MenuService {
     return filteredNavigationElements;
   }
 
-  private permissionsLoadedProcessNavigation(compactMode: boolean): Observable<any[]> {
-    return this._store.select(selectCurrentUserPermissions).pipe(
-      switchMap((permissions) => {
-        return this.internalProcessNavigation(compactMode, permissions);
-      })
-    )
-  }
-
   private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[]) {
     const myDashboards: any[] = [];
-    myDashboards.push({id: 'dashboarList', text: '@List', routerLink: 'my-dashboards'})
+    myDashboards.push({id: 'dashboardList', label: '@Dashboard List', routerLink: 'my-dashboards'});
+    this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards);
+    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles);
+    myDashboards.push({
+      id: 'externalDashboards',
+      label: '@External dashboards',
+      routerLink: 'external-dashboards',
+      requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
+    });
+    return myDashboards;
+  }
 
+  private groupAndInsertDashboardMenuItems(dashboards: SupersetDashboard[], contextRoles: any[], appInfos: MetaInfoResource[], myDashboards: any[]) {
     const groupedByInstance: Map<string, SupersetDashboard[]> = new Map<string, SupersetDashboard[]>();
     dashboards.forEach(db => {
       const contextName = db.contextName;
@@ -192,35 +217,53 @@ export class MenuService {
       }
       groupedByInstance.get(contextName)?.push(db)
     });
+    const sortedByKey = new Map(
+      [...groupedByInstance.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+    );
     let dashboardEntries: any[] = [];
 
-    for (const [instanceName, dashboards] of groupedByInstance) {
+    for (const [contextName, dashboards] of sortedByKey) {
       dashboardEntries = [];
-      if (this.displaySupersetLink(instanceName, contextRoles)) {
-        dashboardEntries.push({
-          id: 'openSupersetInstance_' + instanceName,
-          text: "@Superset Instanz öffnen",
-          url: this.getSupersetInstanceLink(instanceName, appInfos),
-          target: "_blank",
-          requiredPermissions: ['DATA_ENG']
-        });
+      if (this.displaySupersetLink(contextName, contextRoles)) {
+        this.addLinkToOpenSuperset(dashboardEntries, contextName, appInfos);
       }
       dashboards.forEach((db: SupersetDashboard) => {
         dashboardEntries.push({
           id: 'dashboardMenu' + db.id,
-          text: this.dbMenuItemPrefix + db.dashboardTitle,
+          label: db.dashboardTitle,
           routerLink: this.createDashboardLink(db)
         });
       });
-      myDashboards.push({text: instanceName, items: dashboardEntries});
+      myDashboards.push({label: contextName, items: dashboardEntries});
     }
-    myDashboards.push({
-      id: 'externalDashboards',
-      text: '@External dashboards',
-      routerLink: 'external-dashboards',
-      requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
-    })
-    return myDashboards;
+  }
+
+  private addLinkToOpenSuperset(dashboardEntries: any[], contextName: string, appInfos: MetaInfoResource[]) {
+    dashboardEntries.push({
+      id: 'openSupersetInstance_' + contextName,
+      label: "@Superset Instanz öffnen",
+      url: this.getSupersetInstanceLink(contextName, appInfos),
+      target: "_blank",
+      requiredPermissions: ['DATA_ENG']
+    });
+  }
+
+  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[]) {
+    if (myDashboards.length === 1 && myDashboards[0].id === 'dashboardList') {
+      const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
+      supersets.forEach((supersetInstance) => {
+        const contextName = supersetInstance.businessContextInfo.subContext.name;
+        if (this.displaySupersetLink(contextName, contextRoles)) {
+          const items: any[] = [];
+          this.addLinkToOpenSuperset(items, contextName, appInfos);
+          myDashboards.push({label: contextName, items});
+        }
+      });
+    }
+  }
+
+  private displayQueries(contextRoles: any[]) {
+    return contextRoles.find(contextRole => contextRole.role.name === HELLODATA_ADMIN_ROLE || contextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
   }
 
   private displaySupersetLink(instanceName: string, contextRoles: any[]) {
@@ -235,14 +278,17 @@ export class MenuService {
     const subMenuEntry: any[] = [];
     subMenuEntry.push({
       id: 'lineageDocsList',
-      text: '@List',
+      label: '@Lineage Docs List',
       routerLink: 'lineage-docs/list',
       requiredPermissions: ['DATA_LINEAGE']
     })
     const docsGroupedByContext = this.getLineageDocsGroupedByDataDomainContext(projectDocs, availableDataDomains);
-    for (const [dataDomainContextName, lineageDocsInDomain] of docsGroupedByContext) {
+    const sortedByKey = new Map(
+      [...docsGroupedByContext.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+    );
+    for (const [dataDomainContextName, lineageDocsInDomain] of sortedByKey) {
       const lineageDocsMenuEntries = this.getLineageDocsSubMenuItemsForDataDomain(lineageDocsInDomain);
-      subMenuEntry.push({id: 'lineageDocsEntries', text: dataDomainContextName, items: lineageDocsMenuEntries});
+      subMenuEntry.push({id: 'lineageDocsEntries', label: dataDomainContextName, items: lineageDocsMenuEntries});
     }
     return subMenuEntry;
   }
@@ -262,7 +308,6 @@ export class MenuService {
   }
 
   private getContextName(pd: LineageDoc, availableDataDomains: any[]) {
-    console.debug('get context name - availableDataDomains', availableDataDomains);
     const dataDomain = availableDataDomains.find(dataDomain => {
       if (dataDomain.data && dataDomain.data.key) {
         return dataDomain.data.key === pd.contextKey;
@@ -276,7 +321,7 @@ export class MenuService {
     const sortedByNameLineageDocs = [...lineageDoc];
     sortedByNameLineageDocs.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     return sortedByNameLineageDocs.map((lineageDoc: LineageDoc) => ({
-      text: `${this._translateService.translate('@Doc')}`,
+      label: `${this._translateService.translate('@Doc')}`,
       routerLink: this.createLineageDocsLink(lineageDoc)
     }));
   }
@@ -304,7 +349,7 @@ export class MenuService {
     if (availableDataDomains.length > 0) {
       subMenuEntry.push({
         id: 'dataMartsDetails',
-        text: '@DM Viewer Link',
+        label: '@DM Viewer Link',
         routerLink: '/embedded-dm-viewer',
         requiredPermissions: ['DATA_MARTS']
       })
@@ -323,7 +368,7 @@ export class MenuService {
       if (jupyterhubs.filter(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey).length > 0) {
         subMenuEntry.push({
           id: 'jupyterhub' + filteredContext.contextKey,
-          text: 'Advanced Analytics ' + filteredContext.name,
+          label: 'Advanced Analytics ' + filteredContext.name,
           url: environment.authConfig.redirectUrl + '?redirectTo=advanced-analytics-viewer/' + filteredContext.contextKey,
           requiredPermissions: ['DATA_JUPYTER'],
           target: '_blank'

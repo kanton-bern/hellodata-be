@@ -39,9 +39,16 @@ import org.springframework.ldap.query.ContainerCriteria;
 import org.springframework.ldap.support.LdapEncoder;
 import org.springframework.stereotype.Component;
 
+import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
@@ -65,21 +72,58 @@ public class LdapUserLookupProvider implements UserLookupProvider {
     public List<AdUserDto> adLookup(String email) {
         String encodedEmail = LdapEncoder.filterEncode(email);
         log.debug("Search for email {}", encodedEmail);
-        ContainerCriteria query = query().where("objectclass").is("person").and("mail").like(encodedEmail + "*");
+        ContainerCriteria query = query().where("objectclass").is("person").and("objectclass").is("user").and("mail").like(encodedEmail + "*");
         return ldapTemplate.search(query,
                 (AttributesMapper<AdUserDto>) attrs -> {
                     log.debug("Attributes: {}", attrs);
-                    return toAdUserDto(attrs);
+                    return toAdUserDto(attrs, email);
                 });
     }
 
-    private AdUserDto toAdUserDto(Attributes attrs) throws NamingException {
+    private AdUserDto toAdUserDto(Attributes attrs, String email) throws NamingException {
+        log.debug("Mapping attributes to AdUserDto: {}", attrs);
+        List<String> groups = new ArrayList<>();
+        Attribute memberOf = attrs.get("memberOf");
+        if (memberOf != null) {
+            groups.addAll(Collections.list(memberOf.getAll()).stream()
+                    .map(String::valueOf)
+                    .map(this::extractCnFromDn)
+                    .collect(Collectors.toList()));
+        }
+        log.debug("Extracted groups for email {}: {}", email, groups);
         var user = new AdUserDto();
         user.setEmail(getFieldOrDefault(attrs, configProperties.getFieldMapping().getEmail()));
         user.setFirstName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getFirstName()));
         user.setLastName(getFieldOrDefault(attrs, configProperties.getFieldMapping().getLastName()));
         user.setOrigin(AdUserOrigin.LDAP);
         return user;
+    }
+
+    public String extractCnFromDn(String dn) {
+        if (dn == null || dn.isEmpty()) {
+            return dn;
+        }
+
+        try {
+            // LdapName is the standard, RFC 4514-compliant parser.
+            LdapName ldapName = new LdapName(dn);
+
+            // iterate through the RDNs (Relative Distinguished Names) in reverse
+            // because the most specific RDN (like CN) is often first.
+            for (Rdn rdn : ldapName.getRdns()) {
+                // check if the attribute type is "CN" (case-insensitive)
+                if (rdn.getType().equalsIgnoreCase("CN")) {
+                    // return the attribute's value as a string
+                    return rdn.getValue().toString();
+                }
+            }
+        } catch (InvalidNameException e) {
+            log.error("Failed to parse DN: {}", dn, e);
+            return dn;
+        }
+
+        // fallback if no CN component was found in a valid DN.
+        return dn;
     }
 
     private String getFieldOrDefault(Attributes attrs, String fieldName) throws NamingException {

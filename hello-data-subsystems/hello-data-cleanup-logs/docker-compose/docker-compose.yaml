@@ -41,7 +41,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=dc
   airflow-db:
-    image: postgres:12.14
+    image: postgres:18.0
     restart: always
     environment:
       - POSTGRES_USER=airflow
@@ -56,7 +56,7 @@ services:
       - ./dataset/airflow-init.sql:/docker-entrypoint-initdb.d/01-init.sql
       - ./dataset/airflow-data.sql:/docker-entrypoint-initdb.d/02-init.sql
   superset-db:
-    image: postgres:12.14
+    image: postgres:18.0
     restart: always
     environment:
       - POSTGRES_USER=superset
@@ -71,7 +71,7 @@ services:
       - ./dataset/superset-init.sql:/docker-entrypoint-initdb.d/00-init.sql
       - ./dataset/superset-data.sql:/docker-entrypoint-initdb.d/01-init.sql
   cloudbeaver-db:
-    image: postgres:12.14
+    image: postgres:18.0
     restart: always
     environment:
       - POSTGRES_USER=cloudbeaver

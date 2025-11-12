@@ -25,24 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, EventEmitter, NgModule, Output} from '@angular/core';
-import {SidebarModule} from "primeng/sidebar";
-import {ScrollPanelModule} from "primeng/scrollpanel";
-import {
-  AsyncPipe,
-  DatePipe,
-  JsonPipe,
-  NgClass,
-  NgForOf,
-  NgIf,
-  NgStyle,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault
-} from "@angular/common";
-import {FieldsetModule} from "primeng/fieldset";
-import {AccordionModule} from "primeng/accordion";
-import {EditorModule} from "primeng/editor";
+import {Component, inject, output} from '@angular/core';
+import {Drawer} from 'primeng/drawer';
+import {ScrollPanel, ScrollPanelModule} from "primeng/scrollpanel";
+import {AsyncPipe, DatePipe, NgClass} from "@angular/common";
+import {Fieldset} from "primeng/fieldset";
+import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from "primeng/accordion";
+import {Editor} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -51,35 +40,45 @@ import {
   selectPipelines,
   selectStorageSize
 } from "../../../store/summary/summary.selector";
-import {ButtonModule} from "primeng/button";
-import {RippleModule} from "primeng/ripple";
+import {Button, ButtonDirective} from "primeng/button";
+import {Ripple} from "primeng/ripple";
 import {Observable} from "rxjs";
 import {
   selectCurrentUserPermissions,
   selectDefaultLanguage,
   selectSelectedLanguage
 } from "../../../store/auth/auth.selector";
-import {HdCommonModule} from "../../../hd-common.module";
-import {TranslocoModule} from "@ngneat/transloco";
-import {TooltipModule} from "primeng/tooltip";
-import {DataViewModule} from "primeng/dataview";
+
+import {TranslocoPipe} from "@jsverse/transloco";
+import {Tooltip} from "primeng/tooltip";
 import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
-import {FooterModule} from "../footer/footer.component";
+import {FooterComponent} from "../footer/footer.component";
 import {AppInfoService} from "../../services";
 import {TranslateService} from "../../services/translate.service";
+import {PrimeTemplate} from 'primeng/api';
+import {ContainsPipe} from '../../pipes/contains.pipe';
+import {TruncatePipe} from "../../pipes/truncate.pipe";
 
 
 @Component({
   selector: 'app-summary',
   templateUrl: './summary.component.html',
-  styleUrls: ['./summary.component.scss']
+  styleUrls: ['./summary.component.scss'],
+  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader,
+    AccordionContent, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule,
+    SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe,
+    TranslocoPipe, TruncatePipe, DatePipe]
 })
 export class SummaryComponent {
+  private store = inject<Store<AppState>>(Store);
+  appInfo = inject(AppInfoService);
+  private translateService = inject(TranslateService);
+
   currentUserPermissions$: Observable<string[]>;
   summarySidebarVisible = false;
-  @Output() rightSidebarVisible = new EventEmitter<boolean>();
+  readonly rightSidebarVisible = output<boolean>();
   overlaySidebarVisible = false;
 
   pipelines$: Observable<Pipeline[]>;
@@ -88,7 +87,9 @@ export class SummaryComponent {
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
 
-  constructor(private store: Store<AppState>, public appInfo: AppInfoService, private translateService: TranslateService) {
+  constructor() {
+    const store = this.store;
+
     this.documentation$ = store.select(selectDocumentationFilterEmpty);
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.pipelines$ = this.store.select(selectPipelines);
@@ -120,34 +121,4 @@ export class SummaryComponent {
 }
 
 
-@NgModule({
-  imports: [
-    SidebarModule,
-    ScrollPanelModule,
-    NgIf,
-    NgClass,
-    NgStyle,
-    FieldsetModule,
-    AccordionModule,
-    EditorModule,
-    FormsModule,
-    ButtonModule,
-    RippleModule,
-    AsyncPipe,
-    HdCommonModule,
-    TranslocoModule,
-    TooltipModule,
-    NgForOf,
-    DataViewModule,
-    NgSwitch,
-    NgSwitchCase,
-    NgSwitchDefault,
-    JsonPipe,
-    DatePipe,
-    FooterModule,
-  ],
-  declarations: [SummaryComponent, SubscriptionsComponent],
-  exports: [SummaryComponent]
-})
-export class SummaryModule {
-}
+

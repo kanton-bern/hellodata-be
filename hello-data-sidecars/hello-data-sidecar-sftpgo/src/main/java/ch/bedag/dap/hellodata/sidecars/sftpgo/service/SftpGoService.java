@@ -12,7 +12,7 @@ import ch.bedag.dap.hellodata.sidecars.sftpgo.config.S3ConnectionsConfig;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -33,20 +33,14 @@ public class SftpGoService {
     public static final String ADMIN_GROUP_NAME = "Admin";
     private final ApiClient sftpGoApiClient;
     private final S3ConnectionsConfig s3ConnectionsConfig;
+    private final ModelMapper modelMapper;
 
-    @Value("${hello-data.sftpgo.admin-username}")
-    private String sftpGoAdminUsername;
-    @Value("${hello-data.sftpgo.admin-password}")
-    private String sftpGoAdminPassword;
-    @Value("${hello-data.admin-virtual-folder}")
-    private String adminVirtualFolder;
-
-    private OffsetDateTime lastRefreshTime;
+    private OffsetDateTime lastTokenRefreshTime;
 
     @PostConstruct
     public void init() {
-        log.info("Initializing SFTP Go API, username {}", sftpGoAdminUsername);
-        log.info("Initializing SFTP Go API, pass [first 3 letters] {}", sftpGoAdminPassword.substring(0, 3));
+        log.info("Initializing SFTP Go API, username {}", s3ConnectionsConfig.getSftpGo().getAdminUsername());
+        log.info("Initializing SFTP Go API, pass [first 3 letters] {}", s3ConnectionsConfig.getSftpGo().getAdminPassword().substring(0, 3));
         initAdminGroup();
     }
 
@@ -115,16 +109,30 @@ public class SftpGoService {
         User createdUser = usersApi.addUser(user, 0).block();
 
         log.info("User {} {} created", email, createdUser != null ? "was" : "was not");
-//            usersApi.disableUser2fa(createdUser.getUsername()).block(); // FIXME getting 400 error
         return createdUser;
     }
 
-    public void createGroup(String dataDomainKey, String dataDomainName, String groupName, List<Permission> permissions) {
+    /**
+     * Create or update a group with the given name and permissions
+     *
+     * @param dataDomainKey  - key of the data domain
+     * @param dataDomainName - name of the data domain
+     * @param groupName      - name of the group to create or update
+     * @param permissions    - list of permissions to set for the group
+     * @param updateGroup    - if true, update the group if it already exists
+     */
+    public void createOrUpdateGroup(String dataDomainKey, String dataDomainName, String groupName, List<Permission> permissions, boolean updateGroup) {
         refreshToken();
         GroupsApi groupsApi = new GroupsApi(sftpGoApiClient);
         try {
             Group existingGroup = groupsApi.getGroupByName(groupName, 0).block();
             log.info("Group {} already exists", existingGroup.getName());
+            if (updateGroup) {
+                log.info("Configuration changed, updating group {}", groupName);
+                existingGroup.getVirtualFolders().forEach(virtualFolder -> {
+                    updateVirtualFolder(virtualFolder, dataDomainKey, dataDomainName);
+                });
+            }
         } catch (NotFound notFound) {
             log.debug("", notFound);
             log.info("Group {} not found, creating...", groupName);
@@ -163,7 +171,7 @@ public class SftpGoService {
         refreshToken();
         BaseVirtualFolder baseVirtualFolder = new BaseVirtualFolder();
         baseVirtualFolder.setName(ADMIN_GROUP_NAME);
-        baseVirtualFolder.setMappedPath(adminVirtualFolder);
+        baseVirtualFolder.setMappedPath(s3ConnectionsConfig.getAdminVirtualFolder());
         FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
         BaseVirtualFolder createdFolder = foldersApi.addFolder(baseVirtualFolder, 0).block();
 
@@ -179,7 +187,7 @@ public class SftpGoService {
         VirtualFolder virtualFolder = new VirtualFolder();
         virtualFolder.setName(createdFolder.getName());
         virtualFolder.setMappedPath(createdFolder.getMappedPath());
-        virtualFolder.setVirtualPath(adminVirtualFolder);
+        virtualFolder.setVirtualPath(s3ConnectionsConfig.getAdminVirtualFolder());
         virtualFolder.setId(createdFolder.getId());
         List<VirtualFolder> virtualFolders = new ArrayList<>();
         virtualFolders.add(virtualFolder);
@@ -188,6 +196,40 @@ public class SftpGoService {
     }
 
     private VirtualFolder createVirtualFolder(String dataDomainKey, String dataDomainName, String groupName) {
+        FilesystemConfig filesystemConfig = generateFilesystemConfig(dataDomainKey);
+
+        BaseVirtualFolder baseVirtualFolder = new BaseVirtualFolder();
+        baseVirtualFolder.setName(groupName);
+        baseVirtualFolder.setDescription(dataDomainName);
+        baseVirtualFolder.setFilesystem(filesystemConfig);
+        FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
+        log.info("Creating folder {}", baseVirtualFolder);
+
+        BaseVirtualFolder createdFolder;
+        try {
+            createdFolder = foldersApi.addFolder(baseVirtualFolder, 0).block();
+        } catch (Conflict conflict) {
+            log.info("Folder {} already exists, fetching", baseVirtualFolder);
+            createdFolder = foldersApi.getFolderByName(groupName, 0).block();
+        }
+
+        return getVirtualFolder(createdFolder, dataDomainName);
+    }
+
+    VirtualFolder updateVirtualFolder(VirtualFolder virtualFolder, String dataDomainKey, String dataDomainName) {
+        FilesystemConfig filesystemConfig = generateFilesystemConfig(dataDomainKey);
+        virtualFolder.setFilesystem(filesystemConfig);
+        FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
+        log.info("Updating folder {}", virtualFolder);
+        BaseVirtualFolder baseVirtualFolder = modelMapper.map(virtualFolder, BaseVirtualFolder.class);
+
+        ModelApiResponse response = foldersApi.updateFolder(virtualFolder.getName(), baseVirtualFolder).block();
+        log.info("Folder [{}] updated with result: {}", virtualFolder.getName(), response);
+
+        return getVirtualFolder(baseVirtualFolder, dataDomainName);
+    }
+
+    private FilesystemConfig generateFilesystemConfig(String dataDomainKey) {
         refreshToken();
         S3ConnectionsConfig.S3Connection s3Connection = s3ConnectionsConfig.getS3Connection(dataDomainKey);
         S3Config s3Config = new S3Config();
@@ -204,29 +246,16 @@ public class SftpGoService {
         FilesystemConfig filesystemConfig = new FilesystemConfig();
         filesystemConfig.s3config(s3Config);
         filesystemConfig.setProvider(FsProviders.NUMBER_1);
+        return filesystemConfig;
+    }
 
-        BaseVirtualFolder baseVirtualFolder = new BaseVirtualFolder();
-        baseVirtualFolder.setName(groupName);
-        baseVirtualFolder.setDescription(dataDomainName);
-//        baseVirtualFolder.setMappedPath("/" + groupName); remove mapped path
-        baseVirtualFolder.setFilesystem(filesystemConfig);
-        FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
-        log.info("Creating folder {}", baseVirtualFolder);
-
-        BaseVirtualFolder createdFolder;
-        try {
-            createdFolder = foldersApi.addFolder(baseVirtualFolder, 0).block();
-        } catch (Conflict conflict) {
-            log.info("Folder {} already exists, fetching", baseVirtualFolder);
-            createdFolder = foldersApi.getFolderByName(groupName, 0).block();
-        }
-
+    private VirtualFolder getVirtualFolder(BaseVirtualFolder virtualFolder, String dataDomainName) {
         VirtualFolder vf = new VirtualFolder();
-        vf.setName(createdFolder.getName());
-        vf.setDescription(createdFolder.getDescription());
-        vf.setMappedPath(createdFolder.getMappedPath());
+        vf.setName(virtualFolder.getName());
+        vf.setDescription(virtualFolder.getDescription());
+        vf.setMappedPath(virtualFolder.getMappedPath());
         vf.setVirtualPath("/" + dataDomainName);
-        vf.setId(createdFolder.getId());
+        vf.setId(virtualFolder.getId());
         return vf;
     }
 
@@ -234,17 +263,17 @@ public class SftpGoService {
      * If the lastRefreshTime is set, check if 20 minutes have passed
      */
     private void refreshToken() {
-        if (lastRefreshTime != null) {
-            Duration timeSinceLastRefresh = Duration.between(lastRefreshTime, OffsetDateTime.now());
-            if (timeSinceLastRefresh.toMinutes() < 25) {
+        if (lastTokenRefreshTime != null) {
+            Duration timeSinceLastRefresh = Duration.between(lastTokenRefreshTime, OffsetDateTime.now());
+            if (timeSinceLastRefresh.toMinutes() < 19) {
                 log.info("Token refresh skipped. Last refresh was {} minutes ago.", timeSinceLastRefresh.toMinutes());
                 return;
             }
         }
 
         HttpBasicAuth basicAuth = (HttpBasicAuth) sftpGoApiClient.getAuthentication("BasicAuth");
-        basicAuth.setUsername(sftpGoAdminUsername);
-        basicAuth.setPassword(sftpGoAdminPassword);
+        basicAuth.setUsername(s3ConnectionsConfig.getSftpGo().getAdminUsername());
+        basicAuth.setPassword(s3ConnectionsConfig.getSftpGo().getAdminPassword());
 
         TokenApi tokenApi = new TokenApi(sftpGoApiClient);
         Token token = tokenApi.getToken(null).block();
@@ -252,7 +281,7 @@ public class SftpGoService {
         HttpBearerAuth BearerAuth = (HttpBearerAuth) sftpGoApiClient.getAuthentication("BearerAuth");
         BearerAuth.setBearerToken(token.getAccessToken());
 
-        lastRefreshTime = OffsetDateTime.now();
+        lastTokenRefreshTime = OffsetDateTime.now();
         log.info("Token refreshed successfully. Next refresh allowed after 20 minutes.");
     }
 

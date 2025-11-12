@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Injectable} from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import {Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {DataDomain} from "./my-dashboards.model";
@@ -36,11 +36,10 @@ import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
   providedIn: 'root'
 })
 export class MyDashboardsService {
+  protected httpClient = inject(HttpClient);
+
 
   baseUrl = `${environment.portalApi}/superset`;
-
-  constructor(protected httpClient: HttpClient) {
-  }
 
   public getMyDashboards(): Observable<SupersetDashboardWithMetadata[]> {
     return this.httpClient.get<SupersetDashboardWithMetadata[]>(`${this.baseUrl}/my-dashboards`);

@@ -1,35 +1,38 @@
-
-<p-table
-  #dt
-  *ngIf="roles.length > 0"
-  [paginator]="false"
-  [rowHover]="true"
-  [showCurrentPageReport]="true"
-  [tableStyle]="{ 'min-width': '75rem' }"
-  [value]="roles"
-  dataKey="id"
-  styleClass="p-datatable-striped"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th id="name">
-        {{'@Name' | transloco}}
-      </th>
-      <th id="permissions">
-        {{'@Permissions' | transloco}}
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template let-role pTemplate="body">
-    <tr>
-      <td>
-        <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}"></p-tag>
-      </td>
-      <td>
-        <span *ngFor="let permission of role.permissions" style="margin: 2px">
-          <p-tag [pTooltip]="'ViewMenuName: ' + permission.viewMenuName" severity="warning" value="{{permission.permissionName}}"></p-tag>
-        </span>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+@if (roles().length > 0) {
+  <p-table
+    #dt
+    [paginator]="false"
+    [rowHover]="true"
+    [showCurrentPageReport]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [value]="roles()"
+    dataKey="id"
+    class="p-datatable-striped"
+    >
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="name">
+          {{ '@Name' | transloco }}
+        </th>
+        <th id="permissions">
+          {{ '@Permissions' | transloco }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template let-role pTemplate="body">
+      <tr>
+        <td>
+          <p-tag icon="fas fa-tag" severity="info" value="{{role.name}}" />
+        </td>
+        <td>
+          @for (permission of role.permissions; track permission) {
+            <span style="margin: 2px">
+              <p-tag [pTooltip]="'ViewMenuName: ' + permission.viewMenuName" severity="warn"
+              value="{{permission.permissionName}}" />
+            </span>
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}

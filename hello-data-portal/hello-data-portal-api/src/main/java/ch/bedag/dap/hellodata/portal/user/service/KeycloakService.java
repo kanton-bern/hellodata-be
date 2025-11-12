@@ -37,6 +37,7 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
@@ -51,6 +52,17 @@ public class KeycloakService {
     private final Keycloak keycloak;
     @Value("${hello-data.auth-server.realm}")
     private String realmName;
+    @Value("${hello-data.auth-server.admin-client-id}")
+    private String adminClientId;
+    @Value("${hello-data.auth-server.admin-client-id}")
+    private String adminClientSecret;
+    @Value("${hello-data.auth-server.client-id}")
+    private String clientId;
+    @Value("${hello-data.auth-server.realm}")
+    private String realm;
+    @Value("${hello-data.auth-server.url}")
+    private String authServerUrl;
+    private final WebClient.Builder exchangeTokenTarget;
 
     public String createUser(UserRepresentation user) {
         try (Response response = keycloak.realm(realmName).users().create(user)) {
@@ -76,19 +88,6 @@ public class KeycloakService {
             return null;
         }
         return userRepresentations.get(0);
-    }
-
-    public List<UserRepresentation> getAllUsers() {
-        return getAllUsersInternal();
-    }
-
-    private List<UserRepresentation> getAllUsersInternal() {
-        Integer userCount = keycloak.realm(realmName).users().count();
-        if (userCount == null) {
-            log.warn("Could not get current usercount from realm {}. Still trying to load users.", realmName);
-            userCount = 10000;
-        }
-        return keycloak.realm(realmName).users().list(0, userCount);
     }
 
     private String getCreatedId(Response response) {

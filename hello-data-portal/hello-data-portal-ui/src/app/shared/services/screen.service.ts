@@ -1,47 +1,25 @@
-///
-/// Copyright © 2024, Kanton Bern
-/// All rights reserved.
-///
-/// Redistribution and use in source and binary forms, with or without
-/// modification, are permitted provided that the following conditions are met:
-///     * Redistributions of source code must retain the above copyright
-///       notice, this list of conditions and the following disclaimer.
-///     * Redistributions in binary form must reproduce the above copyright
-///       notice, this list of conditions and the following disclaimer in the
-///       documentation and/or other materials provided with the distribution.
-///     * Neither the name of the <organization> nor the
-///       names of its contributors may be used to endorse or promote products
-///       derived from this software without specific prior written permission.
-///
-/// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-/// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-/// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-/// DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
-/// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-/// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-/// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-/// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-/// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-/// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-///
-
-import { Output, Injectable, EventEmitter } from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import {inject, Injectable} from '@angular/core';
+import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+import {Observable, Subject} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class ScreenService {
-  @Output() changed = new EventEmitter();
+  private breakpointObserver = inject(BreakpointObserver);
+  private changedSubject = new Subject<boolean>();
 
-  constructor(private breakpointObserver: BreakpointObserver) {
+  // Expose as observable for subscribers
+  readonly changed$ = this.changedSubject.asObservable();
+
+  constructor() {
     this.breakpointObserver
       .observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large])
-      .subscribe(() => this.changed.next(true));
+      .subscribe(() => this.changedSubject.next(true));
   }
 
   private isLargeScreen() {
     const isLarge = this.breakpointObserver.isMatched(Breakpoints.Large);
     const isXLarge = this.breakpointObserver.isMatched(Breakpoints.XLarge);
-
     return isLarge || isXLarge;
   }
 
@@ -52,5 +30,17 @@ export class ScreenService {
       'screen-medium': this.breakpointObserver.isMatched(Breakpoints.Medium),
       'screen-large': this.isLargeScreen(),
     };
+  }
+
+  public get isMobile(): Observable<boolean> {
+    return this.breakpointObserver
+      .observe([
+        Breakpoints.Handset,
+        Breakpoints.Small,
+        Breakpoints.XSmall,
+        Breakpoints.HandsetLandscape,
+        Breakpoints.HandsetPortrait,
+      ])
+      .pipe(map(result => result.matches));
   }
 }

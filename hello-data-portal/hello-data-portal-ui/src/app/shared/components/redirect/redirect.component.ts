@@ -25,17 +25,20 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, NgModule} from '@angular/core';
+import { Component, NgModule, inject } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {CommonModule} from "@angular/common";
-import {HdCommonModule} from "../../../hd-common.module";
+
+
 
 @Component({
-  selector: 'app-redirect',
-  template: '',
+    selector: 'app-redirect',
+    template: ''
 })
 export class RedirectComponent {
-  constructor(private route: ActivatedRoute, private router: Router) {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
+  constructor() {
     this.route.params.subscribe(params => {
       const location = params['location'];
       if (location) {
@@ -46,13 +49,4 @@ export class RedirectComponent {
 }
 
 
-@NgModule({
-  imports: [
-    CommonModule,
-    HdCommonModule
-  ],
-  declarations: [RedirectComponent],
-  exports: [RedirectComponent]
-})
-export class RedirectModule {
-}
+
