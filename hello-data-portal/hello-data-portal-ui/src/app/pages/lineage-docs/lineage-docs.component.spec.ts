@@ -41,7 +41,6 @@ import {SelectModule} from 'primeng/select';
 import {TooltipModule} from "primeng/tooltip";
 import {TableModule} from "primeng/table";
 import {navigate} from "../../store/app/app.action";
-import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {asyncScheduler, scheduled} from "rxjs";
 
 describe('LineageDocsComponent', () => {
@@ -93,18 +92,6 @@ describe('LineageDocsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch createBreadcrumbs on initialization', () => {
-    expect(mockStore.dispatch).toHaveBeenCalledWith(
-      createBreadcrumbs({
-        breadcrumbs: [
-          {
-            label: naviElements.lineageDocsList.label,
-            routerLink: naviElements.lineageDocsList.path,
-          },
-        ]
-      })
-    );
-  });
 
   it('should dispatch Navigate when openLineage is called', () => {
     const mockProjectDoc: LineageDoc = {

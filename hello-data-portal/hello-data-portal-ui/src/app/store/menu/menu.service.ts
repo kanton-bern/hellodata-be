@@ -196,8 +196,19 @@ export class MenuService {
 
   private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[]) {
     const myDashboards: any[] = [];
-    myDashboards.push({id: 'dashboarList', label: '@Dashboard List', routerLink: 'my-dashboards'})
+    myDashboards.push({id: 'dashboardList', label: '@Dashboard List', routerLink: 'my-dashboards'});
+    this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards);
+    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles);
+    myDashboards.push({
+      id: 'externalDashboards',
+      label: '@External dashboards',
+      routerLink: 'external-dashboards',
+      requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
+    });
+    return myDashboards;
+  }
 
+  private groupAndInsertDashboardMenuItems(dashboards: SupersetDashboard[], contextRoles: any[], appInfos: MetaInfoResource[], myDashboards: any[]) {
     const groupedByInstance: Map<string, SupersetDashboard[]> = new Map<string, SupersetDashboard[]>();
     dashboards.forEach(db => {
       const contextName = db.contextName;
@@ -211,16 +222,10 @@ export class MenuService {
     );
     let dashboardEntries: any[] = [];
 
-    for (const [instanceName, dashboards] of sortedByKey) {
+    for (const [contextName, dashboards] of sortedByKey) {
       dashboardEntries = [];
-      if (this.displaySupersetLink(instanceName, contextRoles)) {
-        dashboardEntries.push({
-          id: 'openSupersetInstance_' + instanceName,
-          label: "@Superset Instanz öffnen",
-          url: this.getSupersetInstanceLink(instanceName, appInfos),
-          target: "_blank",
-          requiredPermissions: ['DATA_ENG']
-        });
+      if (this.displaySupersetLink(contextName, contextRoles)) {
+        this.addLinkToOpenSuperset(dashboardEntries, contextName, appInfos);
       }
       dashboards.forEach((db: SupersetDashboard) => {
         dashboardEntries.push({
@@ -229,15 +234,32 @@ export class MenuService {
           routerLink: this.createDashboardLink(db)
         });
       });
-      myDashboards.push({label: instanceName, items: dashboardEntries});
+      myDashboards.push({label: contextName, items: dashboardEntries});
     }
-    myDashboards.push({
-      id: 'externalDashboards',
-      label: '@External dashboards',
-      routerLink: 'external-dashboards',
-      requiredPermissions: ['EXTERNAL_DASHBOARDS_MANAGEMENT']
-    })
-    return myDashboards;
+  }
+
+  private addLinkToOpenSuperset(dashboardEntries: any[], contextName: string, appInfos: MetaInfoResource[]) {
+    dashboardEntries.push({
+      id: 'openSupersetInstance_' + contextName,
+      label: "@Superset Instanz öffnen",
+      url: this.getSupersetInstanceLink(contextName, appInfos),
+      target: "_blank",
+      requiredPermissions: ['DATA_ENG']
+    });
+  }
+
+  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[]) {
+    if (myDashboards.length === 1 && myDashboards[0].id === 'dashboardList') {
+      const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
+      supersets.forEach((supersetInstance) => {
+        const contextName = supersetInstance.businessContextInfo.subContext.name;
+        if (this.displaySupersetLink(contextName, contextRoles)) {
+          const items: any[] = [];
+          this.addLinkToOpenSuperset(items, contextName, appInfos);
+          myDashboards.push({label: contextName, items});
+        }
+      });
+    }
   }
 
   private displayQueries(contextRoles: any[]) {

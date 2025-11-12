@@ -33,8 +33,8 @@ describe('Dashboards', () => {
         cy.wait(1000);
         cy.get('#dashboardsMenu').should('exist');
         cy.get('#dashboardsMenu').click({force: true});
-        cy.get('#dashboarList').should('exist');
-        cy.get('#dashboarList').click({force: true});
+        cy.get('#dashboardList').should('exist');
+        cy.get('#dashboardList').click({force: true});
         cy.url().should('include', '/my-dashboards');
         cy.get('#dashboardTitle').should('exist');
     });

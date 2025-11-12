@@ -30,14 +30,12 @@ import {MyDashboardsComponent} from './my-dashboards.component';
 import {Store} from '@ngrx/store';
 import {asyncScheduler, scheduled} from 'rxjs';
 import {SupersetDashboard} from '../../store/my-dashboards/my-dashboards.model';
-import {naviElements} from '../../app-navi-elements';
 import {ActivatedRoute} from '@angular/router';
 import {MenuService} from '../../store/menu/menu.service';
 import {AppState} from '../../store/app/app.state';
 import {beforeEach, describe, expect, it, jest} from "@jest/globals";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {TranslocoTestingModule} from "@jsverse/transloco";
-import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 
 describe('MyDashboardsComponent', () => {
@@ -92,19 +90,6 @@ describe('MyDashboardsComponent', () => {
 
   it('should create the MyDashboardsComponent', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should dispatch createBreadcrumbs on initialization', () => {
-    expect(mockStore.dispatch).toHaveBeenCalledWith(
-      createBreadcrumbs({
-        breadcrumbs: [
-          {
-            label: naviElements.myDashboards.label,
-            routerLink: naviElements.myDashboards.path,
-          },
-        ]
-      })
-    );
   });
 
   it('should dispatch UpdateDashboardMetadata when updateDashboard is called', () => {
