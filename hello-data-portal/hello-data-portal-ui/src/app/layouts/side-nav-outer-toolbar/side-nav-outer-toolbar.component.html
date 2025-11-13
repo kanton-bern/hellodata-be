@@ -5,7 +5,7 @@
   </div>
   @if ((navItems$ | async); as navItems) {
     <div class="sidebar close">
-      <div [pTooltip]="'@HelloDATA' | transloco" class="logo-details" tooltipPosition="bottom">
+      <div [pTooltip]="'@HelloDATA' | transloco" class="logo-details mb-2" tooltipPosition="bottom">
         <img alt="logo" src="/assets/img/hd.png" style="cursor: pointer" (click)="navigateHome()"/>
         <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
       </div>
