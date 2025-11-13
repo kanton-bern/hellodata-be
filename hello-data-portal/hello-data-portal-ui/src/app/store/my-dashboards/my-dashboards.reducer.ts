@@ -29,6 +29,9 @@ import {initialMyDashboardsState, MyDashboardsState} from "./my-dashboards.state
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {createReducer, on} from "@ngrx/store";
 import {loadAvailableDataDomainsSuccess, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
+import {DataDomain} from "./my-dashboards.model";
+
+export const SELECTED_DATA_DOMAIN_KEY = 'Selected_Data_Domain';
 
 export const myDashboardsReducer = createReducer(
   initialMyDashboardsState,
@@ -39,6 +42,7 @@ export const myDashboardsReducer = createReducer(
     };
   }),
   on(setSelectedDataDomain, (state: MyDashboardsState, {dataDomain}): MyDashboardsState => {
+    localStorage.setItem(SELECTED_DATA_DOMAIN_KEY, JSON.stringify(dataDomain));
     return {
       ...state,
       selectedDataDomain: dataDomain
@@ -53,10 +57,15 @@ export const myDashboardsReducer = createReducer(
       },
       ...payload
     ]
-    const selectedDataDomain = uniqueDataDomains.find(dataDomain => dataDomain.id === state.selectedDataDomain?.id)
+    const selectedDataDomain = uniqueDataDomains.find(dataDomain => dataDomain.id === state.selectedDataDomain?.id);
+    let defaultDataDomain = uniqueDataDomains[0];
+    const selectedDataDomainLocalStorage = localStorage.getItem(SELECTED_DATA_DOMAIN_KEY);
+    if (selectedDataDomainLocalStorage) {
+      defaultDataDomain = JSON.parse(selectedDataDomainLocalStorage) as DataDomain;
+    }
     return {
       ...state,
-      selectedDataDomain: selectedDataDomain ? selectedDataDomain : uniqueDataDomains[0],
+      selectedDataDomain: selectedDataDomain ? selectedDataDomain : defaultDataDomain,
       availableDataDomains: uniqueDataDomains,
     }
   }),
