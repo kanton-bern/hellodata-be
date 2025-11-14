@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, EMPTY, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, EMPTY, ignoreElements, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   authError,
   checkAuth,
@@ -48,7 +48,7 @@ import {
 } from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
-import {navigate, showError} from "../app/app.action";
+import {logError, navigate, showError} from "../app/app.action";
 import {loadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {loadAvailableDataDomains, loadMyDashboards} from "../my-dashboards/my-dashboards.action";
@@ -213,23 +213,37 @@ export class AuthEffects {
   setSelectedLanguage$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(setSelectedLanguage),
-      withLatestFrom(
-        this._store.select(selectProfile)
-      ),
+      withLatestFrom(this._store.select(selectProfile)),
       switchMap(([action, profile]) => {
+        // always set transloco language immediately
         this._translateService.setActiveLang(action.lang);
-        return this._usersManagementService.editSelectedLanguageForUser(profile.sub, action.lang).pipe(
-          switchMap(() => {
-            // Reuse action.lang here
-            return this._cloudbeaverService.updateUserPreferences(action.lang);
-          })
-        );
+
+        // attempt backend update
+        return this._usersManagementService
+          .editSelectedLanguageForUser(profile.sub, action.lang)
+          .pipe(
+            switchMap(() => this._cloudbeaverService.updateUserPreferences(action.lang)),
+
+            // catch errors from backend and keep the effect alive
+            catchError(e =>
+              scheduled([
+                logError({error: e}),
+              ], asyncScheduler).pipe(
+                ignoreElements() // prevents effect completion
+              )
+            )
+          );
       }),
-      switchMap(() => {
-        return EMPTY;
-      }),
-      catchError(e => scheduled([showError({error: e})], asyncScheduler))
-    )
+
+      // optional: catch unexpected errors in the outer stream
+      catchError(e =>
+        scheduled([
+          logError({error: e})
+        ], asyncScheduler).pipe(
+          ignoreElements()
+        )
+      )
+    );
   });
 
   prolongCloudBeaverSession$ = createEffect(() => {

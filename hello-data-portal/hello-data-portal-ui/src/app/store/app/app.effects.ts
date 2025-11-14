@@ -25,13 +25,22 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, Type, inject } from "@angular/core";
+import {inject, Injectable, Type} from "@angular/core";
 import {Actions, createEffect, FunctionalEffect, ofType} from '@ngrx/effects';
 import {MetaInfoResourceEffects} from "../metainfo-resource/metainfo-resource.effects";
 import {UsersManagementEffects} from "../users-management/users-management.effects";
 import {tap, withLatestFrom} from "rxjs";
 import {NotificationService} from "../../shared/services/notification.service";
-import {navigate, navigateToList, openWindow, showError, showInfo, showSuccess, trackEvent} from "./app.action";
+import {
+  logError,
+  navigate,
+  navigateToList,
+  openWindow,
+  showError,
+  showInfo,
+  showSuccess,
+  trackEvent
+} from "./app.action";
 import {AuthEffects} from "../auth/auth.effects";
 import {Router} from "@angular/router";
 import {PortalRolesManagementEffects} from "../portal-roles-management/portal-roles-management.effects";
@@ -76,6 +85,22 @@ export class AppEffects {
           errorMessage = action.error.message;
         }
         this._notificationService.error(errorMessage);
+        this._tracker.trackEvent("Error", errorMessage);
+      })
+    )
+  }, {dispatch: false});
+
+  logError$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(logError),
+      tap(action => {
+        console.error(action.error);
+        let errorMessage = '@Unexpected error occurred';
+        if (action?.error?.error?.message) {
+          errorMessage = action.error.error.message;
+        } else if (action?.error?.message) {
+          errorMessage = action.error.message;
+        }
         this._tracker.trackEvent("Error", errorMessage);
       })
     )
