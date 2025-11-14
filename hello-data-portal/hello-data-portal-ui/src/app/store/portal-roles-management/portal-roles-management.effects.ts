@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {PortalRolesManagementService} from "./portal-roles-management.service";
@@ -63,8 +63,8 @@ export class PortalRolesManagementEffects {
     return this._actions$.pipe(
       ofType(loadPortalRoles),
       switchMap(action => this._portalRoleService.getPortalRoles()),
-      switchMap(result => of(loadPortalRolesSuccess({roles: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadPortalRolesSuccess({roles: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -73,11 +73,11 @@ export class PortalRolesManagementEffects {
       ofType(openPortalRoleEdition),
       switchMap(action => {
         if (action.role.id) {
-          return of(navigate({url: `roles-management/edit/${action.role.id}`}));
+          return scheduled([navigate({url: `roles-management/edit/${action.role.id}`})], asyncScheduler);
         }
-        return of(navigate({url: 'roles-management/create'}));
+        return scheduled([navigate({url: 'roles-management/create'})], asyncScheduler);
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -104,15 +104,15 @@ export class PortalRolesManagementEffects {
             map(() => saveChangesToPortalRoleSuccess({role: action.role}))
           )
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
   saveChangesToRoleSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToPortalRoleSuccess),
-      switchMap(action => of(navigate({url: 'roles-management'}), clearUnsavedChanges())),
-      catchError(e => of(showError({error: e})))
+      switchMap(action => scheduled([navigate({url: 'roles-management'}), clearUnsavedChanges()], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -122,7 +122,7 @@ export class PortalRolesManagementEffects {
       withLatestFrom(this._store.select(selectSelectedPortalRoleForDeletion)),
       switchMap(([action, role]) => this._portalRoleService.deletePortalRoleById((role as PortalRole).id as string).pipe(
         map(() => deletePortalRoleSuccess({role: role as PortalRole})),
-        catchError(e => of(showError({error: e})))
+        catchError(e => scheduled([showError({error: e})], asyncScheduler)),
       )),
     )
   });
@@ -131,7 +131,7 @@ export class PortalRolesManagementEffects {
     return this._actions$.pipe(
       ofType(deletePortalRoleSuccess),
       tap(action => this._notificationService.success('@Portal role deleted successfully', {role: action.role.name})),
-      switchMap(() => of(loadPortalRoles(), hideDeletePortalRolePopup()))
+      switchMap(() => scheduled([loadPortalRoles(), hideDeletePortalRolePopup()], asyncScheduler)),
     )
   });
 
@@ -142,7 +142,7 @@ export class PortalRolesManagementEffects {
       switchMap(([action, roleToBeDeleted]) => {
           return this._portalRoleService.deletePortalRoleById((roleToBeDeleted as PortalRole).id as string).pipe(
             map(() => deleteEditedPortalRoleSuccess({name: roleToBeDeleted!.name as string})),
-            catchError(e => of(showError({error: e})))
+            catchError(e => scheduled([showError({error: e})], asyncScheduler)),
           )
         }
       ),
@@ -153,7 +153,7 @@ export class PortalRolesManagementEffects {
     return this._actions$.pipe(
       ofType(deleteEditedPortalRoleSuccess),
       tap(action => this._notificationService.success('@Portal role deleted successfully', {role: action.name})),
-      switchMap(() => of(navigate({url: 'roles-management'}), hideDeletePortalRolePopup()))
+      switchMap(() => scheduled([navigate({url: 'roles-management'}), hideDeletePortalRolePopup()], asyncScheduler)),
     )
   });
 
@@ -162,8 +162,8 @@ export class PortalRolesManagementEffects {
       ofType(loadPortalRoleById),
       withLatestFrom(this._store.select(selectPortalParamRoleId)),
       switchMap(([action, roleId]) => this._portalRoleService.getPortalRoleById(roleId as string)),
-      switchMap(result => of(loadPortalRoleByIdSuccess({role: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadPortalRoleByIdSuccess({role: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 }
