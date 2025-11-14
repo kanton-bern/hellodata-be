@@ -26,10 +26,10 @@
 ///
 
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {clearUnsavedChanges, runSaveAction} from "./unsaved-changes.actions";
 import {selectActionToRun} from "./unsaved-changes.selector";
 import {showError} from "../app/app.action";
@@ -45,11 +45,11 @@ export class UnsavedChangesEffects {
       withLatestFrom(this._store.select(selectActionToRun)),
       switchMap(([result, actionToRun]) => {
         if (actionToRun) {
-          return of(actionToRun, clearUnsavedChanges())
+          return scheduled([actionToRun, clearUnsavedChanges()], asyncScheduler)
         }
-        return of(clearUnsavedChanges());
+        return scheduled([clearUnsavedChanges()], asyncScheduler);
       }),
-      catchError(e => of(showError({error: e}), clearUnsavedChanges()))
+      catchError(e => scheduled([showError({error: e}), clearUnsavedChanges()], asyncScheduler)),
     )
   });
 }

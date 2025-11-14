@@ -1,6 +1,6 @@
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap} from "rxjs";
 import {showError} from "../app/app.action";
 import {loadQueriesPaginated, loadQueriesSuccess} from "./queries.action";
 import {QueriesService} from "./queries.service";
@@ -24,12 +24,12 @@ export class QueriesEffects {
                    search,
                    contextKey
                  }) => this._queriesService.getQueriesPaginated(contextKey, page, size, sort, search)),
-      switchMap(response => of(loadQueriesSuccess({
+      switchMap(response => scheduled([loadQueriesSuccess({
         queries: response.content,
         totalElements: response.totalElements,
         totalPages: response.totalPages
-      }))),
-      catchError(e => of(showError({error: e})))
+      })], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 }
