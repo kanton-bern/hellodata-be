@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap} from "rxjs";
 import {showError} from "../app/app.action";
 import {loadDashboardAccessPaginated, loadDashboardAccessSuccess} from "./dashboard-access.action";
 import {DashboardAccessService} from "./dashboard-access.service";
@@ -48,12 +48,12 @@ export class DashboardAccessEffects {
                    search,
                    contextKey
                  }) => this._dashboardAccessService.getDashboardAccessPaginated(contextKey, page, size, sort, search)),
-      switchMap(response => of(loadDashboardAccessSuccess({
+      switchMap(response => scheduled([loadDashboardAccessSuccess({
         dashboardAccess: response.content,
         totalElements: response.totalElements,
         totalPages: response.totalPages
-      }))),
-      catchError(e => of(showError({error: e})))
+      })], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
