@@ -64,7 +64,7 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
         if (userEntityByEmail.isPresent()) {
             UserEntity userEntity = userEntityByEmail.get();
             userId = userEntity.getId();
-            isSuperuser = userEntity.getSuperuser();
+            isSuperuser = userEntity.isSuperuser();
             if (isSuperuser) {
                 permissions.addAll(Arrays.stream(Permission.values()).map(Enum::name).toList());
             } else {

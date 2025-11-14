@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
+import {catchError, delay, map, of, switchMap, tap, withLatestFrom} from "rxjs";
 import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
@@ -318,10 +318,11 @@ export class UsersManagementEffects {
     )
   });
 
-  updateUserRolesUserSuccess$ = createEffect(() => {
+  updateUserRolesSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(updateUserRolesSuccess),
-      switchMap((action) => of(showSuccess({message: '@User roles updated'}))),
+      delay(200),
+      switchMap((action) => of(loadUserContextRoles(), loadUserById(), showSuccess({message: '@User roles updated'}))),
     )
   });
 

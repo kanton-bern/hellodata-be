@@ -317,16 +317,20 @@ public class UserService {
     public UserDto disableUserById(String userId) {
         UUID dbId = UUID.fromString(userId);
         validateNotAllowedIfCurrentUserIsNotSuperuser(dbId);
+        validateNotAllowedIfUserIsSuperuser(dbId);
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(false);
         userRepository.save(userEntity);
-        disableKeycloakUser(userId);
+        if (!userEntity.isFederated()) {
+            disableKeycloakUser(userId);
+        }
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(false);
         natsSenderService.publishMessageToJetStream(HDEvent.DISABLE_USER, subsystemUserUpdate);
         emailNotificationService.notifyAboutUserDeactivation(userEntity.getFirstName(), userEntity.getEmail(), getSelectedLanguageByEmail(userEntity.getEmail()));
         return map(userEntity);
     }
+
 
     private void disableKeycloakUser(String userId) {
         String authUserId = getAuthUserId(userId);
@@ -349,7 +353,9 @@ public class UserService {
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setEnabled(true);
         userRepository.saveAndFlush(userEntity);
-        enableKeycloakUser(userId);
+        if (!userEntity.isFederated()) {
+            enableKeycloakUser(userId);
+        }
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(true);
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
@@ -444,7 +450,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public Set<String> getUserPortalPermissions(UUID userId) {
         UserEntity userEntity = getUserEntity(userId);
-        if (BooleanUtils.isTrue(userEntity.getSuperuser())) {
+        if (BooleanUtils.isTrue(userEntity.isSuperuser())) {
             return SecurityUtils.getCurrentUserPermissions();
         } else {
             List<String> portalPermissions = userEntity.getPermissionsFromAllRoles();
@@ -766,7 +772,7 @@ public class UserService {
             userDto.setEmail(userEntity.getEmail());
             userDto.setUsername(userEntity.getUsername());
             userDto.setEnabled(userEntity.isEnabled());
-            userDto.setSuperuser(userEntity.getSuperuser());
+            userDto.setSuperuser(userEntity.isSuperuser());
             userDto.setInvitationsCount(userEntity.getInvitationsCount());
             userDto.setFirstName(userEntity.getFirstName());
             userDto.setLastName(userEntity.getLastName());
@@ -775,7 +781,7 @@ public class UserService {
                 ZonedDateTime zdt = ZonedDateTime.of(userEntity.getLastAccess(), ZoneId.systemDefault());
                 userDto.setLastAccess(zdt.toInstant().toEpochMilli());
             }
-            if (BooleanUtils.isTrue(userEntity.getSuperuser())) {
+            if (BooleanUtils.isTrue(userEntity.isSuperuser())) {
                 userDto.setPermissions(Arrays.stream(Permission.values()).map(Enum::name).toList());
             } else {
                 List<String> portalPermissions = userEntity.getPermissionsFromAllRoles();
@@ -794,8 +800,15 @@ public class UserService {
      */
     private void validateNotAllowedIfCurrentUserIsNotSuperuser(UUID userId) {
         UserEntity targetUser = getUserEntity(userId);
-        if (!SecurityUtils.isSuperuser() && targetUser.getSuperuser()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed if userId belongs to a superuser");
+        if (!SecurityUtils.isSuperuser() && targetUser.isSuperuser()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed if user is a superuser");
+        }
+    }
+
+    private void validateNotAllowedIfUserIsSuperuser(UUID userId) {
+        UserEntity targetUser = getUserEntity(userId);
+        if (targetUser.isSuperuser()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to disable a superuser");
         }
     }
 
