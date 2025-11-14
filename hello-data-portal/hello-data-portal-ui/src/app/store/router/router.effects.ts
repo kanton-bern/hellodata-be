@@ -27,8 +27,8 @@
 
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {ROUTER_NAVIGATED, ROUTER_NAVIGATION, RouterNavigationAction} from "@ngrx/router-store";
-import {catchError, EMPTY, of, switchMap} from "rxjs";
-import { Injectable, inject } from "@angular/core";
+import {asyncScheduler, catchError, EMPTY, scheduled, switchMap} from "rxjs";
+import {inject, Injectable} from "@angular/core";
 import {loadAnnouncementById} from "../announcement/announcement.action";
 import {showError} from "../app/app.action";
 import {loadExternalDashboardById} from "../external-dashboards/external-dasboards.action";
@@ -47,20 +47,20 @@ export class RouterEffects {
       switchMap(action => {
         const urlParts = action.payload.routerState.url.split('/');
         if (urlParts.length === 4 && urlParts[1] === 'roles-management' && urlParts[2] === 'edit') {
-          return of(loadPortalRoleById());
+          return scheduled([loadPortalRoleById()], asyncScheduler);
         }
         if (urlParts.length === 4 && urlParts[1] === 'announcements-management' && urlParts[2] === 'edit') {
-          return of(loadAnnouncementById());
+          return scheduled([loadAnnouncementById()], asyncScheduler);
         }
         if (urlParts.length === 4 && urlParts[1] === 'faq-management' && urlParts[2] === 'edit') {
-          return of(loadFaqById());
+          return scheduled([loadFaqById()], asyncScheduler);
         }
         if (urlParts.length === 4 && urlParts[1] === 'external-dashboards' && urlParts[2] === 'edit') {
-          return of(loadExternalDashboardById());
+          return scheduled([loadExternalDashboardById()], asyncScheduler);
         }
         return EMPTY;
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -68,9 +68,9 @@ export class RouterEffects {
     return this._actions$.pipe(
       ofType<RouterNavigationAction>(ROUTER_NAVIGATED),
       switchMap(action => {
-        return of(clearUnsavedChanges());
+        return scheduled([clearUnsavedChanges()], asyncScheduler);
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   })
 

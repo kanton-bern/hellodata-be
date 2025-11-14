@@ -28,7 +28,7 @@
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {LineageDocsService} from "./lineage-docs.service";
-import {catchError, of, switchMap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectAvailableDataDomains} from "../my-dashboards/my-dashboards.selector";
@@ -49,8 +49,9 @@ export class LineageDocsEffects {
       ofType(loadMyLineageDocs),
       switchMap(() => this._docsService.getProjectDocs()),
       withLatestFrom(this._store.select(selectAvailableDataDomains)),
-      switchMap(([result, dataDomains]) => of(loadMyLineageDocsSuccess({payload: this._enhanceResult(result, dataDomains)}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(([result, dataDomains]) =>
+        scheduled([loadMyLineageDocsSuccess({payload: this._enhanceResult(result, dataDomains)})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 

@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, of, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {
@@ -56,8 +56,8 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(loadMyDashboards),
       switchMap(() => this._myDashboardsService.getMyDashboards()),
-      switchMap(result => of(loadMyDashboardsSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadMyDashboardsSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -71,23 +71,23 @@ export class MyDashboardsEffects {
             interpolateParams: {'dataDomainName': this._translateService.translate(action.dataDomain.name)}
           };
           if (isMobile) {
-            return of(
+            return scheduled([
               trackEvent({
                 eventCategory: 'Mobile',
                 eventAction: '[Click] - Data Domain changed to ' + action.dataDomain.name
               }),
               showSuccess(successMsg),
               navigate({url: 'home'})
-            );
+            ], asyncScheduler);
           }
-          return of(
+          return scheduled([
             trackEvent({
               eventCategory: 'Data Domain',
               eventAction: '[Click] - Data Domain changed to ' + action.dataDomain.name
             }),
             showSuccess(successMsg),
             navigateToList()
-          );
+          ], asyncScheduler);
         }
       ),
     )

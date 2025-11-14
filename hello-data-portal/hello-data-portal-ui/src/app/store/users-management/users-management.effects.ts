@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, delay, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {UsersManagementService} from "./users-management.service";
 import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
@@ -103,7 +103,7 @@ export class UsersManagementEffects {
             totalElements: response.totalElements,
             totalPages: response.totalPages
           })),
-          catchError(e => of(showError({error: e})))
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         )
       )
     )
@@ -113,8 +113,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(loadSubsystemUsers),
       switchMap(() => this._usersManagementService.getSubsystemUsers()),
-      switchMap(result => of(loadSubsystemUsersSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadSubsystemUsersSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -122,8 +122,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(loadSubsystemUsersForDashboards),
       switchMap(() => this._usersManagementService.getAllUsersWithRolesForDashboards()),
-      switchMap(result => of(loadSubsystemUsersForDashboardsSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadSubsystemUsersForDashboardsSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -135,29 +135,27 @@ export class UsersManagementEffects {
           switch (userActionForPopup!.action) {
             case (UserAction.DISABLE):
               return this._usersManagementService.disableUser(userActionForPopup!.user).pipe(
-                switchMap((user) => of(
+                switchMap((user) => scheduled([
                   userPopupActionSuccess({
                     email: userActionForPopup!.user.email,
                     userActionForPopup: userActionForPopup as UserActionForPopup
                   }),
-                  updateUserInStore({userChanged: user}))
-                ),
-                catchError(e => of(showError({error: e})))
+                  updateUserInStore({userChanged: user})], asyncScheduler)),
+                catchError(e => scheduled([showError({error: e})], asyncScheduler))
               );
             case (UserAction.ENABLE):
               return this._usersManagementService.enableUser(userActionForPopup!.user).pipe(
-                switchMap((user) => of(
+                switchMap((user) => scheduled([
                   userPopupActionSuccess({
                     email: userActionForPopup!.user.email,
                     userActionForPopup: userActionForPopup as UserActionForPopup
                   }),
-                  updateUserInStore({userChanged: user}))
-                ),
-                catchError(e => of(showError({error: e})))
+                  updateUserInStore({userChanged: user})], asyncScheduler)),
+                catchError(e => scheduled([showError({error: e})], asyncScheduler))
               );
             default:
               return this._usersManagementService.deleteUser(userActionForPopup!.user).pipe(
-                switchMap(() => of(
+                switchMap(() => scheduled([
                   userPopupActionSuccess({
                     email: userActionForPopup!.user.email,
                     userActionForPopup: userActionForPopup as UserActionForPopup
@@ -168,9 +166,8 @@ export class UsersManagementEffects {
                     size: currentPagination.size,
                     sort: currentPagination.sort,
                     search: currentPagination.search
-                  })
-                )),
-                catchError(e => of(showError({error: e})))
+                  })], asyncScheduler)),
+                catchError(e => scheduled([showError({error: e})], asyncScheduler))
               );
           }
         }
@@ -192,11 +189,11 @@ export class UsersManagementEffects {
       }),
       switchMap(action => {
         if (action.userActionForPopup.actionFromUsersEdition && action.userActionForPopup.action === UserAction.DELETE) {
-          return of(hideUserPopupAction(), navigate({url: '/user-management'}));
+          return scheduled([hideUserPopupAction(), navigate({url: '/user-management'})], asyncScheduler);
         } else if (action.userActionForPopup.actionFromUsersEdition) {
-          return of(loadUserById(), hideUserPopupAction());
+          return scheduled([loadUserById(), hideUserPopupAction()], asyncScheduler);
         }
-        return of(hideUserPopupAction());
+        return scheduled([hideUserPopupAction()], asyncScheduler);
       })
     )
   });
@@ -207,7 +204,7 @@ export class UsersManagementEffects {
       switchMap(action => {
           return this._usersManagementService.createUser(action.createUserForm).pipe(
             map(response => createUserSuccess({email: action.createUserForm.user.email, userId: response.userId})),
-            catchError(e => of(showError({error: e})))
+            catchError(e => scheduled([showError({error: e})], asyncScheduler))
           )
         }
       ))
@@ -217,7 +214,7 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(createUserSuccess),
       tap(action => this._notificationService.success('@User created successfully', {email: action.email})),
-      switchMap(action => of(navigateToUserEdition({userId: action.userId})))
+      switchMap(action => scheduled([navigateToUserEdition({userId: action.userId})], asyncScheduler))
     )
   });
 
@@ -234,8 +231,8 @@ export class UsersManagementEffects {
       withLatestFrom(this._store.select(selectParamUserId)),
       tap(([action, userId]) => sessionStorage.setItem(CURRENT_EDITED_USER_ID, userId as string)),
       switchMap(([action, userId]) => this._usersManagementService.getUserById(userId as string)),
-      switchMap(result => of(loadUserByIdSuccess({user: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadUserByIdSuccess({user: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -253,7 +250,7 @@ export class UsersManagementEffects {
         switchMap(([action, userId]) => {
             return this._usersManagementService.getDashboardsWithMarkedUser(userId as string).pipe(
               map((result) => loadDashboardsSuccess({dashboards: result.dashboards})),
-              catchError(e => of(showError({error: e})))
+              catchError(e => scheduled([showError({error: e})], asyncScheduler))
             )
           }
         ))
@@ -264,8 +261,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(syncUsers),
       switchMap(() => this._usersManagementService.syncUsers()),
-      switchMap((status) => of(syncUsersSuccess({status}), loadSyncStatus())),
-      catchError(e => of(showError({error: e})))
+      switchMap((status) => scheduled([syncUsersSuccess({status}), loadSyncStatus()], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -281,8 +278,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(loadAvailableContextRoles),
       switchMap(() => this._contextRoleService.getRoles()),
-      switchMap(result => of(loadAvailableContextRolesSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadAvailableContextRolesSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -290,8 +287,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(loadAvailableContexts),
       switchMap(() => this._usersManagementService.getAvailableContexts()),
-      switchMap(result => of(loadAvailableContextsSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadAvailableContextsSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -300,8 +297,8 @@ export class UsersManagementEffects {
       ofType(loadUserContextRoles),
       withLatestFrom(this._store.select(selectParamUserId)),
       switchMap(([action, userId]) => this._usersManagementService.getUserContextRoles(userId as string)),
-      switchMap(result => of(loadUserContextRolesSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadUserContextRolesSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -313,15 +310,17 @@ export class UsersManagementEffects {
         this._store.select(selectDashboardsForUser)
       ),
       switchMap(([action, selectedRoles, selectedDashboards]) => this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards)),
-      switchMap(() => of(updateUserRolesSuccess(), clearUnsavedChanges())),
-      catchError(e => of(showError({error: e})))
+      switchMap(() => scheduled([updateUserRolesSuccess(), clearUnsavedChanges()], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
-  updateUserRolesUserSuccess$ = createEffect(() => {
+  updateUserRolesSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(updateUserRolesSuccess),
-      switchMap((action) => of(showSuccess({message: '@User roles updated'}))),
+      delay(200),
+      switchMap((action) =>
+        scheduled([loadUserContextRoles(), loadUserById(), showSuccess({message: '@User roles updated'})], asyncScheduler)),
     )
   });
 
@@ -329,8 +328,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(loadAdminEmails),
       switchMap(() => this._usersManagementService.getAdminEmails()),
-      switchMap(result => of(loadAdminEmailsSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadAdminEmailsSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -338,8 +337,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(loadSyncStatus),
       switchMap(() => this._usersManagementService.getSyncStatus()),
-      switchMap(result => of(loadSyncStatusSuccess({status: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadSyncStatusSuccess({status: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -347,8 +346,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(clearSubsystemUsersCache),
       switchMap(() => this._usersManagementService.clearSubsystemUsersCache()),
-      switchMap(() => of(loadSubsystemUsers())),
-      catchError(e => of(showError({error: e})))
+      switchMap(() => scheduled([loadSubsystemUsers()], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -356,8 +355,8 @@ export class UsersManagementEffects {
     return this._actions$.pipe(
       ofType(clearSubsystemUsersForDashboardsCache),
       switchMap(() => this._usersManagementService.clearAllUsersWithRolesForDashboardsCache()),
-      switchMap(() => of(loadSubsystemUsersForDashboards())),
-      catchError(e => of(showError({error: e})))
+      switchMap(() => scheduled([loadSubsystemUsersForDashboards()], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 }

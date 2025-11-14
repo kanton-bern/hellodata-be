@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
-import {catchError, of, switchMap, withLatestFrom} from 'rxjs';
+import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from 'rxjs';
 import {MetaInfoResourceService} from "./metainfo-resource.service";
 import {
   loadAppInfoResources,
@@ -55,8 +55,8 @@ export class MetaInfoResourceEffects {
     return this._actions$.pipe(
       ofType(loadAppInfoResources),
       switchMap(() => this._metaInfoResourceService.getAppInfoResources()),
-      switchMap(result => of(loadAppInfoResourcesSuccess({result: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadAppInfoResourcesSuccess({result: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -64,8 +64,8 @@ export class MetaInfoResourceEffects {
     return this._actions$.pipe(
       ofType(loadRoleResources),
       switchMap(() => this._metaInfoResourceService.getRoleResources()),
-      switchMap(result => of(loadRoleResourcesSuccess({result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadRoleResourcesSuccess({result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -73,8 +73,8 @@ export class MetaInfoResourceEffects {
     return this._actions$.pipe(
       ofType(loadPermissionResources),
       switchMap(() => this._metaInfoResourceService.getPermissionResources()),
-      switchMap(result => of(loadPermissionResourcesSuccess({result: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadPermissionResourcesSuccess({result: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -82,9 +82,10 @@ export class MetaInfoResourceEffects {
     return this._actions$.pipe(
       ofType(loadSelectedAppInfoResources),
       withLatestFrom(this._store.select(selectSelectedAppInfoResourcesParams)),
-      switchMap(([action, params]) => this._metaInfoResourceService.getResourcesFilteredByAppInfo(params.apiVersion as string, params.instanceName as string, params.moduleType as string)),
-      switchMap(result => of(loadSelectedAppInfoResourcesSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(([action, params]) =>
+        this._metaInfoResourceService.getResourcesFilteredByAppInfo(params.apiVersion as string, params.instanceName as string, params.moduleType as string)),
+      switchMap(result => scheduled([loadSelectedAppInfoResourcesSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 }
