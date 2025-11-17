@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, map, of, switchMap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, map, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {
   createExternalDashboard,
   createExternalDashboardSuccess,
@@ -55,71 +55,73 @@ export class ExternalDashboardsEffects {
   private _externalDashboardsService = inject(ExternalDashboardsService);
 
 
-
   loadExternalDashboards$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadExternalDashboards),
       switchMap(() => this._externalDashboardsService.getExternalDashboards()),
-      switchMap(result => of(loadExternalDashboardsSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadExternalDashboardsSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
   createExternalDashboard$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(createExternalDashboard),
-      switchMap(action => this._externalDashboardsService.createExternalDashboard(action.dashboard).pipe(map(() => createExternalDashboardSuccess({dashboard: action.dashboard})))),
-      catchError(e => of(showError({error: e})))
+      switchMap(action =>
+        this._externalDashboardsService.createExternalDashboard(action.dashboard).pipe(map(() => createExternalDashboardSuccess({dashboard: action.dashboard})))),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
   createExternalDashboardSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(createExternalDashboardSuccess),
-      switchMap(action => of(clearUnsavedChanges(), loadExternalDashboards(), showSuccess({
+      switchMap(action => scheduled([clearUnsavedChanges(), loadExternalDashboards(), showSuccess({
         message: '@External dashboard created', interpolateParams: {
           title: action.dashboard.title
         }
-      }), navigate({url: 'external-dashboards'}))),
-      catchError(e => of(showError({error: e})))
+      }), navigate({url: 'external-dashboards'})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
   updateExternalDashboard$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(updateExternalDashboard),
-      switchMap(action => this._externalDashboardsService.updateExternalDashboard(action.dashboard).pipe(map(() => updateExternalDashboardSuccess({dashboard: action.dashboard})))),
-      catchError(e => of(showError({error: e})))
+      switchMap(action =>
+        this._externalDashboardsService.updateExternalDashboard(action.dashboard).pipe(map(() => updateExternalDashboardSuccess({dashboard: action.dashboard})))),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
   updateExternalDashboardSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(updateExternalDashboardSuccess),
-      switchMap(action => of(clearUnsavedChanges(), loadExternalDashboards(), showSuccess({
+      switchMap(action => scheduled([clearUnsavedChanges(), loadExternalDashboards(), showSuccess({
         message: '@External dashboard updated',
         interpolateParams: {title: action.dashboard.title}
-      }), navigate({url: 'external-dashboards'}))),
-      catchError(e => of(showError({error: e})))
+      }), navigate({url: 'external-dashboards'})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
   deleteExternalDashboard$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteExternalDashboard),
-      switchMap(action => this._externalDashboardsService.deleteExternalDashboard(action.dashboard).pipe(map(() => deleteExternalDashboardSuccess({dashboard: action.dashboard})))),
-      catchError(e => of(showError({error: e})))
+      switchMap(action =>
+        this._externalDashboardsService.deleteExternalDashboard(action.dashboard).pipe(map(() => deleteExternalDashboardSuccess({dashboard: action.dashboard})))),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
   deleteExternalDashboardSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteExternalDashboardSuccess),
-      switchMap(action => of(loadExternalDashboards(), showSuccess({
+      switchMap(action => scheduled([loadExternalDashboards(), showSuccess({
         message: '@External dashboard deleted',
         interpolateParams: {title: action.dashboard.title}
-      }), navigate({url: 'external-dashboards'}))),
-      catchError(e => of(showError({error: e})))
+      }), navigate({url: 'external-dashboards'})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -128,13 +130,13 @@ export class ExternalDashboardsEffects {
       ofType(openExternalDashboardEdition),
       switchMap(action => {
         if (action.dashboard) {
-          return of(navigate({
+          return scheduled([navigate({
             url: `external-dashboards/edit/${action.dashboard.id}`
-          }));
+          })], asyncScheduler);
         }
-        return of(navigate({url: 'external-dashboards/create'}));
+        return scheduled([navigate({url: 'external-dashboards/create'})], asyncScheduler);
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -144,8 +146,8 @@ export class ExternalDashboardsEffects {
       ofType(loadExternalDashboardById),
       withLatestFrom(this._store.select(selectParamExternalDashboardId)),
       switchMap(([action, externalDashboardId]) => this._externalDashboardsService.getExternalDashboardById(externalDashboardId as string)),
-      switchMap(result => of(loadExternalDashboardByIdSuccess({dashboard: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadExternalDashboardByIdSuccess({dashboard: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 }

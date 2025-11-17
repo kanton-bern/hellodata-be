@@ -77,13 +77,26 @@ public class UserEntity extends BaseEntity {
 
     private boolean isFederated;
 
-    public Boolean getSuperuser() {
+    public Boolean isSuperuser() {
+        return isHelloDataAdmin();
+    }
+
+    public Boolean isHelloDataAdmin() {
         if (this.getPortalRoles() == null) {
             return false;
         }
         return this.getPortalRoles()
                 .stream()
                 .anyMatch(userPortalRoleEntity -> Objects.equals(userPortalRoleEntity.getRole().getName(), SystemDefaultPortalRoleName.HELLODATA_ADMIN.name()));
+    }
+
+    public Boolean isBusinessDomainAdmin() {
+        if (this.getPortalRoles() == null) {
+            return false;
+        }
+        return this.getPortalRoles()
+                .stream()
+                .anyMatch(userPortalRoleEntity -> Objects.equals(userPortalRoleEntity.getRole().getName(), SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN.name()));
     }
 
     public List<String> getPermissionsFromAllRoles() {

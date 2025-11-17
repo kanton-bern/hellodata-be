@@ -25,17 +25,12 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, OnDestroy, OnInit, inject } from "@angular/core";
-import { CommonModule, AsyncPipe } from "@angular/common";
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import {RouterLink} from "@angular/router";
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from "@angular/core";
+import {AsyncPipe} from "@angular/common";
+import {TranslocoPipe} from "@jsverse/transloco";
 import {TableModule} from "primeng/table";
-import { TagModule, Tag } from "primeng/tag";
-import {TooltipModule} from "primeng/tooltip";
-import {InputTextModule} from "primeng/inputtext";
-import { ButtonModule, Button } from "primeng/button";
-import {ToolbarModule} from "primeng/toolbar";
-import {RippleModule} from "primeng/ripple";
+import {Tag} from "primeng/tag";
+import {Button} from "primeng/button";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
@@ -50,9 +45,8 @@ import {
   selectSubsystemUsersForDashboardsLoading
 } from "../../../store/users-management/users-management.selector";
 import {BaseComponent} from "../../../shared/components/base/base.component";
-import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {TranslateService} from "../../../shared/services/translate.service";
-import { PrimeTemplate } from "primeng/api";
+import {PrimeTemplate} from "primeng/api";
 
 interface TableRow {
   email: string;
@@ -61,10 +55,11 @@ interface TableRow {
 }
 
 @Component({
-    selector: 'app-users-overview',
-    templateUrl: './users-overview.component.html',
-    styleUrls: ['./users-overview.component.scss'],
-    imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe]
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: 'app-users-overview',
+  templateUrl: './users-overview.component.html',
+  styleUrls: ['./users-overview.component.scss'],
+  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

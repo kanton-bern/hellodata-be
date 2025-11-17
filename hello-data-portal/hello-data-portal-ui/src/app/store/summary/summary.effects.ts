@@ -26,7 +26,7 @@
 ///
 
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap} from "rxjs";
 import {SummaryService} from "./summary.service";
 import {
   createOrUpdateDocumentation,
@@ -37,7 +37,7 @@ import {
   loadStorageSize,
   loadStorageSizeSuccess,
 } from "./summary.actions";
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {showError, showSuccess} from "../app/app.action";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 
@@ -50,8 +50,8 @@ export class SummaryEffects {
     return this._actions$.pipe(
       ofType(loadDocumentation),
       switchMap(() => this._summaryService.getDocumentation()),
-      switchMap(result => of(loadDocumentationSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadDocumentationSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -59,8 +59,8 @@ export class SummaryEffects {
     return this._actions$.pipe(
       ofType(createOrUpdateDocumentation),
       switchMap(action => this._summaryService.createOrUpdateDocumentation(action.documentation)),
-      switchMap(result => of(clearUnsavedChanges(), loadDocumentation(), showSuccess({message: '@Documentation updated'}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([clearUnsavedChanges(), loadDocumentation(), showSuccess({message: '@Documentation updated'})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -68,8 +68,8 @@ export class SummaryEffects {
     return this._actions$.pipe(
       ofType(loadPipelines),
       switchMap(() => this._summaryService.getPipelines()),
-      switchMap(result => of(loadPipelinesSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadPipelinesSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -77,8 +77,8 @@ export class SummaryEffects {
     return this._actions$.pipe(
       ofType(loadStorageSize),
       switchMap(() => this._summaryService.getStorageSize()),
-      switchMap(result => of(loadStorageSizeSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadStorageSizeSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 }

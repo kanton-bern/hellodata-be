@@ -70,7 +70,7 @@ public class KeycloakUserSyncService {
                 userEntity.setUsername(userRepresentation.getEmail());
                 userEntity.setFirstName(userRepresentation.getFirstName());
                 userEntity.setLastName(userRepresentation.getLastName());
-                userEntity.setSuperuser(userEntity.getSuperuser());//set flag to not fetch lazy loading relations
+                userEntity.setSuperuser(userEntity.isSuperuser());//set flag to not fetch lazy loading relations
                 List<AdUserDto> adUserDtos = userService.searchUserOmitCreated(userEntity.getEmail());
                 log.debug("[sync-users-with-keycloak] Found users from providers: {}", adUserDtos);
                 boolean isFederated = adUserDtos.stream().anyMatch(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP);

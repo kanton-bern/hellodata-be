@@ -25,13 +25,13 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {NotificationService} from "../../shared/services/notification.service";
 import {FaqService} from "./faq.service";
-import {catchError, map, of, switchMap, tap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, map, scheduled, switchMap, tap, withLatestFrom} from "rxjs";
 import {
   deleteEditedFaq,
   deleteEditedFaqSuccess,
@@ -62,8 +62,8 @@ export class FaqEffects {
     return this._actions$.pipe(
       ofType(loadFaq),
       switchMap(() => this._faqService.getFaq()),
-      switchMap(result => of(loadFaqSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadFaqSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -72,11 +72,11 @@ export class FaqEffects {
       ofType(openFaqEdition),
       switchMap(action => {
         if (action.faq.id) {
-          return of(navigate({url: `faq-management/edit/${action.faq.id}`}));
+          return scheduled([navigate({url: `faq-management/edit/${action.faq.id}`})], asyncScheduler);
         }
-        return of(navigate({url: 'faq-management/create'}));
+        return scheduled([navigate({url: 'faq-management/create'})], asyncScheduler);
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -85,8 +85,8 @@ export class FaqEffects {
       ofType(loadFaqById),
       withLatestFrom(this._store.select(selectParamFaqId)),
       switchMap(([action, faqId]) => this._faqService.getFaqById(faqId as string)),
-      switchMap(result => of(loadFaqByIdSuccess({faq: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadFaqByIdSuccess({faq: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -117,8 +117,8 @@ export class FaqEffects {
   saveChangesToFaqSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToFaqSuccess),
-      switchMap(action => of(clearUnsavedChanges(), navigate({url: 'faq-management'}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(action => scheduled([clearUnsavedChanges(), navigate({url: 'faq-management'})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -128,7 +128,7 @@ export class FaqEffects {
       withLatestFrom(this._store.select(selectSelectedFaqForDeletion)),
       switchMap(([action, faq]) => this._faqService.deleteFaqById((faq as Faq).id as string).pipe(
         map(() => deleteFaqSuccess({faq: faq as Faq})),
-        catchError(e => of(showError({error: e})))
+        catchError(e => scheduled([showError({error: e})], asyncScheduler)),
       )),
     )
   });
@@ -137,7 +137,7 @@ export class FaqEffects {
     return this._actions$.pipe(
       ofType(deleteFaqSuccess),
       tap(action => this._notificationService.success('@Faq deleted successfully')),
-      switchMap(() => of(loadFaq(), hideDeleteFaqPopup()))
+      switchMap(() => scheduled([loadFaq(), hideDeleteFaqPopup()], asyncScheduler)),
     )
   });
 
@@ -148,7 +148,7 @@ export class FaqEffects {
       switchMap(([action, faqToBeDeleted]) => {
           return this._faqService.deleteFaqById((faqToBeDeleted as Faq).id as string).pipe(
             map(() => deleteEditedFaqSuccess()),
-            catchError(e => of(showError({error: e})))
+            catchError(e => scheduled([showError({error: e})], asyncScheduler)),
           )
         }
       ),
@@ -159,7 +159,7 @@ export class FaqEffects {
     return this._actions$.pipe(
       ofType(deleteEditedFaqSuccess),
       tap(action => this._notificationService.success('@Faq deleted successfully')),
-      switchMap(() => of(navigate({url: 'faq-management'}), hideDeleteFaqPopup()))
+      switchMap(() => scheduled([navigate({url: 'faq-management'}), hideDeleteFaqPopup()], asyncScheduler)),
     )
   });
 }

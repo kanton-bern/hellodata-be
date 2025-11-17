@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {catchError, of, switchMap} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap} from "rxjs";
 import {loadFaqStartPage, loadFaqStartPageSuccess, updateDashboardMetadata,} from "./start-page.action";
 import {StartPageService} from "./start-page.service";
 import {FaqService} from "../faq/faq.service";
@@ -45,8 +45,8 @@ export class StartPageEffects {
     return this._actions$.pipe(
       ofType(updateDashboardMetadata),
       switchMap(action => this._startPageService.updateDashboardMetadata(action.dashboard)),
-      switchMap(result => of(loadMyDashboards(), showSuccess({message: '@Dashboard metadata updated'}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadMyDashboards(), showSuccess({message: '@Dashboard metadata updated'})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 
@@ -54,8 +54,8 @@ export class StartPageEffects {
     return this._actions$.pipe(
       ofType(loadFaqStartPage),
       switchMap(() => this._faqService.getFaq()),
-      switchMap(result => of(loadFaqStartPageSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadFaqStartPageSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler)),
     )
   });
 }

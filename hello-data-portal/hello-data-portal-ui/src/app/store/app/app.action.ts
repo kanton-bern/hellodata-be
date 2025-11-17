@@ -31,6 +31,7 @@ export enum AppActionType {
   APP_SHOW_INFO = '[APP] Show info',
   APP_SHOW_SUCCESS = '[APP] Show success',
   APP_SHOW_ERROR = '[APP] Show error',
+  APP_LOG_ERROR = '[APP] log error',
   NAVIGATE = '[APP] Navigate',
   NAVIGATE_TO_LIST = '[APP] Navigate to list',
   TRACK_EVENT = '[APP] Track event',
@@ -41,6 +42,12 @@ export const showError = createAction(
   AppActionType.APP_SHOW_ERROR,
   props<{ error: any }>()
 );
+
+export const logError = createAction(
+  AppActionType.APP_LOG_ERROR,
+  props<{ error: any }>()
+);
+
 
 export const showInfo = createAction(
   AppActionType.APP_SHOW_INFO,
