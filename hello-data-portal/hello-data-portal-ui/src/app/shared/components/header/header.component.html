@@ -2,68 +2,61 @@
 }
 @if (translationsLoaded$ | async) {
 }
-<div [ngStyle]="environment.color && { 'background-color': environment.color} || null" class="layout-topbar">
-  <div class="card-container topbar-container overflow-hidden">
-    <div class="flex">
-      @if (environment.showEnvironment) {
-        <div
-          class="flex align-items-center justify-content-center m-1 px-1 py-1 font-bold text-xl mr-4">
-          <p [pTooltip]="'@Environment' | transloco" class="glow top-menu-item"
-             tooltipPosition="bottom">{{ "@Env " + environment.name | transloco }}</p>
-        </div>
+<div [ngStyle]="environment.color && { 'background-color': environment.color } || null"
+     class="layout-topbar flex w-full flex-nowrap items-center justify-between gap-4 py-2 pr-4" id="layout-topbar">
+  <!-- Left column: Env + Title + Data Domain Selector -->
+  <div class="topbar-left-group shrink-0">
+    @if (environment.showEnvironment) {
+      <span class="env-badge glow" [pTooltip]="'@Environment' | transloco" tooltipPosition="bottom">
+        {{ environment.name | transloco }}
+      </span>
+    }
+    <span class="app-title" [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
+      {{ title() | transloco }}
+    </span>
+    @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
+      @if ((selectedDataDomain$ | async); as selectedDataDomain) {
+        <span class="data-domain-selector" [pTooltip]="'@Selected Data Domain' | transloco" tooltipPosition="bottom">
+          <a (click)="selectedDataDomainMenu.toggle($event)"
+             class="route-link p-button-link layout-topbar-button flex items-center" pRipple>
+            <span class="pl-2 cursor-pointer truncate data-domain-name">
+              {{ selectedDataDomain.name | transloco }}
+            </span>
+            <i class="fas fa-chevron-down p-1 cursor-pointer"></i>
+          </a>
+        </span>
       }
-      @if ((businessDomain$ | async); as businessDomain) {
-        <div
-          class="flex align-items-center justify-content-center m-1 px-1 py-1 font-medium text-xl">
-          <p [pTooltip]="'@Business domain' | transloco" class="top-menu-item hide-on-small"
-             tooltipPosition="bottom">{{ businessDomain }}</p>
-        </div>
-      }
-      @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
-        <div class="flex-auto flex align-items-center m-1 px-1 py-1"
-        >
-          <section [pTooltip]="'@Selected Data Domain' | transloco" class="top-menu-item" tooltipPosition="bottom">
-            @if ((selectedDataDomain$ | async); as selectedDataDomain) {
-              <span>
-                <a (click)="selectedDataDomainMenu.toggle($event)"
-                   class="route-link p-button-link align-self-end layout-topbar-button" pRipple>
-                  <span class="pl-2" style="cursor: pointer">
-                  {{ selectedDataDomain.name | transloco }}</span>
-                  <i class="fas fa-chevron-down p-1" style="cursor: pointer"></i>
-                </a>
-              </span>
+    }
+  </div>
+
+  <!--Right column -->
+  <div class="flex items-center justify-end gap-4 shrink-0">
+    @if ((userData$ | async); as userData) {
+      @if ((languages$ | async); as languages) {
+        <span class="top-menu-item flex items-center whitespace-nowrap">
+          @for (item of supportedLanguages; track item.code; let last = $last) {
+            <a class="cursor-pointer px-1"
+               [ngClass]="{ 'selected-language': item.selected }"
+               (click)="onLanguageChange(item.code)">
+              {{ item.label }}
+            </a>
+            @if (!last) {
+              <span class="mx-1">|</span>
             }
-          </section>
-        </div>
-      }
-      @if ((userData$ | async); as userData) {
-        <div class="flex-auto flex align-items-center justify-content-end m-1 px-1 py-1"
-        >
-          @if ((languages$ | async); as languages) {
-            <span class="mr-3 top-menu-item">
-              @for (item of supportedLanguages; track item.code; let i = $index; let last = $last) {
-                <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
-                   (click)="onLanguageChange(item.code)">
-                  {{ item.label }}
-                </a>
-                @if (!last) {
-                  <span>|</span>
-                }
-              }
-            </span>
           }
-          <span class="mr-4 top-menu-item">
-            <span>
-              <a (click)="menu.toggle($event)" class="route-link p-button-link align-self-end layout-topbar-button"
-                 id="userMenu">
-                <i class="fas fa-light fa-user" style="cursor: pointer"></i>
-                <span class="pl-2 hide-on-small" style="cursor: pointer">{{ userData.email }}</span>
-              </a>
-            </span>
-          </span>
-        </div>
+        </span>
       }
-    </div>
+      <span class="top-menu-item flex items-center">
+        <a (click)="menu.toggle($event)"
+           class="route-link p-button-link layout-topbar-button flex items-center"
+           id="userMenu">
+          <i class="fas fa-light fa-user cursor-pointer"></i>
+          <span class="pl-2 hidden sm:inline cursor-pointer">
+            {{ userData.email }}
+          </span>
+        </a>
+      </span>
+    }
   </div>
 </div>
 

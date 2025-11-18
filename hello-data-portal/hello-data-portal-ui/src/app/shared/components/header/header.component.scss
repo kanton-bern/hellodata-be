@@ -31,7 +31,9 @@ p-menu {
 }
 
 .top-menu-item {
-  margin-top: 10px;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
 }
 
 .data-domain-selection-item {
@@ -73,4 +75,19 @@ app-breadcrumb {
   .hide-on-small {
     display: none;
   }
+}
+
+/* Added after Tailwind migration – restore header layout */
+.layout-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.topbar-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
