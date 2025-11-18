@@ -1,11 +1,11 @@
 <h2 class="content-block">Workspaces</h2>
 @if ((appInfos$ | async); as appInfos) {
   <div class="card">
-    <div class="grid">
+    <div class="grid grid-cols-12 gap-4">
       @for (item of appInfos | orderBy: 'moduleType'; track item) {
-        <div class="col-2">
+        <div class="col-span-2">
           <div (click)="navigateToSelectedWorkspace(item)"
-            class="cursor-pointer p-5 bg-white flex flex-column align-items-center border-2 border-transparent hover:border-primary focus:border-primary active:border-primary transition-colors transition-duration-300 justify-content-center shadow-2"
+            class="cursor-pointer p-8 bg-white flex flex-col items-center border-2 border-transparent hover:border-primary focus:border-primary active:border-primary transition-colors duration-300 justify-center shadow"
             pRipple style="height: 100%">
             <table aria-describedby="workspaces">
               <tr>

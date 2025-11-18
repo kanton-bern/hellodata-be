@@ -2,16 +2,16 @@
 <div class="card">
   <h3>{{ '@Invite user' | transloco }}</h3>
   <form [formGroup]="inviteForm" autocomplete="off">
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary"
-          style="width: 100%; display: grid">
+    <div class="field grid grid-cols-12 gap-4">
+      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
+      <div class="col-span-12 md:col-span-10">
+        <span class="p-fluid border-surface rounded-border appearance-none outline-0 focus:border-primary"
+          style="width: 100%; display: grid grid-cols-12 gap-4">
           <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
             [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
             name="user">
             <ng-template let-user pTemplate="item">
-              <div class="flex align-items-center gap-1">
+              <div class="flex items-center gap-1">
                 <p [pTooltip]="user.label" class="glow top-menu-item" tooltipPosition="bottom">{{ user.label }}</p>
               </div>
             </ng-template>
@@ -23,11 +23,11 @@
         }
       </div>
     </div>
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
-      <div class="col-12 md:col-10">
+    <div class="field grid grid-cols-12 gap-4">
+      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
+      <div class="col-span-12 md:col-span-10">
         <input [readOnly]="true"
-          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
           formControlName="firstName"
           id="firstName"
           name="firstName"
@@ -39,11 +39,11 @@
         }
       </div>
     </div>
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
-      <div class="col-12 md:col-10">
+    <div class="field grid grid-cols-12 gap-4">
+      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
+      <div class="col-span-12 md:col-span-10">
         <input [readOnly]="true"
-          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+          class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
           formControlName="lastName"
           id="lastName"
           name="lastName"

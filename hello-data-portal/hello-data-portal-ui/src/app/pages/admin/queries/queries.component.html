@@ -80,11 +80,11 @@
               <td>
                 @switch (query.status) {
                   @case ('failed') {
-                    <span [pTooltip]="query.status" class="align-items-end pi pi-exclamation-circle"
+                    <span [pTooltip]="query.status" class="items-end pi pi-exclamation-circle"
                           style="color: red"></span>
                   }
                   @case ('success') {
-                    <span [pTooltip]="query.status" class="align-items-end pi pi-check-circle"
+                    <span [pTooltip]="query.status" class="items-end pi pi-check-circle"
                           style="color: green"></span>
                   }
                 }
@@ -121,7 +121,7 @@
           <ng-template #expandedrow let-query>
             <tr>
               <td colspan="9">
-                <div class="p-3">
+                <div class="p-4">
                 <textarea
                   variant="filled"
                   [disabled]="true"

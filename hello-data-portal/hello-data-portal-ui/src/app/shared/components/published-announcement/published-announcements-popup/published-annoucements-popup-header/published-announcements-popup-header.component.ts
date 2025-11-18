@@ -6,17 +6,17 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
 
 @Component({
   template: `
-    <div class="grid">
-      <div class="col-10">
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-10">
         <h3><b>{{ '@Announcements' | transloco }}</b></h3>
       </div>
       <div class="col">
-        <div class="flex align-items-center mt-2">
+        <div class="flex items-center mt-2">
           <p-checkbox [binary]="true" inputId="dont-show-again" (onChange)="onChange($event)"></p-checkbox>
           <label for="dont-show-again" class="ml-2"
                  style="font-size: 0.9rem">{{ '@Do not show again' | transloco }}</label>
           <a (click)="closeDialog()" style="cursor: pointer;"
-             class="align-self-end layout-topbar-button pl-8">
+             class="self-end layout-topbar-button pl-20">
             <i class="fas fa-times"></i>
           </a>
         </div>

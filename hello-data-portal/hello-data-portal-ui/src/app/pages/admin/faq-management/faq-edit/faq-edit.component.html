@@ -3,11 +3,11 @@
     <form [formGroup]="faqForm">
       <h5>{{ '@Faq' | transloco }}</h5>
       @if (editedFaq.createdDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="createdDate"
               type="text"
@@ -16,11 +16,11 @@
         </div>
       }
       @if (editedFaq.createdDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="createdBy"
               type="text"
@@ -29,11 +29,11 @@
         </div>
       }
       @if (editedFaq.modifiedDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="modifiedDate"
               type="text"
@@ -42,11 +42,11 @@
         </div>
       }
       @if (editedFaq.modifiedBy) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+              class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full opacity-40"
               disabled
               id="modifiedBy"
               type="text"
@@ -55,9 +55,9 @@
         </div>
       }
       @if ((availableDataDomains$ | async); as availableDataDomains) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomainKey">{{ '@Data domain' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="dataDomainKey">{{ '@Data domain' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <p-select [options]="availableDataDomains"
                       formControlName="dataDomain"
                       id="dataDomainKey"
@@ -72,8 +72,8 @@
           <p-tablist>
             @for (lang of supportedLanguages; track $index) {
               <p-tab [value]="$index">
-                <div class="flex align-items-center gap-2">
-                  <span class="font-bold white-space-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold whitespace-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
                     {{ getHeaderNameWithStatus(lang) }}
                   </span>
                 </div>
@@ -83,12 +83,12 @@
           <p-tabpanels>
             @for (language of supportedLanguages; track $index) {
               <p-tabpanel [value]="$index">
-                <div class="field grid">
-                  <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
-                  <div class="col-12 md:col-10">
+                <div class="field grid grid-cols-12 gap-4">
+                  <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
+                  <div class="col-span-12 md:col-span-10">
                     <input
                       [formControl]="getTitle(language)"
-                      class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+                      class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
                       id="title"
                       type="text">
                     @if (getTitle(language)?.invalid && getTitle(language)?.dirty) {

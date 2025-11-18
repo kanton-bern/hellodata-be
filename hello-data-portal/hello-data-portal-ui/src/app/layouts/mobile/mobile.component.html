@@ -1,9 +1,9 @@
 @if (availableDataDomains$ | async) {
 }
 <!-- Top Bar -->
-<div class="grid w-full bg-white surface-border border-bottom-1 fixed top-0 left-0 z-5" style="height: 4rem;">
-  <div class="col-12 flex pt-1">
-    <div class="col-2 flex align-items-center justify-content-start h-full pl-3">
+<div class="grid grid-cols-12 gap-4 w-full bg-white border-surface border-b fixed top-0 left-0 z-50" style="height: 4rem;">
+  <div class="col-span-12 flex pt-1">
+    <div class="col-span-2 flex items-center justify-start h-full pl-4">
       <p-button type="button" severity="secondary"
                 (click)="showDashboardMenu = true"
                 aria-label="Open menu">
@@ -11,11 +11,11 @@
       </p-button>
     </div>
 
-    <div class="col-8 flex align-items-center justify-content-center h-full">
+    <div class="col-span-8 flex items-center justify-center h-full">
       @if ((selectedDataDomain$ | async); as selectedDataDomain) {
         <span>
           <a (click)="showDataDomainMenu = true" style="cursor: pointer; font-size: 0.9rem"
-             class="align-self-end layout-topbar-button">
+             class="self-end layout-topbar-button">
             <span class="pl-2">{{ selectedDataDomain.name | transloco }}</span>
             <i class="fas fa-chevron-down p-1"></i>
           </a>
@@ -23,7 +23,7 @@
       }
     </div>
 
-    <div class="col-2 flex align-items-end justify-content-end h-full">
+    <div class="col-span-2 flex items-end justify-end h-full">
       <p-button pRipple
                 type="button" severity="secondary"
                 aria-label="User Profile">
@@ -43,7 +43,7 @@
   </ng-template>
   <ng-template pTemplate="content">
     @if (groupedDashboards$ | async; as groupedDashboards) {
-      <div class="flex flex-column gap-3 text-900">
+      <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
         @for (context of groupedDashboards.keys(); track context) {
           <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
           @for (dash of groupedDashboards.get(context); track dash) {
@@ -51,7 +51,7 @@
                (click)="openDashboard(dash)">
               {{ dash.dashboardTitle }}
             </a>
-            <hr class="my-1 border-top-1 surface-border"/>
+            <hr class="my-1 border-t border-surface"/>
           }
         }
       </div>
@@ -64,11 +64,11 @@
   [(visible)]="showUserMenu"
   position="top"
   [baseZIndex]="10000"
-  class="p-4"
+  class="p-6"
   [style]="{'height': 'auto'}">
   <ng-template pTemplate="header">
     @if ((languages$ | async); as languages) {
-      <span class="mr-3 top-menu-item">
+      <span class="mr-4 top-menu-item">
         @for (item of supportedLanguages; track item; let i = $index; let last = $last) {
           <a style="cursor: pointer" [ngClass]="{'selected-language': item.selected}"
              (click)="onLanguageChange(item.code)">
@@ -82,15 +82,15 @@
     }
   </ng-template>
   <ng-template pTemplate="content">
-    <div class="flex flex-column gap-3 text-900">
-      <hr class="m-0 border-top-1 surface-border"/>
+    <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
+      <hr class="m-0 border-t border-surface"/>
       <a (click)="navigateToProfile()"
          class="cursor-pointer hover:underline"
          style="color: black;">
         {{ '@Profile' | transloco }}
       </a>
 
-      <hr class="m-0 border-top-1 surface-border"/>
+      <hr class="m-0 border-t border-surface"/>
 
       <a (click)="logout()"
          class="cursor-pointer hover:underline"
@@ -98,7 +98,7 @@
         {{ '@Logout' | transloco }}
       </a>
 
-      <hr class="m-0 border-top-1 surface-border"/>
+      <hr class="m-0 border-t border-surface"/>
 
       <a (click)="navigateToHome()">{{ '@HelloDATA' | transloco }}</a>
       <a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">
@@ -122,20 +122,20 @@
   [modal]="true"
   [baseZIndex]="10000"
   [style]="{'height': 'auto'}"
-  class="p-4">
+  class="p-6">
   <ng-template pTemplate="header">
     <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Data Domain' | transloco }}</div>
   </ng-template>
   <ng-template pTemplate="content">
-    <div class="flex flex-column gap-3 text-900">
-      <hr class="m-0 border-top-1 surface-border"/>
+    <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
+      <hr class="m-0 border-t border-surface"/>
       @for (item of dataDomainSelectionItems; track item) {
         <a class="cursor-pointer hover:underline"
            style="color: black;"
            (click)="onDataDomainClicked(item)">
           {{ item.label | transloco }}
         </a>
-        <hr class="m-0 border-top-1 surface-border"/>
+        <hr class="m-0 border-t border-surface"/>
       }
     </div>
   </ng-template>

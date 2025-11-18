@@ -13,11 +13,11 @@
 
 @if ((resources$ | async); as resources) {
   <div class="card">
-    <div class="grid">
+    <div class="grid grid-cols-12 gap-4">
       @for (item of resources; track item) {
-        <div class="col-2">
+        <div class="col-span-2">
           <div (click)="navigateToSelectedResource(item)"
-            class="cursor-pointer p-5 bg-white flex flex-column border-2 border-transparent hover:border-primary transition-colors transition-duration-300 justify-content-center align-items-center shadow-2"
+            class="cursor-pointer p-8 bg-white flex flex-col border-2 border-transparent hover:border-primary transition-colors duration-300 justify-center items-center shadow"
             pRipple>
             <table aria-describedby="selected workspace">
               <tr>

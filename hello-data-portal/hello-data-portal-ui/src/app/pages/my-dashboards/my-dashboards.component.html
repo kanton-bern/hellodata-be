@@ -17,7 +17,7 @@
              dataKey="id"
              selectionMode="single">
       <ng-template pTemplate="caption">
-        <div class="flex align-items-center justify-content-between">
+        <div class="flex items-center justify-between">
           <h5 class="m-0">&nbsp;</h5>
           <span class="p-input-icon-left">
             <p-iconfield>
@@ -161,13 +161,13 @@
           header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}" class="p-fluid">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}"/>
-    <div class="formgrid grid">
+    <div class="formgrid grid grid-cols-12 gap-4">
       <div class="field col">
         @if (selectedDashboard.contextName) {
           <label class="p2 font-semibold m-0"
                  for="contextNameInfo">{{ '@Context name' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="contextNameInfo">{{ selectedDashboard.contextName }}
           </div>
         }
@@ -176,7 +176,7 @@
           <label class="p2 font-semibold m-0"
                  for="instanceNameInfo">{{ '@Instance name' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="instanceNameInfo">{{ selectedDashboard.instanceName }}
           </div>
         }
@@ -185,7 +185,7 @@
           <label class="p2 font-semibold m-0"
                  for="businessProcessInfo">{{ '@Business process' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="businessProcessInfo">{{ selectedDashboard.businessProcess }}
           </div>
         }
@@ -194,7 +194,7 @@
           <label class="p2 font-semibold m-0"
                  for="departmentInfo">{{ '@Department' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="departmentInfo">{{ selectedDashboard.department }}
           </div>
         }
@@ -203,7 +203,7 @@
           <label class="p2 font-semibold m-0"
                  for="dataAnalystInfo">{{ '@Data analyst' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="dataAnalystInfo">{{ selectedDashboard.dataAnalyst }}
           </div>
         }
@@ -212,7 +212,7 @@
           <label class="p2 font-semibold m-0"
                  for="dataSourceInfo">{{ '@Datasource' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="dataSourceInfo">{{ selectedDashboard.datasource }}
           </div>
         }
@@ -221,7 +221,7 @@
           <label class="p2 font-semibold m-0"
                  for="responsibilityInfo">{{ '@Professional responsibility' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="responsibilityInfo">{{ selectedDashboard.responsibility }}
           </div>
         }
@@ -232,7 +232,7 @@
           <label class="p2 font-semibold m-0"
                  for="statusInfo">{{ '@Status' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="statusInfo">{{ selectedDashboard.status }}
           </div>
         }
@@ -241,7 +241,7 @@
           <label class="p2 font-semibold m-0" for="slugInfo">{{ '@Slug' | transloco }}
             :</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="slugInfo">{{ selectedDashboard.slug }}
           </div>
         }
@@ -250,7 +250,7 @@
           <label class="p2 font-semibold m-0"
                  for="urlInfo">{{ '@Instance url' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="urlInfo">{{ selectedDashboard.instanceUrl }}
           </div>
         }
@@ -259,7 +259,7 @@
           <label class="p2 font-semibold m-0"
                  for="modifiedInfo">{{ '@Modified date' | transloco }}:</label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="modifiedInfo">
             <span>{{ selectedDashboard.modified | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
             <span>{{ '@Never' | transloco }}</span>
@@ -271,7 +271,7 @@
             {{ '@Roles' | transloco }}:
           </label>
           <div
-            class="text-base text-color surface-overlay p-2 surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             id="rolesInfo">
             @for (role of selectedDashboard.roles; track role) {
               <p-tag

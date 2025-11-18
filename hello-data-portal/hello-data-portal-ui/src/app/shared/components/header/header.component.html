@@ -37,7 +37,7 @@
         @if (languages$ | async) {
           <span class="top-menu-item inline-flex items-center whitespace-nowrap" id="topbar-language-selector">
             @for (item of supportedLanguages; track item.code; let last = $last) {
-              <a class="cursor-pointer px-1"
+              <a class="cursor-pointer px-5"
                  [ngClass]="{ 'selected-language': item.selected }"
                  (click)="onLanguageChange(item.code)">
                 {{ item.label }}
@@ -52,7 +52,7 @@
           <a (click)="menu.toggle($event)"
              class="route-link p-button-link layout-topbar-button inline-flex items-center gap-2"
              id="userMenu">
-            <i class="fas fa-light fa-user cursor-pointer"></i>
+            <i class="fas fa-light fa-user cursor-pointer px"></i>
             <span class="hidden sm:inline cursor-pointer truncate max-w-[16rem]">{{ userData.email }}</span>
           </a>
         </span>

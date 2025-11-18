@@ -1,24 +1,24 @@
 @if (screenService.isMobile | async) {
   <div>
-    <div class="col-12 flex justify-content-center mt-2">
+    <div class="col-span-12 flex justify-center mt-2">
       <span>{{ '@HelloDATA' | transloco }}</span>
       <div class="pl-1">Mobile</div>
     </div>
-    <div class="col-12">
-      <div [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom" class="flex justify-content-center">
+    <div class="col-span-12">
+      <div [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom" class="flex justify-center">
         <img alt="logo" src="/assets/img/hd.png" style="height: 15rem"/>
       </div>
     </div>
-    <div class="col-12 flex justify-content-center font-semibold">{{ businessDomain$ | async }}</div>
+    <div class="col-span-12 flex justify-center font-semibold">{{ businessDomain$ | async }}</div>
   </div>
 } @else {
   @if (loadedPermissions$ | async) {
     <div class="home-view">
       @if ((currentUserContextRolesNotNone$ | async)?.length === 0) {
-        <div class="grid">
-          <p-fieldset class="col-12 lg:col-12">
+        <div class="grid grid-cols-12 gap-4">
+          <p-fieldset class="col-span-12 lg:col-span-12">
             <ng-template pTemplate="header">
-              <div class="flex align-items-center gap-2 text-primary">
+              <div class="flex items-center gap-2 text-primary">
                 <p-badge severity="success" size="large" value="{{ '@Welcome' | transloco }}"/>
               </div>
             </ng-template>
@@ -38,10 +38,10 @@
         </div>
       }
       @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
-        <div class="grid">
-          <p-fieldset class="col-12 lg:col-6">
+        <div class="grid grid-cols-12 gap-4">
+          <p-fieldset class="col-span-12 lg:col-span-6">
             <ng-template pTemplate="header">
-              <div class="flex align-items-center text-primary">
+              <div class="flex items-center text-primary">
                 <h5 class="m-0" id="dashboardsHeader">{{ '@Dashboards' | transloco }}</h5>
               </div>
             </ng-template>
@@ -49,9 +49,9 @@
               <app-dashboards/>
             </div>
           </p-fieldset>
-          <p-fieldset class="col-12 lg:col-6">
+          <p-fieldset class="col-span-12 lg:col-span-6">
             <ng-template pTemplate="header">
-              <div class="flex align-items-center text-primary">
+              <div class="flex items-center text-primary">
                 <h5 class="m-0" id="externalDashboardsHeader">{{ '@External dashboards' | transloco }}</h5>
               </div>
             </ng-template>
@@ -60,9 +60,9 @@
             </div>
           </p-fieldset>
           @if (hasPermissions(['DATA_MARTS']) |async) {
-            <p-fieldset class="col-12 lg:col-6">
+            <p-fieldset class="col-span-12 lg:col-span-6">
               <ng-template pTemplate="header">
-                <div class="flex align-items-center text-primary">
+                <div class="flex items-center text-primary">
                   <h5 class="m-0" id="dataMartsHeader">{{ '@Data Marts' | transloco }}</h5>
                 </div>
               </ng-template>
@@ -72,9 +72,9 @@
             </p-fieldset>
           }
           @if (hasPermissions(['DATA_LINEAGE']) |async) {
-            <p-fieldset class="col-12 lg:col-6">
+            <p-fieldset class="col-span-12 lg:col-span-6">
               <ng-template pTemplate="header">
-                <div class="flex align-items-center text-primary">
+                <div class="flex items-center text-primary">
                   <h5 class="m-0" id="lineageHeader">{{ '@Lineage' | transloco }}</h5>
                 </div>
               </ng-template>
@@ -83,9 +83,9 @@
               </div>
             </p-fieldset>
           }
-          <p-fieldset class="col-12 lg:col-6">
+          <p-fieldset class="col-span-12 lg:col-span-6">
             <ng-template pTemplate="header">
-              <div class="flex align-items-center text-primary">
+              <div class="flex items-center text-primary">
                 <h5 class="m-0" id="faqHeader">{{ '@Faq' | transloco }}</h5>
               </div>
             </ng-template>
@@ -93,9 +93,9 @@
               <app-faq/>
             </div>
           </p-fieldset>
-          <p-fieldset class="col-12 lg:col-6">
+          <p-fieldset class="col-span-12 lg:col-span-6">
             <ng-template pTemplate="header">
-              <div class="flex align-items-center text-primary">
+              <div class="flex items-center text-primary">
                 <h5 class="m-0" id="documentationHeader">{{ '@Documentation' | transloco }}</h5>
               </div>
             </ng-template>

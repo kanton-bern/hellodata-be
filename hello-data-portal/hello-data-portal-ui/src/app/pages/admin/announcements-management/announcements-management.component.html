@@ -1,7 +1,7 @@
 <h2 class="content-block">{{ '@Announcements management' | transloco }}</h2>
 @if ((selectedLanguage$ | async); as selectedLanguage) {
   <div class="card">
-    <p-toolbar class="mb-4 gap-2">
+    <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
         <button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
         label="{{'@Create announcement' | transloco }}" pButton pRipple></button>

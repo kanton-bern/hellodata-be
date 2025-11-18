@@ -7,8 +7,8 @@
           <p-tablist>
             @for (lang of supportedLanguages; track $index) {
               <p-tab [value]="$index">
-                <div class="flex align-items-center gap-2">
-                  <span class="font-bold white-space-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold whitespace-nowrap m-0 {{notFilled(lang) ? 'not-filled' : ''}}">
                     {{ lang.slice(0, 2).toUpperCase() }}
                   </span>
                 </div>

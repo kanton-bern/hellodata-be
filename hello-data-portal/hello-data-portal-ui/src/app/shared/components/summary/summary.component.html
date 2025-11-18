@@ -13,8 +13,8 @@
                 <p-accordion-content>
                   @if ((pipelines$ | async); as pipelines) {
                     @for (pipeline of pipelines; track pipeline.id; let first = $first) {
-                      <div class="p-grid grid">
-                        <div class="col-8">
+                      <div class="p-grid grid grid-cols-12 gap-4">
+                        <div class="col-span-8">
                           <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
                           <!--                          label="{{ pipeline.id | truncate: 30}}" placeholder="Left"-->
                           <!--                          pButton tooltipPosition="left"-->
@@ -26,37 +26,37 @@
                                  style="font-size: 0.9rem; font-weight: 400"
                                  tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</label>
                         </div>
-                        <div class="col-3" style="font-size: 0.6rem; margin-top: 0.4rem">
+                        <div class="col-span-3" style="font-size: 0.6rem; margin-top: 0.4rem">
                           @if (pipeline?.lastInstance?.startDate) {
                             <span
                             >{{ pipeline.lastInstance.startDate * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
                           }
                         </div>
                         @if (pipeline?.lastInstance) {
-                          <div class="col-1">
+                          <div class="col-span-1">
                             @switch (pipeline.lastInstance.state) {
                               @case ('queued') {
                                 <span [pTooltip]="pipeline.lastInstance.state"
-                                      class="align-items-end pi pi-hourglass"
+                                      class="items-end pi pi-hourglass"
                                       style="color: gray"></span>
                               }
                               @case ('running') {
                                 <span [pTooltip]="pipeline.lastInstance.state"
-                                      class="align-items-end pi pi-spin pi-cog"
+                                      class="items-end pi pi-spin pi-cog"
                                       style="color: green"></span>
                               }
                               @case ('success') {
                                 <span [pTooltip]="pipeline.lastInstance.state"
-                                      class="align-items-end pi pi-check-circle"
+                                      class="items-end pi pi-check-circle"
                                       style="color: green"></span>
                               }
                               @case ('failed') {
                                 <span [pTooltip]="pipeline.lastInstance.state"
-                                      class="align-items-end pi pi-exclamation-circle"
+                                      class="items-end pi pi-exclamation-circle"
                                       style="color: red"></span>
                               }
                               @default {
-                                <span [pTooltip]="'unknown'" class="align-items-end pi pi-question-circle"
+                                <span [pTooltip]="'unknown'" class="items-end pi pi-question-circle"
                                       style="color: gray"></span>
                               }
                             }

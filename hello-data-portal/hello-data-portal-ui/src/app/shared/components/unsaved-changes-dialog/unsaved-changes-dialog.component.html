@@ -1,6 +1,6 @@
 <p-confirmDialog #cd [style]="{width: '50vw'}" key="unsavedChangesConfirmation" [closable]="false">
   <ng-template pTemplate="header">
-    <div class="flex justify-content-between align-items-center w-full">
+    <div class="flex justify-between items-center w-full">
       <h4 class="m-0">{{ "@Unsaved changes title" | transloco }}</h4>
       <button pButton icon="pi pi-times" class="p-button-text" (click)="cd.hide()"
               [pTooltip]="'@Cancel' | transloco"></button>
