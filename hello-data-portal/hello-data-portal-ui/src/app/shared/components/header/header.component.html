@@ -3,59 +3,60 @@
 @if (translationsLoaded$ | async) {
 }
 <div [ngStyle]="environment.color && { 'background-color': environment.color } || null"
-     class="layout-topbar flex w-full flex-nowrap items-center justify-between gap-4 py-2 pr-4" id="layout-topbar">
+     class="layout-topbar flex w-full flex-nowrap items-center justify-between gap-4 py-2 pr-12 md:pr-20 xl:pr-28"
+     id="layout-topbar">
   <!-- Left column: Env + Title + Data Domain Selector -->
-  <div class="topbar-left-group shrink-0">
+  <div class="topbar-left-group shrink-0 flex items-center gap-4">
     @if (environment.showEnvironment) {
-      <span class="env-badge glow" [pTooltip]="'@Environment' | transloco" tooltipPosition="bottom">
+      <span class="env-badge glow uppercase font-bold tracking-wide" [pTooltip]="environment.name"
+            tooltipPosition="bottom">
         {{ environment.name | transloco }}
       </span>
     }
-    <span class="app-title" [pTooltip]="'@HelloDATA' | transloco" tooltipPosition="bottom">
+    <span class="app-title font-semibold" [pTooltip]="title() | transloco" tooltipPosition="bottom">
       {{ title() | transloco }}
     </span>
     @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
       @if ((selectedDataDomain$ | async); as selectedDataDomain) {
-        <span class="data-domain-selector" [pTooltip]="'@Selected Data Domain' | transloco" tooltipPosition="bottom">
+        <span class="data-domain-selector" [pTooltip]="selectedDataDomain.name | transloco" tooltipPosition="bottom">
           <a (click)="selectedDataDomainMenu.toggle($event)"
-             class="route-link p-button-link layout-topbar-button flex items-center" pRipple>
-            <span class="pl-2 cursor-pointer truncate data-domain-name">
-              {{ selectedDataDomain.name | transloco }}
-            </span>
-            <i class="fas fa-chevron-down p-1 cursor-pointer"></i>
+             class="route-link p-button-link layout-topbar-button inline-flex items-center gap-1" pRipple>
+            <span class="cursor-pointer truncate data-domain-name">{{ selectedDataDomain.name | transloco }}</span>
+            <i class="fas fa-chevron-down text-xs cursor-pointer"></i>
           </a>
         </span>
       }
     }
   </div>
 
-  <!--Right column -->
-  <div class="flex items-center justify-end gap-4 shrink-0">
+  <!--Right column: languages + user menu together -->
+  <div class="flex flex-nowrap items-center justify-end gap-6 shrink-0 ml-auto whitespace-nowrap"
+       id="topbar-right-group">
     @if ((userData$ | async); as userData) {
-      @if ((languages$ | async); as languages) {
-        <span class="top-menu-item flex items-center whitespace-nowrap">
-          @for (item of supportedLanguages; track item.code; let last = $last) {
-            <a class="cursor-pointer px-1"
-               [ngClass]="{ 'selected-language': item.selected }"
-               (click)="onLanguageChange(item.code)">
-              {{ item.label }}
-            </a>
-            @if (!last) {
-              <span class="mx-1">|</span>
+      <div class="flex flex-nowrap items-center gap-8 whitespace-nowrap">
+        @if (languages$ | async) {
+          <span class="top-menu-item inline-flex items-center whitespace-nowrap" id="topbar-language-selector">
+            @for (item of supportedLanguages; track item.code; let last = $last) {
+              <a class="cursor-pointer px-1"
+                 [ngClass]="{ 'selected-language': item.selected }"
+                 (click)="onLanguageChange(item.code)">
+                {{ item.label }}
+              </a>
+              @if (!last) {
+                <span class="mx-1">|</span>
+              }
             }
-          }
-        </span>
-      }
-      <span class="top-menu-item flex items-center">
-        <a (click)="menu.toggle($event)"
-           class="route-link p-button-link layout-topbar-button flex items-center"
-           id="userMenu">
-          <i class="fas fa-light fa-user cursor-pointer"></i>
-          <span class="pl-2 hidden sm:inline cursor-pointer">
-            {{ userData.email }}
           </span>
-        </a>
-      </span>
+        }
+        <span class="top-menu-item inline-flex items-center whitespace-nowrap">
+          <a (click)="menu.toggle($event)"
+             class="route-link p-button-link layout-topbar-button inline-flex items-center gap-2"
+             id="userMenu">
+            <i class="fas fa-light fa-user cursor-pointer"></i>
+            <span class="hidden sm:inline cursor-pointer truncate max-w-[16rem]">{{ userData.email }}</span>
+          </a>
+        </span>
+      </div>
     }
   </div>
 </div>

@@ -32,11 +32,18 @@ $background-color: #ffffff;
   align-items: center;
   width: 100%;
   padding-left: 1rem;
-  padding-top: 10px;
 }
 
 #layout-topbar {
   height: 70px;
+}
+
+#topbar-right-group {
+  padding-right: 20px;
+}
+
+#topbar-language-selector {
+  padding-right: 20px;
 }
 
 .content-section .card {

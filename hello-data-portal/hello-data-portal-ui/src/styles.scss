@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /* You can add global styles to this file, and also import other style files */
-@import "tailwindcss";
+// Usunięto importy tailwind - przeniesione do src/tailwind.css
 @import "primeicons/primeicons.css";
 @import "assets/styles/layout/layout.scss";
 
@@ -68,4 +68,3 @@
   min-width: 100%;
   width: auto;
 }
-

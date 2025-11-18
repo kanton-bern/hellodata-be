@@ -8588,6 +8588,7 @@ __metadata:
     quill: "npm:^2.0.3"
     rxjs: "npm:^7.8.1"
     tailwindcss: "npm:^4.1.17"
+    tailwindcss-primeui: "npm:^0.6.1"
     ts-jest: "npm:^29.4.5"
     tslib: "npm:^2.8.1"
     typescript: "npm:^5.5.4"
@@ -13116,6 +13117,15 @@ __metadata:
   dependencies:
     "@pkgr/core": "npm:^0.2.9"
   checksum: 10c0/f0761495953d12d94a86edf6326b3a565496c72f9b94c02549b6961fb4d999f4ca316ce6b3eb8ed2e4bfc5056a8de65cda0bd03a233333a35221cd2fdc0e196b
+  languageName: node
+  linkType: hard
+
+"tailwindcss-primeui@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "tailwindcss-primeui@npm:0.6.1"
+  peerDependencies:
+    tailwindcss: ">=3.1.0"
+  checksum: 10c0/a7a576660d4b42dd31d8851c69a1c67199bf79b74bb0ac7e7ff3c8f721e8f05b41278d9af47550a78b234426e9df68cea802ddd5d28a97b00af28b2979226f74
   languageName: node
   linkType: hard
 

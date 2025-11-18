@@ -32,7 +32,7 @@ p-menu {
 
 .top-menu-item {
   margin-top: 0;
-  display: flex;
+  display: inline-flex; /* zmiana z flex aby elementy nie zajmowały pełnej szerokości */
   align-items: center;
 }
 
@@ -90,4 +90,14 @@ app-breadcrumb {
   display: flex;
   align-items: center;
   width: 100%;
+}
+
+/* prawa grupa */
+.topbar-right-group, .right-menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
