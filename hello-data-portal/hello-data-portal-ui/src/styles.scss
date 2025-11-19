@@ -91,3 +91,8 @@ p-autocomplete > .p-autocomplete-input {
   padding: 9px;
   border-radius: 3px;
 }
+
+.p-paginator-page.p-paginator-page-selected {
+  background: var(--p-paginator-nav-button-selected-background);
+  color: var(--p-paginator-nav-button-selected-color);
+}
