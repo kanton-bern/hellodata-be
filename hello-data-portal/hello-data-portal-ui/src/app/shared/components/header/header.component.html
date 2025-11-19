@@ -3,7 +3,7 @@
 @if (translationsLoaded$ | async) {
 }
 <div [ngStyle]="environment.color && { 'background-color': environment.color } || null"
-     class="layout-topbar flex w-full flex-nowrap items-center justify-between gap-4 py-2 pr-12 md:pr-20 xl:pr-28"
+     class="layout-topbar flex w-full flex-nowrap items-center justify-between gap-4 py-2"
      id="layout-topbar">
   <!-- Left column: Env + Title + Data Domain Selector -->
   <div class="topbar-left-group shrink-0 flex items-center gap-4">
@@ -37,7 +37,7 @@
         @if (languages$ | async) {
           <span class="top-menu-item inline-flex items-center whitespace-nowrap" id="topbar-language-selector">
             @for (item of supportedLanguages; track item.code; let last = $last) {
-              <a class="cursor-pointer px-5"
+              <a class="cursor-pointer px-1"
                  [ngClass]="{ 'selected-language': item.selected }"
                  (click)="onLanguageChange(item.code)">
                 {{ item.label }}
@@ -48,7 +48,7 @@
             }
           </span>
         }
-        <span class="top-menu-item inline-flex items-center whitespace-nowrap">
+        <span class="top-menu-item inline-flex items-center whitespace-nowrap cursor-pointer">
           <a (click)="menu.toggle($event)"
              class="route-link p-button-link layout-topbar-button inline-flex items-center gap-2"
              id="userMenu">
