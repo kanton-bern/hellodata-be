@@ -78,8 +78,12 @@ app-published-announcements .p-editor-container .p-editor-toolbar.ql-snow, app-p
 }
 
 p-breadcrumb {
-  z-index: -1;
+  z-index: 0;
   position: relative;
+}
+
+app-breadcrumb {
+  left: 8px;
 }
 
 .p-breadcrumb {

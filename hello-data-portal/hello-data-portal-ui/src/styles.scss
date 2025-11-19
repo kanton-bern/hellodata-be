@@ -31,7 +31,6 @@
 @import "primeicons/primeicons.css";
 @import "assets/styles/layout/layout.scss";
 
-
 * {
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
@@ -69,4 +68,8 @@
 .p-fluid .p-inputtext {
   min-width: 100%;
   width: auto;
+}
+
+p-table p-iconfield > input {
+  padding-left: 40px;
 }

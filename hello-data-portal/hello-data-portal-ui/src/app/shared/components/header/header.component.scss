@@ -63,7 +63,7 @@ app-breadcrumb {
 
 .breadcrumb-container, .published-announcements-container {
   position: relative;
-  z-index: -1;
+  z-index: 0;
 }
 
 .selected-language {
