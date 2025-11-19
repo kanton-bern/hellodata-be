@@ -70,6 +70,20 @@
   width: auto;
 }
 
-p-table p-iconfield > input {
-  padding-left: 40px;
+p-columnfilterformelement > input {
+  border-width: thin;
+  padding: 10px 10px 10px 10px;
+  border-radius: 3px;
 }
+
+p-table p-iconfield > input {
+  border-width: thin;
+  padding: 10px 10px 10px 40px;
+  border-radius: 3px;
+}
+
+//p-iconfield {
+//  border-width: thin;
+//  padding: 5px;
+//  border-radius: 3px;
+//}
