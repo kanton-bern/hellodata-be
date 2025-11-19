@@ -13,7 +13,7 @@
               <p-button (click)="showUserDisablePopup(editedUser)"
                         icon="fas fa-circle-xmark" pRipple pButton
                         label="{{'@Disable' | transloco}}"
-                        class="mr-2 p-button-warning mr-2"/>
+                        class="mr-2 p-button-warning"/>
             }
             @if (!editedUser.superuser && !editedUser.enabled) {
               <p-button (click)="showUserEnablePopup(editedUser)"
@@ -28,7 +28,7 @@
           <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled id="email" type="text"
               value="{{editedUser.email}}">
           </div>
@@ -37,7 +37,7 @@
           <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled id="firstName" type="text"
               value="{{editedUser.firstName}}">
           </div>

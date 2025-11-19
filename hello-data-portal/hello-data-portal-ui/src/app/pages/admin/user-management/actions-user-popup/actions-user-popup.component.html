@@ -6,8 +6,8 @@
     {{ confirmAction(userForPopup) }}
     <ng-template pTemplate="footer">
       <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-                type="button" severity="secondary"/>
-      <p-button (click)="cd.onAccept()"
+                type="button" severity="secondary" pRipple pButton/>
+      <p-button (click)="cd.onAccept()" pRipple pButton
                 [severity]="getButtonTypeForAction(userForPopup)"
                 label="{{getActionTranslationKey(userForPopup) | transloco}}"
                 type="button"/>
