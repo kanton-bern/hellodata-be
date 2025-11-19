@@ -5,9 +5,9 @@
     <div class="field grid grid-cols-12 gap-4">
       <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
-        <span class="p-fluid border-surface rounded-border appearance-none outline-0 focus:border-primary"
+        <span class="p-fluid border-surface rounded-border appearance-none outline-0 focus:border-primary w-100"
               style="width: 100%; display: grid grid-cols-12 gap-4">
-          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
+          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)" class="w-100 mb-1"
                           [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
                           name="user">
             <ng-template let-user pTemplate="item">
@@ -27,7 +27,7 @@
       <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input [readOnly]="true"
-               class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+               class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
                formControlName="firstName"
                id="firstName"
                name="firstName"
@@ -43,7 +43,7 @@
       <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input [readOnly]="true"
-               class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+               class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
                formControlName="lastName"
                id="lastName"
                name="lastName"

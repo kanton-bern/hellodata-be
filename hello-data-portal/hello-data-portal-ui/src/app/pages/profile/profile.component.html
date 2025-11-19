@@ -6,7 +6,7 @@
       <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
-          class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+          class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
           disabled id="firstName" type="text"
           value="{{userDetails.given_name}}">
       </div>
@@ -15,7 +15,7 @@
       <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
-          class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+          class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
           disabled id="lastName" type="text"
           value="{{userDetails.family_name}}">
       </div>
@@ -24,17 +24,18 @@
       <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
-          class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+          class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
           disabled id="email" type="text"
           value="{{userDetails.email}}">
       </div>
     </div>
     <div class="field grid grid-cols-12 gap-4">
-      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="selectedLanguage">{{ '@Selected language' | transloco }}</label>
+      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+             for="selectedLanguage">{{ '@Selected language' | transloco }}</label>
       <div class="col-span-12 md:col-span-10">
         <input
           [value]="(selectedLanguage$ | async)?.code + ' ' + ((selectedLanguage$ | async)?.typeTranslationKey | transloco)"
-          class="opacity-80 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+          class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
           disabled id="selectedLanguage"
           type="text"/>
       </div>
@@ -52,7 +53,7 @@
             id="role-table"
             sortMode="multiple"
             class="p-datatable-striped"
-            >
+          >
             <ng-template pTemplate="header">
               <tr style="text-align: left;">
                 <th id="domain">{{ '@Domain' | transloco }}</th>

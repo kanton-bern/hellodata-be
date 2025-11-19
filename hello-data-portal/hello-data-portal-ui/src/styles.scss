@@ -72,7 +72,7 @@
 
 p-columnfilterformelement > input {
   border-width: thin;
-  padding: 10px 10px 10px 10px;
+  padding: 10px;
   border-radius: 3px;
 }
 
@@ -82,8 +82,12 @@ p-table p-iconfield > input {
   border-radius: 3px;
 }
 
-//p-iconfield {
-//  border-width: thin;
-//  padding: 5px;
-//  border-radius: 3px;
-//}
+p-autocomplete {
+  width: 100%;
+}
+
+p-autocomplete > .p-autocomplete-input {
+  border-width: thin;
+  padding: 9px;
+  border-radius: 3px;
+}
