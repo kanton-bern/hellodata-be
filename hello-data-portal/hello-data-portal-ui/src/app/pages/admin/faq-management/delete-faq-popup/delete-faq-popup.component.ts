@@ -35,15 +35,16 @@ import {TranslateService} from "../../../../shared/services/translate.service";
 import {hideDeleteFaqPopup} from "../../../../store/faq/faq.action";
 import {AsyncPipe} from '@angular/common';
 import {ConfirmDialog} from 'primeng/confirmdialog';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Ripple} from "primeng/ripple";
 
 @Component({
   selector: 'app-delete-faq-popup',
   templateUrl: './delete-faq-popup.component.html',
   styleUrls: ['./delete-faq-popup.component.scss'],
   providers: [ConfirmationService, MessageService],
-  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe]
+  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
 })
 export class DeleteFaqPopupComponent {
   private store = inject<Store<AppState>>(Store);

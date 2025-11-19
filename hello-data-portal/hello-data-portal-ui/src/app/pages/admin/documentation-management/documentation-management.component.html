@@ -30,7 +30,7 @@
           <div class="p-toolbar-group-end">
             <p-button (click)="createOrUpdateDocumentation(result.doc)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-                      icon="fas fa-floppy-disk"
+                      icon="fas fa-floppy-disk" pRipple pButton
                       label="{{'@Save' | transloco}}"
                       severity="success"/>
           </div>

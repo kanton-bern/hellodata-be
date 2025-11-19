@@ -17,7 +17,7 @@
             <div class="flex items-center justify-between">
               @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
                 <p-button (click)="openNew()" severity="success" icon="fas fa-circle-plus"
-                          label="{{'@Create' | transloco }}"></p-button>
+                          label="{{'@Create' | transloco }}" pRipple pButton></p-button>
               }
               <h5 class="m-0">&nbsp;</h5>
               <span class="p-input-icon-left">
@@ -131,9 +131,9 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-              type="button" severity="secondary"/>
+              type="button" severity="secondary" pRipple pButton/>
     <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
-              type="button"/>
+              type="button" pRipple pButton/>
   </ng-template>
 </p-confirmDialog>
 

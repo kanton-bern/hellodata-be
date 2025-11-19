@@ -25,18 +25,18 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {map, Observable, Subscription} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectEditedExternalDashboard} from "../../../../store/external-dashboards/external-dashboards.selector";
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {
   ExternalDashboard,
   ExternalDashboardMetadata
 } from "../../../../store/external-dashboards/external-dashboards.model";
 import {selectAvailableDataDomainItems} from "../../../../store/my-dashboards/my-dashboards.selector";
-import { ConfirmationService, PrimeTemplate } from "primeng/api";
+import {ConfirmationService, PrimeTemplate} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
 import {clearUnsavedChanges, markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-changes.actions";
 import {naviElements} from "../../../../app-navi-elements";
@@ -48,19 +48,20 @@ import {
   deleteExternalDashboard,
   updateExternalDashboard
 } from "../../../../store/external-dashboards/external-dasboards.action";
-import { AsyncPipe } from '@angular/common';
-import { Select } from 'primeng/select';
-import { Toolbar } from 'primeng/toolbar';
-import { Button, ButtonDirective } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {Select} from 'primeng/select';
+import {Toolbar} from 'primeng/toolbar';
+import {Button, ButtonDirective} from 'primeng/button';
+import {Tooltip} from 'primeng/tooltip';
+import {ConfirmDialog} from 'primeng/confirmdialog';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {Ripple} from "primeng/ripple";
 
 @Component({
-    selector: 'app-external-dashboard-edit',
-    templateUrl: './external-dashboard-edit.component.html',
-    styleUrls: ['./external-dashboard-edit.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, ButtonDirective, AsyncPipe, TranslocoPipe]
+  selector: 'app-external-dashboard-edit',
+  templateUrl: './external-dashboard-edit.component.html',
+  styleUrls: ['./external-dashboard-edit.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, Select, Toolbar, Button, Tooltip, ConfirmDialog, PrimeTemplate, ButtonDirective, AsyncPipe, TranslocoPipe, Ripple]
 })
 export class ExternalDashboardEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);

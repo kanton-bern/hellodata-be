@@ -48,18 +48,19 @@ import {AsyncPipe, DatePipe} from '@angular/common';
 import {Checkbox} from 'primeng/checkbox';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {Editor} from 'primeng/editor';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {Toolbar} from 'primeng/toolbar';
 import {Tooltip} from 'primeng/tooltip';
 import {DeleteAnnouncementPopupComponent} from '../delete-announcement-popup/delete-announcement-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Ripple} from "primeng/ripple";
 
 @Component({
   selector: 'app-announcement-edit',
   templateUrl: './announcement-edit.component.html',
   styleUrls: ['./announcement-edit.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, Checkbox, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Button,
-    Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+    Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, ButtonDirective, Ripple]
 })
 export class AnnouncementEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

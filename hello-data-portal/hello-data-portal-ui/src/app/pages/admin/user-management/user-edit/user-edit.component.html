@@ -6,18 +6,18 @@
         <p-toolbar>
           <div class="p-toolbar-group-start">
             <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary"/>
+                      icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
           </div>
           <div class="p-toolbar-group-end">
             @if (!editedUser.superuser && editedUser.enabled) {
               <p-button (click)="showUserDisablePopup(editedUser)"
-                        icon="fas fa-circle-xmark"
+                        icon="fas fa-circle-xmark" pRipple pButton
                         label="{{'@Disable' | transloco}}"
                         class="mr-2 p-button-warning mr-2"/>
             }
             @if (!editedUser.superuser && !editedUser.enabled) {
               <p-button (click)="showUserEnablePopup(editedUser)"
-                        icon="fas fa-circle-plus"
+                        icon="fas fa-circle-plus" pRipple pButton
                         label="{{'@Enable' | transloco}}"
                         severity="success"/>
             }
@@ -86,7 +86,8 @@
                         <div
                           class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Business domain' | transloco }}
                         </div>
-                        <div class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
+                        <div
+                          class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
                         </div>
                         <br>
                         <div class="col-span-12 md:col-span-12">
@@ -111,11 +112,15 @@
                     }
                     <br>
                     <div class="field grid grid-cols-12 gap-4">
-                      <div class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Data domain' | transloco }}
+                      <div
+                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Data domain' | transloco }}
                       </div>
-                      <div class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Domain type' | transloco }}
+                      <div
+                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Domain type' | transloco }}
                       </div>
-                      <div class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}</div>
+                      <div
+                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
+                      </div>
                       <br>
                       <div class="col-span-12 md:col-span-12">
                         @for (dataDomain of dataDomains; track dataDomain) {
@@ -157,8 +162,8 @@
         <p-toolbar>
           <div class="p-toolbar-group-start">
             <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary"/>
-            <p-button (click)="updateUser()"
+                      icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
+            <p-button (click)="updateUser()" pButton
                       [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled"
                       severity="success" [loading]="userSaveButtonDisabled$ | async"
                       label="{{'@Save' | transloco}}"

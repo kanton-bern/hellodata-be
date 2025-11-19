@@ -3,8 +3,8 @@
   <div class="card">
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
-        <button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
-        label="{{'@Create announcement' | transloco }}" pButton pRipple></button>
+        <p-button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
+                  label="{{'@Create announcement' | transloco }}" pButton pRipple></p-button>
       </ng-template>
     </p-toolbar>
     @if ((allAnnouncements$ | async); as announcements) {
@@ -18,7 +18,7 @@
             [value]="announcements"
             dataKey="id"
             class="p-datatable-striped"
-            >
+          >
             <ng-template pTemplate="header">
               <tr>
                 <th id="publishedHeader">&nbsp;</th>
@@ -40,13 +40,13 @@
                   @if (!announcement.published) {
                     <div>
                       <i class="fa-solid fa-circle" style="color: #ff0000;"
-                      pTooltip="{{'@Announcement unpublished' | transloco }}"></i>
+                         pTooltip="{{'@Announcement unpublished' | transloco }}"></i>
                     </div>
                   }
                   @if (announcement.published) {
                     <div>
                       <i class="fa-solid fa-circle" style="color: #008000;"
-                      pTooltip="{{'@Announcement published' | transloco }}"></i>
+                         pTooltip="{{'@Announcement published' | transloco }}"></i>
                     </div>
                   }
                 </td>
@@ -58,25 +58,25 @@
                 </td>
                 <td>
                   <p-editor [ngModel]="getMessage(announcement, selectedLanguage)" [disabled]="true" [readonly]="true"
-                    [style]="{ height: '320px' }">
-                    <p-header hidden />
+                            [style]="{ height: '320px' }">
+                    <p-header hidden/>
                   </p-editor>
                 </td>
                 <td>
                   <p-button (click)="editAnnouncement(announcement)"
-                    [pTooltip]="'@Edit' | transloco"
-                    severity="success"
-                    icon="fas fa-light fa-pen-to-square"
-                    class="p-button-rounded mr-2"
-                    pButton
-                  pRipple />
+                            [pTooltip]="'@Edit' | transloco"
+                            severity="success"
+                            icon="fas fa-light fa-pen-to-square"
+                            class="p-button-rounded mr-2"
+                            pButton
+                            pRipple/>
                   <p-button (click)="showAnnouncementDeletionPopup(announcement)"
-                    [pTooltip]="'@Delete' | transloco"
-                    severity="danger"
-                    icon="fas fa-trash"
-                    class="p-button-rounded mr-2"
-                    pButton
-                  pRipple />
+                            [pTooltip]="'@Delete' | transloco"
+                            severity="danger"
+                            icon="fas fa-trash"
+                            class="p-button-rounded mr-2"
+                            pButton
+                            pRipple/>
                 </td>
               </tr>
             </ng-template>
@@ -87,4 +87,4 @@
   </div>
 }
 
-<app-delete-announcement-popup [action]="getDeletionAction()" />
+<app-delete-announcement-popup [action]="getDeletionAction()"/>

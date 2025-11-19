@@ -68,7 +68,7 @@ import {
 } from "../../../../store/users-management/users-management.action";
 import {AsyncPipe} from '@angular/common';
 import {Toolbar} from 'primeng/toolbar';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {Divider} from 'primeng/divider';
 import {Select} from 'primeng/select';
@@ -84,7 +84,7 @@ import {map} from "rxjs/operators";
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, Select, DashboardViewerPermissionsComponent, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe]
+  imports: [FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, Select, DashboardViewerPermissionsComponent, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, ButtonDirective]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

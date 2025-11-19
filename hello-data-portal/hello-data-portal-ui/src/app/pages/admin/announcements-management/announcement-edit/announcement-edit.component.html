@@ -4,7 +4,8 @@
       <h5>{{ '@Announcement' | transloco }}</h5>
       @if (editedAnnouncement.createdDate) {
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="createdDate">{{ '@Created date' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
               class="opacity-40 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
@@ -30,7 +31,8 @@
       }
       @if (editedAnnouncement.modifiedDate) {
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="modifiedDate">{{ '@Modified date' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
               class="opacity-40 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
@@ -62,7 +64,8 @@
       </div>
       @if (editedAnnouncement.publishedDate) {
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="publishedDate">{{ '@Published date' | transloco }}</label>
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="publishedDate">{{ '@Published date' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
               class="text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full opacity-40"
@@ -102,7 +105,7 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary"/>
+                    icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
@@ -110,12 +113,12 @@
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       icon="fas fa-floppy-disk" class="mr-2"
                       label="{{'@Save' | transloco}}"
-                      severity="success"/>
+                      severity="success" pRipple pButton/>
             @if (editedAnnouncement.id) {
               <p-button (click)="openDeletePopup(editedAnnouncement)"
                         icon="fas fa-trash" class="mr-2"
                         label="{{'@Delete' | transloco}}"
-                        severity="danger"/>
+                        severity="danger" pRipple pButton/>
             }
           </div>
         }

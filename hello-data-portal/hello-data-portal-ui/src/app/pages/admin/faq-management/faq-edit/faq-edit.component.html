@@ -4,7 +4,8 @@
       <h5>{{ '@Faq' | transloco }}</h5>
       @if (editedFaq.createdDate) {
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="createdDate">{{ '@Created date' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
               class="opacity-40 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
@@ -30,7 +31,8 @@
       }
       @if (editedFaq.modifiedDate) {
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="modifiedDate">{{ '@Modified date' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
               class="opacity-40 text-base text-color bg-surface-0 dark:bg-surface-900 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
@@ -56,7 +58,8 @@
       }
       @if ((availableDataDomains$ | async); as availableDataDomains) {
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="dataDomainKey">{{ '@Data domain' | transloco }}</label>
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="dataDomainKey">{{ '@Data domain' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <p-select [options]="availableDataDomains"
                       formControlName="dataDomain"
@@ -108,19 +111,19 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary"/>
+                    icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
             <p-button (click)="saveFaq(editedFaq)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       icon="fas fa-floppy-disk"
-                      class="mr-2"
+                      class="mr-2" pRipple pButton
                       id="saveFaqButton"
                       label="{{'@Save' | transloco}}"
                       severity="success"/>
             @if (editedFaq.id) {
-              <p-button (click)="openDeletePopup(editedFaq)" icon="fas fa-trash"
+              <p-button (click)="openDeletePopup(editedFaq)" icon="fas fa-trash" pRipple pButton
                         label="{{'@Delete' | transloco}}" severity="danger"/>
             }
           </div>
