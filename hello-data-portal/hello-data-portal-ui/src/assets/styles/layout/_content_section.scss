@@ -72,3 +72,31 @@ p-editor > .ql-toolbar.ql-snow {
 p-editor.p-editor-readonly > .ql-toolbar.ql-snow, p-editor.p-editor-readonly > .ql-container.ql-snow {
   border: none;
 }
+
+p-columnfilterformelement > input {
+  border-width: thin;
+  padding: 10px;
+  border-radius: 3px;
+}
+
+p-table p-iconfield > input {
+  border-width: thin;
+  padding: 10px 10px 10px 40px;
+  border-radius: 3px;
+}
+
+p-autocomplete {
+  width: 100%;
+}
+
+p-autocomplete > .p-autocomplete-input {
+  border-width: thin;
+  padding: 9px;
+  border-radius: 3px;
+}
+
+.p-paginator-page.p-paginator-page-selected {
+  background: var(--p-paginator-nav-button-selected-background);
+  color: var(--p-paginator-nav-button-selected-color);
+}
+
