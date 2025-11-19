@@ -11,18 +11,18 @@
               <div style="text-align: left">
                 <p-button (onClick)="dt.exportCSV()"
                           [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-external-link"
+                          icon="pi pi-external-link" pRipple pButton
                           label="{{ '@Export' | transloco }}"/>
               </div>
               <div class="ml-1" style="text-align: left">
                 <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-replay"
+                          icon="pi pi-replay" pRipple pButton
                           label="{{ '@Reload' | transloco }}"
                           severity="success"/>
               </div>
               <div class="ml-1" style="text-align: left">
                 <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-times-circle"
+                          icon="pi pi-times-circle" pRipple pButton
                           label="{{ '@Clear cache' | transloco }}"
                           severity="help"/>
               </div>
