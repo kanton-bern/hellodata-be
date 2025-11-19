@@ -49,15 +49,13 @@
 
 <section class="content-section">
   <app-header [title]="title()"/>
-  <div class="grid grid-cols-12 gap-4">
-    <div [ngClass]="'col'" [style]="{'height': '90vh', 'overflow-y': 'scroll'}" id="mainContentDiv">
-
+  <div class="grid gap-4 [grid-template-columns:repeat(11,minmax(0,1fr))_30px]">
+    <div class="col-span-11 h-[90vh] overflow-y-scroll" id="mainContentDiv">
       <ng-content/>
-      
     </div>
+
     @if (selectCurrentUserPermissionsLoaded$) {
-      <div [ngClass]="['col-fixed', 'right-panel-close']"
-           [ngStyle]="{'width': '30px'}" class="right-panel">
+      <div class="right-panel w-[30px] right-panel-close">
         <app-summary/>
       </div>
     }
