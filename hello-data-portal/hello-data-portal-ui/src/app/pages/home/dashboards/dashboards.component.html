@@ -10,6 +10,7 @@
              [tableStyle]="{ 'min-width': '20rem' }"
              [value]="dashboards"
              (onPage)="onPageChange($event)"
+             [stripedRows]="true"
              stateStorage="session"
              stateKey="home-dashboards-table"
              dataKey="id">

@@ -3,25 +3,26 @@
     @if ((externalDashboards$ | async); as externalDashboards) {
       <div>
         <p-table #dt [filterDelay]="0"
-          [globalFilterFields]="['contextName', 'url', 'title']"
-          [paginator]="true"
-          [rowHover]="true"
-          [rows]="10"
-          [rowsPerPageOptions]="[5,10, 25, 50, 100]"
-          [showCurrentPageReport]="true"
-          [tableStyle]="{ 'min-width': '20rem' }"
-          [value]="externalDashboards"
-          (onPage)="onPageChange($event)"
-          stateStorage="session"
-          stateKey="home-external-dashboards-table"
-          dataKey="id">
+                 [globalFilterFields]="['contextName', 'url', 'title']"
+                 [paginator]="true"
+                 [rowHover]="true"
+                 [rows]="10"
+                 [rowsPerPageOptions]="[5,10, 25, 50, 100]"
+                 [showCurrentPageReport]="true"
+                 [tableStyle]="{ 'min-width': '20rem' }"
+                 [value]="externalDashboards"
+                 (onPage)="onPageChange($event)"
+                 [stripedRows]="true"
+                 stateStorage="session"
+                 stateKey="home-external-dashboards-table"
+                 dataKey="id">
           <ng-template pTemplate="caption">
             <div class="flex">
               <span class="p-input-icon-left ml-auto">
                 <p-iconfield>
-                  <p-inputicon class="pi pi-search" />
+                  <p-inputicon class="pi pi-search"/>
                   <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
-                    placeholder="{{'@Search' | transloco}}" type="text"/>
+                         placeholder="{{'@Search' | transloco}}" type="text"/>
                 </p-iconfield>
               </span>
             </div>
@@ -30,10 +31,10 @@
             <tr>
               <th id="icon"></th>
               <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
-                <p-sortIcon field="contextName" />
+                <p-sortIcon field="contextName"/>
               </th>
               <th id="title" pSortableColumn="title">{{ '@Dashboard' | transloco }}
-                <p-sortIcon field="title" />
+                <p-sortIcon field="title"/>
               </th>
             </tr>
           </ng-template>
@@ -49,9 +50,9 @@
               </td>
               <td>
                 <a [href]="createExternalUrl(dashboard.url)" rel="noopener" target="_blank"
-                  matomoCategory="External Dashboard (Home Page)"
-                  matomoAction="[Click] - {{ dashboard.title }}"
-                [matomoTracker]="['click']">{{ dashboard.title }}</a>
+                   matomoCategory="External Dashboard (Home Page)"
+                   matomoAction="[Click] - {{ dashboard.title }}"
+                   [matomoTracker]="['click']">{{ dashboard.title }}</a>
               </td>
             </tr>
           </ng-template>

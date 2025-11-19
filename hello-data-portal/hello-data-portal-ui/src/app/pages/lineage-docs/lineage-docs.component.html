@@ -3,12 +3,13 @@
   <div class="card">
     <h4>{{ '@Available Projects' | transloco }}</h4>
     <p-table [paginator]="true"
-      [rowHover]="true"
-      [rows]="10"
-      [showCurrentPageReport]="true"
-      [tableStyle]="{ 'min-width': '50rem' }"
-      [value]="projectDocs"
-      dataKey="displayName">
+             [stripedRows]="true"
+             [rowHover]="true"
+             [rows]="10"
+             [showCurrentPageReport]="true"
+             [tableStyle]="{ 'min-width': '50rem' }"
+             [value]="projectDocs"
+             dataKey="displayName">
       <ng-template pTemplate="header">
         <tr>
           <th id="icon"></th>
@@ -39,12 +40,12 @@
           <td>
             <div class="flex items-center justify-center gap-2">
               <p-button (click)="openLineage(projectDoc)"
-                [pTooltip]="'@Open' | transloco"
-                class="p-button-rounded mr-2"
-                severity="info"
-                icon="fas fa-up-right-from-square"
-                pButton
-              pRipple />
+                        [pTooltip]="'@Open' | transloco"
+                        class="p-button-rounded mr-2"
+                        severity="info"
+                        icon="fas fa-up-right-from-square"
+                        pButton
+                        pRipple/>
             </div>
           </td>
         </tr>

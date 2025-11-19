@@ -12,6 +12,7 @@
              [tableStyle]="{ 'min-width': '50rem' }"
              [value]="dashboards"
              sortField="dashboardTitle"
+             [stripedRows]="true"
              [sortOrder]="1"
              (onPage)="onPageChange($event)"
              dataKey="id"

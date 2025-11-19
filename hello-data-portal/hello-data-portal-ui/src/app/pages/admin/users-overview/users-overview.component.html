@@ -4,7 +4,7 @@
     @if ((columns$ | async); as columns) {
       <div>
         <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData"
-                 [scrollable]="true"
+                 [scrollable]="true" [stripedRows]="true"
                  scrollHeight="flex">
           <ng-template pTemplate="caption">
             <div class="flex">

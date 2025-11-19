@@ -1,21 +1,21 @@
-
 @if ((this.docs$ |async); as lineageDocs) {
   <div>
     <p-table [paginator]="true"
-      [rowHover]="true"
-      [rows]="5"
-      [showCurrentPageReport]="true"
-      [tableStyle]="{ 'min-width': '20rem' }"
-      [value]="lineageDocs"
-      dataKey="displayName">
+             [stripedRows]="true"
+             [rowHover]="true"
+             [rows]="5"
+             [showCurrentPageReport]="true"
+             [tableStyle]="{ 'min-width': '20rem' }"
+             [value]="lineageDocs"
+             dataKey="displayName">
       <ng-template pTemplate="header">
         <tr>
           <th id="icon"></th>
-          <th id="dataDomain" pSortableColumn="name">{{'@Data domain' | transloco}}
-            <p-sortIcon field="name" />
+          <th id="dataDomain" pSortableColumn="name">{{ '@Data domain' | transloco }}
+            <p-sortIcon field="name"/>
           </th>
-          <th id="name" pSortableColumn="name">{{'@Docs' | transloco}}
-            <p-sortIcon field="name" />
+          <th id="name" pSortableColumn="name">{{ '@Docs' | transloco }}
+            <p-sortIcon field="name"/>
           </th>
         </tr>
       </ng-template>
@@ -28,7 +28,7 @@
             {{ projectDoc.contextName }}
           </td>
           <td>
-            <a routerLink="{{openLineage(projectDoc)}}">{{projectDoc.name}}</a>
+            <a routerLink="{{openLineage(projectDoc)}}">{{ projectDoc.name }}</a>
           </td>
         </tr>
       </ng-template>

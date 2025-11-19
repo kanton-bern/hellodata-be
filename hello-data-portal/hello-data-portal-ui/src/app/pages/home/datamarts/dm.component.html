@@ -1,19 +1,19 @@
-
 <p-table [paginator]="true"
          [rowHover]="true"
          [rows]="5"
          [showCurrentPageReport]="true"
          [tableStyle]="{ 'min-width': '20rem' }"
          [value]="dataMarts$ | async"
+         [stripedRows]="true"
          dataKey="id">
   <ng-template pTemplate="header">
     <tr>
       <th id="iconHeader"></th>
-      <th id="dataDomain" pSortableColumn="domain">{{'@Data domain' | transloco}}
-        <p-sortIcon field="domain" />
+      <th id="dataDomain" pSortableColumn="domain">{{ '@Data domain' | transloco }}
+        <p-sortIcon field="domain"/>
       </th>
-      <th id="name" pSortableColumn="name">{{'@Data Mart' | transloco}}
-        <p-sortIcon field="name" />
+      <th id="name" pSortableColumn="name">{{ '@Data Mart' | transloco }}
+        <p-sortIcon field="name"/>
       </th>
     </tr>
   </ng-template>
@@ -23,7 +23,7 @@
         <i class="fas fa-light fa-store"></i>
       </td>
       <td>
-        {{datamart.label}}
+        {{ datamart.label }}
       </td>
       <td>
         <a routerLink="{{createLink(datamart)}}">{{ '@DM Viewer' | transloco }}</a>
