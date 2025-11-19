@@ -100,3 +100,7 @@ p-autocomplete > .p-autocomplete-input {
   color: var(--p-paginator-nav-button-selected-color);
 }
 
+p-select, p-multiselect {
+  border-width: thin;
+  border-radius: 3px;
+}

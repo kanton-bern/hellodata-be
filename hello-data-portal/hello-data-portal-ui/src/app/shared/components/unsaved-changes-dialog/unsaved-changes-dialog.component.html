@@ -7,18 +7,18 @@
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
-    <button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Discard changes' | transloco}}" pButton
-            type="button" severity="secondary"></button>
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Discard changes' | transloco}}"
+              type="button" severity="secondary" pRipple pButton></p-button>
     @if (stayOnPage$ | async; as stayOnPage) {
       @if (!stayOnPage.value) {
         <p-button (click)="cd.onAccept()"
-                  severity="success"
+                  severity="success" pRipple pButton
                   icon="fas fa-floppy-disk"
                   label="{{ '@Save changes' | transloco }}"
                   type="button"
         />
       } @else {
-        <p-button (click)="cd.hide()"
+        <p-button (click)="cd.hide()" pRipple pButton
                   severity="success"
                   icon="fas fa-pen-to-square"
                   label="{{ '@Continue edition' | transloco }}"
