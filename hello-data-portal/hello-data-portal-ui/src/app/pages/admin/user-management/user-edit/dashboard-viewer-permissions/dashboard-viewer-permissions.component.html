@@ -2,15 +2,14 @@
   <div>
     @if (dashboards$ | async) {
       <div>
-        <br>
-          <p-multiSelect (onChange)="onSelectionChange($event)"
-            [(ngModel)]="selectedDashboards"
-            [options]="allDashboardsForContext"
-            [panelStyle]="{'width':'100%'}"
-            [style]="{'width':'100%'}"
-            placeholder="{{'@Select a Dashboard' | transloco }}"
-          optionLabel="title" />
-        </div>
-      }
-    </div>
-  }
+        <p-multiSelect (onChange)="onSelectionChange($event)"
+                       [(ngModel)]="selectedDashboards"
+                       [options]="allDashboardsForContext"
+                       [panelStyle]="{'width':'100%'}"
+                       [style]="{'width':'100%'}"
+                       placeholder="{{'@Select a Dashboard' | transloco }}"
+                       optionLabel="title"/>
+      </div>
+    }
+  </div>
+}

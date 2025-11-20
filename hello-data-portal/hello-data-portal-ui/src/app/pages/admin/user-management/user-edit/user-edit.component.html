@@ -130,9 +130,6 @@
                               <label
                                 class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</label>
                               <div class="col-span-12 md:col-span-2">
-                                <div class="col-span-12 md:col-span-10 mt-1">
-                                  &nbsp;
-                                </div>
                                 <p-select (onChange)="onDataDomainRoleSelected($event, dataDomain)"
                                           [options]="availableDataDomainRoles"
                                           formControlName="{{dataDomain.contextKey}}"
