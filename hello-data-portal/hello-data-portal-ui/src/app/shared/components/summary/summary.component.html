@@ -1,10 +1,10 @@
 @if ((currentUserPermissions$ | async); as permissions) {
-  <div id="summaryComponent">
-    <p-drawer [(visible)]="overlaySidebarVisible" position="right" [style]="{ width: '30rem' }">
-      <ng-template pTemplate="header">
-        <div class="font-semibold" id="summaryHeader"> {{ '@Summary header' | transloco }}</div>
-      </ng-template>
-      <ng-template pTemplate="content">
+  <p-drawer [(visible)]="overlaySidebarVisible" position="right" [style]="{ width: '30rem' }">
+    <ng-template pTemplate="header">
+      <div class="font-semibold" id="summaryHeader"> {{ '@Summary header' | transloco }}</div>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <div id="summary-content">
         @if (permissions.length !== 0) {
           <p-fieldset id="statusHeader" legend="Status">
             <p-accordion value="0">
@@ -70,12 +70,13 @@
               </p-accordion-panel>
             </p-accordion>
           </p-fieldset>
+          <br/>
         }
         @if ((documentation$ | async); as documentation) {
           <p-fieldset>
             <ng-template pTemplate="header">
               <div>
-                <span>{{ '@Documentation' | transloco }}</span>
+                <span><b>{{ '@Documentation' | transloco }}</b></span>
                 @if (permissions | contains: 'DOCUMENTATION_MANAGEMENT') {
                   <p-button (click)="editDocumentation()"
                             [pTooltip]="'@Edit' | transloco"
@@ -99,11 +100,13 @@
               </div>
             }
           </p-fieldset>
+          <br/>
         }
         @if (permissions.length !== 0) {
           <p-fieldset id="subscriptionsHeader" legend="{{'@Subscriptions' | transloco}}">
             <app-subscriptions/>
           </p-fieldset>
+          <br/>
         }
         @if ((storeSize$ | async); as storeSize) {
           <p-fieldset id="storageSizeHeader"
@@ -119,6 +122,7 @@
               }
             </div>
           </p-fieldset>
+          <br/>
         }
         @if ((storeSize$ | async); as storeSize) {
           <p-fieldset id="dbSizeHeader" legend="{{'@Database size' | transloco}}">
@@ -133,16 +137,17 @@
               }
             </div>
           </p-fieldset>
+          <br/>
         }
         <app-footer [appInfo]="appInfo"/>
-      </ng-template>
-    </p-drawer>
-    <p-scrollPanel [style]="{ width: '100%' }">
-      <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
-           class="summary-header">
-        {{ '@Summary header' | transloco }}
       </div>
-    </p-scrollPanel>
-  </div>
+    </ng-template>
+  </p-drawer>
+  <p-scrollPanel [style]="{ width: '100%' }">
+    <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
+         class="summary-header">
+      {{ '@Summary header' | transloco }}
+    </div>
+  </p-scrollPanel>
 }
 
