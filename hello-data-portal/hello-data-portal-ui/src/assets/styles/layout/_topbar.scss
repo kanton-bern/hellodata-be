@@ -36,7 +36,7 @@ $background-color: #ffffff;
 
 #layout-topbar {
   height: 70px;
-  padding-top: 15px;
+  padding-top: 22px;
 }
 
 #topbar-right-group {
@@ -78,7 +78,7 @@ app-published-announcements .p-editor-container .p-editor-toolbar.ql-snow, app-p
 }
 
 p-breadcrumb {
-  z-index: 0;
+  z-index: -1;
   position: relative;
 }
 
@@ -115,8 +115,8 @@ app-breadcrumb {
 }
 
 .topbar-left-group .app-title {
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 500;
+  font-size: 1.3rem;
   display: inline-flex;
   align-items: center;
   margin-right: 0.25rem;
