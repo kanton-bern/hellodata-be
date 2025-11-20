@@ -4,7 +4,7 @@
     @if (selectedAppInfo$ | async) {
       <span>
         <a href="{{selectedResourceUrl}}"
-        rel="noopener" target="_blank">{{ selectedResource.instanceName }}</a>
+           rel="noopener" target="_blank">{{ selectedResource.instanceName }}</a>
         {{ '; module type: ' + selectedResource.moduleType + '; api version: ' + selectedResource.apiVersion }}
       </span>
     }
@@ -17,8 +17,8 @@
       @for (item of resources; track item) {
         <div class="col-span-2">
           <div (click)="navigateToSelectedResource(item)"
-            class="cursor-pointer p-8 bg-white flex flex-col border-2 border-transparent hover:border-primary transition-colors duration-300 justify-center items-center shadow"
-            pRipple>
+               class="cursor-pointer p-8 bg-white flex flex-col border-2 border-transparent hover:border-primary transition-colors duration-300 justify-center items-center shadow"
+               pRipple>
             <table aria-describedby="selected workspace">
               <tr>
                 <th id="item"></th>
@@ -36,7 +36,7 @@
     <p-toolbar>
       <div class="p-toolbar-group-start">
         <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2" icon="fas fa-arrow-left"
-          severity="secondary"/>
+                  severity="secondary" pButton pRipple/>
       </div>
     </p-toolbar>
   </div>

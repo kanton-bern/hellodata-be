@@ -4,47 +4,36 @@
     <div class="grid grid-cols-12 gap-4">
       @for (item of appInfos | orderBy: 'moduleType'; track item) {
         <div class="col-span-2">
-          <div (click)="navigateToSelectedWorkspace(item)"
-            class="cursor-pointer p-8 bg-white flex flex-col items-center border-2 border-transparent hover:border-primary focus:border-primary active:border-primary transition-colors duration-300 justify-center shadow"
-            pRipple style="height: 100%">
-            <table aria-describedby="workspaces">
-              <tr>
-                <th id="instanceName"></th>
-              </tr>
-              <tr>
-                <td style="text-align: center; padding: 5px; font-size: 1em">
-                  {{ item.instanceName }}<br>
-                </td>
-              </tr>
-              <tr>
-                <td style="text-align: center">
-                  @if (item.moduleType === 'SUPERSET') {
-                    <img alt="Superset" class="logo"
-                      src="assets/workspaces/logos/superset.png"/>
-                  }
-                  @if (item.moduleType === 'AIRFLOW') {
-                    <img alt="Airflow" class="logo"
-                      src="assets/workspaces/logos/airflow.png"/>
-                  }
-                  @if (item.moduleType === 'DBT_DOCS') {
-                    <img alt="DBT Docs" class="logo"
-                      src="assets/workspaces/logos/dbt.svg"/>
-                  }
-                  @if (item.moduleType === 'CLOUDBEAVER') {
-                    <img alt="Cloudbeaver" class="logo"
-                      src="assets/workspaces/logos/cloudbeaver.png"/>
-                  }
-                  @if (item.moduleType === 'JUPYTERHUB') {
-                    <img alt="Jupyterhub" class="logo"
-                      src="assets/workspaces/logos/jupyterhub.png"/>
-                  }
-                  @if (item.moduleType === 'SFTPGO') {
-                    <img alt="SftpGO" class="logo"
-                      src="assets/workspaces/logos/sftpgo-logo.png"/>
-                  }
-                </td>
-              </tr>
-            </table>
+          <div
+            (click)="navigateToSelectedWorkspace(item)"
+            class="cursor-pointer p-8 bg-white flex flex-col items-center justify-center border-2 border-transparent hover:border-primary focus:border-primary active:border-primary transition-colors duration-300 shadow h-full"
+            pRipple
+          >
+            <div class="flex flex-col items-center justify-center w-full space-y-3">
+              <div class="text-center text-base">
+                {{ item.instanceName }}
+              </div>
+              <div class="flex items-center justify-center w-full">
+                @if (item.moduleType === 'SUPERSET') {
+                  <img alt="Superset" class="logo mx-auto" src="assets/workspaces/logos/superset.png"/>
+                }
+                @if (item.moduleType === 'AIRFLOW') {
+                  <img alt="Airflow" class="logo mx-auto" src="assets/workspaces/logos/airflow.png"/>
+                }
+                @if (item.moduleType === 'DBT_DOCS') {
+                  <img alt="DBT Docs" class="logo mx-auto" src="assets/workspaces/logos/dbt.svg"/>
+                }
+                @if (item.moduleType === 'CLOUDBEAVER') {
+                  <img alt="Cloudbeaver" class="logo mx-auto" src="assets/workspaces/logos/cloudbeaver.png"/>
+                }
+                @if (item.moduleType === 'JUPYTERHUB') {
+                  <img alt="Jupyterhub" class="logo mx-auto" src="assets/workspaces/logos/jupyterhub.png"/>
+                }
+                @if (item.moduleType === 'SFTPGO') {
+                  <img alt="SftpGO" class="logo mx-auto" src="assets/workspaces/logos/sftpgo-logo.png"/>
+                }
+              </div>
+            </div>
           </div>
         </div>
       }
