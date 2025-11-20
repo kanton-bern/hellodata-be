@@ -25,38 +25,42 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, inject, viewChild } from '@angular/core';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {combineLatest, map, Observable, tap} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
-import { Table, TablePageEvent, TableModule } from "primeng/table";
+import {Table, TableModule, TablePageEvent} from "primeng/table";
 import {naviElements} from "../../app-navi-elements";
-import {selectFilteredBy, selectMyDashboardsFiltered} from "../../store/my-dashboards/my-dashboards.selector";
+import {
+  selectFilteredBy,
+  selectMyDashboardsFiltered,
+  selectSelectedDataDomain
+} from "../../store/my-dashboards/my-dashboards.selector";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate, trackEvent} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {updateDashboardMetadata} from "../../store/start-page/start-page.action";
 import {loadMyDashboards} from "../../store/my-dashboards/my-dashboards.action";
-import { AsyncPipe, DatePipe } from '@angular/common';
-import { PrimeTemplate } from 'primeng/api';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
-import { Button, ButtonDirective } from 'primeng/button';
-import { Ripple } from 'primeng/ripple';
-import { Tooltip } from 'primeng/tooltip';
-import { Dialog } from 'primeng/dialog';
-import { FormsModule } from '@angular/forms';
-import { Tag } from 'primeng/tag';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe, DatePipe} from '@angular/common';
+import {PrimeTemplate} from 'primeng/api';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {InputText} from 'primeng/inputtext';
+import {Button, ButtonDirective} from 'primeng/button';
+import {Ripple} from 'primeng/ripple';
+import {Tooltip} from 'primeng/tooltip';
+import {Dialog} from 'primeng/dialog';
+import {FormsModule} from '@angular/forms';
+import {Tag} from 'primeng/tag';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    templateUrl: 'my-dashboards.component.html',
-    styleUrls: ['./my-dashboards.component.scss'],
-    imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
+  templateUrl: 'my-dashboards.component.html',
+  styleUrls: ['./my-dashboards.component.scss'],
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
@@ -78,11 +82,15 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
       combineLatest([
         this.store.select(selectMyDashboardsFiltered),
         this.store.select(selectFilteredBy),
+        this.store.select(selectSelectedDataDomain),
       ]).pipe(
-        tap(([myDashboards, filteredBy]) => {
+        tap(([myDashboards, filteredBy, selectedDataDomain]) => {
           this.createBreadcrumbs(filteredBy, myDashboards);
         }),
-        map(([myDashboards, filteredBy]) => {
+        map(([myDashboards, filteredBy, selectedDataDomain]) => {
+          if (!selectedDataDomain) {
+            return [];
+          }
           return myDashboards;
         }),
       )
@@ -131,10 +139,6 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
     this.selectedDashboard = {...dashboard};
     this.store.dispatch(updateDashboardMetadata({dashboard: this.selectedDashboard}))
     this.hideEditMetadataDialog();
-  }
-
-  createLink(dashboard: SupersetDashboardWithMetadata): string {
-    return this.menuService.createDashboardLink(dashboard);
   }
 
   createImageLink(dashboard: SupersetDashboardWithMetadata): string {

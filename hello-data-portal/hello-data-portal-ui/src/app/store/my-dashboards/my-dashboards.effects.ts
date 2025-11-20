@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, of, scheduled, switchMap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {
@@ -42,6 +42,9 @@ import {
 import {NotificationService} from "../../shared/services/notification.service";
 import {TranslateService} from "../../shared/services/translate.service";
 import {ScreenService} from "../../shared/services";
+import {Store} from "@ngrx/store";
+import {AppState} from "../app/app.state";
+import {selectCurrentUserPermissions} from "../auth/auth.selector";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -50,12 +53,20 @@ export class MyDashboardsEffects {
   private _notificationService = inject(NotificationService);
   private _translateService = inject(TranslateService);
   private _screenService = inject(ScreenService);
+  private _store = inject<Store<AppState>>(Store);
 
 
   loadMyDashboards$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadMyDashboards),
-      switchMap(() => this._myDashboardsService.getMyDashboards()),
+      withLatestFrom(this._store.select(selectCurrentUserPermissions)),
+      switchMap(([action, currentUserPermissions]) => {
+        const dashboardsPermission = currentUserPermissions.find(permission => permission === 'DASHBOARDS');
+        if (currentUserPermissions && dashboardsPermission && dashboardsPermission.length > 0) {
+          return this._myDashboardsService.getMyDashboards(); //load dashboards only if user has DASHBOARDS permission
+        }
+        return scheduled([[]], asyncScheduler); //empty array if no permission
+      }),
       switchMap(result => scheduled([loadMyDashboardsSuccess({payload: result})], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
@@ -97,8 +108,8 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(loadAvailableDataDomains),
       switchMap(() => this._myDashboardsService.getAvailableDataDomains()),
-      switchMap(result => of(loadAvailableDataDomainsSuccess({payload: result}))),
-      catchError(e => of(showError({error: e})))
+      switchMap(result => scheduled([loadAvailableDataDomainsSuccess({payload: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 
@@ -107,7 +118,7 @@ export class MyDashboardsEffects {
       ofType(uploadDashboardsSuccess),
       switchMap(() => {
         this._notificationService.success('@Dashboards uploaded successfully');
-        return of(navigate({url: 'redirect/dashboard-import-export'}))
+        return scheduled([navigate({url: 'redirect/dashboard-import-export'})], asyncScheduler)
       })
     )
   });
@@ -116,9 +127,9 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(uploadDashboardsError),
       switchMap((payload) => {
-        return of(showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'}))
+        return scheduled([showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'})], asyncScheduler)
       }),
-      catchError(e => of(showError({error: e})))
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });
 }

@@ -249,17 +249,17 @@ export class MenuService {
   }
 
   private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[]) {
-    if (myDashboards.length === 1 && myDashboards[0].id === 'dashboardList') {
-      const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
-      supersets.forEach((supersetInstance) => {
-        const contextName = supersetInstance.businessContextInfo.subContext.name;
-        if (this.displaySupersetLink(contextName, contextRoles)) {
+    const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
+    supersets.forEach((supersetInstance) => {
+      const contextName = supersetInstance.businessContextInfo.subContext.name;
+      if (this.displaySupersetLink(contextName, contextRoles)) {
+        if (myDashboards.filter(item => item.label === contextName).length === 0) {
           const items: any[] = [];
           this.addLinkToOpenSuperset(items, contextName, appInfos);
           myDashboards.push({label: contextName, items});
         }
-      });
-    }
+      }
+    });
   }
 
   private displayQueries(contextRoles: any[]) {

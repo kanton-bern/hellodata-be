@@ -98,7 +98,7 @@
                       severity="success"
                       class="p-button-rounded mr-2"
                       icon="fas fa-light fa-pen-to-square"
-                      [hidden]="!(dashboard.currentUserAdmin || dashboard.currentUserEditor)"
+                      [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"
                       pButton
                       pRipple/>
           </td>
