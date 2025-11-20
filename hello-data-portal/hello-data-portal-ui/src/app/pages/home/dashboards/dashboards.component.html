@@ -37,7 +37,7 @@
         </tr>
       </ng-template>
       <ng-template let-dashboard pTemplate="body">
-        <tr style="cursor: pointer">
+        <tr style="cursor: pointer" (click)="navigateToDashboard(dashboard)">
           <td>
             <i class="fas fa-light fa-chart-line"></i>
           </td>
@@ -45,9 +45,7 @@
             {{ dashboard.contextName }}
           </td>
           <td>
-            <a (click)="navigateToDashboard(dashboard)">
-              {{ dashboard.dashboardTitle }}
-            </a>
+            {{ dashboard.dashboardTitle }}
           </td>
         </tr>
       </ng-template>

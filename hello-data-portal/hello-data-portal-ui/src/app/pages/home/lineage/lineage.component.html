@@ -20,7 +20,7 @@
         </tr>
       </ng-template>
       <ng-template let-projectDoc pTemplate="body">
-        <tr>
+        <tr class="cursor-pointer" (click)="onRowNavigate(projectDoc)">
           <td>
             <i class="fas fa-light fa-diagram-project"></i>
           </td>
@@ -28,7 +28,7 @@
             {{ projectDoc.contextName }}
           </td>
           <td>
-            <a routerLink="{{openLineage(projectDoc)}}">{{ projectDoc.name }}</a>
+            {{ projectDoc.name }}
           </td>
         </tr>
       </ng-template>

@@ -18,7 +18,7 @@
     </tr>
   </ng-template>
   <ng-template let-datamart pTemplate="body">
-    <tr>
+    <tr class="cursor-pointer" (click)="onRowNavigate()">
       <td>
         <i class="fas fa-light fa-store"></i>
       </td>
@@ -26,7 +26,7 @@
         {{ datamart.label }}
       </td>
       <td>
-        <a routerLink="{{createLink(datamart)}}">{{ '@DM Viewer' | transloco }}</a>
+        {{ '@DM Viewer' | transloco }}
       </td>
     </tr>
   </ng-template>
