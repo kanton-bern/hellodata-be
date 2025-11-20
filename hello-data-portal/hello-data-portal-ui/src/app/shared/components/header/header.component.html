@@ -13,7 +13,8 @@
         {{ environment.name | transloco }}
       </span>
     }
-    <span class="app-title font-semibold text-shadow-lg/30" [pTooltip]="title() | transloco" tooltipPosition="bottom">
+    <span class="app-title font-semibold text-shadow-lg/30 px-3" [pTooltip]="title() | transloco"
+          tooltipPosition="bottom">
       {{ title() | transloco }}
     </span>
     @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
@@ -37,7 +38,7 @@
         @if (languages$ | async) {
           <span class="top-menu-item inline-flex items-center whitespace-nowrap" id="topbar-language-selector">
             @for (item of supportedLanguages; track item.code; let last = $last) {
-              <a class="cursor-pointer px-1"
+              <a class="cursor-pointer"
                  [ngClass]="{ 'selected-language': item.selected }"
                  (click)="onLanguageChange(item.code)">
                 {{ item.label }}
