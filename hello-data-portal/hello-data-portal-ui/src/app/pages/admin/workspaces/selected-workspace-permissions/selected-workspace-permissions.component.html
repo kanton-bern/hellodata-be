@@ -8,7 +8,7 @@
     [value]="permissions()"
     dataKey="id"
     class="p-datatable-striped"
-    >
+  >
     <ng-template pTemplate="header">
       <tr>
         <th id="name">
@@ -19,7 +19,7 @@
     <ng-template let-permission pTemplate="body">
       <tr>
         <td>
-          <p-tag severity="warn" value="{{permission.name}}" />
+          <p-tag severity="warn" value="{{permission.name}}"/>
         </td>
       </tr>
     </ng-template>
