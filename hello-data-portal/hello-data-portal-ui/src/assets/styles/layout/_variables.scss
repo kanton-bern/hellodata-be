@@ -32,6 +32,18 @@ $transitionDuration: .2s; /* transition duration of layout elements e.g. sidebar
 $text-color: black;
 
 :root {
+  --p-primary-50: var(--p-zink-50);
+  --p-primary-100: var(--p-zink-100);
+  --p-primary-200: var(--p-zink-200);
+  --p-primary-300: var(--p-zink-300);
+  --p-primary-400: var(--p-zink-400);
+  --p-primary-500: var(--p-zink-500);
+  --p-primary-600: var(--p-zink-600);
+  --p-primary-700: var(--p-zink-700);
+  --p-primary-800: var(--p-zink-800);
+  --p-primary-900: var(--p-zink-900);
+  --p-primary-950: var(--p-zink-950);
+
   --success-color: #689f38;
   /* Surface Colors */
   --surface-a: #ffffff;
@@ -53,11 +65,7 @@ $text-color: black;
   // Various PrimeNG Overrides
   --p-highlight-color: var(--text-color);
   --p-datatable-header-cell-selected-color: var(--text-color);
-  //--p-paginator-nav-button-selected-color: var(--text-color);
-  //--p-button-success-background: var(--success-color);
-  //--p-button-success-border-color: var(--success-color);
-  //--p-button-primary-background: var(--success-color);
-  //--p-button-primary-border-color: var(--success-color);
+  //--p-select-option-selected-focus-color:
 
   /* Surface Scale */
   --surface-0: #ffffff;
