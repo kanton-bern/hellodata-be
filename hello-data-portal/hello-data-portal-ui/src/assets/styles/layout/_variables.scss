@@ -32,18 +32,6 @@ $transitionDuration: .2s; /* transition duration of layout elements e.g. sidebar
 $text-color: black;
 
 :root {
-  --p-primary-50: var(--p-zink-50);
-  --p-primary-100: var(--p-zink-100);
-  --p-primary-200: var(--p-zink-200);
-  --p-primary-300: var(--p-zink-300);
-  --p-primary-400: var(--p-zink-400);
-  --p-primary-500: var(--p-zink-500);
-  --p-primary-600: var(--p-zink-600);
-  --p-primary-700: var(--p-zink-700);
-  --p-primary-800: var(--p-zink-800);
-  --p-primary-900: var(--p-zink-900);
-  --p-primary-950: var(--p-zink-950);
-
   --success-color: #689f38;
   /* Surface Colors */
   --surface-a: #ffffff;
@@ -110,5 +98,18 @@ $text-color: black;
   --highlight-bg: rgba(63, 81, 181, .12);
   --highlight-text-color: #3F51B5;
   --focus-ring: none;
+
+  /* Primary Colors */
+  --p-primary-50: var(--p-gray-50);
+  --p-primary-100: var(--p-gray-100);
+  --p-primary-200: var(--p-gray-200);
+  --p-primary-300: var(--p-gray-300);
+  --p-primary-400: var(--p-gray-400);
+  --p-primary-500: var(--p-gray-500);
+  --p-primary-600: var(--p-gray-600);
+  --p-primary-700: var(--p-gray-700);
+  --p-primary-800: var(--p-gray-800);
+  --p-primary-900: var(--p-gray-900);
+  --p-primary-950: var(--p-gray-950);
 }
 
