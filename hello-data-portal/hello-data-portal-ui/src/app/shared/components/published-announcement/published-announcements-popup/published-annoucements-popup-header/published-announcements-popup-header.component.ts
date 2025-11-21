@@ -10,7 +10,7 @@ import {DynamicDialogRef} from "primeng/dynamicdialog";
       <div class="col-span-10">
         <h3><b>{{ '@Announcements' | transloco }}</b></h3>
       </div>
-      <div class="col">
+      <div class="col-span-2">
         <div class="flex items-center mt-2">
           <p-checkbox [binary]="true" inputId="dont-show-again" (onChange)="onChange($event)"></p-checkbox>
           <label for="dont-show-again" class="ml-2"
