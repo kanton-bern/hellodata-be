@@ -32,11 +32,12 @@ $background-color: #ffffff;
   align-items: center;
   width: 100%;
   padding-left: 1rem;
+  overflow: hidden;
 }
 
 #layout-topbar {
-  height: 70px;
-  padding-top: 15px;
+  height: 65px;
+  padding-top: 20px;
 }
 
 #topbar-right-group {
@@ -109,7 +110,6 @@ app-breadcrumb {
   height: 24px;
   line-height: 1;
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.05);
   text-transform: uppercase;
   letter-spacing: .5px;
 }

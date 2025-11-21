@@ -8,12 +8,12 @@
   <!-- Left column: Env + Title + Data Domain Selector -->
   <div class="topbar-left-group shrink-0 flex items-center gap-4">
     @if (environment.showEnvironment) {
-      <span class="env-badge uppercase font-bold tracking-wide" [pTooltip]="environment.name"
-            tooltipPosition="bottom">
+      <span class="glow env-badge uppercase font-bold tracking-wide" [pTooltip]="environment.name"
+            tooltipPosition="bottom" style="font-size: 1.2rem">
         {{ environment.name | transloco }}
       </span>
     }
-    <span class="app-title font-semibold text-shadow-lg/30 px-3" [pTooltip]="title() | transloco"
+    <span class="app-title font-semibold px-3" [pTooltip]="title() | transloco"
           tooltipPosition="bottom">
       {{ title() | transloco }}
     </span>
