@@ -58,7 +58,10 @@ p-menu {
 }
 
 app-breadcrumb {
-  z-index: 999; /* Adjust the value if needed */
+  z-index: 999;
+  line-height: 0.1rem;
+  padding: 0;
+  font-size: 0.85rem;
 }
 
 .breadcrumb-container, .published-announcements-container {
