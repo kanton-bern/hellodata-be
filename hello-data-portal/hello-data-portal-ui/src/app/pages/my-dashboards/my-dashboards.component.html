@@ -116,7 +116,6 @@
 <br/>
 <p-dialog [(visible)]="editDashboardMetadataDialog"
           [modal]="true"
-          [style]="{ width: '550px' }"
           header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}"
           class="p-fluid">
   <ng-template pTemplate="content">
@@ -148,11 +147,11 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <p-button (click)="hideEditMetadataDialog()" class="p-button-text" icon="fas fa-circle-xmark"
+    <p-button (click)="hideEditMetadataDialog()" icon="fas fa-circle-xmark"
               label="{{'@Cancel' | transloco}}" severity="secondary" pRipple pButton/>
     <p-button (click)="updateDashboard(selectedDashboard)"
-              class="p-button-text" pRipple pButton
-              icon="fas fa-check"
+              pRipple pButton
+              icon="fas fa-check" severity="success"
               label="{{'@Save' | transloco}}"/>
   </ng-template>
 </p-dialog>
@@ -162,8 +161,8 @@
           header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}" class="p-fluid">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}"/>
-    <div class="formgrid grid grid-cols-12 gap-4">
-      <div class="field col">
+    <div class="grid grid-cols-2">
+      <div class="col">
         @if (selectedDashboard.contextName) {
           <label class="p2 font-semibold m-0"
                  for="contextNameInfo">{{ '@Context name' | transloco }}:</label>
@@ -228,7 +227,7 @@
         }
 
       </div>
-      <div class="field col">
+      <div class="col">
         @if (selectedDashboard.status) {
           <label class="p2 font-semibold m-0"
                  for="statusInfo">{{ '@Status' | transloco }}:</label>
@@ -287,7 +286,7 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <p-button (click)="hideInfoPanel()" class="p-button-text" icon="fas fa-circle-xmark"
+    <p-button (click)="hideInfoPanel()" icon="fas fa-circle-xmark"
               label="{{'@Cancel' | transloco}}" severity="secondary" pRipple pButton/>
   </ng-template>
 </p-dialog>

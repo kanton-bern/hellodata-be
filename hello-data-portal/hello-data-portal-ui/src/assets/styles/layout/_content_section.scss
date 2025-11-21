@@ -73,6 +73,12 @@ p-editor.p-editor-readonly > .ql-toolbar.ql-snow, p-editor.p-editor-readonly > .
   border: none;
 }
 
+p-dialog input {
+  border-width: thin;
+  padding: 10px 10px 10px 10px;
+  border-radius: 3px;
+}
+
 p-columnfilterformelement > input {
   border-width: thin;
   padding: 10px;
