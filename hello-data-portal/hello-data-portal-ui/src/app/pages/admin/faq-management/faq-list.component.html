@@ -11,7 +11,7 @@
       <div>
         @if (faq.length > 0) {
           <p-table
-            #dt
+            #dt showGridlines
             [paginator]="false"
             [rowHover]="true"
             [showCurrentPageReport]="true"
@@ -31,7 +31,7 @@
                 <th id="message" style="min-width:15rem">
                   {{ '@Message' | transloco }}
                 </th>
-                <th id="actions" style="min-width:8rem"></th>
+                <th id="actions" style="width:8rem"></th>
               </tr>
             </ng-template>
             <ng-template let-faq pTemplate="body">

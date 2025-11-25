@@ -37,7 +37,7 @@
           <td>
             {{ projectDoc.lastModifiedTime | date: 'dd.MM.yyyy HH:mm:ss' }}
           </td>
-          <td>
+          <td class="flex justify-end">
             <div class="flex items-center justify-center gap-2">
               <p-button (click)="openLineage(projectDoc)"
                         [pTooltip]="'@Open' | transloco"
