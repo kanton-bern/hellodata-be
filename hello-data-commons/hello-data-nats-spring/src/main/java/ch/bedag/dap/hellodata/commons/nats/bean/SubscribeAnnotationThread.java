@@ -127,6 +127,7 @@ public class SubscribeAnnotationThread extends Thread {
         if (killJvmOnError) {
             if (failureCount >= killJvmCounter) {
                 log.error("Too many connection failures. Exiting JVM to trigger orchestrator restart.");
+                unsubscribe();
                 System.exit(1);
             }
         }
