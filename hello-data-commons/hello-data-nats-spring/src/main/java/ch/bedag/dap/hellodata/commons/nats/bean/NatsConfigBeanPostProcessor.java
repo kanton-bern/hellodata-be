@@ -40,7 +40,10 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -130,7 +133,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             subscribeAnnotationThreadFound.getBeanWrappers().add(new BeanMethodWrapper(method, bean, subscriptionId));
         } else {
             ArrayList<BeanMethodWrapper> beanWrappers = new ArrayList<>(List.of(new BeanMethodWrapper(method, bean, subscriptionId)));
-            String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "") + "-" + UUID.randomUUID();
+            String durableName = this.appName + "-" + stream + "-" + subject + (StringUtils.hasText(instanceName) ? "-" + instanceName : "");
             durableName = SlugifyUtil.slugify(durableName, "");
             log.debug("[NATS] Durable name for consumer: {}", durableName);
             SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableName, executorService, BooleanUtils.toBoolean(killJvmOnError), Short.parseShort(killJvmCounter));
