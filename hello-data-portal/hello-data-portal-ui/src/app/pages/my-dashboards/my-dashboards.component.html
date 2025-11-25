@@ -53,7 +53,7 @@
           <th id="status" pSortableColumn="status">{{ '@Status' | transloco }}
             <p-sortIcon field="status"/>
           </th>
-          <th id="actions" style="min-width:9rem"></th>
+          <th id="actions" style="width:11rem"></th>
         </tr>
       </ng-template>
       <ng-template let-dashboard pTemplate="body">
@@ -79,7 +79,7 @@
           <td>
             {{ dashboard.status }}
           </td>
-          <td class="flex justify-end">
+          <td>
             <p-button (click)="openDashboard(dashboard)"
                       [pTooltip]="'@Open' | transloco"
                       class="p-button-rounded mr-2"
