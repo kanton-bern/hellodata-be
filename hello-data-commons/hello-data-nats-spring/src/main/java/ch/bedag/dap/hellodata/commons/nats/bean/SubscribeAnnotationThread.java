@@ -119,6 +119,7 @@ public class SubscribeAnnotationThread extends Thread {
             }
         }
         log.info("[NATS] Stopped NATS subscription thread!");
+        unsubscribe();
         System.exit(1); // Exit the JVM if the thread is stopped
     }
 
