@@ -48,11 +48,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Collections.synchronizedList;
+
 @Log4j2
 public class NatsConfigBeanPostProcessor implements BeanPostProcessor, DisposableBean {
 
     private final Connection natsConnection;
-    private final List<SubscribeAnnotationThread> THREADS = new ArrayList<>();
+    private final List<SubscribeAnnotationThread> THREADS = synchronizedList(new ArrayList<>());
     private final ExecutorService executorService;
     @Value("${spring.application.name}")
     private String appName;
