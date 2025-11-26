@@ -55,6 +55,7 @@ public class NatsConfiguration extends NatsAutoConfiguration implements AsyncCon
             case RECONNECTED -> log.warn("[NATS] RECONNECTED to NATS!");
             case DISCOVERED_SERVERS -> log.warn("[NATS] DISCOVERED_SERVERS of NATS!");
             case LAME_DUCK -> log.warn("[NATS] LAME_DUCK from NATS!");
+            case RESUBSCRIBED -> log.warn("[NATS] RESUBSCRIBED - subscriptions re-established!");
             default -> log.warn("[NATS] Other event: {}", event);
         }
     }
