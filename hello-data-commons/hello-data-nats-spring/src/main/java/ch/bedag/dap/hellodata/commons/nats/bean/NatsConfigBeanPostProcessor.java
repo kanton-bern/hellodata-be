@@ -97,7 +97,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
 
     @Override
     public void destroy() {
-        log.info("Commencing gracefull shutdown of all NATS subscriptions!");
+        log.info("Commencing gracefully shutdown of all NATS subscriptions!");
         THREADS.forEach(SubscribeAnnotationThread::stopThread); // Shutdown individual threads
         executorService.shutdown();
         try {
@@ -119,9 +119,9 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
      * Each annotated method in service ( {@link JetStreamSubscribe} ) with specific stream_subject id will have one manager thread to fetch messages and invoke beans
      * Will add another bean/method to invoke for existing subscription thread
      *
-     * @param bean
-     * @param method
-     * @param subscribeAnnotation
+     * @param bean                - service bean
+     * @param method              - method to invoke on message receive
+     * @param subscribeAnnotation - annotation details
      */
     private void createSubscribeAnnotationManagerThread(Object bean, Method method, JetStreamSubscribe subscribeAnnotation) {
         String stream = subscribeAnnotation.event().getStreamName();
