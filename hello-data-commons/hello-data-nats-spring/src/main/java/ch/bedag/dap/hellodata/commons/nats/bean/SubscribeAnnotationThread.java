@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.nats.client.*;
 import io.nats.client.api.ConsumerConfiguration;
-import io.nats.client.api.ConsumerInfo;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -74,8 +73,7 @@ public class SubscribeAnnotationThread extends Thread {
         this.executorService = executorService;
         this.killJvmOnError = killJvmOnError;
         this.killJvmCounter = killJvmCounter;
-        //keep one subscription
-        subscribe();
+        // Initial subscription is performed in run()
     }
 
     private static ObjectMapper getObjectMapper() {
@@ -95,6 +93,9 @@ public class SubscribeAnnotationThread extends Thread {
     public void run() {
         while (running && !Thread.currentThread().isInterrupted()) {
             try {
+                if (subscription == null || !subscription.isActive()) {
+                    subscribe();
+                }
                 checkOrCreateConsumer();
                 log.debug("[NATS] ------- Run message fetch for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
                 if (subscription != null && subscription.isActive()) {
@@ -114,7 +115,7 @@ public class SubscribeAnnotationThread extends Thread {
                     }
                 } else {
                     log.debug("[NATS] Error on connection for stream {} and subject {}. Re-subscribing...", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject(), e);
-                    subscribe();
+                    // subscribe() is called only in run and in checkOrCreateConsumer catch
                 }
             }
         }
@@ -166,8 +167,9 @@ public class SubscribeAnnotationThread extends Thread {
      */
     private void checkOrCreateConsumer() throws IOException, JetStreamApiException {
         JetStreamManagement jsm = natsConnection.jetStreamManagement();
-        ConsumerInfo consumerInfo = jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
-        if (consumerInfo == null) {
+        try {
+            jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
+        } catch (JetStreamApiException e) {
             log.warn("[NATS] Consumer {} for stream {} not found. Re-subscribing... Failure count {}", durableName, subscribeAnnotation.event().getStreamName(), ++failureCount);
             subscribe();
         }
@@ -212,6 +214,9 @@ public class SubscribeAnnotationThread extends Thread {
                     .durable(this.durableName)
                     .configuration(consumerConfig)
                     .build();
+            if (this.subscription != null) {
+                this.subscription.unsubscribe();
+            }
             subscription = jetStream.subscribe(subscribeAnnotation.event().getSubject(), pushSubscribeOptions);
             log.info("[NATS] Subscribed to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
         } catch (IOException | JetStreamApiException exception) {
