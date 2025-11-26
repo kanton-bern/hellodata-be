@@ -165,7 +165,7 @@ public class SubscribeAnnotationThread extends Thread {
     /**
      * Checks if the consumer still exists and recreates it if missing.
      */
-    private void checkOrCreateConsumer() throws IOException, JetStreamApiException {
+    private void checkOrCreateConsumer() throws IOException {
         JetStreamManagement jsm = natsConnection.jetStreamManagement();
         try {
             jsm.getConsumerInfo(subscribeAnnotation.event().getStreamName(), durableName);
@@ -176,7 +176,7 @@ public class SubscribeAnnotationThread extends Thread {
         checkFailureCounter();
     }
 
-    private void processMessageInThread(Message message) throws InterruptedException {
+    private void processMessageInThread(Message message) {
         // Submit as a CompletableFuture directly
         CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> passMessageToSpringBean(message), executorService);
 
