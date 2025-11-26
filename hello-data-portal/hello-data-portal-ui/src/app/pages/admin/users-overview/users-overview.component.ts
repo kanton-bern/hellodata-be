@@ -30,7 +30,7 @@ import {AsyncPipe} from "@angular/common";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {TableModule} from "primeng/table";
 import {Tag} from "primeng/tag";
-import {Button} from "primeng/button";
+import {Button, ButtonDirective} from "primeng/button";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
@@ -47,6 +47,7 @@ import {
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {PrimeTemplate} from "primeng/api";
+import {Ripple} from "primeng/ripple";
 
 interface TableRow {
   email: string;
@@ -59,7 +60,7 @@ interface TableRow {
   selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
   styleUrls: ['./users-overview.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

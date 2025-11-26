@@ -59,7 +59,8 @@ import {Ripple} from "primeng/ripple";
   selector: 'app-external-dashboards',
   templateUrl: './external-dashboards.component.html',
   styleUrls: ['./external-dashboards.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe, TranslocoPipe, IconField, InputIcon, Ripple, ButtonDirective]
+  imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe,
+    TranslocoPipe, IconField, InputIcon, Ripple, ButtonDirective]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);

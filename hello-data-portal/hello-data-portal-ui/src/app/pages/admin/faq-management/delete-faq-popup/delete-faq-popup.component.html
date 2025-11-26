@@ -7,8 +7,8 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-              severity="secondary" type="button"/>
+              severity="secondary" type="button" pRipple pButton/>
     <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" id="deleteFaqButton"
-              label="{{'@Delete' | transloco}}" type="button"/>
+              label="{{'@Delete' | transloco}}" type="button" pRipple pButton/>
   </ng-template>
 </p-confirmDialog>

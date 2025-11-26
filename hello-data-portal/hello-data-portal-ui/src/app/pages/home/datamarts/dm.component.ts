@@ -25,22 +25,23 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from "@angular/router";
+import {Component, inject} from '@angular/core';
+import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {selectAvailableDataDomainItems} from "../../../store/my-dashboards/my-dashboards.selector";
 import {combineLatest, map, Observable} from "rxjs";
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
-import { AsyncPipe } from '@angular/common';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate} from 'primeng/api';
+import {AsyncPipe} from '@angular/common';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {navigate} from "../../../store/app/app.action";
 
 @Component({
-    selector: 'app-dm',
-    templateUrl: './dm.component.html',
-    styleUrls: ['./dm.component.scss'],
-    imports: [TableModule, PrimeTemplate, RouterLink, AsyncPipe, TranslocoPipe]
+  selector: 'app-dm',
+  templateUrl: './dm.component.html',
+  styleUrls: ['./dm.component.scss'],
+  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe]
 })
 export class DmComponent {
   private route = inject(ActivatedRoute);
@@ -54,7 +55,7 @@ export class DmComponent {
         this.store.select(selectAvailableDataDomainItems),
       ]).pipe(
         map(([availableDataDomainItems]) => {
-          const newDmEntries = [];
+          const newDmEntries: any[] = [];
           const sortedAvailableDataDomains = [...availableDataDomainItems].sort((a, b) => {
             return a.label != null && b.label != null ? a.label.localeCompare(b.label) : 0;
           });
@@ -69,7 +70,12 @@ export class DmComponent {
         }));
   }
 
-  createLink(datamart: any) {
+  createLink() {
     return "/embedded-dm-viewer";
+  }
+
+  onRowNavigate() {
+    const url = this.createLink();
+    this.store.dispatch(navigate({url}));
   }
 }

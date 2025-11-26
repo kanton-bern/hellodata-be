@@ -1,9 +1,9 @@
 @for (businessDomain of businessDomains$ | async; track businessDomain) {
   <ul>
     <li>
-      {{ ('@Business domain' | transloco) + ' ' + businessDomain.name }}
+      <b>{{ ('@Business domain' | transloco) + ' ' + businessDomain.name }}</b>
       @for (dataDomain of dataDomains$ | async; track dataDomain) {
-        <ul>
+        <ul class="px-2">
           <li [pTooltip]="dataDomain.contextKey">
             {{ ('@Data domain' | transloco) + ' ' + dataDomain.name + ' | ' + (dataDomain.extra ? 'Extra' : 'Standard') }}
           </li>

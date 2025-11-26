@@ -31,7 +31,9 @@ p-menu {
 }
 
 .top-menu-item {
-  margin-top: 10px;
+  margin-top: 0;
+  display: inline-flex; /* zmiana z flex aby elementy nie zajmowały pełnej szerokości */
+  align-items: center;
 }
 
 .data-domain-selection-item {
@@ -56,7 +58,10 @@ p-menu {
 }
 
 app-breadcrumb {
-  z-index: 999; /* Adjust the value if needed */
+  z-index: 999;
+  line-height: 0.1rem;
+  padding: 0;
+  font-size: 0.85rem;
 }
 
 .breadcrumb-container, .published-announcements-container {
@@ -73,4 +78,29 @@ app-breadcrumb {
   .hide-on-small {
     display: none;
   }
+}
+
+/* Added after Tailwind migration – restore header layout */
+.layout-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.topbar-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* prawa grupa */
+.topbar-right-group, .right-menu {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }

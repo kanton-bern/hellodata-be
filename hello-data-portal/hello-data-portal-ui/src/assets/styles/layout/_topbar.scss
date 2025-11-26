@@ -28,10 +28,24 @@ $background-color: #ffffff;
 .layout-topbar {
   box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
   background-color: $background-color;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding-left: 1rem;
+  overflow: hidden;
 }
 
-.layout-topbar, .topbar-container {
-  height: 60px;
+#layout-topbar {
+  height: 65px;
+  padding-top: 20px;
+}
+
+#topbar-right-group {
+  padding-right: 20px;
+}
+
+#topbar-language-selector {
+  padding-right: 20px;
 }
 
 .content-section .card {
@@ -69,9 +83,70 @@ p-breadcrumb {
   position: relative;
 }
 
+app-breadcrumb {
+  left: 8px;
+}
+
 .p-breadcrumb {
   background-color: var(--surface-ground) !important;
   border-radius: 0 !important;
   border: 1px solid #e5e5e5;
 
+}
+
+.topbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+}
+
+.topbar-left-group .env-badge {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  height: 24px;
+  line-height: 1;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.topbar-left-group .app-title {
+  font-weight: 500;
+  font-size: 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.25rem;
+}
+
+.topbar-left-group .data-domain-selector {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.topbar-left-group .data-domain-selector .layout-topbar-button {
+  padding: 0 0.25rem;
+}
+
+.topbar-left-group .data-domain-name {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1280px) {
+  .topbar-left-group .data-domain-name {
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .topbar-left-group .data-domain-name {
+    max-width: 120px;
+  }
 }

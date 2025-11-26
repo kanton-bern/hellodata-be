@@ -8,16 +8,17 @@
                  [paginator]="true"
                  [rowHover]="true"
                  [rows]="10"
+                 [stripedRows]="true"
                  (onPage)="onPageChange($event)"
                  [showCurrentPageReport]="true"
                  [tableStyle]="{ 'min-width': '50rem' }"
                  [value]="externalDashboards"
                  dataKey="id">
           <ng-template pTemplate="caption">
-            <div class="flex align-items-center justify-content-between">
+            <div class="flex items-center justify-between">
               @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
                 <p-button (click)="openNew()" severity="success" icon="fas fa-circle-plus"
-                          label="{{'@Create' | transloco }}"></p-button>
+                          label="{{'@Create' | transloco }}" pRipple pButton></p-button>
               }
               <h5 class="m-0">&nbsp;</h5>
               <span class="p-input-icon-left">
@@ -101,7 +102,7 @@
               </td>
               @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
                 <td>
-                  <div class="flex align-items-center justify-content-center gap-2">
+                  <div class="flex items-center justify-center gap-2">
                     <p-button (click)="editExternalDashboard(dashboard)"
                               [pTooltip]="'@Edit' | transloco"
                               severity="success" pRipple pButton
@@ -124,16 +125,16 @@
     }
   </div>
 }
-
+<br/>
 <p-confirmDialog #cd [style]="{width: '50vw'}">
   <ng-template pTemplate="header">
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-              type="button" severity="secondary"/>
+              type="button" severity="secondary" pRipple pButton/>
     <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
-              type="button"/>
+              type="button" pRipple pButton/>
   </ng-template>
 </p-confirmDialog>
 

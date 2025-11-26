@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
@@ -33,17 +33,17 @@ import {naviElements} from "../../../app-navi-elements";
 import {LineageDoc} from "../../../store/lineage-docs/lineage-docs.model";
 import {Observable} from "rxjs";
 import {selectMyLineageDocs} from "../../../store/lineage-docs/lineage-docs.selector";
-import { AsyncPipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
-import { RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate} from 'primeng/api';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {navigate} from "../../../store/app/app.action";
 
 @Component({
-    selector: 'app-lineage',
-    templateUrl: './lineage.component.html',
-    styleUrls: ['./lineage.component.scss'],
-    imports: [TableModule, PrimeTemplate, RouterLink, AsyncPipe, TranslocoPipe]
+  selector: 'app-lineage',
+  templateUrl: './lineage.component.html',
+  styleUrls: ['./lineage.component.scss'],
+  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe]
 })
 export class LineageComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
@@ -68,4 +68,10 @@ export class LineageComponent implements OnInit {
     const urlEncodedProjectPath = encodeURIComponent(projectDoc.path);
     return `/${naviElements.lineageDocs.path}/detail/${contextKey}/${id}/${urlEncodedProjectPath}`;
   }
+
+  onRowNavigate(projectDoc: any) {
+    const url = this.openLineage(projectDoc);
+    this.store.dispatch(navigate({url}));
+  }
+
 }

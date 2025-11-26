@@ -49,6 +49,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
 import {FormsModule} from "@angular/forms";
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
+import {Ripple} from "primeng/ripple";
 
 interface TableRow {
   email: string;
@@ -62,7 +63,7 @@ interface TableRow {
   templateUrl: './subsystem-users.component.html',
   styleUrls: ['./subsystem-users.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tag, AsyncPipe, TranslocoPipe, FormsModule, IconField,
-    InputIcon, ButtonDirective]
+    InputIcon, ButtonDirective, Ripple]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

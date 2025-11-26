@@ -3,11 +3,12 @@
     <form [formGroup]="announcementForm">
       <h5>{{ '@Announcement' | transloco }}</h5>
       @if (editedAnnouncement.createdDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="createdDate">{{ '@Created date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="createdDate"
               type="text"
@@ -16,11 +17,11 @@
         </div>
       }
       @if (editedAnnouncement.createdDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="createdBy"
               type="text"
@@ -29,11 +30,12 @@
         </div>
       }
       @if (editedAnnouncement.modifiedDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="modifiedDate"
               type="text"
@@ -42,11 +44,11 @@
         </div>
       }
       @if (editedAnnouncement.modifiedBy) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+              class="text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full opacity-40"
               disabled
               id="modifiedBy"
               type="text"
@@ -54,18 +56,19 @@
           </div>
         </div>
       }
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="published">{{ '@Published' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="published">{{ '@Published' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <p-checkbox [binary]="true" formControlName="published" id="published" inputId="published"/>
         </div>
       </div>
       @if (editedAnnouncement.publishedDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="publishedDate">{{ '@Published date' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="publishedDate">{{ '@Published date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+              class="text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full opacity-40"
               disabled
               id="publishedDate"
               type="text"
@@ -78,8 +81,8 @@
           <p-tablist>
             @for (language of supportedLanguages; track $index) {
               <p-tab [value]="$index">
-                <div class="flex align-items-center gap-2">
-                  <span class="font-bold white-space-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold whitespace-nowrap m-0 {{notFilled(language) ? 'not-filled' : ''}}">
                     {{ language.slice(0, 2).toUpperCase() }}
                   </span>
                 </div>
@@ -89,8 +92,8 @@
           <p-tabpanels>
             @for (language of supportedLanguages; track $index) {
               <p-tabpanel [value]="$index">
-                <div class="field grid">
-                  <div class="col-12 md:col-12">
+                <div class="field grid grid-cols-12 gap-4">
+                  <div class="col-span-12 md:col-span-12">
                     <p-editor [formControl]="getMessage(language)" [style]="{ width: '100%' }"/>
                   </div>
                 </div>
@@ -102,7 +105,7 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary"/>
+                    icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
@@ -110,12 +113,12 @@
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       icon="fas fa-floppy-disk" class="mr-2"
                       label="{{'@Save' | transloco}}"
-                      severity="success"/>
+                      severity="success" pRipple pButton/>
             @if (editedAnnouncement.id) {
               <p-button (click)="openDeletePopup(editedAnnouncement)"
                         icon="fas fa-trash" class="mr-2"
                         label="{{'@Delete' | transloco}}"
-                        severity="danger"/>
+                        severity="danger" pRipple pButton/>
             }
           </div>
         }

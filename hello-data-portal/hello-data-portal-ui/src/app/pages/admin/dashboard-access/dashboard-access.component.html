@@ -4,33 +4,33 @@
     @if ((dashboardAccess$ | async); as dashboardAccessList) {
       <div>
         <p-table #dt
-          [lazy]="true"
-          (onLazyLoad)="loadDashboardAccess($event, selectedDataDomain.key)"
-          [loading]="(dataLoading$ | async) ?? false"
-          [value]="dashboardAccessList"
-          [paginator]="true"
-          [rowHover]="true"
-          [rowsPerPageOptions]="[5, 10, 20]"
-          [rows]="10"
-          [totalRecords]="totalRecords"
-          dataKey="id"
-          id="dashboard_access_table"
-          stateKey="dashboard-access-table"
-          sortField="dttm"
-          [sortOrder]="-1"
-          [(first)]="first"
-          stateStorage="session"
-          class="p-datatable-striped"
-          [tableStyle]="{ 'min-width': '50rem' }">
+                 [lazy]="true"
+                 (onLazyLoad)="loadDashboardAccess($event, selectedDataDomain.key)"
+                 [loading]="(dataLoading$ | async) ?? false"
+                 [value]="dashboardAccessList"
+                 [paginator]="true"
+                 [rowHover]="true"
+                 [rowsPerPageOptions]="[5, 10, 20]"
+                 [rows]="10"
+                 [totalRecords]="totalRecords"
+                 dataKey="id"
+                 id="dashboard_access_table"
+                 stateKey="dashboard-access-table"
+                 sortField="dttm"
+                 [sortOrder]="-1"
+                 [(first)]="first"
+                 stateStorage="session"
+                 class="p-datatable-striped"
+                 [tableStyle]="{ 'min-width': '50rem' }">
           <ng-template pTemplate="caption">
             <div>
               <div id="searchBox">
                 <span class="p-input-icon-left p-ml-auto">
                   <p-iconfield>
-                    <p-inputicon class="pi pi-search" />
+                    <p-inputicon class="pi pi-search"/>
                     <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
-                      pInputText
-                      placeholder="{{'@Search' | transloco}}" type="text"/>
+                           pInputText
+                           placeholder="{{'@Search' | transloco}}" type="text"/>
                   </p-iconfield>
                 </span>
               </div>
@@ -41,19 +41,19 @@
             <tr>
               <th id="userFullnameHeader" pSortableColumn="userFullname" style="max-width:5rem">
                 {{ '@Name' | transloco }}
-                <p-sortIcon field="userFullname" />
+                <p-sortIcon field="userFullname"/>
               </th>
               <th id="usernameHeader" pSortableColumn="username" style="max-width:5rem">
                 {{ '@Email' | transloco }}
-                <p-sortIcon field="username" />
+                <p-sortIcon field="username"/>
               </th>
               <th id="dttmHeader" pSortableColumn="dttm" style="max-width:5rem">
                 {{ '@Time' | transloco }}
-                <p-sortIcon field="dttm" />
+                <p-sortIcon field="dttm"/>
               </th>
               <th id="dashboardTitleHeader" pSortableColumn="dashboardTitle" style="max-width:5rem">
                 {{ '@Dashboard' | transloco }}
-                <p-sortIcon field="dashboardTitle" />
+                <p-sortIcon field="dashboardTitle"/>
               </th>
               <th id="contextName">
                 {{ '@Data domain' | transloco }}
@@ -74,3 +74,4 @@
     }
   </div>
 }
+<br/>

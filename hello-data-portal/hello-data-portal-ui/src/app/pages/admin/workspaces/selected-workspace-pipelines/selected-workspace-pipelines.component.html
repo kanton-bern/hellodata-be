@@ -35,29 +35,29 @@
         </td>
         <td>
           @if (pipeline.lastInstance.state) {
-            <div class="col-1">
+            <div class="col-span-1">
               @switch (pipeline.lastInstance.state) {
                 @case ('queued') {
-                  <span class="align-items-end pi pi-hourglass" style="color: gray"></span>
+                  <span class="items-end pi pi-hourglass" style="color: gray"></span>
                 }
                 @case ('running') {
-                  <span class="align-items-end pi pi-spin pi-cog" style="color: green"></span>
+                  <span class="items-end pi pi-spin pi-cog" style="color: green"></span>
                 }
                 @case ('success') {
-                  <span class="align-items-end pi pi-check-circle" style="color: green"></span>
+                  <span class="items-end pi pi-check-circle" style="color: green"></span>
                 }
                 @case ('failed') {
-                  <span class="align-items-end pi pi-exclamation-circle" style="color: red"></span>
+                  <span class="items-end pi pi-exclamation-circle" style="color: red"></span>
                 }
                 @default {
-                  <span class="align-items-end pi pi-question-circle" style="color: gray"></span>
+                  <span class="items-end pi pi-question-circle" style="color: gray"></span>
                 }
               }
             </div>
           }
           @if (!pipeline.lastInstance.state) {
             <div>
-              <span class="align-items-end pi">&nbsp;-</span>
+              <span class="items-end pi">&nbsp;-</span>
             </div>
           }
         </td>

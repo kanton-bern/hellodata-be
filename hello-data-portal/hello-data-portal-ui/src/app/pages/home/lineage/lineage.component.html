@@ -1,26 +1,26 @@
-
 @if ((this.docs$ |async); as lineageDocs) {
   <div>
     <p-table [paginator]="true"
-      [rowHover]="true"
-      [rows]="5"
-      [showCurrentPageReport]="true"
-      [tableStyle]="{ 'min-width': '20rem' }"
-      [value]="lineageDocs"
-      dataKey="displayName">
+             [stripedRows]="true"
+             [rowHover]="true"
+             [rows]="5"
+             [showCurrentPageReport]="true"
+             [tableStyle]="{ 'min-width': '20rem' }"
+             [value]="lineageDocs"
+             dataKey="displayName">
       <ng-template pTemplate="header">
         <tr>
           <th id="icon"></th>
-          <th id="dataDomain" pSortableColumn="name">{{'@Data domain' | transloco}}
-            <p-sortIcon field="name" />
+          <th id="dataDomain" pSortableColumn="name">{{ '@Data domain' | transloco }}
+            <p-sortIcon field="name"/>
           </th>
-          <th id="name" pSortableColumn="name">{{'@Docs' | transloco}}
-            <p-sortIcon field="name" />
+          <th id="name" pSortableColumn="name">{{ '@Docs' | transloco }}
+            <p-sortIcon field="name"/>
           </th>
         </tr>
       </ng-template>
       <ng-template let-projectDoc pTemplate="body">
-        <tr>
+        <tr class="cursor-pointer" (click)="onRowNavigate(projectDoc)">
           <td>
             <i class="fas fa-light fa-diagram-project"></i>
           </td>
@@ -28,7 +28,7 @@
             {{ projectDoc.contextName }}
           </td>
           <td>
-            <a routerLink="{{openLineage(projectDoc)}}">{{projectDoc.name}}</a>
+            {{ projectDoc.name }}
           </td>
         </tr>
       </ng-template>

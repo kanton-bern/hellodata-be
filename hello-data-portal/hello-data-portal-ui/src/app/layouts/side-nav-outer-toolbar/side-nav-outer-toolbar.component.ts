@@ -27,7 +27,7 @@
 
 import {Component, inject, input} from '@angular/core';
 
-import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {distinctUntilChanged, Observable} from "rxjs";
@@ -50,7 +50,7 @@ import {HeaderComponent, SummaryComponent} from '../../shared/components';
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-  imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, NgStyle, SummaryComponent,
+  imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, SummaryComponent,
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
