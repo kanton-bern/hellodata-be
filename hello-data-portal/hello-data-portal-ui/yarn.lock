@@ -598,15 +598,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/common@npm:^20.3.10":
-  version: 20.3.10
-  resolution: "@angular/common@npm:20.3.10"
+"@angular/common@npm:20.3.14":
+  version: 20.3.14
+  resolution: "@angular/common@npm:20.3.14"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/core": 20.3.10
+    "@angular/core": 20.3.14
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/ef63873c202caf5152c09e86560d7e6a35be12acd23cb7971f6b6715e426d19c1199b8340a7f9804a0c12da20b672e7452881c8e4b1dd40eb74a9fc8234ad483
+  checksum: 10c0/012d03c303283e09a8e57ee8bd71e55cec7af1d9901b9484ea47355142a613c5d72a438984bda955565c2fcbeb3983e3bd1110699b5ba3fb735a45a432c0ac03
   languageName: node
   linkType: hard
 
@@ -10930,10 +10930,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-forge@npm:^1":
-  version: 1.3.1
-  resolution: "node-forge@npm:1.3.1"
-  checksum: 10c0/e882819b251a4321f9fc1d67c85d1501d3004b4ee889af822fd07f64de3d1a8e272ff00b689570af0465d65d6bf5074df9c76e900e0aff23e60b847f2a46fbe8
+"node-forge@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "node-forge@npm:1.3.2"
+  checksum: 10c0/1def35652c93a588718a6d0d0b4f33e3e7de283aa6f4c00d01d1605d6ccce23fb3b59bcbfb6434014acd23a251cfcc2736052b406f53d94e1b19c09d289d0176
   languageName: node
   linkType: hard
 

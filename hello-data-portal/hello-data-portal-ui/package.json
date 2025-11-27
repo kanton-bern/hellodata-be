@@ -90,7 +90,9 @@
   "resolutions": {
     "tar": "^7.5.2",
     "js-yaml": "^4.1.1",
-    "glob": "^10.5.0"
+    "glob": "^10.5.0",
+    "node-forge": "^1.3.2",
+    "@angular/common": "20.3.14"
   },
   "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
 }
