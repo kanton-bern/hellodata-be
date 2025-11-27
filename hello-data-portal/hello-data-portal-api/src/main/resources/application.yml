@@ -180,20 +180,17 @@ springdoc:
 management:
   endpoint:
     health:
-      enabled: true
-    #      show-details: always #if we need some details
+      access: read_only
     info:
-      enabled: true
+      access: read_only
+    prometheus:
+      access: read_only
   endpoints:
     web:
       exposure:
-        include: info, health
+        include: info, health, prometheus
   health:
-    nats:
-      enabled: false
     mail:
-      enabled: false
-    kubernetes:
       enabled: false
     ldap:
       enabled: false # Disable this when not using ldap connection
@@ -204,8 +201,6 @@ management:
       enabled: true
     os:
       enabled: true
-    kubernetes:
-      enabled: false
   metrics:
     distribution:
       percentiles-histogram:
