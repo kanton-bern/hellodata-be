@@ -94,3 +94,4 @@ management:
       percentiles-histogram:
         spring.data.repository.invocations: true
         http.server.requests: true
+        http.client.requests: true
