@@ -70,6 +70,7 @@ management:
   endpoint:
     health:
       access: read_only
+      show-details: always
     info:
       access: read_only
     prometheus:
@@ -77,7 +78,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: info, health, prometheus
+        include: *
   health:
     mail:
       enabled: false
