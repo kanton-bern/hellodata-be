@@ -84,24 +84,22 @@ spring:
       - org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration
 
 
-# Actuator endpoints. List available under http://localhost:8088/actuator
+# Actuator endpoints. List available under http://localhost:8081/api/actuator
 management:
   endpoint:
     health:
-      enabled: true
-    #      show-details: always #if we need some details
+      show-details: always
+      access: read_only
     info:
-      enabled: true
+      access: read_only
+    prometheus:
+      access: read_only
   endpoints:
     web:
       exposure:
-        include: info, health, prometheus
+        include: *
   health:
-    nats:
-      enabled: false
     mail:
-      enabled: false
-    kubernetes:
       enabled: false
     ldap:
       enabled: false # Disable this when not using ldap connection
@@ -112,13 +110,12 @@ management:
       enabled: true
     os:
       enabled: true
-    kubernetes:
-      enabled: false
   metrics:
     distribution:
       percentiles-histogram:
         spring.data.repository.invocations: true
         http.server.requests: true
+        http.client.requests: true
 
 #logging:
 #  level:
