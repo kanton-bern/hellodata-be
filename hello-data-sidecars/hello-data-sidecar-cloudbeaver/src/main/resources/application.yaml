@@ -78,7 +78,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: *
+        include: [ '*' ]
   health:
     mail:
       enabled: false
