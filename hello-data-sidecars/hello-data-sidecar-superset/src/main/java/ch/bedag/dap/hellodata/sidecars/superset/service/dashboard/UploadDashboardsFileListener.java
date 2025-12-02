@@ -52,7 +52,7 @@ public class UploadDashboardsFileListener {
     @Value("${hello-data.dashboard-export-check-script-location}")
     private String pythonExportCheckScriptLocation;
 
-    @Value("${dashboard-export-check-script-enabled}")
+    @Value("${hello-data.dashboard-export-check-script-enabled}")
     private Boolean pythonExportCheckScriptEnabled;
 
     @Value("${hello-data.dashboard-import-default-sql-alchemy}")
