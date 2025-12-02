@@ -36,6 +36,7 @@ hello-data:
     name: "Default superset instance"
     url: superset.local
   dashboard-export-check-script-location: '/app/export_check.py'
+  dashboard-export-check-script-enabled: true
   dashboard-import-default-sql-alchemy: 'postgresql+psycopg2://superset:local-admin@localhost:5432/superset'
   superset:
     host: localhost
