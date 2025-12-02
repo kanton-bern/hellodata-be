@@ -636,11 +636,11 @@ __metadata:
   linkType: hard
 
 "@angular/compiler@npm:^20.3.10":
-  version: 20.3.10
-  resolution: "@angular/compiler@npm:20.3.10"
+  version: 20.3.15
+  resolution: "@angular/compiler@npm:20.3.15"
   dependencies:
     tslib: "npm:^2.3.0"
-  checksum: 10c0/633de63388934d86e9c3cb09776cdf0f856a2088390feb03f58c1e87cbd7e03e41da8bf657162f4b0732352e73db2de016a1a2616aa2ed9b5861f233dee8b945
+  checksum: 10c0/55950ca55514a04ec32158da747aa29c29390b984548da30b14963c8f251cd7a488e735876b2c0d43ff1ea4f79c4793a39485c3bee7ecf4fd9e844fa62988635
   languageName: node
   linkType: hard
 
