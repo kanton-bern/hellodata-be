@@ -4852,8 +4852,8 @@ __metadata:
   linkType: hard
 
 "@testing-library/angular@npm:^18.1.0":
-  version: 18.1.0
-  resolution: "@testing-library/angular@npm:18.1.0"
+  version: 18.1.1
+  resolution: "@testing-library/angular@npm:18.1.1"
   dependencies:
     tslib: "npm:^2.3.1"
   peerDependencies:
@@ -4862,7 +4862,7 @@ __metadata:
     "@angular/platform-browser": ">= 20.0.0"
     "@angular/router": ">= 20.0.0"
     "@testing-library/dom": ^10.0.0
-  checksum: 10c0/d470cb73415d5891788a70cb53c6b73fe170d6aa5adde79ada478d1edf889f81d8e87828fd0d176cc95d55ebc6a449709800dc4e4ed438ed60fc1ad13d6e8c4d
+  checksum: 10c0/1950368415567aac0f2289d7c5a6694926645c5565148d161a5370acacf6b6269e33032cdcdfe4168ac92278b13086ff7b0c84d362935d127edc55759cae3b9f
   languageName: node
   linkType: hard
 
