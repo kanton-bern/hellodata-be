@@ -1,0 +1,12 @@
+
+
+  _    _      _ _       _____       _______            ____  ______
+ | |  | |    | | |     |  __ \   /\|__   __|/\        |  _ \|  ____|
+ | |__| | ___| | | ___ | |  | | /  \  | |  /  \ ______| |_) | |__
+ |  __  |/ _ \ | |/ _ \| |  | |/ /\ \ | | / /\ \______|  _ <|  __|
+ | |  | |  __/ | | (_) | |__| / ____ \| |/ ____ \     | |_) | |____
+ |_|  |_|\___|_|_|\___/|_____/_/    \_\_/_/    \_\    |____/|______|
+
+${application.title} ${application.version}
+${AnsiColor.BRIGHT_BLUE}:: HelloDATA-BE :: Startup profile(s) ${spring.profiles.active} ::
+:: https://github.com/kanton-bern/hellodata-be ::${AnsiColor.DEFAULT}
