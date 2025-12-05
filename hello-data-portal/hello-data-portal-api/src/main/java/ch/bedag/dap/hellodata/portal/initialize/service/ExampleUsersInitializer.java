@@ -108,9 +108,9 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             log.debug("Creating example users for DD {}, context key: {}", dataDomain.getName(), dataDomain.getContextKey());
             String dataDomainName = dataDomain.getName();
             String dataDomainPrefixEmail = dataDomainName.trim().replace(' ', '-') + "-";
-            createDataDomainAdmin(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles);
-            createDataDomainEditor(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles);
-            createDataDomainViewer(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles);
+            createDataDomainUser(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles, HdRoleName.DATA_DOMAIN_ADMIN, "Admin", exampleUsersProperties.getDataDomainAdminPassword());
+            createDataDomainUser(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles, HdRoleName.DATA_DOMAIN_EDITOR, "Editor", exampleUsersProperties.getDataDomainEditorPassword());
+            createDataDomainUser(dataDomain.getContextKey(), dataDomainPrefixEmail, dataDomainName, allRoles, HdRoleName.DATA_DOMAIN_VIEWER, "Viewer", exampleUsersProperties.getDataDomainViewerPassword());
             exampleUsersCreated = true;
         }
         if (exampleUsersCreated) {
@@ -132,18 +132,16 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         exampleUsersCreatedRepository.save(exampleUsersCreatedEntity);
     }
 
-    private boolean areExampleUsersCreated(List<HdContextEntity> dataDomains) {
+    boolean areExampleUsersCreated(List<HdContextEntity> dataDomains) {
         List<ExampleUsersCreatedEntity> all = exampleUsersCreatedRepository.findAllByOrderByCreatedDateAsc();
         if (all.isEmpty()) {
             return false;
         }
-        // in case more entries found - remove them and leave one
         if (all.size() > 1) {
             for (int i = 0; i < all.size() - 1; i++) {
-                ExampleUsersCreatedEntity entity = all.get(i);
-                exampleUsersCreatedRepository.delete(entity);
-                all.remove(entity);
+                exampleUsersCreatedRepository.delete(all.get(i));
             }
+            all = exampleUsersCreatedRepository.findAllByOrderByCreatedDateAsc();
         }
         ExampleUsersCreatedEntity exampleUsersCreatedEntity = all.get(0);
         for (HdContextEntity dataDomain : dataDomains) {
@@ -154,110 +152,6 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
         return true;
     }
 
-    private void createDataDomainViewer(String contextKey, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
-        String ddViewerUsername = dataDomainPrefixEmail + "viewer";
-        String ddViewerEmail = (ddViewerUsername + "@" + emailPostfix).toLowerCase(Locale.ROOT);
-        String ddViewerFirstName = HdContextType.DATA_DOMAIN.getTypeName() + " " + dataDomainName;
-        String ddViewerLastName = "Viewer";
-
-        List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddViewerEmail, true);
-        String ddViewerId;
-        if (!userRepresentations.isEmpty()) {
-            log.debug("DATA DOMAIN VIEWER {} already exists in keycloak", ddViewerEmail);
-            ddViewerId = userRepresentations.get(0).getId();
-        } else {
-            UserRepresentation ddViewer = generateUser(ddViewerUsername, ddViewerFirstName, ddViewerLastName, ddViewerEmail);
-            setUserPassword(ddViewer, this.exampleUsersProperties.getDataDomainViewerPassword());
-            ddViewerId = createUserInKeycloak(ddViewer);
-        }
-        if (!userRepository.existsByIdOrAuthId(UUID.fromString(ddViewerId), ddViewerId)) {
-            UserEntity ddViewerEntity = saveUserToDatabase(ddViewerId, ddViewerEmail, ddViewerFirstName, ddViewerLastName, ddViewerUsername);
-            roleService.setBusinessDomainRoleForUser(ddViewerEntity, HdRoleName.NONE);
-            ddViewerEntity = userRepository.getReferenceById(ddViewerEntity.getId());
-            Optional<RoleDto> ddViewerRoleResult = allRoles.stream()
-                    .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
-                            role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_VIEWER.name()))
-                    .findFirst();
-            if (ddViewerRoleResult.isPresent()) {
-                RoleDto ddViewerRole = ddViewerRoleResult.get();
-                roleService.updateDomainRoleForUser(ddViewerEntity, ddViewerRole, contextKey);
-            }
-            userService.createUserInSubsystems(ddViewerId);
-            log.debug("CREATED DATA DOMAIN VIEWER EXAMPLE USER, email: {}, username: {}", ddViewerEmail, ddViewerUsername);
-        } else {
-            log.debug("DATA DOMAIN VIEWER {} already exists in portal DB", ddViewerEmail);
-        }
-    }
-
-    private void createDataDomainEditor(String contextKey, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
-        String ddEditorUsername = dataDomainPrefixEmail + "editor";
-        String ddEditorEmail = (ddEditorUsername + "@" + emailPostfix).toLowerCase(Locale.ROOT);
-        String ddEditorFirstName = HdContextType.DATA_DOMAIN.getTypeName() + " " + dataDomainName;
-        String ddEditorLastName = "Editor";
-
-        List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddEditorEmail, true);
-        String ddEditorId;
-        if (!userRepresentations.isEmpty()) {
-            log.debug("DATA DOMAIN EDITOR {} already exists in keycloak", ddEditorEmail);
-            ddEditorId = userRepresentations.get(0).getId();
-        } else {
-            UserRepresentation ddEditor = generateUser(ddEditorUsername, ddEditorFirstName, ddEditorLastName, ddEditorEmail);
-            setUserPassword(ddEditor, this.exampleUsersProperties.getDataDomainEditorPassword());
-            ddEditorId = createUserInKeycloak(ddEditor);
-        }
-        if (!userRepository.existsByIdOrAuthId(UUID.fromString(ddEditorId), ddEditorId)) {
-            UserEntity ddEditorEntity = saveUserToDatabase(ddEditorId, ddEditorEmail, ddEditorFirstName, ddEditorLastName, ddEditorUsername);
-            roleService.setBusinessDomainRoleForUser(ddEditorEntity, HdRoleName.NONE);
-            ddEditorEntity = userRepository.getReferenceById(ddEditorEntity.getId());
-            Optional<RoleDto> ddEditorRoleResult = allRoles.stream()
-                    .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
-                            role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_EDITOR.name()))
-                    .findFirst();
-            if (ddEditorRoleResult.isPresent()) {
-                RoleDto ddEditorRole = ddEditorRoleResult.get();
-                roleService.updateDomainRoleForUser(ddEditorEntity, ddEditorRole, contextKey);
-            }
-            userService.createUserInSubsystems(ddEditorId);
-            log.debug("CREATED DATA DOMAIN EDITOR EXAMPLE USER, email: {}, username: {}", ddEditorEmail, ddEditorUsername);
-        } else {
-            log.debug("DATA DOMAIN EDITOR {} already exists in portal DB", ddEditorEmail);
-        }
-    }
-
-    private void createDataDomainAdmin(String contextKey, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles) {
-        String dataDomainAdminUsername = dataDomainPrefixEmail + "admin";
-        String ddAdminEmail = (dataDomainAdminUsername + "@" + emailPostfix).toLowerCase(Locale.ROOT);
-        String ddAdminFirstName = HdContextType.DATA_DOMAIN.getTypeName() + " " + dataDomainName;
-        String ddAdminLastName = "Admin";
-
-        List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(ddAdminEmail, true);
-        String ddAdminId;
-        if (!userRepresentations.isEmpty()) {
-            log.debug("DATA DOMAIN ADMIN {} already exists in keycloak", ddAdminEmail);
-            ddAdminId = userRepresentations.get(0).getId();
-        } else {
-            UserRepresentation ddAdmin = generateUser(dataDomainAdminUsername, ddAdminFirstName, ddAdminLastName, ddAdminEmail);
-            setUserPassword(ddAdmin, this.exampleUsersProperties.getDataDomainAdminPassword());
-            ddAdminId = createUserInKeycloak(ddAdmin);
-        }
-        if (!userRepository.existsByIdOrAuthId(UUID.fromString(ddAdminId), ddAdminId)) {
-            UserEntity ddAdminEntity = saveUserToDatabase(ddAdminId, ddAdminEmail, ddAdminFirstName, ddAdminLastName, dataDomainAdminUsername);
-            roleService.setBusinessDomainRoleForUser(ddAdminEntity, HdRoleName.NONE);
-            ddAdminEntity = userRepository.getReferenceById(ddAdminEntity.getId());
-            Optional<RoleDto> ddAdminRoleResult = allRoles.stream()
-                    .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
-                            role.getName().equalsIgnoreCase(HdRoleName.DATA_DOMAIN_ADMIN.name()))
-                    .findFirst();
-            if (ddAdminRoleResult.isPresent()) {
-                RoleDto ddAdminRole = ddAdminRoleResult.get();
-                roleService.updateDomainRoleForUser(ddAdminEntity, ddAdminRole, contextKey);
-            }
-            userService.createUserInSubsystems(ddAdminId);
-            log.debug("CREATED DATA DOMAIN ADMIN EXAMPLE USER, email: {}, username: {}", ddAdminEmail, dataDomainAdminUsername);
-        } else {
-            log.debug("DATA DOMAIN ADMIN {} already exists in portal DB", ddAdminEmail);
-        }
-    }
 
     private void createBusinessDomainAdmin(String businessDomainName) {
         String adminUsername = businessDomainName.replace(' ', '-') + "-admin";
@@ -284,6 +178,42 @@ public class ExampleUsersInitializer extends AbstractUserInitializer implements 
             log.debug("CREATED BUSINESS DOMAIN ADMIN EXAMPLE USER, email: {}, username: {}", email, adminUsername);
         } else {
             log.debug("BUSINESS DOMAIN ADMIN {} already exists in portal DB", email);
+        }
+    }
+
+    private void createDataDomainUser(String contextKey, String dataDomainPrefixEmail, String dataDomainName, List<RoleDto> allRoles, HdRoleName roleName, String lastName, String password) {
+        String username = dataDomainPrefixEmail + roleName.name().toLowerCase(Locale.ROOT).replace("data_domain_", "");
+        String email = (username + "@" + emailPostfix).toLowerCase(Locale.ROOT);
+        String firstName = HdContextType.DATA_DOMAIN.getTypeName() + " " + dataDomainName;
+
+        List<UserRepresentation> userRepresentations = keycloak.realm(this.realmName).users().searchByEmail(email, true);
+        String userId;
+        if (!userRepresentations.isEmpty()) {
+            log.debug("{} {} already exists in keycloak", roleName, email);
+            userId = userRepresentations.get(0).getId();
+        } else {
+            UserRepresentation user = generateUser(username, firstName, lastName, email);
+            setUserPassword(user, password);
+            userId = createUserInKeycloak(user);
+        }
+        try {
+            if (!userRepository.existsByIdOrAuthId(UUID.fromString(userId), userId)) {
+                UserEntity userEntity = saveUserToDatabase(userId, email, firstName, lastName, username);
+                roleService.setBusinessDomainRoleForUser(userEntity, HdRoleName.NONE);
+                userEntity = userRepository.getReferenceById(userEntity.getId());
+                Optional<RoleDto> roleResult = allRoles.stream()
+                        .filter(role -> role.getContextType() == HdContextType.DATA_DOMAIN &&
+                                role.getName().equalsIgnoreCase(roleName.name()))
+                        .findFirst();
+                UserEntity finalUserEntity = userEntity;
+                roleResult.ifPresent(role -> roleService.updateDomainRoleForUser(finalUserEntity, role, contextKey));
+                userService.createUserInSubsystems(userId);
+                log.debug("CREATED {} EXAMPLE USER, email: {}, username: {}", roleName, email, username);
+            } else {
+                log.debug("{} {} already exists in portal DB", roleName, email);
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid UUID for userId: {}", userId, e);
         }
     }
 
