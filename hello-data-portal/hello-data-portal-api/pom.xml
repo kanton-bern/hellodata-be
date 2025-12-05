@@ -106,7 +106,7 @@
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
             <artifactId>java10-shim</artifactId>
-            <version>20240325.1.0.redhat-00001</version>
+            <version>20240325.1</version>
             <scope>runtime</scope>
         </dependency>
         <!-- Apache Commons CSV for parsing CSV files -->
