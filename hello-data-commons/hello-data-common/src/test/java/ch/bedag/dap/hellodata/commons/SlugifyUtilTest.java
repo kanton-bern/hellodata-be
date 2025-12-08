@@ -27,30 +27,31 @@
 package ch.bedag.dap.hellodata.commons;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SlugifyUtilTest {
+class SlugifyUtilTest {
 
     @Test
-    public void testSlugifyWithValueAndId() {
+    void testSlugifyWithValueAndId() {
         String result = SlugifyUtil.slugify("Test Value", 123);
         assertEquals("D_test-value_123", result);
     }
 
     @Test
-    public void testSlugifyWithValue() {
+    void testSlugifyWithValue() {
         String result = SlugifyUtil.slugify("Test Value");
         assertEquals("D_test-value", result);
     }
 
     @Test
-    public void testSlugifyWithValueAndCustomPrefix() {
+    void testSlugifyWithValueAndCustomPrefix() {
         String result = SlugifyUtil.slugify("Test Value", "CUSTOM_PREFIX");
         assertEquals("CUSTOM_PREFIXtest-value", result);
     }
 
     @Test
-    public void testSlugifyWithSpecialCharacters() {
+    void testSlugifyWithSpecialCharacters() {
         String result = SlugifyUtil.slugify("Special Characters!@# 123");
         assertEquals("D_special-characters-123", result);
     }

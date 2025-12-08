@@ -71,7 +71,7 @@ public class NatsHealthIndicator extends AbstractHealthIndicator {
         subject = this.appName + "-" + subjectBase + (StringUtils.hasText(instanceName) ? "-" + instanceName : "");
         subjectBase64 = new String(Base64.getEncoder().encode(subject.getBytes(StandardCharsets.UTF_8)));
         log.debug("[NATS connection check] Listening for messages on subject {}", subject);
-        Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
+        Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
             String message = new String(msg.getData());
             log.debug("[NATS connection check] Received request for NATS connection check {}", message);
             natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));

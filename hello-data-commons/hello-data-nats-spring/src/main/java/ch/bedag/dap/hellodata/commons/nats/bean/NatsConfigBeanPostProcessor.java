@@ -54,7 +54,7 @@ import static java.util.Collections.synchronizedList;
 public class NatsConfigBeanPostProcessor implements BeanPostProcessor, DisposableBean {
 
     private final Connection natsConnection;
-    private final List<SubscribeAnnotationThread> THREADS = synchronizedList(new ArrayList<>());
+    private static final List<SubscribeAnnotationThread> THREADS = synchronizedList(new ArrayList<>());
     private final ExecutorService executorService;
     @Value("${spring.application.name}")
     private String appName;
@@ -139,7 +139,7 @@ public class NatsConfigBeanPostProcessor implements BeanPostProcessor, Disposabl
             durableName = SlugifyUtil.slugify(durableName, "");
             log.debug("[NATS] Durable name for consumer: {}", durableName);
             SubscribeAnnotationThread thread = new SubscribeAnnotationThread(natsConnection, subscribeAnnotation, beanWrappers, durableName, executorService, BooleanUtils.toBoolean(killJvmOnError), Short.parseShort(killJvmCounter));
-            executorService.submit(thread);
+            executorService.submit(thread); //NOSONAR
             THREADS.add(thread);
         }
     }

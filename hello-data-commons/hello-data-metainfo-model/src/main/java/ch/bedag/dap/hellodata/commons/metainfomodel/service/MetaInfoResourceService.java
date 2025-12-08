@@ -62,6 +62,10 @@ public class MetaInfoResourceService {
 
     @Transactional(readOnly = true)
     public <T extends HdResource> List<T> findAllByModuleTypeAndKind(ModuleType moduleType, String kind, Class<T> concreteClass) {
+        return findAllByModuleTypeAndKindInternal(moduleType, kind, concreteClass);
+    }
+
+    public <T extends HdResource> List<T> findAllByModuleTypeAndKindInternal(ModuleType moduleType, String kind, Class<T> concreteClass) {
         return resourceRepository.findAllByModuleTypeAndKind(moduleType, kind)
                 .stream()
                 .map(MetaInfoResourceEntity::getMetainfo)
@@ -92,8 +96,7 @@ public class MetaInfoResourceService {
         return resourceRepository.findAllByKind(kind);
     }
 
-    @Transactional(readOnly = true)
-    public <T extends HdResource> T findByInstanceNameAndKind(String instanceName, String kind, Class<T> concreteClass) {
+    private <T extends HdResource> T findByInstanceNameAndKind(String instanceName, String kind, Class<T> concreteClass) {
         MetaInfoResourceEntity metaInfoResourceEntity = resourceRepository.getByInstanceNameAndKind(instanceName, kind);
         if (metaInfoResourceEntity != null) {
             HdResource metainfo = metaInfoResourceEntity.getMetainfo();
@@ -145,7 +148,7 @@ public class MetaInfoResourceService {
 
     @Transactional(readOnly = true)
     public String findSupersetInstanceNameByContextKey(String contextKey) {
-        return findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_APP_INFO,
+        return findAllByModuleTypeAndKindInternal(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_APP_INFO,
                 ch.bedag.dap.hellodata.commons.sidecars.resources.v1.appinfo.AppInfoResource.class).stream()
                 .filter(appInfoResource ->
                         appInfoResource.getBusinessContextInfo()

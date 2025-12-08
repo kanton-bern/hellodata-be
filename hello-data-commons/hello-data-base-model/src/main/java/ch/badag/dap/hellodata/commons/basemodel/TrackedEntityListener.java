@@ -29,9 +29,10 @@ package ch.badag.dap.hellodata.commons.basemodel;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import lombok.extern.log4j.Log4j2;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class TrackedEntityListener {
@@ -59,7 +60,7 @@ public class TrackedEntityListener {
 
     private void validateEntityClass(Object o) {
         if (!(o instanceof Trackable)) {
-            throw new RuntimeException(this.getClass().getSimpleName() + " can only handle classes of type " + Trackable.class.getSimpleName() + "!");
+            throw new RuntimeException(this.getClass().getSimpleName() + " can only handle classes of type " + Trackable.class.getSimpleName() + "!"); // NOSONAR
         }
     }
 }

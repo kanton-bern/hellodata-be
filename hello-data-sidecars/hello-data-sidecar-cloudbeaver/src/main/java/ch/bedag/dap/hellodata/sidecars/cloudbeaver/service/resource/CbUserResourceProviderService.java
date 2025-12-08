@@ -115,7 +115,7 @@ public class CbUserResourceProviderService {
     }
 
     /**
-     * Some small arbitrary mapping of dbt rolename to an Integer
+     * Some small arbitrary mapping of dbt role name to an Integer
      */
     private int getRoleId(Role airflowUserRole) {
         return airflowUserRole.getKey().equalsIgnoreCase(Role.ADMIN_ROLE_KEY) ? 1 : 2;

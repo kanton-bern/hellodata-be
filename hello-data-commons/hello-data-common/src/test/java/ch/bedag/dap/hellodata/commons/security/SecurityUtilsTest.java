@@ -26,27 +26,26 @@
  */
 package ch.bedag.dap.hellodata.commons.security;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SecurityUtilsTest {
+class SecurityUtilsTest {
 
     @Test
-    public void testGetCurrentUsernameWithJwtAuthentication() {
+    void testGetCurrentUsernameWithJwtAuthentication() {
         // given
         JwtAuthenticationToken jwtToken = createJwtAuthenticationToken();
         mockSecurityContextHolder(jwtToken);
@@ -59,7 +58,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testIsSuperuserWithHellodataAuthentication() {
+    void testIsSuperuserWithHellodataAuthentication() {
         // given
         HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken(true);
         mockSecurityContextHolder(hdToken);
@@ -69,7 +68,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testIsSuperuserWithOtherAuthentication() {
+    void testIsSuperuserWithOtherAuthentication() {
         // given
         Authentication authentication = mock(Authentication.class);
         mockSecurityContextHolder(authentication);
@@ -79,10 +78,10 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserPermissionsWithHellodataAuthentication() {
+    void testGetCurrentUserPermissionsWithHellodataAuthentication() {
         // given
         Set<String> permissions = new HashSet<>(Collections.singletonList("read"));
-        HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken("testuser", true, permissions);
+        HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken(true, permissions);
         mockSecurityContextHolder(hdToken);
 
         // when
@@ -93,7 +92,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserPermissionsWithOtherAuthentication() {
+    void testGetCurrentUserPermissionsWithOtherAuthentication() {
         // given
         Authentication authentication = mock(Authentication.class);
         mockSecurityContextHolder(authentication);
@@ -106,7 +105,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserIdWithHellodataAuthentication() {
+    void testGetCurrentUserIdWithHellodataAuthentication() {
         // given
         UUID userId = UUID.randomUUID();
         HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken(userId);
@@ -120,7 +119,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserIdWithOtherAuthentication() {
+    void testGetCurrentUserIdWithOtherAuthentication() {
         // given
         Authentication authentication = mock(Authentication.class);
         mockSecurityContextHolder(authentication);
@@ -130,10 +129,10 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserEmailWithHellodataAuthentication() {
+    void testGetCurrentUserEmailWithHellodataAuthentication() {
         // given
         String email = "testuser@example.com";
-        HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken("testuser", true, email);
+        HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken(true, email);
         mockSecurityContextHolder(hdToken);
 
         // when
@@ -144,7 +143,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserEmailWithOtherAuthentication() {
+    void testGetCurrentUserEmailWithOtherAuthentication() {
         // given
         Authentication authentication = mock(Authentication.class);
         mockSecurityContextHolder(authentication);
@@ -154,11 +153,11 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserFullNameWithHellodataAuthentication() {
+    void testGetCurrentUserFullNameWithHellodataAuthentication() {
         // given
         String firstName = "John";
         String lastName = "Doe";
-        HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken("testuser", true, "testuser@test.com", firstName, lastName);
+        HellodataAuthenticationToken hdToken = createHellodataAuthenticationToken(true, "testuser@test.com", firstName, lastName);
         mockSecurityContextHolder(hdToken);
 
         // when
@@ -169,7 +168,7 @@ public class SecurityUtilsTest {
     }
 
     @Test
-    public void testGetCurrentUserFullNameWithOtherAuthentication() {
+    void testGetCurrentUserFullNameWithOtherAuthentication() {
         // given
         Authentication authentication = mock(Authentication.class);
         mockSecurityContextHolder(authentication);
@@ -184,31 +183,23 @@ public class SecurityUtilsTest {
         return new JwtAuthenticationToken(jwt);
     }
 
-    private HellodataAuthenticationToken createHellodataAuthenticationToken(String username) {
-        return new HellodataAuthenticationToken(UUID.randomUUID(), "John", "Doe", "test@example.com", false, Collections.emptySet());
-    }
-
     private HellodataAuthenticationToken createHellodataAuthenticationToken(boolean superuser) {
         return new HellodataAuthenticationToken(UUID.randomUUID(), "John", "Doe", "test@example.com", superuser, Collections.emptySet());
-    }
-
-    private HellodataAuthenticationToken createHellodataAuthenticationToken(Set<String> permissions) {
-        return new HellodataAuthenticationToken(UUID.randomUUID(), "John", "Doe", "test@example.com", false, permissions);
     }
 
     private HellodataAuthenticationToken createHellodataAuthenticationToken(UUID userId) {
         return new HellodataAuthenticationToken(userId, "John", "Doe", "test@example.com", false, Collections.emptySet());
     }
 
-    private HellodataAuthenticationToken createHellodataAuthenticationToken(String username, boolean superuser, Set<String> permissions) {
+    private HellodataAuthenticationToken createHellodataAuthenticationToken(boolean superuser, Set<String> permissions) {
         return new HellodataAuthenticationToken(UUID.randomUUID(), "John", "Doe", "test@example.com", superuser, permissions);
     }
 
-    private HellodataAuthenticationToken createHellodataAuthenticationToken(String username, boolean superuser, String email) {
+    private HellodataAuthenticationToken createHellodataAuthenticationToken(boolean superuser, String email) {
         return new HellodataAuthenticationToken(UUID.randomUUID(), "John", "Doe", email, superuser, Collections.emptySet());
     }
 
-    private HellodataAuthenticationToken createHellodataAuthenticationToken(String username, boolean superuser, String email, String firstName, String lastName) {
+    private HellodataAuthenticationToken createHellodataAuthenticationToken(boolean superuser, String email, String firstName, String lastName) {
         return new HellodataAuthenticationToken(UUID.randomUUID(), firstName, lastName, email, superuser, Collections.emptySet());
     }
 
