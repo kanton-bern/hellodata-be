@@ -26,13 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portalcommon.user.repository;
 
-import ch.bedag.dap.hellodata.portal.user.entity.DefaultUserEntity;
-import java.util.List;
-import java.util.UUID;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.DefaultUserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface DefaultUserRepository extends JpaRepository<DefaultUserEntity, UUID> {

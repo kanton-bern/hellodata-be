@@ -58,4 +58,14 @@ public class RoleEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "context_type", columnDefinition = "VARCHAR")
     private HdContextType contextType;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

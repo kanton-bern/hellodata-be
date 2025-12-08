@@ -46,11 +46,21 @@ import java.util.Map;
 @Entity(name = "documentation")
 public class DocumentationEntity extends BaseEntity {
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     private String text;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.EAGER)
     @Column(columnDefinition = "json", name = "texts")
     private Map<Locale, String> texts;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

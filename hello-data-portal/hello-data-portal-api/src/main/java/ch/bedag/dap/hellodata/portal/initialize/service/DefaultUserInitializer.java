@@ -30,7 +30,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.conf.DefaultAdminProperties;
-import ch.bedag.dap.hellodata.portal.user.entity.DefaultUserEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.DefaultUserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.DefaultUserRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;

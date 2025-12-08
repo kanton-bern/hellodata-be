@@ -38,4 +38,14 @@ import lombok.Setter;
 @Entity(name = "example_users_created")
 public class ExampleUsersCreatedEntity extends BaseEntity {
     private String dataDomainList;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

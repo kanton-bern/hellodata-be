@@ -63,5 +63,15 @@ public class FaqEntity extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.EAGER)
     @Column(columnDefinition = "json", name = "messages")
-    private Map<Locale, FaqMessage> messages;
+    private Map<Locale, FaqMessage> messages; //NOSONAR
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

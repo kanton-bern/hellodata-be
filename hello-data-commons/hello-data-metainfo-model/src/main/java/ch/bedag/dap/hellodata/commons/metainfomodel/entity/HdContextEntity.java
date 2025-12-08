@@ -36,10 +36,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.NaturalId;
-
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -73,13 +70,6 @@ public class HdContextEntity extends BaseEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-            return false;
-        }
-        HdContextEntity that = (HdContextEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+        return super.equals(o);
     }
 }

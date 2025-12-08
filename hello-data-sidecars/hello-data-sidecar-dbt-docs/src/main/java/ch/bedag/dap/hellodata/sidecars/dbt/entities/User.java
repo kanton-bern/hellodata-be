@@ -30,7 +30,6 @@ import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,7 +38,6 @@ import java.util.Collection;
 @Entity(name = "dbt_user")
 @Getter
 @Setter
-@EqualsAndHashCode
 public class User extends BaseEntity {
 
     @Column(unique = true)
@@ -78,5 +76,15 @@ public class User extends BaseEntity {
     public User(String userName, String email) {
         this.userName = userName;
         this.email = email;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
     }
 }

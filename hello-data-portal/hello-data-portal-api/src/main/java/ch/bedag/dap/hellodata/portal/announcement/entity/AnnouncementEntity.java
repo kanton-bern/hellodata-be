@@ -57,4 +57,14 @@ public class AnnouncementEntity extends BaseEntity {
     @Basic(fetch = FetchType.EAGER)
     @Column(columnDefinition = "json", name = "messages")
     private Map<Locale, String> messages;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

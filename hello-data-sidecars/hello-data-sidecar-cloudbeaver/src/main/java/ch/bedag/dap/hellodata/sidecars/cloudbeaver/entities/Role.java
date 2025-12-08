@@ -30,7 +30,6 @@ import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,7 +38,6 @@ import java.util.Collection;
 @Entity(name = "hd_role")
 @Getter
 @Setter
-@EqualsAndHashCode
 public class Role extends BaseEntity {
 
     public static final String ADMIN_ROLE_KEY = "admin";
@@ -79,5 +77,15 @@ public class Role extends BaseEntity {
         super();
         this.key = key;
         this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
     }
 }

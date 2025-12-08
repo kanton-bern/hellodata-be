@@ -27,7 +27,7 @@
 package ch.bedag.dap.hellodata.commons.nats.exception;
 
 public class NatsException extends RuntimeException {
-    private String message;
+    private final String message;
 
     public NatsException(String message) {
         super(message);
