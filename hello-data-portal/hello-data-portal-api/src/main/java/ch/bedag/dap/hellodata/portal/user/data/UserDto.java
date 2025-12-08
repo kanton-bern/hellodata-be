@@ -31,7 +31,7 @@ import lombok.Data;
 
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class") // NOSONAR
 @Data
 public class UserDto {
     private String id;

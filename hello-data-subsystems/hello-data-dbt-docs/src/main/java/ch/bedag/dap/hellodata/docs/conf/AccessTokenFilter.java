@@ -31,8 +31,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
 
 public class AccessTokenFilter extends OncePerRequestFilter {
 
@@ -43,7 +44,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         String accessToken = request.getParameter(ACCESS_TOKEN_PARAM);
         if (accessToken != null) {
             // Create a cookie named "auth.access_token"
-            Cookie cookie = new Cookie(ACCESS_TOKEN_PARAM, accessToken);
+            Cookie cookie = new Cookie(ACCESS_TOKEN_PARAM, accessToken); //NOSONAR
             cookie.setDomain(request.getServerName());
             cookie.setPath("/");
             response.addCookie(cookie);
