@@ -41,7 +41,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,7 +49,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.GET_ALL_USERS;
@@ -73,7 +71,6 @@ public class CbUserResourceProviderService {
     }
 
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
-    @Transactional(readOnly = true)
     public void publishUsers() {
         log.info("--> publishUsers()");
         List<User> users = userRepository.findAll();
@@ -91,7 +88,7 @@ public class CbUserResourceProviderService {
         }
         List<User> modifiableList = new ArrayList<>(users);
         modifiableList.sort(Comparator.comparing(User::getCreatedDate));
-        return IntStream.range(0, modifiableList.size()).mapToObj(i -> toSubsystemUser(i + 2, modifiableList.get(i))).collect(Collectors.toList());
+        return IntStream.range(0, modifiableList.size()).mapToObj(i -> toSubsystemUser(i + 2, modifiableList.get(i))).toList();
     }
 
     private SubsystemUser toSubsystemUser(int index, User dbtUser) {
@@ -107,7 +104,7 @@ public class CbUserResourceProviderService {
     }
 
     private List<SubsystemRole> toSupersetRoles(Collection<Role> dbtUserRoles) {
-        return dbtUserRoles.stream().map(this::toSupersetRole).collect(Collectors.toList());
+        return dbtUserRoles.stream().map(this::toSupersetRole).toList();
     }
 
     private SubsystemRole toSupersetRole(Role dbtRole) {

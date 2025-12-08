@@ -41,7 +41,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -72,7 +71,6 @@ public class DbtDocsUserResourceProviderService {
     }
 
     @Scheduled(fixedDelayString = "${hello-data.sidecar.publish-interval-minutes:10}", timeUnit = TimeUnit.MINUTES)
-    @Transactional(readOnly = true)
     public void publishUsers() {
         log.info("--> publishUsers()");
         List<User> allUsers = userRepository.findAll();
