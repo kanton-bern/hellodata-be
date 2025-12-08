@@ -50,7 +50,7 @@ public class UserContextRoleUpdate implements Serializable {
     private String lastName;
     private Boolean active;
     private List<ContextRole> contextRoles;
-    private Map<String, List<ModuleRoleNames>> extraModuleRoles = new HashMap<>();
+    private Map<String, List<ModuleRoleNames>> extraModuleRoles = new HashMap<>(); //NOSONAR
     //technical - send user list pushback enabled by default
     private boolean sendBackUsersList = true;
 

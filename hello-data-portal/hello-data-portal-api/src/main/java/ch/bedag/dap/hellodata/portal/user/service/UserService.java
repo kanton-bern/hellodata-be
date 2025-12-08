@@ -120,8 +120,7 @@ public class UserService {
         return handleUserCreation(email, firstName, lastName, isFederated);
     }
 
-    @Transactional(readOnly = true)
-    public String handleUserCreation(String email, String firstName, String lastName, boolean isFederated) {
+    private String handleUserCreation(String email, String firstName, String lastName, boolean isFederated) {
         UserRepresentation userFoundInKeycloak = keycloakService.getUserRepresentationByEmail(email);
         String keycloakUserId;
         // If it is a local user we can create a new user in keycloak. Federated users are not created in keycloak
@@ -140,16 +139,16 @@ public class UserService {
             keycloakUserId = userFoundInKeycloak.getId();
         }
 
-        String username_ = userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername();
-        String firstname_ = userFoundInKeycloak == null ? firstName : userFoundInKeycloak.getFirstName();
-        String lastname_ = userFoundInKeycloak == null ? lastName : userFoundInKeycloak.getLastName();
+        String username = userFoundInKeycloak == null ? email : userFoundInKeycloak.getUsername();
+        String firstname = userFoundInKeycloak == null ? firstName : userFoundInKeycloak.getFirstName();
+        String lastname = userFoundInKeycloak == null ? lastName : userFoundInKeycloak.getLastName();
 
-        createPortalUserWithRoles(email, username_, firstname_, lastname_, isFederated, keycloakUserId);
+        createPortalUserWithRoles(email, username, firstname, lastname, isFederated, keycloakUserId);
 
         if (isFederated) {
-            createFederatedUserInSubsystems(email, username_, firstname_, lastname_);
+            createFederatedUserInSubsystems(email, username, firstname, lastname);
         } else {
-            createUserInSubsystems(keycloakUserId);
+            createInSubsystems(keycloakUserId);
         }
         return keycloakUserId;
     }
@@ -184,8 +183,7 @@ public class UserService {
         roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.NONE);
     }
 
-    @Transactional(readOnly = true)
-    public void validateEmailAlreadyExists(String email) {
+    private void validateEmailAlreadyExists(String email) {
         Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
         if (userEntityByEmail.isPresent()) {
             throw new UserAlreadyExistsException();
@@ -220,7 +218,7 @@ public class UserService {
             }
             boolean isLast = counter.incrementAndGet() == allUsers.size();
             return getUserContextRoleUpdate(userEntity, isLast);
-        }).collect(Collectors.toList());
+        }).toList();
         List<List<UserContextRoleUpdate>> partition = partitionToBatches(list);
 
         // Proceed with publishing the partitions
@@ -238,7 +236,7 @@ public class UserService {
         List<UserEntity> allPortalUsers = userRepository.findAll();
         return allPortalUsers.stream()
                 .map(this::map)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -262,7 +260,7 @@ public class UserService {
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
         AtomicBoolean isUserFederated = new AtomicBoolean(false);
         userEntityResult.ifPresentOrElse(
-                (userEntity) -> {
+                userEntity -> {
                     isUserFederated.set(userEntity.isFederated());
                     userRepository.delete(userEntity);
                 },
@@ -301,13 +299,16 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public void createUserInSubsystems(String userId) {
+        createInSubsystems(userId);
+    }
+
+    private void createInSubsystems(String userId) {
         SubsystemUserUpdate createUser = getSubsystemUserUpdate(userId);
         createUser.setSendBackUsersList(false);
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
     }
 
-    @Transactional(readOnly = true)
-    public void createFederatedUserInSubsystems(String email, String userName, String firstName, String lastName) {
+    private void createFederatedUserInSubsystems(String email, String userName, String firstName, String lastName) {
         SubsystemUserUpdate createUser = getSubsystemUserUpdate(email, userName, firstName, lastName);
         createUser.setSendBackUsersList(false);
         natsSenderService.publishMessageToJetStream(HDEvent.CREATE_USER, createUser);
@@ -359,7 +360,7 @@ public class UserService {
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(true);
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
-        synchronizeContextRolesWithSubsystems(userEntity, new HashMap<>());
+        synchronizeContextRolesWithSubsystems(userEntity, true, new HashMap<>());
         emailNotificationService.notifyAboutUserActivation(userEntity.getFirstName(), userEntity.getEmail(), userEntity.getSelectedLanguage());
         return map(userEntity);
     }
@@ -435,8 +436,7 @@ public class UserService {
         return result;
     }
 
-    @Transactional
-    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, boolean sendBackUsersList, Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap) {
+    private void synchronizeContextRolesWithSubsystems(UserEntity userEntity, boolean sendBackUsersList, Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap) {
         UserContextRoleUpdate userContextRoleUpdate = getUserContextRoleUpdate(userEntity, sendBackUsersList);
         userContextRoleUpdate.setExtraModuleRoles(contextToModuleRoleNamesMap);
         natsSenderService.publishMessageToJetStream(HDEvent.UPDATE_USER_CONTEXT_ROLE, userContextRoleUpdate);
@@ -463,6 +463,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Set<UserContextRoleEntity> getCurrentUserDataDomainRolesWithoutNone() {
+        return getCurrentUserDataDomainRolesExceptNone();
+    }
+
+    private Set<UserContextRoleEntity> getCurrentUserDataDomainRolesExceptNone() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
         if (currentUserId == null) {
             String errMsg = "Current user not found";
@@ -482,7 +486,7 @@ public class UserService {
         if (contextKey == null) {
             return;
         }
-        List<String> contextKeys = getCurrentUserDataDomainRolesWithoutNone().stream().map(UserContextRoleEntity::getContextKey).toList();
+        List<String> contextKeys = getCurrentUserDataDomainRolesExceptNone().stream().map(UserContextRoleEntity::getContextKey).toList();
         if (!contextKeys.contains(contextKey)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, reason);
         }
@@ -490,7 +494,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<AdUserDto> searchUserOmitCreated(String email) {
-        List<AdUserDto> users = searchUser(email);
+        List<AdUserDto> users = searchUserInternal(email);
         Map<String, AdUserDto> emailToUserDto = users.stream().collect(Collectors.toMap(AdUserDto::getEmail, user -> user, (existing, replacement) -> {
             if (existing.getOrigin() == AdUserOrigin.LOCAL && replacement.getOrigin() != AdUserOrigin.LOCAL) {
                 return replacement;
@@ -513,6 +517,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<AdUserDto> searchUser(String email) {
+        return searchUserInternal(email);
+    }
+
+    private List<AdUserDto> searchUserInternal(String email) {
         if (email == null || email.length() < 3) {
             return Collections.emptyList();
         }
@@ -550,8 +558,7 @@ public class UserService {
         return userEntity.getSelectedLanguage();
     }
 
-    @Transactional(readOnly = true)
-    public Locale getSelectedLanguageByEmail(String email) {
+    private Locale getSelectedLanguageByEmail(String email) {
         return userRepository.findSelectedLanguageByEmail(email);
     }
 
@@ -584,7 +591,6 @@ public class UserService {
         return partition;
     }
 
-    //ToDo: Fix Http 401 when accessing Superset API (due to username now being email-address)
     private UserContextRoleUpdate getUserContextRoleUpdate(UserEntity userEntity, boolean sendBackUsersList) {
         UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
         userContextRoleUpdate.setEmail(userEntity.getEmail());
@@ -744,10 +750,10 @@ public class UserService {
 
     private DashboardForUserDto createDashboardDto(DashboardResource dashboardResource, SubsystemUser subsystemUser, SupersetDashboard supersetDashboard, String contextKey) {
         String dashboardTitle = supersetDashboard.getDashboardTitle();
-        SubsystemRole SubsystemRole = supersetDashboard.getRoles().stream().filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
+        SubsystemRole subsystemRole = supersetDashboard.getRoles().stream().filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
         boolean userHasSlugifyDashboardRole = false;
-        if (SubsystemRole != null && subsystemUser != null) {
-            userHasSlugifyDashboardRole = subsystemUser.getRoles().contains(SubsystemRole);
+        if (subsystemRole != null && subsystemUser != null) {
+            userHasSlugifyDashboardRole = subsystemUser.getRoles().contains(subsystemRole);
         }
         DashboardForUserDto dashboardForUserDto = new DashboardForUserDto();
         dashboardForUserDto.setId(supersetDashboard.getId());
@@ -800,14 +806,14 @@ public class UserService {
      */
     private void validateNotAllowedIfCurrentUserIsNotSuperuser(UUID userId) {
         UserEntity targetUser = getUserEntity(userId);
-        if (!SecurityUtils.isSuperuser() && targetUser.isSuperuser()) {
+        if (!SecurityUtils.isSuperuser() && Boolean.TRUE.equals(targetUser.isSuperuser())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed if user is a superuser");
         }
     }
 
     private void validateNotAllowedIfUserIsSuperuser(UUID userId) {
         UserEntity targetUser = getUserEntity(userId);
-        if (targetUser.isSuperuser()) {
+        if (Boolean.TRUE.equals(targetUser.isSuperuser())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed to disable a superuser");
         }
     }

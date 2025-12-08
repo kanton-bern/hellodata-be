@@ -37,11 +37,6 @@ import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.RoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -49,6 +44,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service for roles in contexts
@@ -77,11 +76,15 @@ public class RoleService {
 
     @Transactional
     public void updateBusinessRoleForUser(UserEntity userEntity, RoleDto businessDomainRole) {
-        updateDomainRoleForUser(userEntity, businessDomainRole, helloDataContextConfig.getBusinessContext().getKey());
+        updateDomainRoleForUserInternal(userEntity, businessDomainRole, helloDataContextConfig.getBusinessContext().getKey());
     }
 
     @Transactional
     public void updateDomainRoleForUser(UserEntity userEntity, RoleDto domainRole, String contextKey) {
+        updateDomainRoleForUserInternal(userEntity, domainRole, contextKey);
+    }
+
+    private void updateDomainRoleForUserInternal(UserEntity userEntity, RoleDto domainRole, String contextKey) {
         long alreadyHasContextRole = CollectionUtils.emptyIfNull(userEntity.getContextRoles())
                 .stream()
                 .filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(contextKey) &&
@@ -123,7 +126,7 @@ public class RoleService {
         }
         Optional<UserContextRoleEntity> businessDomainRoleExists =
                 CollectionUtils.emptyIfNull(contextRoles).stream().filter(contextRole -> contextRole.getRole().getContextType() == HdContextType.BUSINESS_DOMAIN).findFirst();
-        businessDomainRoleExists.ifPresent(userContextRoleEntity -> contextRoles.remove(userContextRoleEntity));
+        businessDomainRoleExists.ifPresent(contextRoles::remove);
         UserContextRoleEntity userContextRoleEntity = new UserContextRoleEntity();
         userContextRoleEntity.setUser(userEntity);
         userContextRoleEntity.setContextKey(helloDataContextConfig.getBusinessContext().getKey());
@@ -171,7 +174,7 @@ public class RoleService {
                 userContextRoleRepository.save(userContextRoleEntity);
             }
         } else {
-            throw new RuntimeException("NONE role not found!");
+            throw new RuntimeException("NONE role not found!"); //NOSONAR
         }
     }
 
@@ -185,7 +188,7 @@ public class RoleService {
             userContextRoleEntity.setRole(noneRole.get());
             userContextRoleRepository.saveAndFlush(userContextRoleEntity);
         } else {
-            throw new RuntimeException("Role not found!");
+            throw new RuntimeException("Role not found!"); //NOSONAR
         }
     }
 
