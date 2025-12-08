@@ -17,9 +17,6 @@
 
     <properties>
         <main.class>ch.bedag.dap.hellodata.sidecars.sftpgo.HDSidecarSftpGo</main.class>
-        <sonar.exclusions>
-            src/main/java/ch/bedag/dap/hellodata/sidecars/sftpgo/client/**/*
-        </sonar.exclusions>
     </properties>
 
     <dependencies>
