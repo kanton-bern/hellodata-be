@@ -77,6 +77,8 @@ public class SftpGoUpdateUserContextRoleConsumer {
                                 addUserToGroup(GroupMapping.TypeEnum.NUMBER_2, groupName + VIEWER_GROUP_POSTFIX, user);
                             }
                         }
+                        default -> log.error("Unhandled role {}", userContextRole.getRoleName());
+
                     }
                 });
     }
