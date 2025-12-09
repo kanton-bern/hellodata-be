@@ -737,7 +737,7 @@ public class UserService {
                 log.warn("Reply is null, please verify superset sidecar or nats connection");
             } else {
                 reply.ack();
-                log.info("[updateDashboardRoleForUser] Response received: " + new String(reply.getData()));
+                log.info("[updateDashboardRoleForUser] Response received: {}", new String(reply.getData()));
             }
         } catch (Exception e) {
             log.error("Error updating dashboard role for user", e);
