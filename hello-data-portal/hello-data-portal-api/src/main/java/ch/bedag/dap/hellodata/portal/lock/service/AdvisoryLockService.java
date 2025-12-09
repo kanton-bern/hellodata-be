@@ -18,11 +18,11 @@ public class AdvisoryLockService {
 
     @Transactional
     public boolean acquireLock(long lockId) {
-        return jdbcTemplate.queryForObject(ADVISORY_LOCK_QUERY, Boolean.class, lockId);
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(ADVISORY_LOCK_QUERY, Boolean.class, lockId));
     }
 
     @Transactional
-    public boolean releaseStaleLock(long lockId) {
-        return jdbcTemplate.queryForObject(ADVISORY_UNLOCK_QUERY_PART, Boolean.class, lockId);
+    public void releaseStaleLock(long lockId) {
+        jdbcTemplate.queryForObject(ADVISORY_UNLOCK_QUERY_PART, Boolean.class, lockId);
     }
 }
