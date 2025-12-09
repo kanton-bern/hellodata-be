@@ -635,7 +635,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/compiler@npm:^20.3.15":
+"@angular/compiler@npm:^20.3.10":
   version: 20.3.15
   resolution: "@angular/compiler@npm:20.3.15"
   dependencies:
@@ -8445,7 +8445,7 @@ __metadata:
     "@angular/cdk": "npm:^20.2.9"
     "@angular/cli": "npm:^20.3.7"
     "@angular/common": "npm:^20.3.10"
-    "@angular/compiler": "npm:^20.3.15"
+    "@angular/compiler": "npm:^20.3.10"
     "@angular/compiler-cli": "npm:^20.3.15"
     "@angular/core": "npm:^20.3.10"
     "@angular/forms": "npm:^20.3.10"
