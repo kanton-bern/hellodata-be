@@ -27,5 +27,9 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources;
 
 public class HDVersions {
-    public final static String V1 = "v1";
+    public static final String V1 = "v1";
+
+    private HDVersions() {
+        // private constructor to prevent instantiation
+    }
 }

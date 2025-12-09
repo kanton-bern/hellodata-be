@@ -42,9 +42,9 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AppInfoResource implements HdResource {
     @EqualsAndHashCode.Include
-    private final String apiVersion = "v1";
+    private final String apiVersion = "v1"; //NOSONAR
     @EqualsAndHashCode.Include
-    private final String kind = ModuleResourceKind.HELLO_DATA_APP_INFO;
+    private final String kind = ModuleResourceKind.HELLO_DATA_APP_INFO; //NOSONAR
     @EqualsAndHashCode.Include
     private ModuleType moduleType;
     @EqualsAndHashCode.Include
@@ -62,10 +62,6 @@ public class AppInfoResource implements HdResource {
         this.businessContextInfo = businessContextInfo;
         this.moduleType = moduleType;
         this.instanceName = instanceName;
-
-        Map<String, Object> labels = new HashMap<>();
-        labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-
         this.data = new HashMap<>();
         data.put(URL_KEY, url);
     }
