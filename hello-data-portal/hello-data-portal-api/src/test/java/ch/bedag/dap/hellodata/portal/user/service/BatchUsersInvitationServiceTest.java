@@ -43,7 +43,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
@@ -57,7 +56,7 @@ class BatchUsersInvitationServiceTest {
     private MetaInfoResourceService metaInfoResourceService;
 
     @Test
-    void fetchDataFromFileTest() throws IOException {
+    void fetchDataFromFileTest() { //NOSONAR
         URL resource = getClass().getClassLoader().getResource("./csv/many_users");
         assertNotNull(resource, "The test resources directory should exist in the classpath");
         MetaInfoResourceEntity metaInfoResourceEntity = new MetaInfoResourceEntity();
@@ -93,55 +92,55 @@ class BatchUsersInvitationServiceTest {
 
         //First user
         BatchUpdateContextRolesForUserDto batchUpdateContextRolesForUserDto = parsedUsers.get(0);
-        assertEquals(batchUpdateContextRolesForUserDto.getEmail(), "john.doe@example.com");
+        assertEquals("john.doe@example.com", batchUpdateContextRolesForUserDto.getEmail());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName(), "NONE");
+        assertEquals("NONE", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().size(), 1);
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName(), "DATA_DOMAIN_VIEWER");
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey(), "some_data_domain_key");
+        assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
+        assertEquals("DATA_DOMAIN_VIEWER", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
+        assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
 
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
 
         //Second user
         batchUpdateContextRolesForUserDto = parsedUsers.get(1);
-        assertEquals(batchUpdateContextRolesForUserDto.getEmail(), "jane.smith@example.com");
+        assertEquals("jane.smith@example.com", batchUpdateContextRolesForUserDto.getEmail());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName(), "NONE");
+        assertEquals("NONE", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().size(), 1);
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName(), "DATA_DOMAIN_VIEWER");
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey(), "some_data_domain_key");
+        assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
+        assertEquals("DATA_DOMAIN_VIEWER", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
+        assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
 
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
 
         //Fourth user
         batchUpdateContextRolesForUserDto = parsedUsers.get(3);
-        assertEquals(batchUpdateContextRolesForUserDto.getEmail(), "bob.williams@example.com");
+        assertEquals("bob.williams@example.com", batchUpdateContextRolesForUserDto.getEmail());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName(), "NONE");
+        assertEquals("NONE", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().size(), 1);
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName(), "DATA_DOMAIN_ADMIN");
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey(), "some_data_domain_key");
+        assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
+        assertEquals("DATA_DOMAIN_ADMIN", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
+        assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
 
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
 
         //Sixth user
         batchUpdateContextRolesForUserDto = parsedUsers.get(5);
-        assertEquals(batchUpdateContextRolesForUserDto.getEmail(), "laura.anderson@example.com");
+        assertEquals("laura.anderson@example.com", batchUpdateContextRolesForUserDto.getEmail());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName(), "HELLODATA_ADMIN");
+        assertEquals("HELLODATA_ADMIN", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().size(), 1);
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName(), "DATA_DOMAIN_ADMIN");
-        assertEquals(batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey(), "some_data_domain_key");
+        assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
+        assertEquals("DATA_DOMAIN_ADMIN", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
+        assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
 
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
     }
 
     @Test
-    void fetchDataFromFile_test_multiple_rows_for_one_user() throws IOException {
+    void fetchDataFromFile_test_multiple_rows_for_one_user() {
         URL resource = getClass().getClassLoader().getResource("./csv/one_user");
         assertNotNull(resource, "The test resources directory should exist in the classpath");
         MetaInfoResourceEntity metaInfoResourceEntity = new MetaInfoResourceEntity();
@@ -201,9 +200,9 @@ class BatchUsersInvitationServiceTest {
 
         //First user
         BatchUpdateContextRolesForUserDto batchUpdateContextRolesForUserDto = parsedUsers.get(0);
-        assertEquals(batchUpdateContextRolesForUserDto.getEmail(), "john.doe@example.com");
+        assertEquals("john.doe@example.com", batchUpdateContextRolesForUserDto.getEmail());
 
-        assertEquals(batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName(), "NONE");
+        assertEquals("NONE", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
 
         assertEquals(2, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
         assertEquals("DATA_DOMAIN_VIEWER", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());

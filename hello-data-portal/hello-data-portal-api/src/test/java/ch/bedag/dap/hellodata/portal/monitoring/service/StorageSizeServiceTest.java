@@ -8,19 +8,19 @@ import ch.bedag.dap.hellodata.portal.monitoring.data.StorageMonitoringResultDto;
 import ch.bedag.dap.hellodata.portal.monitoring.data.StorageSizeDto;
 import ch.bedag.dap.hellodata.portalcommon.monitoring.entity.StorageSizeEntity;
 import ch.bedag.dap.hellodata.portalcommon.monitoring.repository.StorageSizeRepository;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Log4j2
 @SuppressWarnings("unused")
@@ -32,7 +32,7 @@ class StorageSizeServiceTest {
     private StorageSizeRepository storageSizeRepository;
 
     @Test
-    public void toReadableFormat_976_KB() {
+    void toReadableFormat_976_KB() {
         // given
         int bytes = 1_000_000;
 
@@ -44,7 +44,7 @@ class StorageSizeServiceTest {
     }
 
     @Test
-    public void toReadableFormat_1_GB() {
+    void toReadableFormat_1_GB() {
         // given
         int bytes = 1_073_741_824;
 
@@ -56,7 +56,7 @@ class StorageSizeServiceTest {
     }
 
     @Test
-    public void toReadableFormat_8_GB() {
+    void toReadableFormat_8_GB() {
         // given
         long bytes = 9_210_984_192L;
 
@@ -68,7 +68,7 @@ class StorageSizeServiceTest {
     }
 
     @Test
-    public void toReadableFormat_84_GB() {
+    void toReadableFormat_84_GB() {
         // given
         long bytes = 90_210_984_192L;
 
@@ -80,7 +80,7 @@ class StorageSizeServiceTest {
     }
 
     @Test
-    public void toReadableFormat_838_GB() {
+    void toReadableFormat_838_GB() {
         // given
         long size = 900_210_984_192L;
 
@@ -92,7 +92,7 @@ class StorageSizeServiceTest {
     }
 
     @Test
-    public void toReadableFormat_1_TB() {
+    void toReadableFormat_1_TB() {
         // given
         long size = 1_099_511_627_776L;
 

@@ -53,7 +53,7 @@ import static org.mockito.Mockito.*;
 @Log4j2
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-public class FaqServiceTest {
+class FaqServiceTest {
 
     @InjectMocks
     private FaqService faqService;
@@ -71,7 +71,7 @@ public class FaqServiceTest {
     private HdContextRepository contextRepository;
 
     @Test
-    public void testGetAllWithCurrentUserContextRoles() {
+    void testGetAllWithCurrentUserContextRoles() {
         // given
         UserContextRoleEntity roleEntity = new UserContextRoleEntity();
         roleEntity.setContextKey("contextKey1");
@@ -99,7 +99,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testGetAllWithoutCurrentUserContextRoles() {
+    void testGetAllWithoutCurrentUserContextRoles() {
         // given
         when(userService.getCurrentUserDataDomainRolesWithoutNone()).thenReturn(Collections.emptySet());
 
@@ -111,7 +111,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
         createDto.setContextKey("contextKey");
@@ -124,7 +124,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testUpdate() {
+    void testUpdate() {
         // given
         FaqUpdateDto updateDto = new FaqUpdateDto();
         updateDto.setId(UUID.randomUUID());
@@ -141,7 +141,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testUpdateNotFound() {
+    void testUpdateNotFound() {
         // given
         FaqUpdateDto updateDto = new FaqUpdateDto();
         updateDto.setId(UUID.randomUUID());
@@ -156,7 +156,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testDelete() {
+    void testDelete() {
         // given
         UUID faqId = UUID.randomUUID();
 
@@ -172,7 +172,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testDeleteNotFound() {
+    void testDeleteNotFound() {
         // given
         UUID faqId = UUID.randomUUID();
 
@@ -186,7 +186,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testGetById() {
+    void testGetById() {
         // given
         UUID faqId = UUID.randomUUID();
 
@@ -203,7 +203,7 @@ public class FaqServiceTest {
     }
 
     @Test
-    public void testGetByIdNotFound() {
+    void testGetByIdNotFound() {
         // given
         UUID faqId = UUID.randomUUID();
 

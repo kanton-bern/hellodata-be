@@ -49,26 +49,26 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Sql(scripts = "/db/changelog/changelogs/add_testdata.sql")
-public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
+class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
 
     @Autowired
     private ProjectDocService projectDocService;
 
     @Test
-    public void should_get_empty_list_from_backend() {
+    void should_get_empty_list_from_backend() {
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(Collections.emptyList());
         given().header("Authorization", getAdminBearer()).when().get("/api/projects-docs").then().body("", equalTo(Collections.emptyList()));
     }
 
     @Test
-    public void should_get_non_empty_list_from_backend() {
+    void should_get_non_empty_list_from_backend() {
         Mockito.when(projectDocService.getAllProjectsDocs())
                 .thenReturn(List.of(new ProjectDoc("context_key_1", "test", "path", "img", "alt"), new ProjectDoc("context_key_1", "test1", "path1", "img1", "alt1")));
         given().header("Authorization", getAdminBearer()).when().get("/api/projects-docs").then().body("", not(equalTo(Collections.emptyList())));
     }
 
     @Test
-    public void momiUser_requestingProjectDocs_shouldGetMomiInListFromBackend() {
+    void momiUser_requestingProjectDocs_shouldGetMomiInListFromBackend() {
         //Given
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
@@ -83,7 +83,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void adminUser_requestingProjectDocs_shouldGetAllProjectsInListFromBackend() {
+    void adminUser_requestingProjectDocs_shouldGetAllProjectsInListFromBackend() {
         //Given
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
@@ -97,7 +97,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void userWithoutRoles_requestingProjectDocs_shouldGetEmptyListFromBackend() {
+    void userWithoutRoles_requestingProjectDocs_shouldGetEmptyListFromBackend() {
         //Given
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
@@ -110,7 +110,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void should_get_one_doc_by_name() {
+    void should_get_one_doc_by_name() {
         String contextKey = "context_key_1";
         String name = "test";
         String path = "path";
@@ -128,7 +128,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void momiUser_requestingKibonProjectInfo_shouldGetForbidden() {
+    void momiUser_requestingKibonProjectInfo_shouldGetForbidden() {
         //Given
         String requestedProject = "kibon";
         //When / Then
@@ -137,7 +137,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void userWithoutRoles_requestingKibonProjectInfo_shouldGetForbidden() {
+    void userWithoutRoles_requestingKibonProjectInfo_shouldGetForbidden() {
         //Given
         String requestedProject = "kibon";
         //When / Then
@@ -146,7 +146,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void adminUser_requestingKibonProjectInfo_shouldGetKibonInfos() {
+    void adminUser_requestingKibonProjectInfo_shouldGetKibonInfos() {
         //Given
         String requestedProject = "kibon";
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
@@ -160,7 +160,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void adminUser_getMomiProjectByPath_shouldReturnData() {
+    void adminUser_getMomiProjectByPath_shouldReturnData() {
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
         String contextKey = "context_key_1";
@@ -174,7 +174,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void momiUser_getMomiProjectByPath_shouldReturnData() {
+    void momiUser_getMomiProjectByPath_shouldReturnData() {
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
         String contextKey = "context_key_1";
@@ -188,7 +188,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void momiUser_getKibonProjectByPath_shouldReturnForbidden() {
+    void momiUser_getKibonProjectByPath_shouldReturnForbidden() {
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
         Response response = given().header("Authorization", getMomiUserBearer()).queryParam("path", "/kibon/index.html").when().get("/api/projects-docs/get-by-path");
@@ -196,7 +196,7 @@ public class ProjectsDocsControllerTest extends AbstractKeycloakTestContainers {
     }
 
     @Test
-    public void userWithoutRoles_getKibonProjectByPath_shouldReturnForbidden() {
+    void userWithoutRoles_getKibonProjectByPath_shouldReturnForbidden() {
         List<ProjectDoc> projectDocs = getListWith3ProjectDocs();
         Mockito.when(projectDocService.getAllProjectsDocs()).thenReturn(projectDocs);
         Response response = given().header("Authorization", getNoRolesUserBearer()).queryParam("path", "/kibon/index.html").when().get("/api/projects-docs/get-by-path");

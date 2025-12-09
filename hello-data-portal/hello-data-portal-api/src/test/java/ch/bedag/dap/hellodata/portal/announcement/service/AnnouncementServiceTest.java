@@ -31,10 +31,6 @@ import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementDto;
 import ch.bedag.dap.hellodata.portal.announcement.data.AnnouncementUpdateDto;
 import ch.bedag.dap.hellodata.portal.announcement.entity.AnnouncementEntity;
 import ch.bedag.dap.hellodata.portal.announcement.repository.AnnouncementRepository;
-
-import java.util.*;
-
-import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,20 +40,16 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.server.ResponseStatusException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @Log4j2
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-public class AnnouncementServiceTest {
+class AnnouncementServiceTest {
 
     @InjectMocks
     private AnnouncementService announcementService;
@@ -69,7 +61,7 @@ public class AnnouncementServiceTest {
     private ModelMapper modelMapper = new ModelMapper();
 
     @Test
-    public void testGetAllAnnouncements() {
+    void testGetAllAnnouncements() {
         // given
         AnnouncementEntity entity = new AnnouncementEntity();
         when(announcementRepository.findAll()).thenReturn(Collections.singletonList(entity));
@@ -86,7 +78,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testGetPublishedAnnouncements() {
+    void testGetPublishedAnnouncements() {
         // given
         AnnouncementEntity entity = new AnnouncementEntity();
         when(announcementRepository.findAllByPublishedIsTrue()).thenReturn(Collections.singletonList(entity));
@@ -103,7 +95,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         // given
         AnnouncementCreateDto createDto = new AnnouncementCreateDto();
         HashMap<Locale, String> messages = new HashMap<>();
@@ -118,7 +110,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testUpdate() {
+    void testUpdate() {
         // given
         AnnouncementUpdateDto updateDto = new AnnouncementUpdateDto();
         updateDto.setId(UUID.randomUUID());
@@ -138,7 +130,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testUpdateNotFound() {
+    void testUpdateNotFound() {
         // given
         AnnouncementUpdateDto updateDto = new AnnouncementUpdateDto();
         updateDto.setId(UUID.randomUUID());
@@ -153,7 +145,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testDelete() {
+    void testDelete() {
         // given
         UUID announcementId = UUID.randomUUID();
 
@@ -165,7 +157,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testGetAnnouncementById() {
+    void testGetAnnouncementById() {
         // given
         UUID announcementId = UUID.randomUUID();
 
@@ -182,7 +174,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testGetAnnouncementByIdNotFound() {
+    void testGetAnnouncementByIdNotFound() {
         // given
         UUID announcementId = UUID.randomUUID();
 

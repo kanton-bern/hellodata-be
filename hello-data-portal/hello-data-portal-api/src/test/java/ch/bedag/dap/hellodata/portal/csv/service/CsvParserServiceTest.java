@@ -11,11 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.portal.csv.service.CsvParserService.CSV_HEADERS;
 import static org.junit.jupiter.api.Assertions.*;
 
+//NOSONAR
 class CsvParserServiceTest {
     private static final String TEST_FILE_PATH = "csv/many_users/batchprocessing_user_roles.csv";
     @InjectMocks
@@ -32,9 +32,11 @@ class CsvParserServiceTest {
 
     @Test
     void testParseCsv() throws IOException {
-        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
-                "user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
-                "user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;\n";
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB
+                user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;
+                """;
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
 
         List<CsvUserRole> result = csvParserService.parseCsvFile(inputStream);
@@ -58,10 +60,12 @@ class CsvParserServiceTest {
     }
 
     @Test
-    void testParseCsvFile_should_throw_exception_on_bad_email() {
-        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
-                "user1@example.com@;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
-                "user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;\n";
+    void testParseCsvFile_should_throw_exception_on_bad_email() { //NOSONAR
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                user1@example@.com;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB
+                user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;
+                """;
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
         assertThrows(IllegalArgumentException.class, () -> {
             csvParserService.parseCsvFile(inputStream);
@@ -70,9 +74,11 @@ class CsvParserServiceTest {
 
     @Test
     void testParseCsvFile_should_throw_exception_on_bad_email_without_domain() {
-        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
-                "user1@example;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
-                "user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;\n";
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                user1@example.com@;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB
+                user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;
+                """;
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
         assertThrows(IllegalArgumentException.class, () -> {
             csvParserService.parseCsvFile(inputStream);
@@ -81,11 +87,13 @@ class CsvParserServiceTest {
 
     @Test
     void testParseCsvFile_should_throw_exception_on_bad_email_without_tld() {
-        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
-                "lore@dana;NONE;dd02;DATA_DOMAIN_EDITOR;\n" +
-                "lore@dana;NONE;dd01;DATA_DOMAIN_VIEWER;\n" +
-                "sanda@ccc.com;HELLODATA_ADMIN;dd01;DATA_DOMAIN_ADMIN;\n" +
-                "cori@na.ch;BUSINESS_Domain_ADMIN;dd02;DATA_DOMAIN_ADMIN;";
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                lore@dana;NONE;dd02;DATA_DOMAIN_EDITOR;
+                lore@dana;NONE;dd01;DATA_DOMAIN_VIEWER;
+                sanda@ccc.com;HELLODATA_ADMIN;dd01;DATA_DOMAIN_ADMIN;
+                cori@na.ch;BUSINESS_Domain_ADMIN;dd02;DATA_DOMAIN_ADMIN;
+                """;
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> {
             csvParserService.parseCsvFile(inputStream);
@@ -95,9 +103,11 @@ class CsvParserServiceTest {
 
     @Test
     void testParseCsvFile_should_throw_exception_on_bad_business_domain_role() {
-        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
-                "user1@example.com;NONEaaa;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n" +
-                "user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;\n";
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                user1@example.com;NONEaaa;context1;DATA_DOMAIN_VIEWER;roleA,roleB
+                user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;
+                """;
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
         assertThrows(IllegalArgumentException.class, () -> {
             csvParserService.parseCsvFile(inputStream);
@@ -106,9 +116,11 @@ class CsvParserServiceTest {
 
     @Test
     void testParseCsvFile_should_throw_exception_on_bad_data_domain_role() {
-        String csvContent = "email;businessDomainRole;context;dataDomainRole;supersetRole\n" +
-                "user1@example.com;NONE;context1;DATA_DOMAIN_VIEWERaaa;roleA,roleB\n" +
-                "user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;\n";
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                user1@example.com;NONE;context1;DATA_DOMAIN_VIEWERaaa;roleA,roleB
+                user2@example.com;NONE;context2;DATA_DOMAIN_ADMIN;
+                """;
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
         assertThrows(IllegalArgumentException.class, () -> {
             csvParserService.parseCsvFile(inputStream);
@@ -128,7 +140,7 @@ class CsvParserServiceTest {
     }
 
     @Test
-    void testParseCsvFile_should_throw_exception_on_missing_header() throws IOException {
+    void testParseCsvFile_should_throw_exception_on_missing_header() {
         String csvContent =
                 "user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;roleA,roleB\n";
         InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
@@ -139,7 +151,7 @@ class CsvParserServiceTest {
     }
 
     @Test
-    void testParseCsvFile() throws IOException {
+    void testParseCsvFile() throws IOException { //NOSONAR
         try (InputStream csvFileFromResources = getCsvFileFromResources()) {
             List<CsvUserRole> result = csvParserService.parseCsvFile(csvFileFromResources);
             assertNotNull(result);
@@ -151,7 +163,7 @@ class CsvParserServiceTest {
             assertEquals("some_data_domain_key", user1.context());
             assertEquals("DATA_DOMAIN_VIEWER", user1.dataDomainRole());
             List<String> expectedRolesU1 = Arrays.stream("D_test_dashboard_6,D_example_dashboard_2,RLS_01".split(","))
-                    .collect(Collectors.toList());
+                    .toList();
             assertIterableEquals(expectedRolesU1, user1.supersetRoles());
 
             CsvUserRole user2 = result.get(1);
@@ -160,7 +172,7 @@ class CsvParserServiceTest {
             assertEquals("some_data_domain_key", user2.context());
             assertEquals("DATA_DOMAIN_VIEWER", user2.dataDomainRole());
             List<String> expectedRolesU2 = Arrays.stream("D_test_dashboard_6,D_example_dashboard_2,RLS_03".split(","))
-                    .collect(Collectors.toList());
+                    .toList();
             assertIterableEquals(expectedRolesU2, user2.supersetRoles());
 
             CsvUserRole user3 = result.get(2);
@@ -169,7 +181,7 @@ class CsvParserServiceTest {
             assertEquals("some_data_domain_key", user3.context());
             assertEquals("DATA_DOMAIN_VIEWER", user3.dataDomainRole());
             List<String> expectedRolesU3 = Arrays.stream("D_test_dashboard_6,D_example_dashboard_2,RLS_04".split(","))
-                    .collect(Collectors.toList());
+                    .toList();
             assertIterableEquals(expectedRolesU3, user3.supersetRoles());
 
             CsvUserRole user4 = result.get(3);
@@ -186,7 +198,7 @@ class CsvParserServiceTest {
             assertEquals("some_data_domain_key", user5.context());
             assertEquals("DATA_DOMAIN_VIEWER", user5.dataDomainRole());
             List<String> expectedRolesU5 = Arrays.stream("D_test_dashboard_6,D_example_dashboard_2,RLS_05".split(","))
-                    .collect(Collectors.toList());
+                    .toList();
             assertIterableEquals(expectedRolesU5, user5.supersetRoles());
 
             CsvUserRole user6 = result.get(5);
@@ -203,7 +215,7 @@ class CsvParserServiceTest {
             assertEquals("some_data_domain_key", user7.context());
             assertEquals("DATA_DOMAIN_VIEWER", user7.dataDomainRole());
             List<String> expectedRolesU7 = Arrays.stream("D_test_dashboard_6,D_example_dashboard_2,RLS_06".split(","))
-                    .collect(Collectors.toList());
+                    .toList();
             assertIterableEquals(expectedRolesU7, user7.supersetRoles());
         }
     }

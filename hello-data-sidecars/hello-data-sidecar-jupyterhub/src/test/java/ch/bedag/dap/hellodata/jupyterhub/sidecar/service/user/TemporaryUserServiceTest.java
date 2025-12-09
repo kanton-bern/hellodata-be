@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,7 +57,7 @@ class TemporaryUserServiceTest {
 
         String expectedUsernamePattern = "temp_user_\\w{8}";
         assertTrue(responseDto.getUsername().matches(expectedUsernamePattern));
-        assertTrue(responseDto.getPassword().length() > 0);
+        assertFalse(responseDto.getPassword().isEmpty());
 
         LocalDateTime expectedExpiryDate = LocalDateTime.now().plusDays(tempUserPasswordValidInDays);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

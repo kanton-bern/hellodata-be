@@ -31,10 +31,6 @@ import ch.bedag.dap.hellodata.portal.role.data.PortalRoleDto;
 import ch.bedag.dap.hellodata.portal.role.data.PortalRoleUpdateDto;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.PortalRoleRepository;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,17 +40,20 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.server.ResponseStatusException;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Log4j2
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-public class PortalRoleServiceTest {
+class PortalRoleServiceTest {
 
     @Mock
     private PortalRoleRepository portalRoleRepository;
@@ -66,7 +65,7 @@ public class PortalRoleServiceTest {
     private PortalRoleService portalRoleService;
 
     @Test
-    public void testGetAllRoles() {
+    void testGetAllRoles() {
         // given
         List<PortalRoleEntity> roleEntities = new ArrayList<>();
         when(portalRoleRepository.findAll()).thenReturn(roleEntities);
@@ -80,7 +79,7 @@ public class PortalRoleServiceTest {
     }
 
     @Test
-    public void testGetRoleById() {
+    void testGetRoleById() {
         // given
         UUID roleId = UUID.randomUUID();
         PortalRoleEntity roleEntity = new PortalRoleEntity();
@@ -98,7 +97,7 @@ public class PortalRoleServiceTest {
     }
 
     @Test
-    public void testGetRoleById_NotFound() {
+    void testGetRoleById_NotFound() {
         // given
         UUID roleId = UUID.randomUUID();
         when(portalRoleRepository.findById(roleId)).thenReturn(Optional.empty());
@@ -108,7 +107,7 @@ public class PortalRoleServiceTest {
     }
 
     @Test
-    public void testCreateRole() {
+    void testCreateRole() {
         // given
         PortalRoleCreateDto createDto = new PortalRoleCreateDto();
         createDto.setName("TestRole");
@@ -125,7 +124,7 @@ public class PortalRoleServiceTest {
     }
 
     @Test
-    public void testUpdateRole() {
+    void testUpdateRole() {
         // given
         UUID roleId = UUID.randomUUID();
         PortalRoleUpdateDto updateDto = new PortalRoleUpdateDto();
@@ -146,7 +145,7 @@ public class PortalRoleServiceTest {
     }
 
     @Test
-    public void testUpdateRole_NotFound() {
+    void testUpdateRole_NotFound() {
         // given
         UUID roleId = UUID.randomUUID();
         PortalRoleUpdateDto updateDto = new PortalRoleUpdateDto();
@@ -159,7 +158,7 @@ public class PortalRoleServiceTest {
     }
 
     @Test
-    public void testDeleteRole() {
+    void testDeleteRole() {
         // given
         UUID roleId = UUID.randomUUID();
         PortalRoleEntity roleEntity = new PortalRoleEntity();
@@ -174,7 +173,7 @@ public class PortalRoleServiceTest {
     }
 
     @Test
-    public void testDeleteRole_NotFound() {
+    void testDeleteRole_NotFound() {
         // given
         UUID roleId = UUID.randomUUID();
         when(portalRoleRepository.findById(roleId)).thenReturn(Optional.empty());

@@ -28,12 +28,12 @@ package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
 import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
@@ -64,7 +64,7 @@ import static org.mockito.Mockito.*;
 @Log4j2
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private KeycloakService keycloakService;
@@ -100,7 +100,7 @@ public class UserServiceTest {
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
-    public void testCreateUser() {
+    void testCreateUser() {
         // given
         String email = "test@example.com";
         String firstName = "John";
@@ -127,7 +127,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testSyncAllUsers() {
+    void testSyncAllUsers() {
         // given
         String email = "test@example.com";
         String firstName = "John";
@@ -152,7 +152,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDeleteUserById_UserFound() {
+    void testDeleteUserById_UserFound() {
         // given
         UUID uuid = UUID.randomUUID();
         String userId = uuid.toString();
@@ -179,7 +179,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDisableUserById_UserFound() {
+    void testDisableUserById_UserFound() {
         // given
         UUID uuid = UUID.randomUUID();
         String userId = uuid.toString();
@@ -206,7 +206,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDisableUserById_UserNotFound() {
+    void testDisableUserById_UserNotFound() {
         // given
         String userId = UUID.randomUUID().toString();
 
@@ -221,7 +221,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testEnableUserById_UserFound() {
+    void testEnableUserById_UserFound() {
         // given
         UUID uuid = UUID.randomUUID();
         String userId = uuid.toString();
@@ -247,7 +247,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testEnableUserById_UserNotFound() {
+    void testEnableUserById_UserNotFound() {
         // given
         String userId = UUID.randomUUID().toString();
 
@@ -262,7 +262,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetAvailableDataDomains() {
+    void testGetAvailableDataDomains() {
         //given
         UserEntity userResourceMock = mock(UserEntity.class, Mockito.RETURNS_DEEP_STUBS);
         HdContextEntity contextEntityMock = mock(HdContextEntity.class, Mockito.RETURNS_DEEP_STUBS);
