@@ -34,6 +34,12 @@
 
 
     <changeSet id="45_drop_title_and_message" author="HelloDATA">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="faq" columnName="title"/>
+            <columnExists tableName="faq" columnName="message"/>
+        </preConditions>
+
+
         <dropColumn columnName="title" tableName="faq"/>
         <dropColumn columnName="message" tableName="faq"/>
     </changeSet>
