@@ -35,7 +35,7 @@ import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
 import ch.bedag.dap.hellodata.portal.faq.repository.FaqRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;

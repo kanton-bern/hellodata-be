@@ -24,13 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portalcommon.role.entity;
+package ch.bedag.dap.hellodata.portalcommon.role.entity.relation;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -38,17 +39,22 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-@Entity(name = "user_context_role")
-public class UserContextRoleEntity extends BaseEntity {
+@Entity(name = "user_portal_role")
+public class UserPortalRoleEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
-    private RoleEntity role;
+    @JoinColumn(name = "portal_role_id")
+    private PortalRoleEntity role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "context_type", columnDefinition = "VARCHAR")
+    private HdContextType contextType;
+
+    @NotBlank
     private String contextKey;
 
     @Override

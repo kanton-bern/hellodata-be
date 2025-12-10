@@ -38,7 +38,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineIns
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineResource;
 import ch.bedag.dap.hellodata.portal.orchestration.data.PipelineDto;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
