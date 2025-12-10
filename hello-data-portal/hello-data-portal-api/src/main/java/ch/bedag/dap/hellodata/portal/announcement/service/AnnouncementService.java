@@ -92,7 +92,7 @@ public class AnnouncementService {
 
     private static void updatePublishedDate(AnnouncementEntity entityToUpdate) {
         if (entityToUpdate.getPublished() != null) {
-            entityToUpdate.setPublishedDate(entityToUpdate.getPublished() ? LocalDateTime.now() : null);
+            entityToUpdate.setPublishedDate(Boolean.TRUE.equals(entityToUpdate.getPublished()) ? LocalDateTime.now() : null);
         }
     }
 

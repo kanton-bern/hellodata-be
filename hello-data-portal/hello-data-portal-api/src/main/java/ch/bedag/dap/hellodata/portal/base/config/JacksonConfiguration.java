@@ -56,9 +56,9 @@ public class JacksonConfiguration {
 
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
-        return builder -> {
-            // Register the JavaTimeModule with the ObjectMapper
-            builder.modulesToInstall(new JavaTimeModule());
-        };
+        return builder ->
+                // Register the JavaTimeModule with the ObjectMapper
+                builder.modulesToInstall(new JavaTimeModule());
+
     }
 }

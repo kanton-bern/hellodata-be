@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserContextRoleUpdateTest {
+class UserContextRoleUpdateTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
