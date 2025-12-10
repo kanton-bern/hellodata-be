@@ -27,10 +27,6 @@
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.repository;
 
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.entities.User;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.r2dbc.convert.R2dbcConverter;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
@@ -41,6 +37,11 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Spring Data R2DBC repository for the {@link User} entity.
@@ -64,7 +65,7 @@ class UserRepositoryInternalImpl implements UserRepositoryInternal {
     public static final String ROLE_FIELD_IDENTIFIER = "key";
 
     private final DatabaseClient db;
-    private final R2dbcEntityTemplate r2dbcEntityTemplate;
+    private final R2dbcEntityTemplate r2dbcEntityTemplate; //NOSONAR
     private final R2dbcConverter r2dbcConverter;
 
     public UserRepositoryInternalImpl(DatabaseClient db, R2dbcEntityTemplate r2dbcEntityTemplate, R2dbcConverter r2dbcConverter) {
@@ -89,21 +90,21 @@ class UserRepositoryInternalImpl implements UserRepositoryInternal {
 
     private Mono<User> findOneWithAuthoritiesBy(Object fieldValue) {
         return db.sql("SELECT _role.* FROM hd_user _user LEFT JOIN hd_users_roles user_roles ON _user.id=user_roles.hd_user_id " +
-                      "         LEFT JOIN hd_role _role on _role.id = user_roles.hd_role_id " +
-                      "         LEFT JOIN hd_roles_privileges role_priv on _role.id = role_priv.hd_role_id " +
-                      "         LEFT JOIN hd_privilege priv on role_priv.hd_privilege_id = priv.id " + "         WHERE _user.email = :email")
-                 .bind("email", fieldValue)
-                 .map((row, metadata) -> Tuples.of(r2dbcConverter.read(User.class, row, metadata), Optional.ofNullable(row.get(ROLE_FIELD_IDENTIFIER, String.class))))
-                 .all()
-                 .collectList()
-                 .filter(l -> !l.isEmpty())
-                 .map(l -> mapUserWithAuthorities(l.get(0).getT1(), l));
+                        "         LEFT JOIN hd_role _role on _role.id = user_roles.hd_role_id " +
+                        "         LEFT JOIN hd_roles_privileges role_priv on _role.id = role_priv.hd_role_id " +
+                        "         LEFT JOIN hd_privilege priv on role_priv.hd_privilege_id = priv.id " + "         WHERE _user.email = :email")
+                .bind("email", fieldValue)
+                .map((row, metadata) -> Tuples.of(r2dbcConverter.read(User.class, row, metadata), Optional.ofNullable(row.get(ROLE_FIELD_IDENTIFIER, String.class))))
+                .all()
+                .collectList()
+                .filter(l -> !l.isEmpty())
+                .map(l -> mapUserWithAuthorities(l.get(0).getT1(), l));
     }
 
     private User mapUserWithAuthorities(User user, List<Tuple2<User, Optional<String>>> tuples) {
-        user.setAuthorities(tuples.stream().filter(t -> t.getT2().isPresent()).map(t -> {
-            return t.getT2().orElseThrow();
-        }).collect(Collectors.toSet()));
+        user.setAuthorities(tuples.stream()
+                .filter(t -> t.getT2().isPresent())
+                .map(t -> t.getT2().orElseThrow()).collect(Collectors.toSet()));
 
         return user;
     }

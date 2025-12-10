@@ -231,7 +231,7 @@ public class SupersetApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride,
+    public static HttpUriRequest getImportDashboardRequest(String host, int port, String authToken, String csrfToken, File compressedDashboardFile, boolean isOverride, //NONOSONAR
                                                            JsonElement passwords, String sessionCookie) throws URISyntaxException, IOException {
         URI apiUri = buildUri(host, port, IMPORT_DASHBOARD_API_ENDPOINT, null);
         log.debug("create import dashboard request, auth token {}", authToken);

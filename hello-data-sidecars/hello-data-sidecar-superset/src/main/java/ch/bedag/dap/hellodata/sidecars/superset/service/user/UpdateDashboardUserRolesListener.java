@@ -108,7 +108,7 @@ public class UpdateDashboardUserRolesListener {
                 natsConnection.publish(msg.getReplyTo(), objectMapper.writeValueAsBytes(updatedUser));
                 msg.ack();
             } catch (URISyntaxException | IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e); //NOSONAR
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);

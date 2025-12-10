@@ -62,12 +62,10 @@ class SftpGoServiceTest {
             when(mock.getToken(null)).thenReturn(Mono.just(token));
         });
 
-        // mock SFTPGo credentials
         S3ConnectionsConfig.SftpGo sftpGoConfig = mock(S3ConnectionsConfig.SftpGo.class);
         when(sftpGoConfig.getAdminUsername()).thenReturn("admin");
         when(sftpGoConfig.getAdminPassword()).thenReturn("secret");
         when(s3ConnectionsConfig.getSftpGo()).thenReturn(sftpGoConfig);
-//        when(s3ConnectionsConfig.getAdminVirtualFolder()).thenReturn("/admin");
     }
 
     @AfterEach

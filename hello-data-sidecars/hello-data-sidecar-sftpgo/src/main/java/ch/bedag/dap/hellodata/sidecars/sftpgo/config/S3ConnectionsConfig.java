@@ -78,7 +78,7 @@ public class S3ConnectionsConfig {
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Failed to compute MD5 hash", e);
+            throw new RuntimeException("Failed to compute MD5 hash", e); //NOSONAR
         }
     }
 }

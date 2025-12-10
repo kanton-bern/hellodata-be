@@ -60,7 +60,9 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 @Log4j2
 @EnableRetry
@@ -71,10 +73,6 @@ public class SecurityConfig {
     public static final String ACCESS_TOKEN_COOKIE_NAME = "auth.access_token";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
-    private static final List<String> CORS_ALLOWED_HEADERS =
-            List.of("Access-Control-Allow-Methods", "Access-Control-Allow-Origin", AUTHORIZATION_HEADER_NAME, "Access-Control-Allow-Headers", "Origin,Accept", "X-Requested-With",
-                    "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers");
-
     private final Environment env;
 
     @Value("${hello-data.cors.allowed-origins}")
@@ -83,7 +81,6 @@ public class SecurityConfig {
     @PostConstruct
     public void init() {
         log.info("[CORS configuration] List of allowed origins {}", allowedOrigins);
-//        log.info("[CORS configuration] List of allowed headers {}", CORS_ALLOWED_HEADERS);
     }
 
     @Bean
@@ -144,33 +141,6 @@ public class SecurityConfig {
     private void configureCors(ServerHttpSecurity http) {
         if (env.matchesProfiles("disable-cors")) {
             http.cors(ServerHttpSecurity.CorsSpec::disable);
-        } else {
-            List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
-//            http.cors(cors -> cors.configurationSource(request -> {
-//                CorsConfiguration corsConfig = new CorsConfiguration();
-//                if (!allowedOriginList.isEmpty()) {
-//                    for (String allowedOrigin : allowedOriginList) {
-//                        corsConfig.addAllowedOrigin(allowedOrigin);
-//                    }
-//                } else {
-//                    corsConfig.addAllowedOrigin("*"); //NOSONAR
-//                }
-//                corsConfig.addAllowedMethod("GET");
-//                corsConfig.addAllowedMethod("POST");
-//                corsConfig.addAllowedMethod("PUT");
-//                corsConfig.addAllowedMethod("DELETE");
-//                corsConfig.addAllowedMethod("PATCH");
-//                corsConfig.addAllowedMethod("HEAD");
-//                corsConfig.addAllowedMethod("OPTIONS");
-//
-//                corsConfig.setAllowCredentials(true);
-//
-//                corsConfig.setAllowedHeaders(CORS_ALLOWED_HEADERS);
-//                corsConfig.setMaxAge(3600L);
-//                corsConfig.setExposedHeaders(List.of("xsrf-token"));
-//                log.info("[CORS configuration] Created cors configuration - allowed origins {}", corsConfig.getAllowedOrigins());
-//                return corsConfig;
-//            }));
         }
     }
 

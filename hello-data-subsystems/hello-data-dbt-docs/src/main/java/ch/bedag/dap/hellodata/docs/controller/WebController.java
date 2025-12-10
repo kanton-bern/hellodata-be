@@ -26,15 +26,17 @@
  */
 package ch.bedag.dap.hellodata.docs.controller;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.io.IOException;
 
 @Log4j2
 @Controller
@@ -45,7 +47,7 @@ public class WebController implements ErrorController {
     private String serverContextPath;
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request) throws Exception {
+    public String logout(HttpServletRequest request) throws ServletException {
         request.logout();
         return "redirect:/";
     }

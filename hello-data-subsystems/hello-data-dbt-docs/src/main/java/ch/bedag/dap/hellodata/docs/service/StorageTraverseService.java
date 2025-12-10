@@ -28,6 +28,13 @@ package ch.bedag.dap.hellodata.docs.service;
 
 import ch.bedag.dap.hellodata.docs.model.ProjectDoc;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,18 +42,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
@@ -98,15 +96,15 @@ public class StorageTraverseService {
         List<ProjectDoc> result = new ArrayList<>();
         try (Stream<Path> walk = Files.walk(storagePath, 1)) {
             walk.filter(Files::isDirectory)
-                .filter(path -> !path.equals(storagePath))
-                .filter(path -> storageLocationsToOmit.stream().noneMatch(locationToOmit -> path.startsWith(locationToOmit)))
-                .forEach(path -> {
-                    List<ProjectDoc> subDocs = collectProjectDocs(path);
-                    printDebugOutput(path, subDocs);
-                    result.addAll(subDocs);
-                });
+                    .filter(path -> !path.equals(storagePath))
+                    .filter(path -> storageLocationsToOmit.stream().noneMatch(locationToOmit -> path.startsWith(locationToOmit)))
+                    .forEach(path -> {
+                        List<ProjectDoc> subDocs = collectProjectDocs(path);
+                        printDebugOutput(path, subDocs);
+                        result.addAll(subDocs);
+                    });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); //NOSONAR
         }
         projectDocService.clearCache();
         result.forEach(projectDocService::addProject);
@@ -153,12 +151,12 @@ public class StorageTraverseService {
         try {
             Path storagePath = Path.of(storageLocation);
             log.info("--- Searching for data domain directories in: {}", storagePath);
-            List<String> dataDomainDirs = new ArrayList<>();
             try (Stream<Path> list = Files.list(storagePath)) {
                 return list.toList().stream().map(t -> t.getFileName().toString()).toList();
             }
         } catch (Exception e) {
-            return null;
+            log.error("Could not search for data domain directories", e);
+            return Collections.emptyList();
         }
     }
 }

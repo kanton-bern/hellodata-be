@@ -96,7 +96,7 @@ public class SupersetClient {
      * @param password The password to use when authenticating.
      * @throws Exception If there was an error creating the client.
      */
-    public SupersetClient(String host, int port, String username, String password) throws Exception {
+    public SupersetClient(String host, int port, String username, String password) throws IOException, URISyntaxException {
         this(host, port, username, password, null);
     }
 
@@ -110,7 +110,7 @@ public class SupersetClient {
      * @param client   The underlying HttpClient to use.
      * @throws Exception If there was an error creating the client.
      */
-    public SupersetClient(String host, int port, String username, String password, CloseableHttpClient client) throws Exception {
+    public SupersetClient(String host, int port, String username, String password, CloseableHttpClient client) throws IOException, URISyntaxException {
         if (client == null) {
             this.client = HttpClientBuilder.create().build();
         } else {
@@ -130,9 +130,8 @@ public class SupersetClient {
      *
      * @param host The hostname of the Superset server.
      * @param port The port number of the Superset server.
-     * @throws Exception If there was an error creating the client.
      */
-    public SupersetClient(String host, int port, String authToken) throws Exception {
+    public SupersetClient(String host, int port, String authToken) {
         this.client = HttpClientBuilder.create().build();
         this.authToken = authToken;
         this.host = host;
@@ -149,7 +148,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetUserUpdateResponse updateUserRoles(SupersetUserRolesUpdate supersetUserRoleUpdate, int userId) throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetUserUpdateResponse updateUserRoles(SupersetUserRolesUpdate supersetUserRoleUpdate, int userId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserRolesRequest(host, port, authToken, supersetUserRoleUpdate, userId);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -167,8 +166,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetUserUpdateResponse updateUsersActiveFlag(SupersetUserActiveUpdate supersetUserActiveUpdate, int userId) throws URISyntaxException, ClientProtocolException,
-            IOException {
+    public SupersetUserUpdateResponse updateUsersActiveFlag(SupersetUserActiveUpdate supersetUserActiveUpdate, int userId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getUpdateUserActiveRequest(host, port, authToken, supersetUserActiveUpdate, userId);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -187,7 +185,7 @@ public class SupersetClient {
      *                                   Superset server.
      * @throws BadReturnedValueException If query will return more than one user
      */
-    public SupersetUsersResponse getUser(String username, String email) throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetUsersResponse getUser(String username, String email) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getUserRequest(host, port, authToken, username, email);
         try {
             ApiResponse resp = executeRequest(request);
@@ -218,7 +216,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public IdResponse createUser(SubsystemUserUpdate userUpdate) throws URISyntaxException, ClientProtocolException, IOException {
+    public IdResponse createUser(SubsystemUserUpdate userUpdate) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getCreateUserRequest(host, port, authToken, userUpdate);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -236,7 +234,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public void deleteUser(int userId) throws URISyntaxException, ClientProtocolException, IOException {
+    public void deleteUser(int userId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getDeleteUserRequest(host, port, authToken, userId);
         ApiResponse resp = executeRequest(request);
         if (resp.getBody() != null) {
@@ -255,7 +253,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetRolePermissionsResponse rolePermissions(int roleId) throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetRolePermissionsResponse rolePermissions(int roleId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getListRolePermissionsRequest(roleId, host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -273,7 +271,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetUserByIdResponse user(int userId) throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetUserByIdResponse user(int userId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getUserByIdRequest(userId, host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -291,7 +289,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetUsersResponse users() throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetUsersResponse users() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getListUsersRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -309,7 +307,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetRolesResponse roles() throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetRolesResponse roles() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getListRolesRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -327,7 +325,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetPermissionResponse permissions() throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetPermissionResponse permissions() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getListPermissionsRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -345,7 +343,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetDashboardByIdResponse dashboard(int dashboardId) throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetDashboardByIdResponse dashboard(int dashboardId) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getDashboardRequest(dashboardId, host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -363,7 +361,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetDashboardResponse dashboards() throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetDashboardResponse dashboards() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getListDashboardsRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -381,7 +379,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetQueryResponse queries() throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetQueryResponse queries() throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequest(host, port, authToken);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -399,7 +397,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetQueryResponse queriesFiltered(JsonArray filters) throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetQueryResponse queriesFiltered(JsonArray filters) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getListQueriesRequestFiltered(host, port, authToken, filters);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -417,7 +415,7 @@ public class SupersetClient {
      * @throws IOException             If there was an error communicating with the
      *                                 Superset server.
      */
-    public SupersetLogResponse logsFiltered(JsonArray filters) throws URISyntaxException, ClientProtocolException, IOException {
+    public SupersetLogResponse logsFiltered(JsonArray filters) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getLisLogsRequestFiltered(host, port, authToken, filters);
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
@@ -436,7 +434,7 @@ public class SupersetClient {
      * @throws IOException             if there is an I/O error while sending or
      *                                 receiving the HTTP request/response
      */
-    public File exportDashboard(int dashboardId, File destination) throws URISyntaxException, ClientProtocolException, IOException {
+    public File exportDashboard(int dashboardId, File destination) throws URISyntaxException, IOException {
         HttpUriRequest request = SupersetApiRequestBuilder.getExportDashboardRequest(host, port, authToken, dashboardId);
 
         return client.execute(request, new FileDownloadResponseHandler(destination));
@@ -453,7 +451,7 @@ public class SupersetClient {
      * @throws URISyntaxException      if there was a problem with the URI syntax
      * @throws IOException             if there was a problem with the I/O
      */
-    public void importDashboard(File dashboardFile, JsonElement password, boolean override) throws ClientProtocolException, URISyntaxException, IOException {
+    public void importDashboard(File dashboardFile, JsonElement password, boolean override) throws URISyntaxException, IOException {
         csrf();
         HttpUriRequest request = SupersetApiRequestBuilder.getImportDashboardRequest(host, port, authToken, csrfToken, dashboardFile, override, password, sessionCookie);
         executeRequest(request);

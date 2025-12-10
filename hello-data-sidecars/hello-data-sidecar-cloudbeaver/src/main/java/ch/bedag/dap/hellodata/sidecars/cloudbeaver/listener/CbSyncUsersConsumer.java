@@ -14,6 +14,7 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.SYNC_USERS;
 
 @Log4j2
 @Service
+@SuppressWarnings("unused")
 @AllArgsConstructor
 public class CbSyncUsersConsumer {
     private final CbUserContextRoleConsumer cbUserContextRoleConsumer;
@@ -34,8 +35,6 @@ public class CbSyncUsersConsumer {
                 log.error("Could not synchronize user {}", userContextRoleUpdate.getEmail(), e);
             }
         }
-        //ToDo: add flag to publish users only if there are changes
-        //userResourceProviderService.publishUsers();
         log.info("[SYNC_USERS] Finished users synchronization. Operation took {}", stopWatch.formatTime());
     }
 }
