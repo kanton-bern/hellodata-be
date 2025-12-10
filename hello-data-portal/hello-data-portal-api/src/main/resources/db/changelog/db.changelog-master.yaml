@@ -116,3 +116,7 @@ databaseChangeLog:
       file: db/changelog/changelogs/43_create_sql_lab_queries.xml
   - include:
       file: db/changelog/changelogs/44_create_dashboard_access_table.xml
+  - include:
+      file: db/changelog/changelogs/45_remove_deprecated_faq.xml
+  - include:
+      file: db/changelog/changelogs/46_remove_deprecated_documentation.xml

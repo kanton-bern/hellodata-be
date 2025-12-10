@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
+import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakLogoutHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -70,7 +70,7 @@ public class SecurityConfig {
 
     private final Environment env;
     private final KeycloakLogoutHandler keycloakLogoutHandler;
-    private final Converter hellodataAuthenticationConverter;
+    private final HellodataAuthenticationConverter hellodataAuthenticationConverter;
 
     @Value("${hello-data.cors.allowed-origins}")
     private String allowedOrigins;
