@@ -84,9 +84,9 @@ import {PrimeTemplate} from 'primeng/api';
   imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
-  private readonly store = inject<Store<AppState>>(Store);
-  private readonly fb = inject(FormBuilder);
-  private readonly userService = inject(UsersManagementService);
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersManagementService);
 
 
   users$: Observable<any>;
@@ -100,7 +100,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   syncStatusInterval$ = interval(30000);
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
-  private readonly destroy$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
 
   constructor() {
     super();
@@ -201,18 +201,10 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   }
 
   loadUsers(event: TableLazyLoadEvent) {
-    let sortOrder = '';
-    if (event.sortOrder) {
-      if (event.sortOrder > 0) {
-        sortOrder = 'asc';
-      } else {
-        sortOrder = 'desc';
-      }
-    }
     this.store.dispatch(loadUsers({
       page: event.first as number / (event.rows as number),
       size: event.rows as number,
-      sort: event.sortField ? `${event.sortField}, ${sortOrder}` : '',
+      sort: event.sortField ? `${event.sortField}, ${event.sortOrder ? event.sortOrder > 0 ? 'asc' : 'desc' : ''}` : '',
       search: event.globalFilter ? event.globalFilter as string : ''
     }));
   }
@@ -228,8 +220,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       )
       .subscribe(
         (users: AdUser[]) => {
-          this.suggestedAdUsers = this.enhanceSuggestedAdUsers(users);
-          return this.suggestedAdUsers;
+          return this.suggestedAdUsers = this.enhanceSuggestedAdUsers(users);
         }
       )
   }
