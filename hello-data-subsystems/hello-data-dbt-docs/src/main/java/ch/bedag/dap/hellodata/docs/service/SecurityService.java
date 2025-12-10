@@ -92,8 +92,8 @@ public class SecurityService {
     }
 
     @Transactional
-    public List<Role> createProjectRoles(List<Privilege> defaultPrivileges, Set<String> contextKeys) {
-        return createProjectRolesInternal(defaultPrivileges, contextKeys);
+    public void createProjectRoles(List<Privilege> defaultPrivileges, Set<String> contextKeys) {
+        createProjectRolesInternal(defaultPrivileges, contextKeys);
     }
 
     private List<Role> createProjectRolesInternal(List<Privilege> defaultPrivileges, Set<String> contextKeys) {
