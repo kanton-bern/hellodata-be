@@ -27,6 +27,10 @@
 
 import {Injectable} from "@angular/core";
 
+function compareStringsAlphabetically(a: string, b: string): number {
+  return a.localeCompare(b, undefined, {sensitivity: 'base'});
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -38,10 +42,10 @@ export class UtilService {
     const arr1Copy = [...arr1];
     const arr2Copy = [...arr2];
     if (arr1Copy && arr1Copy.length > 0) {
-      arr1Copy.sort();
+      arr1Copy.sort(compareStringsAlphabetically);
     }
     if (arr2Copy && arr2Copy.length > 0) {
-      arr2Copy.sort();
+      arr2Copy.sort(compareStringsAlphabetically);
     }
     return arr1Copy.length === arr2Copy.length && arr1Copy.every((value, index) => value === arr2Copy[index]);
   }
