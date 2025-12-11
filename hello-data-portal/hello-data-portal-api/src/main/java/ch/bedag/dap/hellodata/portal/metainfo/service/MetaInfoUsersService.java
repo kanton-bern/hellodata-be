@@ -73,7 +73,7 @@ public class MetaInfoUsersService {
                         u.getLastName(),
                         u.getEmail(),
                         u.getUsername(),
-                        u.getRoles().stream().map(r -> r.getName()).toList(),
+                        u.getRoles().stream().map(SubsystemRole::getName).toList(),
                         usersPack.getInstanceName(), userDto.getEnabled()
                 );
                 subsystemUserDtos.add(subsystemUserDto);
@@ -90,7 +90,7 @@ public class MetaInfoUsersService {
         Map<String, List<RoleToDashboardName>> roleNameToDashboardNamesPerInstanceName = mapDashboardRoleWithDashboardNamePerInstance(supersetDashboards);
         Map<String, String> contextKeyToNameMap = contextRepository.findAll().stream().collect(Collectors.toMap(HdContextEntity::getContextKey, HdContextEntity::getName));
         Set<String> supersetsNames = supersetAppInfos.stream().map(AppInfoResource::getInstanceName).collect(Collectors.toSet());
-        List<UserDto> allPortalUsers = userService.getAllUsers();
+        List<UserDto> allPortalUsers = userService.getAllUsersWithBusinessDomainRole();
 
         List<MetaInfoResourceEntity> userPacksForSubsystems = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_USERS)
                 .stream().filter(uPack -> supersetsNames.contains(uPack.getInstanceName())).toList();

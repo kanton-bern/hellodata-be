@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.user.data;
 
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
@@ -47,4 +48,5 @@ public class UserDto {
     private List<String> permissions;
     private int invitationsCount;
     private boolean isFederated;
+    private HdRoleName businessDomainRole;
 }

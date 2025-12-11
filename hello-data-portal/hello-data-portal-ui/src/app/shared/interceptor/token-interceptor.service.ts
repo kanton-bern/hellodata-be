@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from "@angular/common/http";
 import {map, Observable, switchMap} from "rxjs";
 import {AuthService} from "../services";
@@ -33,7 +33,7 @@ import {environment} from "../../../environments/environment";
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
 
   intercept(
