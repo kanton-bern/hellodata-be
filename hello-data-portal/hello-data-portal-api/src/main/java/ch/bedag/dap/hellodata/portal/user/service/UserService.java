@@ -242,7 +242,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserDto> getAllUsersWithBusinessDomainRole() {
+    public List<UserWithBusinessRoleDto> getAllUsersWithBusinessDomainRole() {
         List<UserEntity> allPortalUsers = userRepository.findAll();
         return allPortalUsers.stream()
                 .map(this::mapWithBusinessDomainRole)
@@ -813,14 +813,18 @@ public class UserService {
         return userDto;
     }
 
-    private UserDto mapWithBusinessDomainRole(UserEntity userEntity) {
+    private UserWithBusinessRoleDto mapWithBusinessDomainRole(UserEntity userEntity) {
         UserDto userDto = this.map(userEntity);
+        UserWithBusinessRoleDto userDtoWithBusinessRole;
         if (userDto != null) {
+            userDtoWithBusinessRole = modelMapper.map(userDto, UserWithBusinessRoleDto.class);
             Optional<UserContextRoleEntity> businessDomainRole = userEntity.getContextRoles().stream()
                     .filter(userContextRoleEntity -> userContextRoleEntity.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey())).findAny();
-            businessDomainRole.ifPresent(userContextRoleEntity -> userDto.setBusinessDomainRole(userContextRoleEntity.getRole().getName()));
+            businessDomainRole.ifPresent(userContextRoleEntity -> userDtoWithBusinessRole.setBusinessDomainRole(userContextRoleEntity.getRole().getName()));
+            return userDtoWithBusinessRole;
+        } else {
+            return null;
         }
-        return userDto;
     }
 
     /**
