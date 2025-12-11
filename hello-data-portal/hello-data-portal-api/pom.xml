@@ -45,10 +45,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -109,7 +105,7 @@
         <!-- Transitive dependency for HdHtmlSanitizer in hello-data-common -->
         <dependency>
             <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <artifactId>java10-shim</artifactId>
             <version>20240325.1</version>
             <scope>runtime</scope>
         </dependency>

@@ -35,12 +35,13 @@ import {AsyncPipe} from "@angular/common";
 import {Button, ButtonDirective} from "primeng/button";
 import {PrimeTemplate} from 'primeng/api';
 import {Tooltip} from "primeng/tooltip";
+import {Ripple} from "primeng/ripple";
 
 @Component({
   selector: 'app-unsaved-changes-dialog',
   templateUrl: './unsaved-changes-dialog.component.html',
   styleUrls: ['./unsaved-changes-dialog.component.scss'],
-  imports: [ConfirmDialog, PrimeTemplate, ButtonDirective, Button, TranslocoPipe, AsyncPipe, Tooltip]
+  imports: [ConfirmDialog, PrimeTemplate, ButtonDirective, Button, TranslocoPipe, AsyncPipe, Tooltip, Ripple]
 })
 export class UnsavedChangesDialogComponent {
   private store = inject<Store<AppState>>(Store);

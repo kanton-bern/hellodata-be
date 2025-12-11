@@ -27,13 +27,13 @@
 package ch.bedag.dap.hellodata.portal.user.service;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
 import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
@@ -100,10 +100,13 @@ public class BatchUsersInvitationService {
             List<UserDto> allUsers = userService.getAllUsers();
 
             createOrUpdateUsers(users, allUsers, allRoles, availableContexts);
-            batchUsersCustomLogger.logMessage("Processed %s users successfully\n".formatted(users.size()));
+            batchUsersCustomLogger.logMessage("Processed %s users successfully%n".formatted(users.size()));
         } catch (Exception e) {
             log.error("Error inviting/updating users", e);
-            batchUsersCustomLogger.logMessage("Error inviting users: %s \n".formatted(e.getMessage()));
+            batchUsersCustomLogger.logMessage("Error inviting users: %s %n".formatted(e.getMessage()));
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -172,7 +175,7 @@ public class BatchUsersInvitationService {
     }
 
     private void deleteFile(File file) {
-        if (file.delete()) {
+        if (file.delete()) { //NOSONAR
             log.info("Batch users file successfully deleted: {}", file.getAbsolutePath());
         } else {
             log.error("Failed to delete batch users file: {}", file.getAbsolutePath());

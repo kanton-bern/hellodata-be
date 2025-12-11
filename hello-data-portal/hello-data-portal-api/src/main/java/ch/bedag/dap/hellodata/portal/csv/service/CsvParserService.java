@@ -131,17 +131,15 @@ public class CsvParserService {
                 verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
                 String supersetRoleRaw = csvRecord.get(SUPERSET_ROLE);
                 log.debug("Superset Roles Raw: {}", supersetRoleRaw);
-                // Convert comma-separated Superset roles into a List
                 List<String> supersetRoles = supersetRoleRaw.isEmpty() ? List.of() : List.of(supersetRoleRaw.split(ROLE_DELIMITER));
                 log.debug("Superset roles for email {}: {}", email, supersetRoles);
-                // Ensure supersetRoles is empty if dataDomainRole is not "DATA_DOMAIN_VIEWER" or "DATA_DOMAIN_BUSINESS_SPECIALIST"
                 List<String> roles = (DATA_DOMAIN_VIEWER.name().equals(dataDomainRole) ||
                         DATA_DOMAIN_BUSINESS_SPECIALIST.name().equals(dataDomainRole))
                         ? supersetRoles
                         : new ArrayList<>();
-                CsvUserRole record = new CsvUserRole(email, businessDomainRole, context, dataDomainRole, roles);
-                log.debug("Adding record: {}", record);
-                records.add(record);
+                CsvUserRole csvUserRole = new CsvUserRole(email, businessDomainRole, context, dataDomainRole, roles);
+                log.debug("Adding record: {}", csvUserRole);
+                records.add(csvUserRole);
             }
         }
         if (records.isEmpty()) {

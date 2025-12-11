@@ -39,14 +39,15 @@ import {
 } from "../../../../store/users-management/users-management.action";
 import {AsyncPipe} from '@angular/common';
 import {ConfirmDialog} from 'primeng/confirmdialog';
-import {Button} from 'primeng/button';
+import {Button, ButtonDirective} from 'primeng/button';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Ripple} from "primeng/ripple";
 
 @Component({
   selector: 'app-actions-user-popup',
   templateUrl: './actions-user-popup.component.html',
   styleUrls: ['./actions-user-popup.component.scss'],
-  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe]
+  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
 })
 export class ActionsUserPopupComponent {
   private store = inject<Store<AppState>>(Store);

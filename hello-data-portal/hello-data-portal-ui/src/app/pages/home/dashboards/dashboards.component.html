@@ -1,25 +1,26 @@
 @if ((dashboards$ | async); as dashboards) {
   <div>
     <p-table #dt
-      [globalFilterFields]="['instanceName','dashboardTitle']"
-      [paginator]="true"
-      [rowHover]="true"
-      [rows]="5"
-      [rowsPerPageOptions]="[5,10, 25, 50, 100]"
-      [showCurrentPageReport]="true"
-      [tableStyle]="{ 'min-width': '20rem' }"
-      [value]="dashboards"
-      (onPage)="onPageChange($event)"
-      stateStorage="session"
-      stateKey="home-dashboards-table"
-      dataKey="id">
+             [globalFilterFields]="['instanceName','dashboardTitle']"
+             [paginator]="true"
+             [rowHover]="true"
+             [rows]="5"
+             [rowsPerPageOptions]="[5,10, 25, 50, 100]"
+             [showCurrentPageReport]="true"
+             [tableStyle]="{ 'min-width': '20rem' }"
+             [value]="dashboards"
+             (onPage)="onPageChange($event)"
+             [stripedRows]="true"
+             stateStorage="session"
+             stateKey="home-dashboards-table"
+             dataKey="id">
       <ng-template pTemplate="caption">
         <div class="flex">
           <span class="p-input-icon-left ml-auto">
             <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input pInputText #textInput [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
-                placeholder="{{'@Search' | transloco}}" type="text"/>
+              <p-inputicon class="pi pi-search"/>
+              <input pInputText [(ngModel)]="filterValue" (input)="onFilter($event, dt)"
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
           </span>
         </div>
@@ -28,15 +29,15 @@
         <tr>
           <th id="icon"></th>
           <th id="dataDomain" pSortableColumn="instanceName">{{ '@Data domain' | transloco }}
-            <p-sortIcon field="instanceName" />
+            <p-sortIcon field="instanceName"/>
           </th>
           <th id="dashboard" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
-            <p-sortIcon field="dashboardTitle" />
+            <p-sortIcon field="dashboardTitle"/>
           </th>
         </tr>
       </ng-template>
       <ng-template let-dashboard pTemplate="body">
-        <tr style="cursor: pointer">
+        <tr style="cursor: pointer" (click)="navigateToDashboard(dashboard)">
           <td>
             <i class="fas fa-light fa-chart-line"></i>
           </td>
@@ -44,9 +45,7 @@
             {{ dashboard.contextName }}
           </td>
           <td>
-            <a (click)="navigateToDashboard(dashboard)">
-              {{ dashboard.dashboardTitle }}
-            </a>
+            {{ dashboard.dashboardTitle }}
           </td>
         </tr>
       </ng-template>

@@ -37,4 +37,14 @@ public class DashboardAccessEntity extends BaseEntity {
     private OffsetDateTime dttm;
     private String json;
     private String referrer;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

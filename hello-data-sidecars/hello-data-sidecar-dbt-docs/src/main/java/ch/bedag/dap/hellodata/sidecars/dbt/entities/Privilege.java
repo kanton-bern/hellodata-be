@@ -31,7 +31,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -40,7 +39,6 @@ import java.util.Collection;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode
 public class Privilege extends BaseEntity {
 
     public static final String READ_PRIVILEGE = "READ_PRIVILEGE";
@@ -60,5 +58,15 @@ public class Privilege extends BaseEntity {
     public Privilege(final String name) {
         super();
         this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
     }
 }

@@ -21,17 +21,14 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <docker.namespace>bedag</docker.namespace>
     <sonar.typescript.lcov.reportPaths>${project.build.directory}/coverage/lcov.info</sonar.typescript.lcov.reportPaths>
-    <sonar.nodejs.executable>${project.build.directory}/node/node</sonar.nodejs.executable>
-    <sonar.typescript.node>${sonar.nodejs.executable}</sonar.typescript.node>
-    <sonar.css.node>${sonar.nodejs.executable}</sonar.css.node>
     <sonar.sources>src/app</sonar.sources>
     <sonar.tests>src/app</sonar.tests>
     <sonar.exclusions>src/app/oauth2/**/*,src/app/app.module.ts</sonar.exclusions>
     <sonar.test.inclusions>src/app/**/*.spec.ts</sonar.test.inclusions>
     <frontend-maven-plugin.version>1.15.0</frontend-maven-plugin.version>
-    <frontend-maven-plugin.nodeVersion>v22.12.0</frontend-maven-plugin.nodeVersion>
+    <frontend-maven-plugin.nodeVersion>v24.10.0</frontend-maven-plugin.nodeVersion>
     <frontend-maven-plugin.yarnVersion>v1.22.18</frontend-maven-plugin.yarnVersion>
-    <frontend-maven-plugin.npmVersion>9.9.2</frontend-maven-plugin.npmVersion>
+    <frontend-maven-plugin.npmVersion>11.6.0</frontend-maven-plugin.npmVersion>
     <openapi-generator-maven-plugin.version>5.1.0</openapi-generator-maven-plugin.version>
     <main.class>YarnPackageFinder</main.class>
     <kotlin.version>2.2.21</kotlin.version>

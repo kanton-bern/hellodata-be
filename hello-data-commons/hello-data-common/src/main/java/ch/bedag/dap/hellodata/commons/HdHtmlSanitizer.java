@@ -34,11 +34,13 @@ import org.jsoup.safety.Safelist;
 @UtilityClass
 public class HdHtmlSanitizer {
 
+    private static final String CLASS_TAG = "class";
+
     private static final Safelist CUSTOM_HTML_SANITIZER_POLICY = Safelist.relaxed()
             .addTags("span", "p", "li")
-            .addAttributes("span", "class", "style")
-            .addAttributes("p", "class")
-            .addAttributes("li", "class")
+            .addAttributes("span", CLASS_TAG, "style")
+            .addAttributes("p", CLASS_TAG)
+            .addAttributes("li", CLASS_TAG)
             // Remove anything not explicitly allowed
             .removeTags("script", "iframe", "object");
 

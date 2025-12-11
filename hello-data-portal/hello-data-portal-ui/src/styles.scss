@@ -25,22 +25,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @import "primeicons/primeicons.css";
 @import "assets/styles/layout/layout.scss";
-
 
 * {
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
 }
 
-.home-view .p-fieldset-legend {
-  background-color: var(--surface-ground) !important;
-  padding: 0;
-}
-
-.home-view .p-fieldset .p-fieldset-legend {
-  padding: 0 10px;
+.p-fieldset-legend {
+  background-color: transparent;
+  border-radius: 2px;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-left: 10px;
 }
 
 .home-view .p-fieldset {
@@ -67,4 +68,3 @@
   min-width: 100%;
   width: auto;
 }
-

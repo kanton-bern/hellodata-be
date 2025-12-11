@@ -35,9 +35,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -45,11 +43,11 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PipelineResource implements HdResource {
     @EqualsAndHashCode.Include
-    private final String apiVersion = "v1";
+    private final String apiVersion = "v1"; // NOSONAR
     @EqualsAndHashCode.Include
-    private final ModuleType moduleType = ModuleType.AIRFLOW;
+    private final ModuleType moduleType = ModuleType.AIRFLOW; // NOSONAR
     @EqualsAndHashCode.Include
-    private final String kind = ModuleResourceKind.HELLO_DATA_PIPELINES;
+    private final String kind = ModuleResourceKind.HELLO_DATA_PIPELINES; // NOSONAR
     @EqualsAndHashCode.Include
     private String instanceName;
     private List<Pipeline> data;
@@ -60,9 +58,6 @@ public class PipelineResource implements HdResource {
      */
     public PipelineResource(String instanceName, List<Pipeline> data) {
         this.instanceName = instanceName;
-        Map<String, Object> labels = new HashMap<>();
-        labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-
         this.data = new ArrayList<>(data);
     }
 

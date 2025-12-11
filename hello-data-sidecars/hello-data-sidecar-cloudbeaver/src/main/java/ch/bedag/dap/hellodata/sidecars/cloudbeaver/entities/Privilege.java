@@ -57,4 +57,14 @@ public class Privilege extends BaseEntity {
     public Privilege() {//NOSONAR
 
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

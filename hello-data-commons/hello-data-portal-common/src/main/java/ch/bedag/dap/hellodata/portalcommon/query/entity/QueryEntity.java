@@ -75,4 +75,14 @@ public class QueryEntity extends BaseEntity {
     @Column(name = "sql_tables")
     private String sqlTables;
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
+
 }

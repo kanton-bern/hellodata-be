@@ -71,4 +71,14 @@ public class Role extends BaseEntity {
     public Role() {
         //NOSONAR
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

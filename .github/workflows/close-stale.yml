@@ -1,0 +1,39 @@
+name: Cleanup stale issues and PRs
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # Every day at 02:00 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v10
+        with:
+          repo-token: ${{ github.token }}
+
+          # Issues
+          days-before-issue-stale: 30
+          days-before-issue-close: 7
+          stale-issue-message: |
+            This issue has been marked stale because it has had no activity for 30 days.
+            It will be closed in 7 days unless new activity occurs.
+          close-issue-message: |
+            Closing this issue due to inactivity. If this is still relevant,
+            feel free to reopen or create a new issue.
+
+          # PRs (optional — disable by setting to -1)
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+
+          # Never delete branches
+          delete-branch: false
+
+          # Labels to ignore
+          exempt-issue-labels: "pinned,security"
+          # exempt-pr-labels: "pinned,security"

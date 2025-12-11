@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
 @Log4j2
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-public class OrchestrationServiceTest {
+class OrchestrationServiceTest {
 
     @InjectMocks
     private OrchestrationService orchestrationService;
@@ -72,7 +72,7 @@ public class OrchestrationServiceTest {
     private UserRepository userRepository;
 
     @Test
-    public void testGetAllPipelines() {
+    void testGetAllPipelines() {
         // given
         UUID currentUserId = UUID.randomUUID();
 
@@ -111,7 +111,7 @@ public class OrchestrationServiceTest {
     }
 
     @Test
-    public void testGetAllPipelinesNoUserId() {
+    void testGetAllPipelinesNoUserId() {
         // given
 
         List<PipelineDto> pipelines;
@@ -126,7 +126,7 @@ public class OrchestrationServiceTest {
     }
 
     @Test
-    public void testGetAllPipelinesNoContextRoles() {
+    void testGetAllPipelinesNoContextRoles() {
         // given
         UUID currentUserId = UUID.randomUUID();
 
@@ -147,7 +147,7 @@ public class OrchestrationServiceTest {
     }
 
     @Test
-    public void testGetAllPipelinesNoMatchingContextKey() {
+    void testGetAllPipelinesNoMatchingContextKey() {
         // given
         UUID currentUserId = UUID.randomUUID();
 

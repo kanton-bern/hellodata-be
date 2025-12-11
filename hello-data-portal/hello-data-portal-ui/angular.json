@@ -52,7 +52,6 @@
               "src/silent-renew.html"
             ],
             "styles": [
-              "node_modules/primeflex/primeflex.css",
               "node_modules/quill/dist/quill.core.css",
               "node_modules/quill/dist/quill.bubble.css",
               "node_modules/quill/dist/quill.snow.css",

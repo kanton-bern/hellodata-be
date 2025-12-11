@@ -1,17 +1,17 @@
 <h2 class="content-block">{{ '@Faq management' | transloco }}</h2>
 @if ((selectedLanguage$ | async); as selectedLanguage) {
   <div class="card">
-    <p-toolbar class="mb-4 gap-2">
+    <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
         <p-button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
-                  label="{{'@Create' | transloco }}"></p-button>
+                  label="{{'@Create' | transloco }}" pRipple pButton></p-button>
       </ng-template>
     </p-toolbar>
     @if ((faq$ | async); as faq) {
       <div>
         @if (faq.length > 0) {
           <p-table
-            #dt
+            #dt showGridlines
             [paginator]="false"
             [rowHover]="true"
             [showCurrentPageReport]="true"
@@ -31,7 +31,7 @@
                 <th id="message" style="min-width:15rem">
                   {{ '@Message' | transloco }}
                 </th>
-                <th id="actions" style="min-width:8rem"></th>
+                <th id="actions" style="width:8rem"></th>
               </tr>
             </ng-template>
             <ng-template let-faq pTemplate="body">
@@ -41,7 +41,7 @@
                   <td>{{ faq.contextName }}</td>
                 }
                 @if (faq.contextName === null) {
-                  <td class="font-italic">{{ '@All Data Domains' | transloco }}</td>
+                  <td class="italic">{{ '@All Data Domains' | transloco }}</td>
                 }
                 <td>
                   <p-editor [disabled]="true" [ngModel]="getMessage(faq, selectedLanguage)" [readonly]="true"
@@ -74,5 +74,5 @@
     }
   </div>
 }
-
+<br/>
 <app-delete-faq-popup [action]="getDeletionAction()"/>

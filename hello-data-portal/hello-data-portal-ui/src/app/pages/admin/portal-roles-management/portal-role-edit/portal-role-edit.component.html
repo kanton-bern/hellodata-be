@@ -6,11 +6,12 @@
     <form [formGroup]="roleForm">
       <h5>{{ '@Portal role data' | transloco }}</h5>
       @if (editedRole.createdDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdDate">{{ '@Created date' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="createdDate">{{ '@Created date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="createdDate"
               type="text"
@@ -19,11 +20,11 @@
         </div>
       }
       @if (editedRole.createdDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="createdBy"
               type="text"
@@ -32,11 +33,12 @@
         </div>
       }
       @if (editedRole.modifiedDate) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="modifiedDate">{{ '@Modified date' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-40 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-40 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled
               id="modifiedDate"
               type="text"
@@ -45,11 +47,11 @@
         </div>
       }
       @if (editedRole.modifiedBy) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full opacity-40"
+              class="text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full opacity-40"
               disabled
               id="modifiedBy"
               type="text"
@@ -57,51 +59,51 @@
           </div>
         </div>
       }
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="name">{{ '@Name' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="name">{{ '@Name' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="name"
             id="name"
             type="text">
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="description">{{ '@Description' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="description">{{ '@Description' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <textarea
-            class="text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             cols="30" formControlName="description"
             id="description" pTextarea rows="3"
-          type="text"></textarea>
+            type="text"></textarea>
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="permissions">{{ '@Permissions' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="permissions">{{ '@Permissions' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <p-autoComplete (completeMethod)="filterPermission($event)"
-            [dropdown]="true"
-            [multiple]="true"
-            [suggestions]="filteredPermissions"
-            class="w-full"
-          formControlName="permissions" id="permissions" />
+                          [dropdown]="true"
+                          [multiple]="true"
+                          [suggestions]="filteredPermissions"
+                          class="w-full"
+                          formControlName="permissions" id="permissions"/>
         </div>
       </div>
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToRoleList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-          icon="fas fa-arrow-left" severity="secondary" />
+                    icon="fas fa-arrow-left" severity="secondary"/>
         </div>
         <div class="p-toolbar-group-end">
           <p-button (click)="saveRole(editedRole)"
-            [disabled]="roleForm.invalid||!roleForm.dirty"
-            icon="fas fa-floppy-disk"
-            label="{{'@Save' | transloco}}"
-          severity="success" />
+                    [disabled]="roleForm.invalid||!roleForm.dirty"
+                    icon="fas fa-floppy-disk"
+                    label="{{'@Save' | transloco}}"
+                    severity="success"/>
           @if (editedRole.id) {
             <p-button (click)="openDeletePopup(editedRole)" icon="fas fa-trash"
-            label="{{'@Delete' | transloco}}" severity="danger" />
+                      label="{{'@Delete' | transloco}}" severity="danger"/>
           }
         </div>
       </p-toolbar>
@@ -109,4 +111,4 @@
   }
 </div>
 
-<app-delete-role-popup [action]="getDeletionAction()" />
+<app-delete-role-popup [action]="getDeletionAction()"/>

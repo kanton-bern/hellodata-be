@@ -50,7 +50,6 @@ import java.io.Serializable;
 public interface HdResource extends Serializable {
 
     String NAME_FORMAT = "[module-type: %s][kind: %s][instance-name: %s][api-version: %s]";
-    String HD_MODULE_KEY = "hellodata/module";
     String URL_KEY = "url";
 
     String getApiVersion();

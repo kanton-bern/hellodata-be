@@ -58,4 +58,14 @@ public class ExternalDashboardEntity extends BaseEntity {
      * mapping to context entity
      */
     private String contextKey;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

@@ -2,11 +2,11 @@
   @if ((editedExternalDashboard$ | async); as editedExternalDashboard) {
     <form [formGroup]="externalDashboardForm"
           class="form">
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="title" id="title" required
             type="text">
           @if (!externalDashboardForm.controls['title'].valid && externalDashboardForm.controls['title'].dirty) {
@@ -15,11 +15,11 @@
           }
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="url">{{ 'Url' }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="url">{{ 'Url' }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="url" id="url" required
             type="text">
           @if (!externalDashboardForm.controls['url'].valid && externalDashboardForm.controls['url'].dirty) {
@@ -29,9 +29,10 @@
         </div>
       </div>
       @if ((availableDataDomains$ | async); as availableDataDomains) {
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataDomain">{{ '@Data domain' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4 mb-1">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="dataDomain">{{ '@Data domain' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <p-select [options]="availableDataDomains"
                       formControlName="dataDomain"
                       id="dataDomain"
@@ -45,57 +46,60 @@
           </div>
         </div>
       }
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="businessProcess">{{ '@Business process' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+               for="businessProcess">{{ '@Business process' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="businessProcess" id="businessProcess"
             type="text">
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="businessProcess">{{ '@Department' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+               for="businessProcess">{{ '@Department' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="department" id="department"
             type="text">
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0"
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
                for="responsibility">{{ '@Professional responsibility' | transloco }}</label>
-        <div class="col-12 md:col-10">
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="responsibility" id="responsibility"
             type="text">
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="dataAnalyst">{{ '@Data analyst' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+               for="dataAnalyst">{{ '@Data analyst' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="dataAnalyst" id="dataAnalyst"
             type="text">
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="scheduled">{{ '@Scheduled' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="scheduled">{{ '@Scheduled' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="scheduled" id="scheduled"
             type="text">
         </div>
       </div>
-      <div class="field grid">
-        <label class="col-12 mb-2 md:col-2 md:mb-0" for="datasource">{{ '@Datasource' | transloco }}</label>
-        <div class="col-12 md:col-10">
+      <div class="field grid grid-cols-12 gap-4 mb-1">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="datasource">{{ '@Datasource' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
           <input
-            class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+            class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
             formControlName="datasource" id="datasource"
             type="text">
         </div>
@@ -103,19 +107,19 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary"/>
+                    icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
         </div>
         <div class="p-toolbar-group-end">
           @if (externalDashboardForm.controls['id'].getRawValue() !== '') {
             <p-button (click)="deleteExternalDashboard(editedExternalDashboard)"
-                      severity="danger"
+                      severity="danger" pRipple pButton
                       icon="fa-regular fa-trash-can"
                       label="{{'@Delete' | transloco}}"
                       class="mr-2 p-button-warning mr-2"/>
           }
           <p-button (click)="saveChanges(editedExternalDashboard)"
                     [disabled]="externalDashboardForm.invalid||!externalDashboardForm.dirty"
-                    class="mr-2"
+                    class="mr-2" pRipple pButton
                     icon="fas fa-arrow-up-right-from-square"
                     label="{{'@Save' | transloco}}"
                     severity="success"/>
@@ -131,10 +135,9 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-              type="button" severity="secondary"/>
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              type="button" severity="secondary" pRipple pButton/>
     <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
-              pButton
-              type="button"/>
+              pRipple pButton type="button"/>
   </ng-template>
 </p-confirmDialog>

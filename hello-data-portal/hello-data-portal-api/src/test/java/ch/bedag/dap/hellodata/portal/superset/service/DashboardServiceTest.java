@@ -69,7 +69,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class DashboardServiceTest {
+class DashboardServiceTest {
 
     @InjectMocks
     private DashboardService dashboardService;
@@ -125,7 +125,7 @@ public class DashboardServiceTest {
 
         //When
         Throwable exception =
-                assertThrows(ResponseStatusException.class, () -> dashboardService.updateDashboard(instanceName, subsystemId, new UpdateSupersetDashboardMetadataDto()));
+                assertThrows(ResponseStatusException.class, () -> dashboardService.updateDashboard(instanceName, subsystemId, new UpdateSupersetDashboardMetadataDto())); //NOSONAR
 
         //Then
         assertTrue(exception.getMessage().contains("User is not allowed to update dashboard metadata"));
@@ -210,7 +210,7 @@ public class DashboardServiceTest {
     }
 
     @Test
-    public void fetchMyDashboards_HELLODATA_2159() throws JsonProcessingException {
+    void fetchMyDashboards_HELLODATA_2159() throws JsonProcessingException {
         //Given
         String data = """
                     {

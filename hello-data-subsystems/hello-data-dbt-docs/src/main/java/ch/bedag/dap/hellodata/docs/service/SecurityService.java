@@ -91,23 +91,23 @@ public class SecurityService {
         userRepository.save(adminUser);
     }
 
-    /**
-     * If there is a ProjectDoc with the name of the value of Role.ADMIN_KEY no new role will get created.
-     * Do we need to change this?
-     **/
     @Transactional
     public List<Role> createProjectRoles(List<Privilege> defaultPrivileges, Set<String> contextKeys) {
+        return createProjectRolesInternal(defaultPrivileges, contextKeys);
+    }
+
+    private List<Role> createProjectRolesInternal(List<Privilege> defaultPrivileges, Set<String> contextKeys) {
         return contextKeys.stream().filter(contextKey -> !contextKey.equalsIgnoreCase(Role.ADMIN_ROLE_KEY)).map(contextKey -> {
             String roleName = "ROLE_" + SlugifyUtil.slugify(contextKey).toUpperCase();
-            return createRoleIfNotFound(contextKey, roleName, defaultPrivileges);
+            return createRoleIfNotFoundInternal(contextKey, roleName, defaultPrivileges);
         }).toList();
     }
 
     @Transactional
     public void updateRoles(Set<String> contextKeys) {
         List<Role> currentRoles = getAllRolesMinusAdminRole();
-        Privilege readPrivilege = createPrivilegeIfNotFound(Privilege.READ_PRIVILEGE);
-        List<Role> newRoles = createProjectRoles(Collections.singletonList(readPrivilege), contextKeys);
+        Privilege readPrivilege = createPrivilegeIfNotFoundInternal(Privilege.READ_PRIVILEGE);
+        List<Role> newRoles = createProjectRolesInternal(Collections.singletonList(readPrivilege), contextKeys);
         log.info("Found {} current roles.", newRoles.size());
         boolean itemsToRemove = currentRoles.removeAll(newRoles);
         if (itemsToRemove) {
@@ -125,7 +125,11 @@ public class SecurityService {
     }
 
     @Transactional
-    public Role createRoleIfNotFound(String key, String name, Collection<Privilege> privileges) {
+    public void createRoleIfNotFound(String key, String name, Collection<Privilege> privileges) {
+        createRoleIfNotFoundInternal(key, name, privileges);
+    }
+
+    private Role createRoleIfNotFoundInternal(String key, String name, Collection<Privilege> privileges) {
         Role role = roleRepository.findByKeyIgnoreCase(key);
         if (role == null) {
             log.info("Create role {} with key {}", name, key);
@@ -145,6 +149,10 @@ public class SecurityService {
 
     @Transactional
     public Privilege createPrivilegeIfNotFound(String name) {
+        return createPrivilegeIfNotFoundInternal(name);
+    }
+
+    private Privilege createPrivilegeIfNotFoundInternal(String name) {
         Privilege privilege = privilegeRepository.findByName(name);
         if (privilege == null) {
             privilege = new Privilege(name);
@@ -182,7 +190,7 @@ public class SecurityService {
         List<ProjectDoc> allProjectsDocs = projectDocService.getAllProjectsDocs();
         ProjectDoc requestedProjectDoc = allProjectsDocs.stream().filter(projectDoc -> projectDoc.path().equalsIgnoreCase(path)).findFirst().orElse(null);
         if (requestedProjectDoc == null) {
-            throw new RuntimeException("Could not find a project for path " + path);
+            throw new RuntimeException("Could not find a project for path " + path); //NOSONAR
         }
         validateUserIsAllowedOnProjectDoc(loggedInUser, requestedProjectDoc.name());
     }

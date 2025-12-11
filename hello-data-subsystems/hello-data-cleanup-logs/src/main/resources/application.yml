@@ -53,3 +53,37 @@ hello-data:
 
 server:
   port: 8087
+
+# Actuator endpoints. List available under http://localhost:8081/api/actuator
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      access: read_only
+    info:
+      access: read_only
+    prometheus:
+      access: read_only
+  endpoints:
+    web:
+      exposure:
+        include: [ '*' ]
+  health:
+    mail:
+      enabled: false
+    ldap:
+      enabled: false # Disable this when not using ldap connection
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        spring.data.repository.invocations: true
+        http.server.requests: true
+        http.client.requests: true

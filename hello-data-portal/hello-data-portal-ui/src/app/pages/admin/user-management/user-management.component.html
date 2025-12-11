@@ -2,16 +2,16 @@
 <div class="card">
   <h3>{{ '@Invite user' | transloco }}</h3>
   <form [formGroup]="inviteForm" autocomplete="off">
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
-      <div class="col-12 md:col-10">
-        <span class="p-fluid surface-border border-round appearance-none outline-none focus:border-primary"
-          style="width: 100%; display: grid">
-          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
-            [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
-            name="user">
+    <div class="field grid grid-cols-12 gap-4">
+      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="user">{{ '@E-mail' | transloco }}</label>
+      <div class="col-span-12 md:col-span-10">
+        <span class="p-fluid border-surface rounded-border appearance-none outline-0 focus:border-primary w-100"
+              style="width: 100%; display: grid grid-cols-12 gap-4">
+          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)" class="w-100 mb-1"
+                          [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
+                          name="user">
             <ng-template let-user pTemplate="item">
-              <div class="flex align-items-center gap-1">
+              <div class="flex items-center gap-1">
                 <p [pTooltip]="user.label" class="glow top-menu-item" tooltipPosition="bottom">{{ user.label }}</p>
               </div>
             </ng-template>
@@ -19,39 +19,39 @@
         </span>
         @if (!inviteForm.controls['user'].valid && inviteForm.controls['user'].dirty) {
           <small
-          class="p-error">{{ '@Email is invalid' | transloco }}</small>
+            class="p-error">{{ '@Email is invalid' | transloco }}</small>
         }
       </div>
     </div>
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
-      <div class="col-12 md:col-10">
+    <div class="field grid grid-cols-12 gap-4">
+      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
+      <div class="col-span-12 md:col-span-10">
         <input [readOnly]="true"
-          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          formControlName="firstName"
-          id="firstName"
-          name="firstName"
-          pInputText
-          type="text">
+               class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+               formControlName="firstName"
+               id="firstName"
+               name="firstName"
+               pInputText
+               type="text">
         @if (!inviteForm.controls['firstName'].valid && inviteForm.controls['firstName'].dirty) {
           <small
-          class="p-error">{{ '@First name is invalid' | transloco }}</small>
+            class="p-error">{{ '@First name is invalid' | transloco }}</small>
         }
       </div>
     </div>
-    <div class="field grid">
-      <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
-      <div class="col-12 md:col-10">
+    <div class="field grid grid-cols-12 gap-4">
+      <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
+      <div class="col-span-12 md:col-span-10">
         <input [readOnly]="true"
-          class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
-          formControlName="lastName"
-          id="lastName"
-          name="lastName"
-          pInputText
-          type="text">
+               class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+               formControlName="lastName"
+               id="lastName"
+               name="lastName"
+               pInputText
+               type="text">
         @if (!inviteForm.controls['lastName'].valid && inviteForm.controls['lastName'].dirty) {
           <small
-          class="p-error">{{ '@Last name is invalid' | transloco }}</small>
+            class="p-error">{{ '@Last name is invalid' | transloco }}</small>
         }
       </div>
     </div>
@@ -60,10 +60,10 @@
       </div>
       <div class="p-toolbar-group-end">
         <p-button (click)="createUser()"
-          [disabled]="inviteForm.invalid"
-          icon="fas fa-floppy-disk"
-          label="{{'@Set permissions' | transloco}}"
-        severity="success" />
+                  [disabled]="inviteForm.invalid"
+                  icon="fas fa-floppy-disk"
+                  label="{{'@Set permissions' | transloco}}"
+                  severity="success" pRipple pButton/>
       </div>
     </p-toolbar>
   </form>
@@ -75,13 +75,13 @@
       <h3>{{ '@Users' | transloco }}</h3>
 
     </div>
-    @if ((syncStatus$ | async); as syncStatus ) {
+    @if ((syncStatus$ | async); as syncStatus) {
       <div class="p-toolbar-group-end">
         <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
-          [pTooltip]="'@Sync Users Title' | transloco"
-          icon="fas fa-arrows-rotate"
-          label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
-        severity="success" />
+                  [pTooltip]="'@Sync Users Title' | transloco"
+                  icon="fas fa-arrows-rotate"
+                  label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
+                  severity="success" pRipple pButton/>
       </div>
     }
   </p-toolbar>
@@ -106,15 +106,15 @@
     class="p-datatable-striped"
     sortField="email"
     [sortOrder]="1"
-    >
+  >
     <ng-template pTemplate="caption">
       <div>
         <div id="searchBox">
           <span class="p-input-icon-left p-ml-auto">
             <p-iconfield>
-              <p-inputicon class="pi pi-search" />
+              <p-inputicon class="pi pi-search"/>
               <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                placeholder="{{'@Search' | transloco}}" type="text"/>
+                     placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
           </span>
         </div>
@@ -125,29 +125,29 @@
       <tr>
         <th id="emailHeader" pSortableColumn="email" style="max-width:5rem">
           {{ '@E-mail' | transloco }}
-          <p-sortIcon field="email" />
+          <p-sortIcon field="email"/>
         </th>
         <th id="firstNameHeader" pSortableColumn="firstName" style="max-width:5rem">
           {{ '@First name' | transloco }}
-          <p-sortIcon field="firstName" />
+          <p-sortIcon field="firstName"/>
         </th>
         <th id="lastNameHeader" pSortableColumn="lastName" style="max-width:5rem">
           {{ '@Last name' | transloco }}
-          <p-sortIcon field="lastName" />
+          <p-sortIcon field="lastName"/>
         </th>
         <th id="superuser" pSortableColumn="superuser">
           {{ '@Superuser' | transloco }}
-          <p-sortIcon field="superuser" />
+          <p-sortIcon field="superuser"/>
         </th>
         <th id="enabled" pSortableColumn="enabled">
           {{ '@Enabled' | transloco }}
-          <p-sortIcon field="enabled" />
+          <p-sortIcon field="enabled"/>
         </th>
-        <th id="lastAccess" pSortableColumn="lastAccess" style="min-width:15rem">
+        <th id="lastAccess" pSortableColumn="lastAccess" style="width:15rem">
           {{ '@Last login' | transloco }}
-          <p-sortIcon field="lastAccess" />
+          <p-sortIcon field="lastAccess"/>
         </th>
-        <th id="actions" style="min-width:10rem"></th>
+        <th id="actions" style="width:12rem"></th>
       </tr>
     </ng-template>
     <ng-template let-user pTemplate="body">
@@ -186,32 +186,32 @@
         @if ((loggedInUser$ | async); as loggedInUser) {
           <td>
             <p-button (click)="editUser(user)"
-              severity="success"
-              class="p-button-rounded mr-2"
-              icon="fas fa-light fa-pen-to-square"
-              pButton
-              pRipple
-            pTooltip="{{'@Edit' | transloco}}" />
+                      severity="success"
+                      class="p-button-rounded mr-2"
+                      icon="fas fa-light fa-pen-to-square"
+                      pButton
+                      pRipple
+                      pTooltip="{{'@Edit' | transloco}}"/>
             @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="enableUser(user)"
-                severity="success"
-                class="p-button-rounded mr-2"
-                icon="fas fa-circle-plus" pButton pRipple
-              pTooltip="{{'@Enable' | transloco}}" />
+                        severity="success"
+                        class="p-button-rounded mr-2"
+                        icon="fas fa-circle-plus" pButton pRipple
+                        pTooltip="{{'@Enable' | transloco}}"/>
             }
             @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="disableUser(user)"
-                severity="warn"
-                class="p-button-rounded mr-2"
-                icon="fas fa-circle-xmark" pButton pRipple
-              pTooltip="{{'@Disable' | transloco}}" />
+                        severity="warn"
+                        class="p-button-rounded mr-2"
+                        icon="fas fa-circle-xmark" pButton pRipple
+                        pTooltip="{{'@Disable' | transloco}}"/>
             }
             @if (!user.superuser && user.email !== loggedInUser.email) {
               <p-button (click)="showUserDeletionPopup(user)"
-                severity="danger"
-                class="p-button-rounded mr-2"
-                icon="fas fa-trash" pButton pRipple
-              pTooltip="{{'@Delete' | transloco}}" />
+                        severity="danger"
+                        class="p-button-rounded mr-2"
+                        icon="fas fa-trash" pButton pRipple
+                        pTooltip="{{'@Delete' | transloco}}"/>
             }
           </td>
         }
@@ -219,5 +219,5 @@
     </ng-template>
   </p-table>
 </div>
-
-<app-actions-user-popup />
+<br/>
+<app-actions-user-popup/>

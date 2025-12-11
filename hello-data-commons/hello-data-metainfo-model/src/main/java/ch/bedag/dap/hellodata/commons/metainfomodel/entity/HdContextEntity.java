@@ -62,4 +62,14 @@ public class HdContextEntity extends BaseEntity {
      * used mostly for extra Data Domain
      */
     private boolean extra;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

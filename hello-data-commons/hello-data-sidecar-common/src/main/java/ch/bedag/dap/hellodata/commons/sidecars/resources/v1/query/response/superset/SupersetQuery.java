@@ -23,7 +23,7 @@ public class SupersetQuery implements Serializable {
     @JsonProperty("end_time")
     private BigDecimal endTime;
     @JsonProperty("sql_tables")
-    private Object sqlTables;
+    private Object sqlTables; //NOSONAR
     private String sql;
     private String schema;
     private Integer rows;

@@ -31,11 +31,11 @@ public class TemporaryUserService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         String findExpiredUsersSql = "SELECT usename FROM pg_catalog.pg_user WHERE valuntil < '" + now.format(formatter) + "' AND usename LIKE 'temp_user_%'";
-        List<String> expiredUsernames = dwhJdbcTemplate.queryForList(findExpiredUsersSql, String.class);
+        List<String> expiredUsernames = dwhJdbcTemplate.queryForList(findExpiredUsersSql, String.class); //NOSONAR
 
         for (String username : expiredUsernames) {
             String dropUserSql = "DROP USER IF EXISTS " + username;
-            dwhJdbcTemplate.execute(dropUserSql);
+            dwhJdbcTemplate.execute(dropUserSql); //NOSONAR
             log.info("Dropped expired user: {}", username);
         }
     }

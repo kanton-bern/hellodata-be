@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, OnDestroy, OnInit, inject } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {
@@ -46,33 +46,19 @@ import {
   selectUsersLoading,
   selectUsersTotalRecords
 } from "../../../store/users-management/users-management.selector";
-import { CommonModule, AsyncPipe, DatePipe } from "@angular/common";
+import {AsyncPipe, DatePipe} from "@angular/common";
 import {AdUser, CreateUserForm, User, UserAction} from "../../../store/users-management/users-management.model";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {UserEditComponent} from "./user-edit/user-edit.component";
 import {ActionsUserPopupComponent} from "./actions-user-popup/actions-user-popup.component";
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import {RouterLink} from "@angular/router";
+import {TranslocoPipe} from "@jsverse/transloco";
 import {TableLazyLoadEvent, TableModule} from "primeng/table";
-import {TagModule} from "primeng/tag";
-import { TooltipModule, Tooltip } from "primeng/tooltip";
-import { InputTextModule, InputText } from "primeng/inputtext";
-import { ButtonModule, Button, ButtonDirective } from "primeng/button";
-import { ToolbarModule, Toolbar } from "primeng/toolbar";
-import {EditorModule} from "primeng/editor";
-import { RippleModule, Ripple } from "primeng/ripple";
-import {ConfirmDialogModule} from "primeng/confirmdialog";
-import {StyleClassModule} from "primeng/styleclass";
-import {TabsModule} from 'primeng/tabs';
-import { AutoCompleteModule, AutoComplete } from "primeng/autocomplete";
-import {CheckboxModule} from "primeng/checkbox";
-import {DividerModule} from "primeng/divider";
+import {Tooltip} from "primeng/tooltip";
+import {InputText} from "primeng/inputtext";
+import {Button, ButtonDirective} from "primeng/button";
+import {Toolbar} from "primeng/toolbar";
+import {Ripple} from "primeng/ripple";
+import {AutoComplete} from "primeng/autocomplete";
 import {switchMap} from "rxjs/operators";
-import {SelectModule} from 'primeng/select';
-import {
-  DashboardViewerPermissionsComponent
-} from "./user-edit/dashboard-viewer-permissions/dashboard-viewer-permissions.component";
-import {MultiSelectModule} from "primeng/multiselect";
 import {naviElements} from "../../../app-navi-elements";
 import {UsersManagementService} from "../../../store/users-management/users-management.service";
 import {BaseComponent} from "../../../shared/components/base/base.component";
@@ -89,13 +75,13 @@ import {selectProfile} from "../../../store/auth/auth.selector";
 import {IUser} from "../../../store/auth/auth.model";
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
-import { PrimeTemplate } from 'primeng/api';
+import {PrimeTemplate} from 'primeng/api';
 
 @Component({
-    selector: 'app-user-management',
-    templateUrl: './user-management.component.html',
-    styleUrls: ['./user-management.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  selector: 'app-user-management',
+  templateUrl: './user-management.component.html',
+  styleUrls: ['./user-management.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
   private store = inject<Store<AppState>>(Store);

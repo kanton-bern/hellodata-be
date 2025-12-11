@@ -64,8 +64,8 @@ public class NatsSenderService {
             JetStream js = connection.jetStream();
 
             String message;
-            if (body instanceof String) {
-                message = (String) body;
+            if (body instanceof String bodyString) {
+                message = bodyString;
             } else {
                 message = objectMapper.writeValueAsString(body);
             }
@@ -73,8 +73,6 @@ public class NatsSenderService {
             log.trace("+=+=+=+= Publishing message {}, to the stream {} and subject {}", message, streamName, subjectName);
             log.debug("+=+=+=+= Publishing message to the stream {} and subject {}", streamName, subjectName);
 
-            // Generate a MurmurHash3-based message ID
-//            String messageId = Hashing.murmur3_128().hashString(message, StandardCharsets.UTF_8).toString();
             String messageId = UUID.randomUUID().toString();
 
             NatsMessage natsMessage = NatsMessage.builder()

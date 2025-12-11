@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 @Log4j2
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-public class MetaInfoResourceServiceTest {
+class MetaInfoResourceServiceTest {
 
     @InjectMocks
     private MetaInfoResourceService metaInfoResourceService;
@@ -62,7 +62,7 @@ public class MetaInfoResourceServiceTest {
     private ModelMapper modelMapper = new ModelMapper();
 
     @Test
-    public void testFindAll() {
+    void testFindAll() {
         // given
         MetaInfoResourceEntity entity = new MetaInfoResourceEntity();
         HdResource hdResource = new AppInfoResource();
@@ -78,7 +78,7 @@ public class MetaInfoResourceServiceTest {
     }
 
     @Test
-    public void testFindAllByModuleType() {
+    void testFindAllByModuleType() {
         // given
         MetaInfoResourceEntity entity = new MetaInfoResourceEntity();
         HdResource hdResource = new AppInfoResource();
@@ -94,7 +94,7 @@ public class MetaInfoResourceServiceTest {
     }
 
     @Test
-    public void testFindAllByModuleTypeAndKind() {
+    void testFindAllByModuleTypeAndKind() {
         // given
         MetaInfoResourceEntity entity = new MetaInfoResourceEntity();
         AppInfoResource appInfoResource = new AppInfoResource();
@@ -110,7 +110,7 @@ public class MetaInfoResourceServiceTest {
     }
 
     @Test
-    public void testFindAllByKind() {
+    void testFindAllByKind() {
         // given
         MetaInfoResourceEntity entity = new MetaInfoResourceEntity();
         HdResource hdResource = new AppInfoResource();
@@ -126,7 +126,7 @@ public class MetaInfoResourceServiceTest {
     }
 
     @Test
-    public void testFindAllByAppInfo() {
+    void testFindAllByAppInfo() {
         // given
         MetaInfoResourceEntity entity = new MetaInfoResourceEntity();
         HdResource hdResource = new AppInfoResource();
@@ -142,7 +142,7 @@ public class MetaInfoResourceServiceTest {
     }
 
     @Test
-    public void testFindInstanceUrl() {
+    void testFindInstanceUrl() {
         // given
         MetaInfoResourceEntity entity = new MetaInfoResourceEntity();
         AppInfoResource appInfoResource = new AppInfoResource(null, "", ModuleType.SUPERSET, "");

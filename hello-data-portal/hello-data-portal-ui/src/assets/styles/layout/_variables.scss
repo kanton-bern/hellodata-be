@@ -53,11 +53,7 @@ $text-color: black;
   // Various PrimeNG Overrides
   --p-highlight-color: var(--text-color);
   --p-datatable-header-cell-selected-color: var(--text-color);
-  //--p-paginator-nav-button-selected-color: var(--text-color);
-  //--p-button-success-background: var(--success-color);
-  //--p-button-success-border-color: var(--success-color);
-  //--p-button-primary-background: var(--success-color);
-  //--p-button-primary-border-color: var(--success-color);
+  //--p-select-option-selected-focus-color:
 
   /* Surface Scale */
   --surface-0: #ffffff;
@@ -102,5 +98,18 @@ $text-color: black;
   --highlight-bg: rgba(63, 81, 181, .12);
   --highlight-text-color: #3F51B5;
   --focus-ring: none;
+
+  /* Primary Colors */
+  --p-primary-50: var(--p-gray-50);
+  --p-primary-100: var(--p-gray-100);
+  --p-primary-200: var(--p-gray-200);
+  --p-primary-300: var(--p-gray-300);
+  --p-primary-400: var(--p-gray-400);
+  --p-primary-500: var(--p-gray-500);
+  --p-primary-600: var(--p-gray-600);
+  --p-primary-700: var(--p-gray-700);
+  --p-primary-800: var(--p-gray-800);
+  --p-primary-900: var(--p-gray-900);
+  --p-primary-950: var(--p-gray-950);
 }
 

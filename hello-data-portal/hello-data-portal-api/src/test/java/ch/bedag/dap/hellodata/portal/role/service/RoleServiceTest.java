@@ -37,14 +37,6 @@ import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.RoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,18 +46,17 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.util.*;
+
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Log4j2
 @SuppressWarnings("unused")
 @ExtendWith(MockitoExtension.class)
-public class RoleServiceTest {
+class RoleServiceTest {
 
     @Mock
     private RoleRepository roleRepository;
@@ -86,7 +77,7 @@ public class RoleServiceTest {
     private RoleService roleService;
 
     @Test
-    public void testGetAll() {
+    void testGetAll() {
         // given
         List<RoleEntity> roleEntities = Collections.singletonList(new RoleEntity());
         when(roleRepository.findAll()).thenReturn(roleEntities);
@@ -101,7 +92,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testUpdateBusinessRoleForUser() {
+    void testUpdateBusinessRoleForUser() {
         // given
         UserEntity userEntity = new UserEntity();
         RoleDto roleDto = new RoleDto();
@@ -119,7 +110,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testUpdateDomainRoleForUser_should_add_new_role() {
+    void testUpdateDomainRoleForUser_should_add_new_role() {
         // given
         UserEntity userEntity = new UserEntity();
         setUpContextRoles(userEntity);
@@ -134,7 +125,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testSetBusinessDomainRoleForUser() {
+    void testSetBusinessDomainRoleForUser() {
         // given
         UserEntity userEntity = new UserEntity();
         setUpContextRoles(userEntity);
@@ -154,7 +145,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testSetAllDataDomainRolesForUser() {
+    void testSetAllDataDomainRolesForUser() {
         // given
         UserEntity userEntity = new UserEntity();
         HdRoleName roleName = HdRoleName.NONE;
@@ -178,7 +169,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testCreateNoneContextRoles() {
+    void testCreateNoneContextRoles() {
         // given
         UserEntity userEntity = new UserEntity();
 
@@ -201,7 +192,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testGetAllContextRolesForUser() {
+    void testGetAllContextRolesForUser() {
         // given
         UserEntity userEntity = new UserEntity();
 
@@ -218,7 +209,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testAddContextRoleToUser() {
+    void testAddContextRoleToUser() {
         // given
         UserEntity user = new UserEntity();
         String contextKey = "some_context_key";
@@ -237,7 +228,7 @@ public class RoleServiceTest {
     }
 
     @Test
-    public void testAddContextRoleToUserRoleNotFound() {
+    void testAddContextRoleToUserRoleNotFound() {
         // given
         UserEntity user = new UserEntity();
         String contextKey = "some_context_key";

@@ -34,9 +34,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -44,13 +42,13 @@ import java.util.Map;
 public class RoleResource implements HdResource {
 
     @EqualsAndHashCode.Include
-    private final String apiVersion = "v1";
+    private final String apiVersion = "v1"; // NOSONAR
     @EqualsAndHashCode.Include
     private ModuleType moduleType;
     @EqualsAndHashCode.Include
     private String instanceName;
     @EqualsAndHashCode.Include
-    private final String kind = ModuleResourceKind.HELLO_DATA_ROLES;
+    private final String kind = ModuleResourceKind.HELLO_DATA_ROLES; // NOSONAR
 
     private List<RolePermissions> data;
 
@@ -62,13 +60,10 @@ public class RoleResource implements HdResource {
     public RoleResource(String instanceName, ModuleType moduleType, List<RolePermissions> data) {
         this.moduleType = moduleType;
         this.instanceName = instanceName;
-
-        Map<String, Object> labels = new HashMap<>();
-        labels.put(HD_MODULE_KEY, moduleType.getModuleName());
-
         this.data = data;
     }
 
+    @SuppressWarnings("unused")
     public RoleResource() {
         //NOOP default constructor for serialization
     }

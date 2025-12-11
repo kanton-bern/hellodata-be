@@ -54,7 +54,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     private EmailSendService emailSendService;
 
     @Test
-    public void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content() {
+    void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_DEACTIVATED);
         emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
@@ -87,7 +87,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     }
 
     @Test
-    public void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content_multilanguage() {
+    void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content_multilanguage() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_DEACTIVATED);
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
@@ -130,7 +130,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
 
 
     @Test
-    public void toSimpleMailMessage_when_user_activated_should_generate_correct_html_content() {
+    void toSimpleMailMessage_when_user_activated_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACTIVATED);
         emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
@@ -163,7 +163,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     }
 
     @Test
-    public void toSimpleMailMessage_when_user_role_changed_should_generate_correct_html_content() {
+    void toSimpleMailMessage_when_user_role_changed_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ROLE_CHANGED);
         emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
@@ -211,7 +211,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     }
 
     @Test
-    public void toSimpleMailMessage_when_user_account_created_should_generate_correct_html_content() {
+    void toSimpleMailMessage_when_user_account_created_should_generate_correct_html_content() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_ACCOUNT_CREATED);
         emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));

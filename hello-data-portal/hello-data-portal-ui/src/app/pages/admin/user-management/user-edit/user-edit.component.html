@@ -6,55 +6,55 @@
         <p-toolbar>
           <div class="p-toolbar-group-start">
             <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary"/>
+                      icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
           </div>
           <div class="p-toolbar-group-end">
             @if (!editedUser.superuser && editedUser.enabled) {
               <p-button (click)="showUserDisablePopup(editedUser)"
-                        icon="fas fa-circle-xmark"
+                        icon="fas fa-circle-xmark" pRipple pButton
                         label="{{'@Disable' | transloco}}"
-                        class="mr-2 p-button-warning mr-2"/>
+                        class="mr-2 p-button-warning"/>
             }
             @if (!editedUser.superuser && !editedUser.enabled) {
               <p-button (click)="showUserEnablePopup(editedUser)"
-                        icon="fas fa-circle-plus"
+                        icon="fas fa-circle-plus" pRipple pButton
                         label="{{'@Enable' | transloco}}"
                         severity="success"/>
             }
           </div>
         </p-toolbar>
         <p-divider/>
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled id="email" type="text"
               value="{{editedUser.email}}">
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled id="firstName" type="text"
               value="{{editedUser.firstName}}">
           </div>
         </div>
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             <input
-              class="opacity-80 text-base text-color surface-overlay p-2 border-1 border-solid surface-border border-round appearance-none outline-none focus:border-primary w-full"
+              class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
               disabled id="lastName" type="text"
               value="{{editedUser.lastName}}">
           </div>
         </div>
         <br>
-        <div class="field grid">
-          <label class="col-12 mb-2 md:col-2 md:mb-0">{{ '@Enabled' | transloco }}</label>
-          <div class="col-12 md:col-10">
+        <div class="field grid grid-cols-12 gap-4">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ '@Enabled' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
             @if (editedUser.enabled) {
               <div>
                 <i class="fas fa-check"></i>
@@ -74,28 +74,29 @@
               <div>
                 @if ((availableDataDomainRoles$ | async); as availableDataDomainRoles) {
                   <div>
-                    <div class="field grid">
-                      <h4 class="col-12 mb-2 md:col-2 md:mb-0">{{ '@Permissions' | transloco }}</h4>
-                      <div class="col-12 md:col-10">
+                    <div class="field grid grid-cols-12 gap-4">
+                      <h4 class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ '@Permissions' | transloco }}</h4>
+                      <div class="col-span-12 md:col-span-10">
                         &nbsp;
                       </div>
                     </div>
                     <br>
                     @if ((businessDomains$ | async); as businessDomains) {
-                      <div class="field grid">
+                      <div class="field grid grid-cols-12 gap-4">
                         <div
-                          class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@Business domain' | transloco }}
+                          class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Business domain' | transloco }}
                         </div>
-                        <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
+                        <div
+                          class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
                         </div>
                         <br>
-                        <div class="col-12 md:col-12">
+                        <div class="col-span-12 md:col-span-12">
                           @for (businessDomain of businessDomains; track businessDomain) {
                             <div>
                               <br>
-                              <div class="field grid">
-                                <label class="col-12 mb-2 md:col-2 md:mb-0">{{ businessDomain.name }}</label>
-                                <div class="col-12 md:col-10">
+                              <div class="field grid grid-cols-12 gap-4">
+                                <label class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ businessDomain.name }}</label>
+                                <div class="col-span-12 md:col-span-10">
                                   <p-select
                                     (onChange)="onBusinessDomainRoleSelected($event, dataDomains, availableDataDomainRoles)"
                                     [options]="availableBusinessDomainRoles$ | async"
@@ -110,24 +111,25 @@
                       </div>
                     }
                     <br>
-                    <div class="field grid">
-                      <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@Data domain' | transloco }}
+                    <div class="field grid grid-cols-12 gap-4">
+                      <div
+                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Data domain' | transloco }}
                       </div>
-                      <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@Domain type' | transloco }}
+                      <div
+                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Domain type' | transloco }}
                       </div>
-                      <div class="col-12 mb-2 md:col-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}</div>
+                      <div
+                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
+                      </div>
                       <br>
-                      <div class="col-12 md:col-12">
+                      <div class="col-span-12 md:col-span-12">
                         @for (dataDomain of dataDomains; track dataDomain) {
                           <div>
-                            <div class="field grid">
-                              <label class="col-12 mb-2 md:col-2 md:mb-0">{{ dataDomain.name }}</label>
+                            <div class="field grid grid-cols-12 gap-4">
+                              <label class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.name }}</label>
                               <label
-                                class="col-12 mb-2 md:col-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</label>
-                              <div class="col-12 md:col-2">
-                                <div class="col-12 md:col-10 mt-1">
-                                  &nbsp;
-                                </div>
+                                class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</label>
+                              <div class="col-span-12 md:col-span-2">
                                 <p-select (onChange)="onDataDomainRoleSelected($event, dataDomain)"
                                           [options]="availableDataDomainRoles"
                                           formControlName="{{dataDomain.contextKey}}"
@@ -136,7 +138,7 @@
                                           [style]="{'width': '100%'}"/>
                               </div>
                               @if (dashboardTableVisibility.get(dataDomain.contextKey)) {
-                                <div class="col-12 md:col-6">
+                                <div class="col-span-12 md:col-span-6">
                                   <app-dashboard-viewer-permissions
                                     (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
                                     [context]="dataDomain"/>
@@ -157,8 +159,8 @@
         <p-toolbar>
           <div class="p-toolbar-group-start">
             <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary"/>
-            <p-button (click)="updateUser()"
+                      icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
+            <p-button (click)="updateUser()" pButton
                       [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled"
                       severity="success" [loading]="userSaveButtonDisabled$ | async"
                       label="{{'@Save' | transloco}}"

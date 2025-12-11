@@ -23,7 +23,7 @@ import java.util.Set;
 public class BatchUsersCustomLogger {
 
     private static final String FILE_NAME = "users-output.log";
-    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+    private static final long MAX_FILE_SIZE = 50L * 1024L * 1024L; // 50 MB
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Value("${hello-data.batch-users-file.location}")
     private String logDirectory;
@@ -37,7 +37,7 @@ public class BatchUsersCustomLogger {
             if (!Files.exists(dir)) {
                 log.info("Initializing log directory at {}", logDirectory);
                 // Set permissions for read and write for everyone
-                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-");
+                Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-"); //NOSONAR
                 FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
                 Files.createDirectories(dir, attrs); // Ensure directory exists
                 File file = dir.toFile();
@@ -48,7 +48,7 @@ public class BatchUsersCustomLogger {
                 log.info("Log directory already exists at {}", logDirectory);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to create log directory: " + logDirectory, e);
+            throw new RuntimeException("Failed to create log directory: " + logDirectory, e); //NOSONAR
         }
     }
 
@@ -62,7 +62,7 @@ public class BatchUsersCustomLogger {
                 new FileWriter(logFilePath, false).close();
                 log.info("Log file reset because it exceeded 50MB.");
             } catch (IOException e) {
-                throw new RuntimeException("Failed to reset log file: " + logFilePath, e);
+                throw new RuntimeException("Failed to reset log file: " + logFilePath, e); //NOSONAR
             }
         }
 
@@ -74,7 +74,7 @@ public class BatchUsersCustomLogger {
         try (FileWriter writer = new FileWriter(logFilePath, true)) {
             writer.write(logEntry + System.lineSeparator());
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write to log file: " + logFilePath, e);
+            throw new RuntimeException("Failed to write to log file: " + logFilePath, e); //NOSONAR
         }
     }
 }

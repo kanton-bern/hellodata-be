@@ -50,4 +50,14 @@ public class StorageSizeEntity extends BaseEntity {
     @Basic(fetch = FetchType.EAGER)
     @Column(columnDefinition = "json", name = "size_info")
     private StorageMonitoringResult sizeInfo;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

@@ -16,6 +16,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,9 @@ public class UploadDashboardsFileListener {
 
     @Value("${hello-data.dashboard-export-check-script-location}")
     private String pythonExportCheckScriptLocation;
+
+    @Value("${hello-data.dashboard-export-check-script-enabled}")
+    private Boolean pythonExportCheckScriptEnabled;
 
     @Value("${hello-data.dashboard-import-default-sql-alchemy}")
     private String defaultSqlAlchemyUri;
@@ -253,6 +257,10 @@ public class UploadDashboardsFileListener {
     }
 
     private void validateZipFile(Path destinationPath) throws IOException {
+        if (BooleanUtils.isNotTrue(pythonExportCheckScriptEnabled)) {
+            log.info("Python export check script disabled, skipping validation.");
+            return;
+        }
         // Command to execute Python script
         String[] cmd = {"python3", pythonExportCheckScriptLocation, "-i", destinationPath.toString()};
         log.info("Python cmd {}", StringUtils.join(cmd, " "));
