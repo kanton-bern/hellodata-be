@@ -223,7 +223,6 @@ public class SubscribeAnnotationThread extends Thread {
                     .name(this.durableName)
                     .durable(this.durableName)
                     .configuration(consumerConfig)
-                    .bind(true)
                     .build();
             if (this.subscription != null) {
                 this.subscription.unsubscribe();
