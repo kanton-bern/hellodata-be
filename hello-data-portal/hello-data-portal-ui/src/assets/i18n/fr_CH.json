@@ -17,6 +17,7 @@
   "@App fallback language": "[Langue alternative de l'application]",
   "@Available Projects": "Projets",
   "@Browser default language": "[Langue par défaut du navigateur]",
+  "@Business Domain Role": "Rôle dans le domaine d'activité",
   "@Business domain": "Domaine métier",
   "@Business process": "Processus métier",
   "@Cancel": "Annuler",
