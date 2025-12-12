@@ -35,6 +35,7 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
@@ -104,6 +105,7 @@ public class UserService {
     private final RoleService roleService;
     private final EmailNotificationService emailNotificationService;
     private final UserLookupProviderManager userLookupProviderManager;
+    private final HelloDataContextConfig helloDataContextConfig;
 
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
@@ -236,6 +238,14 @@ public class UserService {
         List<UserEntity> allPortalUsers = userRepository.findAll();
         return allPortalUsers.stream()
                 .map(this::map)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserWithBusinessRoleDto> getAllUsersWithBusinessDomainRole() {
+        List<UserEntity> allPortalUsers = userRepository.findAll();
+        return allPortalUsers.stream()
+                .map(this::mapWithBusinessDomainRole)
                 .toList();
     }
 
@@ -670,7 +680,8 @@ public class UserService {
                                         availableDD.getContextKey())))
                 .toList();
         if (!ddDomainsWithoutRoleForUser.isEmpty()) {
-            Optional<RoleDto> first = roleService.getAll().stream().filter(roleDto -> HdRoleName.NONE.name().equalsIgnoreCase(roleDto.getName())).findFirst();
+            Optional<RoleDto> first = roleService.getAll().stream()
+                    .filter(roleDto -> HdRoleName.NONE.name().equalsIgnoreCase(roleDto.getName())).findFirst();
             if (first.isPresent()) {
                 RoleDto noneRole = first.get();
                 for (HdContextEntity dataDomain : ddDomainsWithoutRoleForUser) {
@@ -693,22 +704,23 @@ public class UserService {
     }
 
     private List<UserContextRoleDto> getAdminContextRoles(UserEntity userEntity) {
-        return userEntity.getContextRoles().stream().filter(contextRole -> contextRole.getRole().getName() == HdRoleName.DATA_DOMAIN_ADMIN).map(adminContextRole -> {
-            Optional<HdContextEntity> contextResult = contextRepository.getByContextKey(adminContextRole.getContextKey());
-            if (contextResult.isPresent()) {
-                HdContextEntity context = contextResult.get();
-                ContextDto contextDto = new ContextDto();
-                contextDto.setContextKey(context.getContextKey());
-                contextDto.setName(context.getName());
-                UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
-                userContextRoleDto.setContext(contextDto);
-                RoleDto roleDto = new RoleDto();
-                roleDto.setName(adminContextRole.getRole().getName().name());
-                userContextRoleDto.setRole(roleDto);
-                return userContextRoleDto;
-            }
-            return null;
-        }).filter(Objects::nonNull).toList();
+        return userEntity.getContextRoles().stream()
+                .filter(contextRole -> contextRole.getRole().getName() == HdRoleName.DATA_DOMAIN_ADMIN).map(adminContextRole -> {
+                    Optional<HdContextEntity> contextResult = contextRepository.getByContextKey(adminContextRole.getContextKey());
+                    if (contextResult.isPresent()) {
+                        HdContextEntity context = contextResult.get();
+                        ContextDto contextDto = new ContextDto();
+                        contextDto.setContextKey(context.getContextKey());
+                        contextDto.setName(context.getName());
+                        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+                        userContextRoleDto.setContext(contextDto);
+                        RoleDto roleDto = new RoleDto();
+                        roleDto.setName(adminContextRole.getRole().getName().name());
+                        userContextRoleDto.setRole(roleDto);
+                        return userContextRoleDto;
+                    }
+                    return null;
+                }).filter(Objects::nonNull).toList();
     }
 
     private void synchronizeDashboardsForUser(UUID userId, Map<String, List<DashboardForUserDto>> selectedDashboardsForUser) {
@@ -750,7 +762,8 @@ public class UserService {
 
     private DashboardForUserDto createDashboardDto(DashboardResource dashboardResource, SubsystemUser subsystemUser, SupersetDashboard supersetDashboard, String contextKey) {
         String dashboardTitle = supersetDashboard.getDashboardTitle();
-        SubsystemRole subsystemRole = supersetDashboard.getRoles().stream().filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
+        SubsystemRole subsystemRole = supersetDashboard.getRoles().stream()
+                .filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
         boolean userHasSlugifyDashboardRole = false;
         if (subsystemRole != null && subsystemUser != null) {
             userHasSlugifyDashboardRole = subsystemUser.getRoles().contains(subsystemRole);
@@ -759,7 +772,8 @@ public class UserService {
         dashboardForUserDto.setId(supersetDashboard.getId());
         dashboardForUserDto.setTitle(dashboardTitle);
         if (subsystemUser != null) {
-            boolean userHasDashboardViewerRole = subsystemUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_VIEWER_ROLE_NAME));
+            boolean userHasDashboardViewerRole = subsystemUser.getRoles().stream()
+                    .anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_VIEWER_ROLE_NAME));
             dashboardForUserDto.setInstanceUserId(subsystemUser.getId());
             dashboardForUserDto.setViewer(userHasSlugifyDashboardRole && userHasDashboardViewerRole);
         }
@@ -797,6 +811,20 @@ public class UserService {
             }
         }
         return userDto;
+    }
+
+    private UserWithBusinessRoleDto mapWithBusinessDomainRole(UserEntity userEntity) {
+        UserDto userDto = this.map(userEntity);
+        UserWithBusinessRoleDto userDtoWithBusinessRole;
+        if (userDto != null) {
+            userDtoWithBusinessRole = modelMapper.map(userDto, UserWithBusinessRoleDto.class);
+            Optional<UserContextRoleEntity> businessDomainRole = userEntity.getContextRoles().stream()
+                    .filter(userContextRoleEntity -> userContextRoleEntity.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey())).findAny();
+            businessDomainRole.ifPresent(userContextRoleEntity -> userDtoWithBusinessRole.setBusinessDomainRole(userContextRoleEntity.getRole().getName()));
+            return userDtoWithBusinessRole;
+        } else {
+            return null;
+        }
     }
 
     /**

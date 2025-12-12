@@ -48,6 +48,7 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {PrimeTemplate} from "primeng/api";
 import {Ripple} from "primeng/ripple";
+import {DashboardUsersResultDto} from "../../../store/users-management/users-management.model";
 
 interface TableRow {
   email: string;
@@ -63,15 +64,15 @@ interface TableRow {
   imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
-  private store = inject<Store<AppState>>(Store);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
 
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   readonly NO_TAG = '_no_tag';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   dataLoading$: Observable<boolean>;
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor() {
     super();
@@ -105,8 +106,14 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
 
   getTagSeverity(value: string): "success" | "secondary" | "info" | "warn" | "danger" | "contrast" | undefined {
     const valTrimmed = value.trim();
-    if (valTrimmed.includes('Admin')) {
+    if (valTrimmed.includes('Admin') || valTrimmed.includes('HELLODATA_ADMIN')) {
       return 'danger';
+    }
+    if (valTrimmed.includes('BUSINESS_DOMAIN_ADMIN')) {
+      return 'warn';
+    }
+    if (valTrimmed.includes('NONE')) {
+      return 'secondary';
     }
     return value.trim().startsWith('BI_') ? undefined : 'success';
   }
@@ -131,6 +138,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     return this.store.select(selectSubsystemUsersForDashboards).pipe(
       map((subsystemUsers) => [
         {field: 'email', header: '@Users'},
+        {field: 'businessDomainRole', header: '@Business Domain Role'},
         {field: 'enabled', header: '@Enabled'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
@@ -156,20 +164,25 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
 
         tableRows.forEach(row => {
           subsystemUsers.forEach(subsystem => {
-            const user = subsystem.users.find(user => user.email === row.email);
-            if (user) {
-              row['enabled'] = '' + user?.enabled;
-            }
-            const value = user ? user.roles.join(', ') || noPermissionsTranslation : noPermissionsTranslation;
-            row[subsystem.instanceName] = value;
-            if (value === noPermissionsTranslation) {
-              row[subsystem.instanceName + this.NO_TAG] = true
-            }
+            this.createTableRow(subsystem, row, noPermissionsTranslation);
           });
         });
 
         return tableRows;
       }));
+  }
+
+  private createTableRow(subsystem: DashboardUsersResultDto, row: TableRow, noPermissionsTranslation: string) {
+    const user = subsystem.users.find(user => user.email === row.email);
+    if (user) {
+      row['enabled'] = '' + user.enabled;
+      row['businessDomainRole'] = user.businessDomainRole || '';
+    }
+    const value = user ? user.roles.join(', ') || noPermissionsTranslation : noPermissionsTranslation;
+    row[subsystem.instanceName] = value;
+    if (value === noPermissionsTranslation) {
+      row[subsystem.instanceName + this.NO_TAG] = true
+    }
   }
 
   private createBreadcrumbs(): void {

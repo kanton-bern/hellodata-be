@@ -208,7 +208,8 @@ public class SubscribeAnnotationThread extends Thread {
 
     private void subscribe() {
         try {
-            log.debug("[NATS] Subscribing to NATS connection for stream {} and subject {}", subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
+            log.debug("[NATS] Subscribing to NATS connection for stream {} and subject {}",
+                    subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             NatsStreamUtil.createOrUpdateStream(natsConnection.jetStreamManagement(), subscribeAnnotation.event().getStreamName(), subscribeAnnotation.event().getSubject());
             JetStream jetStream = natsConnection.jetStream();
             ConsumerConfiguration consumerConfig = ConsumerConfiguration

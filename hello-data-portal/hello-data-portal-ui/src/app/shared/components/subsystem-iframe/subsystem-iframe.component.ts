@@ -51,7 +51,7 @@ import {SafePipe} from '../../pipes/safe.pipe';
   imports: [NgStyle, SafePipe]
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
-  private authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
 
 
   url = input.required<string>();
@@ -104,7 +104,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
     }
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (this.switchStyleOverflow() && mainContentDiv) {
-      mainContentDiv!.style.overflow = 'scroll';
+      mainContentDiv.style.overflow = 'scroll';
     }
   }
 
