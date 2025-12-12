@@ -53,8 +53,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter.WORKSPACES_PERMISSION;
-
 @Log4j2
 @Component
 @RequiredArgsConstructor
@@ -79,9 +77,6 @@ public class RolesInitializer {
             portalRoleEntity.setName(systemDefaultPortalRoleName.name());
             Permissions permissions = new Permissions();
             permissions.setPortalPermissions(new ArrayList<>(systemDefaultPortalRoleName.getPermissions().stream().map(Enum::name).toList()));
-            if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.HELLODATA_ADMIN) {
-                permissions.getPortalPermissions().add(WORKSPACES_PERMISSION);
-            }
             portalRoleEntity.setPermissions(permissions);
             portalRoleRepository.save(portalRoleEntity);
         }

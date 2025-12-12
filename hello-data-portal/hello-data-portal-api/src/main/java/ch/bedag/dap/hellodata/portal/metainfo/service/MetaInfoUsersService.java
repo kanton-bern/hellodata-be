@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import static ch.bedag.dap.hellodata.commons.SlugifyUtil.*;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_DASHBOARDS;
+import static ch.bedag.dap.hellodata.portal.base.config.RedisConfig.SUBSYSTEM_USERS_CACHE;
+import static ch.bedag.dap.hellodata.portal.base.config.RedisConfig.USERS_WITH_DASHBOARD_CACHE;
 
 @Log4j2
 @Service
@@ -43,19 +45,19 @@ public class MetaInfoUsersService {
     private final MetaInfoResourceService metaInfoResourceService;
     private final HdContextRepository contextRepository;
 
-    @Cacheable(value = "subsystem_users")
+    @Cacheable(value = SUBSYSTEM_USERS_CACHE)
     @Transactional(readOnly = true)
     public List<SubsystemUsersResultDto> getAllUsersWithRoles() {
         return getAllUsersWithRolesRefreshCache();
     }
 
-    @Cacheable(value = "users_with_dashboards")
+    @Cacheable(value = USERS_WITH_DASHBOARD_CACHE)
     @Transactional(readOnly = true)
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboards() {
         return getAllUsersWithRolesForDashboardsRefreshCache();
     }
 
-    @CachePut(value = "subsystem_users")
+    @CachePut(value = SUBSYSTEM_USERS_CACHE)
     public List<SubsystemUsersResultDto> getAllUsersWithRolesRefreshCache() {
         List<SubsystemUsersResultDto> result = new ArrayList<>();
         List<UserWithBusinessRoleDto> allPortalUsers = userService.getAllUsersWithBusinessDomainRole();
@@ -86,7 +88,7 @@ public class MetaInfoUsersService {
         return result;
     }
 
-    @CachePut(value = "users_with_dashboards")
+    @CachePut(value = USERS_WITH_DASHBOARD_CACHE)
     public List<DashboardUsersResultDto> getAllUsersWithRolesForDashboardsRefreshCache() {
         List<AppInfoResource> supersetAppInfos = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_APP_INFO, AppInfoResource.class);
         List<DashboardResource> supersetDashboards = metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, HELLO_DATA_DASHBOARDS, DashboardResource.class);
