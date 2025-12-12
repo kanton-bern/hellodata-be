@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
-import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -40,8 +39,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.*;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
@@ -56,17 +57,6 @@ public class RedisConfig {
 
     @Value("${hello-data.cache.subsystem-users-ttl-minutes}")
     private long subsystemUsersTtlCacheMinutes;
-
-    @Bean
-    public RedisTemplate<String, UserCache> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, UserCache> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        // Use Jackson2JsonRedisSerializer as the default serializer
-        template.setDefaultSerializer(new Jackson2JsonRedisSerializer<>(UserCache.class));
-
-        return template;
-    }
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {

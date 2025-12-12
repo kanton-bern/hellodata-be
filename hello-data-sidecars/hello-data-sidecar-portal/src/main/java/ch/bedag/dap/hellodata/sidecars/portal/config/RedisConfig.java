@@ -26,23 +26,8 @@
  */
 package ch.bedag.dap.hellodata.sidecars.portal.config;
 
-import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 @Configuration
 public class RedisConfig {
-    @Bean
-    public RedisTemplate<String, UserCache> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, UserCache> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        // Use Jackson2JsonRedisSerializer as the default serializer
-        template.setDefaultSerializer(new Jackson2JsonRedisSerializer<>(UserCache.class));
-
-        return template;
-    }
 }

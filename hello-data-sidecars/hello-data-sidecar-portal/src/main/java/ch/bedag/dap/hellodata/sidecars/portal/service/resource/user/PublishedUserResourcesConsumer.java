@@ -26,25 +26,20 @@
  */
 package ch.bedag.dap.hellodata.sidecars.portal.service.resource.user;
 
-import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
-import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.UserCacheUpdate;
 import ch.bedag.dap.hellodata.sidecars.portal.service.resource.GenericPublishedResourceConsumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 
-import static ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache.USER_CACHE_PREFIX;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.PUBLISH_USER_RESOURCES;
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_METAINFO_USERS_CACHE;
 
@@ -53,7 +48,6 @@ import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_META
 @AllArgsConstructor
 public class PublishedUserResourcesConsumer {
     private final GenericPublishedResourceConsumer genericPublishedResourceConsumer;
-    private final RedisTemplate<String, UserCache> redisTemplate;
     private final NatsSenderService natsSenderService;
 
     @SuppressWarnings("unused")
@@ -64,26 +58,9 @@ public class PublishedUserResourcesConsumer {
         MetaInfoResourceEntity resource = genericPublishedResourceConsumer.persistResource(userResource);
         HdContextEntity context = genericPublishedResourceConsumer.attachContext(userResource, resource);
         List<SubsystemUser> data = userResource.getData();
-        saveUsersToCache(userResource, data);
         UserCacheUpdate userCacheUpdate = new UserCacheUpdate();
         userCacheUpdate.setModuleType(userResource.getModuleType());
         natsSenderService.publishMessageToJetStream(UPDATE_METAINFO_USERS_CACHE, userCacheUpdate);
     }
 
-    private void saveUsersToCache(UserResource userResource, List<SubsystemUser> data) {
-        for (SubsystemUser subsystemUser : data) {
-            boolean isAdmin = subsystemUser.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_ADMIN_ROLE_NAME));
-            UserCache userCache = redisTemplate.opsForValue().get(USER_CACHE_PREFIX + subsystemUser.getEmail());
-            if (userCache == null) {
-                userCache = new UserCache();
-                userCache.setSupersetInstancesAdmin(new HashSet<>());
-            }
-            if (isAdmin) {
-                userCache.getSupersetInstancesAdmin().add(userResource.getInstanceName());
-            } else {
-                userCache.getSupersetInstancesAdmin().remove(userResource.getInstanceName());
-            }
-            redisTemplate.opsForValue().set(subsystemUser.getEmail(), userCache);
-        }
-    }
 }
