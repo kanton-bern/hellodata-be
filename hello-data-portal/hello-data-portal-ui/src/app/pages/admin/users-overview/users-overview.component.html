@@ -31,12 +31,12 @@
           <ng-template let-columns let-row pTemplate="header">
             <tr>
               @for (col of columns; track col) {
-                <th>{{ translateValue(col.header) }}</th>
+                <th id="{{col.header}}">{{ translateValue(col.header) }}</th>
               }
             </tr>
             <tr>
               @for (col of columns; track col) {
-                <th>
+                <th id="{{col.header}}-filter">
                   <p-columnFilter
                     [hidden]="col.field === 'enabled'"
                     ariaLabel="Filter {{col.header}}"
