@@ -28,10 +28,6 @@ package ch.bedag.dap.hellodata.cloudbeaver.gateway.security;
 
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.entities.User;
 import ch.bedag.dap.hellodata.cloudbeaver.gateway.service.UserService;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.convert.converter.Converter;
@@ -39,6 +35,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Component

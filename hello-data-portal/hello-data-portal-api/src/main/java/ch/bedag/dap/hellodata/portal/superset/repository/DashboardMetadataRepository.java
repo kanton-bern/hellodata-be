@@ -27,10 +27,11 @@
 package ch.bedag.dap.hellodata.portal.superset.repository;
 
 import ch.bedag.dap.hellodata.portal.superset.entity.DashboardMetadataEntity;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface DashboardMetadataRepository extends JpaRepository<DashboardMetadataEntity, UUID> {

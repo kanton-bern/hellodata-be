@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.sidecars.superset.client.exception;
 
-import java.rmi.ConnectException;
 import lombok.Getter;
+
+import java.rmi.ConnectException;
 
 public class UnexpectedResponseException extends ConnectException {
     @Getter

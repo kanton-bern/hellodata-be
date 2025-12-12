@@ -28,10 +28,11 @@ package ch.bedag.dap.hellodata.portal.role.data;
 
 import ch.bedag.dap.hellodata.portal.base.config.LocalDateTimeToMillisSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import lombok.Data;
 
 @Data
 public class PortalRoleDto {

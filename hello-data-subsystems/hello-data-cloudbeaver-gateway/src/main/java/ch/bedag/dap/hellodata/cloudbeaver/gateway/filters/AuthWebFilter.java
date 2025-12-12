@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.filters;
 
-import java.util.logging.Level;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.server.ServerWebExchange;
@@ -34,17 +33,19 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.logging.Level;
+
 @Slf4j
 public class AuthWebFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return exchange.getPrincipal()
-                       .log("auth-web-filter", Level.INFO)
-                       .filter((principal) -> principal instanceof JwtAuthenticationToken)
-                       .cast(JwtAuthenticationToken.class)
-                       .map((token) -> AddCbAuthGatewayFilterFactory.addCbAuthHeaders(exchange, token))
-                       .defaultIfEmpty(exchange)
-                       .flatMap(chain::filter);
+                .log("auth-web-filter", Level.INFO)
+                .filter((principal) -> principal instanceof JwtAuthenticationToken)
+                .cast(JwtAuthenticationToken.class)
+                .map((token) -> AddCbAuthGatewayFilterFactory.addCbAuthHeaders(exchange, token))
+                .defaultIfEmpty(exchange)
+                .flatMap(chain::filter);
     }
 }

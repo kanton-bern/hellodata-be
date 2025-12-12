@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.context;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class HdBusinessContextInfo implements Serializable {

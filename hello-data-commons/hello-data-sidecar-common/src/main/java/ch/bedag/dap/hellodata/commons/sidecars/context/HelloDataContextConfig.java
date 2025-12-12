@@ -28,14 +28,15 @@ package ch.bedag.dap.hellodata.commons.sidecars.context;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Log4j2
 @Data

@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class SubsystemRole implements Serializable {

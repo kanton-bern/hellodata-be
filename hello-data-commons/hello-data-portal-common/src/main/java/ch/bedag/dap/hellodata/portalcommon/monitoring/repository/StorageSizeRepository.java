@@ -27,11 +27,12 @@
 package ch.bedag.dap.hellodata.portalcommon.monitoring.repository;
 
 import ch.bedag.dap.hellodata.portalcommon.monitoring.entity.StorageSizeEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StorageSizeRepository extends JpaRepository<StorageSizeEntity, UUID> {

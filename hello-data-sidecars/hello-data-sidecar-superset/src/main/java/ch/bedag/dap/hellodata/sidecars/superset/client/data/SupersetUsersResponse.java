@@ -28,9 +28,10 @@ package ch.bedag.dap.hellodata.sidecars.superset.client.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.base.BaseSupersetResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

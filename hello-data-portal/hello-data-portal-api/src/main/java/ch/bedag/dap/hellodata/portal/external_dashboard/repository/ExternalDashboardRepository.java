@@ -27,9 +27,10 @@
 package ch.bedag.dap.hellodata.portal.external_dashboard.repository;
 
 import ch.bedag.dap.hellodata.portal.external_dashboard.entity.ExternalDashboardEntity;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 @Repository
 public interface ExternalDashboardRepository extends JpaRepository<ExternalDashboardEntity, UUID> {

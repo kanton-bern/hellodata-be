@@ -35,11 +35,6 @@ import ch.bedag.dap.hellodata.jupyterhub.gateway.filters.WebFluxLogFilter;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.repository.UserRepository;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.security.JupyterhubJwtAuthenticationConverter;
 import jakarta.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,6 +62,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
+
+import java.util.*;
 
 @Log4j2
 @EnableRetry

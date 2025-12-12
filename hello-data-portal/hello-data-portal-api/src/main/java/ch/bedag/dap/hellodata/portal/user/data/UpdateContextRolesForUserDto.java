@@ -30,12 +30,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRole
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-
-import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

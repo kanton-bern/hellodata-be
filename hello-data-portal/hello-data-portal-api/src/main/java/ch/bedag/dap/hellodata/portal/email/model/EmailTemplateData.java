@@ -26,12 +26,9 @@
  */
 package ch.bedag.dap.hellodata.portal.email.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import lombok.Data;
+
+import java.util.*;
 
 @Data
 public class EmailTemplateData {

@@ -28,10 +28,6 @@ package ch.bedag.dap.hellodata.jupyterhub.gateway.repository;
 
 import ch.bedag.dap.hellodata.jupyterhub.gateway.entities.PortalRole;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.entities.User;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.r2dbc.convert.R2dbcConverter;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
@@ -42,6 +38,11 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Spring Data R2DBC repository for the {@link User} entity.
@@ -88,15 +89,15 @@ class UserRepositoryInternalImpl implements UserRepositoryInternal {
 
     private Mono<User> findOneWithAuthoritiesBy(Object email, Object contextKey) {
         return db.sql(
-                         "SELECT _user.*, _role.*, _user_portal_role.* " + "FROM user_ _user " + "LEFT JOIN user_portal_role _user_portal_role ON _user.id = _user_portal_role.user_id " +
-                         "LEFT JOIN portal_role _role ON _role.id = _user_portal_role.portal_role_id " + "WHERE _user.email = :email AND _user_portal_role.context_key = :contextKey")
-                 .bind("email", email)
-                 .bind("contextKey", contextKey)
-                 .map((row, metadata) -> Tuples.of(r2dbcConverter.read(User.class, row, metadata), Optional.ofNullable(r2dbcConverter.read(PortalRole.class, row, metadata))))
-                 .all()
-                 .collectList()
-                 .filter(l -> !l.isEmpty())
-                 .map(l -> mapUserWithAuthorities(l.get(0).getT1(), l));
+                        "SELECT _user.*, _role.*, _user_portal_role.* " + "FROM user_ _user " + "LEFT JOIN user_portal_role _user_portal_role ON _user.id = _user_portal_role.user_id " +
+                                "LEFT JOIN portal_role _role ON _role.id = _user_portal_role.portal_role_id " + "WHERE _user.email = :email AND _user_portal_role.context_key = :contextKey")
+                .bind("email", email)
+                .bind("contextKey", contextKey)
+                .map((row, metadata) -> Tuples.of(r2dbcConverter.read(User.class, row, metadata), Optional.ofNullable(r2dbcConverter.read(PortalRole.class, row, metadata))))
+                .all()
+                .collectList()
+                .filter(l -> !l.isEmpty())
+                .map(l -> mapUserWithAuthorities(l.get(0).getT1(), l));
     }
 
     private User mapUserWithAuthorities(User user, List<Tuple2<User, Optional<PortalRole>>> tuples) {

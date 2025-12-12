@@ -27,11 +27,11 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response;
 
 import ch.bedag.dap.hellodata.commons.sidecars.base.BaseSupersetResponse;
-import java.util.List;
-
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
