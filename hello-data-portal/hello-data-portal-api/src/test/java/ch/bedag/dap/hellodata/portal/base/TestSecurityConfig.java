@@ -27,6 +27,8 @@
 package ch.bedag.dap.hellodata.portal.base;
 
 import jakarta.servlet.*;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +47,8 @@ import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.web.filter.CompositeFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -67,6 +71,20 @@ public class TestSecurityConfig {
         });
         http.addFilterBefore(accessTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper mapper = new ModelMapper();
+
+        Converter<OffsetDateTime, LocalDateTime> offsetToLocal =
+                ctx -> ctx.getSource() == null ? null : ctx.getSource().toLocalDateTime();
+        mapper.addConverter(offsetToLocal);
+
+        Converter<OffsetDateTime, Long> offsetToEpochMilli =
+                ctx -> ctx.getSource() == null ? null : ctx.getSource().toInstant().toEpochMilli();
+        mapper.addConverter(offsetToEpochMilli);
+        return new ModelMapper();
     }
 
     @Bean
