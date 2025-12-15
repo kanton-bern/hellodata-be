@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -115,8 +116,10 @@ public class RoleService {
 
     @Transactional
     public void setBusinessDomainRoleForUser(UserEntity userEntity, HdRoleName roleName) {
-        Set<UserContextRoleEntity> contextRoles = userEntity.getContextRoles();
-        long alreadyHasTheRole = CollectionUtils.emptyIfNull(contextRoles)
+        log.debug("Setting business domain role {} for user {}", roleName, userEntity.getUsername());
+        Set<UserContextRoleEntity> contextRoles = Optional.ofNullable(userEntity.getContextRoles())
+                .orElseGet(Collections::emptySet);
+        long alreadyHasTheRole = contextRoles
                 .stream()
                 .filter(contextRole -> contextRole.getContextKey().equalsIgnoreCase(helloDataContextConfig.getBusinessContext().getKey()) &&
                         contextRole.getRole().getName() == roleName)
@@ -125,7 +128,8 @@ public class RoleService {
             return;
         }
         Optional<UserContextRoleEntity> businessDomainRoleExists =
-                CollectionUtils.emptyIfNull(contextRoles).stream().filter(contextRole -> contextRole.getRole().getContextType() == HdContextType.BUSINESS_DOMAIN).findFirst();
+                contextRoles.stream().filter(contextRole -> contextRole.getRole().getContextType() == HdContextType.BUSINESS_DOMAIN).findFirst();
+        log.debug("Found business domain role {} for user {} with context roles {}", roleName, userEntity.getUsername(), contextRoles);
         businessDomainRoleExists.ifPresent(contextRoles::remove);
         UserContextRoleEntity userContextRoleEntity = new UserContextRoleEntity();
         userContextRoleEntity.setUser(userEntity);
@@ -137,6 +141,7 @@ public class RoleService {
 
     @Transactional
     public void setAllDataDomainRolesForUser(UserEntity userEntity, HdRoleName name) {
+        log.debug("Setting all data domain roles ({}) for user {}", name, userEntity.getUsername());
         Optional<RoleEntity> role = roleRepository.findByName(name);
         if (role.isPresent()) {
             List<UserContextRoleEntity> userContextRoleEntities = CollectionUtils.emptyIfNull(userEntity.getContextRoles()).stream().filter(userContextRoleEntity -> {
