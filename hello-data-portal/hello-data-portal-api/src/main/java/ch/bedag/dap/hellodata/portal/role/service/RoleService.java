@@ -115,6 +115,7 @@ public class RoleService {
 
     @Transactional
     public void setBusinessDomainRoleForUser(UserEntity userEntity, HdRoleName roleName) {
+        log.info("Setting business domain role {} for user {}", roleName, userEntity.getUsername());
         Set<UserContextRoleEntity> contextRoles = userEntity.getContextRoles();
         long alreadyHasTheRole = CollectionUtils.emptyIfNull(contextRoles)
                 .stream()
@@ -126,6 +127,7 @@ public class RoleService {
         }
         Optional<UserContextRoleEntity> businessDomainRoleExists =
                 CollectionUtils.emptyIfNull(contextRoles).stream().filter(contextRole -> contextRole.getRole().getContextType() == HdContextType.BUSINESS_DOMAIN).findFirst();
+        log.info("Found business domain role {} for user {} with context roles {}", roleName, userEntity.getUsername(), contextRoles);
         businessDomainRoleExists.ifPresent(contextRoles::remove);
         UserContextRoleEntity userContextRoleEntity = new UserContextRoleEntity();
         userContextRoleEntity.setUser(userEntity);
