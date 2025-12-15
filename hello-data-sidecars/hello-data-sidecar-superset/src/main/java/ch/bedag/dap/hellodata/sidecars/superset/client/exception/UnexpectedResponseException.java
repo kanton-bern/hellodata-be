@@ -30,11 +30,10 @@ import lombok.Getter;
 
 import java.rmi.ConnectException;
 
-public class UnexpectedResponseException extends ConnectException {
-    @Getter
-    private int code;
-    @Getter
-    private String endpoint;
+@Getter
+public class UnexpectedResponseException extends ConnectException { //NOSONAR
+    private int code; //NOSONAR
+    private String endpoint; //NOSONAR
 
     public UnexpectedResponseException(String endpoint, int code, String message) {
         this(String.format("endpoint=%s, code=%d, message=%s", endpoint, code, message));

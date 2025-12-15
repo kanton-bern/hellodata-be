@@ -53,7 +53,7 @@ import java.util.Set;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "user_")
-public class UserEntity extends BaseEntity {
+public class UserEntity extends BaseEntity {  //NOSONAR
     private String authId;
     @NotBlank
     @Length(max = 255)

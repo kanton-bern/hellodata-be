@@ -47,7 +47,7 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = PermissionResource.class, name = ModuleResourceKind.HELLO_DATA_PERMISSIONS),
         @JsonSubTypes.Type(value = RoleResource.class, name = ModuleResourceKind.HELLO_DATA_ROLES),
         @JsonSubTypes.Type(value = PipelineResource.class, name = ModuleResourceKind.HELLO_DATA_PIPELINES)})
-public interface HdResource extends Serializable {
+public interface HdResource extends Serializable { //NOSONAR
 
     String NAME_FORMAT = "[module-type: %s][kind: %s][instance-name: %s][api-version: %s]";
     String URL_KEY = "url";

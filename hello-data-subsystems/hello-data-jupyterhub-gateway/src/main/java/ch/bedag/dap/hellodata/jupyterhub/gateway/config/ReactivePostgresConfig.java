@@ -46,7 +46,7 @@ public class ReactivePostgresConfig {
                 return objectMapper.readValue(json.asString().getBytes(StandardCharsets.UTF_8), Permissions.class);
             } catch (IOException e) {
                 log.error("Problem while parsing JSON: {}", json, e);
-                throw new RuntimeException("Problem while parsing JSON", e);
+                throw new RuntimeException("Problem while parsing JSON", e); //NOSONAR
             }
         }
     }

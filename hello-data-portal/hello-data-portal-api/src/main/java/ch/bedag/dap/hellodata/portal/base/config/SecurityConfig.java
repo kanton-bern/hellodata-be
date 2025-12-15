@@ -87,11 +87,7 @@ public class SecurityConfig {
         configureCors(http);
         configureCsrf(http);
         http.authorizeHttpRequests(auth -> {
-            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length];
-            for (int i = 0; i < AUTH_WHITELIST.length; i++) {
-                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]);
-            }
-            auth.requestMatchers(matchers).permitAll();
+            auth.requestMatchers(AUTH_WHITELIST).permitAll();
             auth.anyRequest().authenticated();
         });
         http.oauth2Login(withDefaults());
@@ -103,7 +99,7 @@ public class SecurityConfig {
 
     private void configureCsrf(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-csrf")) {
-            http.csrf(csrf -> csrf.disable()); //NOSONAR
+            http.csrf(AbstractHttpConfigurer::disable); //NOSONAR
         } else {
             http.csrf(withDefaults());
         }

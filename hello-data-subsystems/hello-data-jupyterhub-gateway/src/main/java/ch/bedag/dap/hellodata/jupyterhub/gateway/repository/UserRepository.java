@@ -30,7 +30,6 @@ import ch.bedag.dap.hellodata.jupyterhub.gateway.entities.PortalRole;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.entities.User;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.r2dbc.convert.R2dbcConverter;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.retry.annotation.Recover;
@@ -64,12 +63,10 @@ interface UserRepositoryInternal {
 class UserRepositoryInternalImpl implements UserRepositoryInternal {
 
     private final DatabaseClient db;
-    private final R2dbcEntityTemplate r2dbcEntityTemplate;
     private final R2dbcConverter r2dbcConverter;
 
-    public UserRepositoryInternalImpl(DatabaseClient db, R2dbcEntityTemplate r2dbcEntityTemplate, R2dbcConverter r2dbcConverter) {
+    public UserRepositoryInternalImpl(DatabaseClient db, R2dbcConverter r2dbcConverter) {
         this.db = db;
-        this.r2dbcEntityTemplate = r2dbcEntityTemplate;
         this.r2dbcConverter = r2dbcConverter;
     }
 

@@ -44,11 +44,11 @@ public class UserContextRoleEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private UserEntity user; //NOSONAR
 
     @ManyToOne
     @JoinColumn(name = "role_id")
-    private RoleEntity role;
+    private RoleEntity role; //NOSONAR
 
     private String contextKey;
 

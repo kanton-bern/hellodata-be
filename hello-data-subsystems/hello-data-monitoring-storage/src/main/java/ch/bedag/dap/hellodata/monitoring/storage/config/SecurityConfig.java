@@ -34,7 +34,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Log4j2
 @Configuration
@@ -43,19 +42,15 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String[] AUTH_WHITELIST = { "/error",
+    private static final String[] AUTH_WHITELIST = {"/error",
             // actuator endpoints
-            "/actuator/**" };
+            "/actuator/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> {
-            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length];
-            for (int i = 0; i < AUTH_WHITELIST.length; i++) {
-                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]);
-            }
-            auth.requestMatchers(matchers).permitAll();
-        });
+        http.authorizeHttpRequests(auth ->
+                auth.requestMatchers(AUTH_WHITELIST).permitAll()
+        );
 
         return http.build();
     }
