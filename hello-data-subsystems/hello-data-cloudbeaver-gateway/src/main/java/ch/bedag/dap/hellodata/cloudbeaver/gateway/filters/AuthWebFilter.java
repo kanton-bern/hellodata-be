@@ -42,9 +42,9 @@ public class AuthWebFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return exchange.getPrincipal()
                 .log("auth-web-filter", Level.INFO)
-                .filter((principal) -> principal instanceof JwtAuthenticationToken)
+                .filter(principal -> principal instanceof JwtAuthenticationToken) //NOSONAR
                 .cast(JwtAuthenticationToken.class)
-                .map((token) -> AddCbAuthGatewayFilterFactory.addCbAuthHeaders(exchange, token))
+                .map(token -> AddCbAuthGatewayFilterFactory.addCbAuthHeaders(exchange, token))
                 .defaultIfEmpty(exchange)
                 .flatMap(chain::filter);
     }

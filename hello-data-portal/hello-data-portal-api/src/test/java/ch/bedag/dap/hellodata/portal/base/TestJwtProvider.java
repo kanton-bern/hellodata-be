@@ -30,13 +30,10 @@ import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
 
 @Component
 public class TestJwtProvider {
@@ -59,7 +56,7 @@ public class TestJwtProvider {
         String authoritiesClaim = claims.get("authorities", String.class);
         Set<String> authorities = new HashSet<>();
         if (authoritiesClaim != null) {
-            Arrays.stream(authoritiesClaim.split(",")).forEach(authority -> authorities.add(authority));
+            authorities.addAll(Arrays.asList(authoritiesClaim.split(",")));
         }
 
         return new HellodataAuthenticationToken(userId, firstName, lastName, email, isSuperuser, authorities);

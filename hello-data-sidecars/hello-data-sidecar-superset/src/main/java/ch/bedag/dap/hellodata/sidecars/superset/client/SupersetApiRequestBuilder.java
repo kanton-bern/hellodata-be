@@ -109,13 +109,13 @@ public class SupersetApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getUserRequest(String host, int port, String authToken, String username, String email) throws URISyntaxException, IOException {
+    public static HttpUriRequest getUserRequest(String host, int port, String authToken, String username, String email) throws URISyntaxException {
         JsonArray filtersArray = new JsonArray();
 
         JsonObject usernameFilter = new JsonObject();
         usernameFilter.addProperty("col", "username");
         usernameFilter.addProperty("opr", "eq");
-        usernameFilter.addProperty("value", URLEncoder.encode(StringEscapeUtils.escapeJava(username), StandardCharsets.UTF_8));
+        usernameFilter.addProperty("value", URLEncoder.encode(StringEscapeUtils.escapeJava(username), StandardCharsets.UTF_8)); //NOSONAR
 
         JsonObject emailFilter = new JsonObject();
         emailFilter.addProperty("col", "email");
@@ -142,7 +142,7 @@ public class SupersetApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getDeleteUserRequest(String host, int port, String authToken, int supersetUserId) throws URISyntaxException, IOException {
+    public static HttpUriRequest getDeleteUserRequest(String host, int port, String authToken, int supersetUserId) throws URISyntaxException {
         URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, supersetUserId), null);
         return RequestBuilder.delete() //
                 .setUri(apiUri) //
@@ -295,9 +295,7 @@ public class SupersetApiRequestBuilder {
         builder.setScheme("http").setHost(host).setPort(port).setPath(endpoint);
 
         if (!CollectionUtils.isEmpty(params)) {
-            params.forEach(p -> {
-                builder.addParameter(p.getKey(), p.getValue());
-            });
+            params.forEach(p -> builder.addParameter(p.getKey(), p.getValue()));
         }
 
         return builder.build();
