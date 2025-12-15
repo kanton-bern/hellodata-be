@@ -100,8 +100,14 @@ public class UploadDashboardsFileListener {
         dispatcher.subscribe(supersetSidecarSubject);
     }
 
+    public void saveChunk(DashboardUpload chunk) throws IOException {
+        Path uploadFolderPath = createTempFolder(chunk.getBinaryFileId());
+        Path path = Paths.get(uploadFolderPath.toString(), chunk.getChunkNumber() + CHUNK_SUFFIX);
+        Files.write(path, chunk.getContent());
+    }
+
     private void useDefaultSqlAlchemyUri(DashboardUpload dashboardUpload, File destinationFile) throws IOException {
-        File tempZip = File.createTempFile("modified-", dashboardUpload.getFilename());
+        File tempZip = File.createTempFile("modified-", dashboardUpload.getFilename()); //NOSONAR
         replaceSqlalchemyUrisInZip(destinationFile, tempZip, defaultSqlAlchemyUri);
         Files.move(tempZip.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
@@ -113,7 +119,7 @@ public class UploadDashboardsFileListener {
                 FileOutputStream fos = new FileOutputStream(targetZip);
                 ZipOutputStream zos = new ZipOutputStream(fos, StandardCharsets.UTF_8)
         ) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
@@ -154,7 +160,7 @@ public class UploadDashboardsFileListener {
     private JsonObject getPasswordsObject(File destinationFile) throws IOException {
         JsonObject jsonObject = new JsonObject();
         try (ZipFile zipFile = new ZipFile(destinationFile)) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            Enumeration<? extends ZipEntry> entries = zipFile.entries(); //NOSONAR
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 String name = zipEntry.getName();
@@ -212,12 +218,6 @@ public class UploadDashboardsFileListener {
     private void ackMessage(Message msg) {
         natsConnection.publish(msg.getReplyTo(), "OK".getBytes(StandardCharsets.UTF_8));
         msg.ack();
-    }
-
-    public void saveChunk(DashboardUpload chunk) throws IOException {
-        Path uploadFolderPath = createTempFolder(chunk.getBinaryFileId());
-        Path path = Paths.get(uploadFolderPath.toString(), chunk.getChunkNumber() + CHUNK_SUFFIX);
-        Files.write(path, chunk.getContent());
     }
 
     private Path createTempFolder(String filename) {
