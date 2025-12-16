@@ -63,9 +63,8 @@
 </div>
 
 
-@if (isAuthenticated$ | async) {
-  <app-published-announcements-wrapper class="published-announcements-container"
-  />
+@if (hasMinimalRequiredPermissions$ | async) {
+  <app-published-announcements-wrapper class="published-announcements-container"/>
 }
 <app-breadcrumb class="breadcrumb-container"/>
 <!--use p-menu here with reference above due to firefox issues with z-index-->

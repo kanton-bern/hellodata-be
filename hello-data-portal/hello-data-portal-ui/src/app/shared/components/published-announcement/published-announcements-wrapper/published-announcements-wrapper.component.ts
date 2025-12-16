@@ -55,9 +55,9 @@ import {AsyncPipe} from '@angular/common';
   imports: [AsyncPipe]
 })
 export class PublishedAnnouncementsWrapperComponent {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
   dialogService = inject(DialogService);
-  private hideAllCurrentAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
+  private readonly hideAllCurrentAnnouncementsService = inject(HideAllCurrentPublishedAnnouncementsService);
 
 
   publishedAnnouncements$: Observable<any>;
@@ -66,7 +66,6 @@ export class PublishedAnnouncementsWrapperComponent {
 
   constructor() {
     this.hide = this.hide.bind(this);
-    const store = this.store;
 
     this.publishedAnnouncements$ =
       combineLatest([
@@ -77,13 +76,13 @@ export class PublishedAnnouncementsWrapperComponent {
         tap(([announcements, currentUrl]) => {
           const skipAnnouncementsPopup =
             currentUrl.includes(naviElements.dataWarehouseViewer.path) || currentUrl.includes('advanced-analytics-viewer');
-          if (skipAnnouncementsPopup || this.ref && announcements && announcements.length === 0) {
+          if (skipAnnouncementsPopup || this.ref && announcements?.length === 0) {
             this.ref?.close();
           } else if (!this.ref && announcements && announcements.length > 0) {
             this.openDialog(announcements);
           }
         }));
-    store.dispatch(loadPublishedAnnouncementsFiltered());
+    this.store.dispatch(loadPublishedAnnouncementsFiltered());
   }
 
 

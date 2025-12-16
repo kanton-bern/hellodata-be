@@ -49,7 +49,10 @@ const routes: Routes = [
   {
     path: naviElements.publishedAnnouncements.path,
     loadComponent: () => import('./pages/published-announcements/published-announcements.component').then(m => m.PublishedAnnouncementsComponent),
-    canActivate: [AutoLoginPartialRoutesGuard],
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARDS'], //minimal permission to see announcements
+    },
   },
   {
     path: naviElements.lineageDocs.path,

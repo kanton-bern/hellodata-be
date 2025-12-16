@@ -37,6 +37,11 @@ export const selectIsAuthenticated = createSelector(
   (state: AuthState) => state.isLoggedIn
 );
 
+export const selectHasMinimalRequiredPermissions = createSelector(
+  authState,
+  (state: AuthState) => state.permissions.includes('DASHBOARDS')
+);
+
 export const selectProfile = createSelector(
   authState,
   (state: AuthState) => state.profile
