@@ -24,3 +24,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+.comments-panel {
+  display: flex;
+  cursor: pointer;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 10px;
+}
+
+.comments-panel-closed {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  background-color: lightblue;
+}
+
+.comments-panel-open {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+}

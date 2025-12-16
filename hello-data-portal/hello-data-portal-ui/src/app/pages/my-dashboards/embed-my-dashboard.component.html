@@ -1,5 +1,21 @@
 @if (currentMyDashboardInfo$ | async) {
-  <div>
-    <app-subsystem-iframe [delay]="600" [url]="url" />
+  <div class="grid w-full" [class]="isCommentsOpen ? 'grid-cols-[75%_25%]' : 'grid-cols-[calc(100%-25px)_25px]'">
+    <div [class]="isCommentsOpen ? 'w-full' : 'col-span-1'">
+      <app-subsystem-iframe [delay]="600" [url]="url"/>
+    </div>
+
+    <div
+      (keydown)="toggleComments()"
+      class="comments-panel"
+      [class]="isCommentsOpen ? 'w-[25%]' : 'w-[25px]'"
+      [class]="isCommentsOpen ? 'comments-panel-open' : 'comments-panel-closed'"
+      (click)="toggleComments()"
+    >
+      @if (!isCommentsOpen) {
+        open comments
+      } @else {
+        panel comments
+      }
+    </div>
   </div>
 }
