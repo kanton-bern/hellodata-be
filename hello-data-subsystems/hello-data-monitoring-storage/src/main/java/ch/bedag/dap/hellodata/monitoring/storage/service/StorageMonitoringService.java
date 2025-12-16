@@ -32,11 +32,13 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.databas
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
 import ch.bedag.dap.hellodata.monitoring.storage.service.database.DatabaseSizeQueryService;
 import ch.bedag.dap.hellodata.monitoring.storage.service.storage.StorageSizeService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.UPDATE_STORAGE_MONITORING_RESULT;
 
 @Log4j2

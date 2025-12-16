@@ -26,8 +26,6 @@
  */
 package ch.bedag.dap.hellodata.docs.model;
 
-import ch.bedag.dap.hellodata.docs.entities.Role;
-
 import java.util.Collection;
 import java.util.UUID;
 

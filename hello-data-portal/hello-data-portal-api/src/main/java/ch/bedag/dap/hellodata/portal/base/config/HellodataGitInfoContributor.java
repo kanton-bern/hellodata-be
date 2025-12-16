@@ -26,12 +26,13 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.GitInfoContributor;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 public class HellodataGitInfoContributor extends GitInfoContributor {

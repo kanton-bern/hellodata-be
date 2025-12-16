@@ -57,14 +57,10 @@ public class CbUserContextRoleConsumerTest {
     private CbUserResourceProviderService userResourceProviderService;
     @Mock
     private User user;
-    private CbUserContextRoleConsumer cbUserContextRoleConsumer;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this); // Initializes annotated mocks
-
-        // Initialize your class or mock dependencies here, if needed.
-        cbUserContextRoleConsumer = new CbUserContextRoleConsumer(userRepository, roleRepository, userResourceProviderService);
     }
 
     public static UserContextRoleUpdate createSampleUserContextRoleUpdate() {
@@ -73,7 +69,6 @@ public class CbUserContextRoleConsumerTest {
 
         List<ContextRole> contextRoles = new ArrayList<>();
 
-        // Sample ContextRole 1
         ContextRole contextRole1 = new ContextRole();
         contextRole1.setContextKey("context1");
         contextRole1.setParentContextKey(null);
@@ -86,10 +81,8 @@ public class CbUserContextRoleConsumerTest {
 
     @Test
     void testMapRoles() {
-        // create some roles for given datadomains
         Mockito.when(roleRepository.findAll()).thenReturn(availableRoles("dd01"));
 
-        // Call the method you want to test
         Set<ContextRole> dataDomainContexts = new HashSet<>(createSampleUserContextRoleUpdate().getContextRoles());
         List<Role> newUserRoles = CbUserContextRoleConsumer.mapRoles(dataDomainContexts, roleRepository.findAll());
 

@@ -65,9 +65,9 @@ public class Role {
 
     private boolean enabled;
 
-    private Collection<User> users;
+    private Collection<User> users; //NOSONAR
 
-    private Collection<Privilege> privileges;
+    private Collection<Privilege> privileges; //NOSONAR
 
     public Role(String key, String name, boolean enabled) {
         super();

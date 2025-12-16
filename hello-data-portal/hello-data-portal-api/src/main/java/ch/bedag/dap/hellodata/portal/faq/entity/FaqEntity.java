@@ -49,12 +49,6 @@ import java.util.Map;
 @Entity(name = "faq")
 public class FaqEntity extends BaseEntity {
 
-    @Deprecated(forRemoval = true)
-    private String title;
-
-    @Deprecated(forRemoval = true)
-    private String message;
-
     /**
      * mapping to context entity
      */

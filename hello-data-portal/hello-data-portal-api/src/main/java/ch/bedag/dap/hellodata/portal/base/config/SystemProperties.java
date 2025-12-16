@@ -26,10 +26,11 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
-import java.util.Locale;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.Locale;
 
 @Data
 @Validated

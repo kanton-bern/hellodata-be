@@ -28,10 +28,11 @@ package ch.bedag.dap.hellodata.portalcommon.role.repository;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
-import java.util.Optional;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Repository for roles in contexts

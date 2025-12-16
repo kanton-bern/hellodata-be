@@ -173,7 +173,6 @@ public class AirflowClient {
         ApiResponse resp = executeRequest(request);
         byte[] bytes = resp.getBody().getBytes(StandardCharsets.UTF_8);
         log.debug("createRole({}) response json \n{}", airflowRole, new String(bytes));
-        //return getObjectMapper().readValue(bytes, AirflowRole.class);
     }
 
     /**

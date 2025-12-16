@@ -129,9 +129,9 @@ public class SftpGoService {
             log.info("Group {} already exists", existingGroup.getName());
             if (updateGroup) {
                 log.info("Configuration changed, updating group {}", groupName);
-                existingGroup.getVirtualFolders().forEach(virtualFolder -> {
-                    updateVirtualFolder(virtualFolder, dataDomainKey, dataDomainName);
-                });
+                existingGroup.getVirtualFolders().forEach(virtualFolder ->
+                        updateVirtualFolder(virtualFolder, dataDomainKey, dataDomainName)
+                );
             }
         } catch (NotFound notFound) {
             log.debug("", notFound);
@@ -216,19 +216,6 @@ public class SftpGoService {
         return getVirtualFolder(createdFolder, dataDomainName);
     }
 
-    VirtualFolder updateVirtualFolder(VirtualFolder virtualFolder, String dataDomainKey, String dataDomainName) {
-        FilesystemConfig filesystemConfig = generateFilesystemConfig(dataDomainKey);
-        virtualFolder.setFilesystem(filesystemConfig);
-        FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
-        log.info("Updating folder {}", virtualFolder);
-        BaseVirtualFolder baseVirtualFolder = modelMapper.map(virtualFolder, BaseVirtualFolder.class);
-
-        ModelApiResponse response = foldersApi.updateFolder(virtualFolder.getName(), baseVirtualFolder).block();
-        log.info("Folder [{}] updated with result: {}", virtualFolder.getName(), response);
-
-        return getVirtualFolder(baseVirtualFolder, dataDomainName);
-    }
-
     private FilesystemConfig generateFilesystemConfig(String dataDomainKey) {
         refreshToken();
         S3ConnectionsConfig.S3Connection s3Connection = s3ConnectionsConfig.getS3Connection(dataDomainKey);
@@ -278,11 +265,24 @@ public class SftpGoService {
         TokenApi tokenApi = new TokenApi(sftpGoApiClient);
         Token token = tokenApi.getToken(null).block();
 
-        HttpBearerAuth BearerAuth = (HttpBearerAuth) sftpGoApiClient.getAuthentication("BearerAuth");
-        BearerAuth.setBearerToken(token.getAccessToken());
+        HttpBearerAuth bearerAuth = (HttpBearerAuth) sftpGoApiClient.getAuthentication("BearerAuth");
+        bearerAuth.setBearerToken(token.getAccessToken());
 
         lastTokenRefreshTime = OffsetDateTime.now();
         log.info("Token refreshed successfully. Next refresh allowed after 20 minutes.");
+    }
+
+    void updateVirtualFolder(VirtualFolder virtualFolder, String dataDomainKey, String dataDomainName) {
+        FilesystemConfig filesystemConfig = generateFilesystemConfig(dataDomainKey);
+        virtualFolder.setFilesystem(filesystemConfig);
+        FoldersApi foldersApi = new FoldersApi(sftpGoApiClient);
+        log.info("Updating folder {}", virtualFolder);
+        BaseVirtualFolder baseVirtualFolder = modelMapper.map(virtualFolder, BaseVirtualFolder.class);
+
+        ModelApiResponse response = foldersApi.updateFolder(virtualFolder.getName(), baseVirtualFolder).block();
+        log.info("Folder [{}] updated with result: {}", virtualFolder.getName(), response);
+
+        getVirtualFolder(baseVirtualFolder, dataDomainName);
     }
 
 }

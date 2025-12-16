@@ -36,25 +36,22 @@ import ch.bedag.dap.hellodata.portal.user.conf.DefaultAdminProperties;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserPortalRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserPortalRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.PortalRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.RoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserPortalRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.Permissions;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import static ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter.WORKSPACES_PERMISSION;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Log4j2
 @Component
@@ -80,9 +77,6 @@ public class RolesInitializer {
             portalRoleEntity.setName(systemDefaultPortalRoleName.name());
             Permissions permissions = new Permissions();
             permissions.setPortalPermissions(new ArrayList<>(systemDefaultPortalRoleName.getPermissions().stream().map(Enum::name).toList()));
-            if (systemDefaultPortalRoleName == SystemDefaultPortalRoleName.HELLODATA_ADMIN) {
-                permissions.getPortalPermissions().add(WORKSPACES_PERMISSION);
-            }
             portalRoleEntity.setPermissions(permissions);
             portalRoleRepository.save(portalRoleEntity);
         }

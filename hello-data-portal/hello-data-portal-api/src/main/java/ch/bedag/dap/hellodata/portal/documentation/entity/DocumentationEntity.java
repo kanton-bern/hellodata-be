@@ -46,9 +46,6 @@ import java.util.Map;
 @Entity(name = "documentation")
 public class DocumentationEntity extends BaseEntity {
 
-    @Deprecated(forRemoval = true)
-    private String text;
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.EAGER)
     @Column(columnDefinition = "json", name = "texts")

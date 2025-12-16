@@ -33,7 +33,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.RoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;

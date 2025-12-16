@@ -50,7 +50,7 @@ import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

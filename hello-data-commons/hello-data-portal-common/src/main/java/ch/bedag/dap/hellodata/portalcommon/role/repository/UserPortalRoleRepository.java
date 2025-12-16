@@ -26,10 +26,11 @@
  */
 package ch.bedag.dap.hellodata.portalcommon.role.repository;
 
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserPortalRoleEntity;
-import java.util.UUID;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserPortalRoleEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 @Repository
 public interface UserPortalRoleRepository extends JpaRepository<UserPortalRoleEntity, UUID> {

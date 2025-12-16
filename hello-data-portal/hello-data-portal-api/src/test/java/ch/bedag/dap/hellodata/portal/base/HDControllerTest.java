@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.base;
 
-import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
 import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -36,7 +35,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -60,8 +58,6 @@ public abstract class HDControllerTest {
     protected MockMvc mockMvc;
     @MockitoBean
     protected UserRepository userRepository;
-    @MockitoBean
-    private RedisTemplate<String, UserCache> redisTemplate;
     @MockitoBean
     private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
 

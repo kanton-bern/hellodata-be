@@ -27,8 +27,9 @@
 package ch.bedag.dap.hellodata.portal.role.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
-import java.util.UUID;
 import lombok.Data;
+
+import java.util.UUID;
 
 /**
  * a DTO for a context role

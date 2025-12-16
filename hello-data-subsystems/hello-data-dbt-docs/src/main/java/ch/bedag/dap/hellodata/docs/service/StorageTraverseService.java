@@ -28,6 +28,13 @@ package ch.bedag.dap.hellodata.docs.service;
 
 import ch.bedag.dap.hellodata.docs.model.ProjectDoc;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,18 +42,9 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
@@ -62,17 +60,6 @@ public class StorageTraverseService {
 
     public static String getLastElementOfPath(String path) {
         return Paths.get(path).getFileName().toString();
-    }
-
-    private static String getIconPath(String projectName) {
-        //TODO how to get an icon location?
-        String imgPath = "../assets/projects/blank.png";
-        if (projectName.equalsIgnoreCase("momi")) {
-            imgPath = "../assets/projects/momi.png";
-        } else if (projectName.equalsIgnoreCase("kibon")) {
-            imgPath = "../assets/projects/kibon.png";
-        }
-        return imgPath;
     }
 
     @PostConstruct
@@ -92,25 +79,38 @@ public class StorageTraverseService {
         log.info("--- Searching for changes in documentation storage: {}", storagePath);
         List<Path> storageLocationsToOmit = new ArrayList<>();
         if (storageLocationToOmit != null) {
-            storageLocationsToOmit.addAll(Arrays.stream(storageLocationToOmit.split(",")).map(location -> Paths.get(location)).toList());
+            storageLocationsToOmit.addAll(Arrays.stream(storageLocationToOmit.split(",")).map(Paths::get).toList());
         }
 
         List<ProjectDoc> result = new ArrayList<>();
         try (Stream<Path> walk = Files.walk(storagePath, 1)) {
             walk.filter(Files::isDirectory)
-                .filter(path -> !path.equals(storagePath))
-                .filter(path -> storageLocationsToOmit.stream().noneMatch(locationToOmit -> path.startsWith(locationToOmit)))
-                .forEach(path -> {
-                    List<ProjectDoc> subDocs = collectProjectDocs(path);
-                    printDebugOutput(path, subDocs);
-                    result.addAll(subDocs);
-                });
+                    .filter(path -> !path.equals(storagePath))
+                    .filter(path -> storageLocationsToOmit.stream().noneMatch(path::startsWith))
+                    .forEach(path -> {
+                        List<ProjectDoc> subDocs = collectProjectDocs(path);
+                        printDebugOutput(path, subDocs);
+                        result.addAll(subDocs);
+                    });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); //NOSONAR
         }
         projectDocService.clearCache();
         result.forEach(projectDocService::addProject);
         log.info("--- Finished search for changes in documentation");
+    }
+
+    public List<String> listDataDomainDirectories() {
+        try {
+            Path storagePath = Path.of(storageLocation);
+            log.info("--- Searching for data domain directories in: {}", storagePath);
+            try (Stream<Path> list = Files.list(storagePath)) {
+                return list.toList().stream().map(t -> t.getFileName().toString()).toList();
+            }
+        } catch (Exception e) {
+            log.error("Could not search for data domain directories", e);
+            return Collections.emptyList();
+        }
     }
 
     private void printDebugOutput(Path path, List<ProjectDoc> subDocs) {
@@ -128,9 +128,8 @@ public class StorageTraverseService {
                 log.info("------ Found file {}", filePath);
                 String projectName = filePath.getParent().getFileName().toString();
                 String projectPath = FilenameUtils.separatorsToUnix(filePath.toString()).replace(storageLocation, "");
-                String imgPath = getIconPath(projectName);
                 ProjectDoc projectDoc =
-                        new ProjectDoc(folderName, projectName, FilenameUtils.separatorsToUnix(projectPath), imgPath, projectName, getLastModifiedTime(filePath.getParent()));
+                        new ProjectDoc(folderName, projectName, FilenameUtils.separatorsToUnix(projectPath), "", projectName, getLastModifiedTime(filePath.getParent()));
                 result.add(projectDoc);
             });
         } catch (IOException e) {
@@ -147,18 +146,5 @@ public class StorageTraverseService {
             log.error("Could not get lastModifiedDate of folder {}", path, e);
         }
         return LocalDateTime.now();
-    }
-
-    public List<String> listDataDomainDirectories() {
-        try {
-            Path storagePath = Path.of(storageLocation);
-            log.info("--- Searching for data domain directories in: {}", storagePath);
-            List<String> dataDomainDirs = new ArrayList<>();
-            try (Stream<Path> list = Files.list(storagePath)) {
-                return list.toList().stream().map(t -> t.getFileName().toString()).toList();
-            }
-        } catch (Exception e) {
-            return null;
-        }
     }
 }

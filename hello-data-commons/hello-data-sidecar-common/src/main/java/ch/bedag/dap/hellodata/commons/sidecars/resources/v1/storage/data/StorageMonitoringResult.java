@@ -28,9 +28,10 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.database.DatabaseSize;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage.StorageSize;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
-import lombok.Data;
 
 @Data
 public class StorageMonitoringResult implements Serializable {

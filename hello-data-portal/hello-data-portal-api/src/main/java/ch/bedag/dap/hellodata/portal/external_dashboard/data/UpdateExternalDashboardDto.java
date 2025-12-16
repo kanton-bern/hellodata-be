@@ -28,9 +28,10 @@ package ch.bedag.dap.hellodata.portal.external_dashboard.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

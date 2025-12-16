@@ -27,10 +27,10 @@
 package ch.bedag.dap.hellodata.portal.superset.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import java.util.UUID;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -47,7 +47,7 @@ public class SupersetDashboardWithMetadataDto extends SupersetDashboardDto {
     private String datasource;
     private long modified;
 
-    public SupersetDashboardWithMetadataDto(SupersetDashboard dashboard, String instanceName, String instanceUrl,
+    public SupersetDashboardWithMetadataDto(SupersetDashboard dashboard, String instanceName, String instanceUrl, //NOSONAR
                                             boolean isCurrentUserAdmin, boolean isCurrentUserEditor, boolean isCurrentUserViewer,
                                             String contextName, UUID contextId, String contextKey) {
         super(dashboard, instanceName, instanceUrl, contextName, contextId, contextKey);

@@ -27,12 +27,13 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

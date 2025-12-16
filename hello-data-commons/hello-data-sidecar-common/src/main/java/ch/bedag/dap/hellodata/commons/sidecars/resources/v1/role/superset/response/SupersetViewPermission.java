@@ -27,8 +27,9 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class SupersetViewPermission implements Serializable {

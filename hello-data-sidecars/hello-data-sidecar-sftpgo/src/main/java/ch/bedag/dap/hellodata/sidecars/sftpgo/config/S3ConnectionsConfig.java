@@ -27,28 +27,9 @@ public class S3ConnectionsConfig {
                         contextKey, s3Connections.stream().map(S3Connection::getContextKey).collect(Collectors.joining(", ")))));
     }
 
-    @Data
-    public static class S3Connection {
-        private String contextKey;
-        private String endpoint;
-        private String bucket;
-        private String region;
-        private String accessKey;
-        private String accessSecret;
-        private boolean forcePathStyle;
-    }
-
-    @Data
-    public static class SftpGo {
-        private String baseUrl;
-        private String adminUsername;
-        private String adminPassword;
-        private boolean viewerDisabled;
-    }
-
     public String computeMd5Hash(String contextKey) {
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            MessageDigest md = MessageDigest.getInstance("MD5"); //NOSONAR
 
             // combine all relevant properties into a single string
             String combined = (s3Connections == null ? "" :
@@ -78,7 +59,26 @@ public class S3ConnectionsConfig {
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Failed to compute MD5 hash", e);
+            throw new RuntimeException("Failed to compute MD5 hash", e); //NOSONAR
         }
+    }
+
+    @Data
+    public static class S3Connection {
+        private String contextKey;
+        private String endpoint;
+        private String bucket;
+        private String region;
+        private String accessKey;
+        private String accessSecret;
+        private boolean forcePathStyle;
+    }
+
+    @Data
+    public static class SftpGo {
+        private String baseUrl;
+        private String adminUsername;
+        private String adminPassword;
+        private boolean viewerDisabled;
     }
 }

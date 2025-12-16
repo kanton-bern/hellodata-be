@@ -53,6 +53,24 @@ class AirflowClientTest {
     @Autowired
     private AirflowClientProvider airflowClientProvider;
 
+    private static AirflowUserRolesUpdate createAirflowUserRolesUpdate(String usernameToUpdate) {
+        AirflowUserRolesUpdate userRolesUpdate = new AirflowUserRolesUpdate();
+        userRolesUpdate.setUsername(usernameToUpdate);
+        userRolesUpdate.setEmail("test");
+        userRolesUpdate.setFirstName("test");
+        userRolesUpdate.setLastName("last");
+        userRolesUpdate.setPassword("test");
+        ArrayList<AirflowUserRole> roles = new ArrayList<>();
+        AirflowUserRole role1 = new AirflowUserRole();
+        role1.setName("Viewer");
+        roles.add(role1);
+        AirflowUserRole role2 = new AirflowUserRole();
+        role2.setName("Admin");
+        roles.add(role2);
+        userRolesUpdate.setRoles(roles);
+        return userRolesUpdate;
+    }
+
     @Test
     void users() throws URISyntaxException, IOException {
         //When
@@ -60,7 +78,7 @@ class AirflowClientTest {
 
         //Then
         assertThat(users).isNotNull();
-        assertThat(users.getTotalEntries()).isGreaterThanOrEqualTo(1);
+        assertThat(users.getTotalEntries()).isPositive();
         assertFalse(users.getUsers().isEmpty());
     }
 
@@ -107,7 +125,7 @@ class AirflowClientTest {
 
         //Then
         assertThat(roles).isNotNull();
-        assertThat(roles.getTotalEntries()).isGreaterThan(0);
+        assertThat(roles.getTotalEntries()).isPositive();
         assertThat(roles.getRoles()).isNotEmpty();
     }
 
@@ -118,25 +136,7 @@ class AirflowClientTest {
 
         //Then
         assertThat(permissions).isNotNull();
-        assertThat(permissions.getTotalEntries()).isGreaterThan(0);
+        assertThat(permissions.getTotalEntries()).isPositive();
         assertThat(permissions.getActions()).isNotEmpty();
-    }
-
-    private static AirflowUserRolesUpdate createAirflowUserRolesUpdate(String usernameToUpdate) {
-        AirflowUserRolesUpdate userRolesUpdate = new AirflowUserRolesUpdate();
-        userRolesUpdate.setUsername(usernameToUpdate);
-        userRolesUpdate.setEmail("test");
-        userRolesUpdate.setFirstName("test");
-        userRolesUpdate.setLastName("last");
-        userRolesUpdate.setPassword("test");
-        ArrayList<AirflowUserRole> roles = new ArrayList<>();
-        AirflowUserRole role1 = new AirflowUserRole();
-        role1.setName("Viewer");
-        roles.add(role1);
-        AirflowUserRole role2 = new AirflowUserRole();
-        role2.setName("Admin");
-        roles.add(role2);
-        userRolesUpdate.setRoles(roles);
-        return userRolesUpdate;
     }
 }

@@ -2,7 +2,6 @@ package ch.bedag.dap.hellodata.sidecars.sftpgo.listener;
 
 import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.SftpGoService;
 import ch.bedag.dap.hellodata.sidecars.sftpgo.service.resource.SftpGoUserResourceProviderService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DELETE_USER;
-import static ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent.DISABLE_USER;
 
 @Log4j2
 @Service

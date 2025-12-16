@@ -33,9 +33,6 @@ import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.PortalRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.Permissions;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -43,6 +40,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Log4j2
 @Service

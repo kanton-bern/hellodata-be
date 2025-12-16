@@ -26,12 +26,12 @@
  */
 package ch.bedag.dap.hellodata.portal.metainfo.controller;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.HdResource;
 import ch.bedag.dap.hellodata.portal.metainfo.data.DashboardUsersResultDto;
 import ch.bedag.dap.hellodata.portal.metainfo.data.SubsystemUsersResultDto;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.metainfo.service.MetaInfoUsersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -49,6 +49,8 @@ import java.util.Set;
 
 import static ch.bedag.dap.hellodata.commons.security.Permission.USER_MANAGEMENT;
 import static ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind.HELLO_DATA_APP_INFO;
+import static ch.bedag.dap.hellodata.portal.base.config.RedisConfig.SUBSYSTEM_USERS_CACHE;
+import static ch.bedag.dap.hellodata.portal.base.config.RedisConfig.USERS_WITH_DASHBOARD_CACHE;
 
 @Log4j2
 @RestController
@@ -91,7 +93,7 @@ public class MetaInfoResourceController {
         return metaInfoUsersService.getAllUsersWithRoles();
     }
 
-    @CacheEvict(value = "subsystem_users")
+    @CacheEvict(value = SUBSYSTEM_USERS_CACHE)
     @PreAuthorize("hasAnyAuthority('WORKSPACES')")
     @GetMapping(value = "/resources/subsystem-users/clear-cache")
     public void clearSubsystemUsersCache() {
@@ -109,7 +111,7 @@ public class MetaInfoResourceController {
         return metaInfoUsersService.getAllUsersWithRolesForDashboards();
     }
 
-    @CacheEvict(value = "users_with_dashboards")
+    @CacheEvict(value = USERS_WITH_DASHBOARD_CACHE)
     @PreAuthorize("hasAnyAuthority('USERS_OVERVIEW')")
     @GetMapping(value = "/resources/users-dashboards-overview/clear-cache")
     public void clearUsersWithRolesForDashboardsCache() {

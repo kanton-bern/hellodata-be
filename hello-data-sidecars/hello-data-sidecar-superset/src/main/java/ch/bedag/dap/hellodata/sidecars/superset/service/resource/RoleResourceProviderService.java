@@ -81,7 +81,7 @@ public class RoleResourceProviderService {
                         .toList();
                 data.add(new RolePermissions(role.getId(), role.getName(), permissions));
             } catch (URISyntaxException | IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e); //NOSONAR
             }
         });
         return data;

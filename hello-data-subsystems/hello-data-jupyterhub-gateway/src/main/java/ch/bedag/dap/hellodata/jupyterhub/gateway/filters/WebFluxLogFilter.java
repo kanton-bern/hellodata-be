@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.jupyterhub.gateway.filters;
 
-import ch.bedag.dap.hellodata.jupyterhub.gateway.config.SecurityConfig;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +35,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-
-import java.util.stream.Collectors;
 
 public class WebFluxLogFilter implements WebFilter, Ordered {
     final Logger log = LoggerFactory.getLogger(WebFluxLogFilter.class);
@@ -60,13 +57,13 @@ public class WebFluxLogFilter implements WebFilter, Ordered {
                         .getHeaders()
                         .entrySet()
                         .stream()
-                        .collect(Collectors.toList()));
+                        .toList());
                 log.info("Response: {}", exchange.getResponse().getStatusCode());
                 log.info("Response Headers: {}", exchange.getResponse()
                         .getHeaders()
                         .entrySet()
                         .stream()
-                        .collect(Collectors.toList()));
+                        .toList());
                 log.info("\n:: End Request Log ::");
             }
         });

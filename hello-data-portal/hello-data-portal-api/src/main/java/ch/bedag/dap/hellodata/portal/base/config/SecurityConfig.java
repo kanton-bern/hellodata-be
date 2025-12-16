@@ -26,31 +26,34 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
+import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakLogoutHandler;
 import jakarta.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+import java.util.List;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Log4j2
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
@@ -59,7 +62,7 @@ public class SecurityConfig {
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**", "/swagger-ui/**", "/",
             // other public endpoints of your API may be appended to this array
-            "/actuator/**", };
+            "/actuator/**",};
 
     private static final List<String> CORS_ALLOWED_HEADERS =
             List.of("Access-Control-Allow-Methods", "Access-Control-Allow-Origin", "Authorization", "Access-Control-Allow-Headers", "Origin,Accept", "X-Requested-With",
@@ -67,7 +70,7 @@ public class SecurityConfig {
 
     private final Environment env;
     private final KeycloakLogoutHandler keycloakLogoutHandler;
-    private final Converter hellodataAuthenticationConverter;
+    private final HellodataAuthenticationConverter hellodataAuthenticationConverter;
 
     @Value("${hello-data.cors.allowed-origins}")
     private String allowedOrigins;
@@ -84,11 +87,7 @@ public class SecurityConfig {
         configureCors(http);
         configureCsrf(http);
         http.authorizeHttpRequests(auth -> {
-            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length];
-            for (int i = 0; i < AUTH_WHITELIST.length; i++) {
-                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]);
-            }
-            auth.requestMatchers(matchers).permitAll();
+            auth.requestMatchers(AUTH_WHITELIST).permitAll();
             auth.anyRequest().authenticated();
         });
         http.oauth2Login(withDefaults());
@@ -100,7 +99,7 @@ public class SecurityConfig {
 
     private void configureCsrf(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-csrf")) {
-            http.csrf(csrf -> csrf.disable()); //NOSONAR
+            http.csrf(AbstractHttpConfigurer::disable); //NOSONAR
         } else {
             http.csrf(withDefaults());
         }
@@ -116,7 +115,7 @@ public class SecurityConfig {
 
     private void configureCors(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-cors")) {
-            http.cors(cors -> cors.disable()); //NOSONAR
+            http.cors(AbstractHttpConfigurer::disable); //NOSONAR
         } else {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
 

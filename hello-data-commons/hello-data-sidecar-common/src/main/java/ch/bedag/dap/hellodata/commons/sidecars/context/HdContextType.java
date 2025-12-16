@@ -44,6 +44,6 @@ public enum HdContextType {
                 return hdContextType;
             }
         }
-        throw new RuntimeException(String.format("No enum found by string type %s! Please check your code", typeName));
+        throw new RuntimeException(String.format("No enum found by string type %s! Please check your code", typeName)); //NOSONAR
     }
 }

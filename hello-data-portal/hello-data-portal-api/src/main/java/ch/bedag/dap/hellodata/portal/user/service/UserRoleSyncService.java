@@ -5,7 +5,7 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -35,9 +35,9 @@ public class UserRoleSyncService {
         List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         log.debug("Available data domains: {}", dataDomains);
         List<String> businessDomains =
-                contextRepository.findAllByTypeIn(List.of(HdContextType.BUSINESS_DOMAIN)).stream().map(userContextRole -> userContextRole.getContextKey()).toList();
+                contextRepository.findAllByTypeIn(List.of(HdContextType.BUSINESS_DOMAIN)).stream().map(HdContextEntity::getContextKey).toList();
         log.debug("Available business domains: {}", businessDomains);
-        List<String> dataDomainKeys = dataDomains.stream().map(dd -> dd.getContextKey()).toList();
+        List<String> dataDomainKeys = dataDomains.stream().map(HdContextEntity::getContextKey).toList();
         List<UserEntity> users = userRepository.findAll();
         for (UserEntity userEntity : users) {
             checkUserContextRoleExistence(userEntity, dataDomainKeys, businessDomains);
@@ -53,7 +53,7 @@ public class UserRoleSyncService {
      */
     private void checkUserContextRoleExistence(UserEntity userEntity, List<String> dataDomainKeys, List<String> businessDomains) {
         Set<UserContextRoleEntity> userContextRoles = userEntity.getContextRoles();
-        List<String> contextRoleKeys = userContextRoles.stream().map(cr -> cr.getContextKey()).toList();
+        List<String> contextRoleKeys = userContextRoles.stream().map(UserContextRoleEntity::getContextKey).toList();
         List<String> dataDomainKeysNotFoundInUserRole = fetchElementsNotInList(dataDomainKeys, contextRoleKeys);
         for (String dataDomainKeyNotFoundInUserRole : dataDomainKeysNotFoundInUserRole) {
             log.debug("User {} seems to not have a data domain role for the following key {}, will add a default one", userEntity.getEmail(), dataDomainKeyNotFoundInUserRole);

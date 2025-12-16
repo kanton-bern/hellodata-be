@@ -68,7 +68,6 @@ hello-data:
   cors:
     allowed-origins: ${hello-data.auth-server.redirect-url},${hello-data.auth-server.url} #can be comma separated
   cache:
-    enabled: true
     users-with-dashboards-ttl-minutes: 60
     subsystem-users-ttl-minutes: 60
   batch-users-file:

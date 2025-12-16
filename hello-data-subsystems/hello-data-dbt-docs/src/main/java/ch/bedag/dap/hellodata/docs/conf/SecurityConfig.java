@@ -34,10 +34,6 @@ import ch.bedag.dap.hellodata.docs.service.SecurityService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,17 +41,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.WebUtils;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Log4j2
@@ -81,7 +83,7 @@ public class SecurityConfig {
             // other public endpoints of your API may be appended to this array
             "/error",
             // actuator endpoints
-            "/actuator/**" };
+            "/actuator/**"};
     private final KeycloakLogoutHandler keycloakLogoutHandler;
     private final Environment env;
 
@@ -122,12 +124,8 @@ public class SecurityConfig {
         configureCors(http);
         configureCsrf(http);
         http.authorizeHttpRequests(auth -> {
-            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length];
-            for (int i = 0; i < AUTH_WHITELIST.length; i++) {
-                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]);
-            }
-            auth.requestMatchers(matchers).permitAll();
-            auth.requestMatchers(new AntPathRequestMatcher("/**", "OPTIONS")).permitAll();
+            auth.requestMatchers(AUTH_WHITELIST).permitAll();
+            auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
         });
 
         http.oauth2Login(withDefaults());

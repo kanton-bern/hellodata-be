@@ -28,8 +28,8 @@ package ch.bedag.dap.hellodata.portalcommon.user.entity;
 
 import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.SystemDefaultPortalRoleName;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserPortalRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserPortalRoleEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -53,7 +53,7 @@ import java.util.Set;
 @ToString
 @RequiredArgsConstructor
 @Entity(name = "user_")
-public class UserEntity extends BaseEntity {
+public class UserEntity extends BaseEntity {  //NOSONAR
     private String authId;
     @NotBlank
     @Length(max = 255)

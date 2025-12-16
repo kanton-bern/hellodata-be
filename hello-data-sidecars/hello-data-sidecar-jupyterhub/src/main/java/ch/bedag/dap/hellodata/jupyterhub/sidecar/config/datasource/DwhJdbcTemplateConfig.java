@@ -26,8 +26,7 @@ public class DwhJdbcTemplateConfig {
         hikariConfig.setDriverClassName(hellodataJupyterhubProperties.getDwhDriverClassName());
         hikariConfig.setMaximumPoolSize(1);
         hikariConfig.setMaxLifetime(MINUTES.toMillis(15));
-        HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
-        return hikariDataSource;
+        return new HikariDataSource(hikariConfig);
 
     }
 

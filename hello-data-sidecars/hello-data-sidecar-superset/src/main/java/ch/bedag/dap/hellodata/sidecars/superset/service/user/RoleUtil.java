@@ -30,10 +30,11 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
-import java.util.List;
-import java.util.Optional;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
+import java.util.Optional;
 
 @UtilityClass
 public class RoleUtil {
@@ -49,10 +50,10 @@ public class RoleUtil {
     public static void leaveOnlyBiViewerRoleIfNoneAttached(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
         if (CollectionUtils.isEmpty(supersetUserRolesUpdate.getRoles())) {
             supersetUserRolesUpdate.setRoles(allRoles.getResult()
-                                                     .stream()
-                                                     .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(SlugifyUtil.BI_VIEWER_ROLE_NAME))
-                                                     .map(SubsystemRole::getId)
-                                                     .toList());
+                    .stream()
+                    .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(SlugifyUtil.BI_VIEWER_ROLE_NAME))
+                    .map(SubsystemRole::getId)
+                    .toList());
         }
     }
 

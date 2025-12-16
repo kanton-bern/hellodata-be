@@ -38,7 +38,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 class TemplateService {
 
-    private final static String MULTILANGUAGE_TEMPLATE_PATH = "default";
+    private static final String MULTILANGUAGE_TEMPLATE_PATH = "default";
     private final SpringTemplateEngine templateEngine;
 
     String getContent(String templateName, Map<String, Object> model, Locale locale) {

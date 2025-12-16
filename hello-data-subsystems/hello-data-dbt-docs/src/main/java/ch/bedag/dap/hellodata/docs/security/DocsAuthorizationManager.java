@@ -48,7 +48,7 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class DocsAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
-    private static final String GET_PROJECTS_DOCS_BY_PATH_URI = "/api/projects-docs/get-by-path";
+    private static final String GET_PROJECTS_DOCS_BY_PATH_URI = "/api/projects-docs/get-by-path"; // NOSONAR
 
     private final SecurityService securityService;
 

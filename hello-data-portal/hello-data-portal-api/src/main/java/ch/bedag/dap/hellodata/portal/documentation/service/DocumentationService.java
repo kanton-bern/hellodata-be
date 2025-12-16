@@ -36,7 +36,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -54,15 +53,7 @@ public class DocumentationService {
         Optional<DocumentationEntity> first = documentationRepository.findFirstByOrderByIdAsc();
         if (first.isPresent()) {
             DocumentationEntity entity = first.get();
-            DocumentationDto documentationDto = modelMapper.map(entity, DocumentationDto.class);
-            //FIXME temporary workaround for existing, old non-i18n documentation entity
-            //@Deprecated(forRemoval = true)
-            if (documentationDto.getTexts() == null || documentationDto.getTexts().isEmpty()) {
-                documentationDto.setTexts(new HashMap<>());
-                Locale oldDefault = Locale.forLanguageTag("de-CH");
-                documentationDto.getTexts().put(oldDefault, entity.getText());
-            }
-            return documentationDto;
+            return modelMapper.map(entity, DocumentationDto.class);
         }
         return null;
     }

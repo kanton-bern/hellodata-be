@@ -35,11 +35,6 @@ import ch.bedag.dap.hellodata.jupyterhub.gateway.filters.WebFluxLogFilter;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.repository.UserRepository;
 import ch.bedag.dap.hellodata.jupyterhub.gateway.security.JupyterhubJwtAuthenticationConverter;
 import jakarta.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,6 +63,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
+import java.util.*;
+
 @Log4j2
 @EnableRetry
 @Configuration
@@ -81,8 +78,8 @@ public class SecurityConfig {
             List.of("Access-Control-Allow-Methods", "Access-Control-Allow-Origin", AUTHORIZATION_HEADER_NAME, "Access-Control-Allow-Headers", "Origin,Accept", "X-Requested-With",
                     "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers");
 
-    private final Environment env;
-    private final HelloDataContextConfig hellodataContextConfig;
+    private final Environment env; //NOSONAR
+    private final HelloDataContextConfig hellodataContextConfig; //NOSONAR
 
     @Value("${hello-data.cors.allowed-origins}")
     private String allowedOrigins;
@@ -104,47 +101,6 @@ public class SecurityConfig {
         configureCors(http);
         http.headers(headerSpec -> headerSpec.frameOptions(ServerHttpSecurity.HeaderSpec.FrameOptionsSpec::disable)); // disabled to allow embedding into "portal"
         return http.build();
-    }
-
-    private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter(
-            JupyterhubJwtAuthenticationConverter jupyterhubJwtAuthenticationConverter) {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jupyterhubJwtAuthenticationConverter);
-        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
-    }
-
-    private void configureCsrf(ServerHttpSecurity http) {
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable); //jupyterhub has it's own
-    }
-
-    private void configureCors(ServerHttpSecurity http) {
-        if (env.matchesProfiles("disable-cors")) {
-            http.cors(ServerHttpSecurity.CorsSpec::disable);
-        } else {
-            List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
-            http.cors(cors -> cors.configurationSource(request -> {
-                CorsConfiguration corsConfig = new CorsConfiguration();
-                if (!allowedOriginList.isEmpty()) {
-                    for (String allowedOrigin : allowedOriginList) {
-                        corsConfig.addAllowedOrigin(allowedOrigin);
-                    }
-                } else {
-                    corsConfig.addAllowedOrigin("*"); //NOSONAR
-                }
-                corsConfig.addAllowedMethod("GET");
-                corsConfig.addAllowedMethod("POST");
-                corsConfig.addAllowedMethod("PUT");
-                corsConfig.addAllowedMethod("DELETE");
-                corsConfig.addAllowedMethod("PATCH");
-                corsConfig.addAllowedMethod("HEAD");
-                corsConfig.addAllowedMethod("OPTIONS");
-
-                corsConfig.setAllowedHeaders(CORS_ALLOWED_HEADERS);
-                corsConfig.setMaxAge(3600L);
-                corsConfig.setExposedHeaders(List.of("xsrf-token"));
-                return corsConfig;
-            }));
-        }
     }
 
     /**
@@ -191,5 +147,46 @@ public class SecurityConfig {
     @Bean
     public GlobalFilter loggingFilter() {
         return new LoggingFilter();
+    }
+
+    private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter(
+            JupyterhubJwtAuthenticationConverter jupyterhubJwtAuthenticationConverter) {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jupyterhubJwtAuthenticationConverter);
+        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
+    }
+
+    private void configureCsrf(ServerHttpSecurity http) {
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable); //jupyterhub has it's own
+    }
+
+    private void configureCors(ServerHttpSecurity http) {
+        if (env.matchesProfiles("disable-cors")) {
+            http.cors(ServerHttpSecurity.CorsSpec::disable);
+        } else {
+            List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
+            http.cors(cors -> cors.configurationSource(request -> {
+                CorsConfiguration corsConfig = new CorsConfiguration();
+                if (!allowedOriginList.isEmpty()) {
+                    for (String allowedOrigin : allowedOriginList) {
+                        corsConfig.addAllowedOrigin(allowedOrigin);
+                    }
+                } else {
+                    corsConfig.addAllowedOrigin("*"); //NOSONAR
+                }
+                corsConfig.addAllowedMethod("GET");
+                corsConfig.addAllowedMethod("POST");
+                corsConfig.addAllowedMethod("PUT");
+                corsConfig.addAllowedMethod("DELETE");
+                corsConfig.addAllowedMethod("PATCH");
+                corsConfig.addAllowedMethod("HEAD");
+                corsConfig.addAllowedMethod("OPTIONS");
+
+                corsConfig.setAllowedHeaders(CORS_ALLOWED_HEADERS);
+                corsConfig.setMaxAge(3600L);
+                corsConfig.setExposedHeaders(List.of("xsrf-token"));
+                return corsConfig;
+            }));
+        }
     }
 }
