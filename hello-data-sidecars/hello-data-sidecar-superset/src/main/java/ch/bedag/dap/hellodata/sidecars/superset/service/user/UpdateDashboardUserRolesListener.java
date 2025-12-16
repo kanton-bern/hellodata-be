@@ -76,7 +76,7 @@ public class UpdateDashboardUserRolesListener {
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
         log.info("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
-        Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
+        Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = objectMapper.readValue(msg.getData(), SupersetDashboardsForUserUpdate.class);

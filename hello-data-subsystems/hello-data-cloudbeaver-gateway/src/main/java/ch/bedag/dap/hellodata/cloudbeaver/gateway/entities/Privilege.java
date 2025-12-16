@@ -56,7 +56,7 @@ public class Privilege {
     @Size(min = 1, max = 255)
     private String name;
 
-    private Collection<Role> roles;
+    private Collection<Role> roles; //NOSONAR
 
     public Privilege(@NotNull String name) {
         this.name = name;

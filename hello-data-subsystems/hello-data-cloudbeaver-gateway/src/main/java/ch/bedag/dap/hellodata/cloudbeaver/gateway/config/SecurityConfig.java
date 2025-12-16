@@ -73,7 +73,7 @@ public class SecurityConfig {
     public static final String ACCESS_TOKEN_COOKIE_NAME = "auth.access_token";
     public static final String AUTHORIZATION_HEADER_NAME = "Authorization";
 
-    private final Environment env;
+    private final Environment env; //NOSONAR
 
     @Value("${hello-data.cors.allowed-origins}")
     private String allowedOrigins;
