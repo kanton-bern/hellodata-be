@@ -37,7 +37,7 @@ import {
   selectCurrentBusinessDomain,
   selectCurrentContextRolesFilterOffNone,
   selectDisableLogout,
-  selectIsAuthenticated,
+  selectHasMinimalRequiredPermissions,
   selectProfile,
   selectSelectedLanguage,
   selectSupportedLanguages
@@ -70,8 +70,8 @@ import {
   imports: [NgStyle, Tooltip, Ripple, NgClass, PublishedAnnouncementsWrapperComponent, BreadcrumbComponent, Menu, AsyncPipe, TranslocoPipe]
 })
 export class HeaderComponent {
-  private store = inject<Store<AppState>>(Store);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
 
 
   readonly menuToggle = output<boolean>();
@@ -80,7 +80,7 @@ export class HeaderComponent {
 
   userData$: Observable<IUser>;
   languages$: Observable<any[]>;
-  isAuthenticated$: Observable<boolean>;
+  hasMinimalRequiredPermissions$: Observable<boolean>;
   businessDomain$: Observable<string>;
   availableDataDomains$: Observable<DataDomain[]>;
   selectedDataDomain$: Observable<DataDomain | null>;
@@ -96,7 +96,7 @@ export class HeaderComponent {
   selectedLanguage: string | null = null;
 
   constructor() {
-    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
+    this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
     this.userData$ = this.store.select(selectProfile);
     this.languages$ = this.getSupportedLanguages();
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain);
@@ -104,7 +104,7 @@ export class HeaderComponent {
     this.selectedDataDomain$ = this.store.select(selectSelectedDataDomain);
     this.environment = {
       name: environment.deploymentEnvironment.name,
-      showEnvironment: environment.deploymentEnvironment.showEnvironment != undefined ? environment.deploymentEnvironment.showEnvironment : true,
+      showEnvironment: environment.deploymentEnvironment.showEnvironment ?? true,
       color: environment.deploymentEnvironment.headerColor ? environment.deploymentEnvironment.headerColor : ''
     };
     this.currentUserContextRolesNotNone$ = this.store.select(selectCurrentContextRolesFilterOffNone)
@@ -112,8 +112,9 @@ export class HeaderComponent {
       this.translateService.selectTranslate('@Profile'),
       this.translateService.selectTranslate('@Logout'),
       this.translateService.selectTranslate('@View announcements'),
-      this.store.select(selectDisableLogout)
-    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, disableLogout]) => {
+      this.store.select(selectDisableLogout),
+      this.store.select(selectHasMinimalRequiredPermissions)
+    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, disableLogout, hasMinimalRequiredPermissions]) => {
       this.userMenuItems = [
         {
           label: profileTranslation,
@@ -121,15 +122,17 @@ export class HeaderComponent {
           command: () => {
             this.store.dispatch(navigate({url: '/profile'}));
           }
-        },
-        {
+        }
+      ];
+      if (hasMinimalRequiredPermissions) {
+        this.userMenuItems.push({
           label: announcementsTranslation,
           icon: 'fas fa-light fa-bell',
           command: () => {
             this.store.dispatch(navigate({url: '/published-announcements'}));
           }
-        },
-      ];
+        });
+      }
       if (!disableLogout) {
         this.userMenuItems.push({
           label: logoutTranslation,

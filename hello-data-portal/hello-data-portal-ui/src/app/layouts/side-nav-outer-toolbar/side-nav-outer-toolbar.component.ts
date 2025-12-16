@@ -38,7 +38,7 @@ import {Toast} from "primeng/toast";
 import {
   UnsavedChangesDialogComponent
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
+import {selectHasMinimalRequiredPermissions} from "../../store/auth/auth.selector";
 import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
 import {TieredMenu} from "primeng/tieredmenu";
 import {Badge} from "primeng/badge";
@@ -54,17 +54,17 @@ import {HeaderComponent, SummaryComponent} from '../../shared/components';
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
-  selectCurrentUserPermissionsLoaded$: Observable<boolean>;
+  hasMinimalRequiredPermissions$: Observable<boolean>;
   mouseEnterTimeoutId: number[] = [];
 
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
-    this.selectCurrentUserPermissionsLoaded$ = this.store.select(selectCurrentUserPermissionsLoaded);
+    this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
   }
 
   navigateHome() {

@@ -54,7 +54,7 @@
       <ng-content/>
     </div>
 
-    @if (selectCurrentUserPermissionsLoaded$) {
+    @if (hasMinimalRequiredPermissions$ | async) {
       <div class="right-panel w-[30px] right-panel-close">
         <app-summary/>
       </div>
