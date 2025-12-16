@@ -42,7 +42,7 @@ public class AuthWebFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        return exchange.getPrincipal().filter(principal -> principal instanceof JwtAuthenticationToken).cast(JwtAuthenticationToken.class).flatMap(token -> {
+        return exchange.getPrincipal().filter(JwtAuthenticationToken.class::isInstance).cast(JwtAuthenticationToken.class).flatMap(token -> {
             boolean hasDataJupyterAuthority = token.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(auth -> auth.equals(DATA_JUPYTER_AUTHORITY));
 
             if (!hasDataJupyterAuthority) {
@@ -52,9 +52,9 @@ public class AuthWebFilter implements WebFilter {
             }
 
             return chain.filter(exchange);
-        }).switchIfEmpty(chain.filter(exchange)).doOnSubscribe(subscription -> {
-            // Optional logging or actions before the actual filter chain execution
-            log.info("AuthWebFilter applied to URI: {}", exchange.getRequest().getURI().getPath());
-        });
+        }).switchIfEmpty(chain.filter(exchange)).doOnSubscribe(subscription ->
+                // Optional logging or actions before the actual filter chain execution
+                log.info("AuthWebFilter applied to URI: {}", exchange.getRequest().getURI().getPath())
+        );
     }
 }
