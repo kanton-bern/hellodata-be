@@ -25,18 +25,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Component, EventEmitter, Output} from '@angular/core';
-import {CommentsFeed} from "../comments-feed/comments-feed.component";
+import {Component} from "@angular/core";
+import {TranslocoPipe} from "@jsverse/transloco";
 
 @Component({
-  selector: 'app-comments-toggle-panel',
-  templateUrl: './comments-toggle-panel.component.html',
+  selector: 'app-comments-feed',
+  templateUrl: './comments-feed.component.html',
   imports: [
-    CommentsFeed
+    TranslocoPipe
   ],
-  styleUrls: ['./comments-toggle-panel.component.scss']
+  styleUrls: ['./comments-feed.component.scss']
 })
-export class CommentsTogglePanelComponent {
-  @Output() toggleComments = new EventEmitter<void>();
+export class CommentsFeed {
 
 }

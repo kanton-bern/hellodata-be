@@ -63,8 +63,8 @@ import {TranslocoPipe} from '@jsverse/transloco';
   imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private menuService = inject(MenuService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly menuService = inject(MenuService);
 
 
   readonly dt = viewChild.required<Table | undefined>('dt');

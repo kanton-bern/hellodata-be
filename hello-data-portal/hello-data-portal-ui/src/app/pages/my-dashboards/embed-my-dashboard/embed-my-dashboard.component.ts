@@ -28,19 +28,19 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
-import {AppState} from "../../store/app/app.state";
-import {selectCurrentMyDashboardInfo} from "../../store/my-dashboards/my-dashboards.selector";
-import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
-import {naviElements} from "../../app-navi-elements";
-import {BaseComponent} from "../../shared/components/base/base.component";
-import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {OpenedSubsystemsService} from "../../shared/services/opened-subsystems.service";
-import {selectSelectedLanguage} from "../../store/auth/auth.selector";
 import {filter} from "rxjs/operators";
 import {AsyncPipe} from '@angular/common';
-import {SubsystemIframeComponent} from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
-import {CommentsTogglePanelComponent} from "./comments-toggle-panel/comments-toggle-panel.component";
 import {TranslocoPipe} from "@jsverse/transloco";
+import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
+import {CommentsTogglePanelComponent} from "../comments-toggle-panel/comments-toggle-panel.component";
+import {BaseComponent} from "../../../shared/components/base/base.component";
+import {AppState} from "../../../store/app/app.state";
+import {OpenedSubsystemsService} from "../../../shared/services/opened-subsystems.service";
+import {selectCurrentMyDashboardInfo} from "../../../store/my-dashboards/my-dashboards.selector";
+import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
+import {naviElements} from "../../../app-navi-elements";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 
