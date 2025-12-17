@@ -1,0 +1,26 @@
+.comments-panel-content {
+  position: relative;
+  overflow: visible;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  left: -12px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #111;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.close-btn::before {
+  font-size: 20px;
+  line-height: 1;
+}

@@ -5,16 +5,14 @@
     </div>
 
     <div
-      (keydown)="toggleComments()"
       class="comments-panel"
       [class]="isCommentsOpen ? 'w-[25%]' : 'w-[25px]'"
       [class]="isCommentsOpen ? 'comments-panel-open' : 'comments-panel-closed'"
-      (click)="toggleComments()"
     >
       @if (!isCommentsOpen) {
-        open comments
+        <div (click)="toggleComments()" (keydown)="toggleComments()" style="cursor: pointer">open comments</div>
       } @else {
-        panel comments
+        <app-comments-panel-content (toggleComments)="toggleComments()"></app-comments-panel-content>
       }
     </div>
   </div>
