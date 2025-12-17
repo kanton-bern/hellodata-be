@@ -28,11 +28,11 @@
 import {Component, EventEmitter, Output} from '@angular/core';
 
 @Component({
-  selector: 'app-comments-panel-content',
-  templateUrl: './comments-panel-content.component.html',
-  styleUrls: ['./comments-panel-content.component.scss']
+  selector: 'app-comments-toggle-panel',
+  templateUrl: './comments-toggle-panel.component.html',
+  styleUrls: ['./comments-toggle-panel.component.scss']
 })
-export class CommentsPanelContentComponent {
+export class CommentsTogglePanelComponent {
   @Output() toggleComments = new EventEmitter<void>();
 
 }
