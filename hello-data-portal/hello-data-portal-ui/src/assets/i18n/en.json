@@ -204,6 +204,7 @@
   "@Start": "Start",
   "@Status": "Status",
   "@Storage size": "Storage size",
+  "@Submit": "Submit",
   "@Subscriptions": "Subscriptions",
   "@Subsystem users": "Subsystem users",
   "@Summary header": "Status | Documentation | Subscriptions",
@@ -252,6 +253,7 @@
   "@Workspace": "Workspace",
   "@Workspace permissions updated": "Workspace permissions updated",
   "@Workspaces": "Workspaces",
+  "@Write a comment": "Write a comment...",
   "@Yes": "Yes",
   "@You are not allowed to access this page": "You are not allowed to access this page. Contact your administrator."
 }

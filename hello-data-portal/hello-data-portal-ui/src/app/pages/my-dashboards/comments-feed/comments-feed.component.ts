@@ -27,15 +27,62 @@
 
 import {Component} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
+import {FormsModule} from "@angular/forms";
+import {Button, ButtonDirective} from "primeng/button";
+import {ScrollPanelModule} from "primeng/scrollpanel";
+import {DatePipe} from "@angular/common";
+import {Ripple} from "primeng/ripple";
+
+interface CommentEntry {
+  text: string;
+  author: string;
+  date: Date;
+}
 
 @Component({
   selector: 'app-comments-feed',
   templateUrl: './comments-feed.component.html',
   imports: [
-    TranslocoPipe
+    TranslocoPipe,
+    FormsModule,
+    Button,
+    ScrollPanelModule,
+    DatePipe,
+    Ripple,
+    ButtonDirective
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
 export class CommentsFeed {
+  comments: CommentEntry[] = [
+    {
+      text: 'First test comment.',
+      author: 'John Doe',
+      date: new Date('2024-06-01T09:30:00'),
+    },
+    {
+      text: 'Great data, thanks for sharing!',
+      author: 'Anne Smith',
+      date: new Date('2024-06-02T14:15:00'),
+    },
+  ];
 
+  newCommentText = '';
+
+  submitComment(): void {
+    const text = this.newCommentText.trim();
+    if (!text) {
+      return;
+    }
+
+    this.comments = [
+      ...this.comments,
+      {
+        text,
+        author: 'Anonymous',
+        date: new Date(),
+      },
+    ];
+    this.newCommentText = '';
+  }
 }

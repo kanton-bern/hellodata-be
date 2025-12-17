@@ -204,6 +204,7 @@
   "@Start": "Accueil",
   "@Status": "Statut",
   "@Storage size": "Taille de stockage",
+  "@Submit": "Soumettre",
   "@Subscriptions": "Service d'abonnements",
   "@Subsystem users": "Utilisateurs du sous-système",
   "@Summary header": "Statut | Documentation | Service d'abonnements",
@@ -252,6 +253,7 @@
   "@Workspace": "Domaine de données",
   "@Workspace permissions updated": "Autorisations des domaines de données mises à jour",
   "@Workspaces": "Domaines de données",
+  "@Write a comment": "Écrire un commentaire...",
   "@Yes": "Oui",
   "@You are not allowed to access this page": "Vous n'êtes pas autorisé à accéder à cette page. Veuillez contactez votre administrateur."
 }

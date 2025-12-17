@@ -204,6 +204,7 @@
   "@Start": "Start",
   "@Status": "Status",
   "@Storage size": "Speichergrösse",
+  "@Submit": "Einreichen",
   "@Subscriptions": "Service Abonnements",
   "@Subsystem users": "Subsystembenutzer",
   "@Summary header": "Status | Dokumentation | Service Abonnements",
@@ -252,6 +253,7 @@
   "@Workspace": "Datendomäne",
   "@Workspace permissions updated": "Datendomänen Berechtigungen aktualisiert",
   "@Workspaces": "Datendomänen",
+  "@Write a comment": "Schreiben Sie einen Kommentar...",
   "@Yes": "Ja",
   "@You are not allowed to access this page": "Du bist leider nicht berechtigt, auf diese Seite zuzugreifen. Kontaktiere bitte deinen Administrator."
 }
