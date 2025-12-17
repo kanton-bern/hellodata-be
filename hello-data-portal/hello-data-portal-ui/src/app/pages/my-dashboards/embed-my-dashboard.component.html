@@ -10,7 +10,9 @@
       [class]="isCommentsOpen ? 'comments-panel-open' : 'comments-panel-closed'"
     >
       @if (!isCommentsOpen) {
-        <div (click)="toggleComments()" (keydown)="toggleComments()" style="cursor: pointer">open comments</div>
+        <div (click)="toggleComments()" (keydown)="toggleComments()"
+             style="cursor: pointer">{{ '@Comments' | transloco }}
+        </div>
       } @else {
         <app-comments-panel-content (toggleComments)="toggleComments()"></app-comments-panel-content>
       }

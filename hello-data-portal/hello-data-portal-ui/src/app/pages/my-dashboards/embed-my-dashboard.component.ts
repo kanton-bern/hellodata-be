@@ -40,13 +40,14 @@ import {filter} from "rxjs/operators";
 import {AsyncPipe} from '@angular/common';
 import {SubsystemIframeComponent} from '../../shared/components/subsystem-iframe/subsystem-iframe.component';
 import {CommentsPanelContentComponent} from "./comments-panel/comments-panel-content.component";
+import {TranslocoPipe} from "@jsverse/transloco";
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 
 @Component({
   templateUrl: 'embed-my-dashboard.component.html',
   styleUrls: ['./embed-my-dashboard.component.scss'],
-  imports: [SubsystemIframeComponent, AsyncPipe, CommentsPanelContentComponent]
+  imports: [SubsystemIframeComponent, AsyncPipe, CommentsPanelContentComponent, TranslocoPipe]
 })
 export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
