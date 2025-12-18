@@ -25,14 +25,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button, ButtonDirective} from "primeng/button";
-import {ScrollPanelModule} from "primeng/scrollpanel";
 import {DatePipe} from "@angular/common";
 import {Ripple} from "primeng/ripple";
-import {Scroller} from "primeng/scroller";
 
 interface CommentEntry {
   text: string;
@@ -47,16 +45,14 @@ interface CommentEntry {
     TranslocoPipe,
     FormsModule,
     Button,
-    ScrollPanelModule,
     DatePipe,
     Ripple,
-    ButtonDirective,
-    Scroller
+    ButtonDirective
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
 export class CommentsFeed implements AfterViewInit {
-  @ViewChild('scroller') scrollPanel!: Scroller;
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
 
   comments: CommentEntry[] = [
     {
@@ -98,6 +94,12 @@ export class CommentsFeed implements AfterViewInit {
   }
 
   private scrollToBottom(): void {
-    this.scrollPanel.scrollToIndex(this.comments.length - 1, 'smooth');
+    const container = this.scrollContainer?.nativeElement;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth'
+    });
   }
 }

@@ -4,17 +4,11 @@
     <h4 class="text-center">{{ '@Comments' | transloco }}</h4>
   </div>
 
-  <div class="comment-scrollpanel">
+  <div class="comment-scrollpanel" #scrollContainer>
     @if (comments?.length) {
-      <p-scroller #scroller
-                  [items]="comments"
-                  [itemSize]="50"
-                  scrollHeight="100%"
-                  styleClass="border-1 surface-border"
-                  [style]="{ height: '100%' }"
-                  class="w-full h-full px-2 py-2 space-y-2">
-        <ng-template pTemplate="item" let-comment let-options="options">
-          <div class="border rounded-md bg-white px-2 py-2 space-y-2">
+      <div class="comments-list">
+        @for (comment of comments; track comment.date) {
+          <div class="comment-item border rounded-md bg-white px-2 py-2 mb-2">
             <p class="comment-text p-1">
               {{ comment.text }}
             </p>
@@ -22,8 +16,8 @@
               {{ comment.author }} – {{ comment.date | date:'short' }}
             </small>
           </div>
-        </ng-template>
-      </p-scroller>
+        }
+      </div>
     } @else {
       <div class="h-full flex items-center justify-center text-gray-400">
         No comments.

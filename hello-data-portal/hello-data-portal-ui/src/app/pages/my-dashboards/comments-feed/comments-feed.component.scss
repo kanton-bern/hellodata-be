@@ -40,7 +40,18 @@
 .comment-scrollpanel {
   flex: 1;
   min-height: 0; // important for the flexbox with overflow
-  overflow: hidden;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.comments-list {
+  padding-bottom: 0.5rem;
+}
+
+.comment-item {
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .comment-form {
