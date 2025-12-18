@@ -80,6 +80,58 @@
   word-wrap: break-word; // break long words
 }
 
+.comment-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: default;
+
+  &.published {
+    background-color: #22c55e; // green
+  }
+
+  &.draft {
+    background-color: #9ca3af; // gray
+  }
+}
+
+.info-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color-secondary, #6c757d);
+  padding: 0.25rem;
+  font-size: 0.875rem;
+
+  &:hover {
+    color: var(--primary-color, #007bff);
+  }
+}
+
+.comment-details {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--surface-border, #dee2e6);
+  color: var(--text-color-secondary, #6c757d);
+
+  div {
+    margin-bottom: 0.25rem;
+  }
+}
+
 .comment-form {
   flex-shrink: 0;
   padding: 0.5rem;

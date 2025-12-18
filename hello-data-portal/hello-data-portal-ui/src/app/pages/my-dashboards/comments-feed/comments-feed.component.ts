@@ -32,10 +32,18 @@ import {Button, ButtonDirective} from "primeng/button";
 import {DatePipe} from "@angular/common";
 import {Ripple} from "primeng/ripple";
 
+enum CommentStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED'
+}
+
 interface CommentEntry {
   text: string;
   author: string;
-  date: number;
+  status: CommentStatus;
+  createdDate: number;
+  publishedDate?: number;
+  lastEditedDate?: number;
 }
 
 @Component({
@@ -58,19 +66,28 @@ export class CommentsFeed implements AfterViewInit {
     {
       text: 'First test comment.',
       author: 'John Doe',
-      date: new Date('2024-06-01T09:30:00').getTime(),
+      status: CommentStatus.PUBLISHED,
+      createdDate: new Date('2024-06-01T09:30:00').getTime(),
+      publishedDate: new Date('2024-06-01T09:30:00').getTime(),
     },
     {
       text: 'Great data, thanks for sharing!',
       author: 'Anne Smith',
-      date: new Date('2024-06-02T14:15:00').getTime(),
+      status: CommentStatus.PUBLISHED,
+      createdDate: new Date('2024-06-02T14:15:00').getTime(),
+      publishedDate: new Date('2024-06-02T14:15:00').getTime(),
     },
   ];
 
   newCommentText = '';
+  expandedCommentIndex: number | null = null;
 
   ngAfterViewInit(): void {
     this.scrollToBottom();
+  }
+
+  toggleDetails(index: number): void {
+    this.expandedCommentIndex = this.expandedCommentIndex === index ? null : index;
   }
 
   submitComment(): void {
@@ -82,7 +99,9 @@ export class CommentsFeed implements AfterViewInit {
       {
         text,
         author: 'Anonymous',
-        date: Date.now(),
+        status: CommentStatus.DRAFT,
+        createdDate: Date.now(),
+        publishedDate: Date.now(),
       },
     ];
 
