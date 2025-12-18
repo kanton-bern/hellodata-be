@@ -28,6 +28,7 @@
 :host {
   display: block;
   margin-bottom: 0.5rem;
+  font-size: 0.75rem;
 
   &:last-child {
     margin-bottom: 0;
@@ -59,12 +60,16 @@
   cursor: default;
 
   &.published {
-    background-color: #22c55e;
+    background-color: var(--success-color, #22c55e);
   }
 
   &.draft {
-    background-color: #9ca3af;
+    background-color: var(--surface-600, #9ca3af);
   }
+}
+
+::ng-deep .p-tooltip {
+  font-size: 0.625rem;
 }
 
 .info-btn {
@@ -72,8 +77,8 @@
   border: none;
   cursor: pointer;
   color: var(--text-color-secondary, #6c757d);
-  padding: 0.25rem;
-  font-size: 0.875rem;
+  padding: 0.1rem;
+  font-size: 0.75rem;
 
   &:hover {
     color: var(--primary-color, #007bff);

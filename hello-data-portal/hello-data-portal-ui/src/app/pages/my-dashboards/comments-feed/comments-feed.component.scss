@@ -75,5 +75,15 @@
   padding: 0.5rem;
   border-right: 1px solid var(--surface-border, #dee2e6);
   background: var(--surface-ground, #fff);
+
+  textarea {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  ::ng-deep .p-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
 }
 
