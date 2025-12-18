@@ -35,7 +35,7 @@ import {Ripple} from "primeng/ripple";
 interface CommentEntry {
   text: string;
   author: string;
-  date: Date;
+  date: number;
 }
 
 @Component({
@@ -58,12 +58,12 @@ export class CommentsFeed implements AfterViewInit {
     {
       text: 'First test comment.',
       author: 'John Doe',
-      date: new Date('2024-06-01T09:30:00'),
+      date: new Date('2024-06-01T09:30:00').getTime(),
     },
     {
       text: 'Great data, thanks for sharing!',
       author: 'Anne Smith',
-      date: new Date('2024-06-02T14:15:00'),
+      date: new Date('2024-06-02T14:15:00').getTime(),
     },
   ];
 
@@ -82,7 +82,7 @@ export class CommentsFeed implements AfterViewInit {
       {
         text,
         author: 'Anonymous',
-        date: new Date(),
+        date: Date.now(),
       },
     ];
 
