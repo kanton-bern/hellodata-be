@@ -9,9 +9,7 @@
       <div class="comments-list">
         @for (comment of comments; track comment.date) {
           <div class="comment-item border rounded-md bg-white px-2 py-2 mb-2">
-            <p class="comment-text p-1">
-              {{ comment.text }}
-            </p>
+            <p class="comment-text p-1">{{ comment.text }}</p>
             <small class="comment-meta p-1">
               {{ comment.author }} – {{ comment.date | date:'short' }}
             </small>

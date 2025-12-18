@@ -75,6 +75,11 @@
   }
 }
 
+.comment-text {
+  white-space: pre-wrap; // keep white signs and break lines
+  word-wrap: break-word; // break long words
+}
+
 .comment-form {
   flex-shrink: 0;
   padding: 0.5rem;
