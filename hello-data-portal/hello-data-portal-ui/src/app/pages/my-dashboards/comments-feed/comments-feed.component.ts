@@ -29,15 +29,15 @@ import {AfterViewInit, Component, ElementRef, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button, ButtonDirective} from "primeng/button";
-import {DatePipe} from "@angular/common";
 import {Ripple} from "primeng/ripple";
+import {CommentEntryComponent} from "./comment-entry/comment-entry.component";
 
-enum CommentStatus {
+export enum CommentStatus {
   DRAFT = 'DRAFT',
   PUBLISHED = 'PUBLISHED'
 }
 
-interface CommentEntry {
+export interface CommentEntry {
   text: string;
   author: string;
   status: CommentStatus;
@@ -53,9 +53,9 @@ interface CommentEntry {
     TranslocoPipe,
     FormsModule,
     Button,
-    DatePipe,
     Ripple,
-    ButtonDirective
+    ButtonDirective,
+    CommentEntryComponent
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
@@ -80,15 +80,11 @@ export class CommentsFeed implements AfterViewInit {
   ];
 
   newCommentText = '';
-  expandedCommentIndex: number | null = null;
 
   ngAfterViewInit(): void {
     this.scrollToBottom();
   }
 
-  toggleDetails(index: number): void {
-    this.expandedCommentIndex = this.expandedCommentIndex === index ? null : index;
-  }
 
   submitComment(): void {
     const text = this.newCommentText.trim();

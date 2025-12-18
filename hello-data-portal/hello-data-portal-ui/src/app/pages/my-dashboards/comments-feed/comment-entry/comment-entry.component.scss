@@ -25,55 +25,66 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-.comments-container {
+.comment-item {
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.comment-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.comment-footer {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.comments-header {
-  flex-shrink: 0;
-  padding: 0.5rem;
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.comment-scrollpanel {
-  flex: 1;
-  min-height: 0; // important for the flexbox with overflow
-  overflow-y: auto; // auto instead scroll - shows scrollbar only when needed
-  padding: 0.5rem;
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  cursor: default;
 
-  // enforce scrollbar visibility (WebKit/Blink/macOS)
-  &::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width: 8px;
+  &.published {
+    background-color: #22c55e;
   }
 
-  &::-webkit-scrollbar-track {
-    background: var(--surface-ground, #f1f1f1);
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--surface-400, #888);
-    border-radius: 4px;
-    min-height: 40px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--surface-500, #555);
+  &.draft {
+    background-color: #9ca3af;
   }
 }
 
-.comments-list {
-  padding-bottom: 0.5rem;
+.info-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color-secondary, #6c757d);
+  padding: 0.25rem;
+  font-size: 0.875rem;
+
+  &:hover {
+    color: var(--primary-color, #007bff);
+  }
 }
 
+.comment-details {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--surface-border, #dee2e6);
+  color: var(--text-color-secondary, #6c757d);
 
-.comment-form {
-  flex-shrink: 0;
-  padding: 0.5rem;
-  border-right: 1px solid var(--surface-border, #dee2e6);
-  background: var(--surface-ground, #fff);
+  div {
+    margin-bottom: 0.25rem;
+  }
 }
 

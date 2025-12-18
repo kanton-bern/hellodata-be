@@ -25,55 +25,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-.comments-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
+import {Component, input} from "@angular/core";
+import {DatePipe} from "@angular/common";
+import {CommentEntry} from "../comments-feed.component";
 
-.comments-header {
-  flex-shrink: 0;
-  padding: 0.5rem;
-}
+@Component({
+  selector: 'app-comment-entry',
+  standalone: true,
+  templateUrl: './comment-entry.component.html',
+  imports: [
+    DatePipe
+  ],
+  styleUrls: ['./comment-entry.component.scss']
+})
+export class CommentEntryComponent {
+  comment = input.required<CommentEntry>();
 
-.comment-scrollpanel {
-  flex: 1;
-  min-height: 0; // important for the flexbox with overflow
-  overflow-y: auto; // auto instead scroll - shows scrollbar only when needed
-  padding: 0.5rem;
+  expanded = false;
 
-  // enforce scrollbar visibility (WebKit/Blink/macOS)
-  &::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width: 8px;
+  toggleDetails(): void {
+    this.expanded = !this.expanded;
   }
-
-  &::-webkit-scrollbar-track {
-    background: var(--surface-ground, #f1f1f1);
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--surface-400, #888);
-    border-radius: 4px;
-    min-height: 40px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background: var(--surface-500, #555);
-  }
-}
-
-.comments-list {
-  padding-bottom: 0.5rem;
-}
-
-
-.comment-form {
-  flex-shrink: 0;
-  padding: 0.5rem;
-  border-right: 1px solid var(--surface-border, #dee2e6);
-  background: var(--surface-ground, #fff);
 }
 

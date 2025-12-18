@@ -1,0 +1,34 @@
+<div class="comment-item border rounded-md bg-white px-2 py-2 mb-2">
+  <p class="comment-text p-1">{{ comment().text }}</p>
+  <div class="comment-footer p-1">
+    <small class="comment-meta">
+      {{ comment().author }} – {{ comment().createdDate | date:'short' }}@if (comment().lastEditedDate) {
+      (edited)
+    }
+    </small>
+    <div class="comment-actions">
+      <span class="status-dot"
+            [class.published]="comment().status === 'PUBLISHED'"
+            [class.draft]="comment().status === 'DRAFT'"
+            [title]="comment().status"></span>
+      <button class="info-btn" (click)="toggleDetails()">
+        <i class="fa fa-info-circle"></i>
+      </button>
+    </div>
+  </div>
+  @if (expanded) {
+    <div class="comment-details p-1">
+      <small>
+        <div><strong>Status:</strong> {{ comment().status }}</div>
+        <div><strong>Created:</strong> {{ comment().createdDate | date:'medium' }}</div>
+        @if (comment().publishedDate) {
+          <div><strong>Published:</strong> {{ comment().publishedDate | date:'medium' }}</div>
+        }
+        @if (comment().lastEditedDate) {
+          <div><strong>Last edited:</strong> {{ comment().lastEditedDate | date:'medium' }}</div>
+        }
+      </small>
+    </div>
+  }
+</div>
+
