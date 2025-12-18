@@ -10,7 +10,8 @@
       <span class="status-dot"
             [class.published]="comment().status === 'PUBLISHED'"
             [class.draft]="comment().status === 'DRAFT'"
-            [title]="comment().status"></span>
+            [pTooltip]="'@' + comment().status | transloco"
+            tooltipPosition="top"></span>
       <button class="info-btn" (click)="toggleDetails()">
         <i class="fa fa-info-circle"></i>
       </button>
@@ -19,13 +20,13 @@
   @if (expanded) {
     <div class="comment-details p-1">
       <small>
-        <div><strong>Status:</strong> {{ comment().status }}</div>
-        <div><strong>Created:</strong> {{ comment().createdDate | date:'medium' }}</div>
+        <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + comment().status | transloco }}</div>
+        <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
         @if (comment().publishedDate) {
-          <div><strong>Published:</strong> {{ comment().publishedDate | date:'medium' }}</div>
+          <div><strong>{{ '@Published' | transloco }}:</strong> {{ comment().publishedDate | date:'medium' }}</div>
         }
         @if (comment().lastEditedDate) {
-          <div><strong>Last edited:</strong> {{ comment().lastEditedDate | date:'medium' }}</div>
+          <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ comment().lastEditedDate | date:'medium' }}</div>
         }
       </small>
     </div>

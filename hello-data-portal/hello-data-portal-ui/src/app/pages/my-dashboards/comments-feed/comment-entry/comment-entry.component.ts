@@ -28,13 +28,17 @@
 import {Component, input} from "@angular/core";
 import {DatePipe} from "@angular/common";
 import {CommentEntry} from "../comments-feed.component";
+import {Tooltip} from "primeng/tooltip";
+import {TranslocoPipe} from "@jsverse/transloco";
 
 @Component({
   selector: 'app-comment-entry',
   standalone: true,
   templateUrl: './comment-entry.component.html',
   imports: [
-    DatePipe
+    DatePipe,
+    Tooltip,
+    TranslocoPipe
   ],
   styleUrls: ['./comment-entry.component.scss']
 })
