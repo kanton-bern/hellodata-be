@@ -6,23 +6,24 @@
 
   <div class="flex-1 overflow-hidden">
     @if (comments?.length) {
-      <p-scrollPanel
-        [style]="{ height: '67vh' }"
-        class="w-full h-full"
-      >
-        <div class="px-2 py-2 space-y-2">
-          @for (comment of comments; track comment) {
-            <div class="border rounded-md bg-white">
-              <p class="comment-text p-1">
-                {{ comment.text }}
-              </p>
-              <small class="comment-meta p-1">
-                {{ comment.author }} – {{ comment.date | date:'short' }}
-              </small>
-            </div>
-          }
-        </div>
-      </p-scrollPanel>
+      <p-scroller #scroller
+                  [items]="comments"
+                  [itemSize]="50"
+                  scrollHeight="67vh"
+                  styleClass="border-1 surface-border"
+                  [style]="{ height: '67vh' }"
+                  class="w-full h-full px-2 py-2 space-y-2">
+        <ng-template pTemplate="item" let-comment let-options="options">
+          <div class="border rounded-md bg-white px-2 py-2 space-y-2">
+            <p class="comment-text p-1">
+              {{ comment.text }}
+            </p>
+            <small class="comment-meta p-1">
+              {{ comment.author }} – {{ comment.date | date:'short' }}
+            </small>
+          </div>
+        </ng-template>
+      </p-scroller>
     } @else {
       <div class="h-full flex items-center justify-center text-gray-400">
         No comments.

@@ -25,13 +25,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Component} from "@angular/core";
+import {AfterViewInit, Component, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button, ButtonDirective} from "primeng/button";
 import {ScrollPanelModule} from "primeng/scrollpanel";
 import {DatePipe} from "@angular/common";
 import {Ripple} from "primeng/ripple";
+import {Scroller} from "primeng/scroller";
 
 interface CommentEntry {
   text: string;
@@ -49,11 +50,14 @@ interface CommentEntry {
     ScrollPanelModule,
     DatePipe,
     Ripple,
-    ButtonDirective
+    ButtonDirective,
+    Scroller
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
-export class CommentsFeed {
+export class CommentsFeed implements AfterViewInit {
+  @ViewChild('scroller') scrollPanel!: Scroller;
+
   comments: CommentEntry[] = [
     {
       text: 'First test comment.',
@@ -69,11 +73,13 @@ export class CommentsFeed {
 
   newCommentText = '';
 
+  ngAfterViewInit(): void {
+    this.scrollToBottom();
+  }
+
   submitComment(): void {
     const text = this.newCommentText.trim();
-    if (!text) {
-      return;
-    }
+    if (!text) return;
 
     this.comments = [
       ...this.comments,
@@ -83,6 +89,15 @@ export class CommentsFeed {
         date: new Date(),
       },
     ];
+
     this.newCommentText = '';
+
+    setTimeout(() => {
+      this.scrollToBottom();
+    });
+  }
+
+  private scrollToBottom(): void {
+    this.scrollPanel.scrollToIndex(this.comments.length - 1, 'smooth');
   }
 }
