@@ -25,6 +25,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-.comment-scrollpanel {
-  height: calc(100% - 78px);
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
+
+.comments-header {
+  flex-shrink: 0;
+  padding: 0.5rem;
+}
+
+.comment-scrollpanel {
+  flex: 1;
+  min-height: 0; // important for the flexbox with overflow
+  overflow: hidden;
+}
+
+.comment-form {
+  flex-shrink: 0;
+  padding: 0.5rem;
+  border-top: 1px solid var(--surface-border, #dee2e6);
+  background: var(--surface-ground, #fff);
+}
+

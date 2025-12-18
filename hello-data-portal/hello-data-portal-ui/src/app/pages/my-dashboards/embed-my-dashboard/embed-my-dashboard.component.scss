@@ -27,9 +27,15 @@
 
 .comments-panel {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: flex-start;
   padding-top: 10px;
+  height: calc(100vh - 120px); // adjust offset based on header/navigation
+
+  app-comments-toggle-panel {
+    height: 100%;
+    display: block;
+  }
 }
 
 .comments-panel-closed {

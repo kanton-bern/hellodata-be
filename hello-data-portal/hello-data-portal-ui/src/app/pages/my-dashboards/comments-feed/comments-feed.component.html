@@ -1,17 +1,17 @@
-<div class="h-full flex flex-col">
+<div class="comments-container">
 
-  <div class="w-full flex justify-center items-center shrink-0">
+  <div class="comments-header">
     <h4 class="text-center">{{ '@Comments' | transloco }}</h4>
   </div>
 
-  <div class="flex-1 overflow-hidden">
+  <div class="comment-scrollpanel">
     @if (comments?.length) {
       <p-scroller #scroller
                   [items]="comments"
                   [itemSize]="50"
-                  scrollHeight="67vh"
+                  scrollHeight="100%"
                   styleClass="border-1 surface-border"
-                  [style]="{ height: '67vh' }"
+                  [style]="{ height: '100%' }"
                   class="w-full h-full px-2 py-2 space-y-2">
         <ng-template pTemplate="item" let-comment let-options="options">
           <div class="border rounded-md bg-white px-2 py-2 space-y-2">
@@ -31,7 +31,7 @@
     }
   </div>
 
-  <div class="comment-form shrink-0 border-t px-2 py-2">
+  <div class="comment-form">
       <textarea
         class="w-full border rounded-md"
         [(ngModel)]="newCommentText"

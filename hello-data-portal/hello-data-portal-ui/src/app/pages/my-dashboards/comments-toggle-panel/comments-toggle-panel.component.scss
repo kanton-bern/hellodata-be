@@ -28,6 +28,20 @@
 .comments-panel {
   position: relative;
   overflow: visible;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.close-btn-container {
+  flex-shrink: 0;
+}
+
+.comments-feed-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .close-btn {
