@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, input} from '@angular/core';
+import {AfterViewInit, Component, inject, input, ViewChild} from '@angular/core';
 
 import {AsyncPipe, NgClass} from '@angular/common';
 import {Store} from "@ngrx/store";
@@ -53,18 +53,22 @@ import {HeaderComponent, SummaryComponent} from '../../shared/components';
   imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, SummaryComponent,
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
-export class SideNavOuterToolbarComponent {
+export class SideNavOuterToolbarComponent implements AfterViewInit {
   private readonly store = inject<Store<AppState>>(Store);
-
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
   hasMinimalRequiredPermissions$: Observable<boolean>;
-  mouseEnterTimeoutId: number[] = [];
+
+  @ViewChild('menu') menu!: TieredMenu;
 
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
     this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
+  }
+
+  ngAfterViewInit(): void {
+    this.menu.dirty = true;
   }
 
   navigateHome() {
@@ -95,20 +99,14 @@ export class SideNavOuterToolbarComponent {
     }
   }
 
-  // hide menu on leave after timeout
   onMouseleave() {
-    const timeoutId = setTimeout(() => {
-      window.document.body.click();
-    }, 1200);
-    this.mouseEnterTimeoutId.push(timeoutId);
+    window.document.body.click();
+    this.menu.dirty = true;
   }
 
-  // reset menu hide timers back on menu
-  onMouseEnter() {
-    for (const timeout of this.mouseEnterTimeoutId) {
-      clearTimeout(timeout);
-    }
-    this.mouseEnterTimeoutId = [];
+  showMenu(event: MouseEvent): void {
+    this.menu.dirty = true;
+    this.menu.toggle(event);
   }
 }
 
