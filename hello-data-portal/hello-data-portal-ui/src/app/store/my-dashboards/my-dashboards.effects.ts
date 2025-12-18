@@ -31,14 +31,25 @@ import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {
+  addComment,
+  addCommentSuccess,
+  deleteComment,
+  deleteCommentError,
+  deleteCommentSuccess,
   loadAvailableDataDomains,
   loadAvailableDataDomainsSuccess,
+  loadDashboardComments,
+  loadDashboardCommentsSuccess,
   loadMyDashboards,
   loadMyDashboardsSuccess,
   setSelectedDataDomain,
+  updateComment,
+  updateCommentError,
+  updateCommentSuccess,
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "./my-dashboards.action";
+import {CommentStatus} from "./my-dashboards.model";
 import {NotificationService} from "../../shared/services/notification.service";
 import {TranslateService} from "../../shared/services/translate.service";
 import {ScreenService} from "../../shared/services";
@@ -48,12 +59,12 @@ import {selectCurrentUserPermissions} from "../auth/auth.selector";
 
 @Injectable()
 export class MyDashboardsEffects {
-  private _actions$ = inject(Actions);
-  private _myDashboardsService = inject(MyDashboardsService);
-  private _notificationService = inject(NotificationService);
-  private _translateService = inject(TranslateService);
-  private _screenService = inject(ScreenService);
-  private _store = inject<Store<AppState>>(Store);
+  private readonly _actions$ = inject(Actions);
+  private readonly _myDashboardsService = inject(MyDashboardsService);
+  private readonly _notificationService = inject(NotificationService);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _screenService = inject(ScreenService);
+  private readonly _store = inject<Store<AppState>>(Store);
 
 
   loadMyDashboards$ = createEffect(() => {
@@ -130,6 +141,101 @@ export class MyDashboardsEffects {
         return scheduled([showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'})], asyncScheduler)
       }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
+    )
+  });
+
+  // Comments effects
+  loadDashboardComments$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadDashboardComments),
+      switchMap(({dashboardId, contextKey}) => {
+        // TODO: Replace with actual API call when backend is ready
+        // return this._myDashboardsService.getDashboardComments(contextKey, dashboardId).pipe(
+        //   switchMap(comments => scheduled([loadDashboardCommentsSuccess({comments})], asyncScheduler)),
+        //   catchError(e => scheduled([loadDashboardCommentsError({error: e})], asyncScheduler))
+        // )
+
+        // Temporary mock data for testing
+        const mockComments = [
+          {
+            id: '1',
+            text: 'First test comment.',
+            author: 'John Doe',
+            status: CommentStatus.PUBLISHED,
+            createdDate: new Date('2024-06-01T09:30:00').getTime(),
+            publishedDate: new Date('2024-06-01T09:30:00').getTime(),
+          },
+          {
+            id: '2',
+            text: 'Great data, thanks for sharing!',
+            author: 'Anne Smith',
+            status: CommentStatus.PUBLISHED,
+            createdDate: new Date('2024-06-02T14:15:00').getTime(),
+            publishedDate: new Date('2024-06-02T14:15:00').getTime(),
+          },
+        ];
+        return scheduled([loadDashboardCommentsSuccess({comments: mockComments})], asyncScheduler);
+      })
+    )
+  });
+
+  addComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(addComment),
+      switchMap(({dashboardId, contextKey, text}) => {
+        // TODO: Replace with actual API call when backend is ready
+        // return this._myDashboardsService.addComment(contextKey, dashboardId, text).pipe(
+        //   switchMap(comment => scheduled([
+        //     addCommentSuccess({comment}),
+        //     showSuccess({message: '@Comment added successfully'})
+        //   ], asyncScheduler)),
+        //   catchError(e => scheduled([addCommentError({error: e}), showError({error: e})], asyncScheduler))
+        // )
+
+        // Temporary mock - create comment locally
+        const mockComment = {
+          id: Date.now().toString(),
+          text,
+          author: 'Current User',
+          status: CommentStatus.PUBLISHED,
+          createdDate: Date.now(),
+          publishedDate: Date.now(),
+        };
+        return scheduled([
+          addCommentSuccess({comment: mockComment}),
+          showSuccess({message: '@Comment added successfully'})
+        ], asyncScheduler);
+      })
+    )
+  });
+
+  updateComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(updateComment),
+      switchMap(({dashboardId, contextKey, commentId, text}) =>
+        this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, text).pipe(
+          switchMap(comment => scheduled([
+            updateCommentSuccess({comment}),
+            showSuccess({message: '@Comment updated successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([updateCommentError({error: e}), showError({error: e})], asyncScheduler))
+        )
+      )
+    )
+  });
+
+  deleteComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteComment),
+      switchMap(({dashboardId, contextKey, commentId}) =>
+        this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId).pipe(
+          switchMap(() => scheduled([
+            deleteCommentSuccess({commentId}),
+            showSuccess({message: '@Comment deleted successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([deleteCommentError({error: e}), showError({error: e})], asyncScheduler))
+        )
+      )
     )
   });
 }

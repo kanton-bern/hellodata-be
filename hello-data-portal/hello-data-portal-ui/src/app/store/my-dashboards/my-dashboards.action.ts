@@ -26,7 +26,7 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
-import {DataDomain} from "./my-dashboards.model";
+import {CommentEntry, DataDomain} from "./my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
 export enum MyDashboardsActionType {
@@ -39,6 +39,21 @@ export enum MyDashboardsActionType {
 
   UPLOAD_DASHBOARDS_FILE_SUCCESS = '[MYDASHBOARDS] Upload dashboards file SUCCESS',
   UPLOAD_DASHBOARDS_FILE_ERROR = '[MYDASHBOARDS] Upload dashboards file ERROR',
+
+  // Comments actions
+  SET_CURRENT_DASHBOARD = '[MYDASHBOARDS] Set current dashboard',
+  LOAD_DASHBOARD_COMMENTS = '[MYDASHBOARDS] Load dashboard comments',
+  LOAD_DASHBOARD_COMMENTS_SUCCESS = '[MYDASHBOARDS] Load dashboard comments SUCCESS',
+  LOAD_DASHBOARD_COMMENTS_ERROR = '[MYDASHBOARDS] Load dashboard comments ERROR',
+  ADD_COMMENT = '[MYDASHBOARDS] Add comment',
+  ADD_COMMENT_SUCCESS = '[MYDASHBOARDS] Add comment SUCCESS',
+  ADD_COMMENT_ERROR = '[MYDASHBOARDS] Add comment ERROR',
+  UPDATE_COMMENT = '[MYDASHBOARDS] Update comment',
+  UPDATE_COMMENT_SUCCESS = '[MYDASHBOARDS] Update comment SUCCESS',
+  UPDATE_COMMENT_ERROR = '[MYDASHBOARDS] Update comment ERROR',
+  DELETE_COMMENT = '[MYDASHBOARDS] Delete comment',
+  DELETE_COMMENT_SUCCESS = '[MYDASHBOARDS] Delete comment SUCCESS',
+  DELETE_COMMENT_ERROR = '[MYDASHBOARDS] Delete comment ERROR',
 }
 
 export const loadMyDashboards = createAction(
@@ -72,3 +87,70 @@ export const uploadDashboardsError = createAction(
   MyDashboardsActionType.UPLOAD_DASHBOARDS_FILE_ERROR,
   props<{ error: any }>()
 );
+
+// Comments actions
+export const setCurrentDashboard = createAction(
+  MyDashboardsActionType.SET_CURRENT_DASHBOARD,
+  props<{ dashboardId: number; contextKey: string }>()
+);
+
+export const loadDashboardComments = createAction(
+  MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS,
+  props<{ dashboardId: number; contextKey: string }>()
+);
+
+export const loadDashboardCommentsSuccess = createAction(
+  MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS_SUCCESS,
+  props<{ comments: CommentEntry[] }>()
+);
+
+export const loadDashboardCommentsError = createAction(
+  MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS_ERROR,
+  props<{ error: any }>()
+);
+
+export const addComment = createAction(
+  MyDashboardsActionType.ADD_COMMENT,
+  props<{ dashboardId: number; contextKey: string; text: string }>()
+);
+
+export const addCommentSuccess = createAction(
+  MyDashboardsActionType.ADD_COMMENT_SUCCESS,
+  props<{ comment: CommentEntry }>()
+);
+
+export const addCommentError = createAction(
+  MyDashboardsActionType.ADD_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const updateComment = createAction(
+  MyDashboardsActionType.UPDATE_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string; text: string }>()
+);
+
+export const updateCommentSuccess = createAction(
+  MyDashboardsActionType.UPDATE_COMMENT_SUCCESS,
+  props<{ comment: CommentEntry }>()
+);
+
+export const updateCommentError = createAction(
+  MyDashboardsActionType.UPDATE_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const deleteComment = createAction(
+  MyDashboardsActionType.DELETE_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string }>()
+);
+
+export const deleteCommentSuccess = createAction(
+  MyDashboardsActionType.DELETE_COMMENT_SUCCESS,
+  props<{ commentId: string }>()
+);
+
+export const deleteCommentError = createAction(
+  MyDashboardsActionType.DELETE_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+

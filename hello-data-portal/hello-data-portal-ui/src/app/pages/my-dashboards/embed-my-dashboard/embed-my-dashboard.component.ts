@@ -41,6 +41,7 @@ import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 
@@ -56,6 +57,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
+  private loadedDashboardId: number | null = null;
 
   constructor() {
     super();
@@ -91,6 +93,15 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
       this.openedSupersetsService.rememberOpenedSubsystem(supersetUrl + 'logout');
       const dataDomainName = dashboardInfo.appinfo?.businessContextInfo.subContext.name;
       this.createBreadcrumbs(dataDomainName, dashboardInfo.dashboard, dashboardInfo.currentUrl);
+
+      // Load comments for current dashboard
+      const dashboardId = dashboardInfo.dashboard.id;
+      const contextKey = dashboardInfo.appinfo?.businessContextInfo.subContext.key;
+      if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
+        this.loadedDashboardId = dashboardId;
+        this.store.dispatch(setCurrentDashboard({dashboardId, contextKey}));
+        this.store.dispatch(loadDashboardComments({dashboardId, contextKey}));
+      }
     }
   }
 

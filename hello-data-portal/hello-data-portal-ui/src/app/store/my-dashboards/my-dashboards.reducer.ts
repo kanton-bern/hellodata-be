@@ -28,7 +28,16 @@
 import {initialMyDashboardsState, MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {createReducer, on} from "@ngrx/store";
-import {loadAvailableDataDomainsSuccess, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
+import {
+  addCommentSuccess,
+  deleteCommentSuccess,
+  loadAvailableDataDomainsSuccess,
+  loadDashboardCommentsSuccess,
+  loadMyDashboardsSuccess,
+  setCurrentDashboard,
+  setSelectedDataDomain,
+  updateCommentSuccess
+} from "./my-dashboards.action";
 import {DataDomain} from "./my-dashboards.model";
 
 export const SELECTED_DATA_DOMAIN_KEY = 'Selected_Data_Domain';
@@ -65,8 +74,43 @@ export const myDashboardsReducer = createReducer(
     }
     return {
       ...state,
-      selectedDataDomain: selectedDataDomain ? selectedDataDomain : defaultDataDomain,
+      selectedDataDomain: selectedDataDomain ?? defaultDataDomain,
       availableDataDomains: uniqueDataDomains,
+    }
+  }),
+  // Comments reducers
+  on(setCurrentDashboard, (state: MyDashboardsState, {dashboardId, contextKey}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardId: dashboardId,
+      currentDashboardContextKey: contextKey,
+      currentDashboardComments: []
+    }
+  }),
+  on(loadDashboardCommentsSuccess, (state: MyDashboardsState, {comments}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: comments
+    }
+  }),
+  on(addCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: [...state.currentDashboardComments, comment]
+    }
+  }),
+  on(updateCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(deleteCommentSuccess, (state: MyDashboardsState, {commentId}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.filter(c => c.id !== commentId)
     }
   }),
 );

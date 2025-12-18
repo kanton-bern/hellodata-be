@@ -31,6 +31,7 @@ import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
 import {selectProfile} from "../auth/auth.selector";
+import {CommentStatus} from "./my-dashboards.model";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
 const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
@@ -96,7 +97,7 @@ export const selectAvailableDataDomainItems = createSelector(
   selectAvailableDataDomains,
   selectSelectedDataDomain,
   (availableDataDomains, selectedDataDomain) => {
-    if (selectedDataDomain && selectedDataDomain.id === '') {
+    if (selectedDataDomain?.id === '') {
       return availableDataDomains
         .filter(availableDataDomain => availableDataDomain.id)
         .map(availableDataDomain => ({
@@ -145,3 +146,42 @@ export const selectCurrentMyDashboardInfo = createSelector(
     }
   }
 );
+
+// Comments selectors
+export const selectCurrentDashboardId = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardId
+);
+
+export const selectCurrentDashboardContextKey = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardContextKey
+);
+
+export const selectCurrentDashboardComments = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardComments
+);
+
+export const selectPublishedComments = createSelector(
+  selectCurrentDashboardComments,
+  (comments) => comments.filter(c => c.status === CommentStatus.PUBLISHED)
+    .sort((a, b) => a.createdDate - b.createdDate)
+);
+
+export const selectDraftComments = createSelector(
+  selectCurrentDashboardComments,
+  (comments) => comments.filter(c => c.status === CommentStatus.DRAFT)
+    .sort((a, b) => a.createdDate - b.createdDate)
+);
+
+export const selectCommentsCount = createSelector(
+  selectCurrentDashboardComments,
+  (comments) => comments.length
+);
+
+export const selectPublishedCommentsCount = createSelector(
+  selectPublishedComments,
+  (comments) => comments.length
+);
+

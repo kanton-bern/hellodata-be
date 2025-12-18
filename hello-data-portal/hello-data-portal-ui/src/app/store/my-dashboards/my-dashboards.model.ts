@@ -52,3 +52,17 @@ export interface DataDomain {
   key: string
 }
 
+export enum CommentStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED'
+}
+
+export interface CommentEntry {
+  id: string;
+  text: string;
+  author: string;
+  status: CommentStatus;
+  createdDate: number;
+  publishedDate?: number;
+  lastEditedDate?: number;
+}

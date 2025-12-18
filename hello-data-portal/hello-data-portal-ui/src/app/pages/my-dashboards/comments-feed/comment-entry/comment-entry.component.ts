@@ -27,9 +27,9 @@
 
 import {Component, input} from "@angular/core";
 import {DatePipe} from "@angular/common";
-import {CommentEntry} from "../comments-feed.component";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
+import {CommentEntry} from "../../../../store/my-dashboards/my-dashboards.model";
 
 @Component({
   selector: 'app-comment-entry',

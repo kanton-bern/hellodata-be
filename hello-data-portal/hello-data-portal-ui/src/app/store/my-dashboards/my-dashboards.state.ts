@@ -25,17 +25,21 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {DataDomain} from "./my-dashboards.model";
+import {CommentEntry, DataDomain} from "./my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
 export interface MyDashboardsState {
   myDashboards: SupersetDashboardWithMetadata[],
   selectedDataDomain: DataDomain | null,
   availableDataDomains: DataDomain[],
+  currentDashboardId?: number,
+  currentDashboardContextKey?: string,
+  currentDashboardComments: CommentEntry[]
 }
 
 export const initialMyDashboardsState: MyDashboardsState = {
   myDashboards: [],
   selectedDataDomain: null,
   availableDataDomains: [],
+  currentDashboardComments: []
 }

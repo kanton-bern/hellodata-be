@@ -25,10 +25,10 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {DataDomain} from "./my-dashboards.model";
+import {CommentEntry, DataDomain} from "./my-dashboards.model";
 import {environment} from "../../../environments/environment";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
@@ -40,6 +40,7 @@ export class MyDashboardsService {
 
 
   baseUrl = `${environment.portalApi}/superset`;
+  commentsBaseUrl = `${environment.portalApi}/dashboards`;
 
   public getMyDashboards(): Observable<SupersetDashboardWithMetadata[]> {
     return this.httpClient.get<SupersetDashboardWithMetadata[]>(`${this.baseUrl}/my-dashboards`);
@@ -49,4 +50,20 @@ export class MyDashboardsService {
     return this.httpClient.get<DataDomain[]>(`${environment.portalApi}/users/data-domains`);
   }
 
+  // Comments API methods
+  public getDashboardComments(contextKey: string, dashboardId: number): Observable<CommentEntry[]> {
+    return this.httpClient.get<CommentEntry[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`);
+  }
+
+  public addComment(contextKey: string, dashboardId: number, text: string): Observable<CommentEntry> {
+    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`, {text});
+  }
+
+  public updateComment(contextKey: string, dashboardId: number, commentId: string, text: string): Observable<CommentEntry> {
+    return this.httpClient.put<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, {text});
+  }
+
+  public deleteComment(contextKey: string, dashboardId: number, commentId: string): Observable<void> {
+    return this.httpClient.delete<void>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`);
+  }
 }

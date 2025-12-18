@@ -25,26 +25,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, ElementRef, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, inject, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button, ButtonDirective} from "primeng/button";
 import {Ripple} from "primeng/ripple";
 import {CommentEntryComponent} from "./comment-entry/comment-entry.component";
+import {Store} from "@ngrx/store";
+import {AppState} from "../../../store/app/app.state";
+import {addComment} from "../../../store/my-dashboards/my-dashboards.action";
+import {
+  selectCurrentDashboardContextKey,
+  selectCurrentDashboardId,
+  selectPublishedComments
+} from "../../../store/my-dashboards/my-dashboards.selector";
+import {AsyncPipe} from "@angular/common";
 
-export enum CommentStatus {
-  DRAFT = 'DRAFT',
-  PUBLISHED = 'PUBLISHED'
-}
-
-export interface CommentEntry {
-  text: string;
-  author: string;
-  status: CommentStatus;
-  createdDate: number;
-  publishedDate?: number;
-  lastEditedDate?: number;
-}
 
 @Component({
   selector: 'app-comments-feed',
@@ -55,31 +51,28 @@ export interface CommentEntry {
     Button,
     Ripple,
     ButtonDirective,
-    CommentEntryComponent
+    CommentEntryComponent,
+    AsyncPipe
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
 export class CommentsFeed implements AfterViewInit {
+  private readonly store = inject<Store<AppState>>(Store);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
 
-  comments: CommentEntry[] = [
-    {
-      text: 'First test comment.',
-      author: 'John Doe',
-      status: CommentStatus.PUBLISHED,
-      createdDate: new Date('2024-06-01T09:30:00').getTime(),
-      publishedDate: new Date('2024-06-01T09:30:00').getTime(),
-    },
-    {
-      text: 'Great data, thanks for sharing!',
-      author: 'Anne Smith',
-      status: CommentStatus.PUBLISHED,
-      createdDate: new Date('2024-06-02T14:15:00').getTime(),
-      publishedDate: new Date('2024-06-02T14:15:00').getTime(),
-    },
-  ];
+  comments$ = this.store.select(selectPublishedComments);
+  currentDashboardId$ = this.store.select(selectCurrentDashboardId);
+  currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
 
   newCommentText = '';
+
+  private currentDashboardId: number | undefined;
+  private currentDashboardContextKey: string | undefined;
+
+  constructor() {
+    this.currentDashboardId$.subscribe(id => this.currentDashboardId = id);
+    this.currentDashboardContextKey$.subscribe(key => this.currentDashboardContextKey = key);
+  }
 
   ngAfterViewInit(): void {
     this.scrollToBottom();
@@ -90,16 +83,13 @@ export class CommentsFeed implements AfterViewInit {
     const text = this.newCommentText.trim();
     if (!text) return;
 
-    this.comments = [
-      ...this.comments,
-      {
-        text,
-        author: 'Anonymous',
-        status: CommentStatus.DRAFT,
-        createdDate: Date.now(),
-        publishedDate: Date.now(),
-      },
-    ];
+    if (this.currentDashboardId && this.currentDashboardContextKey) {
+      this.store.dispatch(addComment({
+        dashboardId: this.currentDashboardId,
+        contextKey: this.currentDashboardContextKey,
+        text
+      }));
+    }
 
     this.newCommentText = '';
 

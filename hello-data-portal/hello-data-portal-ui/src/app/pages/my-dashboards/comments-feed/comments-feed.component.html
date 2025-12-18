@@ -5,12 +5,18 @@
   </div>
 
   <div class="comment-scrollpanel" #scrollContainer>
-    @if (comments?.length) {
-      <div class="comments-list">
-        @for (comment of comments; track comment.createdDate) {
-          <app-comment-entry [comment]="comment"></app-comment-entry>
-        }
-      </div>
+    @if ((comments$ | async); as comments) {
+      @if (comments.length) {
+        <div class="comments-list">
+          @for (comment of comments; track comment.id) {
+            <app-comment-entry [comment]="comment"></app-comment-entry>
+          }
+        </div>
+      } @else {
+        <div class="h-full flex items-center justify-center text-gray-400">
+          No comments.
+        </div>
+      }
     } @else {
       <div class="h-full flex items-center justify-center text-gray-400">
         No comments.
