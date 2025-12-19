@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
-import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakLogoutHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +33,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -53,7 +52,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true) //NOSONAR
 public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
@@ -70,7 +69,7 @@ public class SecurityConfig {
 
     private final Environment env;
     private final KeycloakLogoutHandler keycloakLogoutHandler;
-    private final HellodataAuthenticationConverter hellodataAuthenticationConverter;
+    private final Converter hellodataAuthenticationConverter; //NOSONAR
 
     @Value("${hello-data.cors.allowed-origins}")
     private String allowedOrigins;
@@ -87,7 +86,11 @@ public class SecurityConfig {
         configureCors(http);
         configureCsrf(http);
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers(AUTH_WHITELIST).permitAll();
+            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length]; //NOSONAR
+            for (int i = 0; i < AUTH_WHITELIST.length; i++) {
+                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]); //NOSONAR
+            }
+            auth.requestMatchers(matchers).permitAll();
             auth.anyRequest().authenticated();
         });
         http.oauth2Login(withDefaults());
@@ -99,7 +102,7 @@ public class SecurityConfig {
 
     private void configureCsrf(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-csrf")) {
-            http.csrf(AbstractHttpConfigurer::disable); //NOSONAR
+            http.csrf(csrf -> csrf.disable()); //NOSONAR
         } else {
             http.csrf(withDefaults());
         }
@@ -115,7 +118,7 @@ public class SecurityConfig {
 
     private void configureCors(HttpSecurity http) throws Exception {
         if (env.matchesProfiles("disable-cors")) {
-            http.cors(AbstractHttpConfigurer::disable); //NOSONAR
+            http.cors(cors -> cors.disable()); //NOSONAR
         } else {
             List<String> allowedOriginList = Arrays.stream(allowedOrigins.split(",")).toList();
 
