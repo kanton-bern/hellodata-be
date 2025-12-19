@@ -29,13 +29,13 @@ package ch.bedag.dap.hellodata.portal.base.auth;
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -49,18 +49,15 @@ import java.util.*;
 public class HellodataAuthenticationConverter implements Converter<Jwt, HellodataAuthenticationToken> {
 
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
 
     @Value("${hello-data.cache.user-database-ttl-minutes:2}")
     private int userDatabaseTtlCacheMinutes;
-    @Value("${hello-data.cache.user-permission-ttl-minutes:2}")
-    private int getUserDatabaseTtlCacheMinutes;
-
     private final Cache<String, UserDto> userDatabaseCache = Caffeine.newBuilder()
             .expireAfterWrite(userDatabaseTtlCacheMinutes, java.util.concurrent.TimeUnit.MINUTES)
             .maximumSize(1000)
             .build();
-
+    @Value("${hello-data.cache.user-permission-ttl-minutes:2}")
+    private int getUserDatabaseTtlCacheMinutes;
     private final Cache<String, List<String>> userPermissionsCache = Caffeine.newBuilder()
             .expireAfterWrite(getUserDatabaseTtlCacheMinutes, java.util.concurrent.TimeUnit.MINUTES)
             .maximumSize(1000)
@@ -102,7 +99,7 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
         return userDatabaseCache.get(email, emailKey -> {
             UserEntity userEntity = userRepository.findUserEntityByEmailIgnoreCase(emailKey).orElse(null);
             if (userEntity != null) {
-                return modelMapper.map(userEntity, UserDto.class);
+                return UserDtoMapper.map(userEntity);
             }
             return null;
         });
