@@ -143,6 +143,7 @@
   "@Is admin": "Admin",
   "@Is editor": "Editor",
   "@Is viewer": "Viewer",
+  "@Last edited": "Last edited",
   "@Last login": "Last login",
   "@Last name": "Last name",
   "@Last name is invalid": "Last name is invalid",

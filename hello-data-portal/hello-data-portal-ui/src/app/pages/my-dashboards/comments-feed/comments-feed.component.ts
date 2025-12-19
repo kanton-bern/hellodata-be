@@ -37,7 +37,7 @@ import {addComment} from "../../../store/my-dashboards/my-dashboards.action";
 import {
   selectCurrentDashboardContextKey,
   selectCurrentDashboardId,
-  selectPublishedComments
+  selectVisibleComments
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {AsyncPipe} from "@angular/common";
 
@@ -60,7 +60,7 @@ export class CommentsFeed implements AfterViewInit {
   private readonly store = inject<Store<AppState>>(Store);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
 
-  comments$ = this.store.select(selectPublishedComments);
+  comments$ = this.store.select(selectVisibleComments);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
 

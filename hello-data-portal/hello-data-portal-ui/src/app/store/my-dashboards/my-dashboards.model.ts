@@ -64,5 +64,10 @@ export interface CommentEntry {
   status: CommentStatus;
   createdDate: number;
   publishedDate?: number;
+  publishedBy?: string;
   lastEditedDate?: number;
+  lastEditedBy?: string;
+  deleted: boolean;
+  deletedDate?: number;
+  deletedBy?: string;
 }

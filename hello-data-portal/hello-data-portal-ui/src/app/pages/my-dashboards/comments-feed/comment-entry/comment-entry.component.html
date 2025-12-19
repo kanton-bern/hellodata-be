@@ -23,10 +23,16 @@
         <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + comment().status | transloco }}</div>
         <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
         @if (comment().publishedDate) {
-          <div><strong>{{ '@Published' | transloco }}:</strong> {{ comment().publishedDate | date:'medium' }}</div>
+          <div><strong>{{ '@Published' | transloco }}
+            :</strong> {{ comment().publishedDate | date:'medium' }}@if (comment().publishedBy) {
+            ({{ comment().publishedBy }})
+          }</div>
         }
         @if (comment().lastEditedDate) {
-          <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ comment().lastEditedDate | date:'medium' }}</div>
+          <div><strong>{{ '@Last edited' | transloco }}
+            :</strong> {{ comment().lastEditedDate | date:'medium' }}@if (comment().lastEditedBy) {
+            ({{ comment().lastEditedBy }})
+          }</div>
         }
       </small>
     </div>

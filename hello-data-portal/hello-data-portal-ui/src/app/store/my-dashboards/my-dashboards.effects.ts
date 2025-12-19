@@ -164,6 +164,8 @@ export class MyDashboardsEffects {
             status: CommentStatus.PUBLISHED,
             createdDate: new Date('2024-06-01T09:30:00').getTime(),
             publishedDate: new Date('2024-06-01T09:30:00').getTime(),
+            publishedBy: 'Admin',
+            deleted: false,
           },
           {
             id: '2',
@@ -172,6 +174,8 @@ export class MyDashboardsEffects {
             status: CommentStatus.PUBLISHED,
             createdDate: new Date('2024-06-02T14:15:00').getTime(),
             publishedDate: new Date('2024-06-02T14:15:00').getTime(),
+            publishedBy: 'Admin',
+            deleted: false,
           },
         ];
         return scheduled([loadDashboardCommentsSuccess({comments: mockComments})], asyncScheduler);
@@ -193,15 +197,16 @@ export class MyDashboardsEffects {
         //   catchError(e => scheduled([addCommentError({error: e}), showError({error: e})], asyncScheduler))
         // )
 
-        // Temporary mock - create comment locally
+        // Temporary mock - simulating backend response
+        // Backend generates: id, author (createdBy), status (DRAFT), deleted
         const authorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
         const mockComment = {
-          id: Date.now().toString(),
+          id: crypto.randomUUID(), // Backend generates UUID
           text,
-          author: authorName,
-          status: CommentStatus.PUBLISHED,
+          author: authorName, // Backend sets from authenticated user
+          status: CommentStatus.DRAFT, // Backend sets initial status as DRAFT
           createdDate: Date.now(),
-          publishedDate: Date.now(),
+          deleted: false, // Backend sets default as false
         };
         return scheduled([
           addCommentSuccess({comment: mockComment}),

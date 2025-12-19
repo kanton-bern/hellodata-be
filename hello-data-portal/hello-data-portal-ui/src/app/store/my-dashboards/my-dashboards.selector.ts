@@ -163,6 +163,22 @@ export const selectCurrentDashboardComments = createSelector(
   (state: MyDashboardsState) => state.currentDashboardComments
 );
 
+export const selectVisibleComments = createSelector(
+  selectCurrentDashboardComments,
+  selectProfile,
+  (comments, profile) => {
+    const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
+    return comments
+      .filter(c =>
+          !c.deleted && (
+            c.status === CommentStatus.PUBLISHED ||
+            (c.status === CommentStatus.DRAFT && c.author === currentUserName)
+          )
+      )
+      .sort((a, b) => a.createdDate - b.createdDate);
+  }
+);
+
 export const selectPublishedComments = createSelector(
   selectCurrentDashboardComments,
   (comments) => comments.filter(c => c.status === CommentStatus.PUBLISHED)
