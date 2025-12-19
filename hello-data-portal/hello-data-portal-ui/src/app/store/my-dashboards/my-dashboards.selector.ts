@@ -30,8 +30,8 @@ import {createSelector} from "@ngrx/store";
 import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
-import {selectProfile} from "../auth/auth.selector";
-import {CommentStatus} from "./my-dashboards.model";
+import {selectIsSuperuser, selectProfile} from "../auth/auth.selector";
+import {CommentEntry, CommentStatus} from "./my-dashboards.model";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
 const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
@@ -166,13 +166,14 @@ export const selectCurrentDashboardComments = createSelector(
 export const selectVisibleComments = createSelector(
   selectCurrentDashboardComments,
   selectProfile,
-  (comments, profile) => {
+  (state: AppState) => state.auth.isSuperuser,
+  (comments, profile, isSuperuser) => {
     const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
     return comments
       .filter(c =>
           !c.deleted && (
             c.status === CommentStatus.PUBLISHED ||
-            (c.status === CommentStatus.DRAFT && c.author === currentUserName)
+            (c.status === CommentStatus.DRAFT && (isSuperuser || c.author === currentUserName))
           )
       )
       .sort((a, b) => a.createdDate - b.createdDate);
@@ -201,3 +202,34 @@ export const selectPublishedCommentsCount = createSelector(
   (comments) => comments.length
 );
 
+export const canEditComment = createSelector(
+  selectProfile,
+  selectIsSuperuser,
+  (profile, isSuperuser) => (comment: CommentEntry) => {
+    const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
+    return !comment.deleted && (isSuperuser || (comment.status === CommentStatus.DRAFT && comment.author === currentUserName));
+  }
+);
+
+export const canPublishComment = createSelector(
+  selectIsSuperuser,
+  (isSuperuser) => (comment: CommentEntry) => {
+    return !comment.deleted && comment.status === CommentStatus.DRAFT && !!comment.text && comment.text.length > 0 && isSuperuser;
+  }
+);
+
+export const canUnpublishComment = createSelector(
+  selectIsSuperuser,
+  (isSuperuser) => (comment: CommentEntry) => {
+    return !comment.deleted && comment.status === CommentStatus.PUBLISHED && isSuperuser;
+  }
+);
+
+export const canDeleteComment = createSelector(
+  selectProfile,
+  selectIsSuperuser,
+  (profile, isSuperuser) => (comment: CommentEntry) => {
+    const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
+    return !comment.deleted && (isSuperuser || comment.author === currentUserName);
+  }
+);

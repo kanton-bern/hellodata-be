@@ -25,11 +25,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Component, input} from "@angular/core";
-import {DatePipe} from "@angular/common";
+import {Component, computed, inject, input} from "@angular/core";
+import {AsyncPipe, DatePipe} from "@angular/common";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
-import {CommentEntry} from "../../../../store/my-dashboards/my-dashboards.model";
+import {CommentEntry, CommentStatus} from "../../../../store/my-dashboards/my-dashboards.model";
+import {Store} from "@ngrx/store";
+import {AppState} from "../../../../store/app/app.state";
+import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
+import {deleteComment, publishComment, unpublishComment} from "../../../../store/my-dashboards/my-dashboards.action";
+import {
+  canDeleteComment,
+  canEditComment,
+  canPublishComment,
+  canUnpublishComment,
+  selectCurrentDashboardContextKey,
+  selectCurrentDashboardId
+} from "../../../../store/my-dashboards/my-dashboards.selector";
+import {take} from "rxjs";
+import {ConfirmationService} from "primeng/api";
+import {TranslateService} from "../../../../shared/services/translate.service";
 
 @Component({
   selector: 'app-comment-entry',
@@ -38,17 +53,107 @@ import {CommentEntry} from "../../../../store/my-dashboards/my-dashboards.model"
   imports: [
     DatePipe,
     Tooltip,
-    TranslocoPipe
+    TranslocoPipe,
+    AsyncPipe
   ],
   styleUrls: ['./comment-entry.component.scss']
 })
 export class CommentEntryComponent {
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
+
   comment = input.required<CommentEntry>();
 
   expanded = false;
 
+  isSuperuser$ = this.store.select(selectIsSuperuser);
+  currentDashboardId$ = this.store.select(selectCurrentDashboardId);
+  currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
+
+  // Computed properties for permissions
+  canEditFn = this.store.selectSignal(canEditComment);
+  canPublishFn = this.store.selectSignal(canPublishComment);
+  canUnpublishFn = this.store.selectSignal(canUnpublishComment);
+  canDeleteFn = this.store.selectSignal(canDeleteComment);
+
+  canEdit = computed(() => this.canEditFn()(this.comment()));
+  canPublish = computed(() => this.canPublishFn()(this.comment()));
+  canUnpublish = computed(() => this.canUnpublishFn()(this.comment()));
+  canDelete = computed(() => this.canDeleteFn()(this.comment()));
+
+  protected readonly CommentStatus = CommentStatus;
+
   toggleDetails(): void {
     this.expanded = !this.expanded;
   }
-}
 
+  publishComment(): void {
+    const message = this.translateService.translate('@Publish comment question');
+    this.confirmationService.confirm({
+      key: 'publishComment',
+      message: message,
+      icon: 'fas fa-triangle-exclamation',
+      accept: () => {
+        const comment = this.comment();
+        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+            if (dashboardId && contextKey) {
+              this.store.dispatch(publishComment({
+                dashboardId,
+                contextKey,
+                commentId: comment.id
+              }));
+            }
+          });
+        });
+      }
+    });
+  }
+
+  unpublishComment(): void {
+    const message = this.translateService.translate('@Unpublish comment question');
+    this.confirmationService.confirm({
+      key: 'unpublishComment',
+      message: message,
+      icon: 'fas fa-triangle-exclamation',
+      accept: () => {
+        const comment = this.comment();
+        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+            if (dashboardId && contextKey) {
+              this.store.dispatch(unpublishComment({
+                dashboardId,
+                contextKey,
+                commentId: comment.id
+              }));
+            }
+          });
+        });
+      }
+    });
+  }
+
+  deleteComment(): void {
+    const message = this.translateService.translate('@Delete comment question');
+    this.confirmationService.confirm({
+      key: 'deleteComment',
+      message: message,
+      icon: 'fas fa-triangle-exclamation',
+      accept: () => {
+        const comment = this.comment();
+        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+            if (dashboardId && contextKey) {
+              this.store.dispatch(deleteComment({
+                dashboardId,
+                contextKey,
+                commentId: comment.id
+              }));
+            }
+          });
+        });
+      }
+    });
+  }
+}

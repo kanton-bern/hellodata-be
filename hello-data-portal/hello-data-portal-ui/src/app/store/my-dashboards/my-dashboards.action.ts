@@ -54,6 +54,12 @@ export enum MyDashboardsActionType {
   DELETE_COMMENT = '[MYDASHBOARDS] Delete comment',
   DELETE_COMMENT_SUCCESS = '[MYDASHBOARDS] Delete comment SUCCESS',
   DELETE_COMMENT_ERROR = '[MYDASHBOARDS] Delete comment ERROR',
+  PUBLISH_COMMENT = '[MYDASHBOARDS] Publish comment',
+  PUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Publish comment SUCCESS',
+  PUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Publish comment ERROR',
+  UNPUBLISH_COMMENT = '[MYDASHBOARDS] Unpublish comment',
+  UNPUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Unpublish comment SUCCESS',
+  UNPUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Unpublish comment ERROR',
 }
 
 export const loadMyDashboards = createAction(
@@ -151,6 +157,36 @@ export const deleteCommentSuccess = createAction(
 
 export const deleteCommentError = createAction(
   MyDashboardsActionType.DELETE_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const publishComment = createAction(
+  MyDashboardsActionType.PUBLISH_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string }>()
+);
+
+export const publishCommentSuccess = createAction(
+  MyDashboardsActionType.PUBLISH_COMMENT_SUCCESS,
+  props<{ comment: CommentEntry }>()
+);
+
+export const publishCommentError = createAction(
+  MyDashboardsActionType.PUBLISH_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const unpublishComment = createAction(
+  MyDashboardsActionType.UNPUBLISH_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string }>()
+);
+
+export const unpublishCommentSuccess = createAction(
+  MyDashboardsActionType.UNPUBLISH_COMMENT_SUCCESS,
+  props<{ comment: CommentEntry }>()
+);
+
+export const unpublishCommentError = createAction(
+  MyDashboardsActionType.UNPUBLISH_COMMENT_ERROR,
   props<{ error: any }>()
 );
 

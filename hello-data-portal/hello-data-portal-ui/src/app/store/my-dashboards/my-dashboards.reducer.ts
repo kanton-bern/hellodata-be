@@ -34,8 +34,10 @@ import {
   loadAvailableDataDomainsSuccess,
   loadDashboardCommentsSuccess,
   loadMyDashboardsSuccess,
+  publishCommentSuccess,
   setCurrentDashboard,
   setSelectedDataDomain,
+  unpublishCommentSuccess,
   updateCommentSuccess
 } from "./my-dashboards.action";
 import {DataDomain} from "./my-dashboards.model";
@@ -111,6 +113,22 @@ export const myDashboardsReducer = createReducer(
     return {
       ...state,
       currentDashboardComments: state.currentDashboardComments.filter(c => c.id !== commentId)
+    }
+  }),
+  on(publishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(unpublishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
     }
   }),
 );

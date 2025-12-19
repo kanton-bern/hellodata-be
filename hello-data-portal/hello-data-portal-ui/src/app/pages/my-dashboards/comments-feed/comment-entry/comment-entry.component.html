@@ -8,13 +8,34 @@
     </small>
     <div class="comment-actions">
       <span class="status-dot"
-            [class.published]="comment().status === 'PUBLISHED'"
-            [class.draft]="comment().status === 'DRAFT'"
+            [class.published]="comment().status === CommentStatus.PUBLISHED"
+            [class.draft]="comment().status === CommentStatus.DRAFT"
             [pTooltip]="'@' + comment().status | transloco"
             tooltipPosition="top"></span>
+      @if ((isSuperuser$ | async) && comment().status === CommentStatus.DRAFT) {
+        <button class="publish-btn"
+                (click)="publishComment()"
+                [pTooltip]="'@Publish' | transloco"
+                tooltipPosition="top">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </button>
+      }
+      @if ((isSuperuser$ | async) && comment().status === CommentStatus.PUBLISHED) {
+        <button class="unpublish-btn"
+                (click)="unpublishComment()"
+                [pTooltip]="'@Unpublish' | transloco"
+                tooltipPosition="top">
+          <i class="fa-solid fa-cloud-arrow-down"></i>
+        </button>
+      }
       <button class="info-btn" (click)="toggleDetails()">
         <i class="fa fa-info-circle"></i>
       </button>
+      @if (canDelete()) {
+        <button class="delete-btn" (click)="deleteComment()" [pTooltip]="'@Delete' | transloco" tooltipPosition="top">
+          <i class="fa fa-trash"></i>
+        </button>
+      }
     </div>
   </div>
   @if (expanded) {

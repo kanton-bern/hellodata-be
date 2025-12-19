@@ -40,6 +40,8 @@ import {
   selectVisibleComments
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {AsyncPipe} from "@angular/common";
+import {ConfirmDialog} from "primeng/confirmdialog";
+import {PrimeTemplate} from "primeng/api";
 
 
 @Component({
@@ -52,7 +54,9 @@ import {AsyncPipe} from "@angular/common";
     Ripple,
     ButtonDirective,
     CommentEntryComponent,
-    AsyncPipe
+    AsyncPipe,
+    ConfirmDialog,
+    PrimeTemplate
   ],
   styleUrls: ['./comments-feed.component.scss']
 })

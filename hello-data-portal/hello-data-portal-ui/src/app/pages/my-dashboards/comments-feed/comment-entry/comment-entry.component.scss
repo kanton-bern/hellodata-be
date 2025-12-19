@@ -85,6 +85,45 @@
   }
 }
 
+.publish-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--success-color, #22c55e);
+  padding: 0.1rem;
+  font-size: 0.75rem;
+
+  &:hover {
+    color: var(--success-color-dark, #16a34a);
+  }
+}
+
+.unpublish-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--warning-color, #f59e0b);
+  padding: 0.1rem;
+  font-size: 0.75rem;
+
+  &:hover {
+    color: var(--warning-color-dark, #d97706);
+  }
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--p-button-text-danger-color, #dc3545);
+  padding: 0.1rem;
+  font-size: 0.75rem;
+
+  &:hover {
+    color: var(--p-button-text-danger-hover-color, #c82333);
+  }
+}
+
 .comment-details {
   margin-top: 0.5rem;
   padding-top: 0.5rem;

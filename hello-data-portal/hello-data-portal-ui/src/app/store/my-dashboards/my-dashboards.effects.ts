@@ -27,14 +27,13 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap, take, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {
   addComment,
   addCommentSuccess,
   deleteComment,
-  deleteCommentError,
   deleteCommentSuccess,
   loadAvailableDataDomains,
   loadAvailableDataDomainsSuccess,
@@ -42,7 +41,11 @@ import {
   loadDashboardCommentsSuccess,
   loadMyDashboards,
   loadMyDashboardsSuccess,
+  publishComment,
+  publishCommentSuccess,
   setSelectedDataDomain,
+  unpublishComment,
+  unpublishCommentSuccess,
   updateComment,
   updateCommentError,
   updateCommentSuccess,
@@ -234,15 +237,91 @@ export class MyDashboardsEffects {
   deleteComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteComment),
-      switchMap(({dashboardId, contextKey, commentId}) =>
-        this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId).pipe(
-          switchMap(() => scheduled([
-            deleteCommentSuccess({commentId}),
-            showSuccess({message: '@Comment deleted successfully'})
-          ], asyncScheduler)),
-          catchError(e => scheduled([deleteCommentError({error: e}), showError({error: e})], asyncScheduler))
-        )
-      )
+      switchMap(({dashboardId, contextKey, commentId}) => {
+        // TODO: Replace with actual API call when backend is ready
+        // return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId).pipe(
+        //   switchMap(() => scheduled([
+        //     deleteCommentSuccess({commentId}),
+        //     showSuccess({message: '@Comment deleted successfully'})
+        //   ], asyncScheduler)),
+        //   catchError(e => scheduled([deleteCommentError({error: e}), showError({error: e})], asyncScheduler))
+        // )
+
+        // Temporary mock - simulating backend response (soft delete)
+        return scheduled([
+          deleteCommentSuccess({commentId}),
+          showSuccess({message: '@Comment deleted successfully'})
+        ], asyncScheduler);
+      })
+    )
+  });
+
+  publishComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(publishComment),
+      withLatestFrom(this._store.select(selectProfile)),
+      switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
+        // TODO: Replace with actual API call when backend is ready
+        // return this._myDashboardsService.publishComment(contextKey, dashboardId, commentId).pipe(...)
+
+        // Temporary mock - simulating backend response
+        const publisherName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
+
+        // Get existing comment data from store and merge with published data
+        return this._store.select(state =>
+          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
+        ).pipe(
+          take(1),
+          switchMap(existingComment => {
+            if (existingComment) {
+              const updatedComment = {
+                ...existingComment,
+                status: CommentStatus.PUBLISHED,
+                publishedDate: Date.now(),
+                publishedBy: publisherName,
+              };
+              return scheduled([
+                publishCommentSuccess({comment: updatedComment}),
+                showSuccess({message: '@Comment published successfully'})
+              ], asyncScheduler);
+            }
+            return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
+          })
+        );
+      })
+    )
+  });
+
+  unpublishComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(unpublishComment),
+      withLatestFrom(this._store.select(selectProfile)),
+      switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
+        // TODO: Replace with actual API call when backend is ready
+        // return this._myDashboardsService.unpublishComment(contextKey, dashboardId, commentId).pipe(...)
+
+        // Temporary mock - simulating backend response
+        return this._store.select(state =>
+          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
+        ).pipe(
+          take(1),
+          switchMap(existingComment => {
+            if (existingComment) {
+              const updatedComment = {
+                ...existingComment,
+                status: CommentStatus.DRAFT,
+                publishedDate: undefined as number | undefined,
+                publishedBy: undefined as string | undefined,
+              };
+              return scheduled([
+                unpublishCommentSuccess({comment: updatedComment}),
+                showSuccess({message: '@Comment unpublished successfully'})
+              ], asyncScheduler);
+            }
+            return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
+          })
+        );
+      })
     )
   });
 }
