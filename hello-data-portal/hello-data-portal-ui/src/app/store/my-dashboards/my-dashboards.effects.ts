@@ -55,7 +55,7 @@ import {TranslateService} from "../../shared/services/translate.service";
 import {ScreenService} from "../../shared/services";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {selectCurrentUserPermissions} from "../auth/auth.selector";
+import {selectCurrentUserPermissions, selectProfile} from "../auth/auth.selector";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -182,7 +182,8 @@ export class MyDashboardsEffects {
   addComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(addComment),
-      switchMap(({dashboardId, contextKey, text}) => {
+      withLatestFrom(this._store.select(selectProfile)),
+      switchMap(([{dashboardId, contextKey, text}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
         // return this._myDashboardsService.addComment(contextKey, dashboardId, text).pipe(
         //   switchMap(comment => scheduled([
@@ -193,10 +194,11 @@ export class MyDashboardsEffects {
         // )
 
         // Temporary mock - create comment locally
+        const authorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
         const mockComment = {
           id: Date.now().toString(),
           text,
-          author: 'Current User',
+          author: authorName,
           status: CommentStatus.PUBLISHED,
           createdDate: Date.now(),
           publishedDate: Date.now(),
