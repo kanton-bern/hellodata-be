@@ -80,21 +80,21 @@
             {{ dashboard.status }}
           </td>
           <td>
-            <p-button (click)="openDashboard(dashboard)"
+            <p-button (click)="openDashboard(dashboard)" (keydown)="openDashboard(dashboard)"
                       [pTooltip]="'@Open' | transloco"
                       class="p-button-rounded mr-2"
                       severity="info"
                       icon="fas fa-up-right-from-square"
                       pButton
                       pRipple/>
-            <p-button (click)="openInfoPanel(dashboard)"
+            <p-button (click)="openInfoPanel(dashboard)" (keydown)="openInfoPanel()"
                       [pTooltip]="'@Info' | transloco"
                       class="p-button-rounded mr-2"
                       severity="help"
                       icon="fas fa-circle-info"
                       pButton
                       pRipple/>
-            <p-button (click)="editDashboard(dashboard)"
+            <p-button (click)="editDashboard(dashboard)" (keydown)="editDashboard(dashboard)"
                       [pTooltip]="'@Edit' | transloco"
                       severity="success"
                       class="p-button-rounded mr-2"
@@ -116,169 +116,193 @@
 <br/>
 <p-dialog [(visible)]="editDashboardMetadataDialog"
           [modal]="true"
-          header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}"
-          class="p-fluid">
+          class="p-fluid"
+          header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}" style="max-width: 500px"/>
-    <div class="field">
+    <div class="field mb-2">
       <label for="businessProcess">{{ '@Business process' | transloco }}</label>
       <input [(ngModel)]="selectedDashboard.businessProcess" id="businessProcess" pInputText/>
     </div>
-    <div class="field">
+    <div class="field mb-2">
       <label for="department">{{ '@Department' | transloco }}</label>
       <input [(ngModel)]="selectedDashboard.department" id="department" pInputText/>
     </div>
-    <div class="field">
+    <div class="field mb-2">
       <label for="responsibility">{{ '@Professional responsibility' | transloco }}</label>
       <input [(ngModel)]="selectedDashboard.responsibility" id="responsibility" pInputText/>
     </div>
-    <div class="field">
+    <div class="field mb-2">
       <label for="dataAnalyst">{{ '@Data analyst' | transloco }}</label>
       <input [(ngModel)]="selectedDashboard.dataAnalyst" id="dataAnalyst" pInputText/>
     </div>
-    <div class="field">
+    <div class="field mb-2">
       <label for="scheduled">{{ '@Scheduled' | transloco }}</label>
       <input [(ngModel)]="selectedDashboard.scheduled" id="scheduled" pInputText/>
     </div>
-    <div class="field">
+    <div class="field mb-2">
       <label for="datasource">{{ '@Datasource' | transloco }}</label>
       <input [(ngModel)]="selectedDashboard.datasource" id="datasource" pInputText/>
     </div>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <p-button (click)="hideEditMetadataDialog()" icon="fas fa-circle-xmark"
-              label="{{'@Cancel' | transloco}}" severity="secondary" pRipple pButton/>
-    <p-button (click)="updateDashboard(selectedDashboard)"
-              pRipple pButton
-              icon="fas fa-check" severity="success"
-              label="{{'@Save' | transloco}}"/>
+    <p-button (click)="hideEditMetadataDialog()" (keydown)="hideEditMetadataDialog()" icon="fas fa-circle-xmark"
+              label="{{'@Cancel' | transloco}}" pButton pRipple severity="secondary"/>
+    <p-button (click)="updateDashboard(selectedDashboard)" (keydown)="updateDashboard(selectedDashboard)"
+              icon="fas fa-check" label="{{'@Save' | transloco}}"
+              pButton pRipple
+              severity="success"/>
   </ng-template>
 </p-dialog>
 
 
 <p-dialog [(visible)]="viewDashboardDataDialog" [modal]="true"
-          header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}" class="p-fluid">
+          class="p-fluid" header="{{selectedDashboard ? selectedDashboard.dashboardTitle : ''}}">
   <ng-template pTemplate="content">
     <img alt="" src="{{createImageLink(selectedDashboard)}}"/>
     <div class="grid grid-cols-2">
       <div class="col">
         @if (selectedDashboard.contextName) {
-          <label class="p2 font-semibold m-0"
-                 for="contextNameInfo">{{ '@Context name' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="contextNameInfo">{{ selectedDashboard.contextName }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="contextNameInfo">{{ '@Context name' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="contextNameInfo">{{ selectedDashboard.contextName }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.instanceName) {
-          <label class="p2 font-semibold m-0"
-                 for="instanceNameInfo">{{ '@Instance name' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="instanceNameInfo">{{ selectedDashboard.instanceName }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="instanceNameInfo">{{ '@Instance name' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="instanceNameInfo">{{ selectedDashboard.instanceName }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.businessProcess) {
-          <label class="p2 font-semibold m-0"
-                 for="businessProcessInfo">{{ '@Business process' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="businessProcessInfo">{{ selectedDashboard.businessProcess }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="businessProcessInfo">{{ '@Business process' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="businessProcessInfo">{{ selectedDashboard.businessProcess }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.department) {
-          <label class="p2 font-semibold m-0"
-                 for="departmentInfo">{{ '@Department' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="departmentInfo">{{ selectedDashboard.department }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="departmentInfo">{{ '@Department' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="departmentInfo">{{ selectedDashboard.department }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.dataAnalyst) {
-          <label class="p2 font-semibold m-0"
-                 for="dataAnalystInfo">{{ '@Data analyst' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="dataAnalystInfo">{{ selectedDashboard.dataAnalyst }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="dataAnalystInfo">{{ '@Data analyst' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="dataAnalystInfo">{{ selectedDashboard.dataAnalyst }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.datasource) {
-          <label class="p2 font-semibold m-0"
-                 for="dataSourceInfo">{{ '@Datasource' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="dataSourceInfo">{{ selectedDashboard.datasource }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="dataSourceInfo">{{ '@Datasource' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="dataSourceInfo">{{ selectedDashboard.datasource }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.responsibility) {
-          <label class="p2 font-semibold m-0"
-                 for="responsibilityInfo">{{ '@Professional responsibility' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="responsibilityInfo">{{ selectedDashboard.responsibility }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="responsibilityInfo">{{ '@Professional responsibility' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="responsibilityInfo">{{ selectedDashboard.responsibility }}
+            </div>
           </div>
         }
 
       </div>
       <div class="col">
         @if (selectedDashboard.status) {
-          <label class="p2 font-semibold m-0"
-                 for="statusInfo">{{ '@Status' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="statusInfo">{{ selectedDashboard.status }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="statusInfo">{{ '@Status' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="statusInfo">{{ selectedDashboard.status }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.slug) {
-          <label class="p2 font-semibold m-0" for="slugInfo">{{ '@Slug' | transloco }}
-            :</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="slugInfo">{{ selectedDashboard.slug }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0" for="slugInfo">{{ '@Slug' | transloco }}
+              :</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="slugInfo">{{ selectedDashboard.slug }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.instanceUrl) {
-          <label class="p2 font-semibold m-0"
-                 for="urlInfo">{{ '@Instance url' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="urlInfo">{{ selectedDashboard.instanceUrl }}
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="urlInfo">{{ '@Instance url' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="urlInfo">{{ selectedDashboard.instanceUrl }}
+            </div>
           </div>
         }
 
         @if (selectedDashboard.modified) {
-          <label class="p2 font-semibold m-0"
-                 for="modifiedInfo">{{ '@Modified date' | transloco }}:</label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="modifiedInfo">
-            <span>{{ selectedDashboard.modified | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
-            <span>{{ '@Never' | transloco }}</span>
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0"
+                   for="modifiedInfo">{{ '@Modified date' | transloco }}:</label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="modifiedInfo">
+              <span>{{ selectedDashboard.modified | date: 'dd.MM.yyyy HH:mm:ss' }}</span>
+              <span>{{ '@Never' | transloco }}</span>
+            </div>
           </div>
         }
 
         @if (selectedDashboard.roles) {
-          <label class="p2 font-semibold m-0" for="rolesInfo">
-            {{ '@Roles' | transloco }}:
-          </label>
-          <div
-            class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-            id="rolesInfo">
-            @for (role of selectedDashboard.roles; track role) {
-              <p-tag
-                icon="fas fa-tag"
-                severity="info"
-                [value]="role.name"/>
-            }
+          <div class="mb-2">
+            <label class="p2 font-semibold m-0" for="rolesInfo">
+              {{ '@Roles' | transloco }}:
+            </label>
+            <div
+              class="text-base text-color bg-surface-0  p-2 border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              id="rolesInfo">
+              @for (role of selectedDashboard.roles; track role) {
+                <p-tag
+                  icon="fas fa-tag"
+                  severity="info"
+                  [value]="role.name"/>
+              }
+            </div>
           </div>
         }
       </div>
@@ -286,7 +310,7 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <p-button (click)="hideInfoPanel()" icon="fas fa-circle-xmark"
-              label="{{'@Cancel' | transloco}}" severity="secondary" pRipple pButton/>
+    <p-button (click)="hideInfoPanel()" (keydown)="hideInfoPanel()" icon="fas fa-circle-xmark"
+              label="{{'@Cancel' | transloco}}" pButton pRipple severity="secondary"/>
   </ng-template>
 </p-dialog>
