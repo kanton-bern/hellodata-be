@@ -38,6 +38,10 @@
   writing-mode: vertical-lr;
   right: 0px;
   position: fixed;
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .summary-header {
