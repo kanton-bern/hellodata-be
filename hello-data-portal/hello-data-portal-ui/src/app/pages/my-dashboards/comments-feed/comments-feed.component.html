@@ -32,7 +32,7 @@
         rows="3">
       </textarea>
 
-    <p-button severity="success" pRipple pButton
+    <p-button severity="success"
               label="{{ '@Submit' | transloco }}"
               class="mt-2 w-full"
               (click)="submitComment()"
@@ -47,10 +47,10 @@
   <ng-template pTemplate="footer">
     <p-button (click)="cd1.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               (keydown)="cd1.onReject()"
-              severity="secondary" pRipple pButton/>
+              severity="secondary"/>
     <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
               label="{{'@Publish' | transloco}}" (keydown)="cd1.onAccept()"
-              severity="success" pRipple pButton/>
+              severity="success"/>
   </ng-template>
 </p-confirmDialog>
 
@@ -58,10 +58,10 @@
   <ng-template pTemplate="footer">
     <p-button (click)="cd2.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               (keydown)="cd2.onReject()"
-              severity="secondary" pRipple pButton/>
+              severity="secondary"/>
     <p-button (click)="cd2.onAccept()" icon="fas fa-cloud-arrow-down"
               label="{{'@Unpublish' | transloco}}" (keydown)="cd2.onAccept()"
-              severity="warn" pRipple pButton/>
+              severity="warn"/>
   </ng-template>
 </p-confirmDialog>
 
@@ -69,10 +69,10 @@
   <ng-template pTemplate="footer">
     <p-button (click)="cd3.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               (keydown)="cd3.onReject()"
-              severity="secondary" pRipple pButton/>
+              severity="secondary"/>
     <p-button (click)="cd3.onAccept()" icon="fas fa-trash"
               label="{{'@Delete' | transloco}}" (keydown)="cd3.onAccept()"
-              severity="danger" pRipple pButton/>
+              severity="danger"/>
   </ng-template>
 </p-confirmDialog>
 
