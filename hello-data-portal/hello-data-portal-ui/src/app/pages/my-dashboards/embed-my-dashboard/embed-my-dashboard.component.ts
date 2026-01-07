@@ -97,10 +97,11 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
       // Load comments for current dashboard
       const dashboardId = dashboardInfo.dashboard.id;
       const contextKey = dashboardInfo.appinfo?.businessContextInfo.subContext.key;
+      const dashboardUrl = this.url;
       if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
         this.loadedDashboardId = dashboardId;
-        this.store.dispatch(setCurrentDashboard({dashboardId, contextKey}));
-        this.store.dispatch(loadDashboardComments({dashboardId, contextKey}));
+        this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
+        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
       }
     }
   }

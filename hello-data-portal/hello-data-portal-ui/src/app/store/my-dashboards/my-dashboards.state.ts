@@ -34,6 +34,7 @@ export interface MyDashboardsState {
   availableDataDomains: DataDomain[],
   currentDashboardId?: number,
   currentDashboardContextKey?: string,
+  currentDashboardUrl?: string,
   currentDashboardComments: CommentEntry[]
 }
 

@@ -36,6 +36,7 @@ import {addComment} from "../../../store/my-dashboards/my-dashboards.action";
 import {
   selectCurrentDashboardContextKey,
   selectCurrentDashboardId,
+  selectCurrentDashboardUrl,
   selectVisibleComments
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {AsyncPipe} from "@angular/common";
@@ -64,15 +65,18 @@ export class CommentsFeed implements AfterViewInit {
   comments$ = this.store.select(selectVisibleComments);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
+  currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
 
   newCommentText = '';
 
   private currentDashboardId: number | undefined;
   private currentDashboardContextKey: string | undefined;
+  private currentDashboardUrl: string | undefined;
 
   constructor() {
     this.currentDashboardId$.subscribe(id => this.currentDashboardId = id);
     this.currentDashboardContextKey$.subscribe(key => this.currentDashboardContextKey = key);
+    this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
   }
 
   ngAfterViewInit(): void {
@@ -84,10 +88,11 @@ export class CommentsFeed implements AfterViewInit {
     const text = this.newCommentText.trim();
     if (!text) return;
 
-    if (this.currentDashboardId && this.currentDashboardContextKey) {
+    if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
       this.store.dispatch(addComment({
         dashboardId: this.currentDashboardId,
         contextKey: this.currentDashboardContextKey,
+        dashboardUrl: this.currentDashboardUrl,
         text
       }));
     }

@@ -151,7 +151,7 @@ export class MyDashboardsEffects {
   loadDashboardComments$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadDashboardComments),
-      switchMap(({dashboardId, contextKey}) => {
+      switchMap(({dashboardId, contextKey, dashboardUrl}) => {
         // TODO: Replace with actual API call when backend is ready
         // return this._myDashboardsService.getDashboardComments(contextKey, dashboardId).pipe(
         //   switchMap(comments => scheduled([loadDashboardCommentsSuccess({comments})], asyncScheduler)),
@@ -163,6 +163,7 @@ export class MyDashboardsEffects {
           {
             id: '1',
             dashboardId: dashboardId,
+            dashboardUrl: dashboardUrl,
             contextKey: contextKey,
             text: 'First test comment.',
             author: 'John Doe',
@@ -175,6 +176,7 @@ export class MyDashboardsEffects {
           {
             id: '2',
             dashboardId: dashboardId,
+            dashboardUrl: dashboardUrl,
             contextKey: contextKey,
             text: 'Great data, thanks for sharing!',
             author: 'Anne Smith',
@@ -194,7 +196,7 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(addComment),
       withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, text}, profile]) => {
+      switchMap(([{dashboardId, contextKey, dashboardUrl, text}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
         // return this._myDashboardsService.addComment(contextKey, dashboardId, text).pipe(
         //   switchMap(comment => scheduled([
@@ -210,6 +212,7 @@ export class MyDashboardsEffects {
         const mockComment = {
           id: crypto.randomUUID(), // Backend generates UUID
           dashboardId: dashboardId,
+          dashboardUrl: dashboardUrl,
           contextKey: contextKey,
           text,
           author: authorName, // Backend sets from authenticated user

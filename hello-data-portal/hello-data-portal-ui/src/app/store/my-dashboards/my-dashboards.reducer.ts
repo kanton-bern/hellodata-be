@@ -81,11 +81,12 @@ export const myDashboardsReducer = createReducer(
     }
   }),
   // Comments reducers
-  on(setCurrentDashboard, (state: MyDashboardsState, {dashboardId, contextKey}): MyDashboardsState => {
+  on(setCurrentDashboard, (state: MyDashboardsState, {dashboardId, contextKey, dashboardUrl}): MyDashboardsState => {
     return {
       ...state,
       currentDashboardId: dashboardId,
       currentDashboardContextKey: contextKey,
+      currentDashboardUrl: dashboardUrl,
       currentDashboardComments: []
     }
   }),

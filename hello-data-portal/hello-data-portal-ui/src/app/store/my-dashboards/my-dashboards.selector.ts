@@ -158,6 +158,11 @@ export const selectCurrentDashboardContextKey = createSelector(
   (state: MyDashboardsState) => state.currentDashboardContextKey
 );
 
+export const selectCurrentDashboardUrl = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardUrl
+);
+
 export const selectCurrentDashboardComments = createSelector(
   myDashboardsState,
   (state: MyDashboardsState) => state.currentDashboardComments

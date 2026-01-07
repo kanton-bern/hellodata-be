@@ -97,12 +97,12 @@ export const uploadDashboardsError = createAction(
 // Comments actions
 export const setCurrentDashboard = createAction(
   MyDashboardsActionType.SET_CURRENT_DASHBOARD,
-  props<{ dashboardId: number; contextKey: string }>()
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string }>()
 );
 
 export const loadDashboardComments = createAction(
   MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS,
-  props<{ dashboardId: number; contextKey: string }>()
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string }>()
 );
 
 export const loadDashboardCommentsSuccess = createAction(
@@ -117,7 +117,7 @@ export const loadDashboardCommentsError = createAction(
 
 export const addComment = createAction(
   MyDashboardsActionType.ADD_COMMENT,
-  props<{ dashboardId: number; contextKey: string; text: string }>()
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string; text: string }>()
 );
 
 export const addCommentSuccess = createAction(

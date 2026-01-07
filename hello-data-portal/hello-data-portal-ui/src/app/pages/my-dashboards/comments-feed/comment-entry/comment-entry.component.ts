@@ -94,6 +94,7 @@ export class CommentEntryComponent {
       key: 'publishComment',
       message: message,
       icon: 'fas fa-triangle-exclamation',
+      closeOnEscape: false,
       accept: () => {
         const comment = this.comment();
         this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
@@ -117,6 +118,7 @@ export class CommentEntryComponent {
       key: 'unpublishComment',
       message: message,
       icon: 'fas fa-triangle-exclamation',
+      closeOnEscape: false,
       accept: () => {
         const comment = this.comment();
         this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
@@ -140,6 +142,7 @@ export class CommentEntryComponent {
       key: 'deleteComment',
       message: message,
       icon: 'fas fa-triangle-exclamation',
+      closeOnEscape: false,
       accept: () => {
         const comment = this.comment();
         this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
