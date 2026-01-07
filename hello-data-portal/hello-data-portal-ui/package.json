@@ -55,7 +55,7 @@
     "undici": "^7.16.0",
     "vite": "^7.2.1",
     "web-animations-js": "^2.3.2",
-    "zone.js": "^0.15.1"
+    "zone.js": "^0.16.0"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^20.0.0",
