@@ -59,6 +59,8 @@ export enum CommentStatus {
 
 export interface CommentEntry {
   id: string;
+  dashboardId: number;
+  contextKey: string;
   text: string;
   author: string;
   status: CommentStatus;

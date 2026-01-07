@@ -162,6 +162,8 @@ export class MyDashboardsEffects {
         const mockComments = [
           {
             id: '1',
+            dashboardId: dashboardId,
+            contextKey: contextKey,
             text: 'First test comment.',
             author: 'John Doe',
             status: CommentStatus.PUBLISHED,
@@ -172,6 +174,8 @@ export class MyDashboardsEffects {
           },
           {
             id: '2',
+            dashboardId: dashboardId,
+            contextKey: contextKey,
             text: 'Great data, thanks for sharing!',
             author: 'Anne Smith',
             status: CommentStatus.PUBLISHED,
@@ -205,6 +209,8 @@ export class MyDashboardsEffects {
         const authorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
         const mockComment = {
           id: crypto.randomUUID(), // Backend generates UUID
+          dashboardId: dashboardId,
+          contextKey: contextKey,
           text,
           author: authorName, // Backend sets from authenticated user
           status: CommentStatus.DRAFT, // Backend sets initial status as DRAFT
