@@ -3,7 +3,7 @@
     <form [formGroup]="faqForm">
       <h5>{{ '@Faq' | transloco }}</h5>
       @if (editedFaq.createdDate) {
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4 mb-1">
           <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
                  for="createdDate">{{ '@Created date' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
@@ -17,7 +17,7 @@
         </div>
       }
       @if (editedFaq.createdDate) {
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4 mb-1">
           <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
@@ -30,7 +30,7 @@
         </div>
       }
       @if (editedFaq.modifiedDate) {
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4 mb-1">
           <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
                  for="modifiedDate">{{ '@Modified date' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
@@ -44,7 +44,7 @@
         </div>
       }
       @if (editedFaq.modifiedBy) {
-        <div class="field grid grid-cols-12 gap-4">
+        <div class="field grid grid-cols-12 gap-4 mb-1">
           <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Modified by' | transloco }}</label>
           <div class="col-span-12 md:col-span-10">
             <input
@@ -86,8 +86,9 @@
           <p-tabpanels>
             @for (language of supportedLanguages; track $index) {
               <p-tabpanel [value]="$index">
-                <div class="field grid grid-cols-12 gap-4">
-                  <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="title">{{ '@Title' | transloco }}</label>
+                <div class="field grid grid-cols-12 gap-4 md:items-start">
+                  <label class="col-span-12 mb-2 md:col-span-2 md:mb-0 md:pt-2"
+                         for="title">{{ '@Title' | transloco }}</label>
                   <div class="col-span-12 md:col-span-10">
                     <input
                       [formControl]="getTitle(language)"
@@ -101,8 +102,10 @@
                     }
                   </div>
                 </div>
-                <p-editor [formControl]="getMessage(language)"
-                          id="faqMessage"/>
+                <div class="mt-1">
+                  <p-editor [formControl]="getMessage(language)"
+                            id="faqMessage"/>
+                </div>
               </p-tabpanel>
             }
           </p-tabpanels>
@@ -111,11 +114,12 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToFaqList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                    (keydown)="navigateToFaqList()"
                     icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
-            <p-button (click)="saveFaq(editedFaq)"
+            <p-button (click)="saveFaq(editedFaq)" (keydown)="saveFaq(editedFaq)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       icon="fas fa-floppy-disk"
                       class="mr-2" pRipple pButton
@@ -124,6 +128,7 @@
                       severity="success"/>
             @if (editedFaq.id) {
               <p-button (click)="openDeletePopup(editedFaq)" icon="fas fa-trash" pRipple pButton
+                        (keydown)="openDeletePopup(editedFaq)"
                         label="{{'@Delete' | transloco}}" severity="danger"/>
             }
           </div>

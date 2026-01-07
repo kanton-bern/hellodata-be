@@ -28,7 +28,7 @@
 version: "3.8"
 services:
   hd-cloudbeaver:
-    image: dbeaver/cloudbeaver:25.2.4
+    image: dbeaver/cloudbeaver:25.3.2
     restart: always
     ports:
       - '8978:8978'
@@ -37,7 +37,7 @@ services:
       - ./conf/cloudbeaver.conf:/opt/cloudbeaver/conf/cloudbeaver.conf
 
   nats:
-    image: nats:2.12.1-alpine
+    image: nats:2.12.3-alpine
     command: --name hello-data --http_port 8222 --js
     restart: on-failure
     ports:
