@@ -40,8 +40,7 @@ import {
   selectPipelines,
   selectStorageSize
 } from "../../../store/summary/summary.selector";
-import {Button, ButtonDirective} from "primeng/button";
-import {Ripple} from "primeng/ripple";
+import {Button} from "primeng/button";
 import {Observable} from "rxjs";
 import {
   selectCurrentUserPermissions,
@@ -66,15 +65,15 @@ import {TruncatePipe} from "../../pipes/truncate.pipe";
   selector: 'app-summary',
   templateUrl: './summary.component.html',
   styleUrls: ['./summary.component.scss'],
-  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader,
-    AccordionContent, Tooltip, Button, ButtonDirective, Editor, FormsModule, ScrollPanelModule,
+  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, AccordionHeader,
+    AccordionContent, Tooltip, Button, Editor, FormsModule, ScrollPanelModule,
     SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe,
     TranslocoPipe, TruncatePipe, DatePipe]
 })
 export class SummaryComponent {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
   appInfo = inject(AppInfoService);
-  private translateService = inject(TranslateService);
+  private readonly translateService = inject(TranslateService);
 
   currentUserPermissions$: Observable<string[]>;
   summarySidebarVisible = false;

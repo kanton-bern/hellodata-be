@@ -78,10 +78,10 @@
               <div>
                 <span><b>{{ '@Documentation' | transloco }}</b></span>
                 @if (permissions | contains: 'DOCUMENTATION_MANAGEMENT') {
-                  <p-button (click)="editDocumentation()"
+                  <p-button (click)="editDocumentation()" (keydown)="editDocumentation()"
                             [pTooltip]="'@Edit' | transloco"
                             severity="success" icon="fas fa-light fa-pen-to-square" class="p-button-rounded"
-                            id="editDocumentationBtnOvrl" pButton pRipple/>
+                            id="editDocumentationBtnOvrl"/>
                 }
               </div>
             </ng-template>
@@ -145,7 +145,7 @@
   </p-drawer>
   <p-scrollPanel [style]="{ width: '100%' }">
     <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
-         class="summary-header">
+         class="summary-header" (keydown)="openOverlaySidebar()">
       {{ '@Summary header' | transloco }}
     </div>
   </p-scrollPanel>

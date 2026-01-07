@@ -28,8 +28,7 @@
 import {AfterViewInit, Component, ElementRef, inject, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
-import {Button, ButtonDirective} from "primeng/button";
-import {Ripple} from "primeng/ripple";
+import {Button} from "primeng/button";
 import {CommentEntryComponent} from "./comment-entry/comment-entry.component";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -51,8 +50,6 @@ import {PrimeTemplate} from "primeng/api";
     TranslocoPipe,
     FormsModule,
     Button,
-    Ripple,
-    ButtonDirective,
     CommentEntryComponent,
     AsyncPipe,
     ConfirmDialog,
