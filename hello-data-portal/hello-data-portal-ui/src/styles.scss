@@ -68,3 +68,63 @@
   min-width: 100%;
   width: auto;
 }
+
+/* Prevent Tailwind from overriding PrimeNG button colors */
+.p-button {
+  padding: 0.5rem 1rem !important;
+  background-color: var(--p-button-background, var(--p-primary-500)) !important;
+  border-color: var(--p-button-border-color, var(--p-primary-500)) !important;
+  color: var(--p-button-color, #ffffff) !important;
+}
+
+.p-button.p-button-icon-only {
+  padding: 0.5rem !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.p-button.p-button-success,
+p-button[severity="success"] .p-button {
+  background-color: var(--p-button-success-background, var(--p-green-500)) !important;
+  border-color: var(--p-button-success-border-color, var(--p-green-500)) !important;
+  color: var(--p-button-success-color, #ffffff) !important;
+}
+
+.p-button.p-button-danger,
+p-button[severity="danger"] .p-button {
+  background-color: var(--p-button-danger-background, var(--p-red-500)) !important;
+  border-color: var(--p-button-danger-border-color, var(--p-red-500)) !important;
+  color: var(--p-button-danger-color, #ffffff) !important;
+}
+
+.p-button.p-button-warning,
+p-button[severity="warn"] .p-button {
+  background-color: var(--p-button-warn-background, var(--p-orange-500)) !important;
+  border-color: var(--p-button-warn-border-color, var(--p-orange-500)) !important;
+  color: var(--p-button-warn-color, #ffffff) !important;
+}
+
+.p-button.p-button-info,
+p-button[severity="info"] .p-button {
+  background-color: var(--p-button-info-background, var(--p-sky-500)) !important;
+  border-color: var(--p-button-info-border-color, var(--p-sky-500)) !important;
+  color: var(--p-button-info-color, #ffffff) !important;
+}
+
+.p-button.p-button-secondary,
+p-button[severity="secondary"] .p-button {
+  background-color: var(--p-button-secondary-background, var(--p-gray-500)) !important;
+  border-color: var(--p-button-secondary-border-color, var(--p-gray-500)) !important;
+  color: var(--p-button-secondary-color, #ffffff) !important;
+}
+
+.p-button.p-button-contrast,
+p-button[severity="contrast"] .p-button {
+  background-color: var(--p-button-contrast-background, var(--p-surface-950)) !important;
+  border-color: var(--p-button-contrast-border-color, var(--p-surface-950)) !important;
+  color: var(--p-button-contrast-color, var(--p-surface-0)) !important;
+}
+
