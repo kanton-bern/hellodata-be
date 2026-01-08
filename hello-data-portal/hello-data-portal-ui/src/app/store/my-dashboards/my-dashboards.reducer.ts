@@ -30,6 +30,7 @@ import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {createReducer, on} from "@ngrx/store";
 import {
   addCommentSuccess,
+  cloneCommentForEditSuccess,
   deleteCommentSuccess,
   loadAvailableDataDomainsSuccess,
   loadDashboardCommentsSuccess,
@@ -119,9 +120,21 @@ export const myDashboardsReducer = createReducer(
     }
   }),
   on(publishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    // If comment has previousVersionId, soft-delete the old version
+    let comments = state.currentDashboardComments;
+    if (comment.previousVersionId) {
+      comments = comments.map(c =>
+        c.id === comment.previousVersionId ? {
+          ...c,
+          deleted: true,
+          deletedDate: Date.now(),
+          deletedBy: 'System (replaced by new version)'
+        } : c
+      );
+    }
     return {
       ...state,
-      currentDashboardComments: state.currentDashboardComments.map(c =>
+      currentDashboardComments: comments.map(c =>
         c.id === comment.id ? comment : c
       )
     }
@@ -132,6 +145,12 @@ export const myDashboardsReducer = createReducer(
       currentDashboardComments: state.currentDashboardComments.map(c =>
         c.id === comment.id ? comment : c
       )
+    }
+  }),
+  on(cloneCommentForEditSuccess, (state: MyDashboardsState, {clonedComment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: [...state.currentDashboardComments, clonedComment]
     }
   }),
 );

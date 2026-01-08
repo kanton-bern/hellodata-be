@@ -41,12 +41,23 @@
 }
 
 .comment-footer {
+  display: block;
+}
+
+.comment-meta-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 .comment-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+
   .author-name {
     cursor: pointer;
     font-weight: 500;
@@ -56,28 +67,44 @@
       color: var(--primary-color, #3b82f6);
     }
   }
+
+  .edited-badge {
+    font-style: italic;
+    color: var(--text-color-secondary, #6c757d);
+  }
+
+  .version-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--primary-color, #3b82f6);
+    color: white;
+    border-radius: 0.25rem;
+  }
 }
 
 .comment-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+
+    i {
+      font-size: 0.7rem;
+      line-height: 1;
+    }
+  }
 }
 
-.status-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  cursor: default;
-
-  &.published {
-    background-color: var(--success-color, #22c55e);
-  }
-
-  &.draft {
-    background-color: var(--surface-600, #9ca3af);
-  }
+.comment-item.draft-border {
+  border-style: dashed;
+  border-color: var(--surface-400, #9ca3af);
 }
 
 ::ng-deep .p-tooltip {
@@ -89,11 +116,10 @@
   border: none;
   cursor: pointer;
   color: var(--text-color-secondary, #6c757d);
-  padding: 0.1rem;
-  font-size: 0.75rem;
+  padding: 0;
 
   &:hover {
-    color: var(--primary-color, #007bff);
+    color: var(--primary-color, #3b82f6);
   }
 }
 
@@ -101,12 +127,11 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--success-color, #22c55e);
-  padding: 0.1rem;
-  font-size: 0.75rem;
+  color: var(--green-500, #22c55e);
+  padding: 0;
 
   &:hover {
-    color: var(--success-color-dark, #16a34a);
+    color: var(--green-600, #16a34a);
   }
 }
 
@@ -114,12 +139,11 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--warning-color, #f59e0b);
-  padding: 0.1rem;
-  font-size: 0.75rem;
+  color: var(--orange-500, #f97316);
+  padding: 0;
 
   &:hover {
-    color: var(--warning-color-dark, #d97706);
+    color: var(--orange-600, #ea580c);
   }
 }
 
@@ -127,12 +151,23 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--p-button-text-danger-color, #dc3545);
-  padding: 0.1rem;
-  font-size: 0.75rem;
+  color: var(--red-500, #ef4444);
+  padding: 0;
 
   &:hover {
-    color: var(--p-button-text-danger-hover-color, #c82333);
+    color: var(--red-600, #dc2626);
+  }
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--blue-500, #3b82f6);
+  padding: 0;
+
+  &:hover {
+    color: var(--blue-600, #2563eb);
   }
 }
 
@@ -145,5 +180,73 @@
   div {
     margin-bottom: 0.25rem;
   }
+
+  .version-history {
+    margin-top: 0.5rem;
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.25rem 0 0 0;
+    }
+
+    .history-item {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.25rem 0;
+      border-bottom: 1px dashed var(--surface-border, #dee2e6);
+      align-items: center;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .history-version {
+      font-weight: 600;
+      color: var(--primary-color, #3b82f6);
+      min-width: 1.5rem;
+    }
+
+    .history-date {
+      color: var(--text-color-secondary, #6c757d);
+      min-width: 4rem;
+    }
+
+    .history-author {
+      color: var(--text-color-secondary, #6c757d);
+      min-width: 5rem;
+    }
+
+    .history-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--primary-color, #3b82f6);
+      }
+    }
+  }
 }
 
+// Edit dialog styles
+.edit-dialog-content {
+  .edit-warning {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: var(--orange-50, #fff7ed);
+    border: 1px solid var(--orange-200, #fed7aa);
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--orange-700, #c2410c);
+  }
+
+  textarea {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+}

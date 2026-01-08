@@ -33,6 +33,8 @@ import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../a
 import {
   addComment,
   addCommentSuccess,
+  cloneCommentForEdit,
+  cloneCommentForEditSuccess,
   deleteComment,
   deleteCommentSuccess,
   loadAvailableDataDomains,
@@ -52,7 +54,7 @@ import {
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "./my-dashboards.action";
-import {CommentStatus} from "./my-dashboards.model";
+import {CommentStatus, CommentVersion} from "./my-dashboards.model";
 import {NotificationService} from "../../shared/services/notification.service";
 import {TranslateService} from "../../shared/services/translate.service";
 import {ScreenService} from "../../shared/services";
@@ -173,6 +175,8 @@ export class MyDashboardsEffects {
             publishedDate: new Date('2024-06-01T09:30:00').getTime(),
             publishedBy: 'Admin',
             deleted: false,
+            version: 1,
+            history: [] as CommentVersion[],
           },
           {
             id: '2',
@@ -187,6 +191,8 @@ export class MyDashboardsEffects {
             publishedDate: new Date('2024-06-02T14:15:00').getTime(),
             publishedBy: 'Admin',
             deleted: false,
+            version: 1,
+            history: [] as CommentVersion[],
           },
         ];
         return scheduled([loadDashboardCommentsSuccess({comments: mockComments})], asyncScheduler);
@@ -209,7 +215,7 @@ export class MyDashboardsEffects {
         // )
 
         // Temporary mock - simulating backend response
-        // Backend generates: id, author (createdBy), authorEmail, status (DRAFT), deleted
+        // Backend generates: id, author (createdBy), authorEmail, status (DRAFT), deleted, version
         const authorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
         const authorEmail = profile?.email || 'unknown@example.com';
         const mockComment = {
@@ -223,6 +229,8 @@ export class MyDashboardsEffects {
           status: CommentStatus.DRAFT, // Backend sets initial status as DRAFT
           createdDate: Date.now(),
           deleted: false, // Backend sets default as false
+          version: 1, // Initial version
+          history: [] as CommentVersion[], // Empty history for new comment
         };
         return scheduled([
           addCommentSuccess({comment: mockComment}),
@@ -235,15 +243,46 @@ export class MyDashboardsEffects {
   updateComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(updateComment),
-      switchMap(({dashboardId, contextKey, commentId, text}) =>
-        this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, text).pipe(
-          switchMap(comment => scheduled([
-            updateCommentSuccess({comment}),
-            showSuccess({message: '@Comment updated successfully'})
-          ], asyncScheduler)),
-          catchError(e => scheduled([updateCommentError({error: e}), showError({error: e})], asyncScheduler))
-        )
-      )
+      withLatestFrom(this._store.select(selectProfile)),
+      switchMap(([{dashboardId, contextKey, commentId, text}, profile]) => {
+        // TODO: Replace with actual API call when backend is ready
+        // return this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, text).pipe(
+        //   switchMap(comment => scheduled([
+        //     updateCommentSuccess({comment}),
+        //     showSuccess({message: '@Comment updated successfully'})
+        //   ], asyncScheduler)),
+        //   catchError(e => scheduled([updateCommentError({error: e}), showError({error: e})], asyncScheduler))
+        // )
+
+        // Temporary mock - simulating backend response for DRAFT comment update
+        // For DRAFT comments, we only update the text and edit metadata - no versioning needed
+        const editorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
+
+        return this._store.select(state =>
+          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
+        ).pipe(
+          take(1),
+          switchMap(existingComment => {
+            if (existingComment) {
+              // For DRAFT comments - just update text and edit metadata, no version increment
+              const updatedComment = {
+                ...existingComment,
+                text,
+                lastEditedDate: Date.now(),
+                lastEditedBy: editorName,
+              };
+              return scheduled([
+                updateCommentSuccess({comment: updatedComment}),
+                showSuccess({message: '@Comment updated successfully'})
+              ], asyncScheduler);
+            }
+            return scheduled([
+              updateCommentError({error: 'Comment not found'}),
+              showError({error: 'Comment not found'})
+            ], asyncScheduler);
+          })
+        );
+      })
     )
   });
 
@@ -338,6 +377,58 @@ export class MyDashboardsEffects {
               ], asyncScheduler);
             }
             return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
+          })
+        );
+      })
+    )
+  });
+
+  cloneCommentForEdit$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(cloneCommentForEdit),
+      withLatestFrom(this._store.select(selectProfile)),
+      switchMap(([{dashboardId, contextKey, commentId, newText}, profile]) => {
+        // TODO: Replace with actual API call when backend is ready
+        // return this._myDashboardsService.cloneCommentForEdit(contextKey, dashboardId, commentId, newText).pipe(...)
+
+        // Temporary mock - simulating backend response
+        const editorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
+
+        return this._store.select(state =>
+          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
+        ).pipe(
+          take(1),
+          switchMap(existingComment => {
+            if (existingComment && existingComment.status === CommentStatus.PUBLISHED) {
+              // Clone the published comment as a draft for editing with new text
+              const clonedComment = {
+                ...existingComment,
+                id: crypto.randomUUID(), // New ID for the clone
+                text: newText, // Use new text from edit dialog
+                status: CommentStatus.DRAFT,
+                version: existingComment.version + 1,
+                previousVersionId: existingComment.id, // Reference to original
+                createdDate: Date.now(),
+                publishedDate: undefined as number | undefined,
+                publishedBy: undefined as string | undefined,
+                lastEditedDate: Date.now(),
+                lastEditedBy: editorName,
+                history: [
+                  ...(existingComment.history || []),
+                  {
+                    version: existingComment.version,
+                    text: existingComment.text,
+                    editedDate: existingComment.lastEditedDate || existingComment.createdDate,
+                    editedBy: existingComment.lastEditedBy || existingComment.author,
+                  }
+                ],
+              };
+              return scheduled([
+                cloneCommentForEditSuccess({clonedComment}),
+                showSuccess({message: '@Comment edited successfully'})
+              ], asyncScheduler);
+            }
+            return scheduled([showError({error: 'Comment not found or not published'})], asyncScheduler);
           })
         );
       })

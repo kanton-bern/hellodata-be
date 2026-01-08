@@ -60,6 +60,9 @@ export enum MyDashboardsActionType {
   UNPUBLISH_COMMENT = '[MYDASHBOARDS] Unpublish comment',
   UNPUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Unpublish comment SUCCESS',
   UNPUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Unpublish comment ERROR',
+  CLONE_COMMENT_FOR_EDIT = '[MYDASHBOARDS] Clone comment for edit',
+  CLONE_COMMENT_FOR_EDIT_SUCCESS = '[MYDASHBOARDS] Clone comment for edit SUCCESS',
+  CLONE_COMMENT_FOR_EDIT_ERROR = '[MYDASHBOARDS] Clone comment for edit ERROR',
 }
 
 export const loadMyDashboards = createAction(
@@ -190,3 +193,18 @@ export const unpublishCommentError = createAction(
   props<{ error: any }>()
 );
 
+// Clone published comment for editing (creates a draft copy with new text)
+export const cloneCommentForEdit = createAction(
+  MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT,
+  props<{ dashboardId: number; contextKey: string; commentId: string; newText: string }>()
+);
+
+export const cloneCommentForEditSuccess = createAction(
+  MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT_SUCCESS,
+  props<{ clonedComment: CommentEntry }>()
+);
+
+export const cloneCommentForEditError = createAction(
+  MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT_ERROR,
+  props<{ error: any }>()
+);

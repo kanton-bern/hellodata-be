@@ -26,14 +26,20 @@
  */
 
 import {Component, computed, inject, input} from "@angular/core";
-import {AsyncPipe, DatePipe} from "@angular/common";
+import {AsyncPipe, DatePipe, SlicePipe} from "@angular/common";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {CommentEntry, CommentStatus} from "../../../../store/my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
-import {deleteComment, publishComment, unpublishComment} from "../../../../store/my-dashboards/my-dashboards.action";
+import {
+  cloneCommentForEdit,
+  deleteComment,
+  publishComment,
+  unpublishComment,
+  updateComment
+} from "../../../../store/my-dashboards/my-dashboards.action";
 import {
   canDeleteComment,
   canEditComment,
@@ -43,8 +49,12 @@ import {
   selectCurrentDashboardId
 } from "../../../../store/my-dashboards/my-dashboards.selector";
 import {take} from "rxjs";
-import {ConfirmationService} from "primeng/api";
+import {ConfirmationService, PrimeTemplate} from "primeng/api";
 import {TranslateService} from "../../../../shared/services/translate.service";
+import {Dialog} from "primeng/dialog";
+import {FormsModule} from "@angular/forms";
+import {Textarea} from "primeng/textarea";
+import {Button} from "primeng/button";
 
 @Component({
   selector: 'app-comment-entry',
@@ -52,9 +62,15 @@ import {TranslateService} from "../../../../shared/services/translate.service";
   templateUrl: './comment-entry.component.html',
   imports: [
     DatePipe,
+    SlicePipe,
     Tooltip,
     TranslocoPipe,
-    AsyncPipe
+    AsyncPipe,
+    Dialog,
+    FormsModule,
+    Textarea,
+    Button,
+    PrimeTemplate
   ],
   styleUrls: ['./comment-entry.component.scss']
 })
@@ -66,6 +82,10 @@ export class CommentEntryComponent {
   comment = input.required<CommentEntry>();
 
   expanded = false;
+
+  // Edit dialog
+  editDialogVisible = false;
+  editedText = '';
 
   isSuperuser$ = this.store.select(selectIsSuperuser);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
@@ -86,6 +106,60 @@ export class CommentEntryComponent {
 
   toggleDetails(): void {
     this.expanded = !this.expanded;
+  }
+
+  onKeyDown(event: KeyboardEvent, action: () => void): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      action();
+    }
+  }
+
+  editComment(): void {
+    const comment = this.comment();
+    this.editedText = comment.text;
+    this.editDialogVisible = true;
+  }
+
+  saveEdit(): void {
+    const comment = this.comment();
+    const newText = this.editedText.trim();
+
+    if (!newText || newText === comment.text) {
+      this.editDialogVisible = false;
+      return;
+    }
+
+    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+        if (dashboardId && contextKey) {
+          if (comment.status === CommentStatus.PUBLISHED) {
+            // For published comments, clone with new text
+            this.store.dispatch(cloneCommentForEdit({
+              dashboardId,
+              contextKey,
+              commentId: comment.id,
+              newText
+            }));
+          } else {
+            // For draft comments, update directly
+            this.store.dispatch(updateComment({
+              dashboardId,
+              contextKey,
+              commentId: comment.id,
+              text: newText
+            }));
+          }
+        }
+      });
+    });
+
+    this.editDialogVisible = false;
+  }
+
+  cancelEdit(): void {
+    this.editDialogVisible = false;
+    this.editedText = '';
   }
 
   publishComment(): void {

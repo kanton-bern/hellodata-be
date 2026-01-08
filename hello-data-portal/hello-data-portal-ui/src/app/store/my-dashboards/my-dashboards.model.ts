@@ -57,6 +57,13 @@ export enum CommentStatus {
   PUBLISHED = 'PUBLISHED'
 }
 
+export interface CommentVersion {
+  version: number;
+  text: string;
+  editedDate: number;
+  editedBy: string;
+}
+
 export interface CommentEntry {
   id: string;
   dashboardId: number;
@@ -75,4 +82,8 @@ export interface CommentEntry {
   deleted: boolean;
   deletedDate?: number;
   deletedBy?: string;
+  // Versioning fields
+  version: number;
+  previousVersionId?: string; // Reference to the previous published version (for cloned drafts)
+  history?: CommentVersion[]; // History of all versions
 }

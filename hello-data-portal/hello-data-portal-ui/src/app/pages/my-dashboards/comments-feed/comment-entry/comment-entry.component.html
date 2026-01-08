@@ -1,67 +1,140 @@
 <div class="comment-item border rounded-md px-2 py-2"
      [class.bg-white]="comment().status === CommentStatus.PUBLISHED"
-     [class.bg-gray-100]="comment().status === CommentStatus.DRAFT">
+     [class.bg-gray-100]="comment().status === CommentStatus.DRAFT"
+     [class.draft-border]="comment().status === CommentStatus.DRAFT">
   <p class="comment-text p-1">{{ comment().text }}</p>
   <div class="comment-footer p-1">
-    <small class="comment-meta">
-      <span class="author-name"
-            [pTooltip]="comment().authorEmail"
-            tooltipPosition="top">{{ comment().author }}</span>
-      – {{ comment().createdDate | date:'short' }}@if (comment().lastEditedDate) {
-      (edited)
-    }
-    </small>
-    <div class="comment-actions">
-      <span class="status-dot"
-            [class.published]="comment().status === CommentStatus.PUBLISHED"
-            [class.draft]="comment().status === CommentStatus.DRAFT"
-            [pTooltip]="'@' + comment().status | transloco"
-            tooltipPosition="top"></span>
-      @if ((isSuperuser$ | async) && comment().status === CommentStatus.DRAFT) {
-        <button class="publish-btn"
-                (click)="publishComment()"
-                [pTooltip]="'@Publish' | transloco"
-                tooltipPosition="top">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
+    <div class="comment-meta-row">
+      <small class="comment-meta">
+        <span class="author-name"
+              [pTooltip]="comment().authorEmail"
+              tooltipPosition="top">{{ comment().author }}</span>
+        – {{ comment().createdDate | date:'short' }}
+        @if (comment().lastEditedDate) {
+          <span class="edited-badge">({{ '@edited' | transloco }})</span>
+        }
+        @if (comment().version > 1) {
+          <span class="version-badge">v{{ comment().version }}</span>
+        }
+      </small>
+      <div class="comment-actions">
+        @if (canEdit()) {
+          <button class="edit-btn"
+                  (click)="editComment()"
+                  (keydown)="onKeyDown($event, editComment.bind(this))"
+                  [pTooltip]="'@Edit' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+        }
+        @if ((isSuperuser$ | async) && comment().status === CommentStatus.DRAFT) {
+          <button class="publish-btn"
+                  (click)="publishComment()"
+                  (keydown)="onKeyDown($event, publishComment.bind(this))"
+                  [pTooltip]="'@Publish' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </button>
+        }
+        @if ((isSuperuser$ | async) && comment().status === CommentStatus.PUBLISHED) {
+          <button class="unpublish-btn"
+                  (click)="unpublishComment()"
+                  (keydown)="onKeyDown($event, unpublishComment.bind(this))"
+                  [pTooltip]="'@Unpublish' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
+          </button>
+        }
+        <button class="info-btn"
+                (click)="toggleDetails()"
+                (keydown)="onKeyDown($event, toggleDetails.bind(this))">
+          <i class="fa fa-info-circle"></i>
         </button>
-      }
-      @if ((isSuperuser$ | async) && comment().status === CommentStatus.PUBLISHED) {
-        <button class="unpublish-btn"
-                (click)="unpublishComment()"
-                [pTooltip]="'@Unpublish' | transloco"
-                tooltipPosition="top">
-          <i class="fa-solid fa-cloud-arrow-down"></i>
-        </button>
-      }
-      <button class="info-btn" (click)="toggleDetails()">
-        <i class="fa fa-info-circle"></i>
-      </button>
-      @if (canDelete()) {
-        <button class="delete-btn" (click)="deleteComment()" [pTooltip]="'@Delete' | transloco" tooltipPosition="top">
-          <i class="fa fa-trash"></i>
-        </button>
-      }
+        @if (canDelete()) {
+          <button class="delete-btn"
+                  (click)="deleteComment()"
+                  (keydown)="onKeyDown($event, deleteComment.bind(this))"
+                  [pTooltip]="'@Delete' | transloco"
+                  tooltipPosition="top">
+            <i class="fa fa-trash"></i>
+          </button>
+        }
+      </div>
     </div>
   </div>
   @if (expanded) {
     <div class="comment-details p-1">
       <small>
         <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + comment().status | transloco }}</div>
+        <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().version }}</div>
         <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
         @if (comment().publishedDate) {
-          <div><strong>{{ '@Published' | transloco }}
-            :</strong> {{ comment().publishedDate | date:'medium' }}@if (comment().publishedBy) {
-            ({{ comment().publishedBy }})
-          }</div>
+          <div><strong>{{ '@Published' | transloco }}:</strong> {{ comment().publishedDate | date:'medium' }}
+            @if (comment().publishedBy) {
+              ({{ comment().publishedBy }})
+            }
+          </div>
         }
         @if (comment().lastEditedDate) {
-          <div><strong>{{ '@Last edited' | transloco }}
-            :</strong> {{ comment().lastEditedDate | date:'medium' }}@if (comment().lastEditedBy) {
-            ({{ comment().lastEditedBy }})
-          }</div>
+          <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ comment().lastEditedDate | date:'medium' }}
+            @if (comment().lastEditedBy) {
+              ({{ comment().lastEditedBy }})
+            }
+          </div>
+        }
+        @if (comment().history && comment().history.length > 0) {
+          <div class="version-history mt-2">
+            <strong>{{ '@Version history' | transloco }}:</strong>
+            <ul class="history-list">
+              @for (historyItem of comment().history; track historyItem.version) {
+                <li class="history-item">
+                  <span class="history-version">v{{ historyItem.version }}</span>
+                  <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
+                  <span class="history-author">{{ historyItem.editedBy }}</span>
+                  <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
+                    {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
         }
       </small>
     </div>
   }
 </div>
+
+<!-- Edit Comment Dialog -->
+<p-dialog [header]="'@Edit comment' | transloco"
+          [(visible)]="editDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '500px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="edit-dialog-content">
+    @if (comment().status === CommentStatus.PUBLISHED) {
+      <div class="edit-warning mb-3">
+        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <span>{{ '@Edit published comment warning' | transloco }}</span>
+      </div>
+    }
+    <textarea pInputTextarea
+              [(ngModel)]="editedText"
+              [rows]="5"
+              [autoResize]="true"
+              class="w-full"
+              placeholder="{{ '@Write a comment' | transloco }}"></textarea>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button (click)="cancelEdit()" (keydown.escape)="cancelEdit()"
+              icon="fas fa-circle-xmark"
+              [label]="'@Cancel' | transloco"
+              severity="secondary"/>
+    <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
+              icon="fas fa-save"
+              [label]="'@Save' | transloco"
+              severity="success"
+              [disabled]="!editedText?.trim()"/>
+  </ng-template>
+</p-dialog>
 
