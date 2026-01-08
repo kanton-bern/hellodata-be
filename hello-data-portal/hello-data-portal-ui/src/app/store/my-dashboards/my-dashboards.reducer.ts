@@ -110,10 +110,12 @@ export const myDashboardsReducer = createReducer(
       )
     }
   }),
-  on(deleteCommentSuccess, (state: MyDashboardsState, {commentId}): MyDashboardsState => {
+  on(deleteCommentSuccess, (state: MyDashboardsState, {commentId, deletedDate, deletedBy}): MyDashboardsState => {
     return {
       ...state,
-      currentDashboardComments: state.currentDashboardComments.filter(c => c.id !== commentId)
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === commentId ? {...c, deleted: true, deletedDate, deletedBy} : c
+      )
     }
   }),
   on(publishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {

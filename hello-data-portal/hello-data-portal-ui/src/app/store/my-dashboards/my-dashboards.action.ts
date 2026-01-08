@@ -152,7 +152,7 @@ export const deleteComment = createAction(
 
 export const deleteCommentSuccess = createAction(
   MyDashboardsActionType.DELETE_COMMENT_SUCCESS,
-  props<{ commentId: string }>()
+  props<{ commentId: string; deletedDate: number; deletedBy: string }>()
 );
 
 export const deleteCommentError = createAction(

@@ -246,19 +246,25 @@ export class MyDashboardsEffects {
   deleteComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteComment),
-      switchMap(({dashboardId, contextKey, commentId}) => {
+      withLatestFrom(this._store.select(selectProfile)),
+      switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
         // return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId).pipe(
-        //   switchMap(() => scheduled([
-        //     deleteCommentSuccess({commentId}),
+        //   switchMap((response) => scheduled([
+        //     deleteCommentSuccess({commentId, deletedDate: response.deletedDate, deletedBy: response.deletedBy}),
         //     showSuccess({message: '@Comment deleted successfully'})
         //   ], asyncScheduler)),
         //   catchError(e => scheduled([deleteCommentError({error: e}), showError({error: e})], asyncScheduler))
         // )
 
         // Temporary mock - simulating backend response (soft delete)
+        const deleterName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
         return scheduled([
-          deleteCommentSuccess({commentId}),
+          deleteCommentSuccess({
+            commentId,
+            deletedDate: Date.now(),
+            deletedBy: deleterName
+          }),
           showSuccess({message: '@Comment deleted successfully'})
         ], asyncScheduler);
       })
