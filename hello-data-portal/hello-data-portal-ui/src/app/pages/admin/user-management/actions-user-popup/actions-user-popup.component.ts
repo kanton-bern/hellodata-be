@@ -39,7 +39,7 @@ import {
 } from "../../../../store/users-management/users-management.action";
 import {AsyncPipe} from '@angular/common';
 import {ConfirmDialog} from 'primeng/confirmdialog';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 
@@ -47,14 +47,13 @@ import {Ripple} from "primeng/ripple";
   selector: 'app-actions-user-popup',
   templateUrl: './actions-user-popup.component.html',
   styleUrls: ['./actions-user-popup.component.scss'],
-  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
+  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe, Ripple]
 })
 export class ActionsUserPopupComponent {
+  selectUserForPopup$: Observable<any>;
   private store = inject<Store<AppState>>(Store);
   private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
-
-  selectUserForPopup$: Observable<any>;
 
   constructor() {
     this.selectUserForPopup$ = this.store.select(selectUserForPopup);

@@ -29,8 +29,9 @@
         @if ((defaultLanguage$ | async); as defaultLanguage) {
           <div class="p-toolbar-group-end">
             <p-button (click)="createOrUpdateDocumentation(result.doc)"
+                      (keydown.enter)="createOrUpdateDocumentation(result.doc)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
-                      icon="fas fa-floppy-disk" pRipple pButton
+                      icon="fas fa-floppy-disk" pRipple
                       label="{{'@Save' | transloco}}"
                       severity="success"/>
           </div>

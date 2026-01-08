@@ -17,7 +17,7 @@
                         <div class="col-span-8">
                           <!--                  <button (click)="navigateToDetails(pipeline)" class="p-button-link"-->
                           <!--                          label="{{ pipeline.id | truncate: 30}}" placeholder="Left"-->
-                          <!--                          pButton tooltipPosition="left"-->
+                          <!--                           tooltipPosition="left"-->
                           <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
                           <!--                          type="button">-->
                           <!--                  </button>-->
@@ -81,7 +81,7 @@
                   <p-button (click)="editDocumentation()" (keydown)="editDocumentation()"
                             [pTooltip]="'@Edit' | transloco"
                             severity="success" icon="fas fa-light fa-pen-to-square" class="p-button-rounded"
-                            id="editDocumentationBtnOvrl"/>
+                            id="editDocumentationBtnOvrl" pRipple/>
                 }
               </div>
             </ng-template>
@@ -145,7 +145,7 @@
   </p-drawer>
   <p-scrollPanel [style]="{ width: '100%' }">
     <div (click)="openOverlaySidebar()" [ngClass]="summarySidebarVisible ? '' : 'vertical-writing-mode'"
-         class="summary-header" (keydown)="openOverlaySidebar()">
+         class="summary-header" (keydown.enter)="openOverlaySidebar()">
       {{ '@Summary header' | transloco }}
     </div>
   </p-scrollPanel>

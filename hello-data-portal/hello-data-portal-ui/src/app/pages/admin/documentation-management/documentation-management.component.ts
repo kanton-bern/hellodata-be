@@ -46,7 +46,7 @@ import {AsyncPipe} from '@angular/common';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {Editor} from 'primeng/editor';
 import {Toolbar} from 'primeng/toolbar';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 
@@ -54,17 +54,16 @@ import {Ripple} from "primeng/ripple";
   selector: 'app-documentation',
   templateUrl: './documentation-management.component.html',
   styleUrls: ['./documentation-management.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
+  imports: [FormsModule, ReactiveFormsModule, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, AsyncPipe, TranslocoPipe, Ripple]
 })
 export class DocumentationManagementComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
-
   documentationForm!: FormGroup;
   initForm$: Observable<any>;
   selectedLanguage$: Observable<any>;
   supportedLanguages$: Observable<string[]>;
   defaultLanguage$: Observable<string | null>;
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
 
   constructor() {
     super();

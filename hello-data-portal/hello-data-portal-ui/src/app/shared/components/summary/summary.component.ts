@@ -41,6 +41,7 @@ import {
   selectStorageSize
 } from "../../../store/summary/summary.selector";
 import {Button} from "primeng/button";
+import {Ripple} from "primeng/ripple";
 import {Observable} from "rxjs";
 import {
   selectCurrentUserPermissions,
@@ -65,26 +66,24 @@ import {TruncatePipe} from "../../pipes/truncate.pipe";
   selector: 'app-summary',
   templateUrl: './summary.component.html',
   styleUrls: ['./summary.component.scss'],
-  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, AccordionHeader,
+  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader,
     AccordionContent, Tooltip, Button, Editor, FormsModule, ScrollPanelModule,
     SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe,
     TranslocoPipe, TruncatePipe, DatePipe]
 })
 export class SummaryComponent {
-  private readonly store = inject<Store<AppState>>(Store);
   appInfo = inject(AppInfoService);
-  private readonly translateService = inject(TranslateService);
-
   currentUserPermissions$: Observable<string[]>;
   summarySidebarVisible = false;
   readonly rightSidebarVisible = output<boolean>();
   overlaySidebarVisible = false;
-
   pipelines$: Observable<Pipeline[]>;
   documentation$: Observable<Documentation | null>;
   storeSize$: Observable<StorageMonitoringResult | null>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
+  private store = inject<Store<AppState>>(Store);
+  private translateService = inject(TranslateService);
 
   constructor() {
     const store = this.store;

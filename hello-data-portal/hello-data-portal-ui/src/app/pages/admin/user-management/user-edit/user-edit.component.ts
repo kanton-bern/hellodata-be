@@ -68,7 +68,7 @@ import {
 } from "../../../../store/users-management/users-management.action";
 import {AsyncPipe} from '@angular/common';
 import {Toolbar} from 'primeng/toolbar';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {Divider} from 'primeng/divider';
 import {Select} from 'primeng/select';
@@ -84,13 +84,9 @@ import {map} from "rxjs/operators";
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, Select, DashboardViewerPermissionsComponent, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, ButtonDirective]
+  imports: [FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, Select, DashboardViewerPermissionsComponent, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
-
-
   editedUser$: Observable<any>;
   businessDomains$: Observable<any>;
   dataDomains$: Observable<any>;
@@ -102,9 +98,9 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
    */
   dashboardTableVisibility = new Map<string, boolean>();
   userForm!: FormGroup;
-
   saveDisabled = false;
-
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
   private userContextRoles$: Observable<any>;
   private userContextRolesSub!: Subscription;
 
