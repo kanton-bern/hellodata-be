@@ -1,24 +1,24 @@
-<p-confirmDialog #cd [style]="{width: '50vw'}" key="unsavedChangesConfirmation" [closable]="false">
+<p-confirmDialog #cd [closable]="false" [style]="{width: '50vw'}" key="unsavedChangesConfirmation">
   <ng-template pTemplate="header">
     <div class="flex justify-between items-center w-full">
       <h4 class="m-0">{{ "@Unsaved changes title" | transloco }}</h4>
-      <button pButton icon="pi pi-times" class="p-button-text" (click)="cd.hide()"
-              [pTooltip]="'@Cancel' | transloco"></button>
+      <button (click)="cd.hide()" [pTooltip]="'@Cancel' | transloco" class="p-button-text"
+              icon="pi pi-times"></button>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Discard changes' | transloco}}"
-              type="button" severity="secondary" pRipple pButton></p-button>
+              pRipple severity="secondary" type="button"></p-button>
     @if (stayOnPage$ | async; as stayOnPage) {
       @if (!stayOnPage.value) {
         <p-button (click)="cd.onAccept()"
-                  severity="success" pRipple pButton
+                  severity="success" pRipple
                   icon="fas fa-floppy-disk"
                   label="{{ '@Save changes' | transloco }}"
                   type="button"
         />
       } @else {
-        <p-button (click)="cd.hide()" pRipple pButton
+        <p-button (click)="cd.hide()" pRipple
                   severity="success"
                   icon="fas fa-pen-to-square"
                   label="{{ '@Continue edition' | transloco }}"

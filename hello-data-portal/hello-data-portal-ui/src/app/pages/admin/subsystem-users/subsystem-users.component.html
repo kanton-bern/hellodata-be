@@ -8,25 +8,25 @@
           <ng-template pTemplate="caption">
             <div class="flex">
               <div style="text-align: left">
-                <p-button (onClick)="dt.exportCSV()" pRipple pButton
+                <p-button (onClick)="dt.exportCSV()" pRipple
                           [disabled]="(dataLoading$ | async) ?? false"
                           icon="pi pi-external-link"
                           label="{{ '@Export' | transloco }}"/>
               </div>
               <div class="ml-1" style="text-align: left">
                 <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-replay" pRipple pButton
+                          icon="pi pi-replay" pRipple
                           label="{{ '@Reload' | transloco }}"
                           severity="success"/>
               </div>
               <div class="ml-1" style="text-align: left">
                 <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
-                          icon="pi pi-times-circle" pRipple pButton
+                          icon="pi pi-times-circle" pRipple
                           label="{{ '@Clear cache' | transloco }}"
                           severity="help"/>
               </div>
               <div class="ml-auto flex">
-                <button (click)="clear(dt, filterInput)" class="mr-2" pRipple pButton
+                <button (click)="clear(dt, filterInput)" class="mr-2" pRipple
                         severity="secondary" id="clearFilterBtn">
                   <p-inputicon class="pi pi-filter-slash"/>
                 </button>

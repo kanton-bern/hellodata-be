@@ -4,7 +4,7 @@
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
         <p-button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
-                  label="{{'@Create' | transloco }}" pRipple pButton></p-button>
+                  label="{{'@Create' | transloco }}" pRipple></p-button>
       </ng-template>
     </p-toolbar>
     @if ((faq$ | async); as faq) {
@@ -55,7 +55,7 @@
                             severity="success"
                             class="p-button-rounded mr-2"
                             icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
-                            pButton
+
                             pRipple/>
                   <p-button (click)="showFaqDeletionPopup(faq)"
                             [pTooltip]="'@Delete' | transloco"
@@ -63,7 +63,7 @@
                             class="p-button-rounded mr-2"
                             icon="fas fa-trash"
                             id="{{'deleteFaq_' + faq.title}}"
-                            pButton
+
                             pRipple/>
                 </td>
               </tr>
