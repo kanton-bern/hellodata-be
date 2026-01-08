@@ -4,8 +4,33 @@
     <h4 class="text-center">{{ '@Comments' | transloco }}</h4>
   </div>
 
+  <div class="comments-filters flex gap-2 px-2 py-1">
+    <div class="filter-group">
+      <span class="filter-label">{{ '@Year' | transloco }}</span>
+      <p-select [options]="yearOptions"
+                [(ngModel)]="selectedYear"
+                (onChange)="onFilterChange()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="{{ '@All' | transloco }}"
+                [style]="{'width': '100%'}"
+                size="small"/>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">{{ '@Quarter' | transloco }}</span>
+      <p-select [options]="quarterOptions"
+                [(ngModel)]="selectedQuarter"
+                (onChange)="onFilterChange()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="{{ '@All' | transloco }}"
+                [style]="{'width': '100%'}"
+                size="small"/>
+    </div>
+  </div>
+
   <div class="comment-scrollpanel" #scrollContainer>
-    @if ((comments$ | async); as comments) {
+    @if ((filteredComments$ | async); as comments) {
       @if (comments.length) {
         <div class="comments-list">
           @for (comment of comments; track comment.id) {
@@ -14,12 +39,12 @@
         </div>
       } @else {
         <div class="h-full flex items-center justify-center text-gray-400">
-          No comments.
+          {{ '@No comments' | transloco }}
         </div>
       }
     } @else {
       <div class="h-full flex items-center justify-center text-gray-400">
-        No comments.
+        {{ '@No comments' | transloco }}
       </div>
     }
   </div>
@@ -32,13 +57,13 @@
         rows="3">
       </textarea>
 
-    <p-button severity="success"
-              label="{{ '@Submit' | transloco }}"
-              class="mt-2 w-full"
-              (click)="submitComment()"
-              (keydown)="submitComment()"
-              [disabled]="!newCommentText?.trim()">
-    </p-button>
+    <div class="mt-2 flex justify-end">
+      <p-button severity="success" (keydown.enter)="submitComment()"
+                label="{{ '@Submit' | transloco }}"
+                (click)="submitComment()"
+                [disabled]="!newCommentText?.trim()">
+      </p-button>
+    </div>
   </div>
 
 </div>

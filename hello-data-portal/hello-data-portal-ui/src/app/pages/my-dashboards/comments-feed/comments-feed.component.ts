@@ -42,7 +42,14 @@ import {
 import {AsyncPipe} from "@angular/common";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
+import {Select} from "primeng/select";
+import {CommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
+import {map, Observable} from "rxjs";
 
+interface FilterOption {
+  label: string;
+  value: number | null;
+}
 
 @Component({
   selector: 'app-comments-feed',
@@ -54,7 +61,8 @@ import {PrimeTemplate} from "primeng/api";
     CommentEntryComponent,
     AsyncPipe,
     ConfirmDialog,
-    PrimeTemplate
+    PrimeTemplate,
+    Select
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
@@ -67,6 +75,21 @@ export class CommentsFeed implements AfterViewInit {
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
 
+  // Filter options
+  yearOptions: FilterOption[] = [];
+  quarterOptions: FilterOption[] = [
+    {label: 'All', value: null},
+    {label: 'Q1', value: 1},
+    {label: 'Q2', value: 2},
+    {label: 'Q3', value: 3},
+    {label: 'Q4', value: 4}
+  ];
+
+  selectedYear: number | null = null;
+  selectedQuarter: number | null = null;
+
+  filteredComments$: Observable<CommentEntry[]>;
+
   newCommentText = '';
 
   private currentDashboardId: number | undefined;
@@ -77,6 +100,61 @@ export class CommentsFeed implements AfterViewInit {
     this.currentDashboardId$.subscribe(id => this.currentDashboardId = id);
     this.currentDashboardContextKey$.subscribe(key => this.currentDashboardContextKey = key);
     this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
+
+    // Initialize year options
+    this.initYearOptions();
+
+    // Initialize filtered comments
+    this.filteredComments$ = this.comments$.pipe(
+      map(comments => this.filterComments(comments))
+    );
+  }
+
+  private initYearOptions(): void {
+    const currentYear = new Date().getFullYear();
+    this.yearOptions = [
+      {label: 'All', value: null},
+      ...Array.from({length: 5}, (_, i) => ({
+        label: String(currentYear - i),
+        value: currentYear - i
+      }))
+    ];
+  }
+
+  onFilterChange(): void {
+    this.filteredComments$ = this.comments$.pipe(
+      map(comments => this.filterComments(comments))
+    );
+  }
+
+  private filterComments(comments: CommentEntry[]): CommentEntry[] {
+    if (!comments) return [];
+
+    return comments.filter(comment => {
+      const commentDate = new Date(comment.createdDate);
+      const commentYear = commentDate.getFullYear();
+      const commentQuarter = this.getQuarter(commentDate);
+
+      // Filter by year
+      if (this.selectedYear !== null && commentYear !== this.selectedYear) {
+        return false;
+      }
+
+      // Filter by quarter (based on end date of quarter)
+      if (this.selectedQuarter !== null && commentQuarter !== this.selectedQuarter) {
+        return false;
+      }
+
+      return true;
+    });
+  }
+
+  private getQuarter(date: Date): number {
+    const month = date.getMonth(); // 0-11
+    if (month <= 2) return 1;      // Jan, Feb, Mar -> Q1
+    if (month <= 5) return 2;      // Apr, May, Jun -> Q2
+    if (month <= 8) return 3;      // Jul, Aug, Sep -> Q3
+    return 4;                       // Oct, Nov, Dec -> Q4
   }
 
   ngAfterViewInit(): void {

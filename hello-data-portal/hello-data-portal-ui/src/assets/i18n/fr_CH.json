@@ -5,6 +5,7 @@
   "@Admin Tools": "Outils d'administration",
   "@Administration": "Administration",
   "@Advanced Analytics Viewer": "Explorateur d'analyses avancées",
+  "@All": "Tous",
   "@All Data Domains": "Domaines de données",
   "@Announcement": "Notification",
   "@Announcement added successfully": "Notification ajoutée avec succès",
@@ -268,6 +269,9 @@
   "@Workspace permissions updated": "Autorisations des domaines de données mises à jour",
   "@Workspaces": "Domaines de données",
   "@Write a comment": "Écrire un commentaire...",
+  "@Year": "Année",
   "@Yes": "Oui",
-  "@You are not allowed to access this page": "Vous n'êtes pas autorisé à accéder à cette page. Veuillez contactez votre administrateur."
+  "@You are not allowed to access this page": "Vous n'êtes pas autorisé à accéder à cette page. Veuillez contactez votre administrateur.",
+  "@Quarter": "Trimestre",
+  "@No comments": "Pas de commentaires"
 }

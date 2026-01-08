@@ -5,6 +5,7 @@
   "@Admin Tools": "Admin tools",
   "@Administration": "Administration",
   "@Advanced Analytics Viewer": "Advanced Analytics Viewer",
+  "@All": "All",
   "@All Data Domains": "All Data Domains",
   "@Announcement": "Notification",
   "@Announcement added successfully": "Notification added successfully",
@@ -268,6 +269,9 @@
   "@Workspace permissions updated": "Workspace permissions updated",
   "@Workspaces": "Workspaces",
   "@Write a comment": "Write a comment...",
+  "@Year": "Year",
   "@Yes": "Yes",
-  "@You are not allowed to access this page": "You are not allowed to access this page. Contact your administrator."
+  "@You are not allowed to access this page": "You are not allowed to access this page. Contact your administrator.",
+  "@Quarter": "Quarter",
+  "@No comments": "No comments"
 }

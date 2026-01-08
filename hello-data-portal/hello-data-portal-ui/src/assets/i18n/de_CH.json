@@ -5,6 +5,7 @@
   "@Admin Tools": "Admin-Tools",
   "@Administration": "Administration",
   "@Advanced Analytics Viewer": "Advanced Analytics Viewer",
+  "@All": "Alle",
   "@All Data Domains": "Alle Datendomänen",
   "@Announcement": "Ankündigung",
   "@Announcement added successfully": "Ankündigung erfolgreich hinzugefügt",
@@ -268,6 +269,9 @@
   "@Workspace permissions updated": "Datendomänen Berechtigungen aktualisiert",
   "@Workspaces": "Datendomänen",
   "@Write a comment": "Schreiben Sie einen Kommentar...",
+  "@Year": "Jahr",
   "@Yes": "Ja",
-  "@You are not allowed to access this page": "Du bist leider nicht berechtigt, auf diese Seite zuzugreifen. Kontaktiere bitte deinen Administrator."
+  "@You are not allowed to access this page": "Du bist leider nicht berechtigt, auf diese Seite zuzugreifen. Kontaktiere bitte deinen Administrator.",
+  "@Quarter": "Quartal",
+  "@No comments": "Keine Kommentare"
 }

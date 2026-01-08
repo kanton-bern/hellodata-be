@@ -37,6 +37,38 @@
   padding: 0.5rem;
 }
 
+.comments-filters {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--surface-border, #dee2e6);
+
+  .filter-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .filter-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--text-color-secondary, #6c757d);
+    text-transform: uppercase;
+  }
+
+  ::ng-deep .p-select {
+    font-size: 0.65rem;
+
+    .p-select-label {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.65rem;
+    }
+
+    .p-select-dropdown {
+      width: 1.5rem;
+    }
+  }
+}
+
 .comment-scrollpanel {
   flex: 1;
   min-height: 0; // important for the flexbox with overflow
