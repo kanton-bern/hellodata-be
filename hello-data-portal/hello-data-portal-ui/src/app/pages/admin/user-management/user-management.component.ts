@@ -54,7 +54,7 @@ import {TranslocoPipe} from "@jsverse/transloco";
 import {TableLazyLoadEvent, TableModule} from "primeng/table";
 import {Tooltip} from "primeng/tooltip";
 import {InputText} from "primeng/inputtext";
-import {Button, ButtonDirective} from "primeng/button";
+import {Button} from "primeng/button";
 import {Toolbar} from "primeng/toolbar";
 import {Ripple} from "primeng/ripple";
 import {AutoComplete} from "primeng/autocomplete";
@@ -81,14 +81,9 @@ import {PrimeTemplate} from 'primeng/api';
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, ButtonDirective, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
-  private userService = inject(UsersManagementService);
-
-
   users$: Observable<any>;
   syncStatus$: Observable<string>;
   usersLoading$: Observable<boolean>;
@@ -98,6 +93,9 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   suggestedAdUsers: AdUser[] = [];
   filterValue = '';
   syncStatusInterval$ = interval(30000);
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+  private userService = inject(UsersManagementService);
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
   private destroy$ = new Subject<void>();

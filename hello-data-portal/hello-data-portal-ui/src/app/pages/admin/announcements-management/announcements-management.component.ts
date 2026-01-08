@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -41,30 +41,28 @@ import {
 } from "../../../store/announcement/announcement.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
-import { AsyncPipe, DatePipe } from '@angular/common';
-import { Toolbar } from 'primeng/toolbar';
-import { PrimeTemplate, SharedModule } from 'primeng/api';
-import { ButtonDirective, Button } from 'primeng/button';
-import { Ripple } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { Tooltip } from 'primeng/tooltip';
-import { Editor } from 'primeng/editor';
-import { FormsModule } from '@angular/forms';
-import { DeleteAnnouncementPopupComponent } from './delete-announcement-popup/delete-announcement-popup.component';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe, DatePipe} from '@angular/common';
+import {Toolbar} from 'primeng/toolbar';
+import {PrimeTemplate, SharedModule} from 'primeng/api';
+import {Button} from 'primeng/button';
+import {Ripple} from 'primeng/ripple';
+import {TableModule} from 'primeng/table';
+import {Tooltip} from 'primeng/tooltip';
+import {Editor} from 'primeng/editor';
+import {FormsModule} from '@angular/forms';
+import {DeleteAnnouncementPopupComponent} from './delete-announcement-popup/delete-announcement-popup.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-announcements-management',
-    templateUrl: './announcements-management.component.html',
-    styleUrls: ['./announcements-management.component.scss'],
-    imports: [Toolbar, PrimeTemplate, ButtonDirective, Ripple, TableModule, Tooltip, Editor, FormsModule, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  selector: 'app-announcements-management',
+  templateUrl: './announcements-management.component.html',
+  styleUrls: ['./announcements-management.component.scss'],
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, Editor, FormsModule, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class AnnouncementsManagementComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-
-
   allAnnouncements$: Observable<any>;
   selectedLanguage$: Observable<any>;
+  private store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();

@@ -45,7 +45,7 @@ import {
 } from "../../../store/external-dashboards/external-dasboards.action";
 import {trackEvent} from "../../../store/app/app.action";
 import {AsyncPipe, DatePipe} from '@angular/common';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {Tooltip} from 'primeng/tooltip';
 import {ConfirmDialog} from 'primeng/confirmdialog';
@@ -60,17 +60,15 @@ import {Ripple} from "primeng/ripple";
   templateUrl: './external-dashboards.component.html',
   styleUrls: ['./external-dashboards.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tooltip, ConfirmDialog, AsyncPipe, DatePipe, ContainsPipe,
-    TranslocoPipe, IconField, InputIcon, Ripple, ButtonDirective]
+    TranslocoPipe, IconField, InputIcon, Ripple]
 })
 export class ExternalDashboardsComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private confirmationService = inject(ConfirmationService);
-  private translateService = inject(TranslateService);
-
   readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
-
+  private store = inject<Store<AppState>>(Store);
+  private confirmationService = inject(ConfirmationService);
+  private translateService = inject(TranslateService);
   private filterTimer: any;
 
   constructor() {

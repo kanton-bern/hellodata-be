@@ -25,29 +25,21 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, NgModule, OnInit, inject } from '@angular/core';
-import { CommonModule, AsyncPipe } from "@angular/common";
-import {ReactiveFormsModule} from "@angular/forms";
-import {PortalRoleEditComponent} from './portal-role-edit/portal-role-edit.component';
+import {Component, inject, OnInit} from '@angular/core';
+import {AsyncPipe} from "@angular/common";
 import {Action, Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
 import {selectPortalRoles} from "../../../store/portal-roles-management/portal-roles-management.selector";
 import {DeletePortalRolePopupComponent} from "./delete-portal-role-popup/delete-portal-role-popup.component";
 import {PortalRole} from "../../../store/portal-roles-management/portal-roles-management.model";
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import { ButtonModule, Button, ButtonDirective } from "primeng/button";
-import { RippleModule, Ripple } from "primeng/ripple";
-import { SharedModule, PrimeTemplate } from "primeng/api";
-import {ToolbarModule} from "primeng/toolbar";
-import {EditorModule} from "primeng/editor";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {Button} from "primeng/button";
+import {Ripple} from "primeng/ripple";
+import {PrimeTemplate} from "primeng/api";
 import {TableModule} from "primeng/table";
-import { TagModule, Tag } from "primeng/tag";
-import {TextareaModule} from 'primeng/textarea';
-import {SelectModule} from 'primeng/select';
-import {AutoCompleteModule} from "primeng/autocomplete";
-import {ConfirmDialogModule} from "primeng/confirmdialog";
-import { TooltipModule, Tooltip } from "primeng/tooltip";
+import {Tag} from "primeng/tag";
+import {Tooltip} from "primeng/tooltip";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
@@ -58,17 +50,16 @@ import {
   showDeletePortalRolePopup
 } from "../../../store/portal-roles-management/portal-roles-management.action";
 
+
 @Component({
-    selector: 'app-roles-management',
-    templateUrl: './portal-roles-management.component.html',
-    styleUrls: ['./portal-roles-management.component.scss'],
-    imports: [TableModule, PrimeTemplate, Tag, Button, ButtonDirective, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe]
+  selector: 'app-roles-management',
+  templateUrl: './portal-roles-management.component.html',
+  styleUrls: ['./portal-roles-management.component.scss'],
+  imports: [TableModule, PrimeTemplate, Tag, Button, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-
-
   roles$: Observable<any>;
+  private readonly store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -36,29 +36,28 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../store/faq/faq.action";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
-import { AsyncPipe } from '@angular/common';
-import { Toolbar } from 'primeng/toolbar';
-import { PrimeTemplate, SharedModule } from 'primeng/api';
-import { ButtonDirective, Button } from 'primeng/button';
-import { Ripple } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
-import { Editor } from 'primeng/editor';
-import { FormsModule } from '@angular/forms';
-import { Tooltip } from 'primeng/tooltip';
-import { DeleteFaqPopupComponent } from './delete-faq-popup/delete-faq-popup.component';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {Toolbar} from 'primeng/toolbar';
+import {PrimeTemplate, SharedModule} from 'primeng/api';
+import {Button} from 'primeng/button';
+import {Ripple} from 'primeng/ripple';
+import {TableModule} from 'primeng/table';
+import {Editor} from 'primeng/editor';
+import {FormsModule} from '@angular/forms';
+import {Tooltip} from 'primeng/tooltip';
+import {DeleteFaqPopupComponent} from './delete-faq-popup/delete-faq-popup.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-faq-list',
-    templateUrl: './faq-list.component.html',
-    styleUrls: ['./faq-list.component.scss'],
-    imports: [Toolbar, PrimeTemplate, ButtonDirective, Ripple, TableModule, Editor, FormsModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
+  selector: 'app-faq-list',
+  templateUrl: './faq-list.component.html',
+  styleUrls: ['./faq-list.component.scss'],
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Editor, FormsModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-
   faq$: Observable<any>;
   selectedLanguage$: Observable<any>;
+  private store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();

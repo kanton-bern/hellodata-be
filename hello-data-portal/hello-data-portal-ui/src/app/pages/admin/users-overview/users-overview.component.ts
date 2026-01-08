@@ -30,7 +30,7 @@ import {AsyncPipe} from "@angular/common";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {TableModule} from "primeng/table";
 import {Tag} from "primeng/tag";
-import {Button, ButtonDirective} from "primeng/button";
+import {Button} from "primeng/button";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
@@ -61,17 +61,16 @@ interface TableRow {
   selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
   styleUrls: ['./users-overview.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
+  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
-  private readonly store = inject<Store<AppState>>(Store);
-  private readonly translateService = inject(TranslateService);
-
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   readonly NO_TAG = '_no_tag';
   tableData$: Observable<TableRow[]>;
   columns$: Observable<any[]>;
   dataLoading$: Observable<boolean>;
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
 
   constructor() {

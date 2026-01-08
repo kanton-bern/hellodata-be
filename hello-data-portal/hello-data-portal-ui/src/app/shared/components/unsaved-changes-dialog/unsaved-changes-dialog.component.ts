@@ -32,7 +32,7 @@ import {AppState} from "../../../store/app/app.state";
 import {Store} from "@ngrx/store";
 import {selectStayOnPage} from "../../../store/unsaved-changes/unsaved-changes.selector";
 import {AsyncPipe} from "@angular/common";
-import {Button, ButtonDirective} from "primeng/button";
+import {Button} from "primeng/button";
 import {PrimeTemplate} from 'primeng/api';
 import {Tooltip} from "primeng/tooltip";
 import {Ripple} from "primeng/ripple";
@@ -41,7 +41,7 @@ import {Ripple} from "primeng/ripple";
   selector: 'app-unsaved-changes-dialog',
   templateUrl: './unsaved-changes-dialog.component.html',
   styleUrls: ['./unsaved-changes-dialog.component.scss'],
-  imports: [ConfirmDialog, PrimeTemplate, ButtonDirective, Button, TranslocoPipe, AsyncPipe, Tooltip, Ripple]
+  imports: [ConfirmDialog, PrimeTemplate, Button, TranslocoPipe, AsyncPipe, Tooltip, Ripple]
 })
 export class UnsavedChangesDialogComponent {
   private store = inject<Store<AppState>>(Store);

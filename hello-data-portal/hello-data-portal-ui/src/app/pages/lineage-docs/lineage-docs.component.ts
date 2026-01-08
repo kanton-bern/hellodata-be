@@ -25,16 +25,14 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, ElementRef, NgModule, OnInit, inject, viewChild } from '@angular/core';
-import { CommonModule, AsyncPipe, DatePipe } from "@angular/common";
+import {Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
+import {AsyncPipe, DatePipe} from "@angular/common";
 import {Store} from "@ngrx/store";
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { ButtonModule, Button, ButtonDirective } from "primeng/button";
-import { RippleModule, Ripple } from "primeng/ripple";
-import {EmbeddedLineageDocsComponent} from "./embedded/embedded-lineage-docs.component";
-import { TranslocoModule, TranslocoPipe } from "@jsverse/transloco";
-import {SelectModule} from 'primeng/select';
-import { TooltipModule, Tooltip } from "primeng/tooltip";
+import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
+import {Button} from "primeng/button";
+import {Ripple} from "primeng/ripple";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {Tooltip} from "primeng/tooltip";
 import {LineageDoc} from "../../store/lineage-docs/lineage-docs.model";
 import {AppState} from "../../store/app/app.state";
 
@@ -42,28 +40,24 @@ import {AppState} from "../../store/app/app.state";
 import {naviElements} from "../../app-navi-elements";
 import {combineLatest, map, Observable, tap} from "rxjs";
 import {selectFilteredBy, selectMyLineageDocsFiltered} from "../../store/lineage-docs/lineage-docs.selector";
-import {RouterLink} from "@angular/router";
 import {TableModule} from "primeng/table";
 import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import {ScrollTopModule} from "primeng/scrolltop";
-import { PrimeTemplate } from 'primeng/api';
+import {PrimeTemplate} from 'primeng/api';
 
 @Component({
-    selector: 'app-docs',
-    templateUrl: './lineage-docs.component.html',
-    styleUrls: ['./lineage-docs.component.scss'],
-    imports: [TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe]
+  selector: 'app-docs',
+  templateUrl: './lineage-docs.component.html',
+  styleUrls: ['./lineage-docs.component.scss'],
+  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class LineageDocsComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
-
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
-
   readonly availableProjectDocs = viewChild.required<ElementRef>('availableProjectDocs');
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly fb = inject(FormBuilder);
 
   constructor() {
     super();

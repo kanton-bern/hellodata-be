@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {Observable} from "rxjs";
 import {MetaInfoResource} from "../../../store/metainfo-resource/metainfo-resource.model";
 import {Store} from "@ngrx/store";
@@ -36,40 +36,37 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {selectAvailableDataDomainItems, selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
-import { FileSelectEvent, FileUploadErrorEvent, FileUploadEvent, FileUpload } from "primeng/fileupload";
+import {FileSelectEvent, FileUpload, FileUploadErrorEvent, FileUploadEvent} from "primeng/fileupload";
 import {
   loadMyDashboards,
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "../../../store/my-dashboards/my-dashboards.action";
 import {environment} from "../../../../environments/environment";
-import { AsyncPipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
-import { Button, ButtonDirective } from 'primeng/button';
-import { Ripple } from 'primeng/ripple';
-import { Tooltip } from 'primeng/tooltip';
-import { SilentLoginComponent } from '../../../shared/components/silent-login/silent-login.component';
-import { TranslocoPipe } from '@jsverse/transloco';
-import { NgArrayPipesModule } from 'ngx-pipes';
+import {AsyncPipe} from '@angular/common';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate} from 'primeng/api';
+import {Button} from 'primeng/button';
+import {Ripple} from 'primeng/ripple';
+import {Tooltip} from 'primeng/tooltip';
+import {SilentLoginComponent} from '../../../shared/components/silent-login/silent-login.component';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {NgArrayPipesModule} from 'ngx-pipes';
 
 @Component({
-    selector: 'app-dashboard-import-export',
-    templateUrl: './dashboard-import-export.component.html',
-    styleUrl: './dashboard-import-export.component.scss',
-    imports: [TableModule, PrimeTemplate, Button, ButtonDirective, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule]
+  selector: 'app-dashboard-import-export',
+  templateUrl: './dashboard-import-export.component.html',
+  styleUrl: './dashboard-import-export.component.scss',
+  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule]
 })
 export class DashboardImportExportComponent extends BaseComponent {
-  private store = inject<Store<AppState>>(Store);
-
   supersetInfos$: Observable<MetaInfoResource[]>;
   dashboards$: Observable<SupersetDashboard[]>;
   availableDataDomains$: Observable<any>;
-
   selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
   showUploadForContextMap = new Map<string, boolean>();
-
   uploadDashboardsUrl = `${environment.portalApi}/superset/upload-dashboards/`;
+  private store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();
