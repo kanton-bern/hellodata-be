@@ -1,4 +1,6 @@
-<div class="comment-item border rounded-md bg-white px-2 py-2">
+<div class="comment-item border rounded-md px-2 py-2"
+     [class.bg-white]="comment().status === CommentStatus.PUBLISHED"
+     [class.bg-gray-100]="comment().status === CommentStatus.DRAFT">
   <p class="comment-text p-1">{{ comment().text }}</p>
   <div class="comment-footer p-1">
     <small class="comment-meta">
