@@ -1,8 +1,8 @@
 <div class="comment-item border rounded-md px-2 py-2"
-     [class.bg-white]="comment().status === CommentStatus.PUBLISHED"
-     [class.bg-gray-100]="comment().status === CommentStatus.DRAFT"
-     [class.draft-border]="comment().status === CommentStatus.DRAFT">
-  <p class="comment-text p-1">{{ comment().text }}</p>
+     [class.bg-white]="activeVersion()?.status === CommentStatus.PUBLISHED"
+     [class.bg-gray-100]="activeVersion()?.status === CommentStatus.DRAFT"
+     [class.draft-border]="activeVersion()?.status === CommentStatus.DRAFT">
+  <p class="comment-text p-1">{{ activeVersion()?.text }}</p>
   <div class="comment-footer p-1">
     <div class="comment-meta-row">
       <small class="comment-meta">
@@ -10,11 +10,11 @@
               [pTooltip]="comment().authorEmail"
               tooltipPosition="top">{{ comment().author }}</span>
         – {{ comment().createdDate | date:'short' }}
-        @if (comment().lastEditedDate) {
+        @if (activeVersion()?.editedDate && activeVersion()?.editedDate !== comment().createdDate) {
           <span class="edited-badge">({{ '@edited' | transloco }})</span>
         }
-        @if (comment().version > 1) {
-          <span class="version-badge">v{{ comment().version }}</span>
+        @if (comment().activeVersion > 1) {
+          <span class="version-badge">v{{ comment().activeVersion }}</span>
         }
       </small>
       <div class="comment-actions">
@@ -32,7 +32,7 @@
             <i class="fa-solid fa-pen"></i>
           </button>
         }
-        @if ((isSuperuser$ | async) && comment().status === CommentStatus.DRAFT) {
+        @if ((isSuperuser$ | async) && activeVersion()?.status === CommentStatus.DRAFT) {
           <button class="publish-btn"
                   (click)="publishComment()"
                   (keydown)="onKeyDown($event, publishComment.bind(this))"
@@ -41,7 +41,7 @@
             <i class="fa-solid fa-cloud-arrow-up"></i>
           </button>
         }
-        @if ((isSuperuser$ | async) && comment().status === CommentStatus.PUBLISHED) {
+        @if ((isSuperuser$ | async) && activeVersion()?.status === CommentStatus.PUBLISHED) {
           <button class="unpublish-btn"
                   (click)="unpublishComment()"
                   (keydown)="onKeyDown($event, unpublishComment.bind(this))"
@@ -65,31 +65,31 @@
   @if (expanded) {
     <div class="comment-details p-1">
       <small>
-        <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + comment().status | transloco }}</div>
-        <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().version }}</div>
+        <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + activeVersion()?.status | transloco }}</div>
+        <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().activeVersion }}</div>
         <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
-        @if (comment().publishedDate) {
-          <div><strong>{{ '@Published' | transloco }}:</strong> {{ comment().publishedDate | date:'medium' }}
-            @if (comment().publishedBy) {
-              ({{ comment().publishedBy }})
+        @if (activeVersion()?.publishedDate) {
+          <div><strong>{{ '@Published' | transloco }}:</strong> {{ activeVersion()?.publishedDate | date:'medium' }}
+            @if (activeVersion()?.publishedBy) {
+              ({{ activeVersion()?.publishedBy }})
             }
           </div>
         }
-        @if (comment().lastEditedDate) {
-          <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ comment().lastEditedDate | date:'medium' }}
-            @if (comment().lastEditedBy) {
-              ({{ comment().lastEditedBy }})
+        @if (activeVersion()?.editedDate && activeVersion()?.editedDate !== comment().createdDate) {
+          <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ activeVersion()?.editedDate | date:'medium' }}
+            @if (activeVersion()?.editedBy) {
+              ({{ activeVersion()?.editedBy }})
             }
           </div>
         }
-        @if (allVersions().length > 0) {
+        @if (allVersions().length > 1) {
           <div class="version-history mt-2">
             <strong>{{ '@Version history' | transloco }}:</strong>
             <ul class="history-list">
               @for (historyItem of allVersions(); track historyItem.version) {
-                <li class="history-item" [class.active-version]="historyItem.isActive">
+                <li class="history-item" [class.active-version]="historyItem.isCurrentVersion">
                   <span class="history-version">v{{ historyItem.version }}</span>
-                  @if (historyItem.isActive) {
+                  @if (historyItem.isCurrentVersion) {
                     <span class="active-badge">{{ '@Active' | transloco }}</span>
                   }
                   <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
@@ -97,7 +97,7 @@
                   <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
                     {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
                   </span>
-                  @if (!historyItem.isActive && historyItem.status === CommentStatus.PUBLISHED && (isSuperuser$ | async)) {
+                  @if (!historyItem.isCurrentVersion && historyItem.status === CommentStatus.PUBLISHED && (isSuperuser$ | async)) {
                     <button class="restore-btn"
                             (click)="restoreVersion(historyItem.version)"
                             (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
@@ -124,7 +124,7 @@
           [draggable]="false"
           [resizable]="false">
   <div class="edit-dialog-content">
-    @if (comment().status === CommentStatus.PUBLISHED) {
+    @if (activeVersion()?.status === CommentStatus.PUBLISHED) {
       <div class="edit-warning mb-3">
         <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
         <span>{{ '@Edit published comment warning' | transloco }}</span>

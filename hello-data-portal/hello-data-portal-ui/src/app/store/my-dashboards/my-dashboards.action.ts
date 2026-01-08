@@ -160,9 +160,6 @@ export const deleteCommentSuccess = createAction(
   MyDashboardsActionType.DELETE_COMMENT_SUCCESS,
   props<{
     commentId: string;
-    deletedDate: number;
-    deletedBy: string;
-    previousVersionId?: string;
     restoredComment?: CommentEntry
   }>()
 );

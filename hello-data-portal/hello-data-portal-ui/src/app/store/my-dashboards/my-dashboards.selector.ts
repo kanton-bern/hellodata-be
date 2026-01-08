@@ -31,7 +31,7 @@ import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
 import {selectIsSuperuser, selectProfile} from "../auth/auth.selector";
-import {CommentEntry, CommentStatus} from "./my-dashboards.model";
+import {CommentEntry, CommentStatus, CommentVersion} from "./my-dashboards.model";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
 const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
@@ -168,6 +168,10 @@ export const selectCurrentDashboardComments = createSelector(
   (state: MyDashboardsState) => state.currentDashboardComments
 );
 
+// Helper function to get active version from comment
+const getActiveVersion = (comment: CommentEntry): CommentVersion | undefined =>
+  comment.history.find(v => v.version === comment.activeVersion);
+
 export const selectVisibleComments = createSelector(
   selectCurrentDashboardComments,
   selectProfile,
@@ -175,28 +179,33 @@ export const selectVisibleComments = createSelector(
   (comments, profile, isSuperuser) => {
     const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
     return comments
-      .filter(c =>
-        !c.deleted &&
-        !c.hasActiveDraft && // Hide original comments that have an active draft edit
-        (
-          c.status === CommentStatus.PUBLISHED ||
-          (c.status === CommentStatus.DRAFT && (isSuperuser || c.author === currentUserName))
-        )
-      )
+      .filter(c => {
+        if (c.deleted) return false;
+        const activeVersion = getActiveVersion(c);
+        if (!activeVersion || activeVersion.deleted) return false;
+
+        // Show PUBLISHED or DRAFTs for author/superuser
+        return activeVersion.status === CommentStatus.PUBLISHED ||
+          (activeVersion.status === CommentStatus.DRAFT && (isSuperuser || c.author === currentUserName));
+      })
       .sort((a, b) => a.createdDate - b.createdDate);
   }
 );
 
 export const selectPublishedComments = createSelector(
   selectCurrentDashboardComments,
-  (comments) => comments.filter(c => c.status === CommentStatus.PUBLISHED)
-    .sort((a, b) => a.createdDate - b.createdDate)
+  (comments) => comments.filter(c => {
+    const activeVersion = getActiveVersion(c);
+    return activeVersion && !activeVersion.deleted && activeVersion.status === CommentStatus.PUBLISHED;
+  }).sort((a, b) => a.createdDate - b.createdDate)
 );
 
 export const selectDraftComments = createSelector(
   selectCurrentDashboardComments,
-  (comments) => comments.filter(c => c.status === CommentStatus.DRAFT)
-    .sort((a, b) => a.createdDate - b.createdDate)
+  (comments) => comments.filter(c => {
+    const activeVersion = getActiveVersion(c);
+    return activeVersion && !activeVersion.deleted && activeVersion.status === CommentStatus.DRAFT;
+  }).sort((a, b) => a.createdDate - b.createdDate)
 );
 
 export const selectCommentsCount = createSelector(
@@ -214,21 +223,29 @@ export const canEditComment = createSelector(
   selectIsSuperuser,
   (profile, isSuperuser) => (comment: CommentEntry) => {
     const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
-    return !comment.deleted && (isSuperuser || (comment.status === CommentStatus.DRAFT && comment.author === currentUserName));
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
+    return isSuperuser || (activeVersion.status === CommentStatus.DRAFT && comment.author === currentUserName);
   }
 );
 
 export const canPublishComment = createSelector(
   selectIsSuperuser,
   (isSuperuser) => (comment: CommentEntry) => {
-    return !comment.deleted && comment.status === CommentStatus.DRAFT && !!comment.text && comment.text.length > 0 && isSuperuser;
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
+    return activeVersion.status === CommentStatus.DRAFT &&
+      activeVersion.text.length > 0 &&
+      isSuperuser;
   }
 );
 
 export const canUnpublishComment = createSelector(
   selectIsSuperuser,
   (isSuperuser) => (comment: CommentEntry) => {
-    return !comment.deleted && comment.status === CommentStatus.PUBLISHED && isSuperuser;
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
+    return activeVersion.status === CommentStatus.PUBLISHED && isSuperuser;
   }
 );
 
@@ -237,6 +254,8 @@ export const canDeleteComment = createSelector(
   selectIsSuperuser,
   (profile, isSuperuser) => (comment: CommentEntry) => {
     const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
-    return !comment.deleted && (isSuperuser || comment.author === currentUserName);
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || comment.deleted) return false;
+    return isSuperuser || comment.author === currentUserName;
   }
 );

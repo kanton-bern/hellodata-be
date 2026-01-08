@@ -65,6 +65,7 @@ export interface CommentVersion {
   editedBy: string;
   publishedDate?: number;
   publishedBy?: string;
+  deleted: boolean; // Soft delete - only non-deleted PUBLISHED versions are shown
 }
 
 export interface CommentEntry {
@@ -73,21 +74,14 @@ export interface CommentEntry {
   dashboardPageId?: string; // Optional - for dashboard tabs/pages
   dashboardUrl: string;
   contextKey: string;
-  text: string;
   author: string;
   authorEmail: string;
-  status: CommentStatus;
   createdDate: number;
-  publishedDate?: number;
-  publishedBy?: string;
-  lastEditedDate?: number;
-  lastEditedBy?: string;
   deleted: boolean;
   deletedDate?: number;
   deletedBy?: string;
-  // Versioning fields
-  version: number;
-  previousVersionId?: string; // Reference to the previous published version (for cloned drafts)
-  hasActiveDraft?: boolean; // True when this published comment has an active draft edit
-  history?: CommentVersion[]; // History of all versions
+  // Versioning
+  activeVersion: number; // Currently active version from history
+  hasActiveDraft?: boolean; // True when this comment has an active draft edit
+  history: CommentVersion[]; // All versions of this comment
 }

@@ -162,39 +162,53 @@ export class MyDashboardsEffects {
         //   catchError(e => scheduled([loadDashboardCommentsError({error: e})], asyncScheduler))
         // )
 
-        // Temporary mock data for testing
-        const mockComments = [
+        // Temporary mock data for testing - new model with history
+        const mockComments: CommentEntry[] = [
           {
             id: '1',
             dashboardId: dashboardId,
             dashboardUrl: dashboardUrl,
             contextKey: contextKey,
-            text: 'First test comment.',
             author: 'John Doe',
             authorEmail: 'john.doe@example.com',
-            status: CommentStatus.PUBLISHED,
             createdDate: new Date('2024-06-01T09:30:00').getTime(),
-            publishedDate: new Date('2024-06-01T09:30:00').getTime(),
-            publishedBy: 'Admin',
             deleted: false,
-            version: 1,
-            history: [] as CommentVersion[],
+            activeVersion: 1,
+            history: [
+              {
+                version: 1,
+                text: 'First test comment.',
+                status: CommentStatus.PUBLISHED,
+                editedDate: new Date('2024-06-01T09:30:00').getTime(),
+                editedBy: 'John Doe',
+                publishedDate: new Date('2024-06-01T09:30:00').getTime(),
+                publishedBy: 'Admin',
+                deleted: false,
+              }
+            ],
           },
           {
             id: '2',
             dashboardId: dashboardId,
             dashboardUrl: dashboardUrl,
             contextKey: contextKey,
-            text: 'Great data, thanks for sharing!',
             author: 'Anne Smith',
             authorEmail: 'anne.smith@example.com',
-            status: CommentStatus.PUBLISHED,
             createdDate: new Date('2024-06-02T14:15:00').getTime(),
-            publishedDate: new Date('2024-06-02T14:15:00').getTime(),
-            publishedBy: 'Admin',
             deleted: false,
-            version: 1,
-            history: [] as CommentVersion[],
+            activeVersion: 1,
+            history: [
+              {
+                version: 1,
+                text: 'Great data, thanks for sharing!',
+                status: CommentStatus.PUBLISHED,
+                editedDate: new Date('2024-06-02T14:15:00').getTime(),
+                editedBy: 'Anne Smith',
+                publishedDate: new Date('2024-06-02T14:15:00').getTime(),
+                publishedBy: 'Admin',
+                deleted: false,
+              }
+            ],
           },
         ];
         return scheduled([loadDashboardCommentsSuccess({comments: mockComments})], asyncScheduler);
@@ -208,31 +222,33 @@ export class MyDashboardsEffects {
       withLatestFrom(this._store.select(selectProfile)),
       switchMap(([{dashboardId, contextKey, dashboardUrl, text}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
-        // return this._myDashboardsService.addComment(contextKey, dashboardId, text).pipe(
-        //   switchMap(comment => scheduled([
-        //     addCommentSuccess({comment}),
-        //     showSuccess({message: '@Comment added successfully'})
-        //   ], asyncScheduler)),
-        //   catchError(e => scheduled([addCommentError({error: e}), showError({error: e})], asyncScheduler))
-        // )
 
         // Temporary mock - simulating backend response
-        // Backend generates: id, author (createdBy), authorEmail, status (DRAFT), deleted, version
         const authorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
         const authorEmail = profile?.email || 'unknown@example.com';
-        const mockComment = {
-          id: crypto.randomUUID(), // Backend generates UUID
+        const now = Date.now();
+
+        // New comment starts with version 1 as DRAFT in history
+        const mockComment: CommentEntry = {
+          id: crypto.randomUUID(),
           dashboardId: dashboardId,
           dashboardUrl: dashboardUrl,
           contextKey: contextKey,
-          text,
-          author: authorName, // Backend sets from authenticated user
-          authorEmail: authorEmail, // Backend sets from authenticated user
-          status: CommentStatus.DRAFT, // Backend sets initial status as DRAFT
-          createdDate: Date.now(),
-          deleted: false, // Backend sets default as false
-          version: 1, // Initial version
-          history: [] as CommentVersion[], // Empty history for new comment
+          author: authorName,
+          authorEmail: authorEmail,
+          createdDate: now,
+          deleted: false,
+          activeVersion: 1,
+          history: [
+            {
+              version: 1,
+              text: text,
+              status: CommentStatus.DRAFT,
+              editedDate: now,
+              editedBy: authorName,
+              deleted: false,
+            }
+          ],
         };
         return scheduled([
           addCommentSuccess({comment: mockComment}),
@@ -248,16 +264,8 @@ export class MyDashboardsEffects {
       withLatestFrom(this._store.select(selectProfile)),
       switchMap(([{dashboardId, contextKey, commentId, text}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
-        // return this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, text).pipe(
-        //   switchMap(comment => scheduled([
-        //     updateCommentSuccess({comment}),
-        //     showSuccess({message: '@Comment updated successfully'})
-        //   ], asyncScheduler)),
-        //   catchError(e => scheduled([updateCommentError({error: e}), showError({error: e})], asyncScheduler))
-        // )
 
-        // Temporary mock - simulating backend response for DRAFT comment update
-        // For DRAFT comments, we only update the text and edit metadata - no versioning needed
+        // For DRAFT comments - update text in the active version
         const editorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
 
         return this._store.select(state =>
@@ -266,12 +274,16 @@ export class MyDashboardsEffects {
           take(1),
           switchMap(existingComment => {
             if (existingComment) {
-              // For DRAFT comments - just update text and edit metadata, no version increment
-              const updatedComment = {
+              // Update the active version in history
+              const updatedHistory = existingComment.history.map(v =>
+                v.version === existingComment.activeVersion
+                  ? {...v, text, editedDate: Date.now(), editedBy: editorName}
+                  : v
+              );
+
+              const updatedComment: CommentEntry = {
                 ...existingComment,
-                text,
-                lastEditedDate: Date.now(),
-                lastEditedBy: editorName,
+                history: updatedHistory,
               };
               return scheduled([
                 updateCommentSuccess({comment: updatedComment}),
@@ -295,91 +307,67 @@ export class MyDashboardsEffects {
       switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
 
-        // Temporary mock - simulating backend response (soft delete)
         const deleterName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
 
-        // Get existing comment and original comment (if draft) to check for history
-        return this._store.select(state => ({
-          comment: state.myDashboards.currentDashboardComments.find(c => c.id === commentId),
-          allComments: state.myDashboards.currentDashboardComments
-        })).pipe(
+        return this._store.select(state =>
+          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
+        ).pipe(
           take(1),
-          switchMap(({comment: existingComment, allComments}) => {
-            let restoredComment: CommentEntry | undefined;
-
-            console.log('DELETE COMMENT DEBUG:', {
-              commentId,
-              existingComment,
-              status: existingComment?.status,
-              history: existingComment?.history,
-              historyLength: existingComment?.history?.length,
-              previousVersionId: existingComment?.previousVersionId
-            });
-
-            // Try to restore last published version from history
-            if (existingComment?.history && existingComment.history.length > 0) {
-              // Find the last published version in history (different from current version)
-              const lastPublishedVersion = [...existingComment.history]
-                .reverse()
-                .find(h => h.status === CommentStatus.PUBLISHED && h.version !== existingComment.version);
-
-              console.log('DELETE COMMENT DEBUG - looking for published version:', {
-                historyStatuses: existingComment.history.map(h => ({version: h.version, status: h.status})),
-                currentVersion: existingComment.version,
-                lastPublishedVersion
-              });
-
-              if (lastPublishedVersion) {
-                // If comment has previousVersionId, restore the original comment
-                if (existingComment.previousVersionId) {
-                  const originalComment = allComments.find(c => c.id === existingComment.previousVersionId);
-                  if (originalComment) {
-                    restoredComment = {
-                      ...originalComment,
-                      text: lastPublishedVersion.text,
-                      status: CommentStatus.PUBLISHED,
-                      version: lastPublishedVersion.version,
-                      publishedDate: lastPublishedVersion.publishedDate,
-                      publishedBy: lastPublishedVersion.publishedBy,
-                      lastEditedDate: lastPublishedVersion.editedDate,
-                      lastEditedBy: lastPublishedVersion.editedBy,
-                      hasActiveDraft: false,
-                      deleted: false,
-                      deletedDate: undefined,
-                      deletedBy: undefined,
-                      history: existingComment.history,
-                    };
-                  }
-                } else {
-                  // No previousVersionId - restore in place
-                  restoredComment = {
-                    ...existingComment,
-                    text: lastPublishedVersion.text,
-                    status: CommentStatus.PUBLISHED,
-                    version: lastPublishedVersion.version,
-                    publishedDate: lastPublishedVersion.publishedDate,
-                    publishedBy: lastPublishedVersion.publishedBy,
-                    lastEditedDate: lastPublishedVersion.editedDate,
-                    lastEditedBy: lastPublishedVersion.editedBy,
-                    deleted: false,
-                    history: existingComment.history,
-                  };
-                }
-              }
+          switchMap(existingComment => {
+            if (!existingComment) {
+              return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
             }
 
-            console.log('DELETE COMMENT DEBUG - restoredComment:', restoredComment);
+            const activeVersion = existingComment.history.find(v => v.version === existingComment.activeVersion);
 
-            return scheduled([
-              deleteCommentSuccess({
-                commentId,
+            // Mark current active version as deleted in history
+            const updatedHistory = existingComment.history.map(v =>
+              v.version === existingComment.activeVersion ? {...v, deleted: true} : v
+            );
+
+            // Find last non-deleted PUBLISHED version to restore
+            const lastPublishedVersion = [...updatedHistory]
+              .reverse()
+              .find(v => v.status === CommentStatus.PUBLISHED && !v.deleted);
+
+            if (lastPublishedVersion) {
+              // Restore to last published version
+              const updatedComment: CommentEntry = {
+                ...existingComment,
+                activeVersion: lastPublishedVersion.version,
+                history: updatedHistory,
+              };
+              return scheduled([
+                deleteCommentSuccess({commentId, restoredComment: updatedComment}),
+                showSuccess({message: '@Comment version restored'})
+              ], asyncScheduler);
+            } else if (activeVersion?.status === CommentStatus.DRAFT) {
+              // Deleting a draft with no published versions - soft delete entire comment
+              const updatedComment: CommentEntry = {
+                ...existingComment,
+                deleted: true,
                 deletedDate: Date.now(),
                 deletedBy: deleterName,
-                previousVersionId: existingComment?.previousVersionId,
-                restoredComment
-              }),
-              showSuccess({message: restoredComment ? '@Comment version restored' : '@Comment deleted successfully'})
-            ], asyncScheduler);
+                history: updatedHistory,
+              };
+              return scheduled([
+                deleteCommentSuccess({commentId, restoredComment: updatedComment}),
+                showSuccess({message: '@Comment deleted successfully'})
+              ], asyncScheduler);
+            } else {
+              // No versions left - soft delete entire comment
+              const updatedComment: CommentEntry = {
+                ...existingComment,
+                deleted: true,
+                deletedDate: Date.now(),
+                deletedBy: deleterName,
+                history: updatedHistory,
+              };
+              return scheduled([
+                deleteCommentSuccess({commentId, restoredComment: updatedComment}),
+                showSuccess({message: '@Comment deleted successfully'})
+              ], asyncScheduler);
+            }
           })
         );
       })
@@ -392,23 +380,26 @@ export class MyDashboardsEffects {
       withLatestFrom(this._store.select(selectProfile)),
       switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
-        // return this._myDashboardsService.publishComment(contextKey, dashboardId, commentId).pipe(...)
 
-        // Temporary mock - simulating backend response
         const publisherName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
+        const now = Date.now();
 
-        // Get existing comment data from store and merge with published data
         return this._store.select(state =>
           state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
         ).pipe(
           take(1),
           switchMap(existingComment => {
             if (existingComment) {
-              const updatedComment = {
+              // Update active version to PUBLISHED
+              const updatedHistory = existingComment.history.map(v =>
+                v.version === existingComment.activeVersion
+                  ? {...v, status: CommentStatus.PUBLISHED, publishedDate: now, publishedBy: publisherName}
+                  : v
+              );
+
+              const updatedComment: CommentEntry = {
                 ...existingComment,
-                status: CommentStatus.PUBLISHED,
-                publishedDate: Date.now(),
-                publishedBy: publisherName,
+                history: updatedHistory,
               };
               return scheduled([
                 publishCommentSuccess({comment: updatedComment}),
@@ -428,39 +419,22 @@ export class MyDashboardsEffects {
       withLatestFrom(this._store.select(selectProfile)),
       switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
-        // return this._myDashboardsService.unpublishComment(contextKey, dashboardId, commentId).pipe(...)
 
-        // Temporary mock - simulating backend response
         return this._store.select(state =>
           state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
         ).pipe(
           take(1),
           switchMap(existingComment => {
             if (existingComment) {
-              // Save current published version to history before unpublishing
-              let updatedHistory = [...(existingComment.history || [])];
-              const currentVersionInHistory = updatedHistory.some(h => h.version === existingComment.version);
-
-              if (!currentVersionInHistory && existingComment.status === CommentStatus.PUBLISHED) {
-                // Add current published version to history
-                updatedHistory.push({
-                  version: existingComment.version,
-                  text: existingComment.text,
-                  status: existingComment.status,
-                  editedDate: existingComment.lastEditedDate || existingComment.createdDate,
-                  editedBy: existingComment.lastEditedBy || existingComment.author,
-                  publishedDate: existingComment.publishedDate,
-                  publishedBy: existingComment.publishedBy,
-                });
-                // Sort by version number
-                updatedHistory = updatedHistory.sort((a, b) => a.version - b.version);
-              }
+              // Change active version status to DRAFT
+              const updatedHistory = existingComment.history.map(v =>
+                v.version === existingComment.activeVersion
+                  ? {...v, status: CommentStatus.DRAFT, publishedDate: undefined, publishedBy: undefined}
+                  : v
+              );
 
               const updatedComment: CommentEntry = {
                 ...existingComment,
-                status: CommentStatus.DRAFT,
-                publishedDate: undefined,
-                publishedBy: undefined,
                 history: updatedHistory,
               };
               return scheduled([
@@ -481,51 +455,46 @@ export class MyDashboardsEffects {
       withLatestFrom(this._store.select(selectProfile)),
       switchMap(([{dashboardId, contextKey, commentId, newText}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
-        // return this._myDashboardsService.cloneCommentForEdit(contextKey, dashboardId, commentId, newText).pipe(...)
 
-        // Temporary mock - simulating backend response
         const editorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
+        const now = Date.now();
 
         return this._store.select(state =>
           state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
         ).pipe(
           take(1),
           switchMap(existingComment => {
-            if (existingComment && existingComment.status === CommentStatus.PUBLISHED) {
-              // Clone the published comment as a draft for editing with new text
-              // Keep original createdDate and author - only edit metadata changes
-              const clonedComment: CommentEntry = {
-                ...existingComment,
-                id: crypto.randomUUID(), // New ID for the clone
-                text: newText, // Use new text from edit dialog
-                status: CommentStatus.DRAFT,
-                version: existingComment.version + 1,
-                previousVersionId: existingComment.id, // Reference to original
-                // createdDate and author remain unchanged from existingComment
-                publishedDate: undefined,
-                publishedBy: undefined,
-                lastEditedDate: Date.now(),
-                lastEditedBy: editorName,
-                hasActiveDraft: false, // New draft doesn't have active draft
-                history: [
-                  ...(existingComment.history || []),
-                  {
-                    version: existingComment.version,
-                    text: existingComment.text,
-                    status: existingComment.status,
-                    editedDate: existingComment.lastEditedDate || existingComment.createdDate,
-                    editedBy: existingComment.lastEditedBy || existingComment.author,
-                    publishedDate: existingComment.publishedDate,
-                    publishedBy: existingComment.publishedBy,
-                  }
-                ],
-              };
-              return scheduled([
-                cloneCommentForEditSuccess({clonedComment, originalCommentId: existingComment.id}),
-                showSuccess({message: '@Comment edited successfully'})
-              ], asyncScheduler);
+            if (!existingComment) {
+              return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
             }
-            return scheduled([showError({error: 'Comment not found or not published'})], asyncScheduler);
+
+            const activeVersion = existingComment.history.find(v => v.version === existingComment.activeVersion);
+            if (!activeVersion || activeVersion.status !== CommentStatus.PUBLISHED) {
+              return scheduled([showError({error: 'Comment must be published to edit'})], asyncScheduler);
+            }
+
+            // Create new version as DRAFT
+            const newVersionNumber = Math.max(...existingComment.history.map(v => v.version)) + 1;
+            const newVersion: CommentVersion = {
+              version: newVersionNumber,
+              text: newText,
+              status: CommentStatus.DRAFT,
+              editedDate: now,
+              editedBy: editorName,
+              deleted: false,
+            };
+
+            const updatedComment: CommentEntry = {
+              ...existingComment,
+              activeVersion: newVersionNumber,
+              hasActiveDraft: true,
+              history: [...existingComment.history, newVersion],
+            };
+
+            return scheduled([
+              cloneCommentForEditSuccess({clonedComment: updatedComment, originalCommentId: existingComment.id}),
+              showSuccess({message: '@Comment edited successfully'})
+            ], asyncScheduler);
           })
         );
       })
@@ -539,55 +508,34 @@ export class MyDashboardsEffects {
       switchMap(([{dashboardId, contextKey, commentId, versionNumber}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
 
-        const publisherName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
-
         return this._store.select(state =>
           state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
         ).pipe(
           take(1),
           switchMap(existingComment => {
-            if (existingComment && existingComment.history) {
-              const versionToRestore = existingComment.history.find(h => h.version === versionNumber);
-              if (versionToRestore) {
-                // First, add current version to history if not already there
-                let updatedHistory = [...existingComment.history];
-                const currentVersionInHistory = updatedHistory.some(h => h.version === existingComment.version);
-
-                if (!currentVersionInHistory) {
-                  // Add current version to history before restoring
-                  updatedHistory.push({
-                    version: existingComment.version,
-                    text: existingComment.text,
-                    status: existingComment.status,
-                    editedDate: existingComment.lastEditedDate || existingComment.createdDate,
-                    editedBy: existingComment.lastEditedBy || existingComment.author,
-                    publishedDate: existingComment.publishedDate,
-                    publishedBy: existingComment.publishedBy,
-                  });
-                  // Sort by version number
-                  updatedHistory = updatedHistory.sort((a, b) => a.version - b.version);
-                }
-
-                // Restore the selected version
-                const restoredComment: CommentEntry = {
-                  ...existingComment,
-                  text: versionToRestore.text,
-                  status: CommentStatus.PUBLISHED,
-                  version: versionToRestore.version,
-                  publishedDate: versionToRestore.publishedDate || Date.now(),
-                  publishedBy: versionToRestore.publishedBy || publisherName,
-                  lastEditedDate: versionToRestore.editedDate,
-                  lastEditedBy: versionToRestore.editedBy,
-                  // Keep entire history including the just-saved current version
-                  history: updatedHistory,
-                };
-                return scheduled([
-                  restoreCommentVersionSuccess({comment: restoredComment}),
-                  showSuccess({message: '@Comment version restored successfully'})
-                ], asyncScheduler);
-              }
+            if (!existingComment) {
+              return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
             }
-            return scheduled([showError({error: 'Version not found'})], asyncScheduler);
+
+            const versionToRestore = existingComment.history.find(
+              v => v.version === versionNumber && v.status === CommentStatus.PUBLISHED && !v.deleted
+            );
+
+            if (!versionToRestore) {
+              return scheduled([showError({error: 'Version not found or not available'})], asyncScheduler);
+            }
+
+            // Simply change the active version - history stays the same
+            const restoredComment: CommentEntry = {
+              ...existingComment,
+              activeVersion: versionNumber,
+              hasActiveDraft: false,
+            };
+
+            return scheduled([
+              restoreCommentVersionSuccess({comment: restoredComment}),
+              showSuccess({message: '@Comment version restored successfully'})
+            ], asyncScheduler);
           })
         );
       })

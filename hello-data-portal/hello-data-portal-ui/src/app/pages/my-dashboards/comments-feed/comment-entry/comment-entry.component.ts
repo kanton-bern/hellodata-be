@@ -103,39 +103,22 @@ export class CommentEntryComponent {
   canUnpublish = computed(() => this.canUnpublishFn()(this.comment()));
   canDelete = computed(() => this.canDeleteFn()(this.comment()));
 
-  // All versions including current one, with isActive flag
+  // Get active version from comment
+  activeVersion = computed(() => {
+    const comment = this.comment();
+    return comment.history.find(v => v.version === comment.activeVersion);
+  });
+
+  // All visible versions: only non-deleted PUBLISHED from history
   allVersions = computed(() => {
     const comment = this.comment();
-    const historyVersions = (comment.history || []).map(h => ({
-      ...h,
-      isActive: h.version === comment.version
-    }));
-
-    // Add current version to the list
-    const currentVersion = {
-      version: comment.version,
-      text: comment.text,
-      status: comment.status,
-      editedDate: comment.lastEditedDate || comment.createdDate,
-      editedBy: comment.lastEditedBy || comment.author,
-      publishedDate: comment.publishedDate,
-      publishedBy: comment.publishedBy,
-      isActive: true
-    };
-
-    // Check if current version is already in history
-    const currentInHistory = historyVersions.some(h => h.version === comment.version);
-
-    if (currentInHistory) {
-      // Mark the matching version as active
-      return historyVersions.map(h => ({
+    return comment.history
+      .filter(h => h.status === CommentStatus.PUBLISHED && !h.deleted)
+      .map(h => ({
         ...h,
-        isActive: h.version === comment.version
-      }));
-    } else {
-      // Add current version and sort by version number
-      return [...historyVersions, currentVersion].sort((a, b) => a.version - b.version);
-    }
+        isCurrentVersion: h.version === comment.activeVersion
+      }))
+      .sort((a, b) => a.version - b.version);
   });
 
   protected readonly CommentStatus = CommentStatus;
@@ -152,16 +135,17 @@ export class CommentEntryComponent {
   }
 
   editComment(): void {
-    const comment = this.comment();
-    this.editedText = comment.text;
+    const activeVer = this.activeVersion();
+    this.editedText = activeVer?.text || '';
     this.editDialogVisible = true;
   }
 
   saveEdit(): void {
     const comment = this.comment();
+    const activeVer = this.activeVersion();
     const newText = this.editedText.trim();
 
-    if (!newText || newText === comment.text) {
+    if (!newText || newText === activeVer?.text) {
       this.editDialogVisible = false;
       return;
     }
@@ -169,7 +153,7 @@ export class CommentEntryComponent {
     this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
-          if (comment.status === CommentStatus.PUBLISHED) {
+          if (activeVer?.status === CommentStatus.PUBLISHED) {
             // For published comments, clone with new text
             this.store.dispatch(cloneCommentForEdit({
               dashboardId,
