@@ -98,3 +98,13 @@
   </ng-template>
 </p-confirmDialog>
 
+<p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd4.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd4.onReject()"/>
+    <p-button (click)="cd4.onAccept()" icon="fas fa-rotate-left"
+              label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
+              severity="success"/>
+  </ng-template>
+</p-confirmDialog>
+

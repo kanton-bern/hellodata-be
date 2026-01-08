@@ -176,10 +176,12 @@ export const selectVisibleComments = createSelector(
     const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
     return comments
       .filter(c =>
-          !c.deleted && (
-            c.status === CommentStatus.PUBLISHED ||
-            (c.status === CommentStatus.DRAFT && (isSuperuser || c.author === currentUserName))
-          )
+        !c.deleted &&
+        !c.hasActiveDraft && // Hide original comments that have an active draft edit
+        (
+          c.status === CommentStatus.PUBLISHED ||
+          (c.status === CommentStatus.DRAFT && (isSuperuser || c.author === currentUserName))
+        )
       )
       .sort((a, b) => a.createdDate - b.createdDate);
   }

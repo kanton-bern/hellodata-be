@@ -18,6 +18,11 @@
         }
       </small>
       <div class="comment-actions">
+        <button class="info-btn"
+                (click)="toggleDetails()"
+                (keydown)="onKeyDown($event, toggleDetails.bind(this))">
+          <i class="fa fa-info-circle"></i>
+        </button>
         @if (canEdit()) {
           <button class="edit-btn"
                   (click)="editComment()"
@@ -45,11 +50,6 @@
             <i class="fa-solid fa-cloud-arrow-down"></i>
           </button>
         }
-        <button class="info-btn"
-                (click)="toggleDetails()"
-                (keydown)="onKeyDown($event, toggleDetails.bind(this))">
-          <i class="fa fa-info-circle"></i>
-        </button>
         @if (canDelete()) {
           <button class="delete-btn"
                   (click)="deleteComment()"
@@ -82,18 +82,30 @@
             }
           </div>
         }
-        @if (comment().history && comment().history.length > 0) {
+        @if (allVersions().length > 0) {
           <div class="version-history mt-2">
             <strong>{{ '@Version history' | transloco }}:</strong>
             <ul class="history-list">
-              @for (historyItem of comment().history; track historyItem.version) {
-                <li class="history-item">
+              @for (historyItem of allVersions(); track historyItem.version) {
+                <li class="history-item" [class.active-version]="historyItem.isActive">
                   <span class="history-version">v{{ historyItem.version }}</span>
+                  @if (historyItem.isActive) {
+                    <span class="active-badge">{{ '@Active' | transloco }}</span>
+                  }
                   <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
                   <span class="history-author">{{ historyItem.editedBy }}</span>
                   <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
                     {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
                   </span>
+                  @if (!historyItem.isActive && historyItem.status === CommentStatus.PUBLISHED && (isSuperuser$ | async)) {
+                    <button class="restore-btn"
+                            (click)="restoreVersion(historyItem.version)"
+                            (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
+                            [pTooltip]="'@Restore this version' | transloco"
+                            tooltipPosition="left">
+                      <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                  }
                 </li>
               }
             </ul>

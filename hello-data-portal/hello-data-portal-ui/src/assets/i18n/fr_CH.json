@@ -280,5 +280,11 @@
   "@Yes": "Oui",
   "@You are not allowed to access this page": "Vous n'êtes pas autorisé à accéder à cette page. Veuillez contactez votre administrateur.",
   "@Quarter": "Trimestre",
-  "@No comments": "Pas de commentaires"
+  "@No comments": "Pas de commentaires",
+  "@Restore": "Restaurer",
+  "@Restore this version": "Restaurer cette version",
+  "@Restore version question": "Voulez-vous restaurer cette version ?",
+  "@Comment version restored successfully": "Version du commentaire restaurée avec succès",
+  "@Comment version restored": "Version publiée précédente restaurée",
+  "@Active": "Actif"
 }

@@ -60,8 +60,11 @@ export enum CommentStatus {
 export interface CommentVersion {
   version: number;
   text: string;
+  status: CommentStatus;
   editedDate: number;
   editedBy: string;
+  publishedDate?: number;
+  publishedBy?: string;
 }
 
 export interface CommentEntry {
@@ -85,5 +88,6 @@ export interface CommentEntry {
   // Versioning fields
   version: number;
   previousVersionId?: string; // Reference to the previous published version (for cloned drafts)
+  hasActiveDraft?: boolean; // True when this published comment has an active draft edit
   history?: CommentVersion[]; // History of all versions
 }

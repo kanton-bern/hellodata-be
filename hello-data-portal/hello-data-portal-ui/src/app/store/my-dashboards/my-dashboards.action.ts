@@ -63,6 +63,9 @@ export enum MyDashboardsActionType {
   CLONE_COMMENT_FOR_EDIT = '[MYDASHBOARDS] Clone comment for edit',
   CLONE_COMMENT_FOR_EDIT_SUCCESS = '[MYDASHBOARDS] Clone comment for edit SUCCESS',
   CLONE_COMMENT_FOR_EDIT_ERROR = '[MYDASHBOARDS] Clone comment for edit ERROR',
+  RESTORE_COMMENT_VERSION = '[MYDASHBOARDS] Restore comment version',
+  RESTORE_COMMENT_VERSION_SUCCESS = '[MYDASHBOARDS] Restore comment version SUCCESS',
+  RESTORE_COMMENT_VERSION_ERROR = '[MYDASHBOARDS] Restore comment version ERROR',
 }
 
 export const loadMyDashboards = createAction(
@@ -155,7 +158,13 @@ export const deleteComment = createAction(
 
 export const deleteCommentSuccess = createAction(
   MyDashboardsActionType.DELETE_COMMENT_SUCCESS,
-  props<{ commentId: string; deletedDate: number; deletedBy: string }>()
+  props<{
+    commentId: string;
+    deletedDate: number;
+    deletedBy: string;
+    previousVersionId?: string;
+    restoredComment?: CommentEntry
+  }>()
 );
 
 export const deleteCommentError = createAction(
@@ -201,10 +210,27 @@ export const cloneCommentForEdit = createAction(
 
 export const cloneCommentForEditSuccess = createAction(
   MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT_SUCCESS,
-  props<{ clonedComment: CommentEntry }>()
+  props<{ clonedComment: CommentEntry; originalCommentId: string }>()
 );
 
 export const cloneCommentForEditError = createAction(
   MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT_ERROR,
   props<{ error: any }>()
 );
+
+// Restore a specific version from history
+export const restoreCommentVersion = createAction(
+  MyDashboardsActionType.RESTORE_COMMENT_VERSION,
+  props<{ dashboardId: number; contextKey: string; commentId: string; versionNumber: number }>()
+);
+
+export const restoreCommentVersionSuccess = createAction(
+  MyDashboardsActionType.RESTORE_COMMENT_VERSION_SUCCESS,
+  props<{ comment: CommentEntry }>()
+);
+
+export const restoreCommentVersionError = createAction(
+  MyDashboardsActionType.RESTORE_COMMENT_VERSION_ERROR,
+  props<{ error: any }>()
+);
+

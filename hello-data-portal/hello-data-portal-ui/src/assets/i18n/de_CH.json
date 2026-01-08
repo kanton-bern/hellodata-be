@@ -280,5 +280,11 @@
   "@Yes": "Ja",
   "@You are not allowed to access this page": "Du bist leider nicht berechtigt, auf diese Seite zuzugreifen. Kontaktiere bitte deinen Administrator.",
   "@Quarter": "Quartal",
-  "@No comments": "Keine Kommentare"
+  "@No comments": "Keine Kommentare",
+  "@Restore": "Wiederherstellen",
+  "@Restore this version": "Diese Version wiederherstellen",
+  "@Restore version question": "Möchten Sie diese Version wiederherstellen?",
+  "@Comment version restored successfully": "Kommentarversion erfolgreich wiederhergestellt",
+  "@Comment version restored": "Vorherige veröffentlichte Version wiederhergestellt",
+  "@Active": "Aktiv"
 }

@@ -37,6 +37,7 @@ import {
   cloneCommentForEdit,
   deleteComment,
   publishComment,
+  restoreCommentVersion,
   unpublishComment,
   updateComment
 } from "../../../../store/my-dashboards/my-dashboards.action";
@@ -101,6 +102,41 @@ export class CommentEntryComponent {
   canPublish = computed(() => this.canPublishFn()(this.comment()));
   canUnpublish = computed(() => this.canUnpublishFn()(this.comment()));
   canDelete = computed(() => this.canDeleteFn()(this.comment()));
+
+  // All versions including current one, with isActive flag
+  allVersions = computed(() => {
+    const comment = this.comment();
+    const historyVersions = (comment.history || []).map(h => ({
+      ...h,
+      isActive: h.version === comment.version
+    }));
+
+    // Add current version to the list
+    const currentVersion = {
+      version: comment.version,
+      text: comment.text,
+      status: comment.status,
+      editedDate: comment.lastEditedDate || comment.createdDate,
+      editedBy: comment.lastEditedBy || comment.author,
+      publishedDate: comment.publishedDate,
+      publishedBy: comment.publishedBy,
+      isActive: true
+    };
+
+    // Check if current version is already in history
+    const currentInHistory = historyVersions.some(h => h.version === comment.version);
+
+    if (currentInHistory) {
+      // Mark the matching version as active
+      return historyVersions.map(h => ({
+        ...h,
+        isActive: h.version === comment.version
+      }));
+    } else {
+      // Add current version and sort by version number
+      return [...historyVersions, currentVersion].sort((a, b) => a.version - b.version);
+    }
+  });
 
   protected readonly CommentStatus = CommentStatus;
 
@@ -226,6 +262,31 @@ export class CommentEntryComponent {
                 dashboardId,
                 contextKey,
                 commentId: comment.id
+              }));
+            }
+          });
+        });
+      }
+    });
+  }
+
+  restoreVersion(versionNumber: number): void {
+    const message = this.translateService.translate('@Restore version question');
+    this.confirmationService.confirm({
+      key: 'restoreVersion',
+      message: message,
+      icon: 'fas fa-rotate-left',
+      closeOnEscape: false,
+      accept: () => {
+        const comment = this.comment();
+        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+            if (dashboardId && contextKey) {
+              this.store.dispatch(restoreCommentVersion({
+                dashboardId,
+                contextKey,
+                commentId: comment.id,
+                versionNumber
               }));
             }
           });

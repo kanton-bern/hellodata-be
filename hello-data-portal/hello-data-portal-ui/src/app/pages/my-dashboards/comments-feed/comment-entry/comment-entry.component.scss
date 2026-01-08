@@ -200,6 +200,23 @@
       &:last-child {
         border-bottom: none;
       }
+
+      &.active-version {
+        background-color: var(--green-50, #f0fdf4);
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        margin: 0 -0.5rem;
+      }
+    }
+
+    .active-badge {
+      font-size: 0.6rem;
+      padding: 0.1rem 0.3rem;
+      background-color: var(--green-500, #22c55e);
+      color: white;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      text-transform: uppercase;
     }
 
     .history-version {
@@ -227,6 +244,23 @@
 
       &:hover {
         color: var(--primary-color, #3b82f6);
+      }
+    }
+
+    .restore-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--green-500, #22c55e);
+      padding: 0;
+      margin-left: auto;
+
+      &:hover {
+        color: var(--green-600, #16a34a);
+      }
+
+      i {
+        font-size: 0.7rem;
       }
     }
   }

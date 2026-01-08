@@ -36,6 +36,7 @@ import {
   loadDashboardCommentsSuccess,
   loadMyDashboardsSuccess,
   publishCommentSuccess,
+  restoreCommentVersionSuccess,
   setCurrentDashboard,
   setSelectedDataDomain,
   unpublishCommentSuccess,
@@ -111,12 +112,50 @@ export const myDashboardsReducer = createReducer(
       )
     }
   }),
-  on(deleteCommentSuccess, (state: MyDashboardsState, {commentId, deletedDate, deletedBy}): MyDashboardsState => {
+  on(deleteCommentSuccess, (state: MyDashboardsState, {
+    commentId,
+    deletedDate,
+    deletedBy,
+    previousVersionId,
+    restoredComment
+  }): MyDashboardsState => {
+    let updatedComments = state.currentDashboardComments;
+
+    if (restoredComment) {
+      if (previousVersionId) {
+        // Has previousVersionId - soft delete current, restore original with new data
+        updatedComments = updatedComments.map(c => {
+          if (c.id === commentId) {
+            return {...c, deleted: true, deletedDate, deletedBy};
+          }
+          if (c.id === previousVersionId) {
+            return restoredComment;
+          }
+          return c;
+        });
+      } else {
+        // No previousVersionId - replace current comment with restored version
+        updatedComments = updatedComments.map(c =>
+          c.id === commentId ? restoredComment : c
+        );
+      }
+    } else {
+      // No restored comment - standard soft delete
+      updatedComments = updatedComments.map(c =>
+        c.id === commentId ? {...c, deleted: true, deletedDate, deletedBy} : c
+      );
+
+      // If deleted comment had previousVersionId, just unhide the original
+      if (previousVersionId) {
+        updatedComments = updatedComments.map(c =>
+          c.id === previousVersionId ? {...c, hasActiveDraft: false} : c
+        );
+      }
+    }
+
     return {
       ...state,
-      currentDashboardComments: state.currentDashboardComments.map(c =>
-        c.id === commentId ? {...c, deleted: true, deletedDate, deletedBy} : c
-      )
+      currentDashboardComments: updatedComments
     }
   }),
   on(publishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
@@ -147,10 +186,22 @@ export const myDashboardsReducer = createReducer(
       )
     }
   }),
-  on(cloneCommentForEditSuccess, (state: MyDashboardsState, {clonedComment}): MyDashboardsState => {
+  on(cloneCommentForEditSuccess, (state: MyDashboardsState, {clonedComment, originalCommentId}): MyDashboardsState => {
+    // Mark original comment as having active draft and add the new draft
+    const updatedComments = state.currentDashboardComments.map(c =>
+      c.id === originalCommentId ? {...c, hasActiveDraft: true} : c
+    );
     return {
       ...state,
-      currentDashboardComments: [...state.currentDashboardComments, clonedComment]
+      currentDashboardComments: [...updatedComments, clonedComment]
+    }
+  }),
+  on(restoreCommentVersionSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
     }
   }),
 );
