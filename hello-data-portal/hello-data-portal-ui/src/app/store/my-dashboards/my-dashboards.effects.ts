@@ -169,6 +169,7 @@ export class MyDashboardsEffects {
             dashboardId: dashboardId,
             dashboardUrl: dashboardUrl,
             contextKey: contextKey,
+            pointerUrl: 'https://superset-demo.dev.hellodatabedag.ch/superset/dashboard/5/?tab=1',
             author: 'John Doe',
             authorEmail: 'john.doe@example.com',
             createdDate: new Date('2024-06-01T09:30:00').getTime(),
@@ -220,7 +221,7 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(addComment),
       withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, dashboardUrl, text}, profile]) => {
+      switchMap(([{dashboardId, contextKey, dashboardUrl, text, pointerUrl}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
 
         // Temporary mock - simulating backend response
@@ -234,6 +235,7 @@ export class MyDashboardsEffects {
           dashboardId: dashboardId,
           dashboardUrl: dashboardUrl,
           contextKey: contextKey,
+          pointerUrl: pointerUrl,
           author: authorName,
           authorEmail: authorEmail,
           createdDate: now,
@@ -262,7 +264,7 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(updateComment),
       withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId, text}, profile]) => {
+      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
 
         // For DRAFT comments - update text in the active version
@@ -283,6 +285,7 @@ export class MyDashboardsEffects {
 
               const updatedComment: CommentEntry = {
                 ...existingComment,
+                pointerUrl: pointerUrl,
                 history: updatedHistory,
               };
               return scheduled([
@@ -318,8 +321,6 @@ export class MyDashboardsEffects {
               return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
             }
 
-            const activeVersion = existingComment.history.find(v => v.version === existingComment.activeVersion);
-
             // Mark current active version as deleted in history
             const updatedHistory = existingComment.history.map(v =>
               v.version === existingComment.activeVersion ? {...v, deleted: true} : v
@@ -341,21 +342,9 @@ export class MyDashboardsEffects {
                 deleteCommentSuccess({commentId, restoredComment: updatedComment}),
                 showSuccess({message: '@Comment version restored'})
               ], asyncScheduler);
-            } else if (activeVersion?.status === CommentStatus.DRAFT) {
-              // Deleting a draft with no published versions - soft delete entire comment
-              const updatedComment: CommentEntry = {
-                ...existingComment,
-                deleted: true,
-                deletedDate: Date.now(),
-                deletedBy: deleterName,
-                history: updatedHistory,
-              };
-              return scheduled([
-                deleteCommentSuccess({commentId, restoredComment: updatedComment}),
-                showSuccess({message: '@Comment deleted successfully'})
-              ], asyncScheduler);
             } else {
-              // No versions left - soft delete entire comment
+              // Deleting a draft with no published versions - soft delete entire comment
+              // Or no versions left - soft delete entire comment
               const updatedComment: CommentEntry = {
                 ...existingComment,
                 deleted: true,
@@ -453,7 +442,7 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(cloneCommentForEdit),
       withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId, newText}, profile]) => {
+      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl}, profile]) => {
         // TODO: Replace with actual API call when backend is ready
 
         const editorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
@@ -486,6 +475,7 @@ export class MyDashboardsEffects {
 
             const updatedComment: CommentEntry = {
               ...existingComment,
+              pointerUrl: newPointerUrl ?? existingComment.pointerUrl,
               activeVersion: newVersionNumber,
               hasActiveDraft: true,
               history: [...existingComment.history, newVersion],

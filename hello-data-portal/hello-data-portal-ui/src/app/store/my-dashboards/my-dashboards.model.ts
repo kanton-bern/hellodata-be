@@ -71,9 +71,9 @@ export interface CommentVersion {
 export interface CommentEntry {
   id: string;
   dashboardId: number;
-  dashboardPageId?: string; // Optional - for dashboard tabs/pages
   dashboardUrl: string;
   contextKey: string;
+  pointerUrl?: string; // Optional - URL to specific dashboard page/tab/chart the comment refers to
   author: string;
   authorEmail: string;
   createdDate: number;

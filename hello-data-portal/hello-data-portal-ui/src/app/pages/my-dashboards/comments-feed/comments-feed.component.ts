@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, ElementRef, inject, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, ElementRef, inject, output, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button} from "primeng/button";
@@ -70,6 +70,8 @@ export class CommentsFeed implements AfterViewInit {
   private readonly store = inject<Store<AppState>>(Store);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
 
+  pointerUrlClick = output<string>();
+
   comments$ = this.store.select(selectVisibleComments);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
@@ -91,6 +93,7 @@ export class CommentsFeed implements AfterViewInit {
   filteredComments$: Observable<CommentEntry[]>;
 
   newCommentText = '';
+  pointerUrl = '';
 
   private currentDashboardId: number | undefined;
   private currentDashboardContextKey: string | undefined;
@@ -108,6 +111,56 @@ export class CommentsFeed implements AfterViewInit {
     this.filteredComments$ = this.comments$.pipe(
       map(comments => this.filterComments(comments))
     );
+  }
+
+  /**
+   * Validates that pointerUrl is a valid Superset link (same domain as current dashboard)
+   */
+  isPointerUrlValid(): boolean {
+    const trimmedUrl = this.pointerUrl.trim();
+    if (!trimmedUrl) return true; // Empty is valid (optional field)
+
+    // Relative paths are always valid
+    if (trimmedUrl.startsWith('/')) {
+      return true;
+    }
+
+    // Normalize URL - add https:// if no protocol
+    let normalizedUrl = trimmedUrl;
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+      normalizedUrl = 'https://' + trimmedUrl;
+    }
+
+    // Validate it's from the same Superset instance
+    if (!this.currentDashboardUrl) return false;
+
+    try {
+      const dashboardUrlObj = new URL(this.currentDashboardUrl);
+      const pointerUrlObj = new URL(normalizedUrl);
+
+      // Check same host (Superset instance)
+      return dashboardUrlObj.host === pointerUrlObj.host;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Returns normalized pointerUrl with protocol
+   */
+  getNormalizedPointerUrl(): string | undefined {
+    const trimmedUrl = this.pointerUrl.trim();
+    if (!trimmedUrl) return undefined;
+
+    if (trimmedUrl.startsWith('/')) {
+      return trimmedUrl;
+    }
+
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+      return 'https://' + trimmedUrl;
+    }
+
+    return trimmedUrl;
   }
 
   private initYearOptions(): void {
@@ -166,20 +219,31 @@ export class CommentsFeed implements AfterViewInit {
     const text = this.newCommentText.trim();
     if (!text) return;
 
+    // Block submission if pointerUrl is invalid
+    if (this.pointerUrl.trim() && !this.isPointerUrlValid()) {
+      return;
+    }
+
     if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
       this.store.dispatch(addComment({
         dashboardId: this.currentDashboardId,
         contextKey: this.currentDashboardContextKey,
         dashboardUrl: this.currentDashboardUrl,
-        text
+        text,
+        pointerUrl: this.getNormalizedPointerUrl()
       }));
     }
 
     this.newCommentText = '';
+    this.pointerUrl = '';
 
     setTimeout(() => {
       this.scrollToBottom();
     });
+  }
+
+  onPointerUrlClick(url: string): void {
+    this.pointerUrlClick.emit(url);
   }
 
   private scrollToBottom(): void {

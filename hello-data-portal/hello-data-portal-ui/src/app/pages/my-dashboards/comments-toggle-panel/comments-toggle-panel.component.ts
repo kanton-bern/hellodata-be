@@ -38,5 +38,5 @@ import {CommentsFeed} from "../comments-feed/comments-feed.component";
 })
 export class CommentsTogglePanelComponent {
   @Output() toggleComments = new EventEmitter<void>();
-
+  @Output() pointerUrlClick = new EventEmitter<string>();
 }

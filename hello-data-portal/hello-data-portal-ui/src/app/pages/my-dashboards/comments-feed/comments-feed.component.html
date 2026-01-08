@@ -34,7 +34,8 @@
       @if (comments.length) {
         <div class="comments-list">
           @for (comment of comments; track comment.id) {
-            <app-comment-entry [comment]="comment"></app-comment-entry>
+            <app-comment-entry [comment]="comment"
+                               (pointerUrlClick)="onPointerUrlClick($event)"></app-comment-entry>
           }
         </div>
       } @else {
@@ -57,11 +58,24 @@
         rows="3">
       </textarea>
 
-    <div class="mt-2 flex justify-end">
+    <div class="mt-2 flex gap-2 items-start">
+      <div class="flex-1">
+        <input type="text"
+               class="w-full border rounded-md px-2 py-1 text-sm"
+               [class.border-red-500]="pointerUrl && !isPointerUrlValid()"
+               [class.border-2]="pointerUrl && !isPointerUrlValid()"
+               [(ngModel)]="pointerUrl"
+               placeholder="{{ '@Link to specific page (optional)' | transloco }}"/>
+        @if (pointerUrl && !isPointerUrlValid()) {
+          <div class="text-red-500 mt-1"
+               style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+          </div>
+        }
+      </div>
       <p-button severity="success" (keydown.enter)="submitComment()"
                 label="{{ '@Submit' | transloco }}"
                 (click)="submitComment()"
-                [disabled]="!newCommentText?.trim()">
+                [disabled]="!newCommentText?.trim() || (pointerUrl && !isPointerUrlValid())">
       </p-button>
     </div>
   </div>

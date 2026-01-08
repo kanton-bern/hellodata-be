@@ -123,7 +123,7 @@ export const loadDashboardCommentsError = createAction(
 
 export const addComment = createAction(
   MyDashboardsActionType.ADD_COMMENT,
-  props<{ dashboardId: number; contextKey: string; dashboardUrl: string; text: string }>()
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string; text: string; pointerUrl?: string }>()
 );
 
 export const addCommentSuccess = createAction(
@@ -138,7 +138,7 @@ export const addCommentError = createAction(
 
 export const updateComment = createAction(
   MyDashboardsActionType.UPDATE_COMMENT,
-  props<{ dashboardId: number; contextKey: string; commentId: string; text: string }>()
+  props<{ dashboardId: number; contextKey: string; commentId: string; text: string; pointerUrl?: string }>()
 );
 
 export const updateCommentSuccess = createAction(
@@ -202,7 +202,7 @@ export const unpublishCommentError = createAction(
 // Clone published comment for editing (creates a draft copy with new text)
 export const cloneCommentForEdit = createAction(
   MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT,
-  props<{ dashboardId: number; contextKey: string; commentId: string; newText: string }>()
+  props<{ dashboardId: number; contextKey: string; commentId: string; newText: string; newPointerUrl?: string }>()
 );
 
 export const cloneCommentForEditSuccess = createAction(

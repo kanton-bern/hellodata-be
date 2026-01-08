@@ -128,4 +128,9 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
     }));
   }
 
+  navigateToPointerUrl(pointerUrl: string): void {
+    if (pointerUrl) {
+      this.url = pointerUrl;
+    }
+  }
 }

@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Component, computed, inject, input} from "@angular/core";
+import {Component, computed, inject, input, output} from "@angular/core";
 import {AsyncPipe, DatePipe, SlicePipe} from "@angular/common";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
@@ -47,7 +47,8 @@ import {
   canPublishComment,
   canUnpublishComment,
   selectCurrentDashboardContextKey,
-  selectCurrentDashboardId
+  selectCurrentDashboardId,
+  selectCurrentDashboardUrl
 } from "../../../../store/my-dashboards/my-dashboards.selector";
 import {take} from "rxjs";
 import {ConfirmationService, PrimeTemplate} from "primeng/api";
@@ -81,16 +82,21 @@ export class CommentEntryComponent {
   private readonly translateService = inject(TranslateService);
 
   comment = input.required<CommentEntry>();
+  pointerUrlClick = output<string>();
 
   expanded = false;
 
   // Edit dialog
   editDialogVisible = false;
   editedText = '';
+  editedPointerUrl = '';
 
   isSuperuser$ = this.store.select(selectIsSuperuser);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
+  currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
+
+  private currentDashboardUrl: string | undefined;
 
   // Computed properties for permissions
   canEditFn = this.store.selectSignal(canEditComment);
@@ -123,8 +129,69 @@ export class CommentEntryComponent {
 
   protected readonly CommentStatus = CommentStatus;
 
+  constructor() {
+    this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
+  }
+
+  /**
+   * Validates that editedPointerUrl is a valid Superset link (same domain as current dashboard)
+   */
+  isEditedPointerUrlValid(): boolean {
+    const trimmedUrl = this.editedPointerUrl.trim();
+    if (!trimmedUrl) return true; // Empty is valid (optional field)
+
+    // Relative paths are always valid
+    if (trimmedUrl.startsWith('/')) {
+      return true;
+    }
+
+    // Normalize URL - add https:// if no protocol
+    let normalizedUrl = trimmedUrl;
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+      normalizedUrl = 'https://' + trimmedUrl;
+    }
+
+    // Validate it's from the same Superset instance
+    if (!this.currentDashboardUrl) return false;
+
+    try {
+      const dashboardUrlObj = new URL(this.currentDashboardUrl);
+      const pointerUrlObj = new URL(normalizedUrl);
+
+      // Check same host (Superset instance)
+      return dashboardUrlObj.host === pointerUrlObj.host;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Returns normalized editedPointerUrl with protocol
+   */
+  getNormalizedEditedPointerUrl(): string | undefined {
+    const trimmedUrl = this.editedPointerUrl.trim();
+    if (!trimmedUrl) return undefined;
+
+    if (trimmedUrl.startsWith('/')) {
+      return trimmedUrl;
+    }
+
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+      return 'https://' + trimmedUrl;
+    }
+
+    return trimmedUrl;
+  }
+
   toggleDetails(): void {
     this.expanded = !this.expanded;
+  }
+
+  navigateToPointerUrl(): void {
+    const url = this.comment().pointerUrl;
+    if (url) {
+      this.pointerUrlClick.emit(url);
+    }
   }
 
   onKeyDown(event: KeyboardEvent, action: () => void): void {
@@ -135,8 +202,10 @@ export class CommentEntryComponent {
   }
 
   editComment(): void {
+    const comment = this.comment();
     const activeVer = this.activeVersion();
     this.editedText = activeVer?.text || '';
+    this.editedPointerUrl = comment.pointerUrl || '';
     this.editDialogVisible = true;
   }
 
@@ -144,9 +213,19 @@ export class CommentEntryComponent {
     const comment = this.comment();
     const activeVer = this.activeVersion();
     const newText = this.editedText.trim();
+    const normalizedPointerUrl = this.getNormalizedEditedPointerUrl();
 
-    if (!newText || newText === activeVer?.text) {
+    // Check if anything changed
+    const textChanged = newText !== activeVer?.text;
+    const pointerUrlChanged = normalizedPointerUrl !== (comment.pointerUrl || undefined);
+
+    if (!newText || (!textChanged && !pointerUrlChanged)) {
       this.editDialogVisible = false;
+      return;
+    }
+
+    // Block if pointerUrl is invalid
+    if (this.editedPointerUrl.trim() && !this.isEditedPointerUrlValid()) {
       return;
     }
 
@@ -159,7 +238,8 @@ export class CommentEntryComponent {
               dashboardId,
               contextKey,
               commentId: comment.id,
-              newText
+              newText,
+              newPointerUrl: normalizedPointerUrl
             }));
           } else {
             // For draft comments, update directly
@@ -167,7 +247,8 @@ export class CommentEntryComponent {
               dashboardId,
               contextKey,
               commentId: comment.id,
-              text: newText
+              text: newText,
+              pointerUrl: normalizedPointerUrl
             }));
           }
         }
@@ -180,6 +261,7 @@ export class CommentEntryComponent {
   cancelEdit(): void {
     this.editDialogVisible = false;
     this.editedText = '';
+    this.editedPointerUrl = '';
   }
 
   publishComment(): void {
