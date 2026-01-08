@@ -167,6 +167,7 @@ export class MyDashboardsEffects {
             contextKey: contextKey,
             text: 'First test comment.',
             author: 'John Doe',
+            authorEmail: 'john.doe@example.com',
             status: CommentStatus.PUBLISHED,
             createdDate: new Date('2024-06-01T09:30:00').getTime(),
             publishedDate: new Date('2024-06-01T09:30:00').getTime(),
@@ -180,6 +181,7 @@ export class MyDashboardsEffects {
             contextKey: contextKey,
             text: 'Great data, thanks for sharing!',
             author: 'Anne Smith',
+            authorEmail: 'anne.smith@example.com',
             status: CommentStatus.PUBLISHED,
             createdDate: new Date('2024-06-02T14:15:00').getTime(),
             publishedDate: new Date('2024-06-02T14:15:00').getTime(),
@@ -207,8 +209,9 @@ export class MyDashboardsEffects {
         // )
 
         // Temporary mock - simulating backend response
-        // Backend generates: id, author (createdBy), status (DRAFT), deleted
+        // Backend generates: id, author (createdBy), authorEmail, status (DRAFT), deleted
         const authorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
+        const authorEmail = profile?.email || 'unknown@example.com';
         const mockComment = {
           id: crypto.randomUUID(), // Backend generates UUID
           dashboardId: dashboardId,
@@ -216,6 +219,7 @@ export class MyDashboardsEffects {
           contextKey: contextKey,
           text,
           author: authorName, // Backend sets from authenticated user
+          authorEmail: authorEmail, // Backend sets from authenticated user
           status: CommentStatus.DRAFT, // Backend sets initial status as DRAFT
           createdDate: Date.now(),
           deleted: false, // Backend sets default as false

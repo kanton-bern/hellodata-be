@@ -65,6 +65,7 @@ export interface CommentEntry {
   contextKey: string;
   text: string;
   author: string;
+  authorEmail: string;
   status: CommentStatus;
   createdDate: number;
   publishedDate?: number;

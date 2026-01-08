@@ -46,6 +46,18 @@
   align-items: center;
 }
 
+.comment-meta {
+  .author-name {
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+      color: var(--primary-color, #3b82f6);
+    }
+  }
+}
+
 .comment-actions {
   display: flex;
   align-items: center;

@@ -4,7 +4,10 @@
   <p class="comment-text p-1">{{ comment().text }}</p>
   <div class="comment-footer p-1">
     <small class="comment-meta">
-      {{ comment().author }} – {{ comment().createdDate | date:'short' }}@if (comment().lastEditedDate) {
+      <span class="author-name"
+            [pTooltip]="comment().authorEmail"
+            tooltipPosition="top">{{ comment().author }}</span>
+      – {{ comment().createdDate | date:'short' }}@if (comment().lastEditedDate) {
       (edited)
     }
     </small>
