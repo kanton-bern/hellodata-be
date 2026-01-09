@@ -59,9 +59,11 @@ p-menu {
 
 app-breadcrumb {
   z-index: 999;
-  line-height: 0.1rem;
+  line-height: 1rem;
   padding: 0;
   font-size: 0.85rem;
+  display: block;
+  height: 30px;
 }
 
 .breadcrumb-container, .published-announcements-container {

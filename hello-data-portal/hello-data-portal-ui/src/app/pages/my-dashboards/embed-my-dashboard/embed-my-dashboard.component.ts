@@ -29,7 +29,7 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter} from "rxjs/operators";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {CommentsTogglePanelComponent} from "../comments-toggle-panel/comments-toggle-panel.component";
@@ -48,7 +48,7 @@ export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 @Component({
   templateUrl: 'embed-my-dashboard.component.html',
   styleUrls: ['./embed-my-dashboard.component.scss'],
-  imports: [SubsystemIframeComponent, AsyncPipe, CommentsTogglePanelComponent, TranslocoPipe]
+  imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
 })
 export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);

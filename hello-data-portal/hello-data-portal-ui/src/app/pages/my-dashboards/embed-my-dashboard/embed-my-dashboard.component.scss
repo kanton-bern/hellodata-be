@@ -25,6 +25,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+:host {
+  display: block;
+  height: 100%;
+}
+
 .iframe-container {
   border-right: 1px solid var(--surface-border, #dee2e6);
   overflow-anchor: none;
@@ -34,12 +39,13 @@
   display: flex;
   align-items: stretch;
   justify-content: flex-start;
-  padding-top: 10px;
-  height: calc(100vh - 120px); // adjust offset based on header/navigation
+  height: 100%;
 
   app-comments-toggle-panel {
     height: 100%;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
 }
 
@@ -53,4 +59,7 @@
 .comments-panel-open {
   writing-mode: horizontal-tb;
   text-orientation: mixed;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }

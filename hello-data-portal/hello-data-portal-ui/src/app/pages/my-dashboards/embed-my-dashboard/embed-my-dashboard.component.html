@@ -1,13 +1,12 @@
 @if (currentMyDashboardInfo$ | async) {
-  <div class="grid w-full" [class]="isCommentsOpen ? 'grid-cols-[75%_25%]' : 'grid-cols-[calc(100%-25px)_25px]'">
-    <div class="iframe-container" [class]="isCommentsOpen ? 'w-full' : 'col-span-1'">
+  <div class="grid w-full h-full" [class]="isCommentsOpen ? 'grid-cols-[75%_25%]' : 'grid-cols-[calc(100%-25px)_25px]'">
+    <div class="iframe-container h-full" [class]="isCommentsOpen ? 'w-full' : 'col-span-1'">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="false"/>
     </div>
 
     <div
-      class="comments-panel"
-      [class]="isCommentsOpen ? 'w-[25%]' : 'w-[25px]'"
-      [class]="isCommentsOpen ? 'comments-panel-open' : 'comments-panel-closed'"
+      class="comments-panel h-full"
+      [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-3 w-[25px] comments-panel-closed'"
     >
       @if (!isCommentsOpen) {
         <div (click)="toggleComments()" (keydown)="toggleComments()"
@@ -16,7 +15,7 @@
       } @else {
         <app-comments-toggle-panel (toggleComments)="toggleComments()"
                                    (pointerUrlClick)="navigateToPointerUrl($event)"
-                                   class="w-full"></app-comments-toggle-panel>
+                                   class="w-full h-full"></app-comments-toggle-panel>
       }
     </div>
   </div>

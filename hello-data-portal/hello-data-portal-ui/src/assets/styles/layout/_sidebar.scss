@@ -259,6 +259,11 @@ p-tieredmenusub p-tieredmenusub ul li div a span {
   width: calc(100% - 63px);
 }
 
+.sidebar.close ~ .content-section app-header {
+  left: 70px;
+  width: calc(100% - 70px);
+}
+
 .home-content {
   display: flex;
   align-items: center;

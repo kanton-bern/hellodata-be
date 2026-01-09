@@ -26,6 +26,7 @@
  */
 .content-section {
   background-color: var(--surface-ground);
+  padding-top: 70px; /* Offset for fixed header (40px topbar + 30px breadcrumb) */
 
   .content-block, .card {
     margin-left: 40px;
