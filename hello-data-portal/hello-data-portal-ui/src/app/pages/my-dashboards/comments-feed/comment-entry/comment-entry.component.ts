@@ -145,14 +145,17 @@ export class CommentEntryComponent {
       return true;
     }
 
+    // If currentDashboardUrl is not loaded yet, allow empty pointerUrl
+    if (!this.currentDashboardUrl) {
+      return !trimmedUrl; // Only valid if empty
+    }
+
     // Normalize URL - add https:// if no protocol
     let normalizedUrl = trimmedUrl;
     if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
       normalizedUrl = 'https://' + trimmedUrl;
     }
 
-    // Validate it's from the same Superset instance
-    if (!this.currentDashboardUrl) return false;
 
     try {
       const dashboardUrlObj = new URL(this.currentDashboardUrl);
@@ -262,6 +265,25 @@ export class CommentEntryComponent {
     this.editDialogVisible = false;
     this.editedText = '';
     this.editedPointerUrl = '';
+  }
+
+  /**
+   * Checks if Save button should be disabled in edit dialog
+   */
+  isSaveEditDisabled(): boolean {
+    // Disabled if text is empty
+    if (!this.editedText?.trim()) {
+      return true;
+    }
+
+    // Disabled only if pointerUrl is non-empty AND invalid
+    const trimmedPointerUrl = this.editedPointerUrl?.trim();
+    if (trimmedPointerUrl && trimmedPointerUrl.length > 0) {
+      return !this.isEditedPointerUrlValid();
+    }
+
+    // Otherwise enabled
+    return false;
   }
 
   publishComment(): void {

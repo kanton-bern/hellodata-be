@@ -168,7 +168,7 @@
               icon="fas fa-save"
               [label]="'@Save' | transloco"
               severity="success"
-              [disabled]="!editedText?.trim() || (editedPointerUrl && !isEditedPointerUrlValid())"/>
+              [disabled]="isSaveEditDisabled()"/>
   </ng-template>
 </p-dialog>
 
