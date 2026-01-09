@@ -82,15 +82,20 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (mainContentDiv) {
       this.originalOverflow = mainContentDiv.style.overflow;
-      mainContentDiv.style.overflow = 'hidden';
+      mainContentDiv.style.setProperty('overflow', 'hidden', 'important');
+      mainContentDiv.style.setProperty('overflow-anchor', 'none', 'important');
     }
   }
 
   ngOnDestroy(): void {
     // Restore scroll on mainContentDiv
     const mainContentDiv = document.getElementById('mainContentDiv');
-    if (mainContentDiv && this.originalOverflow !== null) {
-      mainContentDiv.style.overflow = this.originalOverflow;
+    if (mainContentDiv) {
+      mainContentDiv.style.removeProperty('overflow');
+      mainContentDiv.style.removeProperty('overflow-anchor');
+      if (this.originalOverflow) {
+        mainContentDiv.style.overflow = this.originalOverflow;
+      }
     }
   }
 
