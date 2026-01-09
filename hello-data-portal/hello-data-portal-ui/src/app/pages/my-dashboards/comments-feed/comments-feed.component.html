@@ -59,23 +59,33 @@
       </textarea>
 
     <div class="mt-2 flex gap-2 items-start">
-      <div class="flex-1">
-        <input type="text"
-               class="w-full border rounded-md px-2 py-1 text-sm"
-               [class.border-red-500]="pointerUrl && !isPointerUrlValid()"
-               [class.border-2]="pointerUrl && !isPointerUrlValid()"
-               [(ngModel)]="pointerUrl"
-               placeholder="{{ '@Link to specific page (optional)' | transloco }}"/>
-        @if (pointerUrl && !isPointerUrlValid()) {
-          <div class="text-red-500 mt-1"
-               style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
-          </div>
-        }
-      </div>
+      <button type="button"
+              class="pointer-url-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
+              (click)="togglePointerUrlInput()"
+              [pTooltip]="'@Link to specific page (optional)' | transloco"
+              tooltipPosition="top">
+        <i class="fa-solid fa-link"></i>
+      </button>
+      @if (showPointerUrlInput) {
+        <div class="flex-1">
+          <input type="text"
+                 class="w-full border rounded-md px-2 py-1 text-sm"
+                 [class.border-red-500]="pointerUrl && !isPointerUrlValid()"
+                 [class.border-2]="pointerUrl && !isPointerUrlValid()"
+                 [(ngModel)]="pointerUrl"
+                 placeholder="{{ '@Link to specific page (optional)' | transloco }}"/>
+          @if (pointerUrl && !isPointerUrlValid()) {
+            <div class="text-red-500 mt-1"
+                 style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+            </div>
+          }
+        </div>
+      }
       <p-button severity="success" (keydown.enter)="submitComment()"
                 label="{{ '@Submit' | transloco }}"
                 (click)="submitComment()"
-                [disabled]="!newCommentText?.trim() || (pointerUrl && !isPointerUrlValid())">
+                [disabled]="!newCommentText?.trim() || (showPointerUrlInput && pointerUrl && !isPointerUrlValid())"
+                class="ml-auto">
       </p-button>
     </div>
   </div>

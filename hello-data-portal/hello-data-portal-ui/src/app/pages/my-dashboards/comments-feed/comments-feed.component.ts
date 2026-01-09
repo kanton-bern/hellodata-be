@@ -43,6 +43,7 @@ import {AsyncPipe} from "@angular/common";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
+import {Tooltip} from "primeng/tooltip";
 import {CommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
 import {map, Observable} from "rxjs";
 
@@ -62,7 +63,8 @@ interface FilterOption {
     AsyncPipe,
     ConfirmDialog,
     PrimeTemplate,
-    Select
+    Select,
+    Tooltip
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
@@ -94,6 +96,7 @@ export class CommentsFeed implements AfterViewInit {
 
   newCommentText = '';
   pointerUrl = '';
+  showPointerUrlInput = false;
 
   private currentDashboardId: number | undefined;
   private currentDashboardContextKey: string | undefined;
@@ -214,28 +217,39 @@ export class CommentsFeed implements AfterViewInit {
     this.scrollToBottom();
   }
 
+  togglePointerUrlInput(): void {
+    this.showPointerUrlInput = !this.showPointerUrlInput;
+    if (!this.showPointerUrlInput) {
+      this.pointerUrl = ''; // Clear pointerUrl when hiding
+    }
+  }
+
 
   submitComment(): void {
     const text = this.newCommentText.trim();
     if (!text) return;
 
-    // Block submission if pointerUrl is invalid
-    if (this.pointerUrl.trim() && !this.isPointerUrlValid()) {
+    // Block submission if pointerUrl input is shown and URL is invalid
+    if (this.showPointerUrlInput && this.pointerUrl.trim() && !this.isPointerUrlValid()) {
       return;
     }
 
     if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
+      // Only include pointerUrl if input is shown
+      const pointerUrl = this.showPointerUrlInput ? this.getNormalizedPointerUrl() : undefined;
+
       this.store.dispatch(addComment({
         dashboardId: this.currentDashboardId,
         contextKey: this.currentDashboardContextKey,
         dashboardUrl: this.currentDashboardUrl,
         text,
-        pointerUrl: this.getNormalizedPointerUrl()
+        pointerUrl
       }));
     }
 
     this.newCommentText = '';
     this.pointerUrl = '';
+    this.showPointerUrlInput = false;
 
     setTimeout(() => {
       this.scrollToBottom();

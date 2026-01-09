@@ -117,5 +117,22 @@
     padding: 0.25rem 0.5rem;
     font-size: 0.7rem;
   }
+
+  .pointer-url-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: var(--surface-hover, #f0f0f0);
+    }
+  }
 }
 
