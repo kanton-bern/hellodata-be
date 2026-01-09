@@ -1,6 +1,6 @@
 @if (currentMyDashboardInfo$ | async) {
   <div class="grid w-full" [class]="isCommentsOpen ? 'grid-cols-[75%_25%]' : 'grid-cols-[calc(100%-25px)_25px]'">
-    <div [class]="isCommentsOpen ? 'w-full' : 'col-span-1'">
+    <div class="iframe-container" [class]="isCommentsOpen ? 'w-full' : 'col-span-1'">
       <app-subsystem-iframe [delay]="600" [url]="url"/>
     </div>
 

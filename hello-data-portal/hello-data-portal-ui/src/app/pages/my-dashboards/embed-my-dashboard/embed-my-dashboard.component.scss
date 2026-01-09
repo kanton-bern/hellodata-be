@@ -25,6 +25,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+.iframe-container {
+  border-right: 1px solid var(--surface-border, #dee2e6);
+}
+
 .comments-panel {
   display: flex;
   align-items: stretch;
