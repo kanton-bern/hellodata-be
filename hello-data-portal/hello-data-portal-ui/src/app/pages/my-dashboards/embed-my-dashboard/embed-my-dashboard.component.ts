@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter} from "rxjs/operators";
@@ -50,7 +50,7 @@ export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
   styleUrls: ['./embed-my-dashboard.component.scss'],
   imports: [SubsystemIframeComponent, AsyncPipe, CommentsTogglePanelComponent, TranslocoPipe]
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
@@ -58,6 +58,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
   private loadedDashboardId: number | null = null;
+  private originalOverflow: string | null = null;
 
   constructor() {
     super();
@@ -76,6 +77,21 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
 
   override ngOnInit(): void {
     super.ngOnInit();
+
+    // Disable scroll on mainContentDiv - iframe handles its own scrolling
+    const mainContentDiv = document.getElementById('mainContentDiv');
+    if (mainContentDiv) {
+      this.originalOverflow = mainContentDiv.style.overflow;
+      mainContentDiv.style.overflow = 'hidden';
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Restore scroll on mainContentDiv
+    const mainContentDiv = document.getElementById('mainContentDiv');
+    if (mainContentDiv && this.originalOverflow !== null) {
+      mainContentDiv.style.overflow = this.originalOverflow;
+    }
   }
 
   toggleComments(): void {
@@ -130,26 +146,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
 
   navigateToPointerUrl(pointerUrl: string): void {
     if (pointerUrl) {
-      const mainContentDiv = document.getElementById('mainContentDiv');
-
-      if (mainContentDiv) {
-        // Create scroll blocker that forces scrollTop to 0
-        const scrollBlocker = () => {
-          mainContentDiv.scrollTop = 0;
-        };
-
-        // Add scroll listener to block any scroll attempts
-        mainContentDiv.addEventListener('scroll', scrollBlocker);
-
-        this.url = pointerUrl;
-
-        // Remove scroll blocker after iframe has loaded (after 3 seconds)
-        setTimeout(() => {
-          mainContentDiv.removeEventListener('scroll', scrollBlocker);
-        }, 3000);
-      } else {
-        this.url = pointerUrl;
-      }
+      this.url = pointerUrl;
     }
   }
 }
