@@ -130,7 +130,21 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
 
   navigateToPointerUrl(pointerUrl: string): void {
     if (pointerUrl) {
+      // Save current scroll position to prevent page jump
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+
+      // Temporarily lock scroll on body
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
       this.url = pointerUrl;
+
+      // Restore scroll position and overflow after iframe loads
+      setTimeout(() => {
+        window.scrollTo(scrollLeft, scrollTop);
+        document.body.style.overflow = originalOverflow;
+      }, 100);
     }
   }
 }
