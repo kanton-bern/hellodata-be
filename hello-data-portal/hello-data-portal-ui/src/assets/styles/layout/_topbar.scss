@@ -36,8 +36,9 @@ $background-color: #ffffff;
 }
 
 #layout-topbar {
-  height: 65px;
-  padding-top: 20px;
+  height: 50px;
+  display: flex;
+  align-items: center;
 }
 
 #topbar-right-group {
