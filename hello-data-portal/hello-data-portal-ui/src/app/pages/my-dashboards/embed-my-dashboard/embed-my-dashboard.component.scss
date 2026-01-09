@@ -41,7 +41,7 @@
 .comments-panel-closed {
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  background-color: var(--p-yellow-100);
+  background-color: var(--surface-ground, #f8f9fa);
 }
 
 .comments-panel-open {
