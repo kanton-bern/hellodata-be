@@ -42,6 +42,7 @@
   writing-mode: vertical-rl;
   text-orientation: mixed;
   background-color: var(--surface-ground, #f8f9fa);
+  border-left: 1px solid var(--surface-border, #dee2e6);
 }
 
 .comments-panel-open {
