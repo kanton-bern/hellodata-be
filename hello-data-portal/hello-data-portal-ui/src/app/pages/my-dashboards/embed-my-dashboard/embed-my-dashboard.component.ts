@@ -131,26 +131,22 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   navigateToPointerUrl(pointerUrl: string): void {
     if (pointerUrl) {
       const mainContentDiv = document.getElementById('mainContentDiv');
-      if (mainContentDiv) {
-        // Save current scroll position
-        const scrollTop = mainContentDiv.scrollTop;
 
-        // Temporarily lock scroll
-        const originalOverflow = mainContentDiv.style.overflow;
-        mainContentDiv.style.overflow = 'hidden';
+      if (mainContentDiv) {
+        // Create scroll blocker that forces scrollTop to 0
+        const scrollBlocker = () => {
+          mainContentDiv.scrollTop = 0;
+        };
+
+        // Add scroll listener to block any scroll attempts
+        mainContentDiv.addEventListener('scroll', scrollBlocker);
 
         this.url = pointerUrl;
 
-        // Restore scroll position and overflow after iframe starts loading
+        // Remove scroll blocker after iframe has loaded (after 3 seconds)
         setTimeout(() => {
-          mainContentDiv.scrollTop = scrollTop;
-          mainContentDiv.style.overflow = originalOverflow;
-        }, 50);
-
-        // Double-check scroll position after iframe loads
-        setTimeout(() => {
-          mainContentDiv.scrollTop = scrollTop;
-        }, 500);
+          mainContentDiv.removeEventListener('scroll', scrollBlocker);
+        }, 3000);
       } else {
         this.url = pointerUrl;
       }
