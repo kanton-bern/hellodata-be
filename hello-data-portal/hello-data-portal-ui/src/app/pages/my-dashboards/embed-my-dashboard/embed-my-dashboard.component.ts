@@ -60,6 +60,8 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   private loadedDashboardId: number | null = null;
   private originalOverflow: string | null = null;
   private isNavigatingToPointerUrl = false;
+  private scrollLockHandler: (() => void) | null = null;
+  private contentSectionScrollLockHandler: (() => void) | null = null;
 
   constructor() {
     super();
@@ -85,18 +87,55 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       this.originalOverflow = mainContentDiv.style.overflow;
       mainContentDiv.style.setProperty('overflow', 'hidden', 'important');
       mainContentDiv.style.setProperty('overflow-anchor', 'none', 'important');
+
+      // Add scroll lock handler to prevent any scrolling
+      this.scrollLockHandler = () => {
+        mainContentDiv.scrollTop = 0;
+        mainContentDiv.scrollLeft = 0;
+      };
+      mainContentDiv.addEventListener('scroll', this.scrollLockHandler, {passive: false});
     }
+
+    // Also prevent scroll on content-section
+    const contentSection = document.querySelector('.content-section') as HTMLElement;
+    if (contentSection) {
+      contentSection.style.setProperty('overflow', 'hidden', 'important');
+      this.contentSectionScrollLockHandler = () => {
+        contentSection.scrollTop = 0;
+        contentSection.scrollLeft = 0;
+      };
+      contentSection.addEventListener('scroll', this.contentSectionScrollLockHandler, {passive: false});
+    }
+
+    // Prevent scroll on window/document for this view
+    window.scrollTo(0, 0);
   }
 
   ngOnDestroy(): void {
     // Restore scroll on mainContentDiv
     const mainContentDiv = document.getElementById('mainContentDiv');
     if (mainContentDiv) {
+      // Remove scroll lock handler
+      if (this.scrollLockHandler) {
+        mainContentDiv.removeEventListener('scroll', this.scrollLockHandler);
+        this.scrollLockHandler = null;
+      }
+
       mainContentDiv.style.removeProperty('overflow');
       mainContentDiv.style.removeProperty('overflow-anchor');
       if (this.originalOverflow) {
         mainContentDiv.style.overflow = this.originalOverflow;
       }
+    }
+
+    // Restore scroll on content-section
+    const contentSection = document.querySelector('.content-section') as HTMLElement;
+    if (contentSection) {
+      if (this.contentSectionScrollLockHandler) {
+        contentSection.removeEventListener('scroll', this.contentSectionScrollLockHandler);
+        this.contentSectionScrollLockHandler = null;
+      }
+      contentSection.style.removeProperty('overflow');
     }
   }
 
