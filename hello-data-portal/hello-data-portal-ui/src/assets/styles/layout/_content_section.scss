@@ -67,6 +67,10 @@
   height: 100%;
 }
 
+#mainContentDiv > .ng-star-inserted > div.ng-star-inserted:not(.card):not(.content-block) {
+  width: 100%;
+}
+
 p-toolbar {
   background: none;
   border: none;

@@ -32,7 +32,8 @@
 
 .embedded-dashboard {
   position: fixed;
-  width: 95%;
+  width: 95% !important;
+  height: 90% !important;
   z-index: 10;
 }
 
