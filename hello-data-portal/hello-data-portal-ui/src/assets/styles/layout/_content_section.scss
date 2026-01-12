@@ -26,7 +26,7 @@
  */
 .content-section {
   background-color: var(--surface-ground);
-  padding-top: 70px; /* Offset for fixed header (40px topbar + 30px breadcrumb) */
+  padding-top: 90px; /* Offset for fixed header (60px topbar + 30px breadcrumb) */
 
   .content-block, .card {
     margin-left: 40px;
@@ -36,13 +36,9 @@
 
 }
 
-/* Fixed layout for embed-my-dashboard to prevent scroll propagation from iframe */
+/* Layout for embed-my-dashboard - using normal flow for proper zoom scaling */
 #mainContentDiv:has(app-embed-my-dashboard) {
-  position: fixed;
-  top: 90px; /* 60px header + 30px breadcrumb */
-  left: 260px; /* sidebar width */
-  right: 0;
-  bottom: 0;
+  height: calc(100vh - 90px); /* 60px header + 30px breadcrumb */
   overflow: hidden;
 }
 

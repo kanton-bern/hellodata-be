@@ -1,13 +1,13 @@
 @if (currentMyDashboardInfo$ | async) {
   <div class="grid w-full h-full embedded-dashboard"
-       [class]="isCommentsOpen ? 'grid-cols-[75%_25%]' : 'grid-cols-[calc(100%-25px)_25px]'">
+       [class]="isCommentsOpen ? 'grid-cols-[75%_25%]' : 'grid-cols-[1fr_auto]'">
     <div class="iframe-container h-full" [class]="isCommentsOpen ? 'w-full' : 'col-span-1'">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="false"/>
     </div>
 
     <div
       class="comments-panel h-full"
-      [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-3 w-[25px] comments-panel-closed'"
+      [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-2 comments-panel-closed'"
     >
       @if (!isCommentsOpen) {
         <div (click)="toggleComments()" (keydown)="toggleComments()"
