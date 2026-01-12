@@ -30,6 +30,12 @@
   height: 100%;
 }
 
+.embedded-dashboard {
+  position: fixed;
+  width: 95%;
+  z-index: 10;
+}
+
 .iframe-container {
   border-right: 1px solid var(--surface-border, #dee2e6);
   overflow-anchor: none;
