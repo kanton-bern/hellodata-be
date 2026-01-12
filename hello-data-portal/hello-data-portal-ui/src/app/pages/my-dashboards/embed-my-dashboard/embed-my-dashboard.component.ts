@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter} from "rxjs/operators";
@@ -50,7 +50,7 @@ export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
   styleUrls: ['./embed-my-dashboard.component.scss'],
   imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
@@ -78,10 +78,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   override ngOnInit(): void {
     super.ngOnInit();
     // Overflow is handled by CSS using :has(app-embed-my-dashboard) selector
-  }
-
-  ngOnDestroy(): void {
-    // Cleanup if needed
   }
 
   toggleComments(): void {
