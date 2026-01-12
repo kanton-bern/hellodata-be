@@ -59,6 +59,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   isCommentsOpen = false;
   private loadedDashboardId: number | null = null;
   private originalOverflow: string | null = null;
+  private isNavigatingToPointerUrl = false;
 
   constructor() {
     super();
@@ -109,7 +110,12 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       const dashboardPath = 'superset/dashboard/' + dashboardInfo.dashboard?.id + '/?standalone=1';
       const supersetLogoutUrl = supersetUrl + 'logout';
       const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${selectedLanguage.slice(0, 2)}${encodeURIComponent('&')}next=${supersetUrl + dashboardPath}`;
-      this.url = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
+      const defaultUrl = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
+
+      // Only set URL if not navigating to pointer URL
+      if (!this.isNavigatingToPointerUrl) {
+        this.url = defaultUrl;
+      }
 
       this.openedSupersetsService.rememberOpenedSubsystem(supersetUrl + 'logout');
       const dataDomainName = dashboardInfo.appinfo?.businessContextInfo.subContext.name;
@@ -118,7 +124,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       // Load comments for current dashboard
       const dashboardId = dashboardInfo.dashboard.id;
       const contextKey = dashboardInfo.appinfo?.businessContextInfo.subContext.key;
-      const dashboardUrl = this.url;
+      const dashboardUrl = defaultUrl;
       if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
         this.loadedDashboardId = dashboardId;
         this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
@@ -151,7 +157,13 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   navigateToPointerUrl(pointerUrl: string): void {
     if (pointerUrl) {
-      this.url = pointerUrl;
+      this.isNavigatingToPointerUrl = true;
+      // Force iframe reload by temporarily clearing URL, then setting the new one
+      // This ensures reload even when clicking the same link twice
+      this.url = '';
+      setTimeout(() => {
+        this.url = pointerUrl;
+      }, 0);
     }
   }
 }
