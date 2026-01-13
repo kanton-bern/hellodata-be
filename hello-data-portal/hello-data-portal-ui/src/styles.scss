@@ -36,6 +36,10 @@
   font-family: 'Poppins', sans-serif;
 }
 
+body {
+  background-color: var(--p-surface-ground, #fafafa);
+}
+
 .p-fieldset-legend {
   background-color: transparent;
   border-radius: 2px;
