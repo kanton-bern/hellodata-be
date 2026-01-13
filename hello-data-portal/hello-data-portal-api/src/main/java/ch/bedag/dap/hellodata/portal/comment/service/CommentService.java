@@ -86,7 +86,8 @@ public class CommentService {
                     }
 
                     // Drafts are only visible to author or superuser
-                    return c.getAuthorEmail().equals(currentUserEmail) || isSuperuser;
+                    // Check if current user email is not null before comparing
+                    return (currentUserEmail != null && currentUserEmail.equals(c.getAuthorEmail())) || isSuperuser;
                 })
                 .toList();
     }
@@ -149,7 +150,8 @@ public class CommentService {
 
         // Check permissions - only author or superuser can update
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (!comment.getAuthorEmail().equals(currentUserEmail) && !SecurityUtils.isSuperuser()) {
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        if (!isAuthor && !SecurityUtils.isSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to update this comment");
         }
 
@@ -190,7 +192,8 @@ public class CommentService {
 
         // Check permissions - only author or superuser can delete
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (!comment.getAuthorEmail().equals(currentUserEmail) && !SecurityUtils.isSuperuser()) {
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        if (!isAuthor && !SecurityUtils.isSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment");
         }
 
@@ -317,7 +320,8 @@ public class CommentService {
 
         // Check permissions - only author or superuser can edit
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (!comment.getAuthorEmail().equals(currentUserEmail) && !SecurityUtils.isSuperuser()) {
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        if (!isAuthor && !SecurityUtils.isSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to edit this comment");
         }
 
@@ -373,7 +377,8 @@ public class CommentService {
 
         // Check permissions - only author or superuser can restore
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (!comment.getAuthorEmail().equals(currentUserEmail) && !SecurityUtils.isSuperuser()) {
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        if (!isAuthor && !SecurityUtils.isSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
         }
 

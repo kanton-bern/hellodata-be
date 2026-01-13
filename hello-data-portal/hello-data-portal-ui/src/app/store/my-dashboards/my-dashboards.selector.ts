@@ -175,29 +175,14 @@ const getActiveVersion = (comment: CommentEntry): CommentVersion | undefined =>
 
 export const selectVisibleComments = createSelector(
   selectCurrentDashboardComments,
-  selectCurrentDashboardContextKey,
-  selectProfile,
-  selectIsSuperuser,
-  selectIsBusinessDomainAdmin,
-  (comments, contextKey, profile, isSuperuser, isBusinessDomainAdmin) => {
-    const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
+  (comments) => {
+    // Backend already filters comments based on user permissions
+    // We only need to filter out deleted comments and those with deleted active version
     return comments
       .filter(c => {
         if (c.deleted) return false;
         const activeVersion = getActiveVersion(c);
-        if (!activeVersion || activeVersion.deleted) return false;
-
-        // All users can see published comments
-        if (activeVersion.status === CommentStatus.PUBLISHED) {
-          return true;
-        }
-
-        // Drafts are visible only to author, superuser and business_domain_admin
-        if (activeVersion.status === CommentStatus.DRAFT) {
-          return isSuperuser || isBusinessDomainAdmin || c.author === currentUserName;
-        }
-
-        return false;
+        return activeVersion && !activeVersion.deleted;
       })
       .sort((a, b) => a.createdDate - b.createdDate);
   }
