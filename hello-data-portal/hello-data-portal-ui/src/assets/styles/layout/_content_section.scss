@@ -36,10 +36,8 @@
 
 }
 
-/* Layout for embed-my-dashboard - using normal flow for proper zoom scaling */
-#mainContentDiv:has(app-embed-my-dashboard) {
-  //height: calc(100vh - 90px); /* 60px header + 30px breadcrumb */
-  //overflow: hidden;
+/* Layout for .embedded-dashboard - using normal flow for proper zoom scaling */
+#mainContentDiv:has(.embedded-dashboard) {
   height: 90vh !important;
   overflow-y: auto !important;
 }
