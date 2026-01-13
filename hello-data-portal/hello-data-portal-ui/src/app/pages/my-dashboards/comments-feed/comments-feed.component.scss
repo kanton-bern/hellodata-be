@@ -39,6 +39,7 @@
   max-height: 100%;
   min-height: 0;
   overflow: hidden;
+  border-right: 1px solid var(--surface-border, #dee2e6);
 }
 
 .comments-header {
@@ -116,7 +117,6 @@
   flex: 0 0 auto;
   padding: 0.5rem;
   background: var(--surface-ground, #fff);
-  border-right: 1px solid var(--surface-border, #dee2e6);
 
   textarea {
     font-size: 0.75rem;

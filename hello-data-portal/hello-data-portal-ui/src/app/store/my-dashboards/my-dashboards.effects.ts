@@ -27,7 +27,7 @@
 
 import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
-import {asyncScheduler, catchError, scheduled, switchMap, take, withLatestFrom} from "rxjs";
+import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
 import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
 import {
@@ -56,13 +56,12 @@ import {
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "./my-dashboards.action";
-import {CommentEntry, CommentStatus, CommentVersion} from "./my-dashboards.model";
 import {NotificationService} from "../../shared/services/notification.service";
 import {TranslateService} from "../../shared/services/translate.service";
 import {ScreenService} from "../../shared/services";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
-import {selectCurrentUserPermissions, selectProfile} from "../auth/auth.selector";
+import {selectCurrentUserPermissions} from "../auth/auth.selector";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -156,63 +155,10 @@ export class MyDashboardsEffects {
     return this._actions$.pipe(
       ofType(loadDashboardComments),
       switchMap(({dashboardId, contextKey, dashboardUrl}) => {
-        // TODO: Replace with actual API call when backend is ready
-        // return this._myDashboardsService.getDashboardComments(contextKey, dashboardId).pipe(
-        //   switchMap(comments => scheduled([loadDashboardCommentsSuccess({comments})], asyncScheduler)),
-        //   catchError(e => scheduled([loadDashboardCommentsError({error: e})], asyncScheduler))
-        // )
-
-        // Temporary mock data for testing - new model with history
-        const mockComments: CommentEntry[] = [
-          {
-            id: '1',
-            dashboardId: dashboardId,
-            dashboardUrl: dashboardUrl,
-            contextKey: contextKey,
-            pointerUrl: 'https://superset-demo.dev.hellodatabedag.ch/superset/dashboard/5/?tab=1',
-            author: 'John Doe',
-            authorEmail: 'john.doe@example.com',
-            createdDate: new Date('2024-06-01T09:30:00').getTime(),
-            deleted: false,
-            activeVersion: 1,
-            history: [
-              {
-                version: 1,
-                text: 'First test comment.',
-                status: CommentStatus.PUBLISHED,
-                editedDate: new Date('2024-06-01T09:30:00').getTime(),
-                editedBy: 'John Doe',
-                publishedDate: new Date('2024-06-01T09:30:00').getTime(),
-                publishedBy: 'Admin',
-                deleted: false,
-              }
-            ],
-          },
-          {
-            id: '2',
-            dashboardId: dashboardId,
-            dashboardUrl: dashboardUrl,
-            contextKey: contextKey,
-            author: 'Anne Smith',
-            authorEmail: 'anne.smith@example.com',
-            createdDate: new Date('2024-06-02T14:15:00').getTime(),
-            deleted: false,
-            activeVersion: 1,
-            history: [
-              {
-                version: 1,
-                text: 'Great data, thanks for sharing!',
-                status: CommentStatus.PUBLISHED,
-                editedDate: new Date('2024-06-02T14:15:00').getTime(),
-                editedBy: 'Anne Smith',
-                publishedDate: new Date('2024-06-02T14:15:00').getTime(),
-                publishedBy: 'Admin',
-                deleted: false,
-              }
-            ],
-          },
-        ];
-        return scheduled([loadDashboardCommentsSuccess({comments: mockComments})], asyncScheduler);
+        return this._myDashboardsService.getDashboardComments(contextKey, dashboardId).pipe(
+          switchMap(comments => scheduled([loadDashboardCommentsSuccess({comments})], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
       })
     )
   });
@@ -220,42 +166,18 @@ export class MyDashboardsEffects {
   addComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(addComment),
-      withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, dashboardUrl, text, pointerUrl}, profile]) => {
-        // TODO: Replace with actual API call when backend is ready
-
-        // Temporary mock - simulating backend response
-        const authorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
-        const authorEmail = profile?.email || 'unknown@example.com';
-        const now = Date.now();
-
-        // New comment starts with version 1 as DRAFT in history
-        const mockComment: CommentEntry = {
-          id: crypto.randomUUID(),
-          dashboardId: dashboardId,
-          dashboardUrl: dashboardUrl,
-          contextKey: contextKey,
-          pointerUrl: pointerUrl,
-          author: authorName,
-          authorEmail: authorEmail,
-          createdDate: now,
-          deleted: false,
-          activeVersion: 1,
-          history: [
-            {
-              version: 1,
-              text: text,
-              status: CommentStatus.DRAFT,
-              editedDate: now,
-              editedBy: authorName,
-              deleted: false,
-            }
-          ],
-        };
-        return scheduled([
-          addCommentSuccess({comment: mockComment}),
-          showSuccess({message: '@Comment added successfully'})
-        ], asyncScheduler);
+      switchMap(({dashboardId, contextKey, dashboardUrl, text, pointerUrl}) => {
+        return this._myDashboardsService.createComment(contextKey, dashboardId, {
+          dashboardUrl,
+          pointerUrl,
+          text
+        }).pipe(
+          switchMap(comment => scheduled([
+            addCommentSuccess({comment}),
+            showSuccess({message: '@Comment added successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
       })
     )
   });
@@ -263,41 +185,19 @@ export class MyDashboardsEffects {
   updateComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(updateComment),
-      withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl}, profile]) => {
-        // TODO: Replace with actual API call when backend is ready
-
-        // For DRAFT comments - update text in the active version
-        const editorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
-
-        return this._store.select(state =>
-          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
-        ).pipe(
-          take(1),
-          switchMap(existingComment => {
-            if (existingComment) {
-              // Update the active version in history
-              const updatedHistory = existingComment.history.map(v =>
-                v.version === existingComment.activeVersion
-                  ? {...v, text, editedDate: Date.now(), editedBy: editorName}
-                  : v
-              );
-
-              const updatedComment: CommentEntry = {
-                ...existingComment,
-                pointerUrl: pointerUrl,
-                history: updatedHistory,
-              };
-              return scheduled([
-                updateCommentSuccess({comment: updatedComment}),
-                showSuccess({message: '@Comment updated successfully'})
-              ], asyncScheduler);
-            }
-            return scheduled([
-              updateCommentError({error: 'Comment not found'}),
-              showError({error: 'Comment not found'})
-            ], asyncScheduler);
-          })
+      switchMap(({dashboardId, contextKey, commentId, text, pointerUrl}) => {
+        return this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, {
+          text,
+          pointerUrl
+        }).pipe(
+          switchMap(comment => scheduled([
+            updateCommentSuccess({comment}),
+            showSuccess({message: '@Comment updated successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([
+            updateCommentError({error: e}),
+            showError({error: e})
+          ], asyncScheduler))
         );
       })
     )
@@ -306,58 +206,23 @@ export class MyDashboardsEffects {
   deleteComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteComment),
-      withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
-        // TODO: Replace with actual API call when backend is ready
-
-        const deleterName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
-
-        return this._store.select(state =>
-          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
-        ).pipe(
-          take(1),
-          switchMap(existingComment => {
-            if (!existingComment) {
-              return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
-            }
-
-            // Mark current active version as deleted in history
-            const updatedHistory = existingComment.history.map(v =>
-              v.version === existingComment.activeVersion ? {...v, deleted: true} : v
-            );
-
-            // Find last non-deleted PUBLISHED version to restore
-            const lastPublishedVersion = [...updatedHistory]
-              .reverse()
-              .find(v => v.status === CommentStatus.PUBLISHED && !v.deleted);
-
-            if (lastPublishedVersion) {
-              // Restore to last published version
-              const updatedComment: CommentEntry = {
-                ...existingComment,
-                activeVersion: lastPublishedVersion.version,
-                history: updatedHistory,
-              };
+      switchMap(({dashboardId, contextKey, commentId}) => {
+        return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId).pipe(
+          switchMap(restoredComment => {
+            // Check if comment was soft deleted or restored to previous version
+            if (restoredComment.deleted) {
               return scheduled([
-                deleteCommentSuccess({commentId, restoredComment: updatedComment}),
-                showSuccess({message: '@Comment version restored'})
-              ], asyncScheduler);
-            } else {
-              // Deleting a draft with no published versions - soft delete entire comment
-              // Or no versions left - soft delete entire comment
-              const updatedComment: CommentEntry = {
-                ...existingComment,
-                deleted: true,
-                deletedDate: Date.now(),
-                deletedBy: deleterName,
-                history: updatedHistory,
-              };
-              return scheduled([
-                deleteCommentSuccess({commentId, restoredComment: updatedComment}),
+                deleteCommentSuccess({commentId, restoredComment}),
                 showSuccess({message: '@Comment deleted successfully'})
               ], asyncScheduler);
+            } else {
+              return scheduled([
+                deleteCommentSuccess({commentId, restoredComment}),
+                showSuccess({message: '@Comment version restored'})
+              ], asyncScheduler);
             }
-          })
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
     )
@@ -366,37 +231,13 @@ export class MyDashboardsEffects {
   publishComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(publishComment),
-      withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
-        // TODO: Replace with actual API call when backend is ready
-
-        const publisherName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
-        const now = Date.now();
-
-        return this._store.select(state =>
-          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
-        ).pipe(
-          take(1),
-          switchMap(existingComment => {
-            if (existingComment) {
-              // Update active version to PUBLISHED
-              const updatedHistory = existingComment.history.map(v =>
-                v.version === existingComment.activeVersion
-                  ? {...v, status: CommentStatus.PUBLISHED, publishedDate: now, publishedBy: publisherName}
-                  : v
-              );
-
-              const updatedComment: CommentEntry = {
-                ...existingComment,
-                history: updatedHistory,
-              };
-              return scheduled([
-                publishCommentSuccess({comment: updatedComment}),
-                showSuccess({message: '@Comment published successfully'})
-              ], asyncScheduler);
-            }
-            return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
-          })
+      switchMap(({dashboardId, contextKey, commentId}) => {
+        return this._myDashboardsService.publishComment(contextKey, dashboardId, commentId).pipe(
+          switchMap(comment => scheduled([
+            publishCommentSuccess({comment}),
+            showSuccess({message: '@Comment published successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
     )
@@ -405,34 +246,13 @@ export class MyDashboardsEffects {
   unpublishComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(unpublishComment),
-      withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId}, profile]) => {
-        // TODO: Replace with actual API call when backend is ready
-
-        return this._store.select(state =>
-          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
-        ).pipe(
-          take(1),
-          switchMap(existingComment => {
-            if (existingComment) {
-              // Change active version status to DRAFT
-              const updatedHistory = existingComment.history.map(v =>
-                v.version === existingComment.activeVersion
-                  ? {...v, status: CommentStatus.DRAFT, publishedDate: undefined, publishedBy: undefined}
-                  : v
-              );
-
-              const updatedComment: CommentEntry = {
-                ...existingComment,
-                history: updatedHistory,
-              };
-              return scheduled([
-                unpublishCommentSuccess({comment: updatedComment}),
-                showSuccess({message: '@Comment unpublished successfully'})
-              ], asyncScheduler);
-            }
-            return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
-          })
+      switchMap(({dashboardId, contextKey, commentId}) => {
+        return this._myDashboardsService.unpublishComment(contextKey, dashboardId, commentId).pipe(
+          switchMap(comment => scheduled([
+            unpublishCommentSuccess({comment}),
+            showSuccess({message: '@Comment unpublished successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
     )
@@ -441,51 +261,16 @@ export class MyDashboardsEffects {
   cloneCommentForEdit$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(cloneCommentForEdit),
-      withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl}, profile]) => {
-        // TODO: Replace with actual API call when backend is ready
-
-        const editorName = profile ? `${profile.given_name} ${profile.family_name}` : 'Unknown User';
-        const now = Date.now();
-
-        return this._store.select(state =>
-          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
-        ).pipe(
-          take(1),
-          switchMap(existingComment => {
-            if (!existingComment) {
-              return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
-            }
-
-            const activeVersion = existingComment.history.find(v => v.version === existingComment.activeVersion);
-            if (!activeVersion || activeVersion.status !== CommentStatus.PUBLISHED) {
-              return scheduled([showError({error: 'Comment must be published to edit'})], asyncScheduler);
-            }
-
-            // Create new version as DRAFT
-            const newVersionNumber = Math.max(...existingComment.history.map(v => v.version)) + 1;
-            const newVersion: CommentVersion = {
-              version: newVersionNumber,
-              text: newText,
-              status: CommentStatus.DRAFT,
-              editedDate: now,
-              editedBy: editorName,
-              deleted: false,
-            };
-
-            const updatedComment: CommentEntry = {
-              ...existingComment,
-              pointerUrl: newPointerUrl ?? existingComment.pointerUrl,
-              activeVersion: newVersionNumber,
-              hasActiveDraft: true,
-              history: [...existingComment.history, newVersion],
-            };
-
-            return scheduled([
-              cloneCommentForEditSuccess({clonedComment: updatedComment, originalCommentId: existingComment.id}),
-              showSuccess({message: '@Comment edited successfully'})
-            ], asyncScheduler);
-          })
+      switchMap(({dashboardId, contextKey, commentId, newText, newPointerUrl}) => {
+        return this._myDashboardsService.cloneCommentForEdit(contextKey, dashboardId, commentId, {
+          text: newText,
+          pointerUrl: newPointerUrl
+        }).pipe(
+          switchMap(clonedComment => scheduled([
+            cloneCommentForEditSuccess({clonedComment, originalCommentId: commentId}),
+            showSuccess({message: '@Comment edited successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
     )
@@ -494,39 +279,13 @@ export class MyDashboardsEffects {
   restoreCommentVersion$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(restoreCommentVersion),
-      withLatestFrom(this._store.select(selectProfile)),
-      switchMap(([{dashboardId, contextKey, commentId, versionNumber}, profile]) => {
-        // TODO: Replace with actual API call when backend is ready
-
-        return this._store.select(state =>
-          state.myDashboards.currentDashboardComments.find(c => c.id === commentId)
-        ).pipe(
-          take(1),
-          switchMap(existingComment => {
-            if (!existingComment) {
-              return scheduled([showError({error: 'Comment not found'})], asyncScheduler);
-            }
-
-            const versionToRestore = existingComment.history.find(
-              v => v.version === versionNumber && v.status === CommentStatus.PUBLISHED && !v.deleted
-            );
-
-            if (!versionToRestore) {
-              return scheduled([showError({error: 'Version not found or not available'})], asyncScheduler);
-            }
-
-            // Simply change the active version - history stays the same
-            const restoredComment: CommentEntry = {
-              ...existingComment,
-              activeVersion: versionNumber,
-              hasActiveDraft: false,
-            };
-
-            return scheduled([
-              restoreCommentVersionSuccess({comment: restoredComment}),
-              showSuccess({message: '@Comment version restored successfully'})
-            ], asyncScheduler);
-          })
+      switchMap(({dashboardId, contextKey, commentId, versionNumber}) => {
+        return this._myDashboardsService.restoreVersion(contextKey, dashboardId, commentId, versionNumber).pipe(
+          switchMap(comment => scheduled([
+            restoreCommentVersionSuccess({comment}),
+            showSuccess({message: '@Comment version restored successfully'})
+          ], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
     )

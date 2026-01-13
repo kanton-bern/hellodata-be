@@ -38,8 +38,8 @@
 
 /* Layout for .embedded-dashboard - using normal flow for proper zoom scaling */
 #mainContentDiv:has(.embedded-dashboard) {
-  height: 90vh !important;
-  overflow-y: auto !important;
+  height: calc(100vh - 90px) !important;
+  overflow-y: hidden !important;
 }
 
 .p-button.p-button-icon-only.p-button-rounded {

@@ -32,6 +32,17 @@ import {CommentEntry, DataDomain} from "./my-dashboards.model";
 import {environment} from "../../../environments/environment";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
+export interface CommentCreateRequest {
+  dashboardUrl: string;
+  pointerUrl?: string;
+  text: string;
+}
+
+export interface CommentUpdateRequest {
+  text: string;
+  pointerUrl?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -55,15 +66,31 @@ export class MyDashboardsService {
     return this.httpClient.get<CommentEntry[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`);
   }
 
-  public addComment(contextKey: string, dashboardId: number, text: string): Observable<CommentEntry> {
-    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`, {text});
+  public createComment(contextKey: string, dashboardId: number, request: CommentCreateRequest): Observable<CommentEntry> {
+    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`, request);
   }
 
-  public updateComment(contextKey: string, dashboardId: number, commentId: string, text: string): Observable<CommentEntry> {
-    return this.httpClient.put<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, {text});
+  public updateComment(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<CommentEntry> {
+    return this.httpClient.put<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, request);
   }
 
-  public deleteComment(contextKey: string, dashboardId: number, commentId: string): Observable<void> {
-    return this.httpClient.delete<void>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`);
+  public deleteComment(contextKey: string, dashboardId: number, commentId: string): Observable<CommentEntry> {
+    return this.httpClient.delete<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`);
+  }
+
+  public publishComment(contextKey: string, dashboardId: number, commentId: string): Observable<CommentEntry> {
+    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/publish`, {});
+  }
+
+  public unpublishComment(contextKey: string, dashboardId: number, commentId: string): Observable<CommentEntry> {
+    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/unpublish`, {});
+  }
+
+  public cloneCommentForEdit(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<CommentEntry> {
+    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/clone`, request);
+  }
+
+  public restoreVersion(contextKey: string, dashboardId: number, commentId: string, versionNumber: number): Observable<CommentEntry> {
+    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/restore/${versionNumber}`, {});
   }
 }

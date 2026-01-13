@@ -7,7 +7,7 @@
 
     <div
       class="comments-panel h-full"
-      [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-2 comments-panel-closed'"
+      [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-1 comments-panel-closed'"
     >
       @if (!isCommentsOpen) {
         <div (click)="toggleComments()" (keydown)="toggleComments()"
