@@ -26,7 +26,7 @@
  */
 
 import {Component, computed, inject, input, output} from "@angular/core";
-import {AsyncPipe, DatePipe, SlicePipe} from "@angular/common";
+import {DatePipe, SlicePipe} from "@angular/common";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {CommentEntry, CommentStatus} from "../../../../store/my-dashboards/my-dashboards.model";
@@ -46,6 +46,7 @@ import {
   canEditComment,
   canPublishComment,
   canUnpublishComment,
+  canViewMetadataAndVersions,
   selectCurrentDashboardContextKey,
   selectCurrentDashboardId,
   selectCurrentDashboardUrl
@@ -67,7 +68,6 @@ import {Button} from "primeng/button";
     SlicePipe,
     Tooltip,
     TranslocoPipe,
-    AsyncPipe,
     Dialog,
     FormsModule,
     Textarea,
@@ -103,6 +103,7 @@ export class CommentEntryComponent {
   canPublishFn = this.store.selectSignal(canPublishComment);
   canUnpublishFn = this.store.selectSignal(canUnpublishComment);
   canDeleteFn = this.store.selectSignal(canDeleteComment);
+  canViewMetadata = this.store.selectSignal(canViewMetadataAndVersions);
 
   canEdit = computed(() => this.canEditFn()(this.comment()));
   canPublish = computed(() => this.canPublishFn()(this.comment()));

@@ -27,11 +27,13 @@
         }
       </small>
       <div class="comment-actions">
-        <button class="info-btn"
-                (click)="toggleDetails()"
-                (keydown)="onKeyDown($event, toggleDetails.bind(this))">
-          <i class="fa fa-info-circle"></i>
-        </button>
+        @if (canViewMetadata()) {
+          <button class="info-btn"
+                  (click)="toggleDetails()"
+                  (keydown)="onKeyDown($event, toggleDetails.bind(this))">
+            <i class="fa fa-info-circle"></i>
+          </button>
+        }
         @if (canEdit()) {
           <button class="edit-btn"
                   (click)="editComment()"
@@ -41,7 +43,7 @@
             <i class="fa-solid fa-pen"></i>
           </button>
         }
-        @if ((isSuperuser$ | async) && activeVersion()?.status === CommentStatus.DRAFT) {
+        @if (canPublish()) {
           <button class="publish-btn"
                   (click)="publishComment()"
                   (keydown)="onKeyDown($event, publishComment.bind(this))"
@@ -50,7 +52,7 @@
             <i class="fa-solid fa-cloud-arrow-up"></i>
           </button>
         }
-        @if ((isSuperuser$ | async) && activeVersion()?.status === CommentStatus.PUBLISHED) {
+        @if (canUnpublish()) {
           <button class="unpublish-btn"
                   (click)="unpublishComment()"
                   (keydown)="onKeyDown($event, unpublishComment.bind(this))"
@@ -106,7 +108,7 @@
                   <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
                     {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
                   </span>
-                  @if (!historyItem.isCurrentVersion && historyItem.status === CommentStatus.PUBLISHED && (isSuperuser$ | async)) {
+                  @if (!historyItem.isCurrentVersion && historyItem.status === CommentStatus.PUBLISHED && canViewMetadata()) {
                     <button class="restore-btn"
                             (click)="restoreVersion(historyItem.version)"
                             (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"

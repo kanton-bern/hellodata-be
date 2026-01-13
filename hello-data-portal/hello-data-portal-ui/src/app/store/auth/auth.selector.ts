@@ -28,7 +28,12 @@
 import {AppState} from "../app/app.state";
 import {createSelector} from "@ngrx/store";
 import {AuthState} from "./auth.state";
-import {BUSINESS_DOMAIN_ADMIN_ROLE, BUSINESS_DOMAIN_CONTEXT_TYPE} from "../users-management/users-management.model";
+import {
+  BUSINESS_DOMAIN_ADMIN_ROLE,
+  BUSINESS_DOMAIN_CONTEXT_TYPE,
+  DATA_DOMAIN_ADMIN_ROLE,
+  DATA_DOMAIN_CONTEXT_TYPE
+} from "../users-management/users-management.model";
 
 const authState = (state: AppState) => state.auth;
 
@@ -59,6 +64,20 @@ export const selectIsBusinessDomainAdmin = createSelector(
       return state.contextRoles.some(userContextRole => userContextRole.context.type === BUSINESS_DOMAIN_CONTEXT_TYPE && userContextRole.role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
     }
     return false;
+  }
+);
+
+export const selectIsDataDomainAdmin = (contextKey: string | undefined) => createSelector(
+  authState,
+  (state: AuthState) => {
+    if (!contextKey || state.contextRoles.length === 0) {
+      return false;
+    }
+    return state.contextRoles.some(userContextRole =>
+      userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+      userContextRole.context.contextKey === contextKey &&
+      userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+    );
   }
 );
 
