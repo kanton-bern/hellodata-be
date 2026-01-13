@@ -38,8 +38,10 @@
 
 /* Layout for embed-my-dashboard - using normal flow for proper zoom scaling */
 #mainContentDiv:has(app-embed-my-dashboard) {
-  height: calc(100vh - 90px); /* 60px header + 30px breadcrumb */
-  overflow: hidden;
+  //height: calc(100vh - 90px); /* 60px header + 30px breadcrumb */
+  //overflow: hidden;
+  height: 90vh;
+  overflow-y: auto;
 }
 
 .p-button.p-button-icon-only.p-button-rounded {
