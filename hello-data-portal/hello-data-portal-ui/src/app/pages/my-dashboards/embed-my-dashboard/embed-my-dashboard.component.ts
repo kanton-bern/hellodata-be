@@ -36,7 +36,12 @@ import {CommentsTogglePanelComponent} from "../comments-toggle-panel/comments-to
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {AppState} from "../../../store/app/app.state";
 import {OpenedSubsystemsService} from "../../../shared/services/opened-subsystems.service";
-import {selectCurrentMyDashboardInfo} from "../../../store/my-dashboards/my-dashboards.selector";
+import {
+  selectCurrentDashboardContextKey,
+  selectCurrentDashboardId,
+  selectCurrentDashboardUrl,
+  selectCurrentMyDashboardInfo
+} from "../../../store/my-dashboards/my-dashboards.selector";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../../app-navi-elements";
@@ -66,7 +71,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
       this.store.select(selectCurrentMyDashboardInfo),
       this.store.select(selectSelectedLanguage),
     ]).pipe(
-      filter(([dashboardInfo, selectedLanguage]) => selectedLanguage !== null),
+      filter(([_dashboardInfo, selectedLanguage]) => selectedLanguage !== null),
       tap(([dashboardInfo, selectedLanguage]) => {
         if (dashboardInfo) {
           this.load(dashboardInfo, selectedLanguage.code as string);
@@ -82,6 +87,21 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
 
   toggleComments(): void {
     this.isCommentsOpen = !this.isCommentsOpen;
+
+    // Load fresh comments when opening the panel
+    if (this.isCommentsOpen) {
+      combineLatest([
+        this.store.select(selectCurrentDashboardId),
+        this.store.select(selectCurrentDashboardContextKey),
+        this.store.select(selectCurrentDashboardUrl)
+      ]).pipe(
+        filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null)
+      ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
+        if (dashboardId && contextKey && dashboardUrl) {
+          this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+        }
+      }).unsubscribe();
+    }
   }
 
   private load(dashboardInfo: any, selectedLanguage: string) {
