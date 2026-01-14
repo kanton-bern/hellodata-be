@@ -577,5 +577,69 @@ class CommentServiceTest {
             assertThat(comments).isEmpty();
         }
     }
+
+    @Test
+    void getComments_shouldShowLastPublishedVersionToNonAdminWhenActiveVersionIsSomeoneElsesDraft() {
+        // Scenario: showcase-viewer creates a comment, admin publishes it, then showcase-viewer edits it (creating a draft)
+        // Other users (showcase-editor) should still see the last published version
+
+        final String AUTHOR_EMAIL = "showcase-viewer@example.com";
+        final String AUTHOR_NAME = "Showcase Viewer";
+        final String OTHER_USER_EMAIL = "showcase-editor@example.com";
+        final String OTHER_USER_NAME = "Showcase Editor";
+
+        // Step 1: Author creates a comment
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(AUTHOR_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(AUTHOR_NAME);
+
+            CommentCreateDto createDto = CommentCreateDto.builder()
+                    .text("Original comment text")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .pointerUrl(TEST_POINTER_URL)
+                    .build();
+
+            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+
+            // Step 2: Admin publishes the comment
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            // Step 3: Author edits the published comment (creates a new draft version)
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(AUTHOR_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(AUTHOR_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId,
+                    "Edited comment text - this is a draft", TEST_POINTER_URL);
+
+            // Step 4: Other non-admin user (showcase-editor) requests comments
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(OTHER_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(OTHER_USER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity otherUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(OTHER_USER_EMAIL)).thenReturn(Optional.of(otherUser));
+
+            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            // Verify: Other user should see the comment with the last published version (v1), not the draft (v2)
+            assertThat(comments).hasSize(1);
+            CommentDto visibleComment = comments.get(0);
+            assertThat(visibleComment.getActiveVersion()).isEqualTo(1); // Should show v1 (published)
+
+            // Find the active version in history
+            CommentVersionDto visibleVersion = visibleComment.getHistory().stream()
+                    .filter(v -> v.getVersion() == visibleComment.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+
+            assertThat(visibleVersion.getText()).isEqualTo("Original comment text");
+            assertThat(visibleVersion.getStatus()).isEqualTo(CommentStatus.PUBLISHED);
+        }
+    }
 }
 

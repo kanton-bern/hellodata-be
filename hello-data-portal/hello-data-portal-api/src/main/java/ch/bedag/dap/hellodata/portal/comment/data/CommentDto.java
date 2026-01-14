@@ -34,7 +34,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDto {

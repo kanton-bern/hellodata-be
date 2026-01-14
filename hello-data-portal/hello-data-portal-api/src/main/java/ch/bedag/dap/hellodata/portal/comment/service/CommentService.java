@@ -75,6 +75,7 @@ public class CommentService {
      * - All users can see published comments
      * - Users can see their own drafts
      * - Admins (superuser, business_domain_admin, data_domain_admin) can see all drafts
+     * - If active version is a draft by someone else, non-admins see the last published version instead
      */
     public List<CommentDto> getComments(String contextKey, int dashboardId) {
         String key = buildKey(contextKey, dashboardId);
@@ -82,37 +83,77 @@ public class CommentService {
 
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         String currentUserFullName = SecurityUtils.getCurrentUserFullName();
-        boolean isSuperuser = SecurityUtils.isSuperuser();
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
 
-        // Fetch user entity once to check roles
-        boolean isAdmin = isSuperuser || isAdminForContext(currentUserEmail, contextKey);
-
-        // Filter: show non-deleted comments
+        // Filter and transform comments based on user permissions
         return comments.stream()
                 .filter(c -> !c.isDeleted())
-                .filter(c -> {
-                    CommentVersionDto activeVersion = getActiveVersion(c);
-                    if (activeVersion == null || activeVersion.isDeleted()) return false;
-
-                    // Published comments are visible to everyone
-                    if (activeVersion.getStatus() == CommentStatus.PUBLISHED) {
-                        return true;
-                    }
-
-                    // For drafts: check if user is admin or if draft was created/edited by current user
-                    if (activeVersion.getStatus() == CommentStatus.DRAFT) {
-                        if (isAdmin) {
-                            // Admins can see all drafts
-                            return true;
-                        }
-                        // Non-admins can only see drafts they created or edited
-                        return (currentUserEmail != null && currentUserEmail.equals(c.getAuthorEmail())) ||
-                                (currentUserFullName != null && currentUserFullName.equals(activeVersion.getEditedBy()));
-                    }
-
-                    return false;
-                })
+                .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
+                .filter(Objects::nonNull)
                 .toList();
+    }
+
+    /**
+     * Filter a single comment based on user permissions.
+     * Returns the comment if visible, or null if should be hidden.
+     */
+    private CommentDto filterCommentByPermissions(CommentDto comment, String userEmail, String userFullName, boolean isAdmin) {
+        CommentVersionDto activeVersion = getActiveVersion(comment);
+        if (activeVersion == null || activeVersion.isDeleted()) {
+            return null;
+        }
+
+        // Published comments are visible to everyone
+        if (activeVersion.getStatus() == CommentStatus.PUBLISHED) {
+            return comment;
+        }
+
+        // Handle draft comments
+        if (activeVersion.getStatus() == CommentStatus.DRAFT) {
+            return handleDraftComment(comment, activeVersion, userEmail, userFullName, isAdmin);
+        }
+
+        return null;
+    }
+
+    /**
+     * Handle visibility logic for draft comments.
+     */
+    private CommentDto handleDraftComment(CommentDto comment, CommentVersionDto activeVersion,
+                                          String userEmail, String userFullName, boolean isAdmin) {
+        // Admins can see all drafts
+        if (isAdmin) {
+            return comment;
+        }
+
+        // Check if this is user's own draft
+        if (isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
+            return comment;
+        }
+
+        // For drafts by others, show the last published version if it exists
+        return showLastPublishedVersion(comment);
+    }
+
+    /**
+     * Check if the draft belongs to the current user.
+     */
+    private boolean isOwnDraft(CommentDto comment, CommentVersionDto activeVersion, String userEmail, String userFullName) {
+        return (userEmail != null && userEmail.equals(comment.getAuthorEmail())) ||
+                (userFullName != null && userFullName.equals(activeVersion.getEditedBy()));
+    }
+
+    /**
+     * Create a copy of the comment showing the last published version, or null if none exists.
+     */
+    private CommentDto showLastPublishedVersion(CommentDto comment) {
+        CommentVersionDto lastPublishedVersion = findLastPublishedVersion(comment);
+        if (lastPublishedVersion != null) {
+            return comment.toBuilder()
+                    .activeVersion(lastPublishedVersion.getVersion())
+                    .build();
+        }
+        return null;
     }
 
     /**
@@ -441,6 +482,16 @@ public class CommentService {
         log.info("Restored comment {} to version {} for dashboard {}/{}",
                 commentId, versionNumber, contextKey, dashboardId);
         return comment;
+    }
+
+    /**
+     * Find the last published (non-deleted) version in the comment's history.
+     */
+    private CommentVersionDto findLastPublishedVersion(CommentDto comment) {
+        return comment.getHistory().stream()
+                .filter(v -> v.getStatus() == CommentStatus.PUBLISHED && !v.isDeleted())
+                .max((v1, v2) -> Integer.compare(v1.getVersion(), v2.getVersion()))
+                .orElse(null);
     }
 
     private CommentVersionDto getActiveVersion(CommentDto comment) {
