@@ -120,3 +120,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/45_remove_deprecated_faq.xml
   - include:
       file: db/changelog/changelogs/46_remove_deprecated_documentation.xml
+  - include:
+      file: db/changelog/changelogs/47_create_dashboard_comments_tables.xml

@@ -28,6 +28,8 @@ package ch.bedag.dap.hellodata.portal.comment.service;
 
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.comment.data.*;
+import ch.bedag.dap.hellodata.portal.comment.mapper.CommentMapper;
+import ch.bedag.dap.hellodata.portal.comment.repository.CommentRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +54,12 @@ class CommentServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private CommentRepository commentRepository;
+
+    @Mock
+    private CommentMapper commentMapper;
+
     private CommentService commentService;
 
     private static final String TEST_CONTEXT_KEY = "test-context";
@@ -65,7 +73,7 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() {
-        commentService = new CommentService(userRepository);
+        commentService = new CommentService(userRepository, commentRepository, commentMapper);
     }
 
     @Test

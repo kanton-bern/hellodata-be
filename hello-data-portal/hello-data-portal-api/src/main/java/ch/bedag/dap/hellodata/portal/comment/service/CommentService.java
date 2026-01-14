@@ -29,46 +29,35 @@ package ch.bedag.dap.hellodata.portal.comment.service;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.comment.data.*;
+import ch.bedag.dap.hellodata.portal.comment.entity.CommentEntity;
+import ch.bedag.dap.hellodata.portal.comment.entity.CommentVersionEntity;
+import ch.bedag.dap.hellodata.portal.comment.mapper.CommentMapper;
+import ch.bedag.dap.hellodata.portal.comment.repository.CommentRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Service for managing dashboard comments.
- * Currently uses in-memory mock storage.
- * TODO: Implement communication with superset sidecar via NATS.
+ * Service for managing dashboard comments with database persistence.
  */
 @Log4j2
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CommentService {
 
-    private static final String COMMENT_NOT_FOUND_ERROR = "Comment not found";
+    private static final String COMMENT_NOT_FOUND_ERROR = "CommentEntity not found";
 
     private final UserRepository userRepository;
-
-    // In-memory mock storage - key is "contextKey:dashboardId"
-    private final Map<String, List<CommentDto>> commentsStore = new ConcurrentHashMap<>();
-
-    // Initialize with some mock data
-    {
-        initMockData();
-    }
-
-    private void initMockData() {
-        // Initial mock comments will be created dynamically when first dashboard is accessed
-    }
-
-    private String buildKey(String contextKey, int dashboardId) {
-        return contextKey + ":" + dashboardId;
-    }
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     /**
      * Get all comments for a dashboard. Filters based on user permissions.
@@ -77,16 +66,17 @@ public class CommentService {
      * - Admins (superuser, business_domain_admin, data_domain_admin) can see all drafts
      * - If active version is a draft by someone else, non-admins see the last published version instead
      */
+    @Transactional(readOnly = true)
     public List<CommentDto> getComments(String contextKey, int dashboardId) {
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.getOrDefault(key, new ArrayList<>());
+        List<CommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
 
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         String currentUserFullName = SecurityUtils.getCurrentUserFullName();
         boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
 
-        // Filter and transform comments based on user permissions
+        // Convert to DTOs, filter and transform comments based on user permissions
         return comments.stream()
+                .map(commentMapper::toDto)
                 .filter(c -> !c.isDeleted())
                 .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
                 .filter(Objects::nonNull)
@@ -189,22 +179,12 @@ public class CommentService {
      * Create a new comment.
      */
     public CommentDto createComment(String contextKey, int dashboardId, CommentCreateDto createDto) {
-        String key = buildKey(contextKey, dashboardId);
-
         String authorFullName = SecurityUtils.getCurrentUserFullName();
         String authorEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
 
-        CommentVersionDto version = CommentVersionDto.builder()
-                .version(1)
-                .text(createDto.getText())
-                .status(CommentStatus.DRAFT)
-                .editedDate(now)
-                .editedBy(authorFullName)
-                .deleted(false)
-                .build();
-
-        CommentDto comment = CommentDto.builder()
+        // Create comment entity
+        CommentEntity comment = CommentEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .dashboardId(dashboardId)
                 .dashboardUrl(createDto.getDashboardUrl())
@@ -216,30 +196,33 @@ public class CommentService {
                 .deleted(false)
                 .activeVersion(1)
                 .hasActiveDraft(false)
-                .history(new ArrayList<>(List.of(version)))
-                .entityVersion(0) // Initial version
+                .entityVersion(0L) // Initial version
                 .build();
 
-        commentsStore.computeIfAbsent(key, k -> new ArrayList<>()).add(comment);
+        // Create first version
+        CommentVersionEntity version = CommentVersionEntity.builder()
+                .version(1)
+                .text(createDto.getText())
+                .status(CommentStatus.DRAFT)
+                .editedDate(now)
+                .editedBy(authorFullName)
+                .deleted(false)
+                .build();
 
-        log.info("Created comment {} for dashboard {}/{}", comment.getId(), contextKey, dashboardId);
-        return comment;
+        comment.addVersion(version);
+
+        // Save to database
+        CommentEntity savedComment = commentRepository.save(comment);
+
+        log.info("Created comment {} for dashboard {}/{}", savedComment.getId(), contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
     }
 
     /**
      * Update an existing comment (for DRAFT status).
      */
     public CommentDto updateComment(String contextKey, int dashboardId, String commentId, CommentUpdateDto updateDto) {
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.get(key);
-
-        if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
-        }
-
-        CommentDto comment = comments.stream()
-                .filter(c -> c.getId().equals(commentId))
-                .findFirst()
+        CommentEntity comment = commentRepository.findByIdWithHistory(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can update
@@ -262,7 +245,7 @@ public class CommentService {
             }
 
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Comment was modified by another user. Please refresh and try again.");
+                    "CommentEntity was modified by another user. Please refresh and try again.");
         }
 
         // Update the active version in history
@@ -270,7 +253,7 @@ public class CommentService {
         long now = System.currentTimeMillis();
 
         comment.getHistory().stream()
-                .filter(v -> v.getVersion() == comment.getActiveVersion())
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
                 .findFirst()
                 .ifPresent(v -> {
                     v.setText(updateDto.getText());
@@ -278,27 +261,22 @@ public class CommentService {
                     v.setEditedBy(editorName);
                 });
 
-        comment.setPointerUrl(updateDto.getPointerUrl());
-        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
+        if (updateDto.getPointerUrl() != null) {
+            comment.setPointerUrl(updateDto.getPointerUrl());
+        }
+
+        // Entity version will be incremented automatically by @Version annotation
+        CommentEntity savedComment = commentRepository.save(comment);
 
         log.info("Updated comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-        return comment;
+        return commentMapper.toDto(savedComment);
     }
 
     /**
      * Delete a comment (soft delete).
      */
     public CommentDto deleteComment(String contextKey, int dashboardId, String commentId) {
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.get(key);
-
-        if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
-        }
-
-        CommentDto comment = comments.stream()
-                .filter(c -> c.getId().equals(commentId))
-                .findFirst()
+        CommentEntity comment = commentRepository.findByIdWithHistory(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can delete
@@ -313,12 +291,12 @@ public class CommentService {
 
         // Mark current active version as deleted
         comment.getHistory().stream()
-                .filter(v -> v.getVersion() == comment.getActiveVersion())
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
                 .findFirst()
                 .ifPresent(v -> v.setDeleted(true));
 
         // Try to find last non-deleted PUBLISHED version
-        Optional<CommentVersionDto> lastPublished = comment.getHistory().stream()
+        Optional<CommentVersionEntity> lastPublished = comment.getHistory().stream()
                 .filter(v -> v.getStatus() == CommentStatus.PUBLISHED && !v.isDeleted())
                 .reduce((first, second) -> second); // Get last one
 
@@ -336,35 +314,27 @@ public class CommentService {
             log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         }
 
-        return comment;
+        CommentEntity savedComment = commentRepository.save(comment);
+        return commentMapper.toDto(savedComment);
     }
 
     /**
      * Publish a comment (change status from DRAFT to PUBLISHED).
      */
     public CommentDto publishComment(String contextKey, int dashboardId, String commentId) {
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.get(key);
-
-        if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
-        }
+        CommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Only superuser can publish
         if (!SecurityUtils.isSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only superusers can publish comments");
         }
 
-        CommentDto comment = comments.stream()
-                .filter(c -> c.getId().equals(commentId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
         String publisherName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
         comment.getHistory().stream()
-                .filter(v -> v.getVersion() == comment.getActiveVersion())
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
                 .findFirst()
                 .ifPresent(v -> {
                     v.setStatus(CommentStatus.PUBLISHED);
@@ -373,35 +343,26 @@ public class CommentService {
                 });
 
         comment.setHasActiveDraft(false);
-        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
+        CommentEntity savedComment = commentRepository.save(comment);
         log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-        return comment;
+        return commentMapper.toDto(savedComment);
     }
 
     /**
      * Unpublish a comment (change status from PUBLISHED to DRAFT).
      */
     public CommentDto unpublishComment(String contextKey, int dashboardId, String commentId) {
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.get(key);
-
-        if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
-        }
+        CommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Only superuser can unpublish
         if (!SecurityUtils.isSuperuser()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only superusers can unpublish comments");
         }
 
-        CommentDto comment = comments.stream()
-                .filter(c -> c.getId().equals(commentId))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
         comment.getHistory().stream()
-                .filter(v -> v.getVersion() == comment.getActiveVersion())
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
                 .findFirst()
                 .ifPresent(v -> {
                     v.setStatus(CommentStatus.DRAFT);
@@ -409,10 +370,9 @@ public class CommentService {
                     v.setPublishedBy(null);
                 });
 
-        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
-
+        CommentEntity savedComment = commentRepository.save(comment);
         log.info("Unpublished comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-        return comment;
+        return commentMapper.toDto(savedComment);
     }
 
     /**
@@ -421,24 +381,13 @@ public class CommentService {
      */
     public CommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
                                           String newText, String newPointerUrl) {
-        // First, get the current comment to fetch its entityVersion
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.get(key);
-
-        if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
-        }
-
-        CommentDto comment = comments.stream()
-                .filter(c -> c.getId().equals(commentId))
-                .findFirst()
+        CommentEntity comment = commentRepository.findByIdWithHistory(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Delegate to the version that accepts CommentUpdateDto with current entityVersion
         CommentUpdateDto updateDto = CommentUpdateDto.builder()
                 .text(newText)
                 .pointerUrl(newPointerUrl)
-                .entityVersion(comment.getEntityVersion()) // Use current version
+                .entityVersion(comment.getEntityVersion())
                 .build();
         return cloneCommentForEdit(contextKey, dashboardId, commentId, updateDto);
     }
@@ -448,16 +397,7 @@ public class CommentService {
      */
     public CommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
                                           CommentUpdateDto updateDto) {
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.get(key);
-
-        if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
-        }
-
-        CommentDto comment = comments.stream()
-                .filter(c -> c.getId().equals(commentId))
-                .findFirst()
+        CommentEntity comment = commentRepository.findByIdWithHistory(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can edit
@@ -472,7 +412,6 @@ public class CommentService {
         long providedVersion = updateDto.getEntityVersion();
 
         if (currentVersion != providedVersion) {
-            // Log suspicious attempts with extremely high version numbers (potential attack)
             long versionDiff = Math.abs(currentVersion - providedVersion);
             if (versionDiff > 100) {
                 log.warn("Suspicious entity version mismatch detected for comment clone/edit {}. Current: {}, Provided: {}, Difference: {}, User: {}",
@@ -480,24 +419,24 @@ public class CommentService {
             }
 
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Comment was modified by another user. Please refresh and try again.");
+                    "CommentEntity was modified by another user. Please refresh and try again.");
         }
 
         // Now check business validation
-        CommentVersionDto activeVersion = getActiveVersion(comment);
+        CommentVersionDto activeVersion = getActiveVersion(commentMapper.toDto(comment));
         if (activeVersion == null || activeVersion.getStatus() != CommentStatus.PUBLISHED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment must be published to create a new edit version");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CommentEntity must be published to create a new edit version");
         }
 
         String editorName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
         int newVersionNumber = comment.getHistory().stream()
-                .mapToInt(CommentVersionDto::getVersion)
+                .mapToInt(CommentVersionEntity::getVersion)
                 .max()
                 .orElse(0) + 1;
 
-        CommentVersionDto newVersion = CommentVersionDto.builder()
+        CommentVersionEntity newVersion = CommentVersionEntity.builder()
                 .version(newVersionNumber)
                 .text(updateDto.getText())
                 .status(CommentStatus.DRAFT)
@@ -506,36 +445,24 @@ public class CommentService {
                 .deleted(false)
                 .build();
 
-        comment.getHistory().add(newVersion);
+        comment.addVersion(newVersion);
         comment.setActiveVersion(newVersionNumber);
         comment.setHasActiveDraft(true);
         if (updateDto.getPointerUrl() != null) {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
-        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
+        CommentEntity savedComment = commentRepository.save(comment);
         log.info("Created new version {} for comment {} on dashboard {}/{}",
                 newVersionNumber, commentId, contextKey, dashboardId);
-        return comment;
+        return commentMapper.toDto(savedComment);
     }
 
-    /**
-     * Restore a specific version from the comment history.
-     */
     /**
      * Restore a specific version of a comment.
      */
     public CommentDto restoreVersion(String contextKey, int dashboardId, String commentId, int versionNumber) {
-        String key = buildKey(contextKey, dashboardId);
-        List<CommentDto> comments = commentsStore.get(key);
-
-        if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
-        }
-
-        CommentDto comment = comments.stream()
-                .filter(c -> c.getId().equals(commentId))
-                .findFirst()
+        CommentEntity comment = commentRepository.findByIdWithHistory(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can restore
@@ -545,14 +472,13 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
         }
 
-
         comment.setActiveVersion(versionNumber);
         comment.setHasActiveDraft(false);
-        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
+        CommentEntity savedComment = commentRepository.save(comment);
         log.info("Restored comment {} to version {} for dashboard {}/{}",
                 commentId, versionNumber, contextKey, dashboardId);
-        return comment;
+        return commentMapper.toDto(savedComment);
     }
 
     /**

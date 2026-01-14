@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="47.1-create-dashboard-comment-table" author="hellodata">
+        <createTable tableName="dashboard_comment">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="dashboard_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dashboard_url" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_key" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pointer_url" type="VARCHAR(2000)"/>
+            <column name="author" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="author_email" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted_date" type="BIGINT"/>
+            <column name="deleted_by" type="VARCHAR(200)"/>
+            <column name="active_version" type="INT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="has_active_draft" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_version" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex indexName="idx_comment_dashboard_context" tableName="dashboard_comment">
+            <column name="dashboard_id"/>
+            <column name="context_key"/>
+        </createIndex>
+
+        <createIndex indexName="idx_comment_author_email" tableName="dashboard_comment">
+            <column name="author_email"/>
+        </createIndex>
+
+        <createIndex indexName="idx_comment_deleted" tableName="dashboard_comment">
+            <column name="deleted"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="47.2-create-comment-version-table" author="hellodata">
+        <createTable tableName="comment_version">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="comment_id" type="VARCHAR(36)">
+                <constraints nullable="false"
+                             foreignKeyName="fk_comment_version_comment"
+                             references="dashboard_comment(id)"
+                             deleteCascade="true"/>
+            </column>
+            <column name="version" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="edited_date" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="edited_by" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="published_date" type="BIGINT"/>
+            <column name="published_by" type="VARCHAR(200)"/>
+            <column name="deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex indexName="idx_version_comment_id" tableName="comment_version">
+            <column name="comment_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_version_status" tableName="comment_version">
+            <column name="status"/>
+        </createIndex>
+
+        <createIndex indexName="idx_version_deleted" tableName="comment_version">
+            <column name="deleted"/>
+        </createIndex>
+
+        <!-- Composite unique constraint to ensure unique version per comment -->
+        <addUniqueConstraint
+                tableName="comment_version"
+                columnNames="comment_id, version"
+                constraintName="uk_comment_version"/>
+    </changeSet>
+
+</databaseChangeLog>
+
