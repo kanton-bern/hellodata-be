@@ -57,6 +57,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.25rem;
+  flex: 1 1 auto;
+  min-width: 0;
 
   .author-name {
     cursor: pointer;
@@ -87,6 +89,7 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  margin-left: auto;
 
   button {
     display: inline-flex;
