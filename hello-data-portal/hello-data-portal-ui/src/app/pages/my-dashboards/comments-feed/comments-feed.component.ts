@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, ElementRef, inject, output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, effect, ElementRef, inject, output, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button} from "primeng/button";
@@ -46,6 +46,7 @@ import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
 import {CommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
 import {map, Observable} from "rxjs";
+import {toSignal} from "@angular/core/rxjs-interop";
 
 interface FilterOption {
   label: string;
@@ -93,6 +94,8 @@ export class CommentsFeed implements AfterViewInit {
   selectedQuarter: number | null = null;
 
   filteredComments$: Observable<CommentEntry[]>;
+  // Signal to track filtered comments for auto-scroll
+  private filteredCommentsSignal;
 
   newCommentText = '';
   pointerUrl = '';
@@ -114,6 +117,22 @@ export class CommentsFeed implements AfterViewInit {
     this.filteredComments$ = this.comments$.pipe(
       map(comments => this.filterComments(comments))
     );
+
+    // Re-assign signal after filteredComments$ is initialized
+    this.filteredCommentsSignal = toSignal(this.filteredComments$);
+
+    // Auto-scroll to bottom when comments change
+    effect(() => {
+      // Read the signal to track changes
+      const comments = this.filteredCommentsSignal();
+
+      // Add delay to ensure DOM is fully updated with new comments
+      if (comments && comments.length > 0) {
+        setTimeout(() => {
+          this.scrollToBottom();
+        }, 150);
+      }
+    });
   }
 
   /**
@@ -181,6 +200,9 @@ export class CommentsFeed implements AfterViewInit {
     this.filteredComments$ = this.comments$.pipe(
       map(comments => this.filterComments(comments))
     );
+
+    // Reassign signal when filters change
+    this.filteredCommentsSignal = toSignal(this.filteredComments$);
   }
 
   private filterComments(comments: CommentEntry[]): CommentEntry[] {
@@ -251,9 +273,8 @@ export class CommentsFeed implements AfterViewInit {
     this.pointerUrl = '';
     this.showPointerUrlInput = false;
 
-    setTimeout(() => {
-      this.scrollToBottom();
-    });
+    // No need for manual scroll - effect() will handle it automatically
+    // when comments list updates from backend
   }
 
   onPointerUrlClick(url: string): void {
@@ -264,9 +285,17 @@ export class CommentsFeed implements AfterViewInit {
     const container = this.scrollContainer?.nativeElement;
     if (!container) return;
 
-    container.scrollTo({
-      top: container.scrollHeight,
-      behavior: 'smooth'
+    // Use double requestAnimationFrame to ensure DOM is fully rendered
+    // First frame: DOM updates are scheduled
+    // Second frame: DOM is actually rendered
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // Scroll to maximum possible value to ensure we reach the bottom
+        container.scrollTo({
+          top: container.scrollHeight + 1000, // Add extra offset to guarantee we reach the bottom
+          behavior: 'smooth'
+        });
+      });
     });
   }
 }
