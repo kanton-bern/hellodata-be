@@ -173,81 +173,20 @@ export const selectCurrentDashboardComments = createSelector(
 const getActiveVersion = (comment: CommentEntry): CommentVersion | undefined =>
   comment.history.find(v => v.version === comment.activeVersion);
 
-// Helper function to find latest published version
-const findLatestPublishedVersion = (comment: CommentEntry): CommentVersion | undefined => {
-  const publishedVersions = comment.history
-    .filter(v => v.status === CommentStatus.PUBLISHED && !v.deleted)
-    .sort((a, b) => b.version - a.version);
-  return publishedVersions.length > 0 ? publishedVersions[0] : undefined;
-};
-
-// Helper function to find user's own draft
-const findOwnDraft = (comment: CommentEntry, currentUserEmail: string): CommentVersion | undefined =>
-  comment.history.find(v =>
-    v.status === CommentStatus.DRAFT &&
-    !v.deleted &&
-    comment.authorEmail === currentUserEmail
-  );
-
-// Helper function to determine visible version for non-admin users
-const getVisibleVersionForNonAdmin = (
-  comment: CommentEntry,
-  currentActive: CommentVersion | undefined,
-  currentUserEmail: string
-): CommentVersion | undefined => {
-  if (!currentActive) return undefined;
-
-  if (currentActive.status === CommentStatus.DRAFT) {
-    // Check if this draft belongs to the current user by checking comment's author
-    const isDraftByCurrentUser = comment.authorEmail === currentUserEmail;
-
-    if (isDraftByCurrentUser) {
-      return currentActive;
-    }
-
-    // Show latest published version or user's own draft if no published version exists
-    return findLatestPublishedVersion(comment) ?? findOwnDraft(comment, currentUserEmail);
-  }
-
-  return currentActive;
-};
-
 export const selectVisibleComments = createSelector(
   selectCurrentDashboardComments,
-  selectCurrentDashboardContextKey,
-  selectProfile,
-  selectIsSuperuser,
-  selectIsBusinessDomainAdmin,
-  (state: AppState) => state.auth,
-  (comments, contextKey, profile, isSuperuser, isBusinessDomainAdmin, authState) => {
-    const currentUserEmail = profile?.email;
-    if (!currentUserEmail) return [];
-
-    // Check if user is data_domain_admin for this specific context
-    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
-      ? authState.contextRoles.some(userContextRole =>
-        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
-        userContextRole.context.contextKey === contextKey &&
-        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
-      )
-      : false;
-
-    const isAdmin = isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
-
+  (comments) => {
+    // Backend already filters comments based on user permissions
+    // Just ensure we're showing the correct active version for each comment
     return comments
+      .filter(comment => !comment.deleted)
       .map(comment => {
-        if (comment.deleted) return null;
-
         const currentActive = getActiveVersion(comment);
-        const activeVersion = isAdmin
-          ? currentActive
-          : getVisibleVersionForNonAdmin(comment, currentActive, currentUserEmail);
-
-        if (!activeVersion || activeVersion.deleted) return null;
+        if (!currentActive || currentActive.deleted) return null;
 
         return {
           ...comment,
-          activeVersion: activeVersion.version
+          activeVersion: currentActive.version
         };
       })
       .filter((c): c is CommentEntry => c !== null)
