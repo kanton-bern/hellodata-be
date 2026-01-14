@@ -30,6 +30,7 @@ import {createAction, props} from "@ngrx/store";
 export enum AppActionType {
   APP_SHOW_INFO = '[APP] Show info',
   APP_SHOW_SUCCESS = '[APP] Show success',
+  APP_SHOW_WARNING = '[APP] Show warning',
   APP_SHOW_ERROR = '[APP] Show error',
   APP_LOG_ERROR = '[APP] log error',
   NAVIGATE = '[APP] Navigate',
@@ -56,6 +57,11 @@ export const showInfo = createAction(
 
 export const showSuccess = createAction(
   AppActionType.APP_SHOW_SUCCESS,
+  props<{ message: string, interpolateParams?: Record<string, unknown> }>()
+);
+
+export const showWarning = createAction(
+  AppActionType.APP_SHOW_WARNING,
   props<{ message: string, interpolateParams?: Record<string, unknown> }>()
 );
 

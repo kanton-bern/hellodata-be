@@ -41,6 +41,7 @@ export interface CommentCreateRequest {
 export interface CommentUpdateRequest {
   text: string;
   pointerUrl?: string;
+  entityVersion: number;
 }
 
 @Injectable({

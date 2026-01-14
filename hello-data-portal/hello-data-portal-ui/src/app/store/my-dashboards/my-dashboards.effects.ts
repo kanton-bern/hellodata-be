@@ -29,7 +29,7 @@ import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
+import {navigate, navigateToList, showError, showSuccess, showWarning, trackEvent} from "../app/app.action";
 import {
   addComment,
   addCommentSuccess,
@@ -191,10 +191,11 @@ export class MyDashboardsEffects {
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
-      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl}, dashboardUrl]) => {
+      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl, entityVersion}, dashboardUrl]) => {
         return this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, {
           text,
-          pointerUrl
+          pointerUrl,
+          entityVersion
         }).pipe(
           switchMap(comment => {
             const actions: any[] = [
@@ -206,10 +207,21 @@ export class MyDashboardsEffects {
             }
             return scheduled(actions, asyncScheduler);
           }),
-          catchError(e => scheduled([
-            updateCommentError({error: e}),
-            showError({error: e})
-          ], asyncScheduler))
+          catchError(e => {
+            const actions: any[] = [updateCommentError({error: e})];
+
+            // Handle optimistic locking conflict (409)
+            if (e.status === 409) {
+              actions.push(showWarning({message: '@Comment was modified by another user. Refreshing...'}));
+              if (dashboardUrl) {
+                actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+              }
+            } else {
+              actions.push(showError({error: e}));
+            }
+
+            return scheduled(actions, asyncScheduler);
+          })
         );
       })
     )
@@ -301,10 +313,11 @@ export class MyDashboardsEffects {
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
-      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl}, dashboardUrl]) => {
+      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl, entityVersion}, dashboardUrl]) => {
         return this._myDashboardsService.cloneCommentForEdit(contextKey, dashboardId, commentId, {
           text: newText,
-          pointerUrl: newPointerUrl
+          pointerUrl: newPointerUrl,
+          entityVersion
         }).pipe(
           switchMap(clonedComment => {
             const actions: any[] = [

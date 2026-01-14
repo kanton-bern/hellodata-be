@@ -217,6 +217,7 @@ public class CommentService {
                 .activeVersion(1)
                 .hasActiveDraft(false)
                 .history(new ArrayList<>(List.of(version)))
+                .entityVersion(0) // Initial version
                 .build();
 
         commentsStore.computeIfAbsent(key, k -> new ArrayList<>()).add(comment);
@@ -248,6 +249,12 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to update this comment");
         }
 
+        // Optimistic locking check
+        if (comment.getEntityVersion() != updateDto.getEntityVersion()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Comment was modified by another user. Please refresh and try again.");
+        }
+
         // Update the active version in history
         String editorName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
@@ -262,6 +269,7 @@ public class CommentService {
                 });
 
         comment.setPointerUrl(updateDto.getPointerUrl());
+        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
         log.info("Updated comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         return comment;
@@ -355,6 +363,7 @@ public class CommentService {
                 });
 
         comment.setHasActiveDraft(false);
+        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
         log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         return comment;
@@ -389,6 +398,8 @@ public class CommentService {
                     v.setPublishedDate(null);
                     v.setPublishedBy(null);
                 });
+
+        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
         log.info("Unpublished comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         return comment;
@@ -446,6 +457,7 @@ public class CommentService {
         if (newPointerUrl != null) {
             comment.setPointerUrl(newPointerUrl);
         }
+        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
         log.info("Created new version {} for comment {} on dashboard {}/{}",
                 newVersionNumber, commentId, contextKey, dashboardId);
@@ -478,6 +490,7 @@ public class CommentService {
 
         comment.setActiveVersion(versionNumber);
         comment.setHasActiveDraft(false);
+        comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
         log.info("Restored comment {} to version {} for dashboard {}/{}",
                 commentId, versionNumber, contextKey, dashboardId);

@@ -641,5 +641,125 @@ class CommentServiceTest {
             assertThat(visibleVersion.getStatus()).isEqualTo(CommentStatus.PUBLISHED);
         }
     }
+
+    @Test
+    void updateComment_shouldThrowConflictWhenEntityVersionMismatch() {
+        // Test optimistic locking - simulate two users editing the same comment concurrently
+
+        final String USER_EMAIL = "user@example.com";
+        final String USER_NAME = "Test User";
+
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+
+            // Step 1: Create a comment
+            CommentCreateDto createDto = CommentCreateDto.builder()
+                    .text("Original text")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .pointerUrl(TEST_POINTER_URL)
+                    .build();
+
+            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+            long initialVersion = comment.getEntityVersion();
+
+            assertThat(initialVersion).isZero(); // Initial version should be 0
+
+            // Step 2: User A retrieves the comment (entityVersion = 0)
+            CommentUpdateDto userAUpdate = CommentUpdateDto.builder()
+                    .text("User A's changes")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(0) // User A has version 0
+                    .build();
+
+            // Step 3: User B also retrieves the comment (entityVersion = 0) and updates it first
+            CommentUpdateDto userBUpdate = CommentUpdateDto.builder()
+                    .text("User B's changes")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(0) // User B also has version 0
+                    .build();
+
+            // User B updates successfully
+            CommentDto updatedByB = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userBUpdate);
+            assertThat(updatedByB.getEntityVersion()).isEqualTo(1); // Version incremented to 1
+
+            // Step 4: User A tries to update with stale version (0) - should fail with CONFLICT
+            assertThatThrownBy(() ->
+                    commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userAUpdate)
+            )
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Comment was modified by another user")
+                    .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409); // HTTP 409 CONFLICT
+
+            // Verify that the comment still has User B's changes and version 1
+            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            assertThat(comments).hasSize(1);
+            CommentDto finalComment = comments.get(0);
+            assertThat(finalComment.getEntityVersion()).isEqualTo(1);
+
+            CommentVersionDto activeVersion = finalComment.getHistory().stream()
+                    .filter(v -> v.getVersion() == finalComment.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+
+            assertThat(activeVersion.getText()).isEqualTo("User B's changes");
+        }
+    }
+
+    @Test
+    void updateComment_shouldIncrementEntityVersionOnSuccessfulUpdate() {
+        // Test that entityVersion is properly incremented on each update
+
+        final String USER_EMAIL = "user@example.com";
+        final String USER_NAME = "Test User";
+
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+
+            // Create a comment
+            CommentCreateDto createDto = CommentCreateDto.builder()
+                    .text("Original text")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .pointerUrl(TEST_POINTER_URL)
+                    .build();
+
+            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+
+            assertThat(comment.getEntityVersion()).isZero();
+
+            // First update
+            CommentUpdateDto update1 = CommentUpdateDto.builder()
+                    .text("First update")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(0)
+                    .build();
+
+            CommentDto updated1 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update1);
+            assertThat(updated1.getEntityVersion()).isEqualTo(1);
+
+            // Second update with correct version
+            CommentUpdateDto update2 = CommentUpdateDto.builder()
+                    .text("Second update")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(1)
+                    .build();
+
+            CommentDto updated2 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update2);
+            assertThat(updated2.getEntityVersion()).isEqualTo(2);
+
+            // Third update with correct version
+            CommentUpdateDto update3 = CommentUpdateDto.builder()
+                    .text("Third update")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(2)
+                    .build();
+
+            CommentDto updated3 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update3);
+            assertThat(updated3.getEntityVersion()).isEqualTo(3);
+        }
+    }
 }
 

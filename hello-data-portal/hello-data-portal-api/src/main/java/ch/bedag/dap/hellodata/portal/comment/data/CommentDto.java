@@ -52,4 +52,5 @@ public class CommentDto {
     private int activeVersion;
     private boolean hasActiveDraft;
     private List<CommentVersionDto> history;
+    private long entityVersion; // For optimistic locking - incremented on each modification
 }

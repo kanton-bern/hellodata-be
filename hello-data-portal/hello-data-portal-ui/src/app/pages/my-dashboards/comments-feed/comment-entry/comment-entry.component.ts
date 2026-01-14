@@ -249,7 +249,8 @@ export class CommentEntryComponent {
               contextKey,
               commentId: comment.id,
               newText,
-              newPointerUrl: normalizedPointerUrl
+              newPointerUrl: normalizedPointerUrl,
+              entityVersion: comment.entityVersion
             }));
           } else {
             // For draft comments, update directly
@@ -258,7 +259,8 @@ export class CommentEntryComponent {
               contextKey,
               commentId: comment.id,
               text: newText,
-              pointerUrl: normalizedPointerUrl
+              pointerUrl: normalizedPointerUrl,
+              entityVersion: comment.entityVersion
             }));
           }
         }

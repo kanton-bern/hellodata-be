@@ -31,6 +31,7 @@
   "@Comment published successfully": "Commentaire publié avec succès",
   "@Comment unpublished successfully": "Publication du commentaire annulée",
   "@Comment updated successfully": "Commentaire mis à jour avec succès",
+  "@Comment was modified by another user. Refreshing...": "Le commentaire a été modifié par un autre utilisateur. Actualisation en cours...",
   "@Comments": "Commentaires",
   "@Confirm": "Confirmer",
   "@Context name": "Nom du contexte",

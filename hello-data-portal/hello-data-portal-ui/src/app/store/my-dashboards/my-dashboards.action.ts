@@ -138,7 +138,14 @@ export const addCommentError = createAction(
 
 export const updateComment = createAction(
   MyDashboardsActionType.UPDATE_COMMENT,
-  props<{ dashboardId: number; contextKey: string; commentId: string; text: string; pointerUrl?: string }>()
+  props<{
+    dashboardId: number;
+    contextKey: string;
+    commentId: string;
+    text: string;
+    pointerUrl?: string;
+    entityVersion: number
+  }>()
 );
 
 export const updateCommentSuccess = createAction(
@@ -202,7 +209,14 @@ export const unpublishCommentError = createAction(
 // Clone published comment for editing (creates a draft copy with new text)
 export const cloneCommentForEdit = createAction(
   MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT,
-  props<{ dashboardId: number; contextKey: string; commentId: string; newText: string; newPointerUrl?: string }>()
+  props<{
+    dashboardId: number;
+    contextKey: string;
+    commentId: string;
+    newText: string;
+    newPointerUrl?: string;
+    entityVersion: number
+  }>()
 );
 
 export const cloneCommentForEditSuccess = createAction(

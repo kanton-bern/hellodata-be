@@ -38,4 +38,5 @@ import lombok.NoArgsConstructor;
 public class CommentUpdateDto {
     private String text;
     private String pointerUrl;
+    private long entityVersion; // For optimistic locking check
 }
