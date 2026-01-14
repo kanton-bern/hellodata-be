@@ -27,7 +27,10 @@
 package ch.bedag.dap.hellodata.portal.comment.service;
 
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.comment.data.*;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -47,6 +50,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CommentService {
 
+    private final UserRepository userRepository;
+
     // In-memory mock storage - key is "contextKey:dashboardId"
     private final Map<String, List<CommentDto>> commentsStore = new ConcurrentHashMap<>();
 
@@ -64,32 +69,77 @@ public class CommentService {
     }
 
     /**
-     * Get all comments for a dashboard. Includes drafts for current user and superusers.
+     * Get all comments for a dashboard. Filters based on user permissions.
+     * - All users can see published comments
+     * - Users can see their own drafts
+     * - Admins (superuser, business_domain_admin, data_domain_admin) can see all drafts
      */
     public List<CommentDto> getComments(String contextKey, int dashboardId) {
         String key = buildKey(contextKey, dashboardId);
         List<CommentDto> comments = commentsStore.getOrDefault(key, new ArrayList<>());
 
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
         boolean isSuperuser = SecurityUtils.isSuperuser();
 
-        // Filter: show non-deleted comments, but for drafts only show to author or superuser
+        // Fetch user entity once to check roles
+        boolean isAdmin = isSuperuser || isAdminForContext(currentUserEmail, contextKey);
+
+        // Filter: show non-deleted comments
         return comments.stream()
                 .filter(c -> !c.isDeleted())
                 .filter(c -> {
                     CommentVersionDto activeVersion = getActiveVersion(c);
-                    if (activeVersion == null) return false;
+                    if (activeVersion == null || activeVersion.isDeleted()) return false;
 
                     // Published comments are visible to everyone
                     if (activeVersion.getStatus() == CommentStatus.PUBLISHED) {
                         return true;
                     }
 
-                    // Drafts are only visible to author or superuser
-                    // Check if current user email is not null before comparing
-                    return (currentUserEmail != null && currentUserEmail.equals(c.getAuthorEmail())) || isSuperuser;
+                    // For drafts: check if user is admin or if draft was created/edited by current user
+                    if (activeVersion.getStatus() == CommentStatus.DRAFT) {
+                        if (isAdmin) {
+                            // Admins can see all drafts
+                            return true;
+                        }
+                        // Non-admins can only see drafts they created or edited
+                        return (currentUserEmail != null && currentUserEmail.equals(c.getAuthorEmail())) ||
+                                (currentUserFullName != null && currentUserFullName.equals(activeVersion.getEditedBy()));
+                    }
+
+                    return false;
                 })
                 .toList();
+    }
+
+    /**
+     * Check if current user has admin privileges (business_domain_admin or data_domain_admin for specific context).
+     * Fetches UserEntity once to check both roles.
+     */
+    private boolean isAdminForContext(String userEmail, String contextKey) {
+        if (userEmail == null) return false;
+
+        return userRepository.findUserEntityByEmailIgnoreCase(userEmail)
+                .map(user -> {
+                    // Check if user is business domain admin
+                    if (Boolean.TRUE.equals(user.isBusinessDomainAdmin())) {
+                        return true;
+                    }
+
+                    // Check if user is data domain admin for this specific context
+                    Set<UserContextRoleEntity> contextRoles = user.getContextRoles();
+                    if (contextRoles == null || contextKey == null) return false;
+
+                    return contextRoles.stream()
+                            .anyMatch(role ->
+                                    role.getContextKey() != null &&
+                                            contextKey.equals(role.getContextKey()) &&
+                                            role.getRole() != null &&
+                                            HdRoleName.DATA_DOMAIN_ADMIN.equals(role.getRole().getName())
+                            );
+                })
+                .orElse(false);
     }
 
     /**
