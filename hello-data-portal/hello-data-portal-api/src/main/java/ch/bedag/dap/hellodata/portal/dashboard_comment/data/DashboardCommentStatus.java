@@ -24,57 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.entity;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
-import ch.bedag.dap.hellodata.portal.comment.data.CommentStatus;
-import jakarta.persistence.*;
-import lombok.*;
-
-@Entity
-@Table(name = "comment_version", indexes = {
-        @Index(name = "idx_version_comment_id", columnList = "comment_id"),
-        @Index(name = "idx_version_status", columnList = "status"),
-        @Index(name = "idx_version_deleted", columnList = "deleted")
-})
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CommentVersionEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id", nullable = false)
-    private CommentEntity comment;
-
-    @Column(name = "version", nullable = false)
-    private Integer version;
-
-    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
-    private String text;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private CommentStatus status;
-
-    @Column(name = "edited_date", nullable = false)
-    private Long editedDate;
-
-    @Column(name = "edited_by", nullable = false, length = 200)
-    private String editedBy;
-
-    @Column(name = "published_date")
-    private Long publishedDate;
-
-    @Column(name = "published_by", length = 200)
-    private String publishedBy;
-
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted = false;
+public enum DashboardCommentStatus {
+    DRAFT,
+    PUBLISHED
 }
 

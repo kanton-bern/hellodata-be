@@ -24,10 +24,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
-public enum CommentStatus {
-    DRAFT,
-    PUBLISHED
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DashboardCommentCreateDto {
+    private String dashboardUrl;
+    private String pointerUrl;
+    private String text;
 }
-

@@ -52,15 +52,15 @@ export interface DataDomain {
   key: string
 }
 
-export enum CommentStatus {
+export enum DashboardCommentStatus {
   DRAFT = 'DRAFT',
   PUBLISHED = 'PUBLISHED'
 }
 
-export interface CommentVersion {
+export interface DashboardCommentVersion {
   version: number;
   text: string;
-  status: CommentStatus;
+  status: DashboardCommentStatus;
   editedDate: number;
   editedBy: string;
   publishedDate?: number;
@@ -68,7 +68,7 @@ export interface CommentVersion {
   deleted: boolean; // Soft delete - only non-deleted PUBLISHED versions are shown
 }
 
-export interface CommentEntry {
+export interface DashboardCommentEntry {
   id: string;
   dashboardId: number;
   dashboardUrl: string;
@@ -83,6 +83,6 @@ export interface CommentEntry {
   // Versioning
   activeVersion: number; // Currently active version from history
   hasActiveDraft?: boolean; // True when this comment has an active draft edit
-  history: CommentVersion[]; // All versions of this comment
+  history: DashboardCommentVersion[]; // All versions of this comment
   entityVersion: number; // For optimistic locking - incremented on each modification
 }

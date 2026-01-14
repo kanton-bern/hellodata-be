@@ -28,7 +28,7 @@
 import {inject, Injectable} from "@angular/core";
 import {Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
-import {CommentEntry, DataDomain} from "./my-dashboards.model";
+import {DashboardCommentEntry, DataDomain} from "./my-dashboards.model";
 import {environment} from "../../../environments/environment";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
@@ -63,35 +63,35 @@ export class MyDashboardsService {
   }
 
   // Comments API methods
-  public getDashboardComments(contextKey: string, dashboardId: number): Observable<CommentEntry[]> {
-    return this.httpClient.get<CommentEntry[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`);
+  public getDashboardComments(contextKey: string, dashboardId: number): Observable<DashboardCommentEntry[]> {
+    return this.httpClient.get<DashboardCommentEntry[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`);
   }
 
-  public createComment(contextKey: string, dashboardId: number, request: CommentCreateRequest): Observable<CommentEntry> {
-    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`, request);
+  public createComment(contextKey: string, dashboardId: number, request: CommentCreateRequest): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`, request);
   }
 
-  public updateComment(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<CommentEntry> {
-    return this.httpClient.put<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, request);
+  public updateComment(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<DashboardCommentEntry> {
+    return this.httpClient.put<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, request);
   }
 
-  public deleteComment(contextKey: string, dashboardId: number, commentId: string): Observable<CommentEntry> {
-    return this.httpClient.delete<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`);
+  public deleteComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.delete<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`);
   }
 
-  public publishComment(contextKey: string, dashboardId: number, commentId: string): Observable<CommentEntry> {
-    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/publish`, {});
+  public publishComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/publish`, {});
   }
 
-  public unpublishComment(contextKey: string, dashboardId: number, commentId: string): Observable<CommentEntry> {
-    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/unpublish`, {});
+  public unpublishComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/unpublish`, {});
   }
 
-  public cloneCommentForEdit(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<CommentEntry> {
-    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/clone`, request);
+  public cloneCommentForEdit(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/clone`, request);
   }
 
-  public restoreVersion(contextKey: string, dashboardId: number, commentId: string, versionNumber: number): Observable<CommentEntry> {
-    return this.httpClient.post<CommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/restore/${versionNumber}`, {});
+  public restoreVersion(contextKey: string, dashboardId: number, commentId: string, versionNumber: number): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/restore/${versionNumber}`, {});
   }
 }

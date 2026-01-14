@@ -24,19 +24,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentUpdateDto {
-    private String text;
+public class DashboardCommentDto {
+    private String id;
+    private int dashboardId;
+    private String dashboardUrl;
+    private String contextKey;
     private String pointerUrl;
-    private long entityVersion; // For optimistic locking check
+    private String author;
+    private String authorEmail;
+    private Long createdDate;
+    private boolean deleted;
+    private Long deletedDate;
+    private String deletedBy;
+    private int activeVersion;
+    private boolean hasActiveDraft;
+    private List<DashboardCommentVersionDto> history;
+    private long entityVersion; // For optimistic locking - incremented on each modification
 }

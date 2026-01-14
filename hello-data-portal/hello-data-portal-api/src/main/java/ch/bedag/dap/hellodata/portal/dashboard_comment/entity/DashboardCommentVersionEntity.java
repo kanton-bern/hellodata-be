@@ -24,33 +24,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentStatus;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.List;
-
-@Data
-@Builder(toBuilder = true)
+@Entity
+@Table(name = "dashboard_comment_version", indexes = {
+        @Index(name = "idx_dashboard_comment_version_comment_id", columnList = "comment_id"),
+        @Index(name = "idx_dashboard_comment_version_status", columnList = "status"),
+        @Index(name = "idx_dashboard_comment_version_deleted", columnList = "deleted")
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDto {
-    private String id;
-    private int dashboardId;
-    private String dashboardUrl;
-    private String contextKey;
-    private String pointerUrl;
-    private String author;
-    private String authorEmail;
-    private Long createdDate;
-    private boolean deleted;
-    private Long deletedDate;
-    private String deletedBy;
-    private int activeVersion;
-    private boolean hasActiveDraft;
-    private List<CommentVersionDto> history;
-    private long entityVersion; // For optimistic locking - incremented on each modification
+@Builder
+public class DashboardCommentVersionEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id", nullable = false)
+    private DashboardCommentEntity comment;
+
+    @Column(name = "version", nullable = false)
+    private Integer version;
+
+    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
+    private String text;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private DashboardCommentStatus status;
+
+    @Column(name = "edited_date", nullable = false)
+    private Long editedDate;
+
+    @Column(name = "edited_by", nullable = false, length = 200)
+    private String editedBy;
+
+    @Column(name = "published_date")
+    private Long publishedDate;
+
+    @Column(name = "published_by", length = 200)
+    private String publishedBy;
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 }
+

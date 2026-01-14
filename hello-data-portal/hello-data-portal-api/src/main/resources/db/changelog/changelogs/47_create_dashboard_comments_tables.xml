@@ -59,14 +59,14 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="47.2-create-comment-version-table" author="hellodata">
-        <createTable tableName="comment_version">
+    <changeSet id="47.2-create-dashboard-comment-version-table" author="hellodata">
+        <createTable tableName="dashboard_comment_version">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="comment_id" type="VARCHAR(36)">
                 <constraints nullable="false"
-                             foreignKeyName="fk_comment_version_comment"
+                             foreignKeyName="fk_dashboard_comment_version_comment"
                              references="dashboard_comment(id)"
                              deleteCascade="true"/>
             </column>
@@ -92,23 +92,23 @@
             </column>
         </createTable>
 
-        <createIndex indexName="idx_version_comment_id" tableName="comment_version">
+        <createIndex indexName="idx_dashboard_comment_version_comment_id" tableName="dashboard_comment_version">
             <column name="comment_id"/>
         </createIndex>
 
-        <createIndex indexName="idx_version_status" tableName="comment_version">
+        <createIndex indexName="idx_dashboard_comment_version_status" tableName="dashboard_comment_version">
             <column name="status"/>
         </createIndex>
 
-        <createIndex indexName="idx_version_deleted" tableName="comment_version">
+        <createIndex indexName="idx_dashboard_comment_version_deleted" tableName="dashboard_comment_version">
             <column name="deleted"/>
         </createIndex>
 
         <!-- Composite unique constraint to ensure unique version per comment -->
         <addUniqueConstraint
-                tableName="comment_version"
+                tableName="dashboard_comment_version"
                 columnNames="comment_id, version"
-                constraintName="uk_comment_version"/>
+                constraintName="uk_dashboard_comment_version"/>
     </changeSet>
 
 </databaseChangeLog>

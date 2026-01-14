@@ -44,7 +44,7 @@ import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
-import {CommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
+import {DashboardCommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
 import {map, Observable} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 
@@ -93,7 +93,7 @@ export class CommentsFeed implements AfterViewInit {
   selectedYear: number | null = null;
   selectedQuarter: number | null = null;
 
-  filteredComments$: Observable<CommentEntry[]>;
+  filteredComments$: Observable<DashboardCommentEntry[]>;
   // Signal to track filtered comments for auto-scroll
   private filteredCommentsSignal;
 
@@ -205,7 +205,7 @@ export class CommentsFeed implements AfterViewInit {
     this.filteredCommentsSignal = toSignal(this.filteredComments$);
   }
 
-  private filterComments(comments: CommentEntry[]): CommentEntry[] {
+  private filterComments(comments: DashboardCommentEntry[]): DashboardCommentEntry[] {
     if (!comments) return [];
 
     return comments.filter(comment => {

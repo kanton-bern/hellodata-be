@@ -24,12 +24,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.controller;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.controller;
 
-import ch.bedag.dap.hellodata.portal.comment.data.CommentCreateDto;
-import ch.bedag.dap.hellodata.portal.comment.data.CommentDto;
-import ch.bedag.dap.hellodata.portal.comment.data.CommentUpdateDto;
-import ch.bedag.dap.hellodata.portal.comment.service.CommentService;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentCreateDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentUpdateDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -39,13 +39,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dashboards/{contextKey}/{dashboardId}/comments")
-public class CommentController {
+public class DashboardCommentController {
 
-    private final CommentService commentService;
+    private final DashboardCommentService commentService;
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public List<CommentDto> getComments(
+    public List<DashboardCommentDto> getComments(
             @PathVariable String contextKey,
             @PathVariable int dashboardId) {
         return commentService.getComments(contextKey, dashboardId);
@@ -53,26 +53,26 @@ public class CommentController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public CommentDto createComment(
+    public DashboardCommentDto createComment(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
-            @RequestBody CommentCreateDto createDto) {
+            @RequestBody DashboardCommentCreateDto createDto) {
         return commentService.createComment(contextKey, dashboardId, createDto);
     }
 
     @PutMapping("/{commentId}")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public CommentDto updateComment(
+    public DashboardCommentDto updateComment(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestBody CommentUpdateDto updateDto) {
+            @RequestBody DashboardCommentUpdateDto updateDto) {
         return commentService.updateComment(contextKey, dashboardId, commentId, updateDto);
     }
 
     @DeleteMapping("/{commentId}")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public CommentDto deleteComment(
+    public DashboardCommentDto deleteComment(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId) {
@@ -81,7 +81,7 @@ public class CommentController {
 
     @PostMapping("/{commentId}/publish")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public CommentDto publishComment(
+    public DashboardCommentDto publishComment(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId) {
@@ -90,7 +90,7 @@ public class CommentController {
 
     @PostMapping("/{commentId}/unpublish")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public CommentDto unpublishComment(
+    public DashboardCommentDto unpublishComment(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId) {
@@ -99,17 +99,17 @@ public class CommentController {
 
     @PostMapping("/{commentId}/clone")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public CommentDto cloneCommentForEdit(
+    public DashboardCommentDto cloneCommentForEdit(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestBody CommentUpdateDto updateDto) {
+            @RequestBody DashboardCommentUpdateDto updateDto) {
         return commentService.cloneCommentForEdit(contextKey, dashboardId, commentId, updateDto);
     }
 
     @PostMapping("/{commentId}/restore/{versionNumber}")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public CommentDto restoreVersion(
+    public DashboardCommentDto restoreVersion(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,

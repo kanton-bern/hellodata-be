@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.entity;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -43,7 +43,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CommentEntity {
+public class DashboardCommentEntity {
 
     @Id
     @Column(name = "id", nullable = false, length = 36)
@@ -92,17 +92,18 @@ public class CommentEntity {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("version ASC")
     @Builder.Default
-    private List<CommentVersionEntity> history = new ArrayList<>();
+    private List<DashboardCommentVersionEntity> history = new ArrayList<>();
 
-    public void addVersion(CommentVersionEntity version) {
+    public void addVersion(DashboardCommentVersionEntity version) {
         history.add(version);
         version.setComment(this);
     }
 
-    public void removeVersion(CommentVersionEntity version) {
+    public void removeVersion(DashboardCommentVersionEntity version) {
         history.remove(version);
         version.setComment(null);
     }
 }
+
 
 

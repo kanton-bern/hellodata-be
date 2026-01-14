@@ -24,25 +24,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.mapper;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.mapper;
 
-import ch.bedag.dap.hellodata.portal.comment.data.CommentDto;
-import ch.bedag.dap.hellodata.portal.comment.data.CommentVersionDto;
-import ch.bedag.dap.hellodata.portal.comment.entity.CommentEntity;
-import ch.bedag.dap.hellodata.portal.comment.entity.CommentVersionEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentVersionDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
 
 @Component
-public class CommentMapper {
+public class DashboardCommentMapper {
 
-    public CommentDto toDto(CommentEntity entity) {
+    public DashboardCommentDto toDto(DashboardCommentEntity entity) {
         if (entity == null) {
             return null;
         }
 
-        return CommentDto.builder()
+        return DashboardCommentDto.builder()
                 .id(entity.getId())
                 .dashboardId(entity.getDashboardId())
                 .dashboardUrl(entity.getDashboardUrl())
@@ -63,12 +63,12 @@ public class CommentMapper {
                 .build();
     }
 
-    public CommentEntity toEntity(CommentDto dto) {
+    public DashboardCommentEntity toEntity(DashboardCommentDto dto) {
         if (dto == null) {
             return null;
         }
 
-        CommentEntity entity = CommentEntity.builder()
+        DashboardCommentEntity entity = DashboardCommentEntity.builder()
                 .id(dto.getId())
                 .dashboardId(dto.getDashboardId())
                 .dashboardUrl(dto.getDashboardUrl())
@@ -87,7 +87,7 @@ public class CommentMapper {
 
         if (dto.getHistory() != null) {
             dto.getHistory().forEach(versionDto -> {
-                CommentVersionEntity version = toVersionEntity(versionDto);
+                DashboardCommentVersionEntity version = toVersionEntity(versionDto);
                 entity.addVersion(version);
             });
         }
@@ -95,12 +95,12 @@ public class CommentMapper {
         return entity;
     }
 
-    public CommentVersionDto toVersionDto(CommentVersionEntity entity) {
+    public DashboardCommentVersionDto toVersionDto(DashboardCommentVersionEntity entity) {
         if (entity == null) {
             return null;
         }
 
-        return CommentVersionDto.builder()
+        return DashboardCommentVersionDto.builder()
                 .version(entity.getVersion())
                 .text(entity.getText())
                 .status(entity.getStatus())
@@ -112,12 +112,12 @@ public class CommentMapper {
                 .build();
     }
 
-    public CommentVersionEntity toVersionEntity(CommentVersionDto dto) {
+    public DashboardCommentVersionEntity toVersionEntity(DashboardCommentVersionDto dto) {
         if (dto == null) {
             return null;
         }
 
-        return CommentVersionEntity.builder()
+        return DashboardCommentVersionEntity.builder()
                 .version(dto.getVersion())
                 .text(dto.getText())
                 .status(dto.getStatus())

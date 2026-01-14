@@ -24,12 +24,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.service;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
-import ch.bedag.dap.hellodata.portal.comment.data.*;
-import ch.bedag.dap.hellodata.portal.comment.mapper.CommentMapper;
-import ch.bedag.dap.hellodata.portal.comment.repository.CommentRepository;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,18 +49,18 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CommentServiceTest {
+class DashboardCommentServiceTest {
 
     @Mock
     private UserRepository userRepository;
 
     @Mock
-    private CommentRepository commentRepository;
+    private DashboardCommentRepository commentRepository;
 
     @Mock
-    private CommentMapper commentMapper;
+    private DashboardCommentMapper commentMapper;
 
-    private CommentService commentService;
+    private DashboardCommentService commentService;
 
     private static final String TEST_CONTEXT_KEY = "test-context";
     private static final int TEST_DASHBOARD_ID = 123;
@@ -73,7 +73,7 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() {
-        commentService = new CommentService(userRepository, commentRepository, commentMapper);
+        commentService = new DashboardCommentService(userRepository, commentRepository, commentMapper);
     }
 
     @Test
@@ -87,7 +87,7 @@ class CommentServiceTest {
             UserEntity regularUser = new UserEntity();
             when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
             assertThat(comments).isEmpty();
         }
@@ -99,13 +99,13 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .pointerUrl(TEST_POINTER_URL)
                     .build();
 
-            CommentDto result = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto result = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             assertThat(result).isNotNull();
             assertThat(result.getId()).isNotNull();
@@ -120,10 +120,10 @@ class CommentServiceTest {
             assertThat(result.isHasActiveDraft()).isFalse();
             assertThat(result.getHistory()).hasSize(1);
 
-            CommentVersionDto version = result.getHistory().get(0);
+            DashboardCommentVersionDto version = result.getHistory().get(0);
             assertThat(version.getVersion()).isEqualTo(1);
             assertThat(version.getText()).isEqualTo("Test comment");
-            assertThat(version.getStatus()).isEqualTo(CommentStatus.DRAFT);
+            assertThat(version.getStatus()).isEqualTo(DashboardCommentStatus.DRAFT);
             assertThat(version.getEditedBy()).isEqualTo(TEST_USER_NAME);
             assertThat(version.isDeleted()).isFalse();
         }
@@ -138,7 +138,7 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             // Create draft comment
-            CommentCreateDto draftDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto draftDto = DashboardCommentCreateDto.builder()
                     .text("Draft comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
@@ -146,11 +146,11 @@ class CommentServiceTest {
 
             // Create and publish another comment
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
-            CommentCreateDto publishedDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto publishedDto = DashboardCommentCreateDto.builder()
                     .text("Published comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto publishedComment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, publishedDto);
+            DashboardCommentDto publishedComment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, publishedDto);
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, publishedComment.getId());
 
             // Now check as regular user (different from author)
@@ -162,7 +162,7 @@ class CommentServiceTest {
             UserEntity regularUser = new UserEntity();
             when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(regularUser));
 
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
             assertThat(comments).hasSize(1);
             assertThat(comments.get(0).getId()).isEqualTo(publishedComment.getId());
@@ -177,17 +177,17 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("My draft comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Mock user repository for admin role check
             UserEntity regularUser = new UserEntity();
             when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
             assertThat(comments).hasSize(1);
             assertThat(comments.get(0).getId()).isEqualTo(comment.getId());
@@ -203,7 +203,7 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("User draft")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
@@ -214,7 +214,7 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
             assertThat(comments).hasSize(1);
         }
@@ -226,19 +226,19 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .pointerUrl(TEST_POINTER_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            CommentUpdateDto updateDto = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
                     .text("Updated text")
                     .pointerUrl("https://example.com/dashboard/123?tab=2")
                     .build();
 
-            CommentDto updated = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), updateDto);
+            DashboardCommentDto updated = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), updateDto);
 
             assertThat(updated.getId()).isEqualTo(comment.getId());
             assertThat(updated.getPointerUrl()).isEqualTo("https://example.com/dashboard/123?tab=2");
@@ -254,17 +254,17 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Try to update as different user
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentUpdateDto updateDto = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
                     .text("Updated text")
                     .build();
 
@@ -282,26 +282,26 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Publish as superuser
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
-            CommentDto published = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto published = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             assertThat(published.isHasActiveDraft()).isFalse();
-            CommentVersionDto activeVersion = published.getHistory().stream()
+            DashboardCommentVersionDto activeVersion = published.getHistory().stream()
                     .filter(v -> v.getVersion() == published.getActiveVersion())
                     .findFirst()
                     .orElse(null);
             assertThat(activeVersion).isNotNull();
-            assertThat(activeVersion.getStatus()).isEqualTo(CommentStatus.PUBLISHED);
+            assertThat(activeVersion.getStatus()).isEqualTo(DashboardCommentStatus.PUBLISHED);
             assertThat(activeVersion.getPublishedBy()).isEqualTo(SUPERUSER_NAME);
             assertThat(activeVersion.getPublishedDate()).isNotNull();
         }
@@ -314,11 +314,11 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
@@ -335,21 +335,21 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            CommentDto unpublished = commentService.unpublishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto unpublished = commentService.unpublishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            CommentVersionDto activeVersion = unpublished.getHistory().stream()
+            DashboardCommentVersionDto activeVersion = unpublished.getHistory().stream()
                     .filter(v -> v.getVersion() == unpublished.getActiveVersion())
                     .findFirst()
                     .orElse(null);
             assertThat(activeVersion).isNotNull();
-            assertThat(activeVersion.getStatus()).isEqualTo(CommentStatus.DRAFT);
+            assertThat(activeVersion.getStatus()).isEqualTo(DashboardCommentStatus.DRAFT);
             assertThat(activeVersion.getPublishedBy()).isNull();
             assertThat(activeVersion.getPublishedDate()).isNull();
         }
@@ -362,11 +362,11 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Try to unpublish as regular user
@@ -388,13 +388,13 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            CommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             assertThat(deleted.isDeleted()).isTrue();
             assertThat(deleted.getDeletedDate()).isNotNull();
@@ -410,11 +410,11 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // Create and publish comment
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Version 1")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Create new version
@@ -422,7 +422,7 @@ class CommentServiceTest {
                     comment.getId(), "Version 2", null);
 
             // Delete current version (should restore to version 1)
-            CommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             assertThat(deleted.isDeleted()).isFalse();
             assertThat(deleted.getActiveVersion()).isEqualTo(1);
@@ -437,11 +437,11 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Try to delete as different user
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
@@ -462,15 +462,15 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // Create and publish comment
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Version 1")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Clone for editing
-            CommentDto cloned = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
+            DashboardCommentDto cloned = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
                     comment.getId(), "Version 2", TEST_POINTER_URL);
 
             assertThat(cloned.getHistory()).hasSize(2);
@@ -478,13 +478,13 @@ class CommentServiceTest {
             assertThat(cloned.isHasActiveDraft()).isTrue();
             assertThat(cloned.getPointerUrl()).isEqualTo(TEST_POINTER_URL);
 
-            CommentVersionDto newVersion = cloned.getHistory().stream()
+            DashboardCommentVersionDto newVersion = cloned.getHistory().stream()
                     .filter(v -> v.getVersion() == 2)
                     .findFirst()
                     .orElse(null);
             assertThat(newVersion).isNotNull();
             assertThat(newVersion.getText()).isEqualTo("Version 2");
-            assertThat(newVersion.getStatus()).isEqualTo(CommentStatus.DRAFT);
+            assertThat(newVersion.getStatus()).isEqualTo(DashboardCommentStatus.DRAFT);
         }
     }
 
@@ -495,11 +495,11 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Draft comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
@@ -517,11 +517,11 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // Create, publish, and create multiple versions
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Version 1")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), "Version 2", null);
@@ -530,7 +530,7 @@ class CommentServiceTest {
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), "Version 3", null);
 
             // Restore to version 1
-            CommentDto restored = commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), 1);
+            DashboardCommentDto restored = commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), 1);
 
             assertThat(restored.getActiveVersion()).isEqualTo(1);
             assertThat(restored.isHasActiveDraft()).isFalse();
@@ -544,11 +544,11 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Try to restore as different user
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
@@ -569,18 +569,18 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Mock user repository for admin role check
             UserEntity regularUser = new UserEntity();
             when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
             assertThat(comments).isEmpty();
         }
@@ -601,13 +601,13 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(AUTHOR_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(AUTHOR_NAME);
 
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original comment text")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .pointerUrl(TEST_POINTER_URL)
                     .build();
 
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             String commentId = comment.getId();
 
             // Step 2: Admin publishes the comment
@@ -632,21 +632,21 @@ class CommentServiceTest {
             UserEntity otherUser = new UserEntity();
             when(userRepository.findUserEntityByEmailIgnoreCase(OTHER_USER_EMAIL)).thenReturn(Optional.of(otherUser));
 
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
             // Verify: Other user should see the comment with the last published version (v1), not the draft (v2)
             assertThat(comments).hasSize(1);
-            CommentDto visibleComment = comments.get(0);
+            DashboardCommentDto visibleComment = comments.get(0);
             assertThat(visibleComment.getActiveVersion()).isEqualTo(1); // Should show v1 (published)
 
             // Find the active version in history
-            CommentVersionDto visibleVersion = visibleComment.getHistory().stream()
+            DashboardCommentVersionDto visibleVersion = visibleComment.getHistory().stream()
                     .filter(v -> v.getVersion() == visibleComment.getActiveVersion())
                     .findFirst()
                     .orElseThrow();
 
             assertThat(visibleVersion.getText()).isEqualTo("Original comment text");
-            assertThat(visibleVersion.getStatus()).isEqualTo(CommentStatus.PUBLISHED);
+            assertThat(visibleVersion.getStatus()).isEqualTo(DashboardCommentStatus.PUBLISHED);
         }
     }
 
@@ -662,34 +662,34 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
 
             // Step 1: Create a comment
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .pointerUrl(TEST_POINTER_URL)
                     .build();
 
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             String commentId = comment.getId();
             long initialVersion = comment.getEntityVersion();
 
             assertThat(initialVersion).isZero(); // Initial version should be 0
 
             // Step 2: User A retrieves the comment (entityVersion = 0)
-            CommentUpdateDto userAUpdate = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto userAUpdate = DashboardCommentUpdateDto.builder()
                     .text("User A's changes")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(0) // User A has version 0
                     .build();
 
             // Step 3: User B also retrieves the comment (entityVersion = 0) and updates it first
-            CommentUpdateDto userBUpdate = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto userBUpdate = DashboardCommentUpdateDto.builder()
                     .text("User B's changes")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(0) // User B also has version 0
                     .build();
 
             // User B updates successfully
-            CommentDto updatedByB = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userBUpdate);
+            DashboardCommentDto updatedByB = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userBUpdate);
             assertThat(updatedByB.getEntityVersion()).isEqualTo(1); // Version incremented to 1
 
             // Step 4: User A tries to update with stale version (0) - should fail with CONFLICT
@@ -701,12 +701,12 @@ class CommentServiceTest {
                     .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409); // HTTP 409 CONFLICT
 
             // Verify that the comment still has User B's changes and version 1
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
             assertThat(comments).hasSize(1);
-            CommentDto finalComment = comments.get(0);
+            DashboardCommentDto finalComment = comments.get(0);
             assertThat(finalComment.getEntityVersion()).isEqualTo(1);
 
-            CommentVersionDto activeVersion = finalComment.getHistory().stream()
+            DashboardCommentVersionDto activeVersion = finalComment.getHistory().stream()
                     .filter(v -> v.getVersion() == finalComment.getActiveVersion())
                     .findFirst()
                     .orElseThrow();
@@ -727,45 +727,45 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
 
             // Create a comment
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .pointerUrl(TEST_POINTER_URL)
                     .build();
 
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             String commentId = comment.getId();
 
             assertThat(comment.getEntityVersion()).isZero();
 
             // First update
-            CommentUpdateDto update1 = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto update1 = DashboardCommentUpdateDto.builder()
                     .text("First update")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(0)
                     .build();
 
-            CommentDto updated1 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update1);
+            DashboardCommentDto updated1 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update1);
             assertThat(updated1.getEntityVersion()).isEqualTo(1);
 
             // Second update with correct version
-            CommentUpdateDto update2 = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto update2 = DashboardCommentUpdateDto.builder()
                     .text("Second update")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(1)
                     .build();
 
-            CommentDto updated2 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update2);
+            DashboardCommentDto updated2 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update2);
             assertThat(updated2.getEntityVersion()).isEqualTo(2);
 
             // Third update with correct version
-            CommentUpdateDto update3 = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto update3 = DashboardCommentUpdateDto.builder()
                     .text("Third update")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(2)
                     .build();
 
-            CommentDto updated3 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update3);
+            DashboardCommentDto updated3 = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, update3);
             assertThat(updated3.getEntityVersion()).isEqualTo(3);
         }
     }
@@ -783,34 +783,34 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // Step 1: Create and publish a comment
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original published text")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .pointerUrl(TEST_POINTER_URL)
                     .build();
 
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             String commentId = comment.getId();
-            CommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+            DashboardCommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
 
             long publishedVersion = publishedComment.getEntityVersion(); // Get actual version after publish
 
             // Step 2: User A retrieves the published comment (entityVersion after publish)
-            CommentUpdateDto userAEdit = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto userAEdit = DashboardCommentUpdateDto.builder()
                     .text("User A's edit")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(publishedVersion) // User A has the published version
                     .build();
 
             // Step 3: User B also retrieves the comment and creates edit first
-            CommentUpdateDto userBEdit = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto userBEdit = DashboardCommentUpdateDto.builder()
                     .text("User B's edit")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(publishedVersion) // User B has the same version
                     .build();
 
             // User B creates edit successfully
-            CommentDto editedByB = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userBEdit);
+            DashboardCommentDto editedByB = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userBEdit);
             assertThat(editedByB.getEntityVersion()).isEqualTo(publishedVersion + 1); // Version incremented
 
             // Step 4: User A tries to create edit with stale version - should fail with CONFLICT
@@ -836,19 +836,19 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
 
             // Create a comment
-            CommentCreateDto createDto = CommentCreateDto.builder()
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .pointerUrl(TEST_POINTER_URL)
                     .build();
 
-            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             String commentId = comment.getId();
 
             assertThat(comment.getEntityVersion()).isZero();
 
             // Attempt to update with suspiciously high version (potential attack)
-            CommentUpdateDto maliciousUpdate = CommentUpdateDto.builder()
+            DashboardCommentUpdateDto maliciousUpdate = DashboardCommentUpdateDto.builder()
                     .text("Hacked text")
                     .pointerUrl(TEST_POINTER_URL)
                     .entityVersion(999) // Way too high!
@@ -863,12 +863,12 @@ class CommentServiceTest {
                     .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409);
 
             // Verify comment was NOT modified
-            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
             assertThat(comments).hasSize(1);
-            CommentDto unchangedComment = comments.get(0);
+            DashboardCommentDto unchangedComment = comments.get(0);
             assertThat(unchangedComment.getEntityVersion()).isZero(); // Still at version 0
 
-            CommentVersionDto activeVersion = unchangedComment.getHistory().stream()
+            DashboardCommentVersionDto activeVersion = unchangedComment.getHistory().stream()
                     .filter(v -> v.getVersion() == unchangedComment.getActiveVersion())
                     .findFirst()
                     .orElseThrow();

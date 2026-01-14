@@ -29,7 +29,7 @@ import {Component, computed, inject, input, output} from "@angular/core";
 import {DatePipe, SlicePipe} from "@angular/common";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
-import {CommentEntry, CommentStatus} from "../../../../store/my-dashboards/my-dashboards.model";
+import {DashboardCommentEntry, DashboardCommentStatus} from "../../../../store/my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {
@@ -80,7 +80,10 @@ export class CommentEntryComponent {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
 
-  comment = input.required<CommentEntry>();
+  // Expose enum for template
+  protected readonly DashboardCommentStatus = DashboardCommentStatus;
+
+  comment = input.required<DashboardCommentEntry>();
   pointerUrlClick = output<string>();
 
   expanded = false;
@@ -125,7 +128,7 @@ export class CommentEntryComponent {
       .filter(h => {
         if (h.deleted) return false;
         // Admins can see all versions, non-admins only published
-        return canViewMetadataValue || h.status === CommentStatus.PUBLISHED;
+        return canViewMetadataValue || h.status === DashboardCommentStatus.PUBLISHED;
       })
       .map(h => ({
         ...h,
@@ -134,7 +137,6 @@ export class CommentEntryComponent {
       .sort((a, b) => a.version - b.version);
   });
 
-  protected readonly CommentStatus = CommentStatus;
 
   constructor() {
     this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
@@ -242,7 +244,7 @@ export class CommentEntryComponent {
     this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
-          if (activeVer?.status === CommentStatus.PUBLISHED) {
+          if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
             // For published comments, clone with new text
             this.store.dispatch(cloneCommentForEdit({
               dashboardId,

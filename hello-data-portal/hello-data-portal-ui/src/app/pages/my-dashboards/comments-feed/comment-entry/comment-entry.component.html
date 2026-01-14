@@ -1,7 +1,7 @@
 <div class="comment-item border rounded-md px-2 py-2"
-     [class.bg-white]="activeVersion()?.status === CommentStatus.PUBLISHED"
-     [class.bg-gray-100]="activeVersion()?.status === CommentStatus.DRAFT"
-     [class.draft-border]="activeVersion()?.status === CommentStatus.DRAFT">
+     [class.bg-white]="activeVersion()?.status === DashboardCommentStatus.PUBLISHED"
+     [class.bg-gray-100]="activeVersion()?.status === DashboardCommentStatus.DRAFT"
+     [class.draft-border]="activeVersion()?.status === DashboardCommentStatus.DRAFT">
   @if (comment().pointerUrl) {
     <div class="pointer-url-container px-1 pb-1">
       <a class="pointer-url-link text-xs text-blue-600 hover:underline cursor-pointer"
@@ -103,8 +103,8 @@
                   @if (historyItem.isCurrentVersion) {
                     <span class="active-badge">{{ '@Active' | transloco }}</span>
                   }
-                  <span class="status-badge" [class.status-draft]="historyItem.status === CommentStatus.DRAFT"
-                        [class.status-published]="historyItem.status === CommentStatus.PUBLISHED">
+                  <span class="status-badge" [class.status-draft]="historyItem.status === DashboardCommentStatus.DRAFT"
+                        [class.status-published]="historyItem.status === DashboardCommentStatus.PUBLISHED">
                     {{ '@' + historyItem.status | transloco }}
                   </span>
                   <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
@@ -112,7 +112,7 @@
                   <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
                     {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
                   </span>
-                  @if (!historyItem.isCurrentVersion && historyItem.status === CommentStatus.PUBLISHED && canViewMetadata()) {
+                  @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
                     <button class="restore-btn"
                             (click)="restoreVersion(historyItem.version)"
                             (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
@@ -139,7 +139,7 @@
           [draggable]="false"
           [resizable]="false">
   <div class="edit-dialog-content">
-    @if (activeVersion()?.status === CommentStatus.PUBLISHED) {
+    @if (activeVersion()?.status === DashboardCommentStatus.PUBLISHED) {
       <div class="edit-warning mb-3">
         <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
         <span>{{ '@Edit published comment warning' | transloco }}</span>

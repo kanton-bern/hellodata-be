@@ -31,7 +31,7 @@ import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
 import {selectIsBusinessDomainAdmin, selectIsSuperuser, selectProfile} from "../auth/auth.selector";
-import {CommentEntry, CommentStatus, CommentVersion} from "./my-dashboards.model";
+import {DashboardCommentEntry, DashboardCommentStatus, DashboardCommentVersion} from "./my-dashboards.model";
 import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_CONTEXT_TYPE} from "../users-management/users-management.model";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
@@ -170,7 +170,7 @@ export const selectCurrentDashboardComments = createSelector(
 );
 
 // Helper function to get active version from comment
-const getActiveVersion = (comment: CommentEntry): CommentVersion | undefined =>
+const getActiveVersion = (comment: DashboardCommentEntry): DashboardCommentVersion | undefined =>
   comment.history.find(v => v.version === comment.activeVersion);
 
 export const selectVisibleComments = createSelector(
@@ -189,7 +189,7 @@ export const selectVisibleComments = createSelector(
           activeVersion: currentActive.version
         };
       })
-      .filter((c): c is CommentEntry => c !== null)
+      .filter((c): c is DashboardCommentEntry => c !== null)
       .sort((a, b) => a.createdDate - b.createdDate);
   }
 );
@@ -198,7 +198,7 @@ export const selectPublishedComments = createSelector(
   selectCurrentDashboardComments,
   (comments) => comments.filter(c => {
     const activeVersion = getActiveVersion(c);
-    return activeVersion && !activeVersion.deleted && activeVersion.status === CommentStatus.PUBLISHED;
+    return activeVersion && !activeVersion.deleted && activeVersion.status === DashboardCommentStatus.PUBLISHED;
   }).sort((a, b) => a.createdDate - b.createdDate)
 );
 
@@ -206,7 +206,7 @@ export const selectDraftComments = createSelector(
   selectCurrentDashboardComments,
   (comments) => comments.filter(c => {
     const activeVersion = getActiveVersion(c);
-    return activeVersion && !activeVersion.deleted && activeVersion.status === CommentStatus.DRAFT;
+    return activeVersion && !activeVersion.deleted && activeVersion.status === DashboardCommentStatus.DRAFT;
   }).sort((a, b) => a.createdDate - b.createdDate)
 );
 
@@ -224,7 +224,7 @@ export const canEditComment = createSelector(
   selectProfile,
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
-  (profile, isSuperuser, isBusinessDomainAdmin) => (comment: CommentEntry) => {
+  (profile, isSuperuser, isBusinessDomainAdmin) => (comment: DashboardCommentEntry) => {
     const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
@@ -239,7 +239,7 @@ export const canPublishComment = createSelector(
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
   (state: AppState) => state.auth,
-  (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: CommentEntry) => {
+  (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
 
@@ -254,7 +254,7 @@ export const canPublishComment = createSelector(
 
     // Can publish: superuser, business_domain_admin, data_domain_admin
     const canPublish = isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
-    return activeVersion.status === CommentStatus.DRAFT &&
+    return activeVersion.status === DashboardCommentStatus.DRAFT &&
       activeVersion.text.length > 0 &&
       canPublish;
   }
@@ -265,7 +265,7 @@ export const canUnpublishComment = createSelector(
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
   (state: AppState) => state.auth,
-  (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: CommentEntry) => {
+  (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
 
@@ -280,7 +280,7 @@ export const canUnpublishComment = createSelector(
 
     // Can unpublish: superuser, business_domain_admin, data_domain_admin
     const canUnpublish = isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
-    return activeVersion.status === CommentStatus.PUBLISHED && canUnpublish;
+    return activeVersion.status === DashboardCommentStatus.PUBLISHED && canUnpublish;
   }
 );
 
@@ -288,7 +288,7 @@ export const canDeleteComment = createSelector(
   selectProfile,
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
-  (profile, isSuperuser, isBusinessDomainAdmin) => (comment: CommentEntry) => {
+  (profile, isSuperuser, isBusinessDomainAdmin) => (comment: DashboardCommentEntry) => {
     const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || comment.deleted) return false;

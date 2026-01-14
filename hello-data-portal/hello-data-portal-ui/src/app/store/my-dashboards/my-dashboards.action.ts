@@ -26,7 +26,7 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
-import {CommentEntry, DataDomain} from "./my-dashboards.model";
+import {DashboardCommentEntry, DataDomain} from "./my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
 export enum MyDashboardsActionType {
@@ -113,7 +113,7 @@ export const loadDashboardComments = createAction(
 
 export const loadDashboardCommentsSuccess = createAction(
   MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS_SUCCESS,
-  props<{ comments: CommentEntry[] }>()
+  props<{ comments: DashboardCommentEntry[] }>()
 );
 
 export const loadDashboardCommentsError = createAction(
@@ -128,7 +128,7 @@ export const addComment = createAction(
 
 export const addCommentSuccess = createAction(
   MyDashboardsActionType.ADD_COMMENT_SUCCESS,
-  props<{ comment: CommentEntry }>()
+  props<{ comment: DashboardCommentEntry }>()
 );
 
 export const addCommentError = createAction(
@@ -150,7 +150,7 @@ export const updateComment = createAction(
 
 export const updateCommentSuccess = createAction(
   MyDashboardsActionType.UPDATE_COMMENT_SUCCESS,
-  props<{ comment: CommentEntry }>()
+  props<{ comment: DashboardCommentEntry }>()
 );
 
 export const updateCommentError = createAction(
@@ -167,7 +167,7 @@ export const deleteCommentSuccess = createAction(
   MyDashboardsActionType.DELETE_COMMENT_SUCCESS,
   props<{
     commentId: string;
-    restoredComment?: CommentEntry
+    restoredComment?: DashboardCommentEntry
   }>()
 );
 
@@ -183,7 +183,7 @@ export const publishComment = createAction(
 
 export const publishCommentSuccess = createAction(
   MyDashboardsActionType.PUBLISH_COMMENT_SUCCESS,
-  props<{ comment: CommentEntry }>()
+  props<{ comment: DashboardCommentEntry }>()
 );
 
 export const publishCommentError = createAction(
@@ -198,7 +198,7 @@ export const unpublishComment = createAction(
 
 export const unpublishCommentSuccess = createAction(
   MyDashboardsActionType.UNPUBLISH_COMMENT_SUCCESS,
-  props<{ comment: CommentEntry }>()
+  props<{ comment: DashboardCommentEntry }>()
 );
 
 export const unpublishCommentError = createAction(
@@ -221,7 +221,7 @@ export const cloneCommentForEdit = createAction(
 
 export const cloneCommentForEditSuccess = createAction(
   MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT_SUCCESS,
-  props<{ clonedComment: CommentEntry; originalCommentId: string }>()
+  props<{ clonedComment: DashboardCommentEntry; originalCommentId: string }>()
 );
 
 export const cloneCommentForEditError = createAction(
@@ -237,7 +237,7 @@ export const restoreCommentVersion = createAction(
 
 export const restoreCommentVersionSuccess = createAction(
   MyDashboardsActionType.RESTORE_COMMENT_VERSION_SUCCESS,
-  props<{ comment: CommentEntry }>()
+  props<{ comment: DashboardCommentEntry }>()
 );
 
 export const restoreCommentVersionError = createAction(

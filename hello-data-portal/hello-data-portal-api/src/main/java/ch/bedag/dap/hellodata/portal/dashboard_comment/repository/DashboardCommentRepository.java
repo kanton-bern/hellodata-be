@@ -24,19 +24,39 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.comment.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.repository;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CommentCreateDto {
-    private String dashboardUrl;
-    private String pointerUrl;
-    private String text;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface DashboardCommentRepository extends JpaRepository<DashboardCommentEntity, String> {
+
+    /**
+     * Find all comments for a specific dashboard in a context
+     */
+    List<DashboardCommentEntity> findByContextKeyAndDashboardIdOrderByCreatedDateAsc(String contextKey, Integer dashboardId);
+
+    /**
+     * Find comment by ID with history eagerly loaded
+     */
+    @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.id = :id")
+    Optional<DashboardCommentEntity> findByIdWithHistory(@Param("id") String id);
+
+    /**
+     * Find all non-deleted comments for a dashboard
+     */
+    List<DashboardCommentEntity> findByContextKeyAndDashboardIdAndDeletedFalseOrderByCreatedDateAsc(String contextKey, Integer dashboardId);
+
+    /**
+     * Delete all comments for a specific dashboard
+     */
+    void deleteByContextKeyAndDashboardId(String contextKey, Integer dashboardId);
 }
+

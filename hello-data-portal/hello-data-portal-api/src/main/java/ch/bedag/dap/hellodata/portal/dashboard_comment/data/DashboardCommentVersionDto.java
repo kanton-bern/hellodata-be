@@ -24,7 +24,7 @@
   * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   */
- package ch.bedag.dap.hellodata.portal.comment.data;
+ package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
  import lombok.AllArgsConstructor;
  import lombok.Builder;
@@ -35,10 +35,10 @@
  @Builder
  @NoArgsConstructor
  @AllArgsConstructor
- public class CommentVersionDto {
+ public class DashboardCommentVersionDto {
      private int version;
      private String text;
-     private CommentStatus status;
+     private DashboardCommentStatus status;
      private Long editedDate;
      private String editedBy;
      private Long publishedDate;
