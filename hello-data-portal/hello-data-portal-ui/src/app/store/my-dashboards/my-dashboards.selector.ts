@@ -182,30 +182,31 @@ const findLatestPublishedVersion = (comment: CommentEntry): CommentVersion | und
 };
 
 // Helper function to find user's own draft
-const findOwnDraft = (comment: CommentEntry, userFullName: string): CommentVersion | undefined =>
+const findOwnDraft = (comment: CommentEntry, currentUserEmail: string): CommentVersion | undefined =>
   comment.history.find(v =>
     v.status === CommentStatus.DRAFT &&
     !v.deleted &&
-    v.editedBy === userFullName
+    comment.authorEmail === currentUserEmail
   );
 
 // Helper function to determine visible version for non-admin users
 const getVisibleVersionForNonAdmin = (
   comment: CommentEntry,
   currentActive: CommentVersion | undefined,
-  userFullName: string
+  currentUserEmail: string
 ): CommentVersion | undefined => {
   if (!currentActive) return undefined;
 
   if (currentActive.status === CommentStatus.DRAFT) {
-    const isDraftByCurrentUser = currentActive.editedBy === userFullName;
+    // Check if this draft belongs to the current user by checking comment's author
+    const isDraftByCurrentUser = comment.authorEmail === currentUserEmail;
 
     if (isDraftByCurrentUser) {
       return currentActive;
     }
 
     // Show latest published version or user's own draft if no published version exists
-    return findLatestPublishedVersion(comment) ?? findOwnDraft(comment, userFullName);
+    return findLatestPublishedVersion(comment) ?? findOwnDraft(comment, currentUserEmail);
   }
 
   return currentActive;
@@ -221,8 +222,6 @@ export const selectVisibleComments = createSelector(
   (comments, contextKey, profile, isSuperuser, isBusinessDomainAdmin, authState) => {
     const currentUserEmail = profile?.email;
     if (!currentUserEmail) return [];
-
-    const userFullName = `${profile.given_name} ${profile.family_name}`;
 
     // Check if user is data_domain_admin for this specific context
     const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
@@ -242,7 +241,7 @@ export const selectVisibleComments = createSelector(
         const currentActive = getActiveVersion(comment);
         const activeVersion = isAdmin
           ? currentActive
-          : getVisibleVersionForNonAdmin(comment, currentActive, userFullName);
+          : getVisibleVersionForNonAdmin(comment, currentActive, currentUserEmail);
 
         if (!activeVersion || activeVersion.deleted) return null;
 
@@ -287,12 +286,12 @@ export const canEditComment = createSelector(
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
   (profile, isSuperuser, isBusinessDomainAdmin) => (comment: CommentEntry) => {
-    const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
+    const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
 
-    // Can edit: author, superuser, business_domain_admin
-    return isSuperuser || isBusinessDomainAdmin || comment.author === currentUserName;
+    // Can edit: author (by email), superuser, business_domain_admin
+    return isSuperuser || isBusinessDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
   }
 );
 
@@ -351,12 +350,12 @@ export const canDeleteComment = createSelector(
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
   (profile, isSuperuser, isBusinessDomainAdmin) => (comment: CommentEntry) => {
-    const currentUserName = profile ? `${profile.given_name} ${profile.family_name}` : null;
+    const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || comment.deleted) return false;
 
-    // Can delete: author, superuser, business_domain_admin
-    return isSuperuser || isBusinessDomainAdmin || comment.author === currentUserName;
+    // Can delete: author (by email), superuser, business_domain_admin
+    return isSuperuser || isBusinessDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
   }
 );
 

@@ -62,6 +62,7 @@ import {ScreenService} from "../../shared/services";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectCurrentUserPermissions} from "../auth/auth.selector";
+import {selectCurrentDashboardUrl} from "./my-dashboards.selector";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -174,7 +175,9 @@ export class MyDashboardsEffects {
         }).pipe(
           switchMap(comment => scheduled([
             addCommentSuccess({comment}),
-            showSuccess({message: '@Comment added successfully'})
+            showSuccess({message: '@Comment added successfully'}),
+            // Reload comments to ensure proper visibility filtering
+            loadDashboardComments({dashboardId, contextKey, dashboardUrl})
           ], asyncScheduler)),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
@@ -185,15 +188,24 @@ export class MyDashboardsEffects {
   updateComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(updateComment),
-      switchMap(({dashboardId, contextKey, commentId, text, pointerUrl}) => {
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl}, dashboardUrl]) => {
         return this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, {
           text,
           pointerUrl
         }).pipe(
-          switchMap(comment => scheduled([
-            updateCommentSuccess({comment}),
-            showSuccess({message: '@Comment updated successfully'})
-          ], asyncScheduler)),
+          switchMap(comment => {
+            const actions: any[] = [
+              updateCommentSuccess({comment}),
+              showSuccess({message: '@Comment updated successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
           catchError(e => scheduled([
             updateCommentError({error: e}),
             showError({error: e})
@@ -206,21 +218,28 @@ export class MyDashboardsEffects {
   deleteComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteComment),
-      switchMap(({dashboardId, contextKey, commentId}) => {
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
         return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId).pipe(
           switchMap(restoredComment => {
+            const actions: any[] = [
+              deleteCommentSuccess({commentId, restoredComment})
+            ];
+
             // Check if comment was soft deleted or restored to previous version
             if (restoredComment.deleted) {
-              return scheduled([
-                deleteCommentSuccess({commentId, restoredComment}),
-                showSuccess({message: '@Comment deleted successfully'})
-              ], asyncScheduler);
+              actions.push(showSuccess({message: '@Comment deleted successfully'}));
             } else {
-              return scheduled([
-                deleteCommentSuccess({commentId, restoredComment}),
-                showSuccess({message: '@Comment version restored'})
-              ], asyncScheduler);
+              actions.push(showSuccess({message: '@Comment version restored'}));
             }
+
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+
+            return scheduled(actions, asyncScheduler);
           }),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
@@ -231,12 +250,21 @@ export class MyDashboardsEffects {
   publishComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(publishComment),
-      switchMap(({dashboardId, contextKey, commentId}) => {
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
         return this._myDashboardsService.publishComment(contextKey, dashboardId, commentId).pipe(
-          switchMap(comment => scheduled([
-            publishCommentSuccess({comment}),
-            showSuccess({message: '@Comment published successfully'})
-          ], asyncScheduler)),
+          switchMap(comment => {
+            const actions: any[] = [
+              publishCommentSuccess({comment}),
+              showSuccess({message: '@Comment published successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
@@ -246,12 +274,21 @@ export class MyDashboardsEffects {
   unpublishComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(unpublishComment),
-      switchMap(({dashboardId, contextKey, commentId}) => {
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
         return this._myDashboardsService.unpublishComment(contextKey, dashboardId, commentId).pipe(
-          switchMap(comment => scheduled([
-            unpublishCommentSuccess({comment}),
-            showSuccess({message: '@Comment unpublished successfully'})
-          ], asyncScheduler)),
+          switchMap(comment => {
+            const actions: any[] = [
+              unpublishCommentSuccess({comment}),
+              showSuccess({message: '@Comment unpublished successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
@@ -261,15 +298,24 @@ export class MyDashboardsEffects {
   cloneCommentForEdit$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(cloneCommentForEdit),
-      switchMap(({dashboardId, contextKey, commentId, newText, newPointerUrl}) => {
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl}, dashboardUrl]) => {
         return this._myDashboardsService.cloneCommentForEdit(contextKey, dashboardId, commentId, {
           text: newText,
           pointerUrl: newPointerUrl
         }).pipe(
-          switchMap(clonedComment => scheduled([
-            cloneCommentForEditSuccess({clonedComment, originalCommentId: commentId}),
-            showSuccess({message: '@Comment edited successfully'})
-          ], asyncScheduler)),
+          switchMap(clonedComment => {
+            const actions: any[] = [
+              cloneCommentForEditSuccess({clonedComment, originalCommentId: commentId}),
+              showSuccess({message: '@Comment edited successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })
@@ -279,12 +325,21 @@ export class MyDashboardsEffects {
   restoreCommentVersion$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(restoreCommentVersion),
-      switchMap(({dashboardId, contextKey, commentId, versionNumber}) => {
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, versionNumber}, dashboardUrl]) => {
         return this._myDashboardsService.restoreVersion(contextKey, dashboardId, commentId, versionNumber).pipe(
-          switchMap(comment => scheduled([
-            restoreCommentVersionSuccess({comment}),
-            showSuccess({message: '@Comment version restored successfully'})
-          ], asyncScheduler)),
+          switchMap(comment => {
+            const actions: any[] = [
+              restoreCommentVersionSuccess({comment}),
+              showSuccess({message: '@Comment version restored successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
       })

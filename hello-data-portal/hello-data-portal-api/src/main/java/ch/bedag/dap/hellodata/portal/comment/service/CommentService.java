@@ -50,6 +50,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CommentService {
 
+    private static final String COMMENT_NOT_FOUND_ERROR = "Comment not found";
+
     private final UserRepository userRepository;
 
     // In-memory mock storage - key is "contextKey:dashboardId"
@@ -148,7 +150,7 @@ public class CommentService {
     public CommentDto createComment(String contextKey, int dashboardId, CommentCreateDto createDto) {
         String key = buildKey(contextKey, dashboardId);
 
-        String authorName = SecurityUtils.getCurrentUsername();
+        String authorFullName = SecurityUtils.getCurrentUserFullName();
         String authorEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
 
@@ -157,7 +159,7 @@ public class CommentService {
                 .text(createDto.getText())
                 .status(CommentStatus.DRAFT)
                 .editedDate(now)
-                .editedBy(authorName)
+                .editedBy(authorFullName)
                 .deleted(false)
                 .build();
 
@@ -167,7 +169,7 @@ public class CommentService {
                 .dashboardUrl(createDto.getDashboardUrl())
                 .contextKey(contextKey)
                 .pointerUrl(createDto.getPointerUrl())
-                .author(authorName)
+                .author(authorFullName)
                 .authorEmail(authorEmail)
                 .createdDate(now)
                 .deleted(false)
@@ -190,13 +192,13 @@ public class CommentService {
         List<CommentDto> comments = commentsStore.get(key);
 
         if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
         }
 
         CommentDto comment = comments.stream()
                 .filter(c -> c.getId().equals(commentId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can update
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
@@ -206,7 +208,7 @@ public class CommentService {
         }
 
         // Update the active version in history
-        String editorName = SecurityUtils.getCurrentUsername();
+        String editorName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
         comment.getHistory().stream()
@@ -232,13 +234,13 @@ public class CommentService {
         List<CommentDto> comments = commentsStore.get(key);
 
         if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
         }
 
         CommentDto comment = comments.stream()
                 .filter(c -> c.getId().equals(commentId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can delete
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
@@ -247,7 +249,7 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment");
         }
 
-        String deleterName = SecurityUtils.getCurrentUsername();
+        String deleterName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
         // Mark current active version as deleted
@@ -286,7 +288,7 @@ public class CommentService {
         List<CommentDto> comments = commentsStore.get(key);
 
         if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
         }
 
         // Only superuser can publish
@@ -297,9 +299,9 @@ public class CommentService {
         CommentDto comment = comments.stream()
                 .filter(c -> c.getId().equals(commentId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        String publisherName = SecurityUtils.getCurrentUsername();
+        String publisherName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
         comment.getHistory().stream()
@@ -325,7 +327,7 @@ public class CommentService {
         List<CommentDto> comments = commentsStore.get(key);
 
         if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
         }
 
         // Only superuser can unpublish
@@ -336,7 +338,7 @@ public class CommentService {
         CommentDto comment = comments.stream()
                 .filter(c -> c.getId().equals(commentId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         comment.getHistory().stream()
                 .filter(v -> v.getVersion() == comment.getActiveVersion())
@@ -360,13 +362,13 @@ public class CommentService {
         List<CommentDto> comments = commentsStore.get(key);
 
         if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
         }
 
         CommentDto comment = comments.stream()
                 .filter(c -> c.getId().equals(commentId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can edit
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
@@ -380,7 +382,7 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment must be published to create a new edit version");
         }
 
-        String editorName = SecurityUtils.getCurrentUsername();
+        String editorName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
         int newVersionNumber = comment.getHistory().stream()
@@ -417,13 +419,13 @@ public class CommentService {
         List<CommentDto> comments = commentsStore.get(key);
 
         if (comments == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
         }
 
         CommentDto comment = comments.stream()
                 .filter(c -> c.getId().equals(commentId))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can restore
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();

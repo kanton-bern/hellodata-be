@@ -89,7 +89,7 @@ class CommentServiceTest {
     void createComment_shouldCreateCommentWithDraftStatus() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
                     .text("Test comment")
@@ -125,7 +125,7 @@ class CommentServiceTest {
     void getComments_shouldReturnOnlyPublishedCommentsForRegularUser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
@@ -165,7 +165,7 @@ class CommentServiceTest {
     void getComments_shouldReturnDraftCommentsForAuthor() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
@@ -191,7 +191,7 @@ class CommentServiceTest {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             // Create draft as regular user
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
@@ -216,7 +216,7 @@ class CommentServiceTest {
     void updateComment_shouldUpdateDraftComment() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
                     .text("Original text")
@@ -243,7 +243,7 @@ class CommentServiceTest {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             // Create comment as one user
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -272,7 +272,7 @@ class CommentServiceTest {
     void publishComment_shouldPublishDraftComment() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
                     .text("Test comment")
@@ -282,7 +282,7 @@ class CommentServiceTest {
 
             // Publish as superuser
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             CommentDto published = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
@@ -303,7 +303,7 @@ class CommentServiceTest {
     void publishComment_shouldThrowExceptionWhenNotSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -324,7 +324,7 @@ class CommentServiceTest {
     void unpublishComment_shouldUnpublishComment() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -351,7 +351,7 @@ class CommentServiceTest {
     void unpublishComment_shouldThrowExceptionWhenNotSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -377,7 +377,7 @@ class CommentServiceTest {
     void deleteComment_shouldSoftDeleteDraftWithNoPublishedVersions() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -398,7 +398,7 @@ class CommentServiceTest {
     void deleteComment_shouldRestoreToLastPublishedVersion() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // Create and publish comment
@@ -426,7 +426,7 @@ class CommentServiceTest {
     void deleteComment_shouldThrowExceptionWhenNotAuthorOrSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -450,7 +450,7 @@ class CommentServiceTest {
     void cloneCommentForEdit_shouldCreateNewDraftVersion() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // Create and publish comment
@@ -484,7 +484,7 @@ class CommentServiceTest {
     void cloneCommentForEdit_shouldThrowExceptionWhenNotPublished() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -505,7 +505,7 @@ class CommentServiceTest {
     void restoreVersion_shouldRestoreSpecificVersion() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             // Create, publish, and create multiple versions
@@ -533,7 +533,7 @@ class CommentServiceTest {
     void restoreVersion_shouldThrowExceptionWhenNotAuthorOrSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -557,7 +557,7 @@ class CommentServiceTest {
     void getComments_shouldNotReturnDeletedComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
