@@ -28,24 +28,30 @@ package ch.bedag.dap.hellodata.portal.comment.service;
 
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.comment.data.*;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
 
-    @InjectMocks
+    @Mock
+    private UserRepository userRepository;
+
     private CommentService commentService;
 
     private static final String TEST_CONTEXT_KEY = "test-context";
@@ -59,14 +65,19 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() {
-        commentService = new CommentService();
+        commentService = new CommentService(userRepository);
     }
 
     @Test
     void getComments_shouldReturnEmptyListWhenNoComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user repository for admin role check
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
             List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
@@ -115,6 +126,7 @@ class CommentServiceTest {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             // Create draft comment
@@ -122,7 +134,7 @@ class CommentServiceTest {
                     .text("Draft comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
-            CommentDto draftComment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, draftDto);
+            commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, draftDto);
 
             // Create and publish another comment
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -135,7 +147,12 @@ class CommentServiceTest {
 
             // Now check as regular user (different from author)
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn("Other User");
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user repository for admin role check
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(regularUser));
 
             List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
@@ -149,6 +166,7 @@ class CommentServiceTest {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -156,6 +174,10 @@ class CommentServiceTest {
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Mock user repository for admin role check
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
             List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
@@ -170,6 +192,7 @@ class CommentServiceTest {
             // Create draft as regular user
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -178,8 +201,9 @@ class CommentServiceTest {
                     .build();
             commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            // Check as superuser
+            // Check as superuser - no need for user repository mock as isSuperuser short-circuits the check
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
 
             List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
@@ -237,9 +261,9 @@ class CommentServiceTest {
                     .build();
 
             String commentId = comment.getId();
-            assertThatThrownBy(() -> {
-                commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, updateDto);
-            }).isInstanceOf(ResponseStatusException.class)
+            assertThatThrownBy(() ->
+                    commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, updateDto)
+            ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Not authorized to update this comment");
         }
     }
@@ -289,9 +313,9 @@ class CommentServiceTest {
             CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             String commentId = comment.getId();
-            assertThatThrownBy(() -> {
-                commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
-            }).isInstanceOf(ResponseStatusException.class)
+            assertThatThrownBy(() ->
+                    commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
+            ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Only superusers can publish comments");
         }
     }
@@ -342,9 +366,9 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             String commentId = comment.getId();
-            assertThatThrownBy(() -> {
-                commentService.unpublishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
-            }).isInstanceOf(ResponseStatusException.class)
+            assertThatThrownBy(() ->
+                    commentService.unpublishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
+            ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Only superusers can unpublish comments");
         }
     }
@@ -386,7 +410,7 @@ class CommentServiceTest {
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Create new version
-            CommentDto updated = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
                     comment.getId(), "Version 2", null);
 
             // Delete current version (should restore to version 1)
@@ -415,9 +439,9 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
 
             String commentId = comment.getId();
-            assertThatThrownBy(() -> {
-                commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
-            }).isInstanceOf(ResponseStatusException.class)
+            assertThatThrownBy(() ->
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
+            ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Not authorized to delete this comment");
         }
     }
@@ -470,9 +494,9 @@ class CommentServiceTest {
             CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             String commentId = comment.getId();
-            assertThatThrownBy(() -> {
-                commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, "New text", null);
-            }).isInstanceOf(ResponseStatusException.class)
+            assertThatThrownBy(() ->
+                    commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, "New text", null)
+            ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Comment must be published to create a new edit version");
         }
     }
@@ -522,9 +546,9 @@ class CommentServiceTest {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
 
             String commentId = comment.getId();
-            assertThatThrownBy(() -> {
-                commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, 1);
-            }).isInstanceOf(ResponseStatusException.class)
+            assertThatThrownBy(() ->
+                    commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, 1)
+            ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Not authorized to restore this comment version");
         }
     }
@@ -534,6 +558,7 @@ class CommentServiceTest {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUsername).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             CommentCreateDto createDto = CommentCreateDto.builder()
@@ -542,6 +567,10 @@ class CommentServiceTest {
                     .build();
             CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
             commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Mock user repository for admin role check
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
             List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
