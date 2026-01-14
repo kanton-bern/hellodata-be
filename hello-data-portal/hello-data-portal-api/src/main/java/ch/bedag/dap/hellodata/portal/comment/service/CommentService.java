@@ -250,7 +250,17 @@ public class CommentService {
         }
 
         // Optimistic locking check
-        if (comment.getEntityVersion() != updateDto.getEntityVersion()) {
+        long currentVersion = comment.getEntityVersion();
+        long providedVersion = updateDto.getEntityVersion();
+
+        if (currentVersion != providedVersion) {
+            // Log suspicious attempts with extremely high version numbers (potential attack)
+            long versionDiff = Math.abs(currentVersion - providedVersion);
+            if (versionDiff > 100) {
+                log.warn("Suspicious entity version mismatch detected for comment {}. Current: {}, Provided: {}, Difference: {}, User: {}",
+                        commentId, currentVersion, providedVersion, versionDiff, currentUserEmail);
+            }
+
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Comment was modified by another user. Please refresh and try again.");
         }
@@ -458,7 +468,17 @@ public class CommentService {
         }
 
         // IMPORTANT: Check optimistic locking FIRST before business validation
-        if (comment.getEntityVersion() != updateDto.getEntityVersion()) {
+        long currentVersion = comment.getEntityVersion();
+        long providedVersion = updateDto.getEntityVersion();
+
+        if (currentVersion != providedVersion) {
+            // Log suspicious attempts with extremely high version numbers (potential attack)
+            long versionDiff = Math.abs(currentVersion - providedVersion);
+            if (versionDiff > 100) {
+                log.warn("Suspicious entity version mismatch detected for comment clone/edit {}. Current: {}, Provided: {}, Difference: {}, User: {}",
+                        commentId, currentVersion, providedVersion, versionDiff, currentUserEmail);
+            }
+
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Comment was modified by another user. Please refresh and try again.");
         }

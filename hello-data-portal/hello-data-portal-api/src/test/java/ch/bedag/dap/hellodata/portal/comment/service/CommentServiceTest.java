@@ -815,5 +815,58 @@ class CommentServiceTest {
                     .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409); // HTTP 409 CONFLICT
         }
     }
+
+    @Test
+    void updateComment_shouldRejectAndLogSuspiciousEntityVersion() {
+        // Test that extremely high entity version is rejected and logged as suspicious
+
+        final String USER_EMAIL = "user@example.com";
+        final String USER_NAME = "Test User";
+
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+
+            // Create a comment
+            CommentCreateDto createDto = CommentCreateDto.builder()
+                    .text("Original text")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .pointerUrl(TEST_POINTER_URL)
+                    .build();
+
+            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+
+            assertThat(comment.getEntityVersion()).isZero();
+
+            // Attempt to update with suspiciously high version (potential attack)
+            CommentUpdateDto maliciousUpdate = CommentUpdateDto.builder()
+                    .text("Hacked text")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(999) // Way too high!
+                    .build();
+
+            // Should be rejected with CONFLICT
+            assertThatThrownBy(() ->
+                    commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, maliciousUpdate)
+            )
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Comment was modified by another user")
+                    .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409);
+
+            // Verify comment was NOT modified
+            List<CommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            assertThat(comments).hasSize(1);
+            CommentDto unchangedComment = comments.get(0);
+            assertThat(unchangedComment.getEntityVersion()).isZero(); // Still at version 0
+
+            CommentVersionDto activeVersion = unchangedComment.getHistory().stream()
+                    .filter(v -> v.getVersion() == unchangedComment.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+
+            assertThat(activeVersion.getText()).isEqualTo("Original text"); // Not "Hacked text"
+        }
+    }
 }
 
