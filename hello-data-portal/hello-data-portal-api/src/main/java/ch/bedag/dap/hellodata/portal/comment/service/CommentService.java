@@ -407,9 +407,37 @@ public class CommentService {
 
     /**
      * Clone a published comment for editing (creates a new DRAFT version).
+     * This is a convenience method for backward compatibility.
      */
     public CommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
                                           String newText, String newPointerUrl) {
+        // First, get the current comment to fetch its entityVersion
+        String key = buildKey(contextKey, dashboardId);
+        List<CommentDto> comments = commentsStore.get(key);
+
+        if (comments == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR);
+        }
+
+        CommentDto comment = comments.stream()
+                .filter(c -> c.getId().equals(commentId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        // Delegate to the version that accepts CommentUpdateDto with current entityVersion
+        CommentUpdateDto updateDto = CommentUpdateDto.builder()
+                .text(newText)
+                .pointerUrl(newPointerUrl)
+                .entityVersion(comment.getEntityVersion()) // Use current version
+                .build();
+        return cloneCommentForEdit(contextKey, dashboardId, commentId, updateDto);
+    }
+
+    /**
+     * Clone a published comment for editing (creates a new DRAFT version) - with optimistic locking support.
+     */
+    public CommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
+                                          CommentUpdateDto updateDto) {
         String key = buildKey(contextKey, dashboardId);
         List<CommentDto> comments = commentsStore.get(key);
 
@@ -429,6 +457,13 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to edit this comment");
         }
 
+        // IMPORTANT: Check optimistic locking FIRST before business validation
+        if (comment.getEntityVersion() != updateDto.getEntityVersion()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Comment was modified by another user. Please refresh and try again.");
+        }
+
+        // Now check business validation
         CommentVersionDto activeVersion = getActiveVersion(comment);
         if (activeVersion == null || activeVersion.getStatus() != CommentStatus.PUBLISHED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comment must be published to create a new edit version");
@@ -444,7 +479,7 @@ public class CommentService {
 
         CommentVersionDto newVersion = CommentVersionDto.builder()
                 .version(newVersionNumber)
-                .text(newText)
+                .text(updateDto.getText())
                 .status(CommentStatus.DRAFT)
                 .editedDate(now)
                 .editedBy(editorName)
@@ -454,8 +489,8 @@ public class CommentService {
         comment.getHistory().add(newVersion);
         comment.setActiveVersion(newVersionNumber);
         comment.setHasActiveDraft(true);
-        if (newPointerUrl != null) {
-            comment.setPointerUrl(newPointerUrl);
+        if (updateDto.getPointerUrl() != null) {
+            comment.setPointerUrl(updateDto.getPointerUrl());
         }
         comment.setEntityVersion(comment.getEntityVersion() + 1); // Increment version
 
@@ -464,6 +499,9 @@ public class CommentService {
         return comment;
     }
 
+    /**
+     * Restore a specific version from the comment history.
+     */
     /**
      * Restore a specific version of a comment.
      */

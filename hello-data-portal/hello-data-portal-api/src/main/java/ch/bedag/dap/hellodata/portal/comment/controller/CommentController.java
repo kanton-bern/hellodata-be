@@ -104,8 +104,7 @@ public class CommentController {
             @PathVariable int dashboardId,
             @PathVariable String commentId,
             @RequestBody CommentUpdateDto updateDto) {
-        return commentService.cloneCommentForEdit(contextKey, dashboardId, commentId,
-                updateDto.getText(), updateDto.getPointerUrl());
+        return commentService.cloneCommentForEdit(contextKey, dashboardId, commentId, updateDto);
     }
 
     @PostMapping("/{commentId}/restore/{versionNumber}")

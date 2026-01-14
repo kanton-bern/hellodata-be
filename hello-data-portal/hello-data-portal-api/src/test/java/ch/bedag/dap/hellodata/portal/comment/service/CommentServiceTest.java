@@ -761,5 +761,59 @@ class CommentServiceTest {
             assertThat(updated3.getEntityVersion()).isEqualTo(3);
         }
     }
+
+    @Test
+    void cloneCommentForEdit_shouldThrowConflictWhenEntityVersionMismatch() {
+        // Test optimistic locking in cloneCommentForEdit - simulate two users trying to edit the same published comment
+
+        final String USER_EMAIL = "user@example.com";
+        final String USER_NAME = "Test User";
+
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Step 1: Create and publish a comment
+            CommentCreateDto createDto = CommentCreateDto.builder()
+                    .text("Original published text")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .pointerUrl(TEST_POINTER_URL)
+                    .build();
+
+            CommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+            CommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            long publishedVersion = publishedComment.getEntityVersion(); // Get actual version after publish
+
+            // Step 2: User A retrieves the published comment (entityVersion after publish)
+            CommentUpdateDto userAEdit = CommentUpdateDto.builder()
+                    .text("User A's edit")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(publishedVersion) // User A has the published version
+                    .build();
+
+            // Step 3: User B also retrieves the comment and creates edit first
+            CommentUpdateDto userBEdit = CommentUpdateDto.builder()
+                    .text("User B's edit")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(publishedVersion) // User B has the same version
+                    .build();
+
+            // User B creates edit successfully
+            CommentDto editedByB = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userBEdit);
+            assertThat(editedByB.getEntityVersion()).isEqualTo(publishedVersion + 1); // Version incremented
+
+            // Step 4: User A tries to create edit with stale version - should fail with CONFLICT
+            // This should fail BEFORE checking if comment is published
+            assertThatThrownBy(() ->
+                    commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userAEdit)
+            )
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Comment was modified by another user")
+                    .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409); // HTTP 409 CONFLICT
+        }
+    }
 }
 
