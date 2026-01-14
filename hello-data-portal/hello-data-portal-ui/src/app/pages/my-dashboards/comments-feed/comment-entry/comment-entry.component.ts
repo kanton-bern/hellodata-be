@@ -32,7 +32,6 @@ import {TranslocoPipe} from "@jsverse/transloco";
 import {CommentEntry, CommentStatus} from "../../../../store/my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import {selectIsSuperuser} from "../../../../store/auth/auth.selector";
 import {
   cloneCommentForEdit,
   deleteComment,
@@ -91,7 +90,6 @@ export class CommentEntryComponent {
   editedText = '';
   editedPointerUrl = '';
 
-  isSuperuser$ = this.store.select(selectIsSuperuser);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
@@ -116,11 +114,19 @@ export class CommentEntryComponent {
     return comment.history.find(v => v.version === comment.activeVersion);
   });
 
-  // All visible versions: only non-deleted PUBLISHED from history
+  // All visible versions:
+  // - Admins can see all non-deleted versions (both PUBLISHED and DRAFT)
+  // - Non-admins can see only non-deleted PUBLISHED versions
   allVersions = computed(() => {
     const comment = this.comment();
+    const canViewMetadataValue = this.canViewMetadata();
+
     return comment.history
-      .filter(h => h.status === CommentStatus.PUBLISHED && !h.deleted)
+      .filter(h => {
+        if (h.deleted) return false;
+        // Admins can see all versions, non-admins only published
+        return canViewMetadataValue || h.status === CommentStatus.PUBLISHED;
+      })
       .map(h => ({
         ...h,
         isCurrentVersion: h.version === comment.activeVersion

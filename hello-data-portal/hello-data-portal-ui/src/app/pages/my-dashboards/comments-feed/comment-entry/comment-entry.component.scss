@@ -196,6 +196,24 @@
       text-transform: uppercase;
     }
 
+    .status-badge {
+      font-size: 0.6rem;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      text-transform: uppercase;
+
+      &.status-draft {
+        background-color: var(--gray-200, #e5e7eb);
+        color: var(--gray-700, #374151);
+      }
+
+      &.status-published {
+        background-color: var(--blue-100, #dbeafe);
+        color: var(--blue-700, #1d4ed8);
+      }
+    }
+
     .history-version {
       font-weight: 600;
       color: var(--primary-color, #3b82f6);

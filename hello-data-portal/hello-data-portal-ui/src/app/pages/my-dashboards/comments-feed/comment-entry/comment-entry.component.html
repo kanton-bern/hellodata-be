@@ -103,6 +103,10 @@
                   @if (historyItem.isCurrentVersion) {
                     <span class="active-badge">{{ '@Active' | transloco }}</span>
                   }
+                  <span class="status-badge" [class.status-draft]="historyItem.status === CommentStatus.DRAFT"
+                        [class.status-published]="historyItem.status === CommentStatus.PUBLISHED">
+                    {{ '@' + historyItem.status | transloco }}
+                  </span>
                   <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
                   <span class="history-author">{{ historyItem.editedBy }}</span>
                   <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
