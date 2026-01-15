@@ -27,7 +27,9 @@
 package ch.bedag.dap.hellodata.portal.dashboard_comment.repository;
 
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -48,6 +50,14 @@ public interface DashboardCommentRepository extends JpaRepository<DashboardComme
      */
     @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.id = :id")
     Optional<DashboardCommentEntity> findByIdWithHistory(@Param("id") String id);
+
+    /**
+     * Find comment by ID with history eagerly loaded and optimistic lock
+     * Use this method when you need to update the comment to ensure optimistic locking works correctly
+     */
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.id = :id")
+    Optional<DashboardCommentEntity> findByIdWithHistoryForUpdate(@Param("id") String id);
 
     /**
      * Find all non-deleted comments for a dashboard

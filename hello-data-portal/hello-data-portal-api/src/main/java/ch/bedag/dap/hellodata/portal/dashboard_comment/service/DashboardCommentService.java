@@ -110,7 +110,7 @@ public class DashboardCommentService {
      * Handle visibility logic for draft comments.
      */
     private DashboardCommentDto handleDraftComment(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
-                                          String userEmail, String userFullName, boolean isAdmin) {
+                                                   String userEmail, String userFullName, boolean isAdmin) {
         // Admins can see all drafts
         if (isAdmin) {
             return comment;
@@ -222,7 +222,7 @@ public class DashboardCommentService {
      * Update an existing comment (for DRAFT status).
      */
     public DashboardCommentDto updateComment(String contextKey, int dashboardId, String commentId, DashboardCommentUpdateDto updateDto) {
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can update
@@ -276,7 +276,7 @@ public class DashboardCommentService {
      * Delete a comment (soft delete).
      */
     public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId) {
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can delete
@@ -322,7 +322,7 @@ public class DashboardCommentService {
      * Publish a comment (change status from DRAFT to PUBLISHED).
      */
     public DashboardCommentDto publishComment(String contextKey, int dashboardId, String commentId) {
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Only superuser can publish
@@ -353,7 +353,7 @@ public class DashboardCommentService {
      * Unpublish a comment (change status from PUBLISHED to DRAFT).
      */
     public DashboardCommentDto unpublishComment(String contextKey, int dashboardId, String commentId) {
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Only superuser can unpublish
@@ -380,7 +380,7 @@ public class DashboardCommentService {
      * This is a convenience method for backward compatibility.
      */
     public DashboardCommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
-                                          String newText, String newPointerUrl) {
+                                                   String newText, String newPointerUrl) {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
@@ -396,8 +396,8 @@ public class DashboardCommentService {
      * Clone a published comment for editing (creates a new DRAFT version) - with optimistic locking support.
      */
     public DashboardCommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
-                                          DashboardCommentUpdateDto updateDto) {
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+                                                   DashboardCommentUpdateDto updateDto) {
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can edit
@@ -462,7 +462,7 @@ public class DashboardCommentService {
      * Restore a specific version of a comment.
      */
     public DashboardCommentDto restoreVersion(String contextKey, int dashboardId, String commentId, int versionNumber) {
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         // Check permissions - only author or superuser can restore

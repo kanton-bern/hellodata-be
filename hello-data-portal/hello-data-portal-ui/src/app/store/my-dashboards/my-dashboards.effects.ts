@@ -329,7 +329,21 @@ export class MyDashboardsEffects {
             }
             return scheduled(actions, asyncScheduler);
           }),
-          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+          catchError(e => {
+            const actions: any[] = [];
+
+            // Handle optimistic locking conflict (409)
+            if (e.status === 409) {
+              actions.push(showWarning({message: '@Comment was modified by another user. Refreshing...'}));
+              if (dashboardUrl) {
+                actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+              }
+            } else {
+              actions.push(showError({error: e}));
+            }
+
+            return scheduled(actions, asyncScheduler);
+          })
         );
       })
     )

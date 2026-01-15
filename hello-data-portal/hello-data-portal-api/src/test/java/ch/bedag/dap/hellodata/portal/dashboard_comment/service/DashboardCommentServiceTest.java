@@ -111,6 +111,13 @@ class DashboardCommentServiceTest {
                     return Optional.ofNullable(commentStore.get(id));
                 });
 
+        // Setup mocking for findByIdWithHistoryForUpdate (with optimistic locking)
+        lenient().when(commentRepository.findByIdWithHistoryForUpdate(any(String.class)))
+                .thenAnswer(invocation -> {
+                    String id = invocation.getArgument(0);
+                    return Optional.ofNullable(commentStore.get(id));
+                });
+
         // Setup mocking for findByContextKeyAndDashboardIdOrderByCreatedDateAsc
         lenient().when(commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(any(String.class), any(Integer.class)))
                 .thenAnswer(invocation -> {
