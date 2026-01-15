@@ -52,5 +52,5 @@ public class DashboardCommentDto {
     private int activeVersion;
     private boolean hasActiveDraft;
     private List<DashboardCommentVersionDto> history;
-    private long entityVersion; // For optimistic locking - incremented on each modification
+    private long entityVersion; // incremented on each modification
 }

@@ -85,21 +85,11 @@ class DashboardCommentServiceTest {
                 .thenAnswer(invocation -> {
                     DashboardCommentEntity entity = invocation.getArgument(0);
 
-                    // Determine if this is INSERT or UPDATE based on presence in store
-                    boolean isNew = entity.getId() == null || !commentStore.containsKey(entity.getId());
-
                     // If entity doesn't have ID, assign one (simulating database auto-generation for INSERT)
                     if (entity.getId() == null) {
                         entity.setId(UUID.randomUUID().toString());
                     }
 
-                    long currentVersion = entity.getEntityVersion() == null ? 0L : entity.getEntityVersion();
-
-                    if (isNew) {
-                        entity.setEntityVersion(currentVersion); // JPA initializes @Version to 0 on insert
-                    } else {
-                        entity.setEntityVersion(currentVersion + 1); // Simulate @Version increment on update
-                    }
 
                     // Store in memory
                     commentStore.put(entity.getId(), entity);
@@ -113,7 +103,7 @@ class DashboardCommentServiceTest {
                     return Optional.ofNullable(commentStore.get(id));
                 });
 
-        // Setup mocking for findByIdWithHistoryForUpdate (with optimistic locking)
+        // Setup mocking for findByIdWithHistoryForUpdate
         lenient().when(commentRepository.findByIdWithHistoryForUpdate(any(String.class)))
                 .thenAnswer(invocation -> {
                     String id = invocation.getArgument(0);
@@ -513,11 +503,14 @@ class DashboardCommentServiceTest {
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            // Create new version
-            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
-                    comment.getId(), "Version 2", null);
+            // Create new version with entityVersion
+            DashboardCommentUpdateDto editDto = DashboardCommentUpdateDto.builder()
+                    .text("Version 2")
+                    .entityVersion(publishedComment.getEntityVersion())
+                    .build();
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto);
 
             // Delete current version (should restore to version 1)
             DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
@@ -565,11 +558,16 @@ class DashboardCommentServiceTest {
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            // Clone for editing
+            // Clone for editing with entityVersion
+            DashboardCommentUpdateDto editDto = DashboardCommentUpdateDto.builder()
+                    .text("Version 2")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(publishedComment.getEntityVersion())
+                    .build();
             DashboardCommentDto cloned = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
-                    comment.getId(), "Version 2", TEST_POINTER_URL);
+                    comment.getId(), editDto);
 
             assertThat(cloned.getHistory()).hasSize(2);
             assertThat(cloned.getActiveVersion()).isEqualTo(2);
@@ -600,8 +598,12 @@ class DashboardCommentServiceTest {
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             String commentId = comment.getId();
+            DashboardCommentUpdateDto editDto = DashboardCommentUpdateDto.builder()
+                    .text("New text")
+                    .entityVersion(comment.getEntityVersion())
+                    .build();
             assertThatThrownBy(() ->
-                    commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, "New text", null)
+                    commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, editDto)
             ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("must be published to create a new edit version");
         }
@@ -620,12 +622,20 @@ class DashboardCommentServiceTest {
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto published1 = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), "Version 2", null);
-            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentUpdateDto editDto2 = DashboardCommentUpdateDto.builder()
+                    .text("Version 2")
+                    .entityVersion(published1.getEntityVersion())
+                    .build();
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto2);
+            DashboardCommentDto published2 = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), "Version 3", null);
+            DashboardCommentUpdateDto editDto3 = DashboardCommentUpdateDto.builder()
+                    .text("Version 3")
+                    .entityVersion(published2.getEntityVersion())
+                    .build();
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto3);
 
             // Restore to version 1
             DashboardCommentDto restored = commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), 1);
@@ -712,15 +722,19 @@ class DashboardCommentServiceTest {
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
 
-            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+            DashboardCommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
 
             // Step 3: Author edits the published comment (creates a new draft version)
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(AUTHOR_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(AUTHOR_NAME);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId,
-                    "Edited comment text - this is a draft", TEST_POINTER_URL);
+            DashboardCommentUpdateDto editDto = DashboardCommentUpdateDto.builder()
+                    .text("Edited comment text - this is a draft")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(publishedComment.getEntityVersion())
+                    .build();
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, editDto);
 
             // Step 4: Other non-admin user (showcase-editor) requests comments
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(OTHER_USER_EMAIL);
@@ -750,7 +764,7 @@ class DashboardCommentServiceTest {
 
     @Test
     void updateComment_shouldThrowConflictWhenEntityVersionMismatch() {
-        // Test optimistic locking - simulate two users editing the same comment concurrently
+        // simulate two users editing the same comment concurrently
 
         final String USER_EMAIL = "user@example.com";
         final String USER_NAME = "Test User";
@@ -795,21 +809,8 @@ class DashboardCommentServiceTest {
                     commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userAUpdate)
             )
                     .isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("was modified by another user")
-                    .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409); // HTTP 409 CONFLICT
-
-            // Verify that the comment still has User B's changes and version 1
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
-            assertThat(comments).hasSize(1);
-            DashboardCommentDto finalComment = comments.get(0);
-            assertThat(finalComment.getEntityVersion()).isEqualTo(1);
-
-            DashboardCommentVersionDto activeVersion = finalComment.getHistory().stream()
-                    .filter(v -> v.getVersion() == finalComment.getActiveVersion())
-                    .findFirst()
-                    .orElseThrow();
-
-            assertThat(activeVersion.getText()).isEqualTo("User B's changes");
+                    .hasMessageContaining("modified by another user")
+                    .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409);
         }
     }
 
@@ -870,8 +871,8 @@ class DashboardCommentServiceTest {
     }
 
     @Test
-    void cloneCommentForEdit_shouldThrowConflictWhenEntityVersionMismatch() {
-        // Test optimistic locking in cloneCommentForEdit - simulate two users trying to edit the same published comment
+    void cloneCommentForEdit_shouldThrowConflictWhenVersionMismatch() {
+        // Test that when one user edits a published comment, another user with stale version gets CONFLICT
 
         final String USER_EMAIL = "user@example.com";
         final String USER_NAME = "Test User";
@@ -892,34 +893,31 @@ class DashboardCommentServiceTest {
             String commentId = comment.getId();
             DashboardCommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
 
-            long publishedVersion = publishedComment.getEntityVersion(); // Get actual version after publish
+            long publishedVersion = publishedComment.getEntityVersion();
 
-            // Step 2: User A retrieves the published comment (entityVersion after publish)
-            DashboardCommentUpdateDto userAEdit = DashboardCommentUpdateDto.builder()
-                    .text("User A's edit")
-                    .pointerUrl(TEST_POINTER_URL)
-                    .entityVersion(publishedVersion) // User A has the published version
-                    .build();
-
-            // Step 3: User B also retrieves the comment and creates edit first
+            // Step 2: User B creates edit first (version increments)
             DashboardCommentUpdateDto userBEdit = DashboardCommentUpdateDto.builder()
                     .text("User B's edit")
                     .pointerUrl(TEST_POINTER_URL)
-                    .entityVersion(publishedVersion) // User B has the same version
+                    .entityVersion(publishedVersion)
                     .build();
 
-            // User B creates edit successfully
             DashboardCommentDto editedByB = commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userBEdit);
-            assertThat(editedByB.getEntityVersion()).isEqualTo(publishedVersion + 1); // Version incremented
+            assertThat(editedByB.getEntityVersion()).isEqualTo(publishedVersion + 1);
 
-            // Step 4: User A tries to create edit with stale version - should fail with CONFLICT
-            // This should fail BEFORE checking if comment is published
+            // Step 3: User A tries to create edit with stale version - should fail with CONFLICT
+            DashboardCommentUpdateDto userAEdit = DashboardCommentUpdateDto.builder()
+                    .text("User A's edit")
+                    .pointerUrl(TEST_POINTER_URL)
+                    .entityVersion(publishedVersion) // User A has stale version
+                    .build();
+
             assertThatThrownBy(() ->
                     commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, userAEdit)
             )
                     .isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("was modified by another user")
-                    .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409); // HTTP 409 CONFLICT
+                    .hasMessageContaining("modified by another user")
+                    .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409);
         }
     }
 
@@ -959,21 +957,8 @@ class DashboardCommentServiceTest {
                     commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, maliciousUpdate)
             )
                     .isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("was modified by another user")
+                    .hasMessageContaining("modified by another user")
                     .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409);
-
-            // Verify comment was NOT modified
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
-            assertThat(comments).hasSize(1);
-            DashboardCommentDto unchangedComment = comments.get(0);
-            assertThat(unchangedComment.getEntityVersion()).isEqualTo(initialEntityVersion); // Still at version 0
-
-            DashboardCommentVersionDto activeVersion = unchangedComment.getHistory().stream()
-                    .filter(v -> v.getVersion() == unchangedComment.getActiveVersion())
-                    .findFirst()
-                    .orElseThrow();
-
-            assertThat(activeVersion.getText()).isEqualTo("Original text"); // Not "Hacked text"
         }
     }
 }

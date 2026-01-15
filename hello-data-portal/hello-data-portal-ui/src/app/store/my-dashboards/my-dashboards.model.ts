@@ -84,5 +84,5 @@ export interface DashboardCommentEntry {
   activeVersion: number; // Currently active version from history
   hasActiveDraft?: boolean; // True when this comment has an active draft edit
   history: DashboardCommentVersion[]; // All versions of this comment
-  entityVersion: number; // For optimistic locking - incremented on each modification
+  entityVersion: number; // incremented on each modification
 }

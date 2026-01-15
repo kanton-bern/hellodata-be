@@ -52,19 +52,9 @@ public interface DashboardCommentRepository extends JpaRepository<DashboardComme
     /**
      * Find comment by ID with history eagerly loaded for update operations.
      * Note: Manual version check is performed in service layer for optimistic locking
-     * since @Lock(LockModeType.OPTIMISTIC) cannot be used with JOIN FETCH on non-versioned child entities.
      */
     @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.id = :id")
     Optional<DashboardCommentEntity> findByIdWithHistoryForUpdate(@Param("id") String id);
 
-    /**
-     * Find all non-deleted comments for a dashboard
-     */
-    List<DashboardCommentEntity> findByContextKeyAndDashboardIdAndDeletedFalseOrderByCreatedDateAsc(String contextKey, Integer dashboardId);
-
-    /**
-     * Delete all comments for a specific dashboard
-     */
-    void deleteByContextKeyAndDashboardId(String contextKey, Integer dashboardId);
 }
 

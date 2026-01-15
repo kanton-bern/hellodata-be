@@ -231,27 +231,8 @@ public class DashboardCommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to update this comment");
         }
 
-        // Optimistic locking check
-        long currentVersion = comment.getEntityVersion();
-        long providedVersion = updateDto.getEntityVersion();
-
-        log.info("OPTIMISTIC LOCK CHECK - commentId: {}, currentVersion (from DB): {}, providedVersion (from request): {}",
-                commentId, currentVersion, providedVersion);
-
-        if (currentVersion != providedVersion) {
-            // Log suspicious attempts with extremely high version numbers (potential attack)
-            long versionDiff = Math.abs(currentVersion - providedVersion);
-            if (versionDiff > 100) {
-                log.warn("Suspicious entity version mismatch detected for comment {}. Current: {}, Provided: {}, Difference: {}, User: {}",
-                        commentId, currentVersion, providedVersion, versionDiff, currentUserEmail);
-            }
-
-            log.warn("OPTIMISTIC LOCK CONFLICT - commentId: {}, currentVersion: {}, providedVersion: {}, user: {}",
-                    commentId, currentVersion, providedVersion, currentUserEmail);
-
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "DashboardCommentEntity was modified by another user. Please refresh and try again.");
-        }
+        // verify entityVersion matches
+        checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
 
         // Update the active version in history
         String editorName = SecurityUtils.getCurrentUserFullName();
@@ -270,8 +251,8 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
-        // Mark entity as dirty so @Version gets incremented (touching a field ensures Hibernate detects change)
-        comment.setHasActiveDraft(comment.isHasActiveDraft());
+        // Increment entity version programmatically
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
 
@@ -386,22 +367,6 @@ public class DashboardCommentService {
         return commentMapper.toDto(savedComment);
     }
 
-    /**
-     * Clone a published comment for editing (creates a new DRAFT version).
-     * This is a convenience method for backward compatibility.
-     */
-    public DashboardCommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
-                                                   String newText, String newPointerUrl) {
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistory(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
-                .text(newText)
-                .pointerUrl(newPointerUrl)
-                .entityVersion(comment.getEntityVersion())
-                .build();
-        return cloneCommentForEdit(contextKey, dashboardId, commentId, updateDto);
-    }
 
     /**
      * Clone a published comment for editing (creates a new DRAFT version) - with optimistic locking support.
@@ -418,22 +383,10 @@ public class DashboardCommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to edit this comment");
         }
 
-        // IMPORTANT: Check optimistic locking FIRST before business validation
-        long currentVersion = comment.getEntityVersion();
-        long providedVersion = updateDto.getEntityVersion();
+        // verify entityVersion matches
+        checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
 
-        if (currentVersion != providedVersion) {
-            long versionDiff = Math.abs(currentVersion - providedVersion);
-            if (versionDiff > 100) {
-                log.warn("Suspicious entity version mismatch detected for comment clone/edit {}. Current: {}, Provided: {}, Difference: {}, User: {}",
-                        commentId, currentVersion, providedVersion, versionDiff, currentUserEmail);
-            }
-
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "DashboardCommentEntity was modified by another user. Please refresh and try again.");
-        }
-
-        // Now check business validation
+        // Check business validation
         DashboardCommentVersionDto activeVersion = getActiveVersion(commentMapper.toDto(comment));
         if (activeVersion == null || activeVersion.getStatus() != DashboardCommentStatus.PUBLISHED) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "DashboardCommentEntity must be published to create a new edit version");
@@ -463,6 +416,8 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
+        // Increment entity version programmatically
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Created new version {} for comment {} on dashboard {}/{}",
@@ -509,6 +464,22 @@ public class DashboardCommentService {
                 .filter(v -> v.getVersion() == comment.getActiveVersion())
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * Check if the provided entity version matches the current version in database.
+     * Throws CONFLICT (409) if versions don't match.
+     */
+    private void checkEntityVersion(DashboardCommentEntity comment, long providedVersion, String userEmail) {
+        long currentVersion = comment.getEntityVersion();
+
+        if (currentVersion != providedVersion) {
+            log.warn("Entity version mismatch for comment {}. Current: {}, Provided: {}, User: {}",
+                    comment.getId(), currentVersion, providedVersion, userEmail);
+
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Comment was modified by another user. Please refresh and try again.");
+        }
     }
 
 }
