@@ -236,6 +236,9 @@ public class DashboardCommentService {
         long currentVersion = comment.getEntityVersion();
         long providedVersion = updateDto.getEntityVersion();
 
+        log.info("OPTIMISTIC LOCK CHECK - commentId: {}, currentVersion (from DB): {}, providedVersion (from request): {}",
+                commentId, currentVersion, providedVersion);
+
         if (currentVersion != providedVersion) {
             // Log suspicious attempts with extremely high version numbers (potential attack)
             long versionDiff = Math.abs(currentVersion - providedVersion);
@@ -243,6 +246,9 @@ public class DashboardCommentService {
                 log.warn("Suspicious entity version mismatch detected for comment {}. Current: {}, Provided: {}, Difference: {}, User: {}",
                         commentId, currentVersion, providedVersion, versionDiff, currentUserEmail);
             }
+
+            log.warn("OPTIMISTIC LOCK CONFLICT - commentId: {}, currentVersion: {}, providedVersion: {}, user: {}",
+                    commentId, currentVersion, providedVersion, currentUserEmail);
 
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "DashboardCommentEntity was modified by another user. Please refresh and try again.");
@@ -268,7 +274,8 @@ public class DashboardCommentService {
         // Entity version will be incremented automatically by @Version annotation
         DashboardCommentEntity savedComment = commentRepository.save(comment);
 
-        log.info("Updated comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+        log.info("Updated comment {} for dashboard {}/{}, new entityVersion: {}",
+                commentId, contextKey, dashboardId, savedComment.getEntityVersion());
         return commentMapper.toDto(savedComment);
     }
 
