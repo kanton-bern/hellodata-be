@@ -196,7 +196,6 @@ public class DashboardCommentService {
                 .deleted(false)
                 .activeVersion(1)
                 .hasActiveDraft(false)
-                .entityVersion(0L) // Initial version
                 .build();
 
         // Create first version
