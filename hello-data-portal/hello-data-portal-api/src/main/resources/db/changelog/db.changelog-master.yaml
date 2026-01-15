@@ -122,3 +122,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/46_remove_deprecated_documentation.xml
   - include:
       file: db/changelog/changelogs/47_create_dashboard_comments_tables.xml
+  - include:
+      file: db/changelog/changelogs/48_fix_entity_version_nullable.xml

@@ -89,9 +89,8 @@ public class DashboardCommentEntity {
     private boolean hasActiveDraft = false;
 
     @Version
-    @Column(name = "entity_version", nullable = false)
-    @Builder.Default
-    private Long entityVersion = 0L;
+    @Column(name = "entity_version")
+    private Long entityVersion;
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("version ASC")
