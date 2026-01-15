@@ -57,6 +57,15 @@
         <createIndex indexName="idx_comment_deleted" tableName="dashboard_comment">
             <column name="deleted"/>
         </createIndex>
+
+        <comment>Add foreign key constraint between dashboard_comment and context</comment>
+        <addForeignKeyConstraint baseTableName="dashboard_comment"
+                                 baseColumnNames="context_key"
+                                 constraintName="fk_dashboard_comment_context"
+                                 referencedTableName="context"
+                                 referencedColumnNames="context_key"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
     </changeSet>
 
     <changeSet id="47.2-create-dashboard-comment-version-table" author="hellodata">
