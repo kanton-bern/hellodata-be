@@ -75,6 +75,7 @@ public class DashboardCommentVersionEntity {
     private String publishedBy;
 
     @Column(name = "deleted", nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 }
 

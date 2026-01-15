@@ -71,6 +71,7 @@ public class DashboardCommentEntity {
     private Long createdDate;
 
     @Column(name = "deleted", nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 
     @Column(name = "deleted_date")
@@ -80,13 +81,16 @@ public class DashboardCommentEntity {
     private String deletedBy;
 
     @Column(name = "active_version", nullable = false)
+    @Builder.Default
     private Integer activeVersion = 1;
 
     @Column(name = "has_active_draft", nullable = false)
+    @Builder.Default
     private boolean hasActiveDraft = false;
 
     @Version
     @Column(name = "entity_version", nullable = false)
+    @Builder.Default
     private Long entityVersion = 0L;
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
