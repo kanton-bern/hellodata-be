@@ -93,11 +93,13 @@ class DashboardCommentServiceTest {
                         entity.setId(UUID.randomUUID().toString());
                     }
 
-                    // On UPDATE (entity exists in store), increment entityVersion (simulating JPA @Version behavior)
-                    if (!isNew) {
-                        entity.setEntityVersion(entity.getEntityVersion() + 1);
+                    long currentVersion = entity.getEntityVersion() == null ? 0L : entity.getEntityVersion();
+
+                    if (isNew) {
+                        entity.setEntityVersion(currentVersion); // JPA initializes @Version to 0 on insert
+                    } else {
+                        entity.setEntityVersion(currentVersion + 1); // Simulate @Version increment on update
                     }
-                    // On INSERT (new entity), entityVersion stays at 0 (it's already initialized to 0)
 
                     // Store in memory
                     commentStore.put(entity.getId(), entity);
