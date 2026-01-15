@@ -271,7 +271,9 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
-        // Entity version will be incremented automatically by @Version annotation
+        // Mark entity as dirty so @Version gets incremented (touching a field ensures Hibernate detects change)
+        comment.setHasActiveDraft(comment.isHasActiveDraft());
+
         DashboardCommentEntity savedComment = commentRepository.save(comment);
 
         log.info("Updated comment {} for dashboard {}/{}, new entityVersion: {}",
@@ -321,6 +323,7 @@ public class DashboardCommentService {
             log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         }
 
+
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         return commentMapper.toDto(savedComment);
     }
@@ -351,6 +354,7 @@ public class DashboardCommentService {
 
         comment.setHasActiveDraft(false);
 
+
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         return commentMapper.toDto(savedComment);
@@ -376,6 +380,7 @@ public class DashboardCommentService {
                     v.setPublishedDate(null);
                     v.setPublishedBy(null);
                 });
+
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Unpublished comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
@@ -459,6 +464,7 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
+
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Created new version {} for comment {} on dashboard {}/{}",
                 newVersionNumber, commentId, contextKey, dashboardId);
@@ -481,6 +487,7 @@ public class DashboardCommentService {
 
         comment.setActiveVersion(versionNumber);
         comment.setHasActiveDraft(false);
+
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Restored comment {} to version {} for dashboard {}/{}",
