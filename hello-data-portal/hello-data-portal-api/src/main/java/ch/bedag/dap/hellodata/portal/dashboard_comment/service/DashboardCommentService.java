@@ -251,7 +251,6 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
-        // Increment entity version programmatically
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
@@ -303,6 +302,7 @@ public class DashboardCommentService {
             log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         }
 
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         return commentMapper.toDto(savedComment);
@@ -334,6 +334,7 @@ public class DashboardCommentService {
 
         comment.setHasActiveDraft(false);
 
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
@@ -361,6 +362,7 @@ public class DashboardCommentService {
                     v.setPublishedBy(null);
                 });
 
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Unpublished comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
@@ -416,7 +418,6 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
-        // Increment entity version programmatically
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
@@ -442,6 +443,7 @@ public class DashboardCommentService {
         comment.setActiveVersion(versionNumber);
         comment.setHasActiveDraft(false);
 
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Restored comment {} to version {} for dashboard {}/{}",
