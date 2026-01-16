@@ -412,7 +412,7 @@ class DashboardCommentServiceTest {
             assertThatThrownBy(() ->
                     commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Only superusers can publish comments");
+                    .hasMessageContaining("Only admins can publish comments");
         }
     }
 
@@ -465,7 +465,7 @@ class DashboardCommentServiceTest {
             assertThatThrownBy(() ->
                     commentService.unpublishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Only superusers can unpublish comments");
+                    .hasMessageContaining("Only admins can unpublish comments");
         }
     }
 
