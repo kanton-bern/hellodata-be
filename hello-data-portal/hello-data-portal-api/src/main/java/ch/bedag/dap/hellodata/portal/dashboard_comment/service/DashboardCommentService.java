@@ -224,10 +224,11 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Check permissions - only author or superuser can update
+        // Check permissions - only author or admin can update
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        if (!isAuthor && !SecurityUtils.isSuperuser()) {
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+        if (!isAuthor && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to update this comment");
         }
 
@@ -267,10 +268,11 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Check permissions - only author or superuser can delete
+        // Check permissions - only author or admin can delete
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        if (!isAuthor && !SecurityUtils.isSuperuser()) {
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+        if (!isAuthor && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment");
         }
 
@@ -315,9 +317,10 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Only superuser can publish
-        if (!SecurityUtils.isSuperuser()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only superusers can publish comments");
+        // Only admins (superuser, business_domain_admin, data_domain_admin) can publish
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        if (!SecurityUtils.isSuperuser() && !isAdminForContext(currentUserEmail, contextKey)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can publish comments");
         }
 
         String publisherName = SecurityUtils.getCurrentUserFullName();
@@ -348,9 +351,10 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Only superuser can unpublish
-        if (!SecurityUtils.isSuperuser()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only superusers can unpublish comments");
+        // Only admins (superuser, business_domain_admin, data_domain_admin) can unpublish
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        if (!SecurityUtils.isSuperuser() && !isAdminForContext(currentUserEmail, contextKey)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can unpublish comments");
         }
 
         comment.getHistory().stream()
@@ -378,10 +382,11 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Check permissions - only author or superuser can edit
+        // Check permissions - only author or admin can edit
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        if (!isAuthor && !SecurityUtils.isSuperuser()) {
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+        if (!isAuthor && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to edit this comment");
         }
 
@@ -433,10 +438,11 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Check permissions - only author or superuser can restore
+        // Check permissions - only author or admin can restore
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        if (!isAuthor && !SecurityUtils.isSuperuser()) {
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+        if (!isAuthor && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
         }
 

@@ -222,15 +222,26 @@ export const selectPublishedCommentsCount = createSelector(
 
 export const canEditComment = createSelector(
   selectProfile,
+  selectCurrentDashboardContextKey,
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
-  (profile, isSuperuser, isBusinessDomainAdmin) => (comment: DashboardCommentEntry) => {
+  (state: AppState) => state.auth,
+  (profile, contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
     const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
 
-    // Can edit: author (by email), superuser, business_domain_admin
-    return isSuperuser || isBusinessDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
+    // Check if user is data_domain_admin for this specific context
+    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
+      ? authState.contextRoles.some(userContextRole =>
+        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+        userContextRole.context.contextKey === contextKey &&
+        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+      )
+      : false;
+
+    // Can edit: author (by email), superuser, business_domain_admin, data_domain_admin
+    return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
   }
 );
 
@@ -286,15 +297,26 @@ export const canUnpublishComment = createSelector(
 
 export const canDeleteComment = createSelector(
   selectProfile,
+  selectCurrentDashboardContextKey,
   selectIsSuperuser,
   selectIsBusinessDomainAdmin,
-  (profile, isSuperuser, isBusinessDomainAdmin) => (comment: DashboardCommentEntry) => {
+  (state: AppState) => state.auth,
+  (profile, contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
     const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || comment.deleted) return false;
 
-    // Can delete: author (by email), superuser, business_domain_admin
-    return isSuperuser || isBusinessDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
+    // Check if user is data_domain_admin for this specific context
+    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
+      ? authState.contextRoles.some(userContextRole =>
+        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+        userContextRole.context.contextKey === contextKey &&
+        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+      )
+      : false;
+
+    // Can delete: author (by email), superuser, business_domain_admin, data_domain_admin
+    return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
   }
 );
 
