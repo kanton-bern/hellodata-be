@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit} from '@angular/core';
-import {combineLatest, Observable, tap} from "rxjs";
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter} from "rxjs/operators";
 import {AsyncPipe, NgClass} from '@angular/common';
@@ -49,13 +49,14 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
+const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 @Component({
   templateUrl: 'embed-my-dashboard.component.html',
   styleUrls: ['./embed-my-dashboard.component.scss'],
   imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
@@ -64,6 +65,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   isCommentsOpen = false;
   private loadedDashboardId: number | null = null;
   private isNavigatingToPointerUrl = false;
+  private commentsRefreshSubscription: Subscription | null = null;
 
   constructor() {
     super();
@@ -88,19 +90,44 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit {
   toggleComments(): void {
     this.isCommentsOpen = !this.isCommentsOpen;
 
-    // Load fresh comments when opening the panel
     if (this.isCommentsOpen) {
-      combineLatest([
-        this.store.select(selectCurrentDashboardId),
-        this.store.select(selectCurrentDashboardContextKey),
-        this.store.select(selectCurrentDashboardUrl)
-      ]).pipe(
-        filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null)
-      ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
-        if (dashboardId && contextKey && dashboardUrl) {
+      // Load fresh comments when opening the panel and start refresh timer
+      this.loadCommentsAndStartTimer();
+    } else {
+      // Stop refresh timer when closing the panel
+      this.stopCommentsRefreshTimer();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopCommentsRefreshTimer();
+  }
+
+  private loadCommentsAndStartTimer(): void {
+    combineLatest([
+      this.store.select(selectCurrentDashboardId),
+      this.store.select(selectCurrentDashboardContextKey),
+      this.store.select(selectCurrentDashboardUrl)
+    ]).pipe(
+      filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null)
+    ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
+      if (dashboardId && contextKey && dashboardUrl) {
+        // Load comments immediately
+        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+
+        // Start refresh timer
+        this.stopCommentsRefreshTimer();
+        this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).subscribe(() => {
           this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
-        }
-      }).unsubscribe();
+        });
+      }
+    }).unsubscribe();
+  }
+
+  private stopCommentsRefreshTimer(): void {
+    if (this.commentsRefreshSubscription) {
+      this.commentsRefreshSubscription.unsubscribe();
+      this.commentsRefreshSubscription = null;
     }
   }
 
