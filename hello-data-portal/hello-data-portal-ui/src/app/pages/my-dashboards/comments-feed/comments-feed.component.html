@@ -2,6 +2,11 @@
 
   <div class="comments-header">
     <h4 class="text-center">{{ '@Comments' | transloco }}</h4>
+    @if (showCloseButton()) {
+      <button class="close-button" (click)="closePanel.emit()" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    }
   </div>
 
   <div class="comments-filters flex gap-2 px-2 py-1">

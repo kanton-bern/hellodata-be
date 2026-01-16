@@ -45,6 +45,33 @@
 .comments-header {
   flex-shrink: 0;
   padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  h4 {
+    margin: 0;
+    flex: 1;
+  }
+
+  .close-button {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    color: var(--p-text-muted-color);
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--p-text-color);
+    }
+  }
 }
 
 .comments-filters {

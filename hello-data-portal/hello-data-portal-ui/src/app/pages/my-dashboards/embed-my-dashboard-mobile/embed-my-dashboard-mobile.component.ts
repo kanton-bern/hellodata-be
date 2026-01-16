@@ -29,10 +29,9 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter, take} from "rxjs/operators";
-import {AsyncPipe, NgClass} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
-import {CommentsTogglePanelComponent} from "../comments-toggle-panel/comments-toggle-panel.component";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {AppState} from "../../../store/app/app.state";
 import {OpenedSubsystemsService} from "../../../shared/services/opened-subsystems.service";
@@ -47,25 +46,25 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
+import {Drawer} from "primeng/drawer";
+import {CommentsFeed} from "../comments-feed/comments-feed.component";
 
-export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 @Component({
-  selector: 'app-embed-my-dashboard',
-  templateUrl: 'embed-my-dashboard.component.html',
-  styleUrls: ['./embed-my-dashboard.component.scss'],
-  imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
+  selector: 'app-embed-my-dashboard-mobile',
+  templateUrl: 'embed-my-dashboard-mobile.component.html',
+  styleUrls: ['./embed-my-dashboard-mobile.component.scss'],
+  imports: [SubsystemIframeComponent, AsyncPipe, TranslocoPipe, Drawer, CommentsFeed]
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
+export class EmbedMyDashboardMobileComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
-  isCommentsOpen = false;
+  isDrawerVisible = false;
   private loadedDashboardId: number | null = null;
-  private isNavigatingToPointerUrl = false;
   private commentsRefreshSubscription: Subscription | null = null;
 
   constructor() {
@@ -85,19 +84,15 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   override ngOnInit(): void {
     super.ngOnInit();
-    // Overflow is handled by CSS using :has(app-embed-my-dashboard) selector
   }
 
-  toggleComments(): void {
-    this.isCommentsOpen = !this.isCommentsOpen;
+  openCommentsDrawer(): void {
+    this.isDrawerVisible = true;
+    this.loadCommentsAndStartTimer();
+  }
 
-    if (this.isCommentsOpen) {
-      // Load fresh comments when opening the panel and start refresh timer
-      this.loadCommentsAndStartTimer();
-    } else {
-      // Stop refresh timer when closing the panel
-      this.stopCommentsRefreshTimer();
-    }
+  onDrawerHide(): void {
+    this.stopCommentsRefreshTimer();
   }
 
   ngOnDestroy(): void {
@@ -111,7 +106,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       this.store.select(selectCurrentDashboardUrl)
     ]).pipe(
       filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null),
-      take(1) // Take only first emission to get current values
+      take(1)
     ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
       if (dashboardId && contextKey && dashboardUrl) {
         // Load comments immediately
@@ -141,10 +136,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${selectedLanguage.slice(0, 2)}${encodeURIComponent('&')}next=${supersetUrl + dashboardPath}`;
       const defaultUrl = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
 
-      // Only set URL if not navigating to pointer URL
-      if (!this.isNavigatingToPointerUrl) {
-        this.url = defaultUrl;
-      }
+      this.url = defaultUrl;
 
       this.openedSupersetsService.rememberOpenedSubsystem(supersetUrl + 'logout');
       const dataDomainName = dashboardInfo.appinfo?.businessContextInfo.subContext.name;
@@ -157,7 +149,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
         this.loadedDashboardId = dashboardId;
         this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
-        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
       }
     }
   }
@@ -186,9 +177,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   navigateToPointerUrl(pointerUrl: string): void {
     if (pointerUrl) {
-      this.isNavigatingToPointerUrl = true;
-      // Force iframe reload by temporarily clearing URL, then setting the new one
-      // This ensures reload even when clicking the same link twice
       this.url = '';
       setTimeout(() => {
         this.url = pointerUrl;
@@ -196,3 +184,4 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
     }
   }
 }
+

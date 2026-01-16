@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, effect, ElementRef, inject, output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, effect, ElementRef, inject, input, output, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button} from "primeng/button";
@@ -73,7 +73,9 @@ export class CommentsFeed implements AfterViewInit {
   private readonly store = inject<Store<AppState>>(Store);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
 
+  showCloseButton = input<boolean>(false);
   pointerUrlClick = output<string>();
+  closePanel = output<void>();
 
   comments$ = this.store.select(selectVisibleComments);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
