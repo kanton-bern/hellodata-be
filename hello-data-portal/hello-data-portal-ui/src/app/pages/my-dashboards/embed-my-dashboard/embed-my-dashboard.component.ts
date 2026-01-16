@@ -28,7 +28,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
-import {filter} from "rxjs/operators";
+import {filter, take} from "rxjs/operators";
 import {AsyncPipe, NgClass} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
@@ -109,7 +109,8 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       this.store.select(selectCurrentDashboardContextKey),
       this.store.select(selectCurrentDashboardUrl)
     ]).pipe(
-      filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null)
+      filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null),
+      take(1) // Take only first emission to get current values
     ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
       if (dashboardId && contextKey && dashboardUrl) {
         // Load comments immediately
@@ -121,7 +122,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
           this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
         });
       }
-    }).unsubscribe();
+    });
   }
 
   private stopCommentsRefreshTimer(): void {
