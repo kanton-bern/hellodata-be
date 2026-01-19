@@ -56,5 +56,11 @@ public interface DashboardCommentRepository extends JpaRepository<DashboardComme
     @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.id = :id")
     Optional<DashboardCommentEntity> findByIdWithHistoryForUpdate(@Param("id") String id);
 
+    /**
+     * Find all comments for a specific context (data domain) across all dashboards
+     */
+    @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.contextKey = :contextKey ORDER BY c.createdDate ASC")
+    List<DashboardCommentEntity> findByContextKeyOrderByCreatedDateAsc(@Param("contextKey") String contextKey);
+
 }
 

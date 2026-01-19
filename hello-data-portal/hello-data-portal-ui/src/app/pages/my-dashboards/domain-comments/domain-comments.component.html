@@ -1,0 +1,111 @@
+<h2 class="content-block">{{ '@Domain Comments' | transloco }}: {{ contextName }}</h2>
+<div class="card">
+  <p-table
+    #dt
+    [value]="comments"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['text', 'author', 'dashboardTitle']"
+    [tableStyle]="{'min-width': '60rem'}"
+    styleClass="p-datatable-striped">
+
+    <ng-template pTemplate="caption">
+      <div class="table-header flex justify-between items-center gap-4">
+        <p-button
+          [label]="'@Clear' | transloco"
+          severity="secondary"
+          icon="pi pi-filter-slash"
+          (click)="clearFilter(dt)" (keydown.enter)="clearFilter(dt)"/>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search"/>
+          <input
+            pInputText
+            type="text"
+            [(ngModel)]="globalFilterValue"
+            (input)="onGlobalFilter(dt, $event)"
+            [placeholder]="'@Search' | transloco"/>
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col" pSortableColumn="dashboardTitle" style="width: 20%">
+          {{ '@Dashboard' | transloco }}
+          <p-sortIcon field="dashboardTitle"/>
+        </th>
+        <th scope="col" pSortableColumn="text" style="width: 35%">
+          {{ '@Comment' | transloco }}
+          <p-sortIcon field="text"/>
+        </th>
+        <th scope="col" pSortableColumn="author" style="width: 15%">
+          {{ '@Author' | transloco }}
+          <p-sortIcon field="author"/>
+        </th>
+        <th scope="col" pSortableColumn="activeVersion.status" style="width: 10%">
+          {{ '@Status' | transloco }}
+          <p-sortIcon field="activeVersion.status"/>
+        </th>
+        <th scope="col" pSortableColumn="createdDate" style="width: 12%">
+          {{ '@Created' | transloco }}
+          <p-sortIcon field="createdDate"/>
+        </th>
+        <th scope="col" style="width: 8%">
+          {{ '@Actions' | transloco }}
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-comment>
+      <tr>
+        <td>
+          <a class="dashboard-link" (click)="navigateToDashboard(comment)">
+            {{ comment.dashboardTitle || ('Dashboard ' + comment.dashboardId) }}
+          </a>
+        </td>
+        <td class="comment-text">
+            <span [pTooltip]="comment.activeVersion?.text || comment.text" tooltipPosition="top">
+              {{ (comment.activeVersion?.text || comment.text) | slice:0:100 }}
+              @if ((comment.activeVersion?.text || comment.text)?.length > 100) {
+                ...
+              }
+            </span>
+        </td>
+        <td>
+            <span [pTooltip]="comment.authorEmail" tooltipPosition="top">
+              {{ comment.author }}
+            </span>
+        </td>
+        <td>
+          <p-tag
+            [value]="getStatusLabel(comment.activeVersion?.status || 'DRAFT') | transloco"
+            [severity]="getStatusSeverity(comment.activeVersion?.status || 'DRAFT')"/>
+        </td>
+        <td>
+          {{ comment.createdDate | date:'dd.MM.yy, HH:mm' }}
+        </td>
+        <td>
+          <p-button
+            icon="pi pi-external-link"
+            [rounded]="true"
+            [text]="true"
+            severity="info"
+            [pTooltip]="'@Open Dashboard' | transloco"
+            tooltipPosition="top"
+            (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center p-4">
+          {{ '@No comments found' | transloco }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+

@@ -463,7 +463,7 @@ public class DashboardCommentService {
     private DashboardCommentVersionDto findLastPublishedVersion(DashboardCommentDto comment) {
         return comment.getHistory().stream()
                 .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
-                .max((v1, v2) -> Integer.compare(v1.getVersion(), v2.getVersion()))
+                .max(Comparator.comparingInt(DashboardCommentVersionDto::getVersion))
                 .orElse(null);
     }
 
@@ -488,6 +488,121 @@ public class DashboardCommentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Comment was modified by another user. Please refresh and try again.");
         }
+    }
+
+    /**
+     * Get all comments for a data domain (contextKey) across all dashboards.
+     * Admins see all comments, viewers only see comments for dashboards they have access to.
+     */
+    @Transactional(readOnly = true)
+    public List<DomainCommentDto> getCommentsForDomain(String contextKey) {
+        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyOrderByCreatedDateAsc(contextKey);
+
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+
+        // Convert to DTOs, filter and transform comments based on user permissions
+        return comments.stream()
+                .map(this::toDomainCommentDto)
+                .filter(c -> !c.isDeleted())
+                .map(c -> filterDomainCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    /**
+     * Convert entity to DomainCommentDto with dashboard title.
+     */
+    private DomainCommentDto toDomainCommentDto(DashboardCommentEntity entity) {
+        DashboardCommentDto baseDto = commentMapper.toDto(entity);
+        DomainCommentDto domainDto = new DomainCommentDto();
+
+        // Copy all properties from base DTO
+        domainDto.setId(baseDto.getId());
+        domainDto.setDashboardId(baseDto.getDashboardId());
+        domainDto.setDashboardUrl(baseDto.getDashboardUrl());
+        domainDto.setContextKey(baseDto.getContextKey());
+        domainDto.setPointerUrl(baseDto.getPointerUrl());
+        domainDto.setAuthor(baseDto.getAuthor());
+        domainDto.setAuthorEmail(baseDto.getAuthorEmail());
+        domainDto.setCreatedDate(baseDto.getCreatedDate());
+        domainDto.setDeleted(baseDto.isDeleted());
+        domainDto.setActiveVersion(baseDto.getActiveVersion());
+        domainDto.setHistory(baseDto.getHistory());
+        domainDto.setHasActiveDraft(baseDto.isHasActiveDraft());
+        domainDto.setEntityVersion(baseDto.getEntityVersion());
+
+        // Set dashboard title - for now use dashboard ID, later can be enhanced with actual title
+        domainDto.setDashboardTitle("Dashboard " + entity.getDashboardId());
+
+        return domainDto;
+    }
+
+    /**
+     * Filter domain comment by permissions (similar to filterCommentByPermissions but for DomainCommentDto).
+     */
+    private DomainCommentDto filterDomainCommentByPermissions(DomainCommentDto comment, String userEmail, String userFullName, boolean isAdmin) {
+        DashboardCommentVersionDto activeVersion = getDomainActiveVersion(comment);
+        if (activeVersion == null || activeVersion.isDeleted()) {
+            return null;
+        }
+
+        // Published comments are visible to everyone
+        if (activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
+            return comment;
+        }
+
+        // Handle draft comments
+        if (activeVersion.getStatus() == DashboardCommentStatus.DRAFT) {
+            // Admins can see all drafts
+            if (isAdmin) {
+                return comment;
+            }
+
+            // Check if this is user's own draft
+            boolean isOwnDraft = (userEmail != null && userEmail.equals(comment.getAuthorEmail())) ||
+                    (userFullName != null && userFullName.equals(activeVersion.getEditedBy()));
+            if (isOwnDraft) {
+                return comment;
+            }
+
+            // For drafts by others, show the last published version if it exists
+            DashboardCommentVersionDto lastPublished = findLastPublishedVersionInDomainComment(comment);
+            if (lastPublished != null) {
+                comment.setActiveVersion(lastPublished.getVersion());
+                return comment;
+            }
+            return null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get active version from DomainCommentDto.
+     */
+    private DashboardCommentVersionDto getDomainActiveVersion(DomainCommentDto comment) {
+        if (comment.getHistory() == null || comment.getHistory().isEmpty()) {
+            return null;
+        }
+        return comment.getHistory().stream()
+                .filter(v -> v.getVersion() == comment.getActiveVersion())
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Find the last published version in domain comment history.
+     */
+    private DashboardCommentVersionDto findLastPublishedVersionInDomainComment(DomainCommentDto comment) {
+        if (comment.getHistory() == null || comment.getHistory().isEmpty()) {
+            return null;
+        }
+        return comment.getHistory().stream()
+                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
+                .max(Comparator.comparingInt(DashboardCommentVersionDto::getVersion))
+                .orElse(null);
     }
 
 }

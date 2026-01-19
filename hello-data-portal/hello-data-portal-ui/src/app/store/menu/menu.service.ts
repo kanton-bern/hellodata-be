@@ -61,9 +61,9 @@ import {filter} from "rxjs/operators";
   providedIn: 'root'
 })
 export class MenuService {
-  private _store = inject<Store<AppState>>(Store);
-  private _translateService = inject(TranslateService);
-  private _openedSubsystemsService = inject(OpenedSubsystemsService);
+  private readonly _store = inject<Store<AppState>>(Store);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _openedSubsystemsService = inject(OpenedSubsystemsService);
 
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
   private static readonly QUERY_LIST = '/queries/list/';
@@ -109,7 +109,7 @@ export class MenuService {
              appInfos, contextRoles, availableDomainItems, selectedDataDomain]) => {
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
-          if (item.routerLink && !(/^\//.test(item.routerLink))) {
+          if (item.routerLink && !(item.routerLink.startsWith("/"))) {
             item.routerLink = `/${item.routerLink}`;
           }
           const menuItem = {...item};
@@ -146,7 +146,7 @@ export class MenuService {
               const queriesMenu = menuItem.items.filter((item: {
                 id: string;
               }) => item.id === 'queriesMenu')[0];
-              queriesMenu.items = this.createQueriesSubNav(menuItem, availableDomainItems);
+              queriesMenu.items = this.createQueriesSubNav(availableDomainItems);
             }
           }
           return menuItem;
@@ -155,7 +155,7 @@ export class MenuService {
     )
   }
 
-  private createQueriesSubNav(menuItem: any[], availableDomainItems: any[]) {
+  private createQueriesSubNav(availableDomainItems: any[]) {
     const result: any[] = [];
     const dataDomains = availableDomainItems.map(item => item.data).sort((a, b) => a!.key.toLowerCase().localeCompare(b!.key.toLowerCase()));
     for (const dataDomain of dataDomains) {
@@ -222,12 +222,14 @@ export class MenuService {
     );
     let dashboardEntries: any[] = [];
 
-    for (const [contextName, dashboards] of sortedByKey) {
+    for (const [contextName, contextDashboards] of sortedByKey) {
       dashboardEntries = [];
+      const contextKey = contextDashboards[0]?.contextKey || '';
       if (this.displaySupersetLink(contextName, contextRoles)) {
         this.addLinkToOpenSuperset(dashboardEntries, contextName, appInfos);
       }
-      dashboards.forEach((db: SupersetDashboard) => {
+      this.addLinkToDomainComments(dashboardEntries, contextName, contextKey);
+      contextDashboards.forEach((db: SupersetDashboard) => {
         dashboardEntries.push({
           id: 'dashboardMenu' + db.id,
           label: db.dashboardTitle,
@@ -248,14 +250,25 @@ export class MenuService {
     });
   }
 
+  private addLinkToDomainComments(dashboardEntries: any[], contextName: string, contextKey: string) {
+    dashboardEntries.push({
+      id: 'domainComments_' + contextKey,
+      label: "@Domain Comments",
+      routerLink: `my-dashboards/comments/${contextKey}`,
+      queryParams: {contextName}
+    });
+  }
+
   private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[]) {
     const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
     supersets.forEach((supersetInstance) => {
       const contextName = supersetInstance.businessContextInfo.subContext.name;
+      const contextKey = supersetInstance.businessContextInfo.subContext.key;
       if (this.displaySupersetLink(contextName, contextRoles)) {
         if (myDashboards.filter(item => item.label === contextName).length === 0) {
           const items: any[] = [];
           this.addLinkToOpenSuperset(items, contextName, appInfos);
+          this.addLinkToDomainComments(items, contextName, contextKey);
           myDashboards.push({label: contextName, items});
         }
       }
@@ -309,7 +322,7 @@ export class MenuService {
 
   private getContextName(pd: LineageDoc, availableDataDomains: any[]) {
     const dataDomain = availableDataDomains.find(dataDomain => {
-      if (dataDomain.data && dataDomain.data.key) {
+      if (dataDomain.data?.key) {
         return dataDomain.data.key === pd.contextKey;
       }
       return false;
