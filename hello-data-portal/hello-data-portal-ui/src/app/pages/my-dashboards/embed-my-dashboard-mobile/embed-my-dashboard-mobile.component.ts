@@ -28,7 +28,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
-import {filter, take} from "rxjs/operators";
+import {filter, switchMap, take} from "rxjs/operators";
 import {AsyncPipe} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
@@ -112,10 +112,23 @@ export class EmbedMyDashboardMobileComponent extends BaseComponent implements On
         // Load comments immediately
         this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
 
-        // Start refresh timer
+        // Start refresh timer - fetch current values from store on each tick
         this.stopCommentsRefreshTimer();
-        this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).subscribe(() => {
-          this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+        this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
+          switchMap(() => combineLatest([
+            this.store.select(selectCurrentDashboardId),
+            this.store.select(selectCurrentDashboardContextKey),
+            this.store.select(selectCurrentDashboardUrl)
+          ]).pipe(take(1))),
+          filter(([id, key, url]) => id !== null && key !== null && url !== null)
+        ).subscribe(([currentDashboardId, currentContextKey, currentDashboardUrl]) => {
+          if (currentDashboardId && currentContextKey && currentDashboardUrl) {
+            this.store.dispatch(loadDashboardComments({
+              dashboardId: currentDashboardId,
+              contextKey: currentContextKey,
+              dashboardUrl: currentDashboardUrl
+            }));
+          }
         });
       }
     });
