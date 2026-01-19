@@ -1,24 +1,21 @@
 @if (currentMyDashboardInfo$ | async) {
+  <!-- Comments toggle panel at top (below header) -->
+  <button class="mobile-comments-panel"
+          type="button"
+          (click)="openCommentsDrawer()">
+    <i class="fa-regular fa-comment-dots"></i>
+    <span>{{ '@Comments' | transloco }}</span>
+  </button>
+
   <!-- Dashboard iframe -->
   <div class="mobile-dashboard-container">
     <app-subsystem-iframe [url]="url"></app-subsystem-iframe>
   </div>
 
-  <!-- Comments toggle panel at bottom -->
-  <div class="mobile-comments-panel"
-       (click)="openCommentsDrawer()"
-       (keydown.enter)="openCommentsDrawer()"
-       (keydown.space)="openCommentsDrawer()"
-       tabindex="0"
-       role="button">
-    <i class="fa-regular fa-comment-dots"></i>
-    <span>{{ '@Comments' | transloco }}</span>
-  </div>
-
-  <!-- Comments drawer from bottom -->
+  <!-- Comments drawer from top -->
   <p-drawer
     [(visible)]="isDrawerVisible"
-    position="bottom"
+    position="top"
     [style]="{height: '80vh'}"
     (onHide)="onDrawerHide()"
     styleClass="comments-drawer-no-header">

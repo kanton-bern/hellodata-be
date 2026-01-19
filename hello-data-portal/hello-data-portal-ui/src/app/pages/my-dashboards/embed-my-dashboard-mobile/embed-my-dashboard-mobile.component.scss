@@ -1,14 +1,9 @@
 :host {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 4rem); // Subtract mobile header height
+  height: 100%;
   width: 100%;
   overflow: hidden;
-  position: fixed;
-  top: 4rem; // Below mobile header
-  left: 0;
-  right: 0;
-  bottom: 0;
 }
 
 .mobile-comments-panel {
@@ -16,9 +11,11 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 16px;
+  padding: 12px;
+  width: 100%;
   background-color: var(--p-surface-100);
-  border-top: 1px solid var(--p-surface-border);
+  border: none;
+  border-bottom: 1px solid var(--p-surface-border);
   cursor: pointer;
   transition: background-color 0.2s;
   flex-shrink: 0;
@@ -27,14 +24,19 @@
     background-color: var(--p-surface-200);
   }
 
+  &:focus {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: -2px;
+  }
+
   i {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     color: var(--p-primary-color);
   }
 
   span {
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--p-text-color);
   }
 }
