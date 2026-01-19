@@ -1,13 +1,17 @@
 :host {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100vh - 4rem); // Subtract mobile header height
   width: 100%;
   overflow: hidden;
+  position: fixed;
+  top: 4rem; // Below mobile header
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .mobile-comments-panel {
-  margin-bottom: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,7 +40,6 @@
 }
 
 .mobile-dashboard-container {
-  margin-top: 40px;
   flex: 1;
   overflow: hidden;
   min-height: 0;
