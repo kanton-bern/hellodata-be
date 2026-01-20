@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
+import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
@@ -33,6 +34,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
@@ -42,12 +46,14 @@ import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleE
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing dashboard comments with database persistence.
@@ -511,13 +517,86 @@ public class DashboardCommentService {
         // Get dashboard info map (title and instanceName)
         Map<Integer, DashboardInfo> dashboardInfoMap = getDashboardInfoMap(contextKey);
 
+        // For non-admin users (viewers), get the set of dashboard IDs they have access to
+        Set<Integer> accessibleDashboardIds = isAdmin ? null : getAccessibleDashboardIdsForUser(contextKey, currentUserEmail);
+
         // Convert to DTOs, filter and transform comments based on user permissions
         return comments.stream()
+                .filter(entity -> isAdmin || accessibleDashboardIds == null || accessibleDashboardIds.contains(entity.getDashboardId()))
                 .map(entity -> toDomainDashboardCommentDto(entity, dashboardInfoMap))
                 .filter(c -> !c.isDeleted())
                 .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    /**
+     * Get the set of dashboard IDs that the current user has access to for a given context.
+     * Uses RBAC roles from Superset to determine access.
+     */
+    private Set<Integer> getAccessibleDashboardIdsForUser(String contextKey, String userEmail) {
+        Set<Integer> accessibleDashboardIds = new HashSet<>();
+        try {
+            DashboardResource dashboardResource = metaInfoResourceService.findAllByModuleTypeAndKindAndContextKey(
+                    ModuleType.SUPERSET,
+                    ModuleResourceKind.HELLO_DATA_DASHBOARDS,
+                    contextKey,
+                    DashboardResource.class
+            );
+            if (dashboardResource == null || dashboardResource.getData() == null) {
+                return accessibleDashboardIds;
+            }
+
+            String instanceName = dashboardResource.getInstanceName();
+
+            // Get user's roles from Superset
+            UserResource userResource = metaInfoResourceService.findByModuleTypeInstanceNameAndKind(
+                    ModuleType.SUPERSET, instanceName, ModuleResourceKind.HELLO_DATA_USERS, UserResource.class);
+
+            Optional<SubsystemUser> subsystemUserFound = CollectionUtils.emptyIfNull(userResource.getData())
+                    .stream()
+                    .filter(u -> u.getEmail().equalsIgnoreCase(userEmail))
+                    .findFirst();
+
+            if (subsystemUserFound.isEmpty()) {
+                log.debug("User {} not found in Superset instance {}", userEmail, instanceName);
+                return accessibleDashboardIds;
+            }
+
+            SubsystemUser assignedUser = subsystemUserFound.get();
+            List<SubsystemRole> userRoles = assignedUser.getRoles();
+            Set<String> rolesOfCurrentUser = userRoles.stream().map(SubsystemRole::getName).collect(Collectors.toSet());
+
+            boolean isSupersetAdmin = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_ADMIN_ROLE_NAME));
+            boolean isSupersetEditor = userRoles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_EDITOR_ROLE_NAME));
+
+            // Check each dashboard for RBAC access
+            List<SupersetDashboard> publishedDashboards = CollectionUtils.emptyIfNull(dashboardResource.getData())
+                    .stream()
+                    .filter(SupersetDashboard::isPublished)
+                    .toList();
+
+            for (SupersetDashboard dashboard : publishedDashboards) {
+                Set<String> dashboardRoles = dashboard.getRoles().stream().map(SubsystemRole::getName).collect(Collectors.toSet());
+
+                // Admin and Editor have access to all dashboards
+                if (isSupersetAdmin || isSupersetEditor) {
+                    accessibleDashboardIds.add(dashboard.getId());
+                    continue;
+                }
+
+                // Check if user has any of the dashboard's RBAC roles
+                boolean hasAccess = dashboardRoles.stream().anyMatch(rolesOfCurrentUser::contains);
+                if (hasAccess) {
+                    accessibleDashboardIds.add(dashboard.getId());
+                }
+            }
+
+            log.debug("User {} has access to {} dashboards in context {}", userEmail, accessibleDashboardIds.size(), contextKey);
+        } catch (Exception e) {
+            log.warn("Could not fetch accessible dashboards for user {} in context {}: {}", userEmail, contextKey, e.getMessage());
+        }
+        return accessibleDashboardIds;
     }
 
     /**
