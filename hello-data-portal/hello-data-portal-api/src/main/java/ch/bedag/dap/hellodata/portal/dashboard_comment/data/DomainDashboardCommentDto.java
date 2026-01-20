@@ -37,5 +37,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class DomainDashboardCommentDto extends DashboardCommentDto {
     private String dashboardTitle;
+    private String instanceName;
 }
 

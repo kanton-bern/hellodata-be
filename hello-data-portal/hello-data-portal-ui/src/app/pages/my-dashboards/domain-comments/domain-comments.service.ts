@@ -33,6 +33,7 @@ import {DashboardCommentEntry} from '../../../store/my-dashboards/my-dashboards.
 
 export interface DomainDashboardComment extends DashboardCommentEntry {
   dashboardTitle?: string;
+  instanceName?: string;
 }
 
 @Injectable({

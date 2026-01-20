@@ -142,11 +142,11 @@ export class DomainDashboardCommentsComponent implements OnInit {
   }
 
   navigateToDashboard(comment: DomainDashboardComment): void {
-    if (comment.dashboardId && comment.contextKey) {
+    if (comment.dashboardId && comment.instanceName) {
       this.router.navigate([
         'my-dashboards',
         'detail',
-        comment.contextKey,
+        comment.instanceName,
         comment.dashboardId
       ]);
     }

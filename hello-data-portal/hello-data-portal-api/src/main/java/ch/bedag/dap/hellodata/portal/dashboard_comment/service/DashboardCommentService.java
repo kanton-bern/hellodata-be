@@ -508,12 +508,12 @@ public class DashboardCommentService {
         String currentUserFullName = SecurityUtils.getCurrentUserFullName();
         boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
 
-        // Get dashboard titles map
-        Map<Integer, String> dashboardTitles = getDashboardTitlesMap(contextKey);
+        // Get dashboard info map (title and instanceName)
+        Map<Integer, DashboardInfo> dashboardInfoMap = getDashboardInfoMap(contextKey);
 
         // Convert to DTOs, filter and transform comments based on user permissions
         return comments.stream()
-                .map(entity -> toDomainDashboardCommentDto(entity, dashboardTitles))
+                .map(entity -> toDomainDashboardCommentDto(entity, dashboardInfoMap))
                 .filter(c -> !c.isDeleted())
                 .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
                 .filter(Objects::nonNull)
@@ -521,10 +521,16 @@ public class DashboardCommentService {
     }
 
     /**
-     * Get a map of dashboard ID to dashboard title for a given context.
+     * Helper record to store dashboard info (title and instanceName).
      */
-    private Map<Integer, String> getDashboardTitlesMap(String contextKey) {
-        Map<Integer, String> titlesMap = new HashMap<>();
+    private record DashboardInfo(String title, String instanceName) {
+    }
+
+    /**
+     * Get a map of dashboard ID to dashboard info (title and instanceName) for a given context.
+     */
+    private Map<Integer, DashboardInfo> getDashboardInfoMap(String contextKey) {
+        Map<Integer, DashboardInfo> infoMap = new HashMap<>();
         try {
             DashboardResource dashboardResource = metaInfoResourceService.findAllByModuleTypeAndKindAndContextKey(
                     ModuleType.SUPERSET,
@@ -533,20 +539,21 @@ public class DashboardCommentService {
                     DashboardResource.class
             );
             if (dashboardResource != null && dashboardResource.getData() != null) {
+                String instanceName = dashboardResource.getInstanceName();
                 for (SupersetDashboard dashboard : dashboardResource.getData()) {
-                    titlesMap.put(dashboard.getId(), dashboard.getDashboardTitle());
+                    infoMap.put(dashboard.getId(), new DashboardInfo(dashboard.getDashboardTitle(), instanceName));
                 }
             }
         } catch (Exception e) {
-            log.warn("Could not fetch dashboard titles for context {}: {}", contextKey, e.getMessage());
+            log.warn("Could not fetch dashboard info for context {}: {}", contextKey, e.getMessage());
         }
-        return titlesMap;
+        return infoMap;
     }
 
     /**
-     * Convert entity to DomainDashboardCommentDto with dashboard title.
+     * Convert entity to DomainDashboardCommentDto with dashboard title and instanceName.
      */
-    private DomainDashboardCommentDto toDomainDashboardCommentDto(DashboardCommentEntity entity, Map<Integer, String> dashboardTitles) {
+    private DomainDashboardCommentDto toDomainDashboardCommentDto(DashboardCommentEntity entity, Map<Integer, DashboardInfo> dashboardInfoMap) {
         DashboardCommentDto baseDto = commentMapper.toDto(entity);
         DomainDashboardCommentDto domainDto = new DomainDashboardCommentDto();
 
@@ -565,9 +572,14 @@ public class DashboardCommentService {
         domainDto.setHasActiveDraft(baseDto.isHasActiveDraft());
         domainDto.setEntityVersion(baseDto.getEntityVersion());
 
-        // Set dashboard title from map or fallback to "Dashboard " + id
-        String dashboardTitle = dashboardTitles.get(entity.getDashboardId());
-        domainDto.setDashboardTitle(dashboardTitle != null ? dashboardTitle : "Dashboard " + entity.getDashboardId());
+        // Set dashboard title and instanceName from map or fallback
+        DashboardInfo dashboardInfo = dashboardInfoMap.get(entity.getDashboardId());
+        if (dashboardInfo != null) {
+            domainDto.setDashboardTitle(dashboardInfo.title() != null ? dashboardInfo.title() : "Dashboard " + entity.getDashboardId());
+            domainDto.setInstanceName(dashboardInfo.instanceName());
+        } else {
+            domainDto.setDashboardTitle("Dashboard " + entity.getDashboardId());
+        }
 
         return domainDto;
     }
