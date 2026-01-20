@@ -21,10 +21,10 @@
                           <!--                          pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"-->
                           <!--                          type="button">-->
                           <!--                  </button>-->
-                          <label pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"
-                                 placeholder="Left"
-                                 style="font-size: 0.9rem; font-weight: 400"
-                                 tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</label>
+                          <span pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"
+                                placeholder="Left"
+                                style="font-size: 0.9rem; font-weight: 400"
+                                tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</span>
                         </div>
                         <div class="col-span-3" style="font-size: 0.6rem; margin-top: 0.4rem">
                           @if (pipeline?.lastInstance?.startDate) {
@@ -42,22 +42,22 @@
                               }
                               @case ('running') {
                                 <span [pTooltip]="pipeline.lastInstance.state"
-                                      class="items-end pi pi-spin pi-cog"
+                                      class="items-end pi pi-spin pi-cog" tooltipPosition="left"
                                       style="color: green"></span>
                               }
                               @case ('success') {
                                 <span [pTooltip]="pipeline.lastInstance.state"
-                                      class="items-end pi pi-check-circle"
+                                      class="items-end pi pi-check-circle" tooltipPosition="left"
                                       style="color: green"></span>
                               }
                               @case ('failed') {
                                 <span [pTooltip]="pipeline.lastInstance.state"
-                                      class="items-end pi pi-exclamation-circle"
+                                      class="items-end pi pi-exclamation-circle" tooltipPosition="left"
                                       style="color: red"></span>
                               }
                               @default {
                                 <span [pTooltip]="'unknown'" class="items-end pi pi-question-circle"
-                                      style="color: gray"></span>
+                                      style="color: gray" tooltipPosition="left"></span>
                               }
                             }
                           </div>
@@ -78,10 +78,14 @@
               <div>
                 <span><b>{{ '@Documentation' | transloco }}</b></span>
                 @if (permissions | contains: 'DOCUMENTATION_MANAGEMENT') {
-                  <p-button (click)="editDocumentation()" (keydown)="editDocumentation()"
+                  <p-button (click)="editDocumentation()" (keydown.enter)="editDocumentation()"
                             [pTooltip]="'@Edit' | transloco"
-                            severity="success" icon="fas fa-light fa-pen-to-square" class="p-button-rounded"
-                            id="editDocumentationBtnOvrl" pRipple/>
+                            tooltipPosition="top"
+                            severity="success"
+                            icon="fas fa-light fa-pen-to-square"
+                            [rounded]="true"
+                            [text]="true"
+                            id="editDocumentationBtnOvrl"/>
                 }
               </div>
             </ng-template>
