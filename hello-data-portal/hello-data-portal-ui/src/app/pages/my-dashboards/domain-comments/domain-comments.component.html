@@ -61,9 +61,7 @@
     <ng-template pTemplate="body" let-comment>
       <tr>
         <td>
-          <a class="dashboard-link" (click)="navigateToDashboard(comment)">
-            {{ comment.dashboardTitle || ('Dashboard ' + comment.dashboardId) }}
-          </a>
+          {{ comment.dashboardTitle || ('Dashboard ' + comment.dashboardId) }}
         </td>
         <td class="comment-text">
             <span [pTooltip]="getActiveVersionData(comment)?.text || ''" tooltipPosition="top">
