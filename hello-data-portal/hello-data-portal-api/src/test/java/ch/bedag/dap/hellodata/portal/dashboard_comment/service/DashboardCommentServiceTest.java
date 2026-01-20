@@ -26,6 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
@@ -61,6 +62,9 @@ class DashboardCommentServiceTest {
     @Mock
     private DashboardCommentMapper commentMapper;
 
+    @Mock
+    private MetaInfoResourceService metaInfoResourceService;
+
     private DashboardCommentService commentService;
 
     // In-memory storage for tests
@@ -78,7 +82,7 @@ class DashboardCommentServiceTest {
     @BeforeEach
     void setUp() {
         commentStore.clear();
-        commentService = new DashboardCommentService(userRepository, commentRepository, commentMapper);
+        commentService = new DashboardCommentService(userRepository, commentRepository, commentMapper, metaInfoResourceService);
 
         // Setup default mocking behavior for repository save
         lenient().when(commentRepository.save(any(DashboardCommentEntity.class)))
