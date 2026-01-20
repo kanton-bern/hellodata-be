@@ -40,6 +40,8 @@ const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
 export const selectDashboardId = selectRouteParam('id');
 export const selectInstanceName = selectRouteParam('instanceName');
 export const selectFilteredBy = selectQueryParam('filteredBy');
+export const selectContextKey = selectRouteParam('contextKey');
+export const selectContextName = selectQueryParam('contextName');
 
 export const selectSelectedDataDomain = createSelector(
   myDashboardsState,

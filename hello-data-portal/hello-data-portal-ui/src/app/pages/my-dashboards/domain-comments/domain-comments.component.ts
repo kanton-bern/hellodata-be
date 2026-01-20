@@ -25,8 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
 import {TranslocoPipe} from '@jsverse/transloco';
@@ -43,6 +43,8 @@ import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
+import {combineLatest, filter, Subscription} from 'rxjs';
+import {selectContextKey, selectContextName} from '../../../store/my-dashboards/my-dashboards.selector';
 
 
 @Component({
@@ -63,14 +65,15 @@ import {InputIcon} from 'primeng/inputicon';
     InputIcon
   ]
 })
-export class DomainDashboardCommentsComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
+export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject<Store<AppState>>(Store);
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);
 
+  private routeSubscription?: Subscription;
+
   contextKey: string = '';
-  contextName: string = '';
+  contextName: string | string[] = '';
   comments: DomainDashboardComment[] = [];
   loading = true;
 
@@ -79,11 +82,26 @@ export class DomainDashboardCommentsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.contextKey = this.route.snapshot.paramMap.get('contextKey') || '';
-    this.contextName = this.route.snapshot.queryParamMap.get('contextName') || this.contextKey;
+    // Subscribe to route params using ngrx selectors
+    this.routeSubscription = combineLatest([
+      this.store.select(selectContextKey),
+      this.store.select(selectContextName)
+    ]).pipe(
+      filter(([contextKey]) => !!contextKey)
+    ).subscribe(([contextKey, contextName]) => {
+      // Only reload if contextKey changed
+      if (contextKey !== this.contextKey) {
+        this.contextKey = contextKey!;
+        this.contextName = contextName || contextKey!;
+        this.globalFilterValue = '';
+        this.createBreadcrumbs();
+        this.loadComments();
+      }
+    });
+  }
 
-    this.createBreadcrumbs();
-    this.loadComments();
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
   }
 
   private createBreadcrumbs(): void {
