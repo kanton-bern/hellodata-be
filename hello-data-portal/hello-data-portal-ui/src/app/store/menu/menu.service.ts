@@ -253,7 +253,7 @@ export class MenuService {
   private addLinkToDomainComments(dashboardEntries: any[], contextName: string, contextKey: string) {
     dashboardEntries.push({
       id: 'domainComments_' + contextKey,
-      label: "@Domain Comments",
+      label: "@All Dashboards Comments",
       routerLink: `my-dashboards/comments/${contextKey}`,
       queryParams: {contextName}
     });
