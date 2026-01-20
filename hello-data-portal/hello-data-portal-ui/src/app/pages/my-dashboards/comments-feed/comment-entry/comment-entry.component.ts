@@ -33,14 +33,6 @@ import {DashboardCommentEntry, DashboardCommentStatus} from "../../../../store/m
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {
-  cloneCommentForEdit,
-  deleteComment,
-  publishComment,
-  restoreCommentVersion,
-  unpublishComment,
-  updateComment
-} from "../../../../store/my-dashboards/my-dashboards.action";
-import {
   canDeleteComment,
   canEditComment,
   canPublishComment,
@@ -51,12 +43,12 @@ import {
   selectCurrentDashboardUrl
 } from "../../../../store/my-dashboards/my-dashboards.selector";
 import {take} from "rxjs";
-import {ConfirmationService, PrimeTemplate} from "primeng/api";
-import {TranslateService} from "../../../../shared/services/translate.service";
+import {PrimeTemplate} from "primeng/api";
 import {Dialog} from "primeng/dialog";
 import {FormsModule} from "@angular/forms";
 import {Textarea} from "primeng/textarea";
 import {Button} from "primeng/button";
+import {DashboardCommentUtilsService} from "../../services/dashboard-comment-utils.service";
 
 @Component({
   selector: 'app-comment-entry',
@@ -77,8 +69,7 @@ import {Button} from "primeng/button";
 })
 export class CommentEntryComponent {
   private readonly store = inject<Store<AppState>>(Store);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly translateService = inject(TranslateService);
+  private readonly commentUtils = inject(DashboardCommentUtilsService);
 
   // Expose enum for template
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
@@ -113,28 +104,14 @@ export class CommentEntryComponent {
 
   // Get active version from comment
   activeVersion = computed(() => {
-    const comment = this.comment();
-    return comment.history.find(v => v.version === comment.activeVersion);
+    return this.commentUtils.getActiveVersionData(this.comment());
   });
 
   // All visible versions:
   // - Admins can see all non-deleted versions (both PUBLISHED and DRAFT)
   // - Non-admins can see only non-deleted PUBLISHED versions
   allVersions = computed(() => {
-    const comment = this.comment();
-    const canViewMetadataValue = this.canViewMetadata();
-
-    return comment.history
-      .filter(h => {
-        if (h.deleted) return false;
-        // Admins can see all versions, non-admins only published
-        return canViewMetadataValue || h.status === DashboardCommentStatus.PUBLISHED;
-      })
-      .map(h => ({
-        ...h,
-        isCurrentVersion: h.version === comment.activeVersion
-      }))
-      .sort((a, b) => a.version - b.version);
+    return this.commentUtils.getAllVersions(this.comment(), this.canViewMetadata());
   });
 
 
@@ -146,53 +123,14 @@ export class CommentEntryComponent {
    * Validates that editedPointerUrl is a valid Superset link (same domain as current dashboard)
    */
   isEditedPointerUrlValid(): boolean {
-    const trimmedUrl = this.editedPointerUrl.trim();
-    if (!trimmedUrl) return true; // Empty is valid (optional field)
-
-    // Relative paths are always valid
-    if (trimmedUrl.startsWith('/')) {
-      return true;
-    }
-
-    // If currentDashboardUrl is not loaded yet, allow empty pointerUrl
-    if (!this.currentDashboardUrl) {
-      return !trimmedUrl; // Only valid if empty
-    }
-
-    // Normalize URL - add https:// if no protocol
-    let normalizedUrl = trimmedUrl;
-    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-      normalizedUrl = 'https://' + trimmedUrl;
-    }
-
-
-    try {
-      const dashboardUrlObj = new URL(this.currentDashboardUrl);
-      const pointerUrlObj = new URL(normalizedUrl);
-
-      // Check same host (Superset instance)
-      return dashboardUrlObj.host === pointerUrlObj.host;
-    } catch {
-      return false;
-    }
+    return this.commentUtils.isPointerUrlValid(this.editedPointerUrl, this.currentDashboardUrl);
   }
 
   /**
    * Returns normalized editedPointerUrl with protocol
    */
   getNormalizedEditedPointerUrl(): string | undefined {
-    const trimmedUrl = this.editedPointerUrl.trim();
-    if (!trimmedUrl) return undefined;
-
-    if (trimmedUrl.startsWith('/')) {
-      return trimmedUrl;
-    }
-
-    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-      return 'https://' + trimmedUrl;
-    }
-
-    return trimmedUrl;
+    return this.commentUtils.normalizePointerUrl(this.editedPointerUrl);
   }
 
   toggleDetails(): void {
@@ -244,27 +182,15 @@ export class CommentEntryComponent {
     this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
-          if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
-            // For published comments, clone with new text
-            this.store.dispatch(cloneCommentForEdit({
-              dashboardId,
-              contextKey,
-              commentId: comment.id,
-              newText,
-              newPointerUrl: normalizedPointerUrl,
-              entityVersion: comment.entityVersion
-            }));
-          } else {
-            // For draft comments, update directly
-            this.store.dispatch(updateComment({
-              dashboardId,
-              contextKey,
-              commentId: comment.id,
-              text: newText,
-              pointerUrl: normalizedPointerUrl,
-              entityVersion: comment.entityVersion
-            }));
-          }
+          this.commentUtils.dispatchSaveEdit(
+            dashboardId,
+            contextKey,
+            comment.id,
+            newText,
+            normalizedPointerUrl,
+            comment.entityVersion,
+            activeVer?.status === DashboardCommentStatus.PUBLISHED
+          );
         }
       });
     });
@@ -282,115 +208,50 @@ export class CommentEntryComponent {
    * Checks if Save button should be disabled in edit dialog
    */
   isSaveEditDisabled(): boolean {
-    // Disabled if text is empty
-    if (!this.editedText?.trim()) {
-      return true;
-    }
-
-    // Disabled only if pointerUrl is non-empty AND invalid
-    const trimmedPointerUrl = this.editedPointerUrl?.trim();
-    if (trimmedPointerUrl && trimmedPointerUrl.length > 0) {
-      return !this.isEditedPointerUrlValid();
-    }
-
-    // Otherwise enabled
-    return false;
+    return this.commentUtils.isSaveEditDisabled(this.editedText, this.editedPointerUrl, this.currentDashboardUrl);
   }
 
   publishComment(): void {
-    const message = this.translateService.translate('@Publish comment question');
-    this.confirmationService.confirm({
-      key: 'publishComment',
-      message: message,
-      icon: 'fas fa-triangle-exclamation',
-      closeOnEscape: false,
-      accept: () => {
-        const comment = this.comment();
-        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
-          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
-            if (dashboardId && contextKey) {
-              this.store.dispatch(publishComment({
-                dashboardId,
-                contextKey,
-                commentId: comment.id
-              }));
-            }
-          });
-        });
-      }
+    const comment = this.comment();
+    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+        if (dashboardId && contextKey) {
+          this.commentUtils.confirmPublishComment(dashboardId, contextKey, comment.id);
+        }
+      });
     });
   }
 
   unpublishComment(): void {
-    const message = this.translateService.translate('@Unpublish comment question');
-    this.confirmationService.confirm({
-      key: 'unpublishComment',
-      message: message,
-      icon: 'fas fa-triangle-exclamation',
-      closeOnEscape: false,
-      accept: () => {
-        const comment = this.comment();
-        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
-          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
-            if (dashboardId && contextKey) {
-              this.store.dispatch(unpublishComment({
-                dashboardId,
-                contextKey,
-                commentId: comment.id
-              }));
-            }
-          });
-        });
-      }
+    const comment = this.comment();
+    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+        if (dashboardId && contextKey) {
+          this.commentUtils.confirmUnpublishComment(dashboardId, contextKey, comment.id);
+        }
+      });
     });
   }
 
   deleteComment(): void {
-    const message = this.translateService.translate('@Delete comment question');
-    this.confirmationService.confirm({
-      key: 'deleteComment',
-      message: message,
-      icon: 'fas fa-triangle-exclamation',
-      closeOnEscape: false,
-      accept: () => {
-        const comment = this.comment();
-        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
-          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
-            if (dashboardId && contextKey) {
-              this.store.dispatch(deleteComment({
-                dashboardId,
-                contextKey,
-                commentId: comment.id
-              }));
-            }
-          });
-        });
-      }
+    const comment = this.comment();
+    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+        if (dashboardId && contextKey) {
+          this.commentUtils.confirmDeleteComment(dashboardId, contextKey, comment.id);
+        }
+      });
     });
   }
 
   restoreVersion(versionNumber: number): void {
-    const message = this.translateService.translate('@Restore version question');
-    this.confirmationService.confirm({
-      key: 'restoreVersion',
-      message: message,
-      icon: 'fas fa-rotate-left',
-      closeOnEscape: false,
-      accept: () => {
-        const comment = this.comment();
-        this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
-          this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
-            if (dashboardId && contextKey) {
-              this.store.dispatch(restoreCommentVersion({
-                dashboardId,
-                contextKey,
-                commentId: comment.id,
-                versionNumber
-              }));
-            }
-          });
-        });
-      }
+    const comment = this.comment();
+    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+        if (dashboardId && contextKey) {
+          this.commentUtils.confirmRestoreVersion(dashboardId, contextKey, comment.id, versionNumber);
+        }
+      });
     });
   }
 }

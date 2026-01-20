@@ -54,18 +54,10 @@ import {
   selectContextName
 } from '../../../store/my-dashboards/my-dashboards.selector';
 import {ConfirmationService, PrimeTemplate} from 'primeng/api';
-import {TranslateService} from '../../../shared/services/translate.service';
-import {
-  cloneCommentForEdit,
-  deleteComment,
-  publishComment,
-  restoreCommentVersion,
-  unpublishComment,
-  updateComment
-} from '../../../store/my-dashboards/my-dashboards.action';
 import {Dialog} from "primeng/dialog";
 import {Textarea} from "primeng/textarea";
 import {ConfirmDialog} from "primeng/confirmdialog";
+import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.service';
 
 
 @Component({
@@ -95,8 +87,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject<Store<AppState>>(Store);
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly translateService = inject(TranslateService);
+  private readonly commentUtils = inject(DashboardCommentUtilsService);
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
@@ -182,41 +173,19 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   getStatusSeverity(status: DashboardCommentStatus | string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
-    switch (status) {
-      case DashboardCommentStatus.PUBLISHED:
-      case 'PUBLISHED':
-        return 'success';
-      case DashboardCommentStatus.DRAFT:
-      case 'DRAFT':
-        return 'warn';
-      default:
-        return 'info';
-    }
+    return this.commentUtils.getStatusSeverity(status);
   }
 
   getStatusLabel(status: DashboardCommentStatus | string): string {
-    return status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED' ? '@Published' : '@DRAFT';
+    return this.commentUtils.getStatusLabel(status);
   }
 
   getActiveVersionData(comment: DomainDashboardComment): DashboardCommentVersion | undefined {
-    if (!comment.history || comment.history.length === 0) {
-      return undefined;
-    }
-    return comment.history.find(v => v.version === comment.activeVersion);
+    return this.commentUtils.getActiveVersionData(comment);
   }
 
   getAllVersions(comment: DomainDashboardComment): (DashboardCommentVersion & { isCurrentVersion: boolean })[] {
-    const canViewMetadataValue = this.canViewMetadata();
-    return comment.history
-      .filter(h => {
-        if (h.deleted) return false;
-        return canViewMetadataValue || h.status === DashboardCommentStatus.PUBLISHED;
-      })
-      .map(h => ({
-        ...h,
-        isCurrentVersion: h.version === comment.activeVersion
-      }))
-      .sort((a, b) => a.version - b.version);
+    return this.commentUtils.getAllVersions(comment, this.canViewMetadata());
   }
 
   navigateToDashboard(comment: DomainDashboardComment): void {
@@ -270,46 +239,15 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   isEditedPointerUrlValid(): boolean {
-    const trimmedUrl = this.editedPointerUrl.trim();
-    if (!trimmedUrl) return true;
-
-    if (trimmedUrl.startsWith('/')) return true;
-
-    if (!this.editingComment?.dashboardUrl) {
-      return !trimmedUrl;
-    }
-
-    let normalizedUrl = trimmedUrl;
-    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-      normalizedUrl = 'https://' + trimmedUrl;
-    }
-
-    try {
-      const dashboardUrlObj = new URL(this.editingComment.dashboardUrl);
-      const pointerUrlObj = new URL(normalizedUrl);
-      return dashboardUrlObj.host === pointerUrlObj.host;
-    } catch {
-      return false;
-    }
+    return this.commentUtils.isPointerUrlValid(this.editedPointerUrl, this.editingComment?.dashboardUrl);
   }
 
   getNormalizedEditedPointerUrl(): string | undefined {
-    const trimmedUrl = this.editedPointerUrl.trim();
-    if (!trimmedUrl) return undefined;
-    if (trimmedUrl.startsWith('/')) return trimmedUrl;
-    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-      return 'https://' + trimmedUrl;
-    }
-    return trimmedUrl;
+    return this.commentUtils.normalizePointerUrl(this.editedPointerUrl);
   }
 
   isSaveEditDisabled(): boolean {
-    if (!this.editedText?.trim()) return true;
-    const trimmedPointerUrl = this.editedPointerUrl?.trim();
-    if (trimmedPointerUrl && trimmedPointerUrl.length > 0) {
-      return !this.isEditedPointerUrlValid();
-    }
-    return false;
+    return this.commentUtils.isSaveEditDisabled(this.editedText, this.editedPointerUrl, this.editingComment?.dashboardUrl);
   }
 
   saveEdit(): void {
@@ -336,25 +274,15 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     const contextKey = comment.contextKey;
 
     if (dashboardId && contextKey) {
-      if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
-        this.store.dispatch(cloneCommentForEdit({
-          dashboardId,
-          contextKey,
-          commentId: comment.id,
-          newText,
-          newPointerUrl: normalizedPointerUrl,
-          entityVersion: comment.entityVersion
-        }));
-      } else {
-        this.store.dispatch(updateComment({
-          dashboardId,
-          contextKey,
-          commentId: comment.id,
-          text: newText,
-          pointerUrl: normalizedPointerUrl,
-          entityVersion: comment.entityVersion
-        }));
-      }
+      this.commentUtils.dispatchSaveEdit(
+        dashboardId,
+        contextKey,
+        comment.id,
+        newText,
+        normalizedPointerUrl,
+        comment.entityVersion,
+        activeVer?.status === DashboardCommentStatus.PUBLISHED
+      );
     }
 
     this.editDialogVisible = false;
@@ -373,75 +301,43 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   // Publish comment
   publishCommentAction(comment: DomainDashboardComment): void {
-    const message = this.translateService.translate('@Publish comment question');
-    this.confirmationService.confirm({
-      key: 'publishComment',
-      message: message,
-      icon: 'fas fa-triangle-exclamation',
-      accept: () => {
-        this.store.dispatch(publishComment({
-          dashboardId: comment.dashboardId,
-          contextKey: comment.contextKey,
-          commentId: comment.id
-        }));
-        setTimeout(() => this.loadComments(), 500);
-      }
-    });
+    this.commentUtils.confirmPublishComment(
+      comment.dashboardId,
+      comment.contextKey,
+      comment.id,
+      () => setTimeout(() => this.loadComments(), 500)
+    );
   }
 
   // Unpublish comment
   unpublishCommentAction(comment: DomainDashboardComment): void {
-    const message = this.translateService.translate('@Unpublish comment question');
-    this.confirmationService.confirm({
-      key: 'unpublishComment',
-      message: message,
-      icon: 'fas fa-triangle-exclamation',
-      accept: () => {
-        this.store.dispatch(unpublishComment({
-          dashboardId: comment.dashboardId,
-          contextKey: comment.contextKey,
-          commentId: comment.id
-        }));
-        setTimeout(() => this.loadComments(), 500);
-      }
-    });
+    this.commentUtils.confirmUnpublishComment(
+      comment.dashboardId,
+      comment.contextKey,
+      comment.id,
+      () => setTimeout(() => this.loadComments(), 500)
+    );
   }
 
   // Delete comment
   deleteCommentAction(comment: DomainDashboardComment): void {
-    const message = this.translateService.translate('@Delete comment question');
-    this.confirmationService.confirm({
-      key: 'deleteComment',
-      message: message,
-      icon: 'fas fa-triangle-exclamation',
-      accept: () => {
-        this.store.dispatch(deleteComment({
-          dashboardId: comment.dashboardId,
-          contextKey: comment.contextKey,
-          commentId: comment.id
-        }));
-        setTimeout(() => this.loadComments(), 500);
-      }
-    });
+    this.commentUtils.confirmDeleteComment(
+      comment.dashboardId,
+      comment.contextKey,
+      comment.id,
+      () => setTimeout(() => this.loadComments(), 500)
+    );
   }
 
   // Restore version
   restoreVersion(comment: DomainDashboardComment, versionNumber: number): void {
-    const message = this.translateService.translate('@Restore version question');
-    this.confirmationService.confirm({
-      key: 'restoreVersion',
-      message: message,
-      icon: 'fas fa-rotate-left',
-      accept: () => {
-        this.store.dispatch(restoreCommentVersion({
-          dashboardId: comment.dashboardId,
-          contextKey: comment.contextKey,
-          commentId: comment.id,
-          versionNumber
-        }));
-        setTimeout(() => this.loadComments(), 500);
-      }
-    });
+    this.commentUtils.confirmRestoreVersion(
+      comment.dashboardId,
+      comment.contextKey,
+      comment.id,
+      versionNumber,
+      () => setTimeout(() => this.loadComments(), 500)
+    );
   }
 
   onGlobalFilter(table: Table, event: Event): void {
