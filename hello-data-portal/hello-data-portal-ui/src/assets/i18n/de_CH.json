@@ -199,6 +199,7 @@
   "@Permission missing": "Sie haben noch keine Berechtigung für eine Datendomäne unter {{businessdomain}}. \n Bitte wenden Sie sich an Ihren Administrator, damit er Ihnen die entsprechenden Berechtigungen erteilt.",
   "@Permissions": "Berechtigungen",
   "@PgAdmin": "pgAdmin",
+  "@Pointer URL": "Pointer URL",
   "@Pointer URL must be a Superset link": "URL verweist nicht auf dieselbe Instanz wie das Dashboard",
   "@Portal": "Portal",
   "@Portal permissions updated": "Portalberechtigungen aktualisiert",

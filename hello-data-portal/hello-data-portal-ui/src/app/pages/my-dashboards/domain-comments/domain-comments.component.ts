@@ -44,7 +44,28 @@ import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {combineLatest, filter, Subscription} from 'rxjs';
-import {selectContextKey, selectContextName} from '../../../store/my-dashboards/my-dashboards.selector';
+import {
+  canDeleteComment,
+  canEditComment,
+  canPublishComment,
+  canUnpublishComment,
+  canViewMetadataAndVersions,
+  selectContextKey,
+  selectContextName
+} from '../../../store/my-dashboards/my-dashboards.selector';
+import {ConfirmationService, PrimeTemplate} from 'primeng/api';
+import {TranslateService} from '../../../shared/services/translate.service';
+import {
+  cloneCommentForEdit,
+  deleteComment,
+  publishComment,
+  restoreCommentVersion,
+  unpublishComment,
+  updateComment
+} from '../../../store/my-dashboards/my-dashboards.action';
+import {Dialog} from "primeng/dialog";
+import {Textarea} from "primeng/textarea";
+import {ConfirmDialog} from "primeng/confirmdialog";
 
 
 @Component({
@@ -62,13 +83,22 @@ import {selectContextKey, selectContextName} from '../../../store/my-dashboards/
     InputText,
     FormsModule,
     IconField,
-    InputIcon
-  ]
+    InputIcon,
+    PrimeTemplate,
+    Dialog,
+    Textarea,
+    ConfirmDialog
+  ],
+  providers: [ConfirmationService]
 })
 export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject<Store<AppState>>(Store);
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
+
+  protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
   private routeSubscription?: Subscription;
 
@@ -79,6 +109,22 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   // For filtering
   globalFilterValue: string = '';
+
+  // For expanded rows (info panel)
+  expandedComments: Set<string> = new Set();
+
+  // Edit dialog
+  editDialogVisible = false;
+  editingComment: DomainDashboardComment | null = null;
+  editedText = '';
+  editedPointerUrl = '';
+
+  // Permission selectors
+  canEditFn = this.store.selectSignal(canEditComment);
+  canPublishFn = this.store.selectSignal(canPublishComment);
+  canUnpublishFn = this.store.selectSignal(canUnpublishComment);
+  canDeleteFn = this.store.selectSignal(canDeleteComment);
+  canViewMetadata = this.store.selectSignal(canViewMetadataAndVersions);
 
 
   ngOnInit(): void {
@@ -159,6 +205,20 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return comment.history.find(v => v.version === comment.activeVersion);
   }
 
+  getAllVersions(comment: DomainDashboardComment): (DashboardCommentVersion & { isCurrentVersion: boolean })[] {
+    const canViewMetadataValue = this.canViewMetadata();
+    return comment.history
+      .filter(h => {
+        if (h.deleted) return false;
+        return canViewMetadataValue || h.status === DashboardCommentStatus.PUBLISHED;
+      })
+      .map(h => ({
+        ...h,
+        isCurrentVersion: h.version === comment.activeVersion
+      }))
+      .sort((a, b) => a.version - b.version);
+  }
+
   navigateToDashboard(comment: DomainDashboardComment): void {
     if (comment.dashboardId && comment.instanceName) {
       this.router.navigate([
@@ -168,6 +228,220 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         comment.dashboardId
       ]);
     }
+  }
+
+  // Permission checks
+  canEdit(comment: DomainDashboardComment): boolean {
+    return this.canEditFn()(comment);
+  }
+
+  canPublish(comment: DomainDashboardComment): boolean {
+    return this.canPublishFn()(comment);
+  }
+
+  canUnpublish(comment: DomainDashboardComment): boolean {
+    return this.canUnpublishFn()(comment);
+  }
+
+  canDelete(comment: DomainDashboardComment): boolean {
+    return this.canDeleteFn()(comment);
+  }
+
+  // Toggle expanded state
+  isExpanded(comment: DomainDashboardComment): boolean {
+    return this.expandedComments.has(comment.id);
+  }
+
+  toggleDetails(comment: DomainDashboardComment): void {
+    if (this.expandedComments.has(comment.id)) {
+      this.expandedComments.delete(comment.id);
+    } else {
+      this.expandedComments.add(comment.id);
+    }
+  }
+
+  // Edit comment
+  editComment(comment: DomainDashboardComment): void {
+    this.editingComment = comment;
+    const activeVer = this.getActiveVersionData(comment);
+    this.editedText = activeVer?.text || '';
+    this.editedPointerUrl = comment.pointerUrl || '';
+    this.editDialogVisible = true;
+  }
+
+  isEditedPointerUrlValid(): boolean {
+    const trimmedUrl = this.editedPointerUrl.trim();
+    if (!trimmedUrl) return true;
+
+    if (trimmedUrl.startsWith('/')) return true;
+
+    if (!this.editingComment?.dashboardUrl) {
+      return !trimmedUrl;
+    }
+
+    let normalizedUrl = trimmedUrl;
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+      normalizedUrl = 'https://' + trimmedUrl;
+    }
+
+    try {
+      const dashboardUrlObj = new URL(this.editingComment.dashboardUrl);
+      const pointerUrlObj = new URL(normalizedUrl);
+      return dashboardUrlObj.host === pointerUrlObj.host;
+    } catch {
+      return false;
+    }
+  }
+
+  getNormalizedEditedPointerUrl(): string | undefined {
+    const trimmedUrl = this.editedPointerUrl.trim();
+    if (!trimmedUrl) return undefined;
+    if (trimmedUrl.startsWith('/')) return trimmedUrl;
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+      return 'https://' + trimmedUrl;
+    }
+    return trimmedUrl;
+  }
+
+  isSaveEditDisabled(): boolean {
+    if (!this.editedText?.trim()) return true;
+    const trimmedPointerUrl = this.editedPointerUrl?.trim();
+    if (trimmedPointerUrl && trimmedPointerUrl.length > 0) {
+      return !this.isEditedPointerUrlValid();
+    }
+    return false;
+  }
+
+  saveEdit(): void {
+    if (!this.editingComment) return;
+
+    const comment = this.editingComment;
+    const activeVer = this.getActiveVersionData(comment);
+    const newText = this.editedText.trim();
+    const normalizedPointerUrl = this.getNormalizedEditedPointerUrl();
+
+    const textChanged = newText !== activeVer?.text;
+    const pointerUrlChanged = normalizedPointerUrl !== (comment.pointerUrl || undefined);
+
+    if (!newText || (!textChanged && !pointerUrlChanged)) {
+      this.editDialogVisible = false;
+      return;
+    }
+
+    if (this.editedPointerUrl.trim() && !this.isEditedPointerUrlValid()) {
+      return;
+    }
+
+    const dashboardId = comment.dashboardId;
+    const contextKey = comment.contextKey;
+
+    if (dashboardId && contextKey) {
+      if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
+        this.store.dispatch(cloneCommentForEdit({
+          dashboardId,
+          contextKey,
+          commentId: comment.id,
+          newText,
+          newPointerUrl: normalizedPointerUrl,
+          entityVersion: comment.entityVersion
+        }));
+      } else {
+        this.store.dispatch(updateComment({
+          dashboardId,
+          contextKey,
+          commentId: comment.id,
+          text: newText,
+          pointerUrl: normalizedPointerUrl,
+          entityVersion: comment.entityVersion
+        }));
+      }
+    }
+
+    this.editDialogVisible = false;
+    this.editingComment = null;
+
+    // Reload comments after action
+    setTimeout(() => this.loadComments(), 500);
+  }
+
+  cancelEdit(): void {
+    this.editDialogVisible = false;
+    this.editingComment = null;
+    this.editedText = '';
+    this.editedPointerUrl = '';
+  }
+
+  // Publish comment
+  publishCommentAction(comment: DomainDashboardComment): void {
+    const message = this.translateService.translate('@Publish comment question');
+    this.confirmationService.confirm({
+      key: 'publishComment',
+      message: message,
+      icon: 'fas fa-triangle-exclamation',
+      accept: () => {
+        this.store.dispatch(publishComment({
+          dashboardId: comment.dashboardId,
+          contextKey: comment.contextKey,
+          commentId: comment.id
+        }));
+        setTimeout(() => this.loadComments(), 500);
+      }
+    });
+  }
+
+  // Unpublish comment
+  unpublishCommentAction(comment: DomainDashboardComment): void {
+    const message = this.translateService.translate('@Unpublish comment question');
+    this.confirmationService.confirm({
+      key: 'unpublishComment',
+      message: message,
+      icon: 'fas fa-triangle-exclamation',
+      accept: () => {
+        this.store.dispatch(unpublishComment({
+          dashboardId: comment.dashboardId,
+          contextKey: comment.contextKey,
+          commentId: comment.id
+        }));
+        setTimeout(() => this.loadComments(), 500);
+      }
+    });
+  }
+
+  // Delete comment
+  deleteCommentAction(comment: DomainDashboardComment): void {
+    const message = this.translateService.translate('@Delete comment question');
+    this.confirmationService.confirm({
+      key: 'deleteComment',
+      message: message,
+      icon: 'fas fa-triangle-exclamation',
+      accept: () => {
+        this.store.dispatch(deleteComment({
+          dashboardId: comment.dashboardId,
+          contextKey: comment.contextKey,
+          commentId: comment.id
+        }));
+        setTimeout(() => this.loadComments(), 500);
+      }
+    });
+  }
+
+  // Restore version
+  restoreVersion(comment: DomainDashboardComment, versionNumber: number): void {
+    const message = this.translateService.translate('@Restore version question');
+    this.confirmationService.confirm({
+      key: 'restoreVersion',
+      message: message,
+      icon: 'fas fa-rotate-left',
+      accept: () => {
+        this.store.dispatch(restoreCommentVersion({
+          dashboardId: comment.dashboardId,
+          contextKey: comment.contextKey,
+          commentId: comment.id,
+          versionNumber
+        }));
+        setTimeout(() => this.loadComments(), 500);
+      }
+    });
   }
 
   onGlobalFilter(table: Table, event: Event): void {

@@ -199,6 +199,7 @@
   "@Permission missing": "You do not yet have authorization to a data domain at {{businessdomain}}. \n Please contact your administrator to give you the appropriate permissions.",
   "@Permissions": "Permissions",
   "@PgAdmin": "pgAdmin",
+  "@Pointer URL": "Pointer URL",
   "@Pointer URL must be a Superset link": "URL does not point to the same instance as the dashboard",
   "@Portal": "Portal",
   "@Portal permissions updated": "Portal permissions updated",

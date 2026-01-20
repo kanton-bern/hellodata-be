@@ -32,27 +32,27 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <th scope="col" pSortableColumn="dashboardTitle" style="width: 20%">
+        <th scope="col" pSortableColumn="dashboardTitle" style="width: 15%">
           {{ '@Dashboard' | transloco }}
           <p-sortIcon field="dashboardTitle"/>
         </th>
-        <th scope="col" pSortableColumn="text" style="width: 35%">
+        <th scope="col" pSortableColumn="text" style="width: 40%">
           {{ '@Comment' | transloco }}
           <p-sortIcon field="text"/>
         </th>
-        <th scope="col" pSortableColumn="author" style="width: 15%">
+        <th scope="col" pSortableColumn="author" style="width: 12%">
           {{ '@Author' | transloco }}
           <p-sortIcon field="author"/>
         </th>
-        <th scope="col" pSortableColumn="activeVersion.status" style="width: 10%">
+        <th scope="col" pSortableColumn="activeVersion.status" style="width: 8%">
           {{ '@Status' | transloco }}
           <p-sortIcon field="activeVersion.status"/>
         </th>
-        <th scope="col" pSortableColumn="createdDate" style="width: 12%">
+        <th scope="col" pSortableColumn="createdDate" style="width: 10%">
           {{ '@Created' | transloco }}
           <p-sortIcon field="createdDate"/>
         </th>
-        <th scope="col" style="width: 8%">
+        <th scope="col" style="width: 15%">
           {{ '@Actions' | transloco }}
         </th>
       </tr>
@@ -64,17 +64,17 @@
           {{ comment.dashboardTitle || ('Dashboard ' + comment.dashboardId) }}
         </td>
         <td class="comment-text">
-            <span [pTooltip]="getActiveVersionData(comment)?.text || ''" tooltipPosition="top">
-              {{ (getActiveVersionData(comment)?.text || '') | slice:0:100 }}
-              @if ((getActiveVersionData(comment)?.text || '').length > 100) {
-                ...
-              }
-            </span>
+          <span [pTooltip]="getActiveVersionData(comment)?.text || ''" tooltipPosition="top">
+            {{ (getActiveVersionData(comment)?.text || '') | slice:0:80 }}
+            @if ((getActiveVersionData(comment)?.text || '').length > 80) {
+              ...
+            }
+          </span>
         </td>
         <td>
-            <span [pTooltip]="comment.authorEmail" tooltipPosition="top">
-              {{ comment.author }}
-            </span>
+          <span [pTooltip]="comment.authorEmail" tooltipPosition="top">
+            {{ comment.author }}
+          </span>
         </td>
         <td>
           <p-tag
@@ -85,16 +85,185 @@
           {{ comment.createdDate | date:'dd.MM.yy, HH:mm' }}
         </td>
         <td>
-          <p-button
-            icon="pi pi-external-link"
-            [rounded]="true"
-            [text]="true"
-            severity="info"
-            [pTooltip]="'@Open Dashboard' | transloco"
-            tooltipPosition="top"
-            (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
+          <div class="action-buttons">
+            <!-- Info button -->
+            @if (canViewMetadata()) {
+              <p-button
+                icon="fa fa-info-circle"
+                [rounded]="true"
+                [text]="true"
+                severity="info"
+                class="mr-2"
+                [pTooltip]="'@Info' | transloco"
+                tooltipPosition="top"
+                (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
+            }
+            <!-- Edit button -->
+            @if (canEdit(comment)) {
+              <p-button
+                icon="fa-solid fa-pen"
+                [rounded]="true"
+                [text]="true"
+                severity="success"
+                class="mr-2"
+                [pTooltip]="'@Edit' | transloco"
+                tooltipPosition="top"
+                (click)="editComment(comment)" (keydown.enter)="editComment(comment)"/>
+            }
+            <!-- Publish button -->
+            @if (canPublish(comment)) {
+              <p-button
+                icon="fa-solid fa-cloud-arrow-up"
+                [rounded]="true"
+                [text]="true"
+                severity="warn"
+                class="mr-2"
+                [pTooltip]="'@Publish' | transloco"
+                tooltipPosition="top"
+                (click)="publishCommentAction(comment)" (keydown.enter)="publishCommentAction(comment)"/>
+            }
+            <!-- Unpublish button -->
+            @if (canUnpublish(comment)) {
+              <p-button
+                icon="fa-solid fa-cloud-arrow-down"
+                [rounded]="true"
+                [text]="true"
+                severity="warn"
+                class="mr-2"
+                [pTooltip]="'@Unpublish' | transloco"
+                tooltipPosition="top"
+                (click)="unpublishCommentAction(comment)" (keydown.enter)="unpublishCommentAction(comment)"/>
+            }
+            <!-- Delete button -->
+            @if (canDelete(comment)) {
+              <p-button
+                icon="fa fa-trash"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                class="mr-2"
+                [pTooltip]="'@Delete' | transloco"
+                tooltipPosition="top"
+                (click)="deleteCommentAction(comment)" (keydown.enter)="deleteCommentAction(comment)"/>
+            }
+            <!-- Open dashboard button -->
+            <p-button
+              icon="pi pi-external-link"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              [pTooltip]="'@Open Dashboard' | transloco"
+              tooltipPosition="top"
+              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
+          </div>
         </td>
       </tr>
+      <!-- Expanded details row -->
+      @if (isExpanded(comment)) {
+        <tr class="expanded-row">
+          <td colspan="6">
+            <div class="comment-details p-3 bg-gray-50 rounded-md">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <strong>{{ '@Status' | transloco }}:</strong>
+                  {{ '@' + getActiveVersionData(comment)?.status | transloco }}
+                </div>
+                <div>
+                  <strong>{{ '@Version' | transloco }}:</strong>
+                  {{ comment.activeVersion }}
+                </div>
+                <div>
+                  <strong>{{ '@Created date' | transloco }}:</strong>
+                  {{ comment.createdDate | date:'medium' }}
+                </div>
+                @if (getActiveVersionData(comment)?.publishedDate) {
+                  <div>
+                    <strong>{{ '@Published' | transloco }}:</strong>
+                    {{ getActiveVersionData(comment)?.publishedDate | date:'medium' }}
+                    @if (getActiveVersionData(comment)?.publishedBy) {
+                      ({{ getActiveVersionData(comment)?.publishedBy }})
+                    }
+                  </div>
+                }
+                @if (getActiveVersionData(comment)?.editedDate && getActiveVersionData(comment)?.editedDate !== comment.createdDate) {
+                  <div>
+                    <strong>{{ '@Last edited' | transloco }}:</strong>
+                    {{ getActiveVersionData(comment)?.editedDate | date:'medium' }}
+                    @if (getActiveVersionData(comment)?.editedBy) {
+                      ({{ getActiveVersionData(comment)?.editedBy }})
+                    }
+                  </div>
+                }
+                @if (comment.pointerUrl) {
+                  <div>
+                    <strong>{{ '@Pointer URL' | transloco }}:</strong>
+                    <a [href]="comment.pointerUrl" target="_blank" class="text-blue-600 hover:underline">
+                      {{ comment.pointerUrl | slice:0:50 }}...
+                    </a>
+                  </div>
+                }
+              </div>
+              <!-- Version history -->
+              @if (getAllVersions(comment).length > 1) {
+                <div class="version-history mt-4">
+                  <strong>{{ '@Version history' | transloco }}:</strong>
+                  <table class="history-table w-full mt-2 text-sm">
+                    <thead>
+                    <tr class="bg-gray-100">
+                      <th scope="col" class="p-2 text-left">{{ '@Version' | transloco }}</th>
+                      <th scope="col" class="p-2 text-left">{{ '@Status' | transloco }}</th>
+                      <th scope="col" class="p-2 text-left">{{ '@Date' | transloco }}</th>
+                      <th scope="col" class="p-2 text-left">{{ '@Author' | transloco }}</th>
+                      <th scope="col" class="p-2 text-left">{{ '@Text' | transloco }}</th>
+                      <th scope="col" class="p-2 text-left">{{ '@Actions' | transloco }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      @for (historyItem of getAllVersions(comment); track historyItem.version) {
+                        <tr [class.bg-blue-50]="historyItem.isCurrentVersion">
+                          <td class="p-2">
+                            v{{ historyItem.version }}
+                            @if (historyItem.isCurrentVersion) {
+                              <span
+                                class="ml-1 text-xs bg-blue-500 text-white px-1 rounded">{{ '@Active' | transloco }}</span>
+                            }
+                          </td>
+                          <td class="p-2">
+                            <p-tag
+                              [value]="getStatusLabel(historyItem.status) | transloco"
+                              [severity]="getStatusSeverity(historyItem.status)"
+                              [style]="{fontSize: '0.7rem'}"/>
+                          </td>
+                          <td class="p-2">{{ historyItem.editedDate | date:'short' }}</td>
+                          <td class="p-2">{{ historyItem.editedBy }}</td>
+                          <td class="p-2">
+                          <span [pTooltip]="historyItem.text" tooltipPosition="top">
+                            {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
+                          </span>
+                          </td>
+                          <td class="p-2">
+                            @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
+                              <p-button
+                                icon="fa-solid fa-rotate-left"
+                                [rounded]="true"
+                                [text]="true"
+                                severity="help"
+                                [pTooltip]="'@Restore this version' | transloco"
+                                tooltipPosition="left"
+                                (click)="restoreVersion(comment, historyItem.version)"
+                                (keydown.enter)="restoreVersion(comment, historyItem.version)"/>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          </td>
+        </tr>
+      }
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
@@ -107,3 +276,93 @@
   </p-table>
 </div>
 
+<!-- Edit Comment Dialog -->
+<p-dialog [header]="'@Edit comment' | transloco"
+          [(visible)]="editDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '500px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="edit-dialog-content">
+    @if (editingComment && getActiveVersionData(editingComment)?.status === DashboardCommentStatus.PUBLISHED) {
+      <div class="edit-warning mb-3">
+        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <span>{{ '@Edit published comment warning' | transloco }}</span>
+      </div>
+    }
+    <textarea pInputTextarea
+              [(ngModel)]="editedText"
+              [rows]="5"
+              [autoResize]="true"
+              class="w-full"
+              placeholder="{{ '@Write a comment' | transloco }}"></textarea>
+    <div class="mt-3">
+      <input type="text"
+             class="w-full border rounded-md px-2 py-1 text-sm"
+             [class.border-red-500]="editedPointerUrl && !isEditedPointerUrlValid()"
+             [class.border-2]="editedPointerUrl && !isEditedPointerUrlValid()"
+             [(ngModel)]="editedPointerUrl"
+             placeholder="{{ '@Link to specific page (optional)' | transloco }}"/>
+      @if (editedPointerUrl && !isEditedPointerUrlValid()) {
+        <div class="text-red-500 mt-1"
+             style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+        </div>
+      }
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button (click)="cancelEdit()" (keydown.escape)="cancelEdit()"
+              icon="fas fa-circle-xmark"
+              [label]="'@Cancel' | transloco"
+              severity="secondary"/>
+    <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
+              icon="fas fa-save"
+              [label]="'@Save' | transloco"
+              severity="success"
+              [disabled]="isSaveEditDisabled()"/>
+  </ng-template>
+</p-dialog>
+
+<!-- Confirm Dialog - Publish -->
+<p-confirmDialog #cd1 key="publishComment" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd1.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd1.onReject()"/>
+    <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
+              label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
+              severity="success"/>
+  </ng-template>
+</p-confirmDialog>
+
+<!-- Confirm Dialog - Unpublish -->
+<p-confirmDialog #cd2 key="unpublishComment" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd2.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd2.onReject()"/>
+    <p-button (click)="cd2.onAccept()" icon="fas fa-cloud-arrow-down"
+              label="{{'@Unpublish' | transloco}}" (keydown.enter)="cd2.onAccept()"
+              severity="warn"/>
+  </ng-template>
+</p-confirmDialog>
+
+<!-- Confirm Dialog - Delete -->
+<p-confirmDialog #cd3 key="deleteComment" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd3.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd3.onReject()"/>
+    <p-button (click)="cd3.onAccept()" icon="fas fa-trash"
+              label="{{'@Delete' | transloco}}" (keydown.enter)="cd3.onAccept()"
+              severity="danger"/>
+  </ng-template>
+</p-confirmDialog>
+
+<!-- Confirm Dialog - Restore Version -->
+<p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd4.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd4.onReject()"/>
+    <p-button (click)="cd4.onAccept()" icon="fas fa-rotate-left"
+              label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
+              severity="success"/>
+  </ng-template>
+</p-confirmDialog>
