@@ -31,18 +31,18 @@ import {Observable} from 'rxjs';
 import {environment} from '../../../../environments/environment';
 import {DashboardCommentEntry} from '../../../store/my-dashboards/my-dashboards.model';
 
-export interface DomainComment extends DashboardCommentEntry {
+export interface DomainDashboardComment extends DashboardCommentEntry {
   dashboardTitle?: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class DomainCommentsService {
+export class DomainDashboardCommentsService {
   private readonly http = inject(HttpClient);
 
-  getCommentsForDomain(contextKey: string): Observable<DomainComment[]> {
-    return this.http.get<DomainComment[]>(
+  getCommentsForDomain(contextKey: string): Observable<DomainDashboardComment[]> {
+    return this.http.get<DomainDashboardComment[]>(
       `${environment.portalApi}/dashboard-comments/domain/${contextKey}`
     );
   }

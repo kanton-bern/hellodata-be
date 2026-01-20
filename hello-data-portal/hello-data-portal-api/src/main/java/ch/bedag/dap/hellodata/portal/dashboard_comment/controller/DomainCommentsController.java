@@ -26,7 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.controller;
 
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DomainCommentDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DomainDashboardCommentDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -53,7 +53,7 @@ public class DomainCommentsController {
      */
     @GetMapping("/domain/{contextKey}")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public List<DomainCommentDto> getCommentsForDomain(@PathVariable String contextKey) {
+    public List<DomainDashboardCommentDto> getCommentsForDomain(@PathVariable String contextKey) {
         return commentService.getCommentsForDomain(contextKey);
     }
 }

@@ -30,11 +30,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * DTO for domain-level comment view with additional dashboard information.
+ * DTO for domain-level dashboard comment view with additional dashboard information.
+ * Used to display aggregated list of dashboard comments across all dashboards in a data domain.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class DomainCommentDto extends DashboardCommentDto {
+public class DomainDashboardCommentDto extends DashboardCommentDto {
     private String dashboardTitle;
 }
 

@@ -26,8 +26,13 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
@@ -58,6 +63,7 @@ public class DashboardCommentService {
     private final UserRepository userRepository;
     private final DashboardCommentRepository commentRepository;
     private final DashboardCommentMapper commentMapper;
+    private final MetaInfoResourceService metaInfoResourceService;
 
     /**
      * Get all comments for a dashboard. Filters based on user permissions.
@@ -495,28 +501,54 @@ public class DashboardCommentService {
      * Admins see all comments, viewers only see comments for dashboards they have access to.
      */
     @Transactional(readOnly = true)
-    public List<DomainCommentDto> getCommentsForDomain(String contextKey) {
+    public List<DomainDashboardCommentDto> getCommentsForDomain(String contextKey) {
         List<DashboardCommentEntity> comments = commentRepository.findByContextKeyOrderByCreatedDateAsc(contextKey);
 
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         String currentUserFullName = SecurityUtils.getCurrentUserFullName();
         boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
 
+        // Get dashboard titles map
+        Map<Integer, String> dashboardTitles = getDashboardTitlesMap(contextKey);
+
         // Convert to DTOs, filter and transform comments based on user permissions
         return comments.stream()
-                .map(this::toDomainCommentDto)
+                .map(entity -> toDomainDashboardCommentDto(entity, dashboardTitles))
                 .filter(c -> !c.isDeleted())
-                .map(c -> filterDomainCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
+                .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
                 .filter(Objects::nonNull)
                 .toList();
     }
 
     /**
-     * Convert entity to DomainCommentDto with dashboard title.
+     * Get a map of dashboard ID to dashboard title for a given context.
      */
-    private DomainCommentDto toDomainCommentDto(DashboardCommentEntity entity) {
+    private Map<Integer, String> getDashboardTitlesMap(String contextKey) {
+        Map<Integer, String> titlesMap = new HashMap<>();
+        try {
+            DashboardResource dashboardResource = metaInfoResourceService.findAllByModuleTypeAndKindAndContextKey(
+                    ModuleType.SUPERSET,
+                    ModuleResourceKind.HELLO_DATA_DASHBOARDS,
+                    contextKey,
+                    DashboardResource.class
+            );
+            if (dashboardResource != null && dashboardResource.getData() != null) {
+                for (SupersetDashboard dashboard : dashboardResource.getData()) {
+                    titlesMap.put(dashboard.getId(), dashboard.getDashboardTitle());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Could not fetch dashboard titles for context {}: {}", contextKey, e.getMessage());
+        }
+        return titlesMap;
+    }
+
+    /**
+     * Convert entity to DomainDashboardCommentDto with dashboard title.
+     */
+    private DomainDashboardCommentDto toDomainDashboardCommentDto(DashboardCommentEntity entity, Map<Integer, String> dashboardTitles) {
         DashboardCommentDto baseDto = commentMapper.toDto(entity);
-        DomainCommentDto domainDto = new DomainCommentDto();
+        DomainDashboardCommentDto domainDto = new DomainDashboardCommentDto();
 
         // Copy all properties from base DTO
         domainDto.setId(baseDto.getId());
@@ -533,17 +565,18 @@ public class DashboardCommentService {
         domainDto.setHasActiveDraft(baseDto.isHasActiveDraft());
         domainDto.setEntityVersion(baseDto.getEntityVersion());
 
-        // Set dashboard title - for now use dashboard ID, later can be enhanced with actual title
-        domainDto.setDashboardTitle("Dashboard " + entity.getDashboardId());
+        // Set dashboard title from map or fallback to "Dashboard " + id
+        String dashboardTitle = dashboardTitles.get(entity.getDashboardId());
+        domainDto.setDashboardTitle(dashboardTitle != null ? dashboardTitle : "Dashboard " + entity.getDashboardId());
 
         return domainDto;
     }
 
     /**
-     * Filter domain comment by permissions (similar to filterCommentByPermissions but for DomainCommentDto).
+     * Filter domain dashboard comment by permissions (similar to filterCommentByPermissions but for DomainDashboardCommentDto).
      */
-    private DomainCommentDto filterDomainCommentByPermissions(DomainCommentDto comment, String userEmail, String userFullName, boolean isAdmin) {
-        DashboardCommentVersionDto activeVersion = getDomainActiveVersion(comment);
+    private DomainDashboardCommentDto filterDomainDashboardCommentByPermissions(DomainDashboardCommentDto comment, String userEmail, String userFullName, boolean isAdmin) {
+        DashboardCommentVersionDto activeVersion = getDomainDashboardActiveVersion(comment);
         if (activeVersion == null || activeVersion.isDeleted()) {
             return null;
         }
@@ -568,7 +601,7 @@ public class DashboardCommentService {
             }
 
             // For drafts by others, show the last published version if it exists
-            DashboardCommentVersionDto lastPublished = findLastPublishedVersionInDomainComment(comment);
+            DashboardCommentVersionDto lastPublished = findLastPublishedVersionInDomainDashboardComment(comment);
             if (lastPublished != null) {
                 comment.setActiveVersion(lastPublished.getVersion());
                 return comment;
@@ -580,9 +613,9 @@ public class DashboardCommentService {
     }
 
     /**
-     * Get active version from DomainCommentDto.
+     * Get active version from DomainDashboardCommentDto.
      */
-    private DashboardCommentVersionDto getDomainActiveVersion(DomainCommentDto comment) {
+    private DashboardCommentVersionDto getDomainDashboardActiveVersion(DomainDashboardCommentDto comment) {
         if (comment.getHistory() == null || comment.getHistory().isEmpty()) {
             return null;
         }
@@ -593,9 +626,9 @@ public class DashboardCommentService {
     }
 
     /**
-     * Find the last published version in domain comment history.
+     * Find the last published version in domain dashboard comment history.
      */
-    private DashboardCommentVersionDto findLastPublishedVersionInDomainComment(DomainCommentDto comment) {
+    private DashboardCommentVersionDto findLastPublishedVersionInDomainDashboardComment(DomainDashboardCommentDto comment) {
         if (comment.getHistory() == null || comment.getHistory().isEmpty()) {
             return null;
         }

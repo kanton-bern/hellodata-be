@@ -66,9 +66,9 @@
           </a>
         </td>
         <td class="comment-text">
-            <span [pTooltip]="comment.activeVersion?.text || comment.text" tooltipPosition="top">
-              {{ (comment.activeVersion?.text || comment.text) | slice:0:100 }}
-              @if ((comment.activeVersion?.text || comment.text)?.length > 100) {
+            <span [pTooltip]="getActiveVersionData(comment)?.text || ''" tooltipPosition="top">
+              {{ (getActiveVersionData(comment)?.text || '') | slice:0:100 }}
+              @if ((getActiveVersionData(comment)?.text || '').length > 100) {
                 ...
               }
             </span>
@@ -80,8 +80,8 @@
         </td>
         <td>
           <p-tag
-            [value]="getStatusLabel(comment.activeVersion?.status || 'DRAFT') | transloco"
-            [severity]="getStatusSeverity(comment.activeVersion?.status || 'DRAFT')"/>
+            [value]="getStatusLabel(getActiveVersionData(comment)?.status || 'DRAFT') | transloco"
+            [severity]="getStatusSeverity(getActiveVersionData(comment)?.status || 'DRAFT')"/>
         </td>
         <td>
           {{ comment.createdDate | date:'dd.MM.yy, HH:mm' }}

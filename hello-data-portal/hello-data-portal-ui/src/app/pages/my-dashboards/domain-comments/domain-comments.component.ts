@@ -37,8 +37,8 @@ import {Tag} from 'primeng/tag';
 import {Tooltip} from 'primeng/tooltip';
 import {createBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
 import {naviElements} from '../../../app-navi-elements';
-import {DomainComment, DomainCommentsService} from './domain-comments.service';
-import {DashboardCommentStatus} from '../../../store/my-dashboards/my-dashboards.model';
+import {DomainDashboardComment, DomainDashboardCommentsService} from './domain-comments.service';
+import {DashboardCommentStatus, DashboardCommentVersion} from '../../../store/my-dashboards/my-dashboards.model';
 import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
@@ -63,15 +63,15 @@ import {InputIcon} from 'primeng/inputicon';
     InputIcon
   ]
 })
-export class DomainCommentsComponent implements OnInit {
+export class DomainDashboardCommentsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly store = inject<Store<AppState>>(Store);
-  private readonly domainCommentsService = inject(DomainCommentsService);
+  private readonly domainCommentsService = inject(DomainDashboardCommentsService);
 
   contextKey: string = '';
   contextName: string = '';
-  comments: DomainComment[] = [];
+  comments: DomainDashboardComment[] = [];
   loading = true;
 
   // For filtering
@@ -107,7 +107,7 @@ export class DomainCommentsComponent implements OnInit {
   private loadComments(): void {
     this.loading = true;
     this.domainCommentsService.getCommentsForDomain(this.contextKey).subscribe({
-      next: (comments: DomainComment[]) => {
+      next: (comments: DomainDashboardComment[]) => {
         this.comments = comments;
         this.loading = false;
       },
@@ -117,22 +117,31 @@ export class DomainCommentsComponent implements OnInit {
     });
   }
 
-  getStatusSeverity(status: DashboardCommentStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+  getStatusSeverity(status: DashboardCommentStatus | string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
     switch (status) {
       case DashboardCommentStatus.PUBLISHED:
+      case 'PUBLISHED':
         return 'success';
       case DashboardCommentStatus.DRAFT:
+      case 'DRAFT':
         return 'warn';
       default:
         return 'info';
     }
   }
 
-  getStatusLabel(status: DashboardCommentStatus): string {
-    return status === DashboardCommentStatus.PUBLISHED ? '@Published' : '@Draft';
+  getStatusLabel(status: DashboardCommentStatus | string): string {
+    return status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED' ? '@Published' : '@DRAFT';
   }
 
-  navigateToDashboard(comment: DomainComment): void {
+  getActiveVersionData(comment: DomainDashboardComment): DashboardCommentVersion | undefined {
+    if (!comment.history || comment.history.length === 0) {
+      return undefined;
+    }
+    return comment.history.find(v => v.version === comment.activeVersion);
+  }
+
+  navigateToDashboard(comment: DomainDashboardComment): void {
     if (comment.dashboardId) {
       this.router.navigate([
         'my-dashboards',

@@ -311,7 +311,7 @@ const routes: Routes = [
       },
       {
         path: naviElements.domainComments.path,
-        loadComponent: () => import('./pages/my-dashboards/domain-comments/domain-comments.component').then(m => m.DomainCommentsComponent),
+        loadComponent: () => import('./pages/my-dashboards/domain-comments/domain-comments.component').then(m => m.DomainDashboardCommentsComponent),
         canActivate: [AutoLoginPartialRoutesGuard],
       },
     ]
