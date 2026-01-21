@@ -194,9 +194,10 @@ export class DashboardCommentUtilsService {
   /**
    * Dispatches publish comment action with confirmation dialog
    */
-  confirmPublishComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void): void {
+  confirmPublishComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
     const message = this.translateService.translate('@Publish comment question');
-    this.confirmationService.confirm({
+    const service = confirmationService || this.confirmationService;
+    service.confirm({
       key: 'publishComment',
       message: message,
       icon: 'fas fa-triangle-exclamation',
@@ -211,9 +212,10 @@ export class DashboardCommentUtilsService {
   /**
    * Dispatches unpublish comment action with confirmation dialog
    */
-  confirmUnpublishComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void): void {
+  confirmUnpublishComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
     const message = this.translateService.translate('@Unpublish comment question');
-    this.confirmationService.confirm({
+    const service = confirmationService || this.confirmationService;
+    service.confirm({
       key: 'unpublishComment',
       message: message,
       icon: 'fas fa-triangle-exclamation',
@@ -228,9 +230,10 @@ export class DashboardCommentUtilsService {
   /**
    * Dispatches delete comment action with confirmation dialog
    */
-  confirmDeleteComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void): void {
+  confirmDeleteComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
     const message = this.translateService.translate('@Delete comment question');
-    this.confirmationService.confirm({
+    const service = confirmationService || this.confirmationService;
+    service.confirm({
       key: 'deleteComment',
       message: message,
       icon: 'fas fa-triangle-exclamation',
@@ -245,9 +248,10 @@ export class DashboardCommentUtilsService {
   /**
    * Dispatches restore version action with confirmation dialog
    */
-  confirmRestoreVersion(dashboardId: number, contextKey: string, commentId: string, versionNumber: number, onSuccess?: () => void): void {
+  confirmRestoreVersion(dashboardId: number, contextKey: string, commentId: string, versionNumber: number, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
     const message = this.translateService.translate('@Restore version question');
-    this.confirmationService.confirm({
+    const service = confirmationService || this.confirmationService;
+    service.confirm({
       key: 'restoreVersion',
       message: message,
       icon: 'fas fa-rotate-left',

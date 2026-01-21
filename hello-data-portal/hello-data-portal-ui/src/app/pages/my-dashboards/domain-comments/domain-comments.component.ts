@@ -88,6 +88,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);
   private readonly commentUtils = inject(DashboardCommentUtilsService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
@@ -309,7 +310,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       comment.dashboardId,
       comment.contextKey,
       comment.id,
-      () => setTimeout(() => this.loadComments(), 500)
+      () => setTimeout(() => this.loadComments(), 500),
+      this.confirmationService
     );
   }
 
@@ -319,7 +321,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       comment.dashboardId,
       comment.contextKey,
       comment.id,
-      () => setTimeout(() => this.loadComments(), 500)
+      () => setTimeout(() => this.loadComments(), 500),
+      this.confirmationService
     );
   }
 
@@ -329,7 +332,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       comment.dashboardId,
       comment.contextKey,
       comment.id,
-      () => setTimeout(() => this.loadComments(), 500)
+      () => setTimeout(() => this.loadComments(), 500),
+      this.confirmationService
     );
   }
 
@@ -340,7 +344,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       comment.contextKey,
       comment.id,
       versionNumber,
-      () => setTimeout(() => this.loadComments(), 500)
+      () => setTimeout(() => this.loadComments(), 500),
+      this.confirmationService
     );
   }
 
