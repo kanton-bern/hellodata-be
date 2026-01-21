@@ -1,0 +1,349 @@
+# Dashboard Comments
+
+## Overview
+
+The Dashboard Comments feature allows users to create and manage comments directly within dashboards in the HelloDATA
+Portal. Comments support a full publishing workflow with draft and published states, versioning, and role-based access
+control.
+
+## Architecture
+
+### Components
+
+#### Backend (Spring Boot)
+
+- **DashboardCommentController** - REST API controller (`/dashboards/{contextKey}/{dashboardId}/comments`)
+- **DashboardCommentService** - Business logic and permission validation
+- **DashboardCommentRepository** - JPA repository for database operations
+- **DashboardCommentEntity** / **DashboardCommentVersionEntity** - JPA entities
+
+#### Frontend (Angular)
+
+- **CommentsFeed** - Main comments panel component
+- **CommentEntryComponent** - Individual comment display with actions
+- **DomainDashboardCommentsComponent** - Aggregated view of all comments for a domain
+- **DashboardCommentUtilsService** - Shared utilities for comment operations
+- **NgRx Store** - State management for comments
+
+### Data Model
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    DashboardCommentEntry                     │
+├─────────────────────────────────────────────────────────────┤
+│ id: string (UUID)                                           │
+│ dashboardId: number                                         │
+│ dashboardUrl: string                                        │
+│ contextKey: string                                          │
+│ pointerUrl?: string (optional - specific page/chart link)   │
+│ author: string                                              │
+│ authorEmail: string                                         │
+│ createdDate: number (timestamp)                             │
+│ deleted: boolean                                            │
+│ deletedDate?: number                                        │
+│ deletedBy?: string                                          │
+│ activeVersion: number                                       │
+│ hasActiveDraft?: boolean                                    │
+│ entityVersion: number (for optimistic locking)              │
+│ history: DashboardCommentVersion[]                          │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                  DashboardCommentVersion                     │
+├─────────────────────────────────────────────────────────────┤
+│ version: number                                             │
+│ text: string                                                │
+│ status: DashboardCommentStatus (DRAFT | PUBLISHED)          │
+│ editedDate: number                                          │
+│ editedBy: string                                            │
+│ publishedDate?: number                                      │
+│ publishedBy?: string                                        │
+│ deleted: boolean                                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## User Roles and Permissions
+
+### Role Types
+
+| Role                      | Description                                                            |
+|---------------------------|------------------------------------------------------------------------|
+| **Superuser**             | HELLODATA ADMIN - has full access to all comments                      |
+| **Business Domain Admin** | Admin for all data domains within a business domain                    |
+| **Data Domain Admin**     | Admin for a specific data domain (contextKey)                          |
+| **Data Domain Editor**    | User with edit access to dashboards within a data domain               |
+| **Data Domain Viewer**    | User with view-only access to assigned dashboards within a data domain |
+
+> **Note:** Users with `DATA_DOMAIN_VIEWER` role can only see comments for dashboards that are explicitly assigned to
+> them. Dashboard access is validated by the frontend before loading comments.
+
+### Permission Matrix
+
+| Action                       | Data Domain Viewer             | Data Domain Editor | Data Domain Admin | Business Domain Admin | Superuser |
+|------------------------------|--------------------------------|--------------------|-------------------|-----------------------|-----------|
+| **View published comments**  | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
+| **View own drafts**          | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
+| **View all drafts**          | No                             | No                 | Yes               | Yes                   | Yes       |
+| **Create comment**           | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
+| **Edit own comment**         | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
+| **Edit any comment**         | No                             | No                 | Yes               | Yes                   | Yes       |
+| **Delete own comment**       | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
+| **Delete any comment**       | No                             | No                 | Yes               | Yes                   | Yes       |
+| **Publish comment**          | No                             | No                 | Yes               | Yes                   | Yes       |
+| **Unpublish comment**        | No                             | No                 | Yes               | Yes                   | Yes       |
+| **View metadata & versions** | No                             | No                 | Yes               | Yes                   | Yes       |
+| **Restore version**          | No                             | No                 | Yes               | Yes                   | Yes       |
+
+### Permission Validation
+
+#### Backend (DashboardCommentService)
+
+```java
+// Check if user is admin for a specific context
+private boolean isAdminForContext(String userEmail, String contextKey) {
+    return userRepository.findUserEntityByEmailIgnoreCase(userEmail)
+            .map(user -> {
+                // Business domain admin has access to all contexts
+                if (Boolean.TRUE.equals(user.isBusinessDomainAdmin())) {
+                    return true;
+                }
+                // Data domain admin only for specific context
+                return user.getContextRoles().stream()
+                        .anyMatch(role ->
+                                contextKey.equals(role.getContextKey()) &&
+                                        HdRoleName.DATA_DOMAIN_ADMIN.equals(role.getRole().getName())
+                        );
+            })
+            .orElse(false);
+}
+```
+
+#### Frontend (NgRx Selectors)
+
+```typescript
+export const canPublishComment = createSelector(
+    selectCurrentDashboardContextKey,
+    selectIsSuperuser,
+    selectIsBusinessDomainAdmin,
+    (state: AppState) => state.auth,
+    (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment) => {
+        // Check if user is data_domain_admin for this specific context
+        const isDataDomainAdmin = authState.contextRoles.some(role =>
+            role.context.contextKey === contextKey &&
+            role.role.name === DATA_DOMAIN_ADMIN_ROLE
+        );
+
+        return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
+    }
+);
+```
+
+## Comment Lifecycle
+
+### States
+
+```
+  ┌──────────┐     publish      ┌───────────┐
+  │  DRAFT   │ ───────────────► │ PUBLISHED │
+  └──────────┘                  └───────────┘
+       ▲                              │
+       │          unpublish           │
+       └──────────────────────────────┘
+```
+
+### Workflow
+
+1. **Create Comment** - User creates a comment (status: DRAFT, version: 1)
+2. **Edit Draft** - Author or admin can edit the draft text
+3. **Publish** - Admin publishes the comment (status: PUBLISHED)
+4. **Edit Published** - Creates a new DRAFT version while keeping the published version
+5. **Publish New Version** - Admin publishes the new version
+6. **Unpublish** - Admin can revert published comment to draft
+7. **Delete** - Soft deletes current version; restores last published if available
+
+### Versioning
+
+Each edit to a published comment creates a new version:
+
+```
+Version 1 (PUBLISHED) ─► Version 2 (DRAFT) ─► Version 2 (PUBLISHED) ─► Version 3 (DRAFT)
+                                                       │
+                                               (activeVersion = 3)
+```
+
+- **activeVersion** - Points to the currently active version
+- **hasActiveDraft** - True when a draft version exists
+- Admins can restore any non-deleted PUBLISHED version
+
+## API Endpoints
+
+| Method   | Endpoint                                                                              | Description                          |
+|----------|---------------------------------------------------------------------------------------|--------------------------------------|
+| `GET`    | `/dashboards/{contextKey}/{dashboardId}/comments`                                     | Get all visible comments             |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments`                                     | Create new comment                   |
+| `PUT`    | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}`                         | Update draft comment                 |
+| `DELETE` | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}`                         | Delete comment                       |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/publish`                 | Publish comment                      |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/unpublish`               | Unpublish comment                    |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/clone`                   | Clone for edit (creates new version) |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/restore/{versionNumber}` | Restore specific version             |
+
+### Request/Response Examples
+
+#### Create Comment
+
+```json
+// POST /dashboards/demo/5/comments
+// Request:
+{
+  "text": "This dashboard shows sales metrics",
+  "dashboardUrl": "https://superset.example.com/superset/dashboard/5/",
+  "pointerUrl": "https://superset.example.com/superset/dashboard/5/?tab=sales"
+}
+
+// Response:
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "dashboardId": 5,
+  "contextKey": "demo",
+  "author": "John Doe",
+  "authorEmail": "john.doe@example.com",
+  "createdDate": 1705827600000,
+  "activeVersion": 1,
+  "entityVersion": 0,
+  "history": [
+    {
+      "version": 1,
+      "text": "This dashboard shows sales metrics",
+      "status": "DRAFT",
+      "editedDate": 1705827600000,
+      "editedBy": "John Doe",
+      "deleted": false
+    }
+  ]
+}
+```
+
+#### Update Comment
+
+```json
+// PUT /dashboards/demo/5/comments/550e8400-e29b-41d4-a716-446655440000
+// Request:
+{
+  "text": "Updated comment text",
+  "entityVersion": 0
+}
+```
+
+## Optimistic Locking
+
+To prevent concurrent edit conflicts, the system uses optimistic locking via `entityVersion`:
+
+1. Client sends `entityVersion` with update request
+2. Backend verifies `entityVersion` matches current value
+3. If mismatch, returns `409 Conflict` error
+4. Client receives notification and refreshes comments
+
+```java
+private void checkEntityVersion(DashboardCommentEntity comment, Integer providedVersion, String userEmail) {
+    if (providedVersion != null && !providedVersion.equals(comment.getEntityVersion())) {
+        log.warn("Optimistic lock conflict for comment {}, current: {}, provided: {}",
+                comment.getId(), comment.getEntityVersion(), providedVersion);
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Comment was modified by another user. Please refresh and try again.");
+    }
+}
+```
+
+## Visibility Rules
+
+### For Regular Users
+
+- See all PUBLISHED comments
+- See own DRAFT comments
+- If current activeVersion is a DRAFT by someone else → show last PUBLISHED version instead
+- If no PUBLISHED version exists → comment is hidden
+
+### For Admins
+
+- See all comments (DRAFT and PUBLISHED)
+- See complete version history
+- Can switch between versions
+
+## Features
+
+### Pointer URL
+
+Comments can include an optional `pointerUrl` that links to a specific dashboard page, tab, or chart:
+
+- Validated to ensure it points to the same Superset instance
+- Clicking the link loads that specific view in the iframe
+- Useful for referencing specific parts of complex dashboards
+
+### Filtering
+
+Domain comments view supports filtering by:
+
+- Year
+- Quarter (based on comment creation date)
+- Text search (searches comment text content)
+
+### Auto-refresh
+
+Comments are automatically refreshed every 30 seconds when viewing a dashboard.
+
+## Database Schema
+
+```sql
+CREATE TABLE dashboard_comment
+(
+    id               VARCHAR(36) PRIMARY KEY,
+    dashboard_id     INTEGER      NOT NULL,
+    dashboard_url    VARCHAR(2048),
+    context_key      VARCHAR(255) NOT NULL,
+    pointer_url      VARCHAR(2048),
+    author           VARCHAR(255),
+    author_email     VARCHAR(255),
+    created_date     BIGINT,
+    deleted          BOOLEAN DEFAULT FALSE,
+    deleted_date     BIGINT,
+    deleted_by       VARCHAR(255),
+    active_version   INTEGER,
+    has_active_draft BOOLEAN DEFAULT FALSE,
+    entity_version   INTEGER DEFAULT 0
+);
+
+CREATE TABLE dashboard_comment_version
+(
+    id             BIGSERIAL PRIMARY KEY,
+    comment_id     VARCHAR(36) REFERENCES dashboard_comment (id),
+    version        INTEGER NOT NULL,
+    text           TEXT,
+    status         VARCHAR(20),
+    edited_date    BIGINT,
+    edited_by      VARCHAR(255),
+    published_date BIGINT,
+    published_by   VARCHAR(255),
+    deleted        BOOLEAN DEFAULT FALSE
+);
+
+CREATE INDEX idx_dashboard_comment_context_dashboard
+    ON dashboard_comment (context_key, dashboard_id);
+```
+
+## Error Handling
+
+| HTTP Status     | Scenario                                      |
+|-----------------|-----------------------------------------------|
+| `403 Forbidden` | User lacks permission for the action          |
+| `404 Not Found` | Comment not found                             |
+| `409 Conflict`  | Optimistic locking conflict (concurrent edit) |
+
+## Mobile Support
+
+The comments panel adapts to mobile view:
+
+- Comments panel opens as a drawer from the top
+- Simplified UI for touch interaction
+- Full functionality preserved
+
