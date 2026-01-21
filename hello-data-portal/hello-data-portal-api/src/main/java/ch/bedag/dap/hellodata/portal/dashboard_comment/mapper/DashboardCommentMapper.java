@@ -29,9 +29,11 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.mapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentVersionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentTagEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Component
@@ -60,6 +62,11 @@ public class DashboardCommentMapper {
                 .history(entity.getHistory().stream()
                         .map(this::toVersionDto)
                         .collect(Collectors.toList()))
+                .tags(entity.getTags() != null
+                        ? entity.getTags().stream()
+                        .map(DashboardCommentTagEntity::getTag)
+                        .collect(Collectors.toList())
+                        : Collections.emptyList())
                 .build();
     }
 

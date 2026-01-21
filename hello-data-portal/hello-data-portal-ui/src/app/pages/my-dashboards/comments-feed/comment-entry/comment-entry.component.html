@@ -73,6 +73,15 @@
       </div>
     </div>
   </div>
+  @if (comment().tags && comment().tags.length > 0) {
+    <div class="comment-tags px-1 pt-1 flex gap-1 flex-wrap">
+      @for (tag of comment().tags; track tag) {
+        <span class="tag-chip">
+          <i class="fa-solid fa-tag text-xs mr-1"></i>{{ tag }}
+        </span>
+      }
+    </div>
+  }
   @if (expanded) {
     <div class="comment-details p-1">
       <small>

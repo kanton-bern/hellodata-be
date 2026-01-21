@@ -31,6 +31,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -39,4 +41,5 @@ public class DashboardCommentUpdateDto {
     private String text;
     private String pointerUrl;
     private long entityVersion;
+    private List<String> tags;
 }

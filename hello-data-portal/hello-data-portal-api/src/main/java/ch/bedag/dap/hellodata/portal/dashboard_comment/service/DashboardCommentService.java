@@ -39,6 +39,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentTagEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
@@ -222,6 +223,15 @@ public class DashboardCommentService {
 
         comment.addVersion(version);
 
+        // Add tags if provided
+        List<String> normalizedTags = validateAndNormalizeTags(createDto.getTags());
+        for (String tagValue : normalizedTags) {
+            DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
+                    .tag(tagValue)
+                    .build();
+            comment.addTag(tag);
+        }
+
         // Save to database
         DashboardCommentEntity savedComment = commentRepository.save(comment);
 
@@ -262,6 +272,20 @@ public class DashboardCommentService {
 
         if (updateDto.getPointerUrl() != null) {
             comment.setPointerUrl(updateDto.getPointerUrl());
+        }
+
+        // Update tags if provided
+        if (updateDto.getTags() != null) {
+            // Clear existing tags
+            comment.getTags().clear();
+            // Add new normalized tags
+            List<String> normalizedTags = validateAndNormalizeTags(updateDto.getTags());
+            for (String tagValue : normalizedTags) {
+                DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
+                        .tag(tagValue)
+                        .build();
+                comment.addTag(tag);
+            }
         }
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
@@ -727,6 +751,39 @@ public class DashboardCommentService {
                 .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
                 .max(Comparator.comparingInt(DashboardCommentVersionDto::getVersion))
                 .orElse(null);
+    }
+
+    /**
+     * Validate and normalize tags.
+     * Each tag must be max 10 characters and will be trimmed and lowercased.
+     */
+    private List<String> validateAndNormalizeTags(List<String> tags) {
+        if (tags == null) {
+            return Collections.emptyList();
+        }
+        return tags.stream()
+                .filter(tag -> tag != null && !tag.trim().isEmpty())
+                .map(tag -> tag.trim().toLowerCase())
+                .map(tag -> tag.length() > 10 ? tag.substring(0, 10) : tag)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all unique tags used in comments for a specific dashboard.
+     * Returns tags from all non-deleted comments.
+     */
+    @Transactional(readOnly = true)
+    public List<String> getAvailableTags(String contextKey, int dashboardId) {
+        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
+
+        return comments.stream()
+                .filter(c -> !c.isDeleted())
+                .flatMap(c -> c.getTags().stream())
+                .map(tag -> tag.getTag())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
 }

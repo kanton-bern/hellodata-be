@@ -33,6 +33,7 @@ import {
   cloneCommentForEditSuccess,
   deleteCommentSuccess,
   loadAvailableDataDomainsSuccess,
+  loadAvailableTagsSuccess,
   loadDashboardCommentsSuccess,
   loadMyDashboardsSuccess,
   publishCommentSuccess,
@@ -156,6 +157,12 @@ export const myDashboardsReducer = createReducer(
       currentDashboardComments: state.currentDashboardComments.map(c =>
         c.id === comment.id ? comment : c
       )
+    }
+  }),
+  on(loadAvailableTagsSuccess, (state: MyDashboardsState, {tags}): MyDashboardsState => {
+    return {
+      ...state,
+      availableTags: tags
     }
   }),
 );

@@ -85,4 +85,5 @@ export interface DashboardCommentEntry {
   hasActiveDraft?: boolean; // True when this comment has an active draft edit
   history: DashboardCommentVersion[]; // All versions of this comment
   entityVersion: number; // incremented on each modification
+  tags?: string[]; // Tags associated with this comment
 }

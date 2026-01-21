@@ -46,6 +46,7 @@ control.
 │ hasActiveDraft?: boolean                                    │
 │ entityVersion: number (for optimistic locking)              │
 │ history: DashboardCommentVersion[]                          │
+│ tags?: string[] (tags associated with this comment)         │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
@@ -278,6 +279,33 @@ Comments can include an optional `pointerUrl` that links to a specific dashboard
 
 - Validated to ensure it points to the same Superset instance
 - Clicking the link loads that specific view in the iframe
+
+### Tags
+
+Comments can be tagged with short labels for better organization and filtering:
+
+- **Scope**: Tags are scoped per dashboard - each dashboard has its own set of tags
+- **Length**: Maximum 10 characters per tag
+- **Normalization**: Tags are automatically trimmed, lowercased, and deduplicated
+- **Multiple tags**: A comment can have multiple tags assigned
+- **Autocomplete**: When adding tags, existing tags from the dashboard are suggested
+- **Filtering**: Comments can be filtered by tag in the comments panel
+- **Permissions**: Adding/editing tags follows the same permission rules as editing comments
+
+#### Tag Display
+
+- Tags are displayed at the bottom of each comment entry
+- Each tag shows with a tag icon (`fa-solid fa-tag`) followed by the tag name
+- Tags have a distinctive blue chip styling for easy identification
+
+#### Tag API
+
+```
+GET /dashboards/{contextKey}/{dashboardId}/comments/tags
+```
+
+Returns all unique tags used in comments for a specific dashboard.
+
 - Useful for referencing specific parts of complex dashboards
 
 ### Filtering
@@ -286,6 +314,7 @@ Domain comments view supports filtering by:
 
 - Year
 - Quarter (based on comment creation date)
+- Tag (if any comments have tags assigned)
 - Text search (searches comment text content)
 
 ### Auto-refresh
@@ -327,8 +356,21 @@ CREATE TABLE dashboard_comment_version
     deleted        BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE dashboard_comment_tag
+(
+    id         BIGSERIAL PRIMARY KEY,
+    comment_id VARCHAR(36) NOT NULL REFERENCES dashboard_comment (id) ON DELETE CASCADE,
+    tag        VARCHAR(10) NOT NULL
+);
+
 CREATE INDEX idx_dashboard_comment_context_dashboard
     ON dashboard_comment (context_key, dashboard_id);
+
+CREATE INDEX idx_comment_tag_comment_id
+    ON dashboard_comment_tag (comment_id);
+
+CREATE INDEX idx_comment_tag_tag
+    ON dashboard_comment_tag (tag);
 ```
 
 ## Error Handling

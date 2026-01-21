@@ -35,12 +35,14 @@ export interface MyDashboardsState {
   currentDashboardId?: number,
   currentDashboardContextKey?: string,
   currentDashboardUrl?: string,
-  currentDashboardComments: DashboardCommentEntry[]
+  currentDashboardComments: DashboardCommentEntry[],
+  availableTags: string[] // Tags available for the current dashboard
 }
 
 export const initialMyDashboardsState: MyDashboardsState = {
   myDashboards: [],
   selectedDataDomain: null,
   availableDataDomains: [],
-  currentDashboardComments: []
+  currentDashboardComments: [],
+  availableTags: []
 }

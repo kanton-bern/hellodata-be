@@ -278,3 +278,21 @@
     padding: 0.5rem;
   }
 }
+
+.comment-tags {
+  .tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.65rem;
+    background-color: var(--blue-50, #eff6ff);
+    color: var(--blue-700, #1d4ed8);
+    border: 1px solid var(--blue-200, #bfdbfe);
+    border-radius: 0.75rem;
+
+    i {
+      color: var(--blue-500, #3b82f6);
+    }
+  }
+}
+

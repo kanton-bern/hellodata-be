@@ -39,6 +39,8 @@ import {
   deleteCommentSuccess,
   loadAvailableDataDomains,
   loadAvailableDataDomainsSuccess,
+  loadAvailableTags,
+  loadAvailableTagsSuccess,
   loadDashboardComments,
   loadDashboardCommentsSuccess,
   loadMyDashboards,
@@ -167,11 +169,12 @@ export class MyDashboardsEffects {
   addComment$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(addComment),
-      switchMap(({dashboardId, contextKey, dashboardUrl, text, pointerUrl}) => {
+      switchMap(({dashboardId, contextKey, dashboardUrl, text, pointerUrl, tags}) => {
         return this._myDashboardsService.createComment(contextKey, dashboardId, {
           dashboardUrl,
           pointerUrl,
-          text
+          text,
+          tags
         }).pipe(
           switchMap(comment => scheduled([
             addCommentSuccess({comment}),
@@ -191,11 +194,12 @@ export class MyDashboardsEffects {
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
-      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl, entityVersion}, dashboardUrl]) => {
+      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl, entityVersion, tags}, dashboardUrl]) => {
         return this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, {
           text,
           pointerUrl,
-          entityVersion
+          entityVersion,
+          tags
         }).pipe(
           switchMap(comment => {
             const actions: any[] = [
@@ -369,6 +373,35 @@ export class MyDashboardsEffects {
           }),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
+      })
+    )
+  });
+
+  loadAvailableTags$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadAvailableTags),
+      switchMap(({dashboardId, contextKey}) => {
+        return this._myDashboardsService.getAvailableTags(contextKey, dashboardId).pipe(
+          switchMap(tags => scheduled([loadAvailableTagsSuccess({tags})], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  // Reload tags after adding/updating comment
+  reloadTagsAfterCommentChange$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(addCommentSuccess, updateCommentSuccess, cloneCommentForEditSuccess),
+      withLatestFrom(
+        this._store.select(state => state.myDashboards.currentDashboardId),
+        this._store.select(state => state.myDashboards.currentDashboardContextKey)
+      ),
+      switchMap(([action, dashboardId, contextKey]) => {
+        if (dashboardId && contextKey) {
+          return scheduled([loadAvailableTags({dashboardId, contextKey})], asyncScheduler);
+        }
+        return scheduled([], asyncScheduler);
       })
     )
   });

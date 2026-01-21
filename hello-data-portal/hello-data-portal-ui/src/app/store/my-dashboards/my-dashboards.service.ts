@@ -36,12 +36,14 @@ export interface CommentCreateRequest {
   dashboardUrl: string;
   pointerUrl?: string;
   text: string;
+  tags?: string[];
 }
 
 export interface CommentUpdateRequest {
   text: string;
   pointerUrl?: string;
   entityVersion: number;
+  tags?: string[];
 }
 
 @Injectable({
@@ -93,5 +95,9 @@ export class MyDashboardsService {
 
   public restoreVersion(contextKey: string, dashboardId: number, commentId: string, versionNumber: number): Observable<DashboardCommentEntry> {
     return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/restore/${versionNumber}`, {});
+  }
+
+  public getAvailableTags(contextKey: string, dashboardId: number): Observable<string[]> {
+    return this.httpClient.get<string[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/tags`);
   }
 }

@@ -32,8 +32,9 @@ import {Button} from "primeng/button";
 import {CommentEntryComponent} from "./comment-entry/comment-entry.component";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {addComment} from "../../../store/my-dashboards/my-dashboards.action";
+import {addComment, loadAvailableTags} from "../../../store/my-dashboards/my-dashboards.action";
 import {
+  selectAvailableTags,
   selectCurrentDashboardContextKey,
   selectCurrentDashboardId,
   selectCurrentDashboardUrl,
@@ -47,10 +48,17 @@ import {Tooltip} from "primeng/tooltip";
 import {DashboardCommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
 import {map, Observable} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
+import {AutoComplete} from "primeng/autocomplete";
+import {Dialog} from "primeng/dialog";
 
 interface FilterOption {
   label: string;
   value: number | null;
+}
+
+interface TagFilterOption {
+  label: string;
+  value: string | null;
 }
 
 @Component({
@@ -65,7 +73,9 @@ interface FilterOption {
     ConfirmDialog,
     PrimeTemplate,
     Select,
-    Tooltip
+    Tooltip,
+    AutoComplete,
+    Dialog
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
@@ -103,17 +113,40 @@ export class CommentsFeed implements AfterViewInit {
   pointerUrl = '';
   showPointerUrlInput = false;
 
+  // Tags
+  tagsDialogVisible = false;
+  selectedTags: string[] = [];
+  tagSuggestions: string[] = [];
+  newTagText = '';
+  availableTags$ = this.store.select(selectAvailableTags);
+  selectedTagFilter: string | null = null;
+  tagFilterOptions$: Observable<TagFilterOption[]>;
+
   private currentDashboardId: number | undefined;
   private currentDashboardContextKey: string | undefined;
   private currentDashboardUrl: string | undefined;
 
   constructor() {
-    this.currentDashboardId$.subscribe(id => this.currentDashboardId = id);
-    this.currentDashboardContextKey$.subscribe(key => this.currentDashboardContextKey = key);
+    this.currentDashboardId$.subscribe(id => {
+      this.currentDashboardId = id;
+      this.loadTagsIfNeeded();
+    });
+    this.currentDashboardContextKey$.subscribe(key => {
+      this.currentDashboardContextKey = key;
+      this.loadTagsIfNeeded();
+    });
     this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
 
     // Initialize year options
     this.initYearOptions();
+
+    // Initialize tag filter options
+    this.tagFilterOptions$ = this.availableTags$.pipe(
+      map(tags => [
+        {label: 'All', value: null},
+        ...tags.map(t => ({label: t, value: t}))
+      ])
+    );
 
     // Initialize filtered comments
     this.filteredComments$ = this.comments$.pipe(
@@ -135,6 +168,15 @@ export class CommentsFeed implements AfterViewInit {
         }, 150);
       }
     });
+  }
+
+  private loadTagsIfNeeded(): void {
+    if (this.currentDashboardId && this.currentDashboardContextKey) {
+      this.store.dispatch(loadAvailableTags({
+        dashboardId: this.currentDashboardId,
+        contextKey: this.currentDashboardContextKey
+      }));
+    }
   }
 
   /**
@@ -225,6 +267,13 @@ export class CommentsFeed implements AfterViewInit {
         return false;
       }
 
+      // Filter by tag
+      if (this.selectedTagFilter !== null && this.selectedTagFilter !== '') {
+        if (!comment.tags?.includes(this.selectedTagFilter)) {
+          return false;
+        }
+      }
+
       return true;
     });
   }
@@ -248,6 +297,45 @@ export class CommentsFeed implements AfterViewInit {
     }
   }
 
+  // Tags methods
+  openTagsDialog(): void {
+    this.tagsDialogVisible = true;
+  }
+
+  closeTagsDialog(): void {
+    this.tagsDialogVisible = false;
+    this.newTagText = '';
+  }
+
+  searchTags(event: { query: string }): void {
+    this.availableTags$.subscribe(tags => {
+      const query = event.query.toLowerCase();
+      this.tagSuggestions = tags.filter(tag =>
+        tag.toLowerCase().includes(query) && !this.selectedTags.includes(tag)
+      );
+    }).unsubscribe();
+  }
+
+  addTag(): void {
+    const tag = this.newTagText.trim().toLowerCase().substring(0, 10);
+    if (tag && !this.selectedTags.includes(tag)) {
+      this.selectedTags = [...this.selectedTags, tag];
+    }
+    this.newTagText = '';
+  }
+
+  removeTag(tag: string): void {
+    this.selectedTags = this.selectedTags.filter(t => t !== tag);
+  }
+
+  onTagSelect(event: { value: string }): void {
+    const tag = event.value.toLowerCase().substring(0, 10);
+    if (tag && !this.selectedTags.includes(tag)) {
+      this.selectedTags = [...this.selectedTags, tag];
+    }
+    this.newTagText = '';
+  }
+
 
   submitComment(): void {
     const text = this.newCommentText.trim();
@@ -261,19 +349,24 @@ export class CommentsFeed implements AfterViewInit {
     if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
       // Only include pointerUrl if input is shown
       const pointerUrl = this.showPointerUrlInput ? this.getNormalizedPointerUrl() : undefined;
+      // Include tags if any are selected
+      const tags = this.selectedTags.length > 0 ? this.selectedTags : undefined;
 
       this.store.dispatch(addComment({
         dashboardId: this.currentDashboardId,
         contextKey: this.currentDashboardContextKey,
         dashboardUrl: this.currentDashboardUrl,
         text,
-        pointerUrl
+        pointerUrl,
+        tags
       }));
     }
 
     this.newCommentText = '';
     this.pointerUrl = '';
     this.showPointerUrlInput = false;
+    this.selectedTags = [];
+    this.tagsDialogVisible = false;
 
     // No need for manual scroll - effect() will handle it automatically
     // when comments list updates from backend

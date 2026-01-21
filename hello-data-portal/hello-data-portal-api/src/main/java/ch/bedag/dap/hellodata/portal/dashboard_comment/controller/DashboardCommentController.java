@@ -51,6 +51,14 @@ public class DashboardCommentController {
         return commentService.getComments(contextKey, dashboardId);
     }
 
+    @GetMapping("/tags")
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    public List<String> getAvailableTags(
+            @PathVariable String contextKey,
+            @PathVariable int dashboardId) {
+        return commentService.getAvailableTags(contextKey, dashboardId);
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     public DashboardCommentDto createComment(

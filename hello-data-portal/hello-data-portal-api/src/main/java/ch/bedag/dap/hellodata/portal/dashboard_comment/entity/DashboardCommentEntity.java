@@ -97,6 +97,10 @@ public class DashboardCommentEntity {
     @Builder.Default
     private List<DashboardCommentVersionEntity> history = new ArrayList<>();
 
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<DashboardCommentTagEntity> tags = new ArrayList<>();
+
     public void addVersion(DashboardCommentVersionEntity version) {
         history.add(version);
         version.setComment(this);
@@ -105,6 +109,28 @@ public class DashboardCommentEntity {
     public void removeVersion(DashboardCommentVersionEntity version) {
         history.remove(version);
         version.setComment(null);
+    }
+
+    public void addTag(DashboardCommentTagEntity tag) {
+        tags.add(tag);
+        tag.setComment(this);
+    }
+
+    public void removeTag(DashboardCommentTagEntity tag) {
+        tags.remove(tag);
+        tag.setComment(null);
+    }
+
+    public void setTags(List<String> tagNames) {
+        tags.clear();
+        if (tagNames != null) {
+            tagNames.forEach(tagName -> {
+                DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
+                        .tag(tagName)
+                        .build();
+                addTag(tag);
+            });
+        }
     }
 }
 

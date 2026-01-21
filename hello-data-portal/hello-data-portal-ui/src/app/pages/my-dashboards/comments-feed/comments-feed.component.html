@@ -32,6 +32,21 @@
                 [style]="{'width': '100%'}"
                 size="small"/>
     </div>
+    @if ((tagFilterOptions$ | async); as tagOptions) {
+      @if (tagOptions.length > 1) {
+        <div class="filter-group">
+          <span class="filter-label">{{ '@Tag' | transloco }}</span>
+          <p-select [options]="tagOptions"
+                    [(ngModel)]="selectedTagFilter"
+                    (onChange)="onFilterChange()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="{{ '@All' | transloco }}"
+                    [style]="{'width': '100%'}"
+                    size="small"/>
+        </div>
+      }
+    }
   </div>
 
   <div class="comment-scrollpanel" #scrollContainer>
@@ -63,14 +78,49 @@
         rows="3">
       </textarea>
 
-    <div class="mt-2 flex gap-2 items-start">
+    <!-- Selected tags display -->
+    @if (selectedTags.length > 0) {
+      <div class="flex gap-1 flex-wrap mt-2">
+        @for (tag of selectedTags; track tag) {
+          <span class="tag-item tag-item-small">
+            <i class="fa-solid fa-tag"></i>
+            <span>{{ tag }}</span>
+            <button type="button" class="tag-remove"
+                    (click)="removeTag(tag)"
+                    (keydown.enter)="removeTag(tag)"
+                    (keydown.space)="removeTag(tag)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        }
+      </div>
+    }
+
+    <!-- Icons, pointer URL input and submit button -->
+    <div class="mt-2 flex gap-2 items-center">
+      <!-- Tags icon - opens dialog -->
       <button type="button"
-              class="pointer-url-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
+              class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
+              (click)="openTagsDialog()"
+              (keydown.enter)="openTagsDialog()"
+              (keydown.space)="openTagsDialog()"
+              [pTooltip]="'@Add tags (optional)' | transloco"
+              tooltipPosition="top">
+        <i class="fa-solid fa-tags"></i>
+      </button>
+
+      <!-- Pointer URL icon - toggles input -->
+      <button type="button"
+              class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
               (click)="togglePointerUrlInput()"
+              (keydown.enter)="togglePointerUrlInput()"
+              (keydown.space)="togglePointerUrlInput()"
               [pTooltip]="'@Link to specific page (optional)' | transloco"
               tooltipPosition="top">
         <i class="fa-solid fa-link"></i>
       </button>
+
+      <!-- Pointer URL input (when expanded) -->
       @if (showPointerUrlInput) {
         <div class="flex-1">
           <input type="text"
@@ -79,13 +129,10 @@
                  [class.border-2]="pointerUrl && !isPointerUrlValid()"
                  [(ngModel)]="pointerUrl"
                  placeholder="{{ '@Link to specific page (optional)' | transloco }}"/>
-          @if (pointerUrl && !isPointerUrlValid()) {
-            <div class="text-red-500 mt-1"
-                 style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
-            </div>
-          }
         </div>
       }
+
+      <!-- Submit button -->
       <p-button severity="success" (keydown.enter)="submitComment()"
                 label="{{ '@Submit' | transloco }}"
                 (click)="submitComment()"
@@ -93,9 +140,66 @@
                 class="ml-auto">
       </p-button>
     </div>
+
+    <!-- Pointer URL validation error -->
+    @if (showPointerUrlInput && pointerUrl && !isPointerUrlValid()) {
+      <div class="text-red-500 mt-1"
+           style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+      </div>
+    }
   </div>
 
 </div>
+
+<!-- Tags Dialog -->
+<p-dialog [header]="'@Add tags' | transloco"
+          [(visible)]="tagsDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '400px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="tags-dialog-content">
+    <div class="flex gap-1 flex-wrap mb-3">
+      @for (tag of selectedTags; track tag) {
+        <span class="tag-item">
+          <i class="fa-solid fa-tag"></i>
+          <span>{{ tag }}</span>
+          <button type="button" class="tag-remove"
+                  (click)="removeTag(tag)"
+                  (keydown.enter)="removeTag(tag)"
+                  (keydown.space)="removeTag(tag)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </span>
+      }
+      @if (selectedTags.length === 0) {
+        <span class="text-gray-400 text-sm">{{ '@No tags selected' | transloco }}</span>
+      }
+    </div>
+    <div class="flex gap-2">
+      <p-autoComplete [(ngModel)]="newTagText"
+                      [suggestions]="tagSuggestions"
+                      (completeMethod)="searchTags($event)"
+                      (onSelect)="onTagSelect($event)"
+                      (onKeyUp)="$event.key === 'Enter' && addTag()"
+                      [maxlength]="10"
+                      placeholder="{{ '@Add tag (max 10 chars)' | transloco }}"
+                      styleClass="tags-autocomplete flex-1"
+                      appendTo="body"/>
+      <p-button icon="fas fa-plus"
+                (click)="addTag()"
+                (keydown.enter)="addTag()"
+                [disabled]="!newTagText?.trim()"
+                severity="secondary"/>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button (click)="closeTagsDialog()"
+              (keydown.enter)="closeTagsDialog()"
+              [label]="'@Done' | transloco"
+              severity="success"/>
+  </ng-template>
+</p-dialog>
 
 <p-confirmDialog #cd1 key="publishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">

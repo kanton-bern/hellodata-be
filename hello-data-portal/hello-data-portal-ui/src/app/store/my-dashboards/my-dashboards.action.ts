@@ -66,6 +66,10 @@ export enum MyDashboardsActionType {
   RESTORE_COMMENT_VERSION = '[MYDASHBOARDS] Restore comment version',
   RESTORE_COMMENT_VERSION_SUCCESS = '[MYDASHBOARDS] Restore comment version SUCCESS',
   RESTORE_COMMENT_VERSION_ERROR = '[MYDASHBOARDS] Restore comment version ERROR',
+  // Tags actions
+  LOAD_AVAILABLE_TAGS = '[MYDASHBOARDS] Load available tags',
+  LOAD_AVAILABLE_TAGS_SUCCESS = '[MYDASHBOARDS] Load available tags SUCCESS',
+  LOAD_AVAILABLE_TAGS_ERROR = '[MYDASHBOARDS] Load available tags ERROR',
 }
 
 export const loadMyDashboards = createAction(
@@ -123,7 +127,14 @@ export const loadDashboardCommentsError = createAction(
 
 export const addComment = createAction(
   MyDashboardsActionType.ADD_COMMENT,
-  props<{ dashboardId: number; contextKey: string; dashboardUrl: string; text: string; pointerUrl?: string }>()
+  props<{
+    dashboardId: number;
+    contextKey: string;
+    dashboardUrl: string;
+    text: string;
+    pointerUrl?: string;
+    tags?: string[]
+  }>()
 );
 
 export const addCommentSuccess = createAction(
@@ -144,7 +155,8 @@ export const updateComment = createAction(
     commentId: string;
     text: string;
     pointerUrl?: string;
-    entityVersion: number
+    entityVersion: number;
+    tags?: string[];
   }>()
 );
 
@@ -245,3 +257,18 @@ export const restoreCommentVersionError = createAction(
   props<{ error: any }>()
 );
 
+// Tags actions
+export const loadAvailableTags = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_TAGS,
+  props<{ dashboardId: number; contextKey: string }>()
+);
+
+export const loadAvailableTagsSuccess = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_TAGS_SUCCESS,
+  props<{ tags: string[] }>()
+);
+
+export const loadAvailableTagsError = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_TAGS_ERROR,
+  props<{ error: any }>()
+);

@@ -171,6 +171,11 @@ export const selectCurrentDashboardComments = createSelector(
   (state: MyDashboardsState) => state.currentDashboardComments
 );
 
+export const selectAvailableTags = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.availableTags
+);
+
 // Helper function to get active version from comment
 const getActiveVersion = (comment: DashboardCommentEntry): DashboardCommentVersion | undefined =>
   comment.history.find(v => v.version === comment.activeVersion);

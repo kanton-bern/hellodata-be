@@ -31,6 +31,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -39,4 +41,5 @@ public class DashboardCommentCreateDto {
     private String dashboardUrl;
     private String pointerUrl;
     private String text;
+    private List<String> tags;
 }

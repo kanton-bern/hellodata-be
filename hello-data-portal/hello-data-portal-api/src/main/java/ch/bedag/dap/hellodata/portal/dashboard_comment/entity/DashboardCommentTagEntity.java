@@ -24,34 +24,33 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.List;
-
-@Data
-@Builder(toBuilder = true)
+@Entity
+@Table(name = "dashboard_comment_tag", indexes = {
+        @Index(name = "idx_comment_tag_comment_id", columnList = "comment_id"),
+        @Index(name = "idx_comment_tag_tag", columnList = "tag")
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DashboardCommentDto {
-    private String id;
-    private int dashboardId;
-    private String dashboardUrl;
-    private String contextKey;
-    private String pointerUrl;
-    private String author;
-    private String authorEmail;
-    private Long createdDate;
-    private boolean deleted;
-    private Long deletedDate;
-    private String deletedBy;
-    private int activeVersion;
-    private boolean hasActiveDraft;
-    private List<DashboardCommentVersionDto> history;
-    private long entityVersion; // incremented on each modification
-    private List<String> tags; // tags associated with this comment
+@Builder
+public class DashboardCommentTagEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id", nullable = false)
+    private DashboardCommentEntity comment;
+
+    @Column(name = "tag", nullable = false, length = 10)
+    private String tag;
 }
+
