@@ -674,6 +674,7 @@ public class DashboardCommentService {
         domainDto.setHistory(baseDto.getHistory());
         domainDto.setHasActiveDraft(baseDto.isHasActiveDraft());
         domainDto.setEntityVersion(baseDto.getEntityVersion());
+        domainDto.setTags(baseDto.getTags());
 
         // Set dashboard title and instanceName from map or fallback
         DashboardInfo dashboardInfo = dashboardInfoMap.get(entity.getDashboardId());

@@ -7,7 +7,7 @@
     [paginator]="true"
     [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]"
-    [globalFilterFields]="['text', 'author', 'dashboardTitle']"
+    [globalFilterFields]="['text', 'author', 'dashboardTitle', 'tagsString']"
     [tableStyle]="{'min-width': '60rem'}"
     styleClass="p-datatable-striped">
 
@@ -32,17 +32,20 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <th scope="col" pSortableColumn="dashboardTitle" style="width: 15%">
+        <th scope="col" pSortableColumn="dashboardTitle" style="width: 14%">
           {{ '@Dashboard' | transloco }}
           <p-sortIcon field="dashboardTitle"/>
         </th>
-        <th scope="col" pSortableColumn="text" style="width: 40%">
+        <th scope="col" pSortableColumn="text" style="width: 32%">
           {{ '@Comment' | transloco }}
           <p-sortIcon field="text"/>
         </th>
-        <th scope="col" pSortableColumn="author" style="width: 12%">
+        <th scope="col" pSortableColumn="author" style="width: 10%">
           {{ '@Author' | transloco }}
           <p-sortIcon field="author"/>
+        </th>
+        <th scope="col" style="width: 12%">
+          {{ '@Tags' | transloco }}
         </th>
         <th scope="col" pSortableColumn="activeVersion.status" style="width: 8%">
           {{ '@Status' | transloco }}
@@ -52,7 +55,7 @@
           {{ '@Created' | transloco }}
           <p-sortIcon field="createdDate"/>
         </th>
-        <th scope="col" style="width: 15%">
+        <th scope="col" style="width: 14%">
           {{ '@Actions' | transloco }}
         </th>
       </tr>
@@ -75,6 +78,17 @@
           <span [pTooltip]="comment.authorEmail" tooltipPosition="top">
             {{ comment.author }}
           </span>
+        </td>
+        <td>
+          @if (comment.tags && comment.tags.length > 0) {
+            <div class="flex gap-1 flex-wrap">
+              @for (tag of comment.tags; track tag) {
+                <span class="tag-chip">
+                  <i class="fa-solid fa-tag text-xs mr-1"></i>{{ tag }}
+                </span>
+              }
+            </div>
+          }
         </td>
         <td>
           <p-tag
@@ -161,7 +175,7 @@
       <!-- Expanded details row -->
       @if (isExpanded(comment)) {
         <tr class="expanded-row">
-          <td colspan="6">
+          <td colspan="7">
             <div class="comment-details p-3 bg-gray-50 rounded-md">
               <div class="grid grid-cols-2 gap-4">
                 <div>

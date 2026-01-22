@@ -164,10 +164,11 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.domainCommentsService.getCommentsForDomain(this.contextKey).subscribe({
       next: (comments: DomainDashboardComment[]) => {
-        // Map active version text to 'text' field for filtering
+        // Map active version text to 'text' field and tags to 'tagsString' for filtering
         this.comments = comments.map(comment => ({
           ...comment,
-          text: this.commentUtils.getActiveVersionData(comment)?.text || ''
+          text: this.commentUtils.getActiveVersionData(comment)?.text || '',
+          tagsString: (comment.tags || []).join(' ')
         }));
         this.loading = false;
       },

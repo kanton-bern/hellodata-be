@@ -35,6 +35,7 @@ export interface DomainDashboardComment extends DashboardCommentEntry {
   dashboardTitle?: string;
   instanceName?: string;
   text?: string; // Mapped from active version for filtering
+  tagsString?: string; // Concatenated tags for filtering
 }
 
 @Injectable({
