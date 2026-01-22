@@ -227,7 +227,8 @@ export const cloneCommentForEdit = createAction(
     commentId: string;
     newText: string;
     newPointerUrl?: string;
-    entityVersion: number
+    entityVersion: number;
+    tags?: string[];
   }>()
 );
 

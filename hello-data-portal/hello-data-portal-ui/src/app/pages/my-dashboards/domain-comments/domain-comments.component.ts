@@ -279,15 +279,25 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     const contextKey = comment.contextKey;
 
     if (dashboardId && contextKey) {
-      this.commentUtils.dispatchSaveEdit(
-        dashboardId,
-        contextKey,
-        comment.id,
-        newText,
-        normalizedPointerUrl,
-        comment.entityVersion,
-        activeVer?.status === DashboardCommentStatus.PUBLISHED
-      );
+      if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
+        this.commentUtils.dispatchClonePublishedComment(
+          dashboardId,
+          contextKey,
+          comment.id,
+          newText,
+          normalizedPointerUrl,
+          comment.entityVersion
+        );
+      } else {
+        this.commentUtils.dispatchUpdateDraftComment(
+          dashboardId,
+          contextKey,
+          comment.id,
+          newText,
+          normalizedPointerUrl,
+          comment.entityVersion
+        );
+      }
     }
 
     this.editDialogVisible = false;

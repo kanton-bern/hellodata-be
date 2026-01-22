@@ -296,3 +296,52 @@
   }
 }
 
+// Tag styles for edit dialog
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--surface-200, #e9ecef);
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-color, #333);
+
+  i.fa-tag {
+    font-size: 0.7rem;
+    color: var(--text-color-secondary, #6c757d);
+  }
+
+  .tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.1rem;
+    color: var(--text-color-secondary, #6c757d);
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--red-500, #ef4444);
+    }
+
+    i {
+      font-size: 0.65rem;
+    }
+  }
+}
+
+// Tags autocomplete in edit dialog
+::ng-deep .tags-autocomplete {
+  width: 100%;
+
+  .p-autocomplete-input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+

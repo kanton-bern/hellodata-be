@@ -4,11 +4,12 @@
      [class.draft-border]="activeVersion()?.status === DashboardCommentStatus.DRAFT">
   @if (comment().pointerUrl) {
     <div class="pointer-url-container px-1 pb-1">
-      <a class="pointer-url-link text-xs text-blue-600 hover:underline cursor-pointer"
-         (click)="navigateToPointerUrl()"
-         (keydown.enter)="navigateToPointerUrl()">
+      <button type="button"
+              class="pointer-url-link text-xs text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0"
+              (click)="navigateToPointerUrl()"
+              (keydown.enter)="navigateToPointerUrl()">
         <i class="fa-solid fa-thumbtack mr-1"></i>{{ '@Go to referenced page' | transloco }}
-      </a>
+      </button>
     </div>
   }
   <p class="comment-text p-1">{{ activeVersion()?.text }}</p>
@@ -28,14 +29,14 @@
       </small>
       <div class="comment-actions">
         @if (canViewMetadata()) {
-          <button class="info-btn"
+          <button type="button" class="info-btn"
                   (click)="toggleDetails()"
                   (keydown)="onKeyDown($event, toggleDetails.bind(this))">
             <i class="fa fa-info-circle"></i>
           </button>
         }
         @if (canEdit()) {
-          <button class="edit-btn"
+          <button type="button" class="edit-btn"
                   (click)="editComment()"
                   (keydown)="onKeyDown($event, editComment.bind(this))"
                   [pTooltip]="'@Edit' | transloco"
@@ -44,7 +45,7 @@
           </button>
         }
         @if (canPublish()) {
-          <button class="publish-btn"
+          <button type="button" class="publish-btn"
                   (click)="publishComment()"
                   (keydown)="onKeyDown($event, publishComment.bind(this))"
                   [pTooltip]="'@Publish' | transloco"
@@ -53,7 +54,7 @@
           </button>
         }
         @if (canUnpublish()) {
-          <button class="unpublish-btn"
+          <button type="button" class="unpublish-btn"
                   (click)="unpublishComment()"
                   (keydown)="onKeyDown($event, unpublishComment.bind(this))"
                   [pTooltip]="'@Unpublish' | transloco"
@@ -62,7 +63,7 @@
           </button>
         }
         @if (canDelete()) {
-          <button class="delete-btn"
+          <button type="button" class="delete-btn"
                   (click)="deleteComment()"
                   (keydown)="onKeyDown($event, deleteComment.bind(this))"
                   [pTooltip]="'@Delete' | transloco"
@@ -122,7 +123,7 @@
                     {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
                   </span>
                   @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
-                    <button class="restore-btn"
+                    <button type="button" class="restore-btn"
                             (click)="restoreVersion(historyItem.version)"
                             (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
                             [pTooltip]="'@Restore this version' | transloco"
@@ -172,6 +173,44 @@
              style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
         </div>
       }
+    </div>
+    <!-- Tags section -->
+    <div class="mt-3">
+      <label for="editTagInput" class="block text-sm font-medium text-gray-700 mb-1">{{ '@Tags' | transloco }}</label>
+      <div class="flex gap-1 flex-wrap mb-2">
+        @for (tag of editedTags; track tag) {
+          <span class="tag-item">
+            <i class="fa-solid fa-tag"></i>
+            <span>{{ tag }}</span>
+            <button type="button" class="tag-remove"
+                    (click)="removeEditTag(tag)"
+                    (keydown.enter)="removeEditTag(tag)"
+                    (keydown.space)="removeEditTag(tag)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        }
+        @if (editedTags.length === 0) {
+          <span class="text-gray-400 text-sm">{{ '@No tags selected' | transloco }}</span>
+        }
+      </div>
+      <div class="flex gap-2">
+        <p-autoComplete [(ngModel)]="editNewTagText"
+                        [suggestions]="editTagSuggestions"
+                        (completeMethod)="searchEditTags($event)"
+                        (onSelect)="onEditTagSelect($event)"
+                        (onKeyUp)="$event.key === 'Enter' && addEditTag()"
+                        [maxlength]="10"
+                        placeholder="{{ '@Add tag (max 10 chars)' | transloco }}"
+                        styleClass="tags-autocomplete flex-1"
+                        appendTo="body"
+                        inputId="editTagInput"/>
+        <p-button icon="fas fa-plus"
+                  (click)="addEditTag()"
+                  (keydown.enter)="addEditTag()"
+                  [disabled]="!editNewTagText?.trim()"
+                  severity="secondary"/>
+      </div>
     </div>
   </div>
   <ng-template pTemplate="footer">

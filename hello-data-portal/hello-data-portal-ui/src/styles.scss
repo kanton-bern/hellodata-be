@@ -132,3 +132,10 @@ p-button[severity="contrast"] .p-button {
   color: var(--p-button-contrast-color, var(--p-surface-0)) !important;
 }
 
+.p-button.p-button-help,
+p-button[severity="help"] .p-button {
+  background: var(--p-button-help-background) !important;
+  border: 1px solid var(--p-button-help-border-color) !important;
+  color: var(--p-button-help-color) !important;
+}
+

@@ -25,7 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Component, computed, inject, input, output} from "@angular/core";
+import {Component, computed, DestroyRef, inject, input, output} from "@angular/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {DatePipe, SlicePipe} from "@angular/common";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
@@ -38,6 +39,7 @@ import {
   canPublishComment,
   canUnpublishComment,
   canViewMetadataAndVersions,
+  selectAvailableTags,
   selectCurrentDashboardContextKey,
   selectCurrentDashboardId,
   selectCurrentDashboardUrl
@@ -49,6 +51,7 @@ import {FormsModule} from "@angular/forms";
 import {Textarea} from "primeng/textarea";
 import {Button} from "primeng/button";
 import {DashboardCommentUtilsService} from "../../services/dashboard-comment-utils.service";
+import {AutoComplete} from "primeng/autocomplete";
 
 @Component({
   selector: 'app-comment-entry',
@@ -63,13 +66,15 @@ import {DashboardCommentUtilsService} from "../../services/dashboard-comment-uti
     FormsModule,
     Textarea,
     Button,
-    PrimeTemplate
+    PrimeTemplate,
+    AutoComplete
   ],
   styleUrls: ['./comment-entry.component.scss']
 })
 export class CommentEntryComponent {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly commentUtils = inject(DashboardCommentUtilsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Expose enum for template
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
@@ -83,10 +88,14 @@ export class CommentEntryComponent {
   editDialogVisible = false;
   editedText = '';
   editedPointerUrl = '';
+  editedTags: string[] = [];
+  editNewTagText = '';
+  editTagSuggestions: string[] = [];
 
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
+  availableTags$ = this.store.select(selectAvailableTags);
 
   private currentDashboardUrl: string | undefined;
 
@@ -116,7 +125,9 @@ export class CommentEntryComponent {
 
 
   constructor() {
-    this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
+    this.currentDashboardUrl$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(url => this.currentDashboardUrl = url);
   }
 
   /**
@@ -156,6 +167,8 @@ export class CommentEntryComponent {
     const activeVer = this.activeVersion();
     this.editedText = activeVer?.text || '';
     this.editedPointerUrl = comment.pointerUrl || '';
+    this.editedTags = comment.tags ? [...comment.tags] : [];
+    this.editNewTagText = '';
     this.editDialogVisible = true;
   }
 
@@ -168,8 +181,11 @@ export class CommentEntryComponent {
     // Check if anything changed
     const textChanged = newText !== activeVer?.text;
     const pointerUrlChanged = normalizedPointerUrl !== (comment.pointerUrl || undefined);
+    const sortedEditedTags = [...this.editedTags].sort((a: string, b: string) => a.localeCompare(b));
+    const sortedCommentTags = [...(comment.tags || [])].sort((a: string, b: string) => a.localeCompare(b));
+    const tagsChanged = JSON.stringify(sortedEditedTags) !== JSON.stringify(sortedCommentTags);
 
-    if (!newText || (!textChanged && !pointerUrlChanged)) {
+    if (!newText || (!textChanged && !pointerUrlChanged && !tagsChanged)) {
       this.editDialogVisible = false;
       return;
     }
@@ -182,15 +198,28 @@ export class CommentEntryComponent {
     this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
-          this.commentUtils.dispatchSaveEdit(
-            dashboardId,
-            contextKey,
-            comment.id,
-            newText,
-            normalizedPointerUrl,
-            comment.entityVersion,
-            activeVer?.status === DashboardCommentStatus.PUBLISHED
-          );
+          const tagsToSave = this.editedTags.length > 0 ? this.editedTags : undefined;
+          if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
+            this.commentUtils.dispatchClonePublishedComment(
+              dashboardId,
+              contextKey,
+              comment.id,
+              newText,
+              normalizedPointerUrl,
+              comment.entityVersion,
+              tagsToSave
+            );
+          } else {
+            this.commentUtils.dispatchUpdateDraftComment(
+              dashboardId,
+              contextKey,
+              comment.id,
+              newText,
+              normalizedPointerUrl,
+              comment.entityVersion,
+              tagsToSave
+            );
+          }
         }
       });
     });
@@ -202,6 +231,38 @@ export class CommentEntryComponent {
     this.editDialogVisible = false;
     this.editedText = '';
     this.editedPointerUrl = '';
+    this.editedTags = [];
+    this.editNewTagText = '';
+  }
+
+  // Tag methods for edit dialog
+  searchEditTags(event: { query: string }): void {
+    this.availableTags$.pipe(take(1)).subscribe(tags => {
+      const query = event.query.toLowerCase();
+      this.editTagSuggestions = tags.filter(tag =>
+        tag.toLowerCase().includes(query) && !this.editedTags.includes(tag)
+      );
+    });
+  }
+
+  addEditTag(): void {
+    const tag = this.editNewTagText.trim().toLowerCase().substring(0, 10);
+    if (tag && !this.editedTags.includes(tag)) {
+      this.editedTags = [...this.editedTags, tag];
+    }
+    this.editNewTagText = '';
+  }
+
+  removeEditTag(tag: string): void {
+    this.editedTags = this.editedTags.filter(t => t !== tag);
+  }
+
+  onEditTagSelect(event: { value: string }): void {
+    const tag = event.value.toLowerCase().substring(0, 10);
+    if (tag && !this.editedTags.includes(tag)) {
+      this.editedTags = [...this.editedTags, tag];
+    }
+    this.editNewTagText = '';
   }
 
   /**

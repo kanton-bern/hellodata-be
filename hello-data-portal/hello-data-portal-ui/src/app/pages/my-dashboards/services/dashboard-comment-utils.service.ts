@@ -127,6 +127,7 @@ export class DashboardCommentUtilsService {
       // Check same host (Superset instance)
       return dashboardUrlObj.host === pointerUrlObj.host;
     } catch {
+      // Invalid URL format - return false
       return false;
     }
   }
@@ -160,7 +161,7 @@ export class DashboardCommentUtilsService {
 
     // Disabled only if pointerUrl is non-empty AND invalid
     const trimmedPointerUrl = editedPointerUrl?.trim();
-    if (trimmedPointerUrl && trimmedPointerUrl.length > 0) {
+    if (trimmedPointerUrl) {
       return !this.isPointerUrlValid(trimmedPointerUrl, dashboardUrl);
     }
 
@@ -264,36 +265,49 @@ export class DashboardCommentUtilsService {
   }
 
   /**
-   * Dispatches update or clone comment action based on status
+   * Dispatches update action for draft comment
    */
-  dispatchSaveEdit(
+  dispatchUpdateDraftComment(
     dashboardId: number,
     contextKey: string,
     commentId: string,
     newText: string,
     newPointerUrl: string | undefined,
     entityVersion: number,
-    isPublished: boolean
+    tags?: string[]
   ): void {
-    if (isPublished) {
-      this.store.dispatch(cloneCommentForEdit({
-        dashboardId,
-        contextKey,
-        commentId,
-        newText,
-        newPointerUrl,
-        entityVersion
-      }));
-    } else {
-      this.store.dispatch(updateComment({
-        dashboardId,
-        contextKey,
-        commentId,
-        text: newText,
-        pointerUrl: newPointerUrl,
-        entityVersion
-      }));
-    }
+    this.store.dispatch(updateComment({
+      dashboardId,
+      contextKey,
+      commentId,
+      text: newText,
+      pointerUrl: newPointerUrl,
+      entityVersion,
+      tags
+    }));
+  }
+
+  /**
+   * Dispatches clone action for published comment (creates draft copy)
+   */
+  dispatchClonePublishedComment(
+    dashboardId: number,
+    contextKey: string,
+    commentId: string,
+    newText: string,
+    newPointerUrl: string | undefined,
+    entityVersion: number,
+    tags?: string[]
+  ): void {
+    this.store.dispatch(cloneCommentForEdit({
+      dashboardId,
+      contextKey,
+      commentId,
+      newText,
+      newPointerUrl,
+      entityVersion,
+      tags
+    }));
   }
 }
 
