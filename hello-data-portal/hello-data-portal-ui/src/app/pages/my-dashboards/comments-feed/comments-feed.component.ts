@@ -34,6 +34,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {addComment, loadAvailableTags} from "../../../store/my-dashboards/my-dashboards.action";
 import {
+  canViewMetadataAndVersions,
   selectAvailableTags,
   selectCurrentDashboardContextKey,
   selectCurrentDashboardId,
@@ -97,6 +98,9 @@ export class CommentsFeed implements AfterViewInit {
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
+
+  // Admin check for import/export functionality
+  isAdmin$ = this.store.select(canViewMetadataAndVersions);
 
   // Filter options
   yearOptions: FilterOption[] = [];
@@ -407,7 +411,7 @@ export class CommentsFeed implements AfterViewInit {
       return;
     }
 
-    this.http.get<unknown>(
+    this.http.get<{ dashboardTitle?: string }>(
       `${environment.portalApi}/dashboards/${this.currentDashboardContextKey}/${this.currentDashboardId}/comments/export`
     ).pipe(take(1)).subscribe({
       next: (data) => {
@@ -415,7 +419,11 @@ export class CommentsFeed implements AfterViewInit {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `comments_${this.currentDashboardContextKey}_${this.currentDashboardId}_${new Date().toISOString().slice(0, 10)}.json`;
+        // Use dashboard title in filename (sanitized for filesystem)
+        const sanitizedTitle = data.dashboardTitle
+          ? data.dashboardTitle.replace(/[^a-zA-Z0-9-_]/g, '_').substring(0, 50)
+          : `dashboard_${this.currentDashboardId}`;
+        link.download = `comments_${this.currentDashboardContextKey}_${sanitizedTitle}_${new Date().toISOString().slice(0, 10)}.json`;
         link.click();
         window.URL.revokeObjectURL(url);
         this.notificationService.success('@Comments exported successfully');
@@ -464,12 +472,19 @@ export class CommentsFeed implements AfterViewInit {
       return;
     }
 
-    this.http.post<{ imported: number }>(
+    this.http.post<{ imported: number; updated: number; skipped: number; message: string }>(
       `${environment.portalApi}/dashboards/${this.currentDashboardContextKey}/${this.currentDashboardId}/comments/import`,
       data
     ).pipe(take(1)).subscribe({
       next: (response) => {
-        this.notificationService.success('@Comments imported successfully', {count: response.imported});
+        if (response.updated > 0) {
+          this.notificationService.success('@Comments imported and updated successfully', {
+            imported: response.imported,
+            updated: response.updated
+          });
+        } else {
+          this.notificationService.success('@Comments imported successfully', {count: response.imported});
+        }
         // Reload comments
         this.loadTagsIfNeeded();
       },

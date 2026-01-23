@@ -44,6 +44,7 @@ public class CommentExportDto {
     private String exportVersion;
     private String contextKey;
     private int dashboardId;
+    private String dashboardTitle;
     private long exportDate;
     private List<CommentExportItemDto> comments;
 }

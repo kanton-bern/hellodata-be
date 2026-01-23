@@ -3,29 +3,31 @@
   <div class="comments-header">
     <h4 class="text-center">{{ '@Comments' | transloco }}</h4>
     <div class="header-actions">
-      <!-- Export comments button -->
-      <button type="button"
-              class="action-btn export-btn"
-              (click)="exportComments()"
-              (keydown.enter)="exportComments()"
-              [pTooltip]="'@Export comments' | transloco"
-              tooltipPosition="bottom">
-        <i class="fa-solid fa-download"></i>
-      </button>
-      <!-- Import comments button -->
-      <button type="button"
-              class="action-btn import-btn"
-              (click)="triggerImport()"
-              (keydown.enter)="triggerImport()"
-              [pTooltip]="'@Import comments' | transloco"
-              tooltipPosition="bottom">
-        <i class="fa-solid fa-upload"></i>
-      </button>
-      <input type="file"
-             #fileInput
-             accept=".json"
-             style="display: none"
-             (change)="onFileSelected($event)"/>
+      <!-- Export comments button (admin only) -->
+      @if (isAdmin$ | async) {
+        <button type="button"
+                class="action-btn export-btn"
+                (click)="exportComments()"
+                (keydown.enter)="exportComments()"
+                [pTooltip]="'@Export comments' | transloco"
+                tooltipPosition="left">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <!-- Import comments button (admin only) -->
+        <button type="button"
+                class="action-btn import-btn"
+                (click)="triggerImport()"
+                (keydown.enter)="triggerImport()"
+                [pTooltip]="'@Import comments' | transloco"
+                tooltipPosition="bottom">
+          <i class="fa-solid fa-upload"></i>
+        </button>
+        <input type="file"
+               #fileInput
+               accept=".json"
+               style="display: none"
+               (change)="onFileSelected($event)"/>
+      }
       @if (showCloseButton()) {
         <button type="button" class="close-button" (click)="closePanel.emit()" aria-label="Close">
           <i class="fa-solid fa-xmark"></i>

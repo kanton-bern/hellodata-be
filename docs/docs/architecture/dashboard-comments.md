@@ -398,7 +398,7 @@ Comments can be exported and imported between dashboards for migration or backup
 - **Scope**: Exports only PUBLISHED comments (drafts are excluded)
 - **Contents**: Comment text, author, creation date, tags, and version history
 - **Permission**: Any user with dashboard access can export
-- **File naming**: `comments_{contextKey}_{dashboardId}_{date}.json`
+- **File naming**: `comments_{contextKey}_{dashboardTitle}_{date}.json` (title is sanitized for filesystem)
 
 #### Export Format
 
@@ -407,6 +407,7 @@ Comments can be exported and imported between dashboards for migration or backup
   "exportVersion": "1.0",
   "contextKey": "demo",
   "dashboardId": 5,
+  "dashboardTitle": "Sales Dashboard",
   "exportDate": 1705827600000,
   "comments": [
     {

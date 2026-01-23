@@ -39,8 +39,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentImportResultDto {
-    private int imported;
-    private int skipped;
+    private int imported; // New comments created
+    private int updated;  // Existing comments updated
+    private int skipped;  // Invalid items skipped
     private String message;
 }
 

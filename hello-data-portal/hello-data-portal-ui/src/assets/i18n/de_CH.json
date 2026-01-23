@@ -43,6 +43,7 @@
   "@Comment was modified by another user. Refreshing...": "Kommentar wurde von einem anderen Benutzer geändert. Wird aktualisiert...",
   "@Comments": "Kommentare",
   "@Comments exported successfully": "Kommentare erfolgreich exportiert",
+  "@Comments imported and updated successfully": "{{imported}} Kommentar(e) importiert, {{updated}} Kommentar(e) aktualisiert",
   "@Comments imported successfully": "{{count}} Kommentar(e) erfolgreich importiert",
   "@Confirm": "Bestätigen",
   "@Context name": "Kontext Name",

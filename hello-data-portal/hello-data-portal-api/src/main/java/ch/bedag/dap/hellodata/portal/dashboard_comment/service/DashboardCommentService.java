@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
 public class DashboardCommentService {
 
     private static final String COMMENT_NOT_FOUND_ERROR = "DashboardCommentEntity not found";
+    private static final String DASHBOARD_TITLE_PREFIX = "Dashboard ";
 
     private final UserRepository userRepository;
     private final DashboardCommentRepository commentRepository;
@@ -196,6 +197,15 @@ public class DashboardCommentService {
         String authorEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
 
+        // Get dashboard URL - use provided URL or generate from dashboard info
+        String dashboardUrl = createDto.getDashboardUrl();
+        if (dashboardUrl == null || dashboardUrl.isBlank()) {
+            dashboardUrl = getDashboardUrl(contextKey, dashboardId);
+        }
+        if (dashboardUrl == null || dashboardUrl.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dashboard URL is required and could not be determined");
+        }
+
         // Validate and normalize tags
         List<String> normalizedTags = validateAndNormalizeTags(createDto.getTags());
 
@@ -203,7 +213,7 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = DashboardCommentEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .dashboardId(dashboardId)
-                .dashboardUrl(createDto.getDashboardUrl())
+                .dashboardUrl(dashboardUrl)
                 .contextKey(contextKey)
                 .pointerUrl(createDto.getPointerUrl())
                 .author(authorFullName)
@@ -718,10 +728,10 @@ public class DashboardCommentService {
         // Set dashboard title and instanceName from map or fallback
         DashboardInfo dashboardInfo = dashboardInfoMap.get(entity.getDashboardId());
         if (dashboardInfo != null) {
-            domainDto.setDashboardTitle(dashboardInfo.title() != null ? dashboardInfo.title() : "Dashboard " + entity.getDashboardId());
+            domainDto.setDashboardTitle(dashboardInfo.title() != null ? dashboardInfo.title() : DASHBOARD_TITLE_PREFIX + entity.getDashboardId());
             domainDto.setInstanceName(dashboardInfo.instanceName());
         } else {
-            domainDto.setDashboardTitle("Dashboard " + entity.getDashboardId());
+            domainDto.setDashboardTitle(DASHBOARD_TITLE_PREFIX + entity.getDashboardId());
         }
 
         return domainDto;
@@ -829,9 +839,18 @@ public class DashboardCommentService {
     /**
      * Export comments for a dashboard to JSON format.
      * Only exports published comments.
+     * Only admins (superuser, business_domain_admin, data_domain_admin) can export.
      */
     @Transactional(readOnly = true)
     public CommentExportDto exportComments(String contextKey, int dashboardId) {
+        // Validate that user is admin
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+
+        if (!isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can export comments");
+        }
+
         List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
 
         List<CommentExportItemDto> exportItems = comments.stream()
@@ -840,13 +859,26 @@ public class DashboardCommentService {
                 .map(this::toExportItem)
                 .toList();
 
+        // Get dashboard title
+        String dashboardTitle = getDashboardTitle(contextKey, dashboardId);
+
         return CommentExportDto.builder()
                 .exportVersion("1.0")
                 .contextKey(contextKey)
                 .dashboardId(dashboardId)
+                .dashboardTitle(dashboardTitle)
                 .exportDate(System.currentTimeMillis())
                 .comments(exportItems)
                 .build();
+    }
+
+    /**
+     * Get dashboard title for a specific dashboard.
+     */
+    private String getDashboardTitle(String contextKey, int dashboardId) {
+        Map<Integer, DashboardInfo> infoMap = getDashboardInfoMap(contextKey);
+        DashboardInfo info = infoMap.get(dashboardId);
+        return info != null && info.title() != null ? info.title() : DASHBOARD_TITLE_PREFIX + dashboardId;
     }
 
     private boolean hasPublishedVersion(DashboardCommentEntity comment) {
@@ -876,6 +908,7 @@ public class DashboardCommentService {
                 .toList();
 
         return CommentExportItemDto.builder()
+                .id(entity.getId())
                 .text(activeVersion != null ? activeVersion.getText() : "")
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
@@ -888,49 +921,158 @@ public class DashboardCommentService {
 
     /**
      * Import comments from JSON format.
-     * Creates new comments with DRAFT status, pointerUrl is ignored.
+     * If comment ID exists in the same dashboard, it will be updated.
+     * New comments are created with DRAFT status, pointerUrl is ignored.
      */
     @Transactional
     public CommentImportResultDto importComments(String contextKey, int dashboardId, CommentExportDto importData) {
-        // Validate import data
-        if (importData == null || importData.getComments() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid import data");
-        }
+        validateImportData(importData);
+        validateImportPermissions(contextKey);
 
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        String dashboardUrl = getRequiredDashboardUrl(contextKey, dashboardId);
         String currentUserFullName = SecurityUtils.getCurrentUserFullName();
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
 
-        if (!isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can import comments");
-        }
-
-        int imported = 0;
-        int skipped = 0;
+        int[] counters = {0, 0, 0}; // imported, updated, skipped
 
         for (CommentExportItemDto item : importData.getComments()) {
-            if (!isValidImportItem(item)) {
-                skipped++;
-                continue;
-            }
-
-            DashboardCommentEntity entity = createImportedComment(contextKey, dashboardId, item, currentUserFullName, currentUserEmail);
-            commentRepository.save(entity);
-            imported++;
+            processImportItem(item, contextKey, dashboardId, dashboardUrl, currentUserFullName, currentUserEmail, counters);
         }
 
         return CommentImportResultDto.builder()
-                .imported(imported)
-                .skipped(skipped)
-                .message(String.format("Imported %d comments, skipped %d", imported, skipped))
+                .imported(counters[0])
+                .updated(counters[1])
+                .skipped(counters[2])
+                .message(String.format("Imported %d new, updated %d existing, skipped %d", counters[0], counters[1], counters[2]))
                 .build();
+    }
+
+    private void validateImportData(CommentExportDto importData) {
+        if (importData == null || importData.getComments() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid import data");
+        }
+    }
+
+    private void validateImportPermissions(String contextKey) {
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+        if (!isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can import comments");
+        }
+    }
+
+    private String getRequiredDashboardUrl(String contextKey, int dashboardId) {
+        String dashboardUrl = getDashboardUrl(contextKey, dashboardId);
+        if (dashboardUrl == null || dashboardUrl.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not determine dashboard URL for import");
+        }
+        return dashboardUrl;
+    }
+
+    private void processImportItem(CommentExportItemDto item, String contextKey, int dashboardId,
+                                   String dashboardUrl, String userFullName, String userEmail, int[] counters) {
+        if (!isValidImportItem(item)) {
+            counters[2]++; // skipped
+            return;
+        }
+
+        if (tryUpdateExistingComment(item, contextKey, dashboardId, dashboardUrl, userFullName)) {
+            counters[1]++; // updated
+            return;
+        }
+
+        // Create new comment
+        DashboardCommentEntity entity = createImportedComment(contextKey, dashboardId, dashboardUrl, item, userFullName, userEmail);
+        commentRepository.save(entity);
+        counters[0]++; // imported
+    }
+
+    private boolean tryUpdateExistingComment(CommentExportItemDto item, String contextKey, int dashboardId,
+                                             String dashboardUrl, String userFullName) {
+        if (item.getId() == null || item.getId().isBlank()) {
+            return false;
+        }
+
+        Optional<DashboardCommentEntity> existingComment = commentRepository.findById(item.getId());
+        if (existingComment.isEmpty()) {
+            return false;
+        }
+
+        DashboardCommentEntity comment = existingComment.get();
+        if (!comment.getContextKey().equals(contextKey) || comment.getDashboardId() != dashboardId) {
+            return false;
+        }
+
+        updateImportedComment(comment, item, userFullName, dashboardUrl);
+        commentRepository.save(comment);
+        return true;
+    }
+
+    /**
+     * Update an existing comment from import data.
+     * Also updates dashboardUrl to the current dashboard URL.
+     */
+    private void updateImportedComment(DashboardCommentEntity entity, CommentExportItemDto item, String updatedBy, String dashboardUrl) {
+        long now = System.currentTimeMillis();
+
+        // Update dashboardUrl to current dashboard URL
+        entity.setDashboardUrl(dashboardUrl);
+
+        // Create new version with imported text
+        int newVersion = entity.getHistory().stream()
+                .mapToInt(DashboardCommentVersionEntity::getVersion)
+                .max()
+                .orElse(0) + 1;
+
+        DashboardCommentVersionEntity version = DashboardCommentVersionEntity.builder()
+                .version(newVersion)
+                .text(item.getText())
+                .status(DashboardCommentStatus.DRAFT)
+                .editedDate(now)
+                .editedBy(updatedBy)
+                .deleted(false)
+                .comment(entity)
+                .build();
+
+        entity.getHistory().add(version);
+        entity.setActiveVersion(newVersion);
+        entity.setHasActiveDraft(true);
+        entity.setEntityVersion(entity.getEntityVersion() + 1);
+
+        // Update tags
+        entity.getTags().clear();
+        if (item.getTags() != null) {
+            for (String tagText : item.getTags()) {
+                if (tagText != null && !tagText.trim().isEmpty()) {
+                    DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
+                            .tag(tagText.trim().toLowerCase().substring(0, Math.min(tagText.trim().length(), 10)))
+                            .comment(entity)
+                            .build();
+                    entity.getTags().add(tag);
+                }
+            }
+        }
+    }
+
+    /**
+     * Get dashboard URL for a specific dashboard.
+     */
+    private String getDashboardUrl(String contextKey, int dashboardId) {
+        Map<Integer, DashboardInfo> infoMap = getDashboardInfoMap(contextKey);
+        DashboardInfo info = infoMap.get(dashboardId);
+        if (info != null && info.instanceName() != null) {
+            // Construct dashboard URL from instance name and dashboard ID
+            // Format: https://{instanceName}/superset/dashboard/{dashboardId}/?standalone=1
+            return String.format("https://%s/superset/dashboard/%d/?standalone=1", info.instanceName(), dashboardId);
+        }
+        return null;
     }
 
     private boolean isValidImportItem(CommentExportItemDto item) {
         return item != null && item.getText() != null && !item.getText().trim().isEmpty();
     }
 
-    private DashboardCommentEntity createImportedComment(String contextKey, int dashboardId,
+    private DashboardCommentEntity createImportedComment(String contextKey, int dashboardId, String dashboardUrl,
                                                          CommentExportItemDto item, String importedBy, String importedByEmail) {
 
         String commentId = UUID.randomUUID().toString();
@@ -963,6 +1105,7 @@ public class DashboardCommentService {
                 .id(commentId)
                 .contextKey(contextKey)
                 .dashboardId(dashboardId)
+                .dashboardUrl(dashboardUrl)
                 .author(item.getAuthor() != null ? item.getAuthor() : importedBy)
                 .authorEmail(item.getAuthorEmail() != null ? item.getAuthorEmail() : importedByEmail)
                 .createdDate(item.getCreatedDate() > 0 ? item.getCreatedDate() : now)

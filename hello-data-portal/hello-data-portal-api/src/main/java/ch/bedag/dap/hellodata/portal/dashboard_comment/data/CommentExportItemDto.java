@@ -42,6 +42,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentExportItemDto {
+    private String id; // Comment ID - used for update on import if exists
     private String text;
     private String author;
     private String authorEmail;
