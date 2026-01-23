@@ -179,6 +179,19 @@
       align-items: center;
     }
 
+    .history-text-row {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-start;
+      padding-left: 1.5rem;
+    }
+
+    .history-text-label {
+      font-size: 0.6rem;
+      color: var(--text-color-secondary, #6c757d);
+      flex-shrink: 0;
+    }
+
     .history-tags-row {
       display: flex;
       gap: 0.25rem;
@@ -239,10 +252,8 @@
     }
 
     .history-text {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      font-size: 0.65rem;
+      color: var(--text-color, #333);
       cursor: pointer;
 
       &:hover {

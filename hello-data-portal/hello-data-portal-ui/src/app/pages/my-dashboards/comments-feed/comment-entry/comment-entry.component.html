@@ -121,9 +121,6 @@
                     </span>
                     <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
                     <span class="history-author">{{ historyItem.editedBy }}</span>
-                    <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
-                      {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
-                    </span>
                     @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
                       <button type="button" class="restore-btn"
                               (click)="restoreVersion(historyItem.version)"
@@ -133,6 +130,12 @@
                         <i class="fa-solid fa-rotate-left"></i>
                       </button>
                     }
+                  </div>
+                  <div class="history-text-row">
+                    <span class="history-text-label">{{ '@Text' | transloco }}:</span>
+                    <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
+                      {{ historyItem.text | slice:0:80 }}{{ historyItem.text.length > 80 ? '...' : '' }}
+                    </span>
                   </div>
                   @if (historyItem.tags && historyItem.tags.length > 0) {
                     <div class="history-tags-row">
