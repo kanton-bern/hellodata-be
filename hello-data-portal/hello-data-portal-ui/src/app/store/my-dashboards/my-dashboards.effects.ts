@@ -317,11 +317,12 @@ export class MyDashboardsEffects {
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
-      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl, entityVersion}, dashboardUrl]) => {
+      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl, entityVersion, tags}, dashboardUrl]) => {
         return this._myDashboardsService.cloneCommentForEdit(contextKey, dashboardId, commentId, {
           text: newText,
           pointerUrl: newPointerUrl,
-          entityVersion
+          entityVersion,
+          tags
         }).pipe(
           switchMap(clonedComment => {
             const actions: any[] = [

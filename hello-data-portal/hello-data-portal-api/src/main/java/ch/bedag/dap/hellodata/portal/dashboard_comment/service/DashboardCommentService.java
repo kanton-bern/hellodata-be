@@ -459,12 +459,28 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
+        updateTagsIfProvided(updateDto, comment);
+
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Created new version {} for comment {} on dashboard {}/{}",
                 newVersionNumber, commentId, contextKey, dashboardId);
         return commentMapper.toDto(savedComment);
+    }
+
+    private void updateTagsIfProvided(DashboardCommentUpdateDto updateDto, DashboardCommentEntity comment) {
+        if (updateDto.getTags() != null) {
+            comment.getTags().clear();
+            for (String tagText : updateDto.getTags()) {
+                if (tagText != null && !tagText.trim().isEmpty()) {
+                    DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
+                            .tag(tagText.trim().toLowerCase().substring(0, Math.min(tagText.trim().length(), 10)))
+                            .build();
+                    comment.addTag(tag);
+                }
+            }
+        }
     }
 
     /**
