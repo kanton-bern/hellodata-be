@@ -77,5 +77,12 @@ public class DashboardCommentVersionEntity {
     @Column(name = "deleted", nullable = false)
     @Builder.Default
     private boolean deleted = false;
+
+    /**
+     * Tags associated with this version, stored as comma-separated values.
+     * Each version stores its own snapshot of tags for history tracking.
+     */
+    @Column(name = "tags", columnDefinition = "TEXT")
+    private String tags;
 }
 

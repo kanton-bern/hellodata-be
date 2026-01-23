@@ -33,7 +33,9 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentTa
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -116,6 +118,7 @@ public class DashboardCommentMapper {
                 .publishedDate(entity.getPublishedDate())
                 .publishedBy(entity.getPublishedBy())
                 .deleted(entity.isDeleted())
+                .tags(parseTagsFromString(entity.getTags()))
                 .build();
     }
 
@@ -133,7 +136,31 @@ public class DashboardCommentMapper {
                 .publishedDate(dto.getPublishedDate())
                 .publishedBy(dto.getPublishedBy())
                 .deleted(dto.isDeleted())
+                .tags(tagsToString(dto.getTags()))
                 .build();
+    }
+
+    /**
+     * Convert comma-separated tags string to List.
+     */
+    private List<String> parseTagsFromString(String tagsString) {
+        if (tagsString == null || tagsString.isBlank()) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(tagsString.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Convert List of tags to comma-separated string.
+     */
+    public String tagsToString(List<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return null;
+        }
+        return String.join(",", tags);
     }
 }
 
