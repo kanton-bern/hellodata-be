@@ -229,6 +229,7 @@
                       <th scope="col" class="p-2 text-left">{{ '@Date' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Author' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Text' | transloco }}</th>
+                      <th scope="col" class="p-2 text-left">{{ '@Tags' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Actions' | transloco }}</th>
                     </tr>
                     </thead>
@@ -254,6 +255,19 @@
                           <span [pTooltip]="historyItem.text" tooltipPosition="top">
                             {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
                           </span>
+                          </td>
+                          <td class="p-2">
+                            @if (historyItem.tags && historyItem.tags.length > 0) {
+                              <div class="flex gap-1 flex-wrap">
+                                @for (tag of historyItem.tags; track tag) {
+                                  <span class="text-xs bg-blue-100 text-blue-700 px-1 rounded">
+                                    <i class="fa-solid fa-tag mr-1" style="font-size: 0.6rem;"></i>{{ tag }}
+                                  </span>
+                                }
+                              </div>
+                            } @else {
+                              <span class="text-gray-400">-</span>
+                            }
                           </td>
                           <td class="p-2">
                             @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {

@@ -156,10 +156,10 @@
 
     .history-item {
       display: flex;
-      gap: 0.5rem;
+      flex-direction: column;
+      gap: 0.25rem;
       padding: 0.25rem 0;
       border-bottom: 1px dashed var(--surface-border, #dee2e6);
-      align-items: center;
 
       &:last-child {
         border-bottom: none;
@@ -171,6 +171,38 @@
         padding: 0.25rem 0.5rem;
         margin: 0 -0.5rem;
       }
+    }
+
+    .history-item-main {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .history-text-row {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-start;
+      padding-left: 1.5rem;
+    }
+
+    .history-text-label {
+      font-size: 0.6rem;
+      color: var(--text-color-secondary, #6c757d);
+      flex-shrink: 0;
+    }
+
+    .history-tags-row {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      align-items: center;
+      padding-left: 1.5rem;
+    }
+
+    .history-tags-label {
+      font-size: 0.6rem;
+      color: var(--text-color-secondary, #6c757d);
     }
 
     .active-badge {
@@ -220,14 +252,34 @@
     }
 
     .history-text {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      font-size: 0.65rem;
+      color: var(--text-color, #333);
       cursor: pointer;
 
       &:hover {
         color: var(--primary-color, #3b82f6);
+      }
+    }
+
+    .history-tags {
+      display: flex;
+      gap: 0.2rem;
+      flex-wrap: wrap;
+      max-width: 8rem;
+    }
+
+    .history-tag {
+      font-size: 0.55rem;
+      padding: 0.1rem 0.25rem;
+      background-color: var(--blue-100, #dbeafe);
+      color: var(--blue-700, #1d4ed8);
+      border-radius: 0.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+
+      i {
+        font-size: 0.5rem;
       }
     }
 

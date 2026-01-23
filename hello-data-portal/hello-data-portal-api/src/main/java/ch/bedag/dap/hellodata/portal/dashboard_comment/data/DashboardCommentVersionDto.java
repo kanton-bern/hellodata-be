@@ -31,6 +31,8 @@
  import lombok.Data;
  import lombok.NoArgsConstructor;
 
+ import java.util.List;
+
  @Data
  @Builder
  @NoArgsConstructor
@@ -44,4 +46,5 @@
      private Long publishedDate;
      private String publishedBy;
      private boolean deleted;
+     private List<String> tags; // Tags snapshot for this version
  }

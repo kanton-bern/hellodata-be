@@ -196,6 +196,9 @@ public class DashboardCommentService {
         String authorEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
 
+        // Validate and normalize tags
+        List<String> normalizedTags = validateAndNormalizeTags(createDto.getTags());
+
         // Create comment entity
         DashboardCommentEntity comment = DashboardCommentEntity.builder()
                 .id(UUID.randomUUID().toString())
@@ -211,7 +214,7 @@ public class DashboardCommentService {
                 .hasActiveDraft(false)
                 .build();
 
-        // Create first version
+        // Create first version with tags snapshot
         DashboardCommentVersionEntity version = DashboardCommentVersionEntity.builder()
                 .version(1)
                 .text(createDto.getText())
@@ -219,12 +222,12 @@ public class DashboardCommentService {
                 .editedDate(now)
                 .editedBy(authorFullName)
                 .deleted(false)
+                .tags(commentMapper.tagsToString(normalizedTags))
                 .build();
 
         comment.addVersion(version);
 
-        // Add tags if provided
-        List<String> normalizedTags = validateAndNormalizeTags(createDto.getTags());
+        // Add tags to comment entity (current tags)
         for (String tagValue : normalizedTags) {
             DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
                     .tag(tagValue)
@@ -257,6 +260,11 @@ public class DashboardCommentService {
         // verify entityVersion matches
         checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
 
+        // Normalize tags for version snapshot
+        List<String> normalizedTags = updateDto.getTags() != null
+                ? validateAndNormalizeTags(updateDto.getTags())
+                : getCurrentTags(comment);
+
         // Update the active version in history
         String editorName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
@@ -268,18 +276,18 @@ public class DashboardCommentService {
                     v.setText(updateDto.getText());
                     v.setEditedDate(now);
                     v.setEditedBy(editorName);
+                    v.setTags(commentMapper.tagsToString(normalizedTags));
                 });
 
         if (updateDto.getPointerUrl() != null) {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
-        // Update tags if provided
+        // Update tags on comment entity if provided
         if (updateDto.getTags() != null) {
             // Clear existing tags
             comment.getTags().clear();
             // Add new normalized tags
-            List<String> normalizedTags = validateAndNormalizeTags(updateDto.getTags());
             for (String tagValue : normalizedTags) {
                 DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
                         .tag(tagValue)
@@ -295,6 +303,15 @@ public class DashboardCommentService {
         log.info("Updated comment {} for dashboard {}/{}, new entityVersion: {}",
                 commentId, contextKey, dashboardId, savedComment.getEntityVersion());
         return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Get current tags from comment entity.
+     */
+    private List<String> getCurrentTags(DashboardCommentEntity comment) {
+        return comment.getTags().stream()
+                .map(DashboardCommentTagEntity::getTag)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -438,6 +455,11 @@ public class DashboardCommentService {
         String editorName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
+        // Get tags for new version - from updateDto or current comment tags
+        List<String> tagsForNewVersion = updateDto.getTags() != null
+                ? validateAndNormalizeTags(updateDto.getTags())
+                : getCurrentTags(comment);
+
         int newVersionNumber = comment.getHistory().stream()
                 .mapToInt(DashboardCommentVersionEntity::getVersion)
                 .max()
@@ -450,6 +472,7 @@ public class DashboardCommentService {
                 .editedDate(now)
                 .editedBy(editorName)
                 .deleted(false)
+                .tags(commentMapper.tagsToString(tagsForNewVersion))
                 .build();
 
         comment.addVersion(newVersion);
@@ -459,12 +482,28 @@ public class DashboardCommentService {
             comment.setPointerUrl(updateDto.getPointerUrl());
         }
 
+        updateTagsIfProvided(updateDto, comment);
+
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Created new version {} for comment {} on dashboard {}/{}",
                 newVersionNumber, commentId, contextKey, dashboardId);
         return commentMapper.toDto(savedComment);
+    }
+
+    private void updateTagsIfProvided(DashboardCommentUpdateDto updateDto, DashboardCommentEntity comment) {
+        if (updateDto.getTags() != null) {
+            comment.getTags().clear();
+            for (String tagText : updateDto.getTags()) {
+                if (tagText != null && !tagText.trim().isEmpty()) {
+                    DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
+                            .tag(tagText.trim().toLowerCase().substring(0, Math.min(tagText.trim().length(), 10)))
+                            .build();
+                    comment.addTag(tag);
+                }
+            }
+        }
     }
 
     /**

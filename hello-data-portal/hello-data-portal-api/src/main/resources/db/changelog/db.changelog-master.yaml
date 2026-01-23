@@ -126,3 +126,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/48_fix_entity_version_nullable.xml
   - include:
       file: db/changelog/changelogs/49_create_dashboard_comment_tags_table.xml
+  - include:
+      file: db/changelog/changelogs/50_add_tags_to_comment_version.xml

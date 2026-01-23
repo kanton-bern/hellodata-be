@@ -60,6 +60,7 @@ control.
 │ publishedDate?: number                                      │
 │ publishedBy?: string                                        │
 │ deleted: boolean                                            │
+│ tags?: string[] (tags snapshot for this version)            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -188,6 +189,9 @@ Version 1 (PUBLISHED) ─► Version 2 (DRAFT) ─► Version 2 (PUBLISHED) ─�
 | `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/unpublish`               | Unpublish comment                    |
 | `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/clone`                   | Clone for edit (creates new version) |
 | `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/restore/{versionNumber}` | Restore specific version             |
+| `GET`    | `/dashboards/{contextKey}/{dashboardId}/comments/tags`                                | Get all tags for dashboard           |
+| `GET`    | `/dashboards/{contextKey}/{dashboardId}/comments/export`                              | Export comments to JSON              |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/import`                              | Import comments from JSON            |
 
 ### Request/Response Examples
 
@@ -291,12 +295,14 @@ Comments can be tagged with short labels for better organization and filtering:
 - **Autocomplete**: When adding tags, existing tags from the dashboard are suggested
 - **Filtering**: Comments can be filtered by tag in the comments panel
 - **Permissions**: Adding/editing tags follows the same permission rules as editing comments
+- **History tracking**: Each version stores a snapshot of tags - changes to tags are visible in version history
 
 #### Tag Display
 
 - Tags are displayed at the bottom of each comment entry
 - Each tag shows with a tag icon (`fa-solid fa-tag`) followed by the tag name
 - Tags have a distinctive blue chip styling for easy identification
+- In version history, tags for each version are shown, allowing comparison of tag changes
 
 #### Tag API
 
@@ -353,7 +359,8 @@ CREATE TABLE dashboard_comment_version
     edited_by      VARCHAR(255),
     published_date BIGINT,
     published_by   VARCHAR(255),
-    deleted        BOOLEAN DEFAULT FALSE
+    deleted        BOOLEAN DEFAULT FALSE,
+    tags           TEXT -- Comma-separated tags snapshot for history tracking
 );
 
 CREATE TABLE dashboard_comment_tag
@@ -380,6 +387,59 @@ CREATE INDEX idx_comment_tag_tag
 | `403 Forbidden` | User lacks permission for the action          |
 | `404 Not Found` | Comment not found                             |
 | `409 Conflict`  | Optimistic locking conflict (concurrent edit) |
+
+## Import/Export
+
+Comments can be exported and imported between dashboards for migration or backup purposes.
+
+### Export
+
+- **Format**: JSON file
+- **Scope**: Exports only PUBLISHED comments (drafts are excluded)
+- **Contents**: Comment text, author, creation date, tags, and version history
+- **Permission**: Any user with dashboard access can export
+- **File naming**: `comments_{contextKey}_{dashboardId}_{date}.json`
+
+#### Export Format
+
+```json
+{
+  "exportVersion": "1.0",
+  "contextKey": "demo",
+  "dashboardId": 5,
+  "exportDate": 1705827600000,
+  "comments": [
+    {
+      "text": "Comment text",
+      "author": "John Doe",
+      "authorEmail": "john.doe@example.com",
+      "createdDate": 1705827600000,
+      "status": "PUBLISHED",
+      "tags": [
+        "sales",
+        "kpi"
+      ],
+      "history": [
+        ...
+      ]
+    }
+  ]
+}
+```
+
+### Import
+
+- **Permission**: Only admins (superuser, business_domain_admin, data_domain_admin) can import
+- **Status**: All imported comments are created as DRAFT (require publishing)
+- **Pointer URL**: Intentionally excluded - cannot be reliably mapped to target dashboard
+- **Tags**: Preserved from export file (normalized to max 10 characters, lowercased)
+- **Author**: Preserved from export if available, otherwise uses importing user
+
+#### Import Validation
+
+- File must be valid JSON
+- Comments without text are skipped
+- Invalid tags are normalized or skipped
 
 ## Mobile Support
 

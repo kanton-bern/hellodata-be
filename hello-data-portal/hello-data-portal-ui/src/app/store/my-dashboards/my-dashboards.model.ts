@@ -66,6 +66,7 @@ export interface DashboardCommentVersion {
   publishedDate?: number;
   publishedBy?: string;
   deleted: boolean; // Soft delete - only non-deleted PUBLISHED versions are shown
+  tags?: string[]; // Tags snapshot for this version (for history tracking)
 }
 
 export interface DashboardCommentEntry {

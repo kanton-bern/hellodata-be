@@ -109,27 +109,43 @@
             <ul class="history-list">
               @for (historyItem of allVersions(); track historyItem.version) {
                 <li class="history-item" [class.active-version]="historyItem.isCurrentVersion">
-                  <span class="history-version">v{{ historyItem.version }}</span>
-                  @if (historyItem.isCurrentVersion) {
-                    <span class="active-badge">{{ '@Active' | transloco }}</span>
-                  }
-                  <span class="status-badge" [class.status-draft]="historyItem.status === DashboardCommentStatus.DRAFT"
-                        [class.status-published]="historyItem.status === DashboardCommentStatus.PUBLISHED">
-                    {{ '@' + historyItem.status | transloco }}
-                  </span>
-                  <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
-                  <span class="history-author">{{ historyItem.editedBy }}</span>
-                  <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
-                    {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
-                  </span>
-                  @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
-                    <button type="button" class="restore-btn"
-                            (click)="restoreVersion(historyItem.version)"
-                            (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
-                            [pTooltip]="'@Restore this version' | transloco"
-                            tooltipPosition="left">
-                      <i class="fa-solid fa-rotate-left"></i>
-                    </button>
+                  <div class="history-item-main">
+                    <span class="history-version">v{{ historyItem.version }}</span>
+                    @if (historyItem.isCurrentVersion) {
+                      <span class="active-badge">{{ '@Active' | transloco }}</span>
+                    }
+                    <span class="status-badge"
+                          [class.status-draft]="historyItem.status === DashboardCommentStatus.DRAFT"
+                          [class.status-published]="historyItem.status === DashboardCommentStatus.PUBLISHED">
+                      {{ '@' + historyItem.status | transloco }}
+                    </span>
+                    <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
+                    <span class="history-author">{{ historyItem.editedBy }}</span>
+                    @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
+                      <button type="button" class="restore-btn"
+                              (click)="restoreVersion(historyItem.version)"
+                              (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
+                              [pTooltip]="'@Restore this version' | transloco"
+                              tooltipPosition="left">
+                        <i class="fa-solid fa-rotate-left"></i>
+                      </button>
+                    }
+                  </div>
+                  <div class="history-text-row">
+                    <span class="history-text-label">{{ '@Text' | transloco }}:</span>
+                    <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
+                      {{ historyItem.text | slice:0:80 }}{{ historyItem.text.length > 80 ? '...' : '' }}
+                    </span>
+                  </div>
+                  @if (historyItem.tags && historyItem.tags.length > 0) {
+                    <div class="history-tags-row">
+                      <span class="history-tags-label">{{ '@Tags' | transloco }}:</span>
+                      @for (tag of historyItem.tags; track tag) {
+                        <span class="history-tag">
+                          <i class="fa-solid fa-tag"></i>{{ tag }}
+                        </span>
+                      }
+                    </div>
                   }
                 </li>
               }
