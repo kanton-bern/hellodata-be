@@ -26,9 +26,7 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.controller;
 
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentCreateDto;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentDto;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentUpdateDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -123,6 +121,23 @@ public class DashboardCommentController {
             @PathVariable String commentId,
             @PathVariable int versionNumber) {
         return commentService.restoreVersion(contextKey, dashboardId, commentId, versionNumber);
+    }
+
+    @GetMapping("/export")
+    @PreAuthorize("hasAnyAuthority('DASHBOARD_COMMENTS_IMPORT_EXPORT')")
+    public CommentExportDto exportComments(
+            @PathVariable String contextKey,
+            @PathVariable int dashboardId) {
+        return commentService.exportComments(contextKey, dashboardId);
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasAnyAuthority('DASHBOARD_COMMENTS_IMPORT_EXPORT')")
+    public CommentImportResultDto importComments(
+            @PathVariable String contextKey,
+            @PathVariable int dashboardId,
+            @RequestBody CommentExportDto importData) {
+        return commentService.importComments(contextKey, dashboardId, importData);
     }
 }
 

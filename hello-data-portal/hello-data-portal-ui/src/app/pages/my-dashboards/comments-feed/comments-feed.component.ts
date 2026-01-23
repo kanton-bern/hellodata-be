@@ -46,10 +46,13 @@ import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
 import {DashboardCommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
-import {map, Observable} from "rxjs";
+import {map, Observable, take} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {AutoComplete} from "primeng/autocomplete";
 import {Dialog} from "primeng/dialog";
+import {HttpClient} from "@angular/common/http";
+import {environment} from "../../../../environments/environment";
+import {NotificationService} from "../../../shared/services/notification.service";
 
 interface FilterOption {
   label: string;
@@ -81,7 +84,10 @@ interface TagFilterOption {
 })
 export class CommentsFeed implements AfterViewInit {
   private readonly store = inject<Store<AppState>>(Store);
+  private readonly http = inject(HttpClient);
+  private readonly notificationService = inject(NotificationService);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   showCloseButton = input<boolean>(false);
   pointerUrlClick = output<string>();
@@ -391,6 +397,86 @@ export class CommentsFeed implements AfterViewInit {
           behavior: 'smooth'
         });
       });
+    });
+  }
+
+  // Export comments to JSON file
+  exportComments(): void {
+    if (!this.currentDashboardId || !this.currentDashboardContextKey) {
+      this.notificationService.warn('@No dashboard selected');
+      return;
+    }
+
+    this.http.get<unknown>(
+      `${environment.portalApi}/dashboards/${this.currentDashboardContextKey}/${this.currentDashboardId}/comments/export`
+    ).pipe(take(1)).subscribe({
+      next: (data) => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `comments_${this.currentDashboardContextKey}_${this.currentDashboardId}_${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.notificationService.success('@Comments exported successfully');
+      },
+      error: () => {
+        this.notificationService.error('@Failed to export comments');
+      }
+    });
+  }
+
+  // Trigger file input click
+  triggerImport(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  // Handle file selection
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (!file.name.endsWith('.json')) {
+      this.notificationService.error('@File must be JSON format');
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const data = JSON.parse(content);
+        this.importComments(data);
+      } catch {
+        this.notificationService.error('@Invalid JSON file');
+      }
+      input.value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  // Import comments from JSON data
+  private importComments(data: unknown): void {
+    if (!this.currentDashboardId || !this.currentDashboardContextKey) {
+      this.notificationService.warn('@No dashboard selected');
+      return;
+    }
+
+    this.http.post<{ imported: number }>(
+      `${environment.portalApi}/dashboards/${this.currentDashboardContextKey}/${this.currentDashboardId}/comments/import`,
+      data
+    ).pipe(take(1)).subscribe({
+      next: (response) => {
+        this.notificationService.success('@Comments imported successfully', {count: response.imported});
+        // Reload comments
+        this.loadTagsIfNeeded();
+      },
+      error: (err) => {
+        const message = err.error?.message || '@Failed to import comments';
+        this.notificationService.error(message);
+      }
     });
   }
 }
