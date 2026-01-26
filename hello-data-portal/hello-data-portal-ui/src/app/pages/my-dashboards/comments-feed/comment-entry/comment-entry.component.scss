@@ -56,6 +56,16 @@
     color: white;
     border-radius: 0.25rem;
   }
+
+  .draft-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--orange-500, #f97316);
+    color: white;
+    border-radius: 0.25rem;
+    font-weight: 500;
+  }
 }
 
 .comment-actions {

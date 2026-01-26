@@ -26,6 +26,9 @@
         @if (comment().activeVersion > 1) {
           <span class="version-badge">v{{ comment().activeVersion }}</span>
         }
+        @if (activeVersion()?.status === DashboardCommentStatus.DRAFT) {
+          <span class="draft-badge">{{ '@draft' | transloco }}</span>
+        }
       </small>
       <div class="comment-actions">
         @if (canViewMetadata()) {
