@@ -184,6 +184,7 @@
   "@Is editor": "Editor",
   "@Is viewer": "Viewer",
   "@Last edited": "Last edited",
+  "@Link": "Link",
   "@Last login": "Last login",
   "@Last name": "Last name",
   "@Last name is invalid": "Last name is invalid",

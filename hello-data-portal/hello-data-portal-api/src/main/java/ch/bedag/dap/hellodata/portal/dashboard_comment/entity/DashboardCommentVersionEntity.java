@@ -84,5 +84,12 @@ public class DashboardCommentVersionEntity {
      */
     @Column(name = "tags", columnDefinition = "TEXT")
     private String tags;
+
+    /**
+     * Pointer URL snapshot for this version.
+     * Stores the specific dashboard element URL that the comment refers to.
+     */
+    @Column(name = "pointer_url", length = 2000)
+    private String pointerUrl;
 }
 

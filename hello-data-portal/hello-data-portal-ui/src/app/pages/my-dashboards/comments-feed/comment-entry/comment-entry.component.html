@@ -141,6 +141,15 @@
                       {{ historyItem.text | slice:0:80 }}{{ historyItem.text.length > 80 ? '...' : '' }}
                     </span>
                   </div>
+                  @if (historyItem.pointerUrl) {
+                    <div class="history-pointer-url-row">
+                      <span class="history-pointer-url-label">{{ '@Link' | transloco }}:</span>
+                      <span class="history-pointer-url" [pTooltip]="historyItem.pointerUrl" tooltipPosition="top">
+                        <i
+                          class="fa-solid fa-thumbtack mr-1"></i>{{ historyItem.pointerUrl | slice:0:50 }}{{ historyItem.pointerUrl.length > 50 ? '...' : '' }}
+                      </span>
+                    </div>
+                  }
                   @if (historyItem.tags && historyItem.tags.length > 0) {
                     <div class="history-tags-row">
                       <span class="history-tags-label">{{ '@Tags' | transloco }}:</span>

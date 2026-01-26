@@ -229,6 +229,7 @@
                       <th scope="col" class="p-2 text-left">{{ '@Date' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Author' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Text' | transloco }}</th>
+                      <th scope="col" class="p-2 text-left">{{ '@Link' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Tags' | transloco }}</th>
                       <th scope="col" class="p-2 text-left">{{ '@Actions' | transloco }}</th>
                     </tr>
@@ -255,6 +256,16 @@
                           <span [pTooltip]="historyItem.text" tooltipPosition="top">
                             {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
                           </span>
+                          </td>
+                          <td class="p-2">
+                            @if (historyItem.pointerUrl) {
+                              <span [pTooltip]="historyItem.pointerUrl" tooltipPosition="top" class="text-blue-600">
+                                <i class="fa-solid fa-thumbtack mr-1" style="font-size: 0.6rem;"></i>
+                                {{ historyItem.pointerUrl | slice:0:20 }}{{ historyItem.pointerUrl.length > 20 ? '...' : '' }}
+                              </span>
+                            } @else {
+                              <span class="text-gray-400">-</span>
+                            }
                           </td>
                           <td class="p-2">
                             @if (historyItem.tags && historyItem.tags.length > 0) {

@@ -184,6 +184,7 @@
   "@Is editor": "Editor",
   "@Is viewer": "Viewer",
   "@Last edited": "Zuletzt bearbeitet",
+  "@Link": "Link",
   "@Last login": "Letzte Anmeldung",
   "@Last name": "Nachname",
   "@Last name is invalid": "Nachname ist ungültig",

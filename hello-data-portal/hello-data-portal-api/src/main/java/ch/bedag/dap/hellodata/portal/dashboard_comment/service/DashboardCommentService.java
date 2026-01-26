@@ -233,6 +233,7 @@ public class DashboardCommentService {
                 .editedBy(authorFullName)
                 .deleted(false)
                 .tags(commentMapper.tagsToString(normalizedTags))
+                .pointerUrl(createDto.getPointerUrl())
                 .build();
 
         comment.addVersion(version);
@@ -287,6 +288,9 @@ public class DashboardCommentService {
                     v.setEditedDate(now);
                     v.setEditedBy(editorName);
                     v.setTags(commentMapper.tagsToString(normalizedTags));
+                    if (updateDto.getPointerUrl() != null) {
+                        v.setPointerUrl(updateDto.getPointerUrl());
+                    }
                 });
 
         if (updateDto.getPointerUrl() != null) {
@@ -483,6 +487,7 @@ public class DashboardCommentService {
                 .editedBy(editorName)
                 .deleted(false)
                 .tags(commentMapper.tagsToString(tagsForNewVersion))
+                .pointerUrl(updateDto.getPointerUrl() != null ? updateDto.getPointerUrl() : comment.getPointerUrl())
                 .build();
 
         comment.addVersion(newVersion);
@@ -900,6 +905,7 @@ public class DashboardCommentService {
                         .publishedDate(v.getPublishedDate())
                         .publishedBy(v.getPublishedBy())
                         .tags(parseTagsFromString(v.getTags()))
+                        .pointerUrl(v.getPointerUrl())
                         .build())
                 .sorted(Comparator.comparingInt(CommentVersionExportDto::getVersion))
                 .toList();
@@ -1107,6 +1113,7 @@ public class DashboardCommentService {
         existingVersion.setPublishedBy(historyItem.getPublishedBy());
         existingVersion.setDeleted(false);
         existingVersion.setTags(convertTagsToString(historyItem.getTags()));
+        existingVersion.setPointerUrl(historyItem.getPointerUrl());
     }
 
     private void createAndAddNewVersion(DashboardCommentEntity entity, CommentVersionExportDto historyItem,
@@ -1121,6 +1128,7 @@ public class DashboardCommentService {
                 .publishedBy(historyItem.getPublishedBy())
                 .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
+                .pointerUrl(historyItem.getPointerUrl())
                 .comment(entity)
                 .build();
         entity.getHistory().add(version);
@@ -1282,6 +1290,7 @@ public class DashboardCommentService {
                 .publishedBy(historyItem.getPublishedBy())
                 .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
+                .pointerUrl(historyItem.getPointerUrl())
                 .build();
     }
 

@@ -202,6 +202,27 @@
       flex-shrink: 0;
     }
 
+    .history-pointer-url-row {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-start;
+      padding-left: 1.5rem;
+    }
+
+    .history-pointer-url-label {
+      font-size: 0.6rem;
+      color: var(--text-color-secondary, #6c757d);
+      flex-shrink: 0;
+    }
+
+    .history-pointer-url {
+      font-size: 0.6rem;
+      color: var(--primary-color, #3b82f6);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .history-tags-row {
       display: flex;
       gap: 0.25rem;

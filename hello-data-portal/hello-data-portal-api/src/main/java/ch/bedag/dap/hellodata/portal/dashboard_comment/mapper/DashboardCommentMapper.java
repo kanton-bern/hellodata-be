@@ -119,6 +119,7 @@ public class DashboardCommentMapper {
                 .publishedBy(entity.getPublishedBy())
                 .deleted(entity.isDeleted())
                 .tags(parseTagsFromString(entity.getTags()))
+                .pointerUrl(entity.getPointerUrl())
                 .build();
     }
 
@@ -137,6 +138,7 @@ public class DashboardCommentMapper {
                 .publishedBy(dto.getPublishedBy())
                 .deleted(dto.isDeleted())
                 .tags(tagsToString(dto.getTags()))
+                .pointerUrl(dto.getPointerUrl())
                 .build();
     }
 

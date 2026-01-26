@@ -47,4 +47,5 @@
      private String publishedBy;
      private boolean deleted;
      private List<String> tags; // Tags snapshot for this version
+     private String pointerUrl; // Pointer URL snapshot for this version
  }

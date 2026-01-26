@@ -49,5 +49,6 @@ public class CommentVersionExportDto {
     private Long publishedDate;
     private String publishedBy;
     private List<String> tags;
+    private String pointerUrl;
 }
 
