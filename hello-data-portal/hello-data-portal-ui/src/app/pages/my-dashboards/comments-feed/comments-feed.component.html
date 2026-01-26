@@ -59,6 +59,17 @@
                 [style]="{'width': '100%'}"
                 size="small"/>
     </div>
+    <div class="filter-group">
+      <span class="filter-label">{{ '@Status' | transloco }}</span>
+      <p-select [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                (onChange)="onFilterChange()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="{{ '@All' | transloco }}"
+                [style]="{'width': '100%'}"
+                size="small"/>
+    </div>
     @if ((tagFilterOptions$ | async); as tagOptions) {
       @if (tagOptions.length > 1) {
         <div class="filter-group">
@@ -142,7 +153,7 @@
               (click)="togglePointerUrlInput()"
               (keydown.enter)="togglePointerUrlInput()"
               (keydown.space)="togglePointerUrlInput()"
-              [pTooltip]="'@Link to specific page (optional)' | transloco"
+              [pTooltip]="'@Link to dashboard element (optional)' | transloco"
               tooltipPosition="top">
         <i class="fa-solid fa-link"></i>
       </button>
@@ -155,13 +166,13 @@
                  [class.border-red-500]="pointerUrl && !isPointerUrlValid()"
                  [class.border-2]="pointerUrl && !isPointerUrlValid()"
                  [(ngModel)]="pointerUrl"
-                 placeholder="{{ '@Link to specific page (optional)' | transloco }}"/>
+                 placeholder="{{ '@Link to dashboard element (optional)' | transloco }}"/>
         </div>
       }
 
       <!-- Submit button -->
       <p-button severity="success" (keydown.enter)="submitComment()"
-                label="{{ '@Submit' | transloco }}"
+                label="{{ '@Add' | transloco }}"
                 (click)="submitComment()"
                 [disabled]="!newCommentText?.trim() || (showPointerUrlInput && pointerUrl && !isPointerUrlValid())"
                 class="ml-auto">

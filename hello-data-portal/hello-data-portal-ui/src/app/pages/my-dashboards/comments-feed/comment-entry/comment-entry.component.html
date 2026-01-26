@@ -8,7 +8,7 @@
               class="pointer-url-link text-xs text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0"
               (click)="navigateToPointerUrl()"
               (keydown.enter)="navigateToPointerUrl()">
-        <i class="fa-solid fa-thumbtack mr-1"></i>{{ '@Go to referenced page' | transloco }}
+        <i class="fa-solid fa-thumbtack mr-1"></i>{{ '@Go to dashboard element' | transloco }}
       </button>
     </div>
   }
@@ -34,7 +34,8 @@
         @if (canViewMetadata()) {
           <button type="button" class="info-btn"
                   (click)="toggleDetails()"
-                  (keydown)="onKeyDown($event, toggleDetails.bind(this))">
+                  (keydown)="onKeyDown($event, toggleDetails.bind(this))"
+                  [pTooltip]="'@Info' | transloco" tooltipPosition="top">
             <i class="fa fa-info-circle"></i>
           </button>
         }

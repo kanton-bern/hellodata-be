@@ -46,7 +46,7 @@ import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
-import {DashboardCommentEntry} from "../../../store/my-dashboards/my-dashboards.model";
+import {DashboardCommentEntry, DashboardCommentStatus} from "../../../store/my-dashboards/my-dashboards.model";
 import {map, Observable, take} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {AutoComplete} from "primeng/autocomplete";
@@ -63,6 +63,11 @@ interface FilterOption {
 interface TagFilterOption {
   label: string;
   value: string | null;
+}
+
+interface StatusFilterOption {
+  label: string;
+  value: DashboardCommentStatus | null;
 }
 
 @Component({
@@ -114,6 +119,14 @@ export class CommentsFeed implements AfterViewInit {
 
   selectedYear: number | null = null;
   selectedQuarter: number | null = null;
+  selectedStatus: DashboardCommentStatus | null = null;
+
+  // Status filter options
+  statusOptions: StatusFilterOption[] = [
+    {label: 'All', value: null},
+    {label: 'Draft', value: DashboardCommentStatus.DRAFT},
+    {label: 'Published', value: DashboardCommentStatus.PUBLISHED}
+  ];
 
   filteredComments$: Observable<DashboardCommentEntry[]>;
   // Signal to track filtered comments for auto-scroll
@@ -280,6 +293,14 @@ export class CommentsFeed implements AfterViewInit {
       // Filter by tag
       if (this.selectedTagFilter !== null && this.selectedTagFilter !== '') {
         if (!comment.tags?.includes(this.selectedTagFilter)) {
+          return false;
+        }
+      }
+
+      // Filter by status
+      if (this.selectedStatus !== null) {
+        const activeVersion = comment.history?.find(v => v.version === comment.activeVersion);
+        if (activeVersion && activeVersion.status !== this.selectedStatus) {
           return false;
         }
       }
