@@ -199,13 +199,15 @@ export class CommentEntryComponent {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
           const tagsToSave = this.editedTags.length > 0 ? this.editedTags : undefined;
+          // Send empty string to clear pointerUrl, or normalized URL
+          const pointerUrlToSave = normalizedPointerUrl ?? '';
           if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
             this.commentUtils.dispatchClonePublishedComment(
               dashboardId,
               contextKey,
               comment.id,
               newText,
-              normalizedPointerUrl,
+              pointerUrlToSave,
               comment.entityVersion,
               tagsToSave
             );
@@ -215,7 +217,7 @@ export class CommentEntryComponent {
               contextKey,
               comment.id,
               newText,
-              normalizedPointerUrl,
+              pointerUrlToSave,
               comment.entityVersion,
               tagsToSave
             );
@@ -233,6 +235,10 @@ export class CommentEntryComponent {
     this.editedPointerUrl = '';
     this.editedTags = [];
     this.editNewTagText = '';
+  }
+
+  clearEditedPointerUrl(): void {
+    this.editedPointerUrl = '';
   }
 
   // Tag methods for edit dialog

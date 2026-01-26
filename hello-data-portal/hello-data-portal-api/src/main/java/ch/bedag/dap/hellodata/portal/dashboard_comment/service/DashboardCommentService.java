@@ -288,14 +288,14 @@ public class DashboardCommentService {
                     v.setEditedDate(now);
                     v.setEditedBy(editorName);
                     v.setTags(commentMapper.tagsToString(normalizedTags));
-                    if (updateDto.getPointerUrl() != null) {
-                        v.setPointerUrl(updateDto.getPointerUrl());
-                    }
+                    // Update pointerUrl - allow clearing by setting to null/empty
+                    String newPointerUrl = updateDto.getPointerUrl();
+                    v.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
                 });
 
-        if (updateDto.getPointerUrl() != null) {
-            comment.setPointerUrl(updateDto.getPointerUrl());
-        }
+        // Update pointerUrl on comment entity - allow clearing
+        String newPointerUrl = updateDto.getPointerUrl();
+        comment.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
 
         // Update tags on comment entity if provided
         if (updateDto.getTags() != null) {
@@ -479,6 +479,12 @@ public class DashboardCommentService {
                 .max()
                 .orElse(0) + 1;
 
+        // Determine pointerUrl for new version - allow clearing
+        String pointerUrlForVersion = updateDto.getPointerUrl();
+        if (pointerUrlForVersion == null || pointerUrlForVersion.trim().isEmpty()) {
+            pointerUrlForVersion = null; // Explicitly clear if empty
+        }
+
         DashboardCommentVersionEntity newVersion = DashboardCommentVersionEntity.builder()
                 .version(newVersionNumber)
                 .text(updateDto.getText())
@@ -487,15 +493,14 @@ public class DashboardCommentService {
                 .editedBy(editorName)
                 .deleted(false)
                 .tags(commentMapper.tagsToString(tagsForNewVersion))
-                .pointerUrl(updateDto.getPointerUrl() != null ? updateDto.getPointerUrl() : comment.getPointerUrl())
+                .pointerUrl(pointerUrlForVersion)
                 .build();
 
         comment.addVersion(newVersion);
         comment.setActiveVersion(newVersionNumber);
         comment.setHasActiveDraft(true);
-        if (updateDto.getPointerUrl() != null) {
-            comment.setPointerUrl(updateDto.getPointerUrl());
-        }
+        // Update pointerUrl on comment entity - allow clearing
+        comment.setPointerUrl(pointerUrlForVersion);
 
         updateTagsIfProvided(updateDto, comment);
 

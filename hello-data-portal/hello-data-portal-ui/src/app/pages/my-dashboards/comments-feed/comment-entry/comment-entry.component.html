@@ -191,12 +191,24 @@
               class="w-full"
               placeholder="{{ '@Write a comment' | transloco }}"></textarea>
     <div class="mt-3">
-      <input type="text"
-             class="w-full border rounded-md px-2 py-1 text-sm"
-             [class.border-red-500]="editedPointerUrl && !isEditedPointerUrlValid()"
-             [class.border-2]="editedPointerUrl && !isEditedPointerUrlValid()"
-             [(ngModel)]="editedPointerUrl"
-             placeholder="{{ '@Link to specific page (optional)' | transloco }}"/>
+      <div class="flex gap-1 items-center">
+        <input type="text"
+               class="flex-1 border rounded-md px-2 py-1 text-sm"
+               [class.border-red-500]="editedPointerUrl && !isEditedPointerUrlValid()"
+               [class.border-2]="editedPointerUrl && !isEditedPointerUrlValid()"
+               [(ngModel)]="editedPointerUrl"
+               placeholder="{{ '@Link to dashboard element (optional)' | transloco }}"/>
+        @if (editedPointerUrl) {
+          <button type="button"
+                  class="clear-pointer-url-btn"
+                  (click)="clearEditedPointerUrl()"
+                  (keydown.enter)="clearEditedPointerUrl()"
+                  [pTooltip]="'@Clear' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
+      </div>
       @if (editedPointerUrl && !isEditedPointerUrlValid()) {
         <div class="text-red-500 mt-1"
              style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}

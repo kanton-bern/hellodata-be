@@ -412,3 +412,21 @@
   }
 }
 
+.clear-pointer-url-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--text-color-secondary, #6c757d);
+  border-radius: 0.25rem;
+
+  &:hover {
+    color: var(--red-500, #ef4444);
+    background-color: var(--red-50, #fef2f2);
+  }
+
+  i {
+    font-size: 0.875rem;
+  }
+}
+
