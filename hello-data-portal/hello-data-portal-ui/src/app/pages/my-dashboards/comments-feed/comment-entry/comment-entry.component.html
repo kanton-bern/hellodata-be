@@ -107,6 +107,16 @@
             }
           </div>
         }
+        @if (comment().pointerUrl || activeVersion()?.pointerUrl) {
+          <div class="pointer-url-info">
+            <strong>{{ '@Link' | transloco }}:</strong>
+            <span class="text-blue-600 ml-1" [pTooltip]="comment().pointerUrl || activeVersion()?.pointerUrl"
+                  tooltipPosition="top">
+              <i class="fa-solid fa-thumbtack mr-1"></i>
+              {{ (comment().pointerUrl || activeVersion()?.pointerUrl) | slice:0:40 }}{{ (comment().pointerUrl || activeVersion()?.pointerUrl)!.length > 40 ? '...' : '' }}
+            </span>
+          </div>
+        }
         @if (allVersions().length > 1) {
           <div class="version-history mt-2">
             <strong>{{ '@Version history' | transloco }}:</strong>

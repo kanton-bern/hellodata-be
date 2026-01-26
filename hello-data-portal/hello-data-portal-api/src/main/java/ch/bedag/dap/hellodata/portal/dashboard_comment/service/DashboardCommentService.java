@@ -1199,6 +1199,14 @@ public class DashboardCommentService {
         entity.setActiveVersion(activeVersion);
         entity.setHasActiveDraft(result.hasActiveDraft());
         entity.setEntityVersion(entity.getEntityVersion() + 1);
+
+        // Update pointerUrl from active version
+        String pointerUrl = entity.getHistory().stream()
+                .filter(v -> v.getVersion() == activeVersion)
+                .findFirst()
+                .map(DashboardCommentVersionEntity::getPointerUrl)
+                .orElse(null);
+        entity.setPointerUrl(pointerUrl);
     }
 
     private void updateEntityTags(DashboardCommentEntity entity, List<String> tagNames) {
@@ -1331,12 +1339,16 @@ public class DashboardCommentService {
                                                               List<DashboardCommentTagEntity> tags) {
         int activeVersion = item.getActiveVersion() > 0 ? item.getActiveVersion() : versionResult.maxVersion();
 
+        // Get pointerUrl from active version in history
+        String pointerUrl = getPointerUrlFromActiveVersion(versionResult.versions(), activeVersion);
+
         return DashboardCommentEntity.builder()
                 .id(UUID.randomUUID().toString())
                 .contextKey(ctx.contextKey())
                 .dashboardId(ctx.dashboardId())
                 .dashboardUrl(ctx.dashboardUrl())
                 .importedFromId(item.getId())
+                .pointerUrl(pointerUrl)
                 .author(item.getAuthor() != null ? item.getAuthor() : ctx.importedBy())
                 .authorEmail(item.getAuthorEmail() != null ? item.getAuthorEmail() : ctx.importedByEmail())
                 .createdDate(item.getCreatedDate() > 0 ? item.getCreatedDate() : ctx.now())
@@ -1347,6 +1359,17 @@ public class DashboardCommentService {
                 .history(versionResult.versions())
                 .tags(tags)
                 .build();
+    }
+
+    private String getPointerUrlFromActiveVersion(List<DashboardCommentVersionEntity> versions, int activeVersion) {
+        if (versions == null || versions.isEmpty()) {
+            return null;
+        }
+        return versions.stream()
+                .filter(v -> v.getVersion() == activeVersion)
+                .findFirst()
+                .map(DashboardCommentVersionEntity::getPointerUrl)
+                .orElse(null);
     }
 
     private void setBackReferences(DashboardCommentEntity entity,

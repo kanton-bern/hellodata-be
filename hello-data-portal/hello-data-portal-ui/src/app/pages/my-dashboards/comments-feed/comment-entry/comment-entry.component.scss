@@ -155,6 +155,20 @@
     margin-bottom: 0.25rem;
   }
 
+  .pointer-url-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 250px;
+    }
+  }
+
   .version-history {
     margin-top: 0.5rem;
 
