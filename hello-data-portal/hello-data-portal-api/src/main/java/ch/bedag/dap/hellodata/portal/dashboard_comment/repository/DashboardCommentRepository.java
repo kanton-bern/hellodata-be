@@ -62,5 +62,16 @@ public interface DashboardCommentRepository extends JpaRepository<DashboardComme
     @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history WHERE c.contextKey = :contextKey ORDER BY c.createdDate ASC")
     List<DashboardCommentEntity> findByContextKeyOrderByCreatedDateAsc(@Param("contextKey") String contextKey);
 
+    /**
+     * Find comment by importedFromId for a specific dashboard.
+     * Used to find previously imported comments from other dashboards to prevent duplicates on re-import.
+     */
+    @Query("SELECT c FROM DashboardCommentEntity c LEFT JOIN FETCH c.history " +
+            "WHERE c.importedFromId = :importedFromId AND c.contextKey = :contextKey AND c.dashboardId = :dashboardId")
+    Optional<DashboardCommentEntity> findByImportedFromIdAndContextKeyAndDashboardId(
+            @Param("importedFromId") String importedFromId,
+            @Param("contextKey") String contextKey,
+            @Param("dashboardId") Integer dashboardId);
+
 }
 

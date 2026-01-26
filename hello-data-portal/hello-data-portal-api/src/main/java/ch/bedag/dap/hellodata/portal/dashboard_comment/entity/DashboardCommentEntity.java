@@ -92,6 +92,13 @@ public class DashboardCommentEntity {
     @Builder.Default
     private Long entityVersion = 0L;
 
+    /**
+     * Original comment ID from which this comment was imported.
+     * Used to track imports from other dashboards and prevent duplicates on re-import.
+     */
+    @Column(name = "imported_from_id", length = 36)
+    private String importedFromId;
+
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("version ASC")
     @Builder.Default

@@ -47,23 +47,54 @@
   padding: 0.5rem;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: relative;
 
   h4 {
     margin: 0;
     flex: 1;
+    text-align: center;
   }
 
-  .close-button {
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
     position: absolute;
     right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
+  }
+
+  .action-btn {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.35rem;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary, #6c757d);
+    transition: color 0.2s;
+    border-radius: 0.25rem;
+
+    &:hover {
+      color: var(--primary-color, #3b82f6);
+      background-color: var(--surface-100, #f8f9fa);
+    }
+
+    &.export-btn:hover {
+      color: var(--green-500, #22c55e);
+    }
+
+    &.import-btn:hover {
+      color: var(--blue-500, #3b82f6);
+    }
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.35rem;
     font-size: 1.2rem;
     color: var(--p-text-muted-color);
     transition: color 0.2s;

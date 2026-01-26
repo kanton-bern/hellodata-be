@@ -1,0 +1,25 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet author="hellodata" id="51-1">
+        <comment>Add imported_from_id column to dashboard_comment table to track imported comments</comment>
+        <addColumn tableName="dashboard_comment">
+            <column name="imported_from_id" type="VARCHAR(36)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="hellodata" id="51-2">
+        <comment>Add index for imported_from_id to speed up duplicate detection on import</comment>
+        <createIndex indexName="idx_comment_imported_from" tableName="dashboard_comment">
+            <column name="imported_from_id"/>
+            <column name="context_key"/>
+            <column name="dashboard_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
+

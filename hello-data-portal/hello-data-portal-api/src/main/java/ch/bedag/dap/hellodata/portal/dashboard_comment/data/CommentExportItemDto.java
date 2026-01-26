@@ -24,26 +24,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portalcommon.role.entity;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
-import ch.bedag.dap.hellodata.commons.security.Permission;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Arrays;
 import java.util.List;
 
-@Getter
-@RequiredArgsConstructor
-public enum SystemDefaultPortalRoleName {
-    HELLODATA_ADMIN(Arrays.asList(Permission.values())),
-    BUSINESS_DOMAIN_ADMIN(List.of(Permission.USER_MANAGEMENT, Permission.FAQ_MANAGEMENT, Permission.EXTERNAL_DASHBOARDS_MANAGEMENT, Permission.DOCUMENTATION_MANAGEMENT,
-            Permission.ANNOUNCEMENT_MANAGEMENT, Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG,
-            Permission.DATA_JUPYTER, Permission.USERS_OVERVIEW, Permission.DATA_FILEBROWSER, Permission.DASHBOARD_ACCESS, Permission.DASHBOARD_IMPORT_EXPORT, Permission.DASHBOARD_COMMENTS_IMPORT_EXPORT)),
-    DATA_DOMAIN_ADMIN(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_DWH, Permission.DATA_ENG, Permission.DATA_JUPYTER, Permission.DATA_FILEBROWSER, Permission.DASHBOARD_COMMENTS_IMPORT_EXPORT)),
-    DATA_DOMAIN_EDITOR(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS, Permission.DATA_FILEBROWSER)),
-    DATA_DOMAIN_VIEWER(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE)),
-    DATA_DOMAIN_BUSINESS_SPECIALIST(List.of(Permission.DASHBOARDS, Permission.DATA_LINEAGE, Permission.DATA_MARTS));
-
-    private final List<Permission> permissions;
+/**
+ * DTO representing a single comment in export/import format.
+ * pointerUrl is intentionally excluded as it cannot be reliably mapped to target dashboard.
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CommentExportItemDto {
+    private String id; // Comment ID - used for update on import if exists
+    private String text;
+    private String author;
+    private String authorEmail;
+    private long createdDate;
+    private String status; // DRAFT or PUBLISHED
+    private int activeVersion; // Current active version number
+    private List<String> tags;
+    private List<CommentVersionExportDto> history;
 }
+

@@ -28,8 +28,13 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
+import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentTagEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -76,8 +81,9 @@ class DashboardCommentServiceTest {
     private static final String TEST_USER_NAME = "Test User";
     private static final String SUPERUSER_EMAIL = "admin@example.com";
     private static final String SUPERUSER_NAME = "Admin User";
-    private static final String TEST_DASHBOARD_URL = "https://example.com/dashboard/123";
+    private static final String TEST_DASHBOARD_URL = "https://example.com/superset/dashboard/123/?standalone=1";
     private static final String TEST_POINTER_URL = "https://example.com/dashboard/123?tab=1";
+    private static final String TEST_INSTANCE_NAME = "example.com";
 
     @BeforeEach
     void setUp() {
@@ -964,6 +970,748 @@ class DashboardCommentServiceTest {
                     .hasMessageContaining("modified by another user")
                     .matches(ex -> ((ResponseStatusException) ex).getStatusCode().value() == 409);
         }
+    }
+
+    // ========== EXPORT TESTS ==========
+
+    @Test
+    void exportComments_shouldFailForNonAdminUser() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user repository for admin role check (user is not admin)
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            assertThatThrownBy(() ->
+                    commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID)
+            )
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Only admins can export comments");
+        }
+    }
+
+    @Test
+    void exportComments_shouldExportDraftComments() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // First create a draft as regular user
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Create a draft comment (not published)
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Draft comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Now export as admin
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Export should include the draft comment (all non-deleted comments are exported)
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData).isNotNull();
+            assertThat(exportData.getExportVersion()).isEqualTo("1.0");
+            assertThat(exportData.getContextKey()).isEqualTo(TEST_CONTEXT_KEY);
+            assertThat(exportData.getDashboardId()).isEqualTo(TEST_DASHBOARD_ID);
+            assertThat(exportData.getExportDate()).isPositive();
+            assertThat(exportData.getComments()).hasSize(1);
+            assertThat(exportData.getComments().get(0).getStatus()).isEqualTo("DRAFT");
+        }
+    }
+
+    @Test
+    void exportComments_shouldExportAllNonDeletedComments() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Create and publish a comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Published comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("tag1", "tag2"))
+                    .build();
+            DashboardCommentDto publishedComment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, publishedComment.getId());
+
+            // Create another draft comment (should also be exported now)
+            DashboardCommentCreateDto draftDto = DashboardCommentCreateDto.builder()
+                    .text("Draft comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, draftDto);
+
+            // Export - should include both comments
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).hasSize(2);
+
+            // Find the published comment in export
+            CommentExportItemDto exportedPublished = exportData.getComments().stream()
+                    .filter(c -> c.getId().equals(publishedComment.getId()))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(exportedPublished.getText()).isEqualTo("Published comment");
+            assertThat(exportedPublished.getAuthor()).isEqualTo(SUPERUSER_NAME);
+            assertThat(exportedPublished.getAuthorEmail()).isEqualTo(SUPERUSER_EMAIL);
+            assertThat(exportedPublished.getStatus()).isEqualTo("PUBLISHED");
+            assertThat(exportedPublished.getTags()).containsExactlyInAnyOrder("tag1", "tag2");
+        }
+    }
+
+    @Test
+    void exportComments_shouldIncludeAllVersionsInHistory() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Create, publish, edit and publish again
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Version 1")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+
+            // Publish version 1
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            // Clone for edit (creates version 2)
+            DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
+                    .text("Version 2")
+                    .entityVersion(comment.getEntityVersion() + 1)
+                    .build();
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, updateDto);
+
+            // Publish version 2
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            // Export
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).hasSize(1);
+            CommentExportItemDto exportedItem = exportData.getComments().get(0);
+            // History should contain all non-deleted versions
+            assertThat(exportedItem.getHistory()).hasSize(2);
+            assertThat(exportedItem.getHistory().get(0).getVersion()).isEqualTo(1);
+            assertThat(exportedItem.getHistory().get(0).getText()).isEqualTo("Version 1");
+            assertThat(exportedItem.getHistory().get(1).getVersion()).isEqualTo(2);
+            assertThat(exportedItem.getHistory().get(1).getText()).isEqualTo("Version 2");
+            // Check that activeVersion is correctly exported
+            assertThat(exportedItem.getActiveVersion()).isEqualTo(2);
+        }
+    }
+
+    @Test
+    void exportComments_shouldNotExportDeletedComments() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Create and publish a comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("To be deleted")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Delete it
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Export should be empty
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).isEmpty();
+        }
+    }
+
+    // ========== IMPORT TESTS ==========
+
+    @Test
+    void importComments_shouldFailForNonAdminUser() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user repository for admin role check (user is not admin)
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(CommentExportItemDto.builder()
+                            .text("Imported comment")
+                            .build()))
+                    .build();
+
+            assertThatThrownBy(() ->
+                    commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData)
+            )
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Only admins can import comments");
+        }
+    }
+
+    @Test
+    void importComments_shouldFailWithInvalidImportData() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Null import data
+            assertThatThrownBy(() ->
+                    commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, null)
+            )
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Invalid import data");
+
+            // Import data with null comments list
+            CommentExportDto importDataWithNullComments = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(null)
+                    .build();
+
+            assertThatThrownBy(() ->
+                    commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importDataWithNullComments)
+            )
+                    .isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Invalid import data");
+        }
+    }
+
+    @Test
+    void importComments_shouldPreserveStatusFromImportData() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Imported comment 1")
+                                    .author("Original Author")
+                                    .authorEmail("original@example.com")
+                                    .status("PUBLISHED")
+                                    .createdDate(1700000000000L)
+                                    .tags(List.of("imported", "test"))
+                                    .history(List.of(
+                                            CommentVersionExportDto.builder()
+                                                    .version(1)
+                                                    .text("Imported comment 1")
+                                                    .status("PUBLISHED")
+                                                    .editedDate(1700000000000L)
+                                                    .editedBy("Original Author")
+                                                    .publishedDate(1700000001000L)
+                                                    .publishedBy("Admin")
+                                                    .build()
+                                    ))
+                                    .activeVersion(1)
+                                    .build(),
+                            CommentExportItemDto.builder()
+                                    .text("Imported comment 2")
+                                    .status("DRAFT")
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            assertThat(result.getImported()).isEqualTo(2);
+            assertThat(result.getUpdated()).isZero();
+            assertThat(result.getSkipped()).isZero();
+
+            // Verify comments are stored with correct statuses preserved
+            assertThat(commentStore).hasSize(2);
+        }
+    }
+
+    @Test
+    void importComments_shouldSkipInvalidItems() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            // Valid item
+                            CommentExportItemDto.builder()
+                                    .text("Valid comment")
+                                    .build(),
+                            // Invalid - empty text
+                            CommentExportItemDto.builder()
+                                    .text("")
+                                    .build(),
+                            // Invalid - null text
+                            CommentExportItemDto.builder()
+                                    .text(null)
+                                    .build(),
+                            // Invalid - whitespace only
+                            CommentExportItemDto.builder()
+                                    .text("   ")
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            assertThat(result.getImported()).isEqualTo(1);
+            assertThat(result.getUpdated()).isZero();
+            assertThat(result.getSkipped()).isEqualTo(3);
+        }
+    }
+
+    @Test
+    void importComments_shouldUpdateExistingCommentIfIdMatches() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Create an existing comment first
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Original text")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto existingComment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String existingId = existingComment.getId();
+
+            // Mock findById for existing comment
+            when(commentRepository.findById(existingId)).thenReturn(Optional.of(commentStore.get(existingId)));
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            // Import with same ID should update existing comment
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .id(existingId) // Same ID - should update
+                                    .text("Updated via import")
+                                    .tags(List.of("newtag"))
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            // Should update existing comment, not create new one
+            assertThat(result.getImported()).isZero();
+            assertThat(result.getUpdated()).isEqualTo(1);
+            assertThat(result.getSkipped()).isZero();
+
+            // Verify we still have only 1 comment (updated, not duplicated)
+            assertThat(commentStore).hasSize(1);
+
+            // Comment should be updated with new text
+            DashboardCommentEntity updated = commentStore.get(existingId);
+            assertThat(updated).isNotNull();
+            assertThat(updated.getHistory().get(0).getText()).isEqualTo("Updated via import");
+        }
+    }
+
+    @Test
+    void importComments_shouldReplaceDashboardUrlWithCurrentUrl() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval to return current URL
+            mockDashboardUrlRetrieval();
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Comment from different environment")
+                                    .build()
+                    ))
+                    .build();
+
+            commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            // Verify dashboardUrl is set to current URL, not from import file
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            assertThat(imported.getDashboardUrl()).isEqualTo(TEST_DASHBOARD_URL);
+        }
+    }
+
+    @Test
+    void importComments_shouldNotImportPointerUrl() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            // pointerUrl in import data should be ignored
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Comment with pointer")
+                                    .build()
+                    ))
+                    .build();
+
+            commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            // Verify pointerUrl is null (not imported)
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            assertThat(imported.getPointerUrl()).isNull();
+        }
+    }
+
+    @Test
+    void importComments_shouldPreserveOriginalAuthorInfo() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            String originalAuthor = "Original Author";
+            String originalEmail = "original@example.com";
+            long originalCreatedDate = 1700000000000L;
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Imported comment")
+                                    .author(originalAuthor)
+                                    .authorEmail(originalEmail)
+                                    .createdDate(originalCreatedDate)
+                                    .build()
+                    ))
+                    .build();
+
+            commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            assertThat(imported.getAuthor()).isEqualTo(originalAuthor);
+            assertThat(imported.getAuthorEmail()).isEqualTo(originalEmail);
+            assertThat(imported.getCreatedDate()).isEqualTo(originalCreatedDate);
+        }
+    }
+
+    @Test
+    void importComments_shouldUseCurrentUserWhenAuthorNotProvided() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Imported comment without author")
+                                    // No author or authorEmail provided
+                                    .build()
+                    ))
+                    .build();
+
+            commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            assertThat(imported.getAuthor()).isEqualTo(SUPERUSER_NAME);
+            assertThat(imported.getAuthorEmail()).isEqualTo(SUPERUSER_EMAIL);
+        }
+    }
+
+    @Test
+    void importComments_shouldNormalizeTagsDuringImport() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Comment with tags")
+                                    .tags(List.of("TAG1", "  Tag2  ", "verylongtagnamethatexceedslimit"))
+                                    .build()
+                    ))
+                    .build();
+
+            commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            List<String> tags = imported.getTags().stream()
+                    .map(DashboardCommentTagEntity::getTag)
+                    .toList();
+            // Tags should be lowercased and trimmed, long tags truncated to 10 chars
+            assertThat(tags).contains("tag1", "tag2", "verylongta");
+        }
+    }
+
+    // ========== EXPORT/IMPORT ROUND-TRIP TEST ==========
+
+    @Test
+    void exportImport_shouldMaintainCommentDataIntegrity() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Create and publish some comments
+            DashboardCommentCreateDto createDto1 = DashboardCommentCreateDto.builder()
+                    .text("Comment 1")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("important"))
+                    .build();
+            DashboardCommentDto comment1 = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto1);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment1.getId());
+
+            DashboardCommentCreateDto createDto2 = DashboardCommentCreateDto.builder()
+                    .text("Comment 2")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .tags(List.of("review"))
+                    .build();
+            DashboardCommentDto comment2 = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto2);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment2.getId());
+
+            // Export comments
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).hasSize(2);
+            assertThat(exportData.getExportVersion()).isEqualTo("1.0");
+            assertThat(exportData.getContextKey()).isEqualTo(TEST_CONTEXT_KEY);
+            assertThat(exportData.getDashboardId()).isEqualTo(TEST_DASHBOARD_ID);
+
+            // Verify exported data maintains original info
+            List<String> exportedTexts = exportData.getComments().stream()
+                    .map(CommentExportItemDto::getText)
+                    .toList();
+            assertThat(exportedTexts).containsExactlyInAnyOrder("Comment 1", "Comment 2");
+
+            List<String> exportedTags = exportData.getComments().stream()
+                    .flatMap(c -> c.getTags().stream())
+                    .toList();
+            assertThat(exportedTags).containsExactlyInAnyOrder("important", "review");
+        }
+    }
+
+    @Test
+    void importComments_shouldPreserveFullHistoryWithStatuses() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            // Create import data with full history
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Version 3")
+                                    .author("Original Author")
+                                    .authorEmail("author@example.com")
+                                    .status("PUBLISHED")
+                                    .activeVersion(3)
+                                    .createdDate(1700000000000L)
+                                    .tags(List.of("imported"))
+                                    .history(List.of(
+                                            CommentVersionExportDto.builder()
+                                                    .version(1)
+                                                    .text("Version 1")
+                                                    .status("PUBLISHED")
+                                                    .editedDate(1700000000000L)
+                                                    .editedBy("Original Author")
+                                                    .publishedDate(1700000001000L)
+                                                    .publishedBy("Admin")
+                                                    .tags(List.of("v1tag"))
+                                                    .build(),
+                                            CommentVersionExportDto.builder()
+                                                    .version(2)
+                                                    .text("Version 2")
+                                                    .status("PUBLISHED")
+                                                    .editedDate(1700001000000L)
+                                                    .editedBy("Editor")
+                                                    .publishedDate(1700001001000L)
+                                                    .publishedBy("Admin")
+                                                    .tags(List.of("v2tag"))
+                                                    .build(),
+                                            CommentVersionExportDto.builder()
+                                                    .version(3)
+                                                    .text("Version 3")
+                                                    .status("PUBLISHED")
+                                                    .editedDate(1700002000000L)
+                                                    .editedBy("Editor")
+                                                    .publishedDate(1700002001000L)
+                                                    .publishedBy("Admin")
+                                                    .tags(List.of("v3tag"))
+                                                    .build()
+                                    ))
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            assertThat(result.getImported()).isEqualTo(1);
+            assertThat(result.getSkipped()).isZero();
+
+            // Verify imported comment has full history
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            assertThat(imported.getHistory()).hasSize(3);
+            assertThat(imported.getActiveVersion()).isEqualTo(3);
+            assertThat(imported.getAuthor()).isEqualTo("Original Author");
+            assertThat(imported.getAuthorEmail()).isEqualTo("author@example.com");
+
+            // Verify version statuses are preserved
+            assertThat(imported.getHistory().stream()
+                    .allMatch(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)).isTrue();
+        }
+    }
+
+    @Test
+    void importComments_shouldNotDuplicateOnReimportFromOtherDashboard() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // Mock dashboard URL retrieval
+            mockDashboardUrlRetrieval();
+
+            String originalCommentId = "original-comment-from-dashboard-a";
+
+            // First import - should create new comment with importedFromId set
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .id(originalCommentId) // ID from another dashboard
+                                    .text("Imported comment")
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result1 = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+            assertThat(result1.getImported()).isEqualTo(1);
+            assertThat(commentStore).hasSize(1);
+
+            // Get the newly created comment
+            DashboardCommentEntity importedComment = commentStore.values().iterator().next();
+            String newCommentId = importedComment.getId();
+            assertThat(importedComment.getImportedFromId()).isEqualTo(originalCommentId);
+
+            // Mock findByImportedFromId for re-import detection
+            when(commentRepository.findByImportedFromIdAndContextKeyAndDashboardId(
+                    originalCommentId, TEST_CONTEXT_KEY, TEST_DASHBOARD_ID))
+                    .thenReturn(Optional.of(importedComment));
+
+            // Second import with same original ID - should update, not duplicate
+            CommentExportDto importData2 = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .id(originalCommentId) // Same original ID
+                                    .text("Updated imported comment")
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result2 = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData2);
+
+            // Should update existing, not create new
+            assertThat(result2.getImported()).isZero();
+            assertThat(result2.getUpdated()).isEqualTo(1);
+
+            // Still only one comment
+            assertThat(commentStore).hasSize(1);
+
+            // Should be the same comment (same ID) with updated text
+            DashboardCommentEntity updated = commentStore.get(newCommentId);
+            assertThat(updated).isNotNull();
+            assertThat(updated.getHistory().get(0).getText()).isEqualTo("Updated imported comment");
+        }
+    }
+
+    // Helper method to mock dashboard URL retrieval
+    private void mockDashboardUrlRetrieval() {
+        // Create mock SupersetDashboard
+        SupersetDashboard mockDashboard = new SupersetDashboard();
+        mockDashboard.setId(TEST_DASHBOARD_ID);
+        mockDashboard.setDashboardTitle("Test Dashboard");
+
+        // Create mock DashboardResource
+        DashboardResource mockResource = new DashboardResource(TEST_INSTANCE_NAME, List.of(mockDashboard));
+
+        // Mock metaInfoResourceService to return the mock resource
+        when(metaInfoResourceService.findAllByModuleTypeAndKindAndContextKey(
+                ModuleType.SUPERSET,
+                ModuleResourceKind.HELLO_DATA_DASHBOARDS,
+                TEST_CONTEXT_KEY,
+                DashboardResource.class
+        )).thenReturn(mockResource);
     }
 }
 
