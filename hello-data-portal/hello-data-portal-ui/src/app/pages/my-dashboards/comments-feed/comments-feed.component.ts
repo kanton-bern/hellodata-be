@@ -32,7 +32,7 @@ import {Button} from "primeng/button";
 import {CommentEntryComponent} from "./comment-entry/comment-entry.component";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {addComment, loadAvailableTags} from "../../../store/my-dashboards/my-dashboards.action";
+import {addComment, loadAvailableTags, loadDashboardComments} from "../../../store/my-dashboards/my-dashboards.action";
 import {
   canViewMetadataAndVersions,
   selectAvailableTags,
@@ -485,7 +485,9 @@ export class CommentsFeed implements AfterViewInit {
         } else {
           this.notificationService.success('@Comments imported successfully', {count: response.imported});
         }
-        // Reload comments
+        // Reload comments list
+        this.reloadComments();
+        // Reload tags
         this.loadTagsIfNeeded();
       },
       error: (err) => {
@@ -493,5 +495,16 @@ export class CommentsFeed implements AfterViewInit {
         this.notificationService.error(message);
       }
     });
+  }
+
+  // Reload comments from backend
+  private reloadComments(): void {
+    if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
+      this.store.dispatch(loadDashboardComments({
+        dashboardId: this.currentDashboardId,
+        contextKey: this.currentDashboardContextKey,
+        dashboardUrl: this.currentDashboardUrl
+      }));
+    }
   }
 }

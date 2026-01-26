@@ -48,6 +48,7 @@ public class CommentExportItemDto {
     private String authorEmail;
     private long createdDate;
     private String status; // DRAFT or PUBLISHED
+    private int activeVersion; // Current active version number
     private List<String> tags;
     private List<CommentVersionExportDto> history;
 }

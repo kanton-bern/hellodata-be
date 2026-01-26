@@ -830,7 +830,7 @@ public class DashboardCommentService {
         return comments.stream()
                 .filter(c -> !c.isDeleted())
                 .flatMap(c -> c.getTags().stream())
-                .map(tag -> tag.getTag())
+                .map(DashboardCommentTagEntity::getTag)
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
@@ -838,7 +838,7 @@ public class DashboardCommentService {
 
     /**
      * Export comments for a dashboard to JSON format.
-     * Only exports published comments.
+     * Exports all non-deleted comments with their full history (all versions).
      * Only admins (superuser, business_domain_admin, data_domain_admin) can export.
      */
     @Transactional(readOnly = true)
@@ -855,7 +855,6 @@ public class DashboardCommentService {
 
         List<CommentExportItemDto> exportItems = comments.stream()
                 .filter(c -> !c.isDeleted())
-                .filter(this::hasPublishedVersion)
                 .map(this::toExportItem)
                 .toList();
 
@@ -881,10 +880,6 @@ public class DashboardCommentService {
         return info != null && info.title() != null ? info.title() : DASHBOARD_TITLE_PREFIX + dashboardId;
     }
 
-    private boolean hasPublishedVersion(DashboardCommentEntity comment) {
-        return comment.getHistory().stream()
-                .anyMatch(v -> !v.isDeleted() && v.getStatus() == DashboardCommentStatus.PUBLISHED);
-    }
 
     private CommentExportItemDto toExportItem(DashboardCommentEntity entity) {
         // Get current active version
@@ -893,8 +888,9 @@ public class DashboardCommentService {
                 .findFirst()
                 .orElse(null);
 
+        // Export all non-deleted versions (preserve full history)
         List<CommentVersionExportDto> historyExport = entity.getHistory().stream()
-                .filter(v -> !v.isDeleted() && v.getStatus() == DashboardCommentStatus.PUBLISHED)
+                .filter(v -> !v.isDeleted())
                 .map(v -> CommentVersionExportDto.builder()
                         .version(v.getVersion())
                         .text(v.getText())
@@ -903,6 +899,7 @@ public class DashboardCommentService {
                         .editedBy(v.getEditedBy())
                         .publishedDate(v.getPublishedDate())
                         .publishedBy(v.getPublishedBy())
+                        .tags(parseTagsFromString(v.getTags()))
                         .build())
                 .sorted(Comparator.comparingInt(CommentVersionExportDto::getVersion))
                 .toList();
@@ -914,15 +911,38 @@ public class DashboardCommentService {
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
                 .status(activeVersion != null ? activeVersion.getStatus().name() : DashboardCommentStatus.DRAFT.name())
+                .activeVersion(entity.getActiveVersion())
                 .tags(entity.getTags().stream().map(DashboardCommentTagEntity::getTag).toList())
                 .history(historyExport)
                 .build();
     }
 
+    private List<String> parseTagsFromString(String tags) {
+        if (tags == null || tags.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(tags.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    private String convertTagsToString(List<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return null;
+        }
+        return tags.stream()
+                .filter(t -> t != null && !t.trim().isEmpty())
+                .map(String::trim)
+                .collect(Collectors.joining(","));
+    }
+
     /**
      * Import comments from JSON format.
-     * If comment ID exists in the same dashboard, it will be updated.
-     * New comments are created with DRAFT status, pointerUrl is ignored.
+     * If a comment with the same ID exists in the same dashboard, it will be updated.
+     * New comments are created with new IDs if no ID provided or ID not found.
+     * Comments preserve their full history and statuses from import data.
+     * Only admins (superuser, business_domain_admin, data_domain_admin) can import.
      */
     @Transactional
     public CommentImportResultDto importComments(String contextKey, int dashboardId, CommentExportDto importData) {
@@ -976,83 +996,219 @@ public class DashboardCommentService {
             return;
         }
 
-        if (tryUpdateExistingComment(item, contextKey, dashboardId, dashboardUrl, userFullName)) {
-            counters[1]++; // updated
-            return;
+        String originalCommentId = item.getId();
+
+        // CASE 1: Check if this is a re-import of the same dashboard (same ID, same dashboard)
+        if (originalCommentId != null && !originalCommentId.isBlank()) {
+            Optional<DashboardCommentEntity> sameIdOpt = commentRepository.findById(originalCommentId);
+            if (sameIdOpt.isPresent()) {
+                DashboardCommentEntity existing = sameIdOpt.get();
+                // Only update if it belongs to the SAME dashboard (re-import scenario)
+                if (existing.getContextKey().equals(contextKey) && existing.getDashboardId() == dashboardId) {
+                    updateImportedComment(existing, item, dashboardUrl, userFullName);
+                    commentRepository.save(existing);
+                    counters[1]++; // updated
+                    return;
+                }
+            }
+
+            // CASE 2: Check if comment was previously imported from another dashboard (importedFromId matches)
+            Optional<DashboardCommentEntity> importedOpt = commentRepository
+                    .findByImportedFromIdAndContextKeyAndDashboardId(originalCommentId, contextKey, dashboardId);
+            if (importedOpt.isPresent()) {
+                // Update previously imported comment
+                DashboardCommentEntity existing = importedOpt.get();
+                updateImportedComment(existing, item, dashboardUrl, userFullName);
+                commentRepository.save(existing);
+                counters[1]++; // updated
+                return;
+            }
         }
 
-        // Create new comment
+        // CASE 3: Create new comment (first import from another dashboard or no ID provided)
         DashboardCommentEntity entity = createImportedComment(contextKey, dashboardId, dashboardUrl, item, userFullName, userEmail);
         commentRepository.save(entity);
         counters[0]++; // imported
     }
 
-    private boolean tryUpdateExistingComment(CommentExportItemDto item, String contextKey, int dashboardId,
-                                             String dashboardUrl, String userFullName) {
-        if (item.getId() == null || item.getId().isBlank()) {
-            return false;
-        }
-
-        Optional<DashboardCommentEntity> existingComment = commentRepository.findById(item.getId());
-        if (existingComment.isEmpty()) {
-            return false;
-        }
-
-        DashboardCommentEntity comment = existingComment.get();
-        if (!comment.getContextKey().equals(contextKey) || comment.getDashboardId() != dashboardId) {
-            return false;
-        }
-
-        updateImportedComment(comment, item, userFullName, dashboardUrl);
-        commentRepository.save(comment);
-        return true;
-    }
-
     /**
      * Update an existing comment from import data.
-     * Also updates dashboardUrl to the current dashboard URL.
+     * Updates existing versions or adds new ones from imported history.
      */
-    private void updateImportedComment(DashboardCommentEntity entity, CommentExportItemDto item, String updatedBy, String dashboardUrl) {
-        long now = System.currentTimeMillis();
-
-        // Update dashboardUrl to current dashboard URL
+    private void updateImportedComment(DashboardCommentEntity entity, CommentExportItemDto item,
+                                       String dashboardUrl, String updatedBy) {
         entity.setDashboardUrl(dashboardUrl);
 
-        // Create new version with imported text
-        int newVersion = entity.getHistory().stream()
-                .mapToInt(DashboardCommentVersionEntity::getVersion)
-                .max()
-                .orElse(0) + 1;
+        Map<Integer, DashboardCommentVersionEntity> existingVersionsMap = buildExistingVersionsMap(entity);
+        ImportVersionResult result = processImportVersions(entity, item, existingVersionsMap, updatedBy);
 
+        updateEntityMetadata(entity, item, result);
+        updateEntityTags(entity, item.getTags());
+    }
+
+    private Map<Integer, DashboardCommentVersionEntity> buildExistingVersionsMap(DashboardCommentEntity entity) {
+        return entity.getHistory().stream()
+                .collect(Collectors.toMap(DashboardCommentVersionEntity::getVersion, v -> v, (v1, v2) -> v1));
+    }
+
+    private ImportVersionResult processImportVersions(DashboardCommentEntity entity, CommentExportItemDto item,
+                                                      Map<Integer, DashboardCommentVersionEntity> existingVersionsMap,
+                                                      String updatedBy) {
+        long now = System.currentTimeMillis();
+
+        if (item.getHistory() != null && !item.getHistory().isEmpty()) {
+            return processHistoryVersions(entity, item.getHistory(), existingVersionsMap, updatedBy, now);
+        } else {
+            return processSingleVersion(entity, item, existingVersionsMap, updatedBy, now);
+        }
+    }
+
+    private ImportVersionResult processHistoryVersions(DashboardCommentEntity entity,
+                                                       List<CommentVersionExportDto> history,
+                                                       Map<Integer, DashboardCommentVersionEntity> existingVersionsMap,
+                                                       String updatedBy, long now) {
+        Set<Integer> importedVersionNumbers = new HashSet<>();
+        boolean hasActiveDraft = false;
+        int maxVersion = 0;
+
+        for (CommentVersionExportDto historyItem : history) {
+            DashboardCommentStatus status = parseStatus(historyItem.getStatus());
+            hasActiveDraft = hasActiveDraft || (status == DashboardCommentStatus.DRAFT);
+            importedVersionNumbers.add(historyItem.getVersion());
+
+            processVersionItem(entity, historyItem, existingVersionsMap, status, updatedBy, now);
+            maxVersion = Math.max(maxVersion, historyItem.getVersion());
+        }
+
+        markDeletedVersions(existingVersionsMap, importedVersionNumbers);
+        return new ImportVersionResult(hasActiveDraft, maxVersion);
+    }
+
+    private void processVersionItem(DashboardCommentEntity entity, CommentVersionExportDto historyItem,
+                                    Map<Integer, DashboardCommentVersionEntity> existingVersionsMap,
+                                    DashboardCommentStatus status, String updatedBy, long now) {
+        DashboardCommentVersionEntity existingVersion = existingVersionsMap.get(historyItem.getVersion());
+
+        if (existingVersion != null) {
+            updateExistingVersion(existingVersion, historyItem, status, updatedBy, now);
+        } else {
+            createAndAddNewVersion(entity, historyItem, status, updatedBy, now);
+        }
+    }
+
+    private void updateExistingVersion(DashboardCommentVersionEntity existingVersion,
+                                       CommentVersionExportDto historyItem,
+                                       DashboardCommentStatus status, String updatedBy, long now) {
+        existingVersion.setText(historyItem.getText());
+        existingVersion.setStatus(status);
+        existingVersion.setEditedDate(historyItem.getEditedDate() > 0 ? historyItem.getEditedDate() : now);
+        existingVersion.setEditedBy(historyItem.getEditedBy() != null ? historyItem.getEditedBy() : updatedBy);
+        existingVersion.setPublishedDate(historyItem.getPublishedDate());
+        existingVersion.setPublishedBy(historyItem.getPublishedBy());
+        existingVersion.setDeleted(false);
+        existingVersion.setTags(convertTagsToString(historyItem.getTags()));
+    }
+
+    private void createAndAddNewVersion(DashboardCommentEntity entity, CommentVersionExportDto historyItem,
+                                        DashboardCommentStatus status, String updatedBy, long now) {
         DashboardCommentVersionEntity version = DashboardCommentVersionEntity.builder()
-                .version(newVersion)
+                .version(historyItem.getVersion())
+                .text(historyItem.getText())
+                .status(status)
+                .editedDate(historyItem.getEditedDate() > 0 ? historyItem.getEditedDate() : now)
+                .editedBy(historyItem.getEditedBy() != null ? historyItem.getEditedBy() : updatedBy)
+                .publishedDate(historyItem.getPublishedDate())
+                .publishedBy(historyItem.getPublishedBy())
+                .deleted(false)
+                .tags(convertTagsToString(historyItem.getTags()))
+                .comment(entity)
+                .build();
+        entity.getHistory().add(version);
+    }
+
+    private ImportVersionResult processSingleVersion(DashboardCommentEntity entity, CommentExportItemDto item,
+                                                     Map<Integer, DashboardCommentVersionEntity> existingVersionsMap,
+                                                     String updatedBy, long now) {
+        DashboardCommentStatus status = parseStatus(item.getStatus());
+        boolean hasActiveDraft = (status == DashboardCommentStatus.DRAFT);
+
+        DashboardCommentVersionEntity existingVersion = existingVersionsMap.get(1);
+        if (existingVersion != null) {
+            updateExistingVersionFromItem(existingVersion, item, status, updatedBy, now);
+        } else {
+            createAndAddVersionFromItem(entity, item, status, updatedBy, now);
+        }
+
+        markOtherVersionsAsDeleted(existingVersionsMap);
+        return new ImportVersionResult(hasActiveDraft, 1);
+    }
+
+    private void updateExistingVersionFromItem(DashboardCommentVersionEntity existingVersion,
+                                               CommentExportItemDto item,
+                                               DashboardCommentStatus status, String updatedBy, long now) {
+        existingVersion.setText(item.getText());
+        existingVersion.setStatus(status);
+        existingVersion.setEditedDate(now);
+        existingVersion.setEditedBy(updatedBy);
+        existingVersion.setDeleted(false);
+    }
+
+    private void createAndAddVersionFromItem(DashboardCommentEntity entity, CommentExportItemDto item,
+                                             DashboardCommentStatus status, String updatedBy, long now) {
+        DashboardCommentVersionEntity version = DashboardCommentVersionEntity.builder()
+                .version(1)
                 .text(item.getText())
-                .status(DashboardCommentStatus.DRAFT)
+                .status(status)
                 .editedDate(now)
                 .editedBy(updatedBy)
                 .deleted(false)
                 .comment(entity)
                 .build();
-
         entity.getHistory().add(version);
-        entity.setActiveVersion(newVersion);
-        entity.setHasActiveDraft(true);
-        entity.setEntityVersion(entity.getEntityVersion() + 1);
+    }
 
-        // Update tags
+    private void markDeletedVersions(Map<Integer, DashboardCommentVersionEntity> existingVersionsMap,
+                                     Set<Integer> importedVersionNumbers) {
+        existingVersionsMap.values().stream()
+                .filter(v -> !importedVersionNumbers.contains(v.getVersion()))
+                .forEach(v -> v.setDeleted(true));
+    }
+
+    private void markOtherVersionsAsDeleted(Map<Integer, DashboardCommentVersionEntity> existingVersionsMap) {
+        existingVersionsMap.values().stream()
+                .filter(v -> v.getVersion() != 1)
+                .forEach(v -> v.setDeleted(true));
+    }
+
+    private void updateEntityMetadata(DashboardCommentEntity entity, CommentExportItemDto item,
+                                      ImportVersionResult result) {
+        int activeVersion = item.getActiveVersion() > 0 ? item.getActiveVersion() : result.maxVersion();
+        entity.setActiveVersion(activeVersion);
+        entity.setHasActiveDraft(result.hasActiveDraft());
+        entity.setEntityVersion(entity.getEntityVersion() + 1);
+    }
+
+    private void updateEntityTags(DashboardCommentEntity entity, List<String> tagNames) {
         entity.getTags().clear();
-        if (item.getTags() != null) {
-            for (String tagText : item.getTags()) {
-                if (tagText != null && !tagText.trim().isEmpty()) {
-                    DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
-                            .tag(tagText.trim().toLowerCase().substring(0, Math.min(tagText.trim().length(), 10)))
-                            .comment(entity)
-                            .build();
-                    entity.getTags().add(tag);
-                }
+        if (tagNames == null) {
+            return;
+        }
+        for (String tagText : tagNames) {
+            if (tagText != null && !tagText.trim().isEmpty()) {
+                DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
+                        .tag(normalizeTag(tagText))
+                        .comment(entity)
+                        .build();
+                entity.getTags().add(tag);
             }
         }
     }
+
+    private String normalizeTag(String tagText) {
+        String trimmed = tagText.trim().toLowerCase();
+        return trimmed.substring(0, Math.min(trimmed.length(), 10));
+    }
+
 
     /**
      * Get dashboard URL for a specific dashboard.
@@ -1061,8 +1217,6 @@ public class DashboardCommentService {
         Map<Integer, DashboardInfo> infoMap = getDashboardInfoMap(contextKey);
         DashboardInfo info = infoMap.get(dashboardId);
         if (info != null && info.instanceName() != null) {
-            // Construct dashboard URL from instance name and dashboard ID
-            // Format: https://{instanceName}/superset/dashboard/{dashboardId}/?standalone=1
             return String.format("https://%s/superset/dashboard/%d/?standalone=1", info.instanceName(), dashboardId);
         }
         return null;
@@ -1074,54 +1228,139 @@ public class DashboardCommentService {
 
     private DashboardCommentEntity createImportedComment(String contextKey, int dashboardId, String dashboardUrl,
                                                          CommentExportItemDto item, String importedBy, String importedByEmail) {
-
-        String commentId = UUID.randomUUID().toString();
         long now = System.currentTimeMillis();
+        ImportContext ctx = new ImportContext(contextKey, dashboardId, dashboardUrl, importedBy, importedByEmail, now);
 
-        // Create initial version as DRAFT
-        DashboardCommentVersionEntity version = DashboardCommentVersionEntity.builder()
-                .version(1)
-                .text(item.getText())
-                .status(DashboardCommentStatus.DRAFT)
-                .editedDate(now)
-                .editedBy(importedBy)
-                .deleted(false)
-                .build();
+        ImportVersionResult versionResult = createVersionsFromImport(item, importedBy, now);
+        List<DashboardCommentTagEntity> tags = createTagsFromImport(item.getTags());
 
-        // Create tags
-        List<DashboardCommentTagEntity> tags = new ArrayList<>();
-        if (item.getTags() != null) {
-            for (String tagText : item.getTags()) {
-                if (tagText != null && !tagText.trim().isEmpty()) {
-                    tags.add(DashboardCommentTagEntity.builder()
-                            .tag(tagText.trim().toLowerCase().substring(0, Math.min(tagText.trim().length(), 10)))
-                            .build());
-                }
+        DashboardCommentEntity entity = buildImportedCommentEntity(ctx, item, versionResult, tags);
+        setBackReferences(entity, versionResult.versions(), tags);
+        return entity;
+    }
+
+    /**
+     * Context for import operation containing common parameters.
+     */
+    private record ImportContext(String contextKey, int dashboardId, String dashboardUrl,
+                                 String importedBy, String importedByEmail, long now) {
+    }
+
+    private ImportVersionResult createVersionsFromImport(CommentExportItemDto item, String importedBy, long now) {
+        List<DashboardCommentVersionEntity> versions = new ArrayList<>();
+        int maxVersion = 0;
+        boolean hasActiveDraft = false;
+
+        if (item.getHistory() != null && !item.getHistory().isEmpty()) {
+            for (CommentVersionExportDto historyItem : item.getHistory()) {
+                DashboardCommentStatus status = parseStatus(historyItem.getStatus());
+                hasActiveDraft = hasActiveDraft || (status == DashboardCommentStatus.DRAFT);
+
+                versions.add(buildVersionFromHistory(historyItem, status, importedBy, now));
+                maxVersion = Math.max(maxVersion, historyItem.getVersion());
             }
+        } else {
+            DashboardCommentStatus status = parseStatus(item.getStatus());
+            hasActiveDraft = (status == DashboardCommentStatus.DRAFT);
+            versions.add(buildInitialVersion(item.getText(), status, importedBy, now));
+            maxVersion = 1;
         }
 
-        // Create entity - note: pointerUrl is intentionally NOT imported
-        DashboardCommentEntity entity = DashboardCommentEntity.builder()
-                .id(commentId)
-                .contextKey(contextKey)
-                .dashboardId(dashboardId)
-                .dashboardUrl(dashboardUrl)
-                .author(item.getAuthor() != null ? item.getAuthor() : importedBy)
-                .authorEmail(item.getAuthorEmail() != null ? item.getAuthorEmail() : importedByEmail)
-                .createdDate(item.getCreatedDate() > 0 ? item.getCreatedDate() : now)
+        return new ImportVersionResult(hasActiveDraft, maxVersion, versions);
+    }
+
+    private DashboardCommentVersionEntity buildVersionFromHistory(CommentVersionExportDto historyItem,
+                                                                  DashboardCommentStatus status,
+                                                                  String importedBy, long now) {
+        return DashboardCommentVersionEntity.builder()
+                .version(historyItem.getVersion())
+                .text(historyItem.getText())
+                .status(status)
+                .editedDate(historyItem.getEditedDate() > 0 ? historyItem.getEditedDate() : now)
+                .editedBy(historyItem.getEditedBy() != null ? historyItem.getEditedBy() : importedBy)
+                .publishedDate(historyItem.getPublishedDate())
+                .publishedBy(historyItem.getPublishedBy())
                 .deleted(false)
-                .activeVersion(1)
-                .hasActiveDraft(true)
+                .tags(convertTagsToString(historyItem.getTags()))
+                .build();
+    }
+
+    private DashboardCommentVersionEntity buildInitialVersion(String text, DashboardCommentStatus status,
+                                                              String editedBy, long now) {
+        return DashboardCommentVersionEntity.builder()
+                .version(1)
+                .text(text)
+                .status(status)
+                .editedDate(now)
+                .editedBy(editedBy)
+                .deleted(false)
+                .build();
+    }
+
+    private List<DashboardCommentTagEntity> createTagsFromImport(List<String> tagNames) {
+        List<DashboardCommentTagEntity> tags = new ArrayList<>();
+        if (tagNames == null) {
+            return tags;
+        }
+        for (String tagText : tagNames) {
+            if (tagText != null && !tagText.trim().isEmpty()) {
+                tags.add(DashboardCommentTagEntity.builder()
+                        .tag(normalizeTag(tagText))
+                        .build());
+            }
+        }
+        return tags;
+    }
+
+    private DashboardCommentEntity buildImportedCommentEntity(ImportContext ctx, CommentExportItemDto item,
+                                                              ImportVersionResult versionResult,
+                                                              List<DashboardCommentTagEntity> tags) {
+        int activeVersion = item.getActiveVersion() > 0 ? item.getActiveVersion() : versionResult.maxVersion();
+
+        return DashboardCommentEntity.builder()
+                .id(UUID.randomUUID().toString())
+                .contextKey(ctx.contextKey())
+                .dashboardId(ctx.dashboardId())
+                .dashboardUrl(ctx.dashboardUrl())
+                .importedFromId(item.getId())
+                .author(item.getAuthor() != null ? item.getAuthor() : ctx.importedBy())
+                .authorEmail(item.getAuthorEmail() != null ? item.getAuthorEmail() : ctx.importedByEmail())
+                .createdDate(item.getCreatedDate() > 0 ? item.getCreatedDate() : ctx.now())
+                .deleted(false)
+                .activeVersion(activeVersion)
+                .hasActiveDraft(versionResult.hasActiveDraft())
                 .entityVersion(0L)
-                .history(new ArrayList<>(List.of(version)))
+                .history(versionResult.versions())
                 .tags(tags)
                 .build();
+    }
 
-        // Set back-references
-        version.setComment(entity);
+    private void setBackReferences(DashboardCommentEntity entity,
+                                   List<DashboardCommentVersionEntity> versions,
+                                   List<DashboardCommentTagEntity> tags) {
+        versions.forEach(v -> v.setComment(entity));
         tags.forEach(t -> t.setComment(entity));
+    }
 
-        return entity;
+    /**
+     * Extended result including versions list for createImportedComment.
+     */
+    private record ImportVersionResult(boolean hasActiveDraft, int maxVersion,
+                                       List<DashboardCommentVersionEntity> versions) {
+        ImportVersionResult(boolean hasActiveDraft, int maxVersion) {
+            this(hasActiveDraft, maxVersion, null);
+        }
+    }
+
+    private DashboardCommentStatus parseStatus(String status) {
+        if (status == null) {
+            return DashboardCommentStatus.DRAFT;
+        }
+        try {
+            return DashboardCommentStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return DashboardCommentStatus.DRAFT;
+        }
     }
 
 }

@@ -31,6 +31,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * DTO representing a comment version in export/import format.
  */
@@ -46,5 +48,6 @@ public class CommentVersionExportDto {
     private String editedBy;
     private Long publishedDate;
     private String publishedBy;
+    private List<String> tags;
 }
 
