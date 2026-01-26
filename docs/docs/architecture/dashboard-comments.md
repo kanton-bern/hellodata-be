@@ -45,6 +45,7 @@ control.
 │ activeVersion: number                                       │
 │ hasActiveDraft?: boolean                                    │
 │ entityVersion: number (for optimistic locking)              │
+│ importedFromId?: string (original ID when imported)         │
 │ history: DashboardCommentVersion[]                          │
 │ tags?: string[] (tags associated with this comment)         │
 └─────────────────────────────────────────────────────────────┘
@@ -95,6 +96,8 @@ control.
 | **Unpublish comment**        | No                             | No                 | Yes               | Yes                   | Yes       |
 | **View metadata & versions** | No                             | No                 | Yes               | Yes                   | Yes       |
 | **Restore version**          | No                             | No                 | Yes               | Yes                   | Yes       |
+| **Export comments**          | No                             | No                 | Yes               | Yes                   | Yes       |
+| **Import comments**          | No                             | No                 | Yes               | Yes                   | Yes       |
 
 ### Permission Validation
 
@@ -345,7 +348,8 @@ CREATE TABLE dashboard_comment
     deleted_by       VARCHAR(255),
     active_version   INTEGER,
     has_active_draft BOOLEAN DEFAULT FALSE,
-    entity_version   INTEGER DEFAULT 0
+    entity_version   INTEGER DEFAULT 0,
+    imported_from_id VARCHAR(36) -- Original ID when imported from another dashboard
 );
 
 CREATE TABLE dashboard_comment_version
@@ -378,6 +382,10 @@ CREATE INDEX idx_comment_tag_comment_id
 
 CREATE INDEX idx_comment_tag_tag
     ON dashboard_comment_tag (tag);
+
+-- Index for import duplicate detection
+CREATE INDEX idx_comment_imported_from
+    ON dashboard_comment (imported_from_id, context_key, dashboard_id);
 ```
 
 ## Error Handling
@@ -390,14 +398,14 @@ CREATE INDEX idx_comment_tag_tag
 
 ## Import/Export
 
-Comments can be exported and imported between dashboards for migration or backup purposes.
+Comments can be exported and imported between dashboards for migration, backup, or copying comments across environments.
 
 ### Export
 
 - **Format**: JSON file
-- **Scope**: Exports only PUBLISHED comments (drafts are excluded)
-- **Contents**: Comment text, author, creation date, tags, and version history
-- **Permission**: Any user with dashboard access can export
+- **Scope**: Exports all non-deleted comments with complete version history (both DRAFT and PUBLISHED)
+- **Contents**: Comment ID, text, author, creation date, status, tags, activeVersion, and full version history
+- **Permission**: Only admins (superuser, business_domain_admin, data_domain_admin) can export
 - **File naming**: `comments_{contextKey}_{dashboardTitle}_{date}.json` (title is sanitized for filesystem)
 
 #### Export Format
@@ -411,17 +419,43 @@ Comments can be exported and imported between dashboards for migration or backup
   "exportDate": 1705827600000,
   "comments": [
     {
-      "text": "Comment text",
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "text": "Current active version text",
       "author": "John Doe",
       "authorEmail": "john.doe@example.com",
       "createdDate": 1705827600000,
       "status": "PUBLISHED",
+      "activeVersion": 2,
       "tags": [
         "sales",
         "kpi"
       ],
       "history": [
-        ...
+        {
+          "version": 1,
+          "text": "First version text",
+          "status": "PUBLISHED",
+          "editedDate": 1705827600000,
+          "editedBy": "John Doe",
+          "publishedDate": 1705828000000,
+          "publishedBy": "Admin User",
+          "tags": [
+            "sales"
+          ]
+        },
+        {
+          "version": 2,
+          "text": "Current active version text",
+          "status": "PUBLISHED",
+          "editedDate": 1705830000000,
+          "editedBy": "Jane Smith",
+          "publishedDate": 1705831000000,
+          "publishedBy": "Admin User",
+          "tags": [
+            "sales",
+            "kpi"
+          ]
+        }
       ]
     }
   ]
@@ -431,16 +465,86 @@ Comments can be exported and imported between dashboards for migration or backup
 ### Import
 
 - **Permission**: Only admins (superuser, business_domain_admin, data_domain_admin) can import
-- **Status**: All imported comments are created as DRAFT (require publishing)
-- **Pointer URL**: Intentionally excluded - cannot be reliably mapped to target dashboard
+- **Status preservation**: Comments are imported with their original status (DRAFT or PUBLISHED) preserved
+- **History preservation**: Full version history is imported, allowing admins to review previous versions
+- **Pointer URL**: Intentionally excluded from import - cannot be reliably mapped to target dashboard
+- **Dashboard URL**: Automatically set to the target dashboard URL (not copied from source)
 - **Tags**: Preserved from export file (normalized to max 10 characters, lowercased)
 - **Author**: Preserved from export if available, otherwise uses importing user
+
+#### Import Scenarios
+
+##### 1. First Import (Same Dashboard - Re-import)
+
+When importing to the same dashboard where comments were originally exported:
+
+- Comments with matching IDs are **updated** with imported data
+- New comments (no matching ID) are created
+- Prevents duplicate comments on re-import
+
+##### 2. Import from Different Dashboard
+
+When importing to a different dashboard:
+
+- New comments are created with new IDs
+- The `importedFromId` field tracks the original comment ID
+- On subsequent imports of the same file, comments are **updated** (not duplicated) based on `importedFromId`
+
+##### 3. Cross-Environment Import
+
+When importing from another environment (e.g., DEV → PROD):
+
+- Comments are created with new IDs
+- Original author information is preserved
+- `importedFromId` enables re-import without duplicates
+
+#### Import Result
+
+```json
+{
+  "imported": 5,
+  "updated": 2,
+  "skipped": 1,
+  "message": "Imported 5 new, updated 2 existing, skipped 1"
+}
+```
+
+- **imported**: Number of new comments created
+- **updated**: Number of existing comments updated
+- **skipped**: Number of invalid items (e.g., empty text)
 
 #### Import Validation
 
 - File must be valid JSON
 - Comments without text are skipped
 - Invalid tags are normalized or skipped
+- Dashboard URL is replaced with target dashboard URL
+
+### Import/Export Use Cases
+
+1. **Backup**: Export comments before major changes
+2. **Migration**: Move comments when restructuring dashboards
+3. **Template**: Create standard comments that can be imported to multiple dashboards
+4. **Cross-environment**: Copy comments from development to production environment
+5. **Disaster recovery**: Restore comments from backup after data loss
+
+### Import Tracking (importedFromId)
+
+The `importedFromId` field in the database tracks the original comment ID from import:
+
+```sql
+ALTER TABLE dashboard_comment
+    ADD COLUMN imported_from_id VARCHAR(36);
+
+CREATE INDEX idx_comment_imported_from
+    ON dashboard_comment (imported_from_id, context_key, dashboard_id);
+```
+
+This enables:
+
+- Detection of previously imported comments to prevent duplicates
+- Traceability of comment origins
+- Safe re-imports that update existing comments instead of creating duplicates
 
 ## Mobile Support
 
