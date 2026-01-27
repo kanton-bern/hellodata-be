@@ -160,12 +160,23 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 0.25rem;
+  }
 
-    span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 250px;
+  .pointer-url-info-link {
+    color: var(--primary-color, #3b82f6);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 250px;
+    font-size: inherit;
+
+    &:hover {
+      text-decoration: underline;
+      color: var(--primary-700, #1d4ed8);
     }
   }
 
@@ -235,6 +246,23 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .history-pointer-url-link {
+      font-size: 0.6rem;
+      color: var(--primary-color, #3b82f6);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &:hover {
+        text-decoration: underline;
+        color: var(--primary-700, #1d4ed8);
+      }
     }
 
     .history-tags-row {

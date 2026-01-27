@@ -110,11 +110,15 @@
         @if (comment().pointerUrl || activeVersion()?.pointerUrl) {
           <div class="pointer-url-info">
             <strong>{{ '@Link' | transloco }}:</strong>
-            <span class="text-blue-600 ml-1" [pTooltip]="comment().pointerUrl || activeVersion()?.pointerUrl"
-                  tooltipPosition="top">
+            <button type="button"
+                    class="pointer-url-info-link ml-1"
+                    [pTooltip]="comment().pointerUrl || activeVersion()?.pointerUrl"
+                    tooltipPosition="top"
+                    (click)="navigateToUrl((comment().pointerUrl || activeVersion()?.pointerUrl)!)"
+                    (keydown.enter)="navigateToUrl((comment().pointerUrl || activeVersion()?.pointerUrl)!)">
               <i class="fa-solid fa-thumbtack mr-1"></i>
               {{ (comment().pointerUrl || activeVersion()?.pointerUrl) | slice:0:40 }}{{ (comment().pointerUrl || activeVersion()?.pointerUrl)!.length > 40 ? '...' : '' }}
-            </span>
+            </button>
           </div>
         }
         @if (allVersions().length > 1) {
@@ -154,10 +158,15 @@
                   @if (historyItem.pointerUrl) {
                     <div class="history-pointer-url-row">
                       <span class="history-pointer-url-label">{{ '@Link' | transloco }}:</span>
-                      <span class="history-pointer-url" [pTooltip]="historyItem.pointerUrl" tooltipPosition="top">
+                      <button type="button"
+                              class="history-pointer-url-link"
+                              [pTooltip]="historyItem.pointerUrl"
+                              tooltipPosition="top"
+                              (click)="navigateToUrl(historyItem.pointerUrl)"
+                              (keydown.enter)="navigateToUrl(historyItem.pointerUrl)">
                         <i
                           class="fa-solid fa-thumbtack mr-1"></i>{{ historyItem.pointerUrl | slice:0:50 }}{{ historyItem.pointerUrl.length > 50 ? '...' : '' }}
-                      </span>
+                      </button>
                     </div>
                   }
                   @if (historyItem.tags && historyItem.tags.length > 0) {
