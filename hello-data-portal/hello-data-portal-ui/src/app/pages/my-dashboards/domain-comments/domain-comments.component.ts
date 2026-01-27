@@ -58,6 +58,7 @@ import {Dialog} from "primeng/dialog";
 import {Textarea} from "primeng/textarea";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.service';
+import {AutoComplete} from 'primeng/autocomplete';
 
 
 @Component({
@@ -79,7 +80,8 @@ import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.
     PrimeTemplate,
     Dialog,
     Textarea,
-    ConfirmDialog
+    ConfirmDialog,
+    AutoComplete
   ],
   providers: [ConfirmationService]
 })
@@ -110,6 +112,10 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   editingComment: DomainDashboardComment | null = null;
   editedText = '';
   editedPointerUrl = '';
+  editedTags: string[] = [];
+  editNewTagText = '';
+  editTagSuggestions: string[] = [];
+  domainTags: string[] = [];
 
   // Permission selectors
   canEditFn = this.store.selectSignal(canEditComment);
@@ -171,12 +177,31 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           status: this.commentUtils.getActiveVersionData(comment)?.status || '',
           tagsString: (comment.tags || []).join(' ')
         }));
+
+        this.domainTags = this.extractUniqueTags(comments);
         this.loading = false;
       },
       error: () => {
         this.loading = false;
       }
     });
+  }
+
+  private extractUniqueTags(comments: DomainDashboardComment[]): string[] {
+    const allTags = new Set<string>();
+    for (const comment of comments) {
+      if (comment.tags) {
+        comment.tags.forEach(t => allTags.add(t));
+      }
+      if (comment.history) {
+        for (const historyItem of comment.history) {
+          if (historyItem.tags) {
+            historyItem.tags.forEach(t => allTags.add(t));
+          }
+        }
+      }
+    }
+    return Array.from(allTags).sort((a, b) => a.localeCompare(b));
   }
 
   getStatusSeverity(status: DashboardCommentStatus | string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
@@ -242,6 +267,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     const activeVer = this.getActiveVersionData(comment);
     this.editedText = activeVer?.text || '';
     this.editedPointerUrl = comment.pointerUrl || '';
+    this.editedTags = [...(comment.tags || [])];
     this.editDialogVisible = true;
   }
 
@@ -257,6 +283,38 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return this.commentUtils.isSaveEditDisabled(this.editedText, this.editedPointerUrl, this.editingComment?.dashboardUrl);
   }
 
+  clearEditedPointerUrl(): void {
+    this.editedPointerUrl = '';
+  }
+
+  // Tags methods for edit dialog
+  searchEditTags(event: { query: string }): void {
+    const query = event.query.toLowerCase();
+    this.editTagSuggestions = this.domainTags.filter(tag =>
+      tag.toLowerCase().includes(query) && !this.editedTags.includes(tag)
+    );
+  }
+
+  addEditTag(): void {
+    const tag = this.editNewTagText.trim().toLowerCase().substring(0, 10);
+    if (tag && !this.editedTags.includes(tag)) {
+      this.editedTags = [...this.editedTags, tag];
+    }
+    this.editNewTagText = '';
+  }
+
+  removeEditTag(tag: string): void {
+    this.editedTags = this.editedTags.filter(t => t !== tag);
+  }
+
+  onEditTagSelect(event: { value: string }): void {
+    const tag = event.value.toLowerCase().substring(0, 10);
+    if (tag && !this.editedTags.includes(tag)) {
+      this.editedTags = [...this.editedTags, tag];
+    }
+    this.editNewTagText = '';
+  }
+
   saveEdit(): void {
     if (!this.editingComment) return;
 
@@ -268,7 +326,12 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     const textChanged = newText !== activeVer?.text;
     const pointerUrlChanged = normalizedPointerUrl !== (comment.pointerUrl || undefined);
 
-    if (!newText || (!textChanged && !pointerUrlChanged)) {
+    // Check if tags changed
+    const currentTags = comment.tags || [];
+    const tagsChanged = this.editedTags.length !== currentTags.length ||
+      !this.editedTags.every(t => currentTags.includes(t));
+
+    if (!newText || (!textChanged && !pointerUrlChanged && !tagsChanged)) {
       this.editDialogVisible = false;
       return;
     }
@@ -288,7 +351,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           comment.id,
           newText,
           normalizedPointerUrl,
-          comment.entityVersion
+          comment.entityVersion,
+          this.editedTags
         );
       } else {
         this.commentUtils.dispatchUpdateDraftComment(
@@ -297,7 +361,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           comment.id,
           newText,
           normalizedPointerUrl,
-          comment.entityVersion
+          comment.entityVersion,
+          this.editedTags
         );
       }
     }
@@ -314,6 +379,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     this.editingComment = null;
     this.editedText = '';
     this.editedPointerUrl = '';
+    this.editedTags = [];
+    this.editNewTagText = '';
   }
 
   // Publish comment
@@ -370,4 +437,3 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     table.clear();
   }
 }
-
