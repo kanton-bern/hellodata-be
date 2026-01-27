@@ -260,6 +260,17 @@
 </p-confirmDialog>
 
 <p-confirmDialog #cd3 key="deleteComment" [style]="{width: '50vw'}">
+  <ng-template pTemplate="message">
+    <div class="flex flex-col gap-3">
+      <span>{{ '@Delete comment question' | transloco }}</span>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="deleteEntireCheckbox"
+               [checked]="commentUtils.deleteEntireFlag"
+               (change)="commentUtils.deleteEntireFlag = $any($event.target).checked"/>
+        <label for="deleteEntireCheckbox">{{ '@Delete entire comment' | transloco }}</label>
+      </div>
+    </div>
+  </ng-template>
   <ng-template pTemplate="footer">
     <p-button (click)="cd3.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd3.onReject()"/>

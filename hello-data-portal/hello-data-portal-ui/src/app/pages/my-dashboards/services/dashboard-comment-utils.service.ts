@@ -63,6 +63,8 @@ export class DashboardCommentUtilsService {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
 
+  deleteEntireFlag = false;
+
   /**
    * Gets the active version data from a comment
    */
@@ -232,6 +234,7 @@ export class DashboardCommentUtilsService {
    * Dispatches delete comment action with confirmation dialog
    */
   confirmDeleteComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
+    this.deleteEntireFlag = false;
     const message = this.translateService.translate('@Delete comment question');
     const service = confirmationService || this.confirmationService;
     service.confirm({
@@ -240,7 +243,7 @@ export class DashboardCommentUtilsService {
       icon: 'fas fa-triangle-exclamation',
       closeOnEscape: false,
       accept: () => {
-        this.store.dispatch(deleteComment({dashboardId, contextKey, commentId}));
+        this.store.dispatch(deleteComment({dashboardId, contextKey, commentId, deleteEntire: this.deleteEntireFlag}));
         onSuccess?.();
       }
     });

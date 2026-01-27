@@ -77,8 +77,9 @@ export class MyDashboardsService {
     return this.httpClient.put<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, request);
   }
 
-  public deleteComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
-    return this.httpClient.delete<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`);
+  public deleteComment(contextKey: string, dashboardId: number, commentId: string, deleteEntire?: boolean): Observable<DashboardCommentEntry> {
+    const params = deleteEntire ? {deleteEntire: 'true'} : {};
+    return this.httpClient.delete<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, {params});
   }
 
   public publishComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {

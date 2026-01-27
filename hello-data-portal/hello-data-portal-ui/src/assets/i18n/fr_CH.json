@@ -88,6 +88,7 @@
   "@Delete announcement": "Supprimer la notification",
   "@Delete announcement question": "Voulez-vous vraiment supprimer la notification ?",
   "@Delete comment question": "Voulez-vous supprimer ce commentaire ?",
+  "@Delete entire comment": "Supprimer le commentaire entier (toutes les versions)",
   "@Delete external dashboard": "Supprimer le lien vers le tableau de bord externe",
   "@Delete external dashboard question": "Voulez-vous vraiment supprimer le lien vers le tableau de bord externe ?",
   "@Delete faq": "Supprimer la FAQ",

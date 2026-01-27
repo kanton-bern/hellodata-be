@@ -54,6 +54,7 @@ import {Dialog} from "primeng/dialog";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {NotificationService} from "../../../shared/services/notification.service";
+import {DashboardCommentUtilsService} from "../services/dashboard-comment-utils.service";
 
 interface FilterOption {
   label: string;
@@ -92,6 +93,7 @@ export class CommentsFeed implements AfterViewInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
+  readonly commentUtils = inject(DashboardCommentUtilsService);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 

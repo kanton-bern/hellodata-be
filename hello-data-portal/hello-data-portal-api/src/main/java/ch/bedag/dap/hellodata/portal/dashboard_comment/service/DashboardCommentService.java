@@ -331,7 +331,7 @@ public class DashboardCommentService {
     /**
      * Delete a comment (soft delete).
      */
-    public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId) {
+    public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId, boolean deleteEntire) {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
@@ -346,29 +346,37 @@ public class DashboardCommentService {
         String deleterName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
-        // Mark current active version as deleted
-        comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .findFirst()
-                .ifPresent(v -> v.setDeleted(true));
-
-        // Try to find last non-deleted PUBLISHED version
-        Optional<DashboardCommentVersionEntity> lastPublished = comment.getHistory().stream()
-                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
-                .reduce((first, second) -> second); // Get last one
-
-        if (lastPublished.isPresent()) {
-            // Restore to last published version
-            comment.setActiveVersion(lastPublished.get().getVersion());
-            comment.setHasActiveDraft(false);
-            log.info("Restored comment {} to version {} for dashboard {}/{}",
-                    commentId, lastPublished.get().getVersion(), contextKey, dashboardId);
-        } else {
-            // No published versions left - soft delete entire comment
+        if (deleteEntire) {
+            // Delete entire comment (soft delete)
             comment.setDeleted(true);
             comment.setDeletedDate(now);
             comment.setDeletedBy(deleterName);
-            log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+            log.info("Soft deleted entire comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+        } else {
+            // Mark current active version as deleted
+            comment.getHistory().stream()
+                    .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                    .findFirst()
+                    .ifPresent(v -> v.setDeleted(true));
+
+            // Try to find last non-deleted PUBLISHED version
+            Optional<DashboardCommentVersionEntity> lastPublished = comment.getHistory().stream()
+                    .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
+                    .reduce((first, second) -> second); // Get last one
+
+            if (lastPublished.isPresent()) {
+                // Restore to last published version
+                comment.setActiveVersion(lastPublished.get().getVersion());
+                comment.setHasActiveDraft(false);
+                log.info("Restored comment {} to version {} for dashboard {}/{}",
+                        commentId, lastPublished.get().getVersion(), contextKey, dashboardId);
+            } else {
+                // No published versions left - soft delete entire comment
+                comment.setDeleted(true);
+                comment.setDeletedDate(now);
+                comment.setDeletedBy(deleterName);
+                log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+            }
         }
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);

@@ -172,7 +172,7 @@ export const updateCommentError = createAction(
 
 export const deleteComment = createAction(
   MyDashboardsActionType.DELETE_COMMENT,
-  props<{ dashboardId: number; contextKey: string; commentId: string }>()
+  props<{ dashboardId: number; contextKey: string; commentId: string; deleteEntire?: boolean }>()
 );
 
 export const deleteCommentSuccess = createAction(

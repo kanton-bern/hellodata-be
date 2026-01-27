@@ -88,6 +88,7 @@
   "@Delete announcement": "Ankündigung löschen",
   "@Delete announcement question": "Soll die Ankündigung wirklich gelöscht werden?",
   "@Delete comment question": "Möchten Sie diesen Kommentar löschen?",
+  "@Delete entire comment": "Gesamten Kommentar löschen (alle Versionen)",
   "@Delete external dashboard": "Link zu externem Dashboard löschen",
   "@Delete external dashboard question": "Soll der Link zum externen Dashboard wirklich gelöscht werden?",
   "@Delete faq": "FAQ löschen",

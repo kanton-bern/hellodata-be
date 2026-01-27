@@ -87,7 +87,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject<Store<AppState>>(Store);
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);
-  private readonly commentUtils = inject(DashboardCommentUtilsService);
+  readonly commentUtils = inject(DashboardCommentUtilsService);
   private readonly confirmationService = inject(ConfirmationService);
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;

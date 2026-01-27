@@ -237,8 +237,8 @@ export class MyDashboardsEffects {
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
-      switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
-        return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId).pipe(
+      switchMap(([{dashboardId, contextKey, commentId, deleteEntire}, dashboardUrl]) => {
+        return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId, deleteEntire).pipe(
           switchMap(restoredComment => {
             const actions: any[] = [
               deleteCommentSuccess({commentId, restoredComment})
