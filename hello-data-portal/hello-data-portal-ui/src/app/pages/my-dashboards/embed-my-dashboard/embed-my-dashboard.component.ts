@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter, switchMap, take} from "rxjs/operators";
@@ -57,18 +57,21 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
   styleUrls: ['./embed-my-dashboard.component.scss'],
   imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
   private static readonly COMMENTS_SIZE_KEY = 'hd_comments_panel_size';
 
+  @ViewChild('dashboardGrid') dashboardGrid!: ElementRef<HTMLElement>;
+
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
 
-  readonly commentsSizes = ['25%', '40%', '50%'];
+  readonly commentsSizeRatios = [0.25, 0.40, 0.50];
   commentsSizeIndex = this.loadSavedSizeIndex();
+  commentsSizeLabels: string[] = [];
 
   private loadedDashboardId: number | null = null;
   private isNavigatingToPointerUrl = false;
@@ -95,8 +98,31 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   }
 
   get commentsGridTemplate(): string {
-    const size = this.commentsSizes[this.commentsSizeIndex];
-    return `1fr ${size}`;
+    const ratio = this.commentsSizeRatios[this.commentsSizeIndex];
+    return `1fr ${ratio * 100}%`;
+  }
+
+  ngAfterViewInit(): void {
+    this.computeSizeLabels();
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.computeSizeLabels();
+  }
+
+  private computeSizeLabels(): void {
+    const mainContent = document.getElementById('mainContentDiv');
+    if (!mainContent) return;
+    const mainWidth = mainContent.offsetWidth;
+    const gridEl = this.dashboardGrid?.nativeElement;
+    const gridWidth = gridEl ? gridEl.offsetWidth : mainWidth;
+
+    this.commentsSizeLabels = this.commentsSizeRatios.map(ratio => {
+      const panelPx = gridWidth * ratio;
+      const pct = Math.round(panelPx / mainWidth * 100);
+      return `${pct}%`;
+    });
   }
 
   toggleComments(): void {
@@ -120,7 +146,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
     const saved = localStorage.getItem(EmbedMyDashboardComponent.COMMENTS_SIZE_KEY);
     if (saved !== null) {
       const idx = Number(saved);
-      if (idx >= 0 && idx < this.commentsSizes.length) {
+      if (idx >= 0 && idx < this.commentsSizeRatios.length) {
         return idx;
       }
     }

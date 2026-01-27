@@ -1,5 +1,5 @@
 @if (currentMyDashboardInfo$ | async) {
-  <div class="grid w-full h-full embedded-dashboard"
+  <div #dashboardGrid class="grid w-full h-full embedded-dashboard"
        [style.gridTemplateColumns]="isCommentsOpen ? commentsGridTemplate : '1fr auto'">
     <div class="iframe-container h-full">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="false"/>
@@ -15,7 +15,7 @@
         </div>
       } @else {
         <app-comments-toggle-panel (toggleComments)="toggleComments()"
-                                   [panelSizes]="commentsSizes"
+                                   [panelSizes]="commentsSizeLabels"
                                    [activeSizeIndex]="commentsSizeIndex"
                                    (sizeSelected)="setCommentsSize($event)"
                                    (pointerUrlClick)="navigateToPointerUrl($event)"
