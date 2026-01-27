@@ -168,6 +168,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         this.comments = comments.map(comment => ({
           ...comment,
           text: this.commentUtils.getActiveVersionData(comment)?.text || '',
+          status: this.commentUtils.getActiveVersionData(comment)?.status || '',
           tagsString: (comment.tags || []).join(' ')
         }));
         this.loading = false;
