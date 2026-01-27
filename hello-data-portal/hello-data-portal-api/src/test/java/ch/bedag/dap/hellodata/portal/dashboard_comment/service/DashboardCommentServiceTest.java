@@ -492,7 +492,7 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
 
             assertThat(deleted.isDeleted()).isTrue();
             assertThat(deleted.getDeletedDate()).isNotNull();
@@ -523,7 +523,7 @@ class DashboardCommentServiceTest {
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto);
 
             // Delete current version (should restore to version 1)
-            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
 
             assertThat(deleted.isDeleted()).isFalse();
             assertThat(deleted.getActiveVersion()).isEqualTo(1);
@@ -549,7 +549,7 @@ class DashboardCommentServiceTest {
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
-                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false)
             ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Not authorized to delete this comment");
         }
@@ -692,7 +692,7 @@ class DashboardCommentServiceTest {
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
 
             // Mock user repository for admin role check
             UserEntity regularUser = new UserEntity();
@@ -1127,7 +1127,7 @@ class DashboardCommentServiceTest {
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Delete it
-            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
 
             // Export should be empty
             CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
