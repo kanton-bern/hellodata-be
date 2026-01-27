@@ -9,18 +9,17 @@
       class="comments-panel h-full"
       [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-1 comments-panel-closed'"
     >
-      @if (!isCommentsOpen) {
-        <div (click)="toggleComments()" (keydown)="toggleComments()"
-             style="cursor: pointer">{{ '@Comments' | transloco }}
-        </div>
-      } @else {
-        <app-comments-toggle-panel (toggleComments)="toggleComments()"
-                                   [panelSizes]="commentsSizeLabels"
-                                   [activeSizeIndex]="commentsSizeIndex"
-                                   (sizeSelected)="setCommentsSize($event)"
-                                   (pointerUrlClick)="navigateToPointerUrl($event)"
-                                   class="w-full h-full"></app-comments-toggle-panel>
-      }
+      <div [hidden]="isCommentsOpen" (click)="toggleComments()" (keydown)="toggleComments()"
+           style="cursor: pointer">{{ '@Comments' | transloco }}
+      </div>
+
+      <app-comments-toggle-panel [style.display]="isCommentsOpen ? 'flex' : 'none'"
+                                 (toggleComments)="toggleComments()"
+                                 [panelSizes]="commentsSizeLabels"
+                                 [activeSizeIndex]="commentsSizeIndex"
+                                 (sizeSelected)="setCommentsSize($event)"
+                                 (pointerUrlClick)="navigateToPointerUrl($event)"
+                                 class="w-full h-full"></app-comments-toggle-panel>
     </div>
   </div>
 }
