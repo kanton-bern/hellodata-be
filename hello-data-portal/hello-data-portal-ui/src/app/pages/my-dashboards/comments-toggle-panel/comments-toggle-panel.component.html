@@ -1,8 +1,23 @@
 <div class="comments-panel">
   <div class="close-btn-container">
-    <button class="close-btn" (click)="toggleComments.emit()">
+    <button class="close-btn"
+            [pTooltip]="'@Close comments panel' | transloco"
+            tooltipPosition="bottom"
+            (click)="toggleComments.emit()">
       <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
     </button>
+    <div class="size-buttons">
+      @for (size of panelSizes; track size; let i = $index) {
+        <button class="size-btn"
+                [class.size-btn-active]="i === activeSizeIndex"
+                [disabled]="i === activeSizeIndex"
+                [pTooltip]="('@Set panel width to' | transloco:{size: size})"
+                tooltipPosition="bottom"
+                (click)="sizeSelected.emit(i)">
+          {{ size }}
+        </button>
+      }
+    </div>
   </div>
   <app-comments-feed class="comments-feed-wrapper" (pointerUrlClick)="pointerUrlClick.emit($event)"></app-comments-feed>
 </div>

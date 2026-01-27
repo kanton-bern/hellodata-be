@@ -61,9 +61,15 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
+  private static readonly COMMENTS_SIZE_KEY = 'hd_comments_panel_size';
+
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
+
+  readonly commentsSizes = ['25%', '40%', '50%'];
+  commentsSizeIndex = this.loadSavedSizeIndex();
+
   private loadedDashboardId: number | null = null;
   private isNavigatingToPointerUrl = false;
   private commentsRefreshSubscription: Subscription | null = null;
@@ -88,6 +94,11 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
     // Overflow is handled by CSS using :has(app-embed-my-dashboard) selector
   }
 
+  get commentsGridTemplate(): string {
+    const size = this.commentsSizes[this.commentsSizeIndex];
+    return `1fr ${size}`;
+  }
+
   toggleComments(): void {
     this.isCommentsOpen = !this.isCommentsOpen;
 
@@ -98,6 +109,22 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       // Stop refresh timer when closing the panel
       this.stopCommentsRefreshTimer();
     }
+  }
+
+  setCommentsSize(index: number): void {
+    this.commentsSizeIndex = index;
+    localStorage.setItem(EmbedMyDashboardComponent.COMMENTS_SIZE_KEY, String(index));
+  }
+
+  private loadSavedSizeIndex(): number {
+    const saved = localStorage.getItem(EmbedMyDashboardComponent.COMMENTS_SIZE_KEY);
+    if (saved !== null) {
+      const idx = Number(saved);
+      if (idx >= 0 && idx < this.commentsSizes.length) {
+        return idx;
+      }
+    }
+    return 0;
   }
 
   ngOnDestroy(): void {

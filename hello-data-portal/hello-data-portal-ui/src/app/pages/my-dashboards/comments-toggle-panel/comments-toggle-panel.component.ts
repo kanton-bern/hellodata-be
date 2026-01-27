@@ -25,18 +25,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommentsFeed} from "../comments-feed/comments-feed.component";
+import {Tooltip} from "primeng/tooltip";
+import {TranslocoPipe} from "@jsverse/transloco";
 
 @Component({
   selector: 'app-comments-toggle-panel',
   templateUrl: './comments-toggle-panel.component.html',
   imports: [
-    CommentsFeed
+    CommentsFeed,
+    Tooltip,
+    TranslocoPipe
   ],
   styleUrls: ['./comments-toggle-panel.component.scss']
 })
 export class CommentsTogglePanelComponent {
+  @Input() panelSizes: string[] = [];
+  @Input() activeSizeIndex = 0;
   @Output() toggleComments = new EventEmitter<void>();
+  @Output() sizeSelected = new EventEmitter<number>();
   @Output() pointerUrlClick = new EventEmitter<string>();
 }
