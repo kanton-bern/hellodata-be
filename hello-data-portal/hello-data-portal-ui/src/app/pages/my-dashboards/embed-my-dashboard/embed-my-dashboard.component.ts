@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
 import {filter, switchMap, take} from "rxjs/operators";
@@ -57,11 +57,11 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
   styleUrls: ['./embed-my-dashboard.component.scss'],
   imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
 })
-export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy, AfterViewInit {
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
-  private static readonly COMMENTS_SIZE_KEY = 'hd_comments_panel_size';
+  private static readonly COMMENTS_WIDTH_KEY = 'hd_comments_panel_width_px';
 
   @ViewChild('dashboardGrid') dashboardGrid!: ElementRef<HTMLElement>;
 
@@ -69,9 +69,8 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
 
-  readonly commentsSizeRatios = [0.25, 0.40, 0.50];
-  commentsSizeIndex = this.loadSavedSizeIndex();
-  commentsSizeLabels: string[] = [];
+  commentsPanelWidth = this.loadSavedWidth();
+  isResizing = false;
 
   private loadedDashboardId: number | null = null;
   private isNavigatingToPointerUrl = false;
@@ -98,31 +97,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   }
 
   get commentsGridTemplate(): string {
-    const ratio = this.commentsSizeRatios[this.commentsSizeIndex];
-    return `1fr ${ratio * 100}%`;
-  }
-
-  ngAfterViewInit(): void {
-    this.computeSizeLabels();
-  }
-
-  @HostListener('window:resize')
-  onResize(): void {
-    this.computeSizeLabels();
-  }
-
-  private computeSizeLabels(): void {
-    const mainContent = document.getElementById('mainContentDiv');
-    if (!mainContent) return;
-    const mainWidth = mainContent.offsetWidth;
-    const gridEl = this.dashboardGrid?.nativeElement;
-    const gridWidth = gridEl ? gridEl.offsetWidth : mainWidth;
-
-    this.commentsSizeLabels = this.commentsSizeRatios.map(ratio => {
-      const panelPx = gridWidth * ratio;
-      const pct = Math.round(panelPx / mainWidth * 100);
-      return `${pct}%`;
-    });
+    return `1fr 4px ${this.commentsPanelWidth}px`;
   }
 
   toggleComments(): void {
@@ -137,20 +112,44 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
     }
   }
 
-  setCommentsSize(index: number): void {
-    this.commentsSizeIndex = index;
-    localStorage.setItem(EmbedMyDashboardComponent.COMMENTS_SIZE_KEY, String(index));
+  startResizing(event: MouseEvent): void {
+    event.preventDefault();
+    this.isResizing = true;
   }
 
-  private loadSavedSizeIndex(): number {
-    const saved = localStorage.getItem(EmbedMyDashboardComponent.COMMENTS_SIZE_KEY);
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent): void {
+    if (!this.isResizing) return;
+
+    const gridRect = this.dashboardGrid.nativeElement.getBoundingClientRect();
+    const newWidth = gridRect.right - event.clientX;
+
+    // Min width 300px, max width 80% of screen
+    const minWidth = 300;
+    const maxWidth = gridRect.width * 0.8;
+
+    if (newWidth >= minWidth && newWidth <= maxWidth) {
+      this.commentsPanelWidth = newWidth;
+    }
+  }
+
+  @HostListener('document:mouseup')
+  stopResizing(): void {
+    if (this.isResizing) {
+      this.isResizing = false;
+      localStorage.setItem(EmbedMyDashboardComponent.COMMENTS_WIDTH_KEY, String(this.commentsPanelWidth));
+    }
+  }
+
+  private loadSavedWidth(): number {
+    const saved = localStorage.getItem(EmbedMyDashboardComponent.COMMENTS_WIDTH_KEY);
     if (saved !== null) {
-      const idx = Number(saved);
-      if (idx >= 0 && idx < this.commentsSizeRatios.length) {
-        return idx;
+      const width = Number(saved);
+      if (!isNaN(width) && width > 100) {
+        return width;
       }
     }
-    return 0;
+    return 400; // Default width
   }
 
   ngOnDestroy(): void {

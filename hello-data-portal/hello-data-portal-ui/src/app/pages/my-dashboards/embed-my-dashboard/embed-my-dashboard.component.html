@@ -1,9 +1,16 @@
 @if (currentMyDashboardInfo$ | async) {
   <div #dashboardGrid class="grid w-full h-full embedded-dashboard"
        [style.gridTemplateColumns]="isCommentsOpen ? commentsGridTemplate : '1fr auto'">
-    <div class="iframe-container h-full">
+    <div class="iframe-container h-full relative">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="false"/>
+      @if (isResizing) {
+        <div class="absolute inset-0 z-50 bg-transparent"></div>
+      }
     </div>
+
+    @if (isCommentsOpen) {
+      <div class="resizer" (mousedown)="startResizing($event)"></div>
+    }
 
     <div
       class="comments-panel h-full"
@@ -15,9 +22,6 @@
 
       <app-comments-toggle-panel [style.display]="isCommentsOpen ? 'flex' : 'none'"
                                  (toggleComments)="toggleComments()"
-                                 [panelSizes]="commentsSizeLabels"
-                                 [activeSizeIndex]="commentsSizeIndex"
-                                 (sizeSelected)="setCommentsSize($event)"
                                  (pointerUrlClick)="navigateToPointerUrl($event)"
                                  class="w-full h-full"></app-comments-toggle-panel>
     </div>

@@ -38,6 +38,7 @@
 .iframe-container {
   border-right: 1px solid var(--surface-border, #dee2e6);
   overflow-anchor: none;
+  position: relative; /* Needed for overlay */
 }
 
 .comments-panel {
@@ -69,4 +70,16 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.resizer {
+  width: 4px;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 0.2s;
+  z-index: 10;
+
+  &:hover, &:active {
+    background-color: var(--primary-color, #3B82F6);
+  }
 }

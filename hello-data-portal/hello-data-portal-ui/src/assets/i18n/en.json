@@ -223,7 +223,6 @@
   "@PUBLISHED": "Published",
   "@Path": "Path",
   "@Permission missing": "You do not yet have authorization to a data domain at {{businessdomain}}. \n Please contact your administrator to give you the appropriate permissions.",
-  "@Set panel width to": "Set panel width to {{size}}",
   "@Permissions": "Permissions",
   "@PgAdmin": "pgAdmin",
   "@Pointer URL": "Pointer URL",
