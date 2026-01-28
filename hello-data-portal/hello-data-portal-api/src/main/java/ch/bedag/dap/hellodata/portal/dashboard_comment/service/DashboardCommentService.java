@@ -917,6 +917,7 @@ public class DashboardCommentService {
                 .status(activeVersion != null ? activeVersion.getStatus().name() : DashboardCommentStatus.DRAFT.name())
                 .activeVersion(entity.getActiveVersion())
                 .tags(activeVersion != null ? parseTagsFromString(activeVersion.getTags()) : Collections.emptyList())
+                .pointerUrl(activeVersion != null ? activeVersion.getPointerUrl() : null)
                 .history(historyExport)
                 .build();
     }
@@ -1157,6 +1158,7 @@ public class DashboardCommentService {
         existingVersion.setEditedBy(updatedBy);
         existingVersion.setDeleted(false);
         existingVersion.setTags(convertTagsToString(item.getTags()));
+        existingVersion.setPointerUrl(item.getPointerUrl());
     }
 
     private void createAndAddVersionFromItem(DashboardCommentEntity entity, CommentExportItemDto item,
@@ -1169,6 +1171,7 @@ public class DashboardCommentService {
                 .editedBy(updatedBy)
                 .deleted(false)
                 .tags(convertTagsToString(item.getTags()))
+                .pointerUrl(item.getPointerUrl())
                 .comment(entity)
                 .build();
         entity.getHistory().add(version);
@@ -1246,7 +1249,7 @@ public class DashboardCommentService {
         } else {
             DashboardCommentStatus status = parseStatus(item.getStatus());
             hasActiveDraft = (status == DashboardCommentStatus.DRAFT);
-            versions.add(buildInitialVersion(item.getText(), status, importedBy, now, item.getTags()));
+            versions.add(buildInitialVersion(item.getText(), status, importedBy, now, item.getTags(), item.getPointerUrl()));
             maxVersion = 1;
         }
 
@@ -1271,7 +1274,7 @@ public class DashboardCommentService {
     }
 
     private DashboardCommentVersionEntity buildInitialVersion(String text, DashboardCommentStatus status,
-                                                              String editedBy, long now, List<String> tags) {
+                                                              String editedBy, long now, List<String> tags, String pointerUrl) {
         return DashboardCommentVersionEntity.builder()
                 .version(1)
                 .text(text)
@@ -1280,6 +1283,7 @@ public class DashboardCommentService {
                 .editedBy(editedBy)
                 .deleted(false)
                 .tags(convertTagsToString(tags))
+                .pointerUrl(pointerUrl)
                 .build();
     }
 
@@ -1331,4 +1335,3 @@ public class DashboardCommentService {
     }
 
 }
-

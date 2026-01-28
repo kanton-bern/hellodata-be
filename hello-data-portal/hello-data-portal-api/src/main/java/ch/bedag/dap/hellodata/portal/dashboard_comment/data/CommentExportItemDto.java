@@ -35,7 +35,6 @@ import java.util.List;
 
 /**
  * DTO representing a single comment in export/import format.
- * pointerUrl is intentionally excluded as it cannot be reliably mapped to target dashboard.
  */
 @Data
 @Builder
@@ -50,6 +49,6 @@ public class CommentExportItemDto {
     private String status; // DRAFT or PUBLISHED
     private int activeVersion; // Current active version number
     private List<String> tags;
+    private String pointerUrl;
     private List<CommentVersionExportDto> history;
 }
-
