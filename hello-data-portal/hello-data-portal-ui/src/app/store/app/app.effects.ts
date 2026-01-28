@@ -79,17 +79,38 @@ export class AppEffects {
       ofType(showError),
       tap(action => {
         console.error(action.error);
-        let errorMessage = '@Unexpected error occurred';
-        if (action?.error?.error?.message) {
-          errorMessage = action.error.error.message;
-        } else if (action?.error?.message) {
-          errorMessage = action.error.message;
-        }
+        const errorMessage = this.extractErrorMessage(action.error);
         this._notificationService.error(errorMessage);
         this._tracker.trackEvent("Error", errorMessage);
       })
     )
   }, {dispatch: false});
+
+  private extractErrorMessage(error: any): string {
+    // Angular HttpClient error (HttpErrorResponse)
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+    // Direct message property
+    if (error?.message) {
+      return error.message;
+    }
+    // PrimeNG FileUpload XHR error - try to parse response
+    if (error?.error && typeof error.error === 'string') {
+      try {
+        const parsed = JSON.parse(error.error);
+        if (parsed.message) {
+          return parsed.message;
+        }
+      } catch {
+        // Not JSON, return as-is if it's a reasonable message
+        if (error.error.length < 500) {
+          return error.error;
+        }
+      }
+    }
+    return '@Unexpected error occurred';
+  }
 
   logError$ = createEffect(() => {
     return this._actions$.pipe(
