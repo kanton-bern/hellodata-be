@@ -292,9 +292,10 @@ export class CommentsFeed implements AfterViewInit {
         return false;
       }
 
-      // Filter by tag
+      // Filter by tag - read from active version in history
       if (this.selectedTagFilter !== null && this.selectedTagFilter !== '') {
-        if (!comment.tags?.includes(this.selectedTagFilter)) {
+        const activeVer = comment.history?.find(v => v.version === comment.activeVersion);
+        if (!activeVer?.tags?.includes(this.selectedTagFilter)) {
           return false;
         }
       }

@@ -175,7 +175,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           ...comment,
           text: this.commentUtils.getActiveVersionData(comment)?.text || '',
           status: this.commentUtils.getActiveVersionData(comment)?.status || '',
-          tagsString: (comment.tags || []).join(' ')
+          tagsString: (this.commentUtils.getActiveVersionData(comment)?.tags || []).join(' ')
         }));
 
         this.domainTags = this.extractUniqueTags(comments);
@@ -266,8 +266,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     this.editingComment = comment;
     const activeVer = this.getActiveVersionData(comment);
     this.editedText = activeVer?.text || '';
-    this.editedPointerUrl = comment.pointerUrl || '';
-    this.editedTags = [...(comment.tags || [])];
+    this.editedPointerUrl = activeVer?.pointerUrl || '';
+    this.editedTags = [...(activeVer?.tags || [])];
     this.editDialogVisible = true;
   }
 
@@ -324,10 +324,10 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     const normalizedPointerUrl = this.getNormalizedEditedPointerUrl();
 
     const textChanged = newText !== activeVer?.text;
-    const pointerUrlChanged = normalizedPointerUrl !== (comment.pointerUrl || undefined);
+    const pointerUrlChanged = normalizedPointerUrl !== (activeVer?.pointerUrl || undefined);
 
     // Check if tags changed
-    const currentTags = comment.tags || [];
+    const currentTags = activeVer?.tags || [];
     const tagsChanged = this.editedTags.length !== currentTags.length ||
       !this.editedTags.every(t => currentTags.includes(t));
 

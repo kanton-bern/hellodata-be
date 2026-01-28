@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="53.1-drop-pointer-url-from-dashboard-comment" author="hellodata">
+        <comment>Remove pointer_url column from dashboard_comment table.
+            pointerUrl is now derived from the active version in dashboard_comment_version.</comment>
+        <dropColumn tableName="dashboard_comment" columnName="pointer_url"/>
+    </changeSet>
+
+    <changeSet id="53.2-drop-dashboard-comment-tag-table" author="hellodata">
+        <comment>Drop dashboard_comment_tag table.
+            Tags are now derived from the active version in dashboard_comment_version.</comment>
+        <dropTable tableName="dashboard_comment_tag"/>
+    </changeSet>
+
+</databaseChangeLog>

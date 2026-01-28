@@ -29,7 +29,6 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.mapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentVersionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentTagEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import org.springframework.stereotype.Component;
 
@@ -46,12 +45,25 @@ public class DashboardCommentMapper {
             return null;
         }
 
+        List<DashboardCommentVersionDto> history = entity.getHistory().stream()
+                .map(this::toVersionDto)
+                .collect(Collectors.toList());
+
+        // Derive pointerUrl and tags from the active version in history
+        DashboardCommentVersionDto activeVersion = history.stream()
+                .filter(v -> v.getVersion() == entity.getActiveVersion())
+                .findFirst()
+                .orElse(null);
+
+        String pointerUrl = activeVersion != null ? activeVersion.getPointerUrl() : null;
+        List<String> tags = activeVersion != null ? activeVersion.getTags() : Collections.emptyList();
+
         return DashboardCommentDto.builder()
                 .id(entity.getId())
                 .dashboardId(entity.getDashboardId())
                 .dashboardUrl(entity.getDashboardUrl())
                 .contextKey(entity.getContextKey())
-                .pointerUrl(entity.getPointerUrl())
+                .pointerUrl(pointerUrl)
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
@@ -61,14 +73,8 @@ public class DashboardCommentMapper {
                 .activeVersion(entity.getActiveVersion())
                 .hasActiveDraft(entity.isHasActiveDraft())
                 .entityVersion(entity.getEntityVersion())
-                .history(entity.getHistory().stream()
-                        .map(this::toVersionDto)
-                        .collect(Collectors.toList()))
-                .tags(entity.getTags() != null
-                        ? entity.getTags().stream()
-                        .map(DashboardCommentTagEntity::getTag)
-                        .collect(Collectors.toList())
-                        : Collections.emptyList())
+                .history(history)
+                .tags(tags != null ? tags : Collections.emptyList())
                 .build();
     }
 
@@ -82,7 +88,6 @@ public class DashboardCommentMapper {
                 .dashboardId(dto.getDashboardId())
                 .dashboardUrl(dto.getDashboardUrl())
                 .contextKey(dto.getContextKey())
-                .pointerUrl(dto.getPointerUrl())
                 .author(dto.getAuthor())
                 .authorEmail(dto.getAuthorEmail())
                 .createdDate(dto.getCreatedDate())

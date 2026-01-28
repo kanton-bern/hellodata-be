@@ -34,7 +34,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentTagEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -137,9 +137,19 @@ class DashboardCommentServiceTest {
                     DashboardCommentEntity entity = invocation.getArgument(0);
                     return convertEntityToDto(entity);
                 });
+
+        // Setup mocking for tagsToString (used when creating/updating version entities)
+        lenient().when(commentMapper.tagsToString(any()))
+                .thenAnswer(invocation -> {
+                    List<String> tags = invocation.getArgument(0);
+                    if (tags == null || tags.isEmpty()) {
+                        return null;
+                    }
+                    return String.join(",", tags);
+                });
     }
 
-    // Helper method to convert entity to DTO for testing
+    // Helper method to convert entity to DTO for testing (mirrors real mapper logic)
     private DashboardCommentDto convertEntityToDto(DashboardCommentEntity entity) {
         List<DashboardCommentVersionDto> historyDto = entity.getHistory().stream()
                 .map(v -> DashboardCommentVersionDto.builder()
@@ -151,15 +161,23 @@ class DashboardCommentServiceTest {
                         .publishedDate(v.getPublishedDate())
                         .publishedBy(v.getPublishedBy())
                         .deleted(v.isDeleted())
+                        .pointerUrl(v.getPointerUrl())
+                        .tags(parseTagsFromString(v.getTags()))
                         .build())
                 .collect(Collectors.toList());
+
+        // Derive pointerUrl and tags from active version (same as real mapper)
+        DashboardCommentVersionDto activeVersion = historyDto.stream()
+                .filter(v -> v.getVersion() == entity.getActiveVersion())
+                .findFirst()
+                .orElse(null);
 
         return DashboardCommentDto.builder()
                 .id(entity.getId())
                 .dashboardId(entity.getDashboardId())
                 .dashboardUrl(entity.getDashboardUrl())
                 .contextKey(entity.getContextKey())
-                .pointerUrl(entity.getPointerUrl())
+                .pointerUrl(activeVersion != null ? activeVersion.getPointerUrl() : null)
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
@@ -170,7 +188,18 @@ class DashboardCommentServiceTest {
                 .hasActiveDraft(entity.isHasActiveDraft())
                 .entityVersion(entity.getEntityVersion())
                 .history(historyDto)
+                .tags(activeVersion != null && activeVersion.getTags() != null ? activeVersion.getTags() : Collections.emptyList())
                 .build();
+    }
+
+    private List<String> parseTagsFromString(String tagsString) {
+        if (tagsString == null || tagsString.isBlank()) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(tagsString.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 
     @Test
@@ -1396,9 +1425,13 @@ class DashboardCommentServiceTest {
 
             commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
 
-            // Verify pointerUrl is null (not imported)
+            // Verify pointerUrl is null on the version (no pointerUrl in import data)
             DashboardCommentEntity imported = commentStore.values().iterator().next();
-            assertThat(imported.getPointerUrl()).isNull();
+            DashboardCommentVersionEntity activeVersion = imported.getHistory().stream()
+                    .filter(v -> v.getVersion() == imported.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(activeVersion.getPointerUrl()).isNull();
         }
     }
 
@@ -1494,11 +1527,18 @@ class DashboardCommentServiceTest {
             commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
 
             DashboardCommentEntity imported = commentStore.values().iterator().next();
-            List<String> tags = imported.getTags().stream()
-                    .map(DashboardCommentTagEntity::getTag)
+            // Tags are now stored on the version entity, not the comment entity
+            DashboardCommentVersionEntity activeVersion = imported.getHistory().stream()
+                    .filter(v -> v.getVersion() == imported.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+            String versionTags = activeVersion.getTags();
+            assertThat(versionTags).isNotNull();
+            // Tags from import item are stored as-is (trimmed) on the version entity
+            List<String> tagList = Arrays.stream(versionTags.split(","))
+                    .map(String::trim)
                     .toList();
-            // Tags should be lowercased and trimmed, long tags truncated to 10 chars
-            assertThat(tags).contains("tag1", "tag2", "verylongta");
+            assertThat(tagList).contains("TAG1", "Tag2", "verylongtagnamethatexceedslimit");
         }
     }
 

@@ -39,7 +39,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentTagEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
@@ -155,6 +154,8 @@ public class DashboardCommentService {
         if (lastPublishedVersion != null) {
             return comment.toBuilder()
                     .activeVersion(lastPublishedVersion.getVersion())
+                    .pointerUrl(lastPublishedVersion.getPointerUrl())
+                    .tags(lastPublishedVersion.getTags() != null ? lastPublishedVersion.getTags() : Collections.emptyList())
                     .build();
         }
         return null;
@@ -215,7 +216,6 @@ public class DashboardCommentService {
                 .dashboardId(dashboardId)
                 .dashboardUrl(dashboardUrl)
                 .contextKey(contextKey)
-                .pointerUrl(createDto.getPointerUrl())
                 .author(authorFullName)
                 .authorEmail(authorEmail)
                 .createdDate(now)
@@ -237,14 +237,6 @@ public class DashboardCommentService {
                 .build();
 
         comment.addVersion(version);
-
-        // Add tags to comment entity (current tags)
-        for (String tagValue : normalizedTags) {
-            DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
-                    .tag(tagValue)
-                    .build();
-            comment.addTag(tag);
-        }
 
         // Save to database
         DashboardCommentEntity savedComment = commentRepository.save(comment);
@@ -293,23 +285,6 @@ public class DashboardCommentService {
                     v.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
                 });
 
-        // Update pointerUrl on comment entity - allow clearing
-        String newPointerUrl = updateDto.getPointerUrl();
-        comment.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
-
-        // Update tags on comment entity if provided
-        if (updateDto.getTags() != null) {
-            // Clear existing tags
-            comment.getTags().clear();
-            // Add new normalized tags
-            for (String tagValue : normalizedTags) {
-                DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
-                        .tag(tagValue)
-                        .build();
-                comment.addTag(tag);
-            }
-        }
-
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
@@ -320,12 +295,23 @@ public class DashboardCommentService {
     }
 
     /**
-     * Get current tags from comment entity.
+     * Get current tags from the active version in history.
      */
     private List<String> getCurrentTags(DashboardCommentEntity comment) {
-        return comment.getTags().stream()
-                .map(DashboardCommentTagEntity::getTag)
-                .collect(Collectors.toList());
+        return comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .map(v -> {
+                    String tags = v.getTags();
+                    if (tags == null || tags.isBlank()) {
+                        return Collections.<String>emptyList();
+                    }
+                    return Arrays.stream(tags.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.<String>toList());
+                })
+                .orElse(Collections.emptyList());
     }
 
     /**
@@ -507,10 +493,6 @@ public class DashboardCommentService {
         comment.addVersion(newVersion);
         comment.setActiveVersion(newVersionNumber);
         comment.setHasActiveDraft(true);
-        // Update pointerUrl on comment entity - allow clearing
-        comment.setPointerUrl(pointerUrlForVersion);
-
-        updateTagsIfProvided(updateDto, comment);
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
@@ -518,20 +500,6 @@ public class DashboardCommentService {
         log.info("Created new version {} for comment {} on dashboard {}/{}",
                 newVersionNumber, commentId, contextKey, dashboardId);
         return commentMapper.toDto(savedComment);
-    }
-
-    private void updateTagsIfProvided(DashboardCommentUpdateDto updateDto, DashboardCommentEntity comment) {
-        if (updateDto.getTags() != null) {
-            comment.getTags().clear();
-            for (String tagText : updateDto.getTags()) {
-                if (tagText != null && !tagText.trim().isEmpty()) {
-                    DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
-                            .tag(tagText.trim().toLowerCase().substring(0, Math.min(tagText.trim().length(), 10)))
-                            .build();
-                    comment.addTag(tag);
-                }
-            }
-        }
     }
 
     /**
@@ -769,30 +737,34 @@ public class DashboardCommentService {
             return comment;
         }
 
-        // Handle draft comments
-        if (activeVersion.getStatus() == DashboardCommentStatus.DRAFT) {
-            // Admins can see all drafts
-            if (isAdmin) {
-                return comment;
-            }
-
-            // Check if this is user's own draft
-            boolean isOwnDraft = (userEmail != null && userEmail.equals(comment.getAuthorEmail())) ||
-                    (userFullName != null && userFullName.equals(activeVersion.getEditedBy()));
-            if (isOwnDraft) {
-                return comment;
-            }
-
-            // For drafts by others, show the last published version if it exists
-            DashboardCommentVersionDto lastPublished = findLastPublishedVersionInDomainDashboardComment(comment);
-            if (lastPublished != null) {
-                comment.setActiveVersion(lastPublished.getVersion());
-                return comment;
-            }
+        if (activeVersion.getStatus() != DashboardCommentStatus.DRAFT) {
             return null;
         }
 
-        return null;
+        // Admins and own-draft authors can see drafts directly
+        if (isAdmin || isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
+            return comment;
+        }
+
+        // For drafts by others, show the last published version if it exists
+        return fallbackToLastPublishedVersion(comment);
+    }
+
+    private boolean isOwnDraft(DomainDashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
+                               String userEmail, String userFullName) {
+        return (userEmail != null && userEmail.equals(comment.getAuthorEmail())) ||
+                (userFullName != null && userFullName.equals(activeVersion.getEditedBy()));
+    }
+
+    private DomainDashboardCommentDto fallbackToLastPublishedVersion(DomainDashboardCommentDto comment) {
+        DashboardCommentVersionDto lastPublished = findLastPublishedVersionInDomainDashboardComment(comment);
+        if (lastPublished == null) {
+            return null;
+        }
+        comment.setActiveVersion(lastPublished.getVersion());
+        comment.setPointerUrl(lastPublished.getPointerUrl());
+        comment.setTags(lastPublished.getTags() != null ? lastPublished.getTags() : Collections.emptyList());
+        return comment;
     }
 
     /**
@@ -847,8 +819,21 @@ public class DashboardCommentService {
 
         return comments.stream()
                 .filter(c -> !c.isDeleted())
-                .flatMap(c -> c.getTags().stream())
-                .map(DashboardCommentTagEntity::getTag)
+                .flatMap(c -> c.getHistory().stream()
+                        .filter(v -> v.getVersion().equals(c.getActiveVersion()))
+                        .findFirst()
+                        .map(v -> {
+                            String tags = v.getTags();
+                            if (tags == null || tags.isBlank()) {
+                                return Collections.<String>emptyList();
+                            }
+                            return Arrays.stream(tags.split(","))
+                                    .map(String::trim)
+                                    .filter(s -> !s.isEmpty())
+                                    .collect(Collectors.<String>toList());
+                        })
+                        .orElse(Collections.emptyList())
+                        .stream())
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
@@ -931,7 +916,7 @@ public class DashboardCommentService {
                 .createdDate(entity.getCreatedDate())
                 .status(activeVersion != null ? activeVersion.getStatus().name() : DashboardCommentStatus.DRAFT.name())
                 .activeVersion(entity.getActiveVersion())
-                .tags(entity.getTags().stream().map(DashboardCommentTagEntity::getTag).toList())
+                .tags(activeVersion != null ? parseTagsFromString(activeVersion.getTags()) : Collections.emptyList())
                 .history(historyExport)
                 .build();
     }
@@ -1062,7 +1047,6 @@ public class DashboardCommentService {
         ImportVersionResult result = processImportVersions(entity, item, existingVersionsMap, updatedBy);
 
         updateEntityMetadata(entity, item, result);
-        updateEntityTags(entity, item.getTags());
     }
 
     private Map<Integer, DashboardCommentVersionEntity> buildExistingVersionsMap(DashboardCommentEntity entity) {
@@ -1172,6 +1156,7 @@ public class DashboardCommentService {
         existingVersion.setEditedDate(now);
         existingVersion.setEditedBy(updatedBy);
         existingVersion.setDeleted(false);
+        existingVersion.setTags(convertTagsToString(item.getTags()));
     }
 
     private void createAndAddVersionFromItem(DashboardCommentEntity entity, CommentExportItemDto item,
@@ -1183,6 +1168,7 @@ public class DashboardCommentService {
                 .editedDate(now)
                 .editedBy(updatedBy)
                 .deleted(false)
+                .tags(convertTagsToString(item.getTags()))
                 .comment(entity)
                 .build();
         entity.getHistory().add(version);
@@ -1207,37 +1193,7 @@ public class DashboardCommentService {
         entity.setActiveVersion(activeVersion);
         entity.setHasActiveDraft(result.hasActiveDraft());
         entity.setEntityVersion(entity.getEntityVersion() + 1);
-
-        // Update pointerUrl from active version
-        String pointerUrl = entity.getHistory().stream()
-                .filter(v -> v.getVersion() == activeVersion)
-                .findFirst()
-                .map(DashboardCommentVersionEntity::getPointerUrl)
-                .orElse(null);
-        entity.setPointerUrl(pointerUrl);
     }
-
-    private void updateEntityTags(DashboardCommentEntity entity, List<String> tagNames) {
-        entity.getTags().clear();
-        if (tagNames == null) {
-            return;
-        }
-        for (String tagText : tagNames) {
-            if (tagText != null && !tagText.trim().isEmpty()) {
-                DashboardCommentTagEntity tag = DashboardCommentTagEntity.builder()
-                        .tag(normalizeTag(tagText))
-                        .comment(entity)
-                        .build();
-                entity.getTags().add(tag);
-            }
-        }
-    }
-
-    private String normalizeTag(String tagText) {
-        String trimmed = tagText.trim().toLowerCase();
-        return trimmed.substring(0, Math.min(trimmed.length(), 10));
-    }
-
 
     /**
      * Get dashboard URL for a specific dashboard.
@@ -1261,10 +1217,9 @@ public class DashboardCommentService {
         ImportContext ctx = new ImportContext(contextKey, dashboardId, dashboardUrl, importedBy, importedByEmail, now);
 
         ImportVersionResult versionResult = createVersionsFromImport(item, importedBy, now);
-        List<DashboardCommentTagEntity> tags = createTagsFromImport(item.getTags());
 
-        DashboardCommentEntity entity = buildImportedCommentEntity(ctx, item, versionResult, tags);
-        setBackReferences(entity, versionResult.versions(), tags);
+        DashboardCommentEntity entity = buildImportedCommentEntity(ctx, item, versionResult);
+        setBackReferences(entity, versionResult.versions());
         return entity;
     }
 
@@ -1291,7 +1246,7 @@ public class DashboardCommentService {
         } else {
             DashboardCommentStatus status = parseStatus(item.getStatus());
             hasActiveDraft = (status == DashboardCommentStatus.DRAFT);
-            versions.add(buildInitialVersion(item.getText(), status, importedBy, now));
+            versions.add(buildInitialVersion(item.getText(), status, importedBy, now, item.getTags()));
             maxVersion = 1;
         }
 
@@ -1316,7 +1271,7 @@ public class DashboardCommentService {
     }
 
     private DashboardCommentVersionEntity buildInitialVersion(String text, DashboardCommentStatus status,
-                                                              String editedBy, long now) {
+                                                              String editedBy, long now, List<String> tags) {
         return DashboardCommentVersionEntity.builder()
                 .version(1)
                 .text(text)
@@ -1324,31 +1279,13 @@ public class DashboardCommentService {
                 .editedDate(now)
                 .editedBy(editedBy)
                 .deleted(false)
+                .tags(convertTagsToString(tags))
                 .build();
     }
 
-    private List<DashboardCommentTagEntity> createTagsFromImport(List<String> tagNames) {
-        List<DashboardCommentTagEntity> tags = new ArrayList<>();
-        if (tagNames == null) {
-            return tags;
-        }
-        for (String tagText : tagNames) {
-            if (tagText != null && !tagText.trim().isEmpty()) {
-                tags.add(DashboardCommentTagEntity.builder()
-                        .tag(normalizeTag(tagText))
-                        .build());
-            }
-        }
-        return tags;
-    }
-
     private DashboardCommentEntity buildImportedCommentEntity(ImportContext ctx, CommentExportItemDto item,
-                                                              ImportVersionResult versionResult,
-                                                              List<DashboardCommentTagEntity> tags) {
+                                                              ImportVersionResult versionResult) {
         int activeVersion = item.getActiveVersion() > 0 ? item.getActiveVersion() : versionResult.maxVersion();
-
-        // Get pointerUrl from active version in history
-        String pointerUrl = getPointerUrlFromActiveVersion(versionResult.versions(), activeVersion);
 
         return DashboardCommentEntity.builder()
                 .id(UUID.randomUUID().toString())
@@ -1356,7 +1293,6 @@ public class DashboardCommentService {
                 .dashboardId(ctx.dashboardId())
                 .dashboardUrl(ctx.dashboardUrl())
                 .importedFromId(item.getId())
-                .pointerUrl(pointerUrl)
                 .author(item.getAuthor() != null ? item.getAuthor() : ctx.importedBy())
                 .authorEmail(item.getAuthorEmail() != null ? item.getAuthorEmail() : ctx.importedByEmail())
                 .createdDate(item.getCreatedDate() > 0 ? item.getCreatedDate() : ctx.now())
@@ -1365,26 +1301,12 @@ public class DashboardCommentService {
                 .hasActiveDraft(versionResult.hasActiveDraft())
                 .entityVersion(0L)
                 .history(versionResult.versions())
-                .tags(tags)
                 .build();
     }
 
-    private String getPointerUrlFromActiveVersion(List<DashboardCommentVersionEntity> versions, int activeVersion) {
-        if (versions == null || versions.isEmpty()) {
-            return null;
-        }
-        return versions.stream()
-                .filter(v -> v.getVersion() == activeVersion)
-                .findFirst()
-                .map(DashboardCommentVersionEntity::getPointerUrl)
-                .orElse(null);
-    }
-
     private void setBackReferences(DashboardCommentEntity entity,
-                                   List<DashboardCommentVersionEntity> versions,
-                                   List<DashboardCommentTagEntity> tags) {
+                                   List<DashboardCommentVersionEntity> versions) {
         versions.forEach(v -> v.setComment(entity));
-        tags.forEach(t -> t.setComment(entity));
     }
 
     /**

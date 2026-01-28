@@ -149,7 +149,7 @@ export class CommentEntryComponent {
   }
 
   navigateToPointerUrl(): void {
-    const url = this.comment().pointerUrl;
+    const url = this.activeVersion()?.pointerUrl;
     if (url) {
       this.pointerUrlClick.emit(url);
     }
@@ -167,11 +167,10 @@ export class CommentEntryComponent {
   }
 
   editComment(): void {
-    const comment = this.comment();
     const activeVer = this.activeVersion();
     this.editedText = activeVer?.text || '';
-    this.editedPointerUrl = comment.pointerUrl || '';
-    this.editedTags = comment.tags ? [...comment.tags] : [];
+    this.editedPointerUrl = activeVer?.pointerUrl || '';
+    this.editedTags = activeVer?.tags ? [...activeVer.tags] : [];
     this.editNewTagText = '';
     this.editDialogVisible = true;
   }
@@ -184,9 +183,9 @@ export class CommentEntryComponent {
 
     // Check if anything changed
     const textChanged = newText !== activeVer?.text;
-    const pointerUrlChanged = normalizedPointerUrl !== (comment.pointerUrl || undefined);
+    const pointerUrlChanged = normalizedPointerUrl !== (activeVer?.pointerUrl || undefined);
     const sortedEditedTags = [...this.editedTags].sort((a: string, b: string) => a.localeCompare(b));
-    const sortedCommentTags = [...(comment.tags || [])].sort((a: string, b: string) => a.localeCompare(b));
+    const sortedCommentTags = [...(activeVer?.tags || [])].sort((a: string, b: string) => a.localeCompare(b));
     const tagsChanged = JSON.stringify(sortedEditedTags) !== JSON.stringify(sortedCommentTags);
 
     if (!newText || (!textChanged && !pointerUrlChanged && !tagsChanged)) {

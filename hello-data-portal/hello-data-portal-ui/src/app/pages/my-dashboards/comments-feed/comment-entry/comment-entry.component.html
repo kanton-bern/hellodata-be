@@ -2,7 +2,7 @@
      [class.bg-white]="activeVersion()?.status === DashboardCommentStatus.PUBLISHED"
      [class.bg-gray-100]="activeVersion()?.status === DashboardCommentStatus.DRAFT"
      [class.draft-border]="activeVersion()?.status === DashboardCommentStatus.DRAFT">
-  @if (comment().pointerUrl) {
+  @if (activeVersion()?.pointerUrl) {
     <div class="pointer-url-container px-1 pb-1">
       <button type="button"
               class="pointer-url-link text-xs text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0"
@@ -78,9 +78,9 @@
       </div>
     </div>
   </div>
-  @if (comment().tags && comment().tags.length > 0) {
+  @if (activeVersion()?.tags && activeVersion()!.tags.length > 0) {
     <div class="comment-tags px-1 pt-1 flex gap-1 flex-wrap">
-      @for (tag of comment().tags; track tag) {
+      @for (tag of activeVersion()!.tags; track tag) {
         <span class="tag-chip">
           <i class="fa-solid fa-tag text-xs mr-1"></i>{{ tag }}
         </span>
@@ -107,17 +107,17 @@
             }
           </div>
         }
-        @if (comment().pointerUrl || activeVersion()?.pointerUrl) {
+        @if (activeVersion()?.pointerUrl) {
           <div class="pointer-url-info">
             <strong>{{ '@Link' | transloco }}:</strong>
             <button type="button"
                     class="pointer-url-info-link ml-1"
-                    [pTooltip]="comment().pointerUrl || activeVersion()?.pointerUrl"
+                    [pTooltip]="activeVersion()?.pointerUrl"
                     tooltipPosition="top"
-                    (click)="navigateToUrl((comment().pointerUrl || activeVersion()?.pointerUrl)!)"
-                    (keydown.enter)="navigateToUrl((comment().pointerUrl || activeVersion()?.pointerUrl)!)">
+                    (click)="navigateToUrl(activeVersion()!.pointerUrl)"
+                    (keydown.enter)="navigateToUrl(activeVersion()!.pointerUrl)">
               <i class="fa-solid fa-thumbtack mr-1"></i>
-              {{ (comment().pointerUrl || activeVersion()?.pointerUrl) | slice:0:40 }}{{ (comment().pointerUrl || activeVersion()?.pointerUrl)!.length > 40 ? '...' : '' }}
+              {{ activeVersion()?.pointerUrl | slice:0:40 }}{{ activeVersion()!.pointerUrl.length > 40 ? '...' : '' }}
             </button>
           </div>
         }

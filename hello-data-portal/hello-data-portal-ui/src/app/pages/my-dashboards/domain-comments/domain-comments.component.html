@@ -80,9 +80,9 @@
           </span>
         </td>
         <td>
-          @if (comment.tags && comment.tags.length > 0) {
+          @if (getActiveVersionData(comment)?.tags && getActiveVersionData(comment)!.tags.length > 0) {
             <div class="flex gap-1 flex-wrap">
-              @for (tag of comment.tags; track tag) {
+              @for (tag of getActiveVersionData(comment)!.tags; track tag) {
                 <span class="tag-chip">
                   <i class="fa-solid fa-tag text-xs mr-1"></i>{{ tag }}
                 </span>
@@ -208,11 +208,11 @@
                     }
                   </div>
                 }
-                @if (comment.pointerUrl) {
+                @if (getActiveVersionData(comment)?.pointerUrl) {
                   <div>
                     <strong>{{ '@Pointer URL' | transloco }}:</strong>
-                    <a [href]="comment.pointerUrl" target="_blank" class="text-blue-600 hover:underline">
-                      {{ comment.pointerUrl | slice:0:50 }}...
+                    <a [href]="getActiveVersionData(comment)!.pointerUrl" target="_blank" class="text-blue-600 hover:underline">
+                      {{ getActiveVersionData(comment)!.pointerUrl | slice:0:50 }}...
                     </a>
                   </div>
                 }
