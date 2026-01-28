@@ -47,7 +47,7 @@ import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
 import {DashboardCommentEntry, DashboardCommentStatus} from "../../../store/my-dashboards/my-dashboards.model";
-import {map, Observable, take} from "rxjs";
+import {BehaviorSubject, combineLatest, map, Observable, take} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {AutoComplete} from "primeng/autocomplete";
 import {Dialog} from "primeng/dialog";
@@ -132,7 +132,8 @@ export class CommentsFeed implements AfterViewInit {
 
   filteredComments$: Observable<DashboardCommentEntry[]>;
   // Signal to track filtered comments for auto-scroll
-  private filteredCommentsSignal;
+  private readonly filteredCommentsSignal;
+  private readonly filterTrigger$ = new BehaviorSubject<void>(undefined);
 
   newCommentText = '';
   pointerUrl = '';
@@ -174,8 +175,11 @@ export class CommentsFeed implements AfterViewInit {
     );
 
     // Initialize filtered comments
-    this.filteredComments$ = this.comments$.pipe(
-      map(comments => this.filterComments(comments))
+    this.filteredComments$ = combineLatest([
+      this.comments$,
+      this.filterTrigger$
+    ]).pipe(
+      map(([comments]) => this.filterComments(comments))
     );
 
     // Re-assign signal after filteredComments$ is initialized
@@ -266,12 +270,7 @@ export class CommentsFeed implements AfterViewInit {
   }
 
   onFilterChange(): void {
-    this.filteredComments$ = this.comments$.pipe(
-      map(comments => this.filterComments(comments))
-    );
-
-    // Reassign signal when filters change
-    this.filteredCommentsSignal = toSignal(this.filteredComments$);
+    this.filterTrigger$.next();
   }
 
   private filterComments(comments: DashboardCommentEntry[]): DashboardCommentEntry[] {
