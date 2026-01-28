@@ -27,6 +27,9 @@ control.
 
 ### Data Model
 
+The data model separates immutable comment metadata from versioned content. **`pointerUrl` and `tags` are stored
+per-version** and derived from the active version when displaying the comment.
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    DashboardCommentEntry                    │
@@ -35,7 +38,6 @@ control.
 │ dashboardId: number                                         │
 │ dashboardUrl: string                                        │
 │ contextKey: string                                          │
-│ pointerUrl?: string (optional - specific page/chart link)   │
 │ author: string                                              │
 │ authorEmail: string                                         │
 │ createdDate: number (timestamp)                             │
@@ -47,7 +49,8 @@ control.
 │ entityVersion: number (for optimistic locking)              │
 │ importedFromId?: string (original ID when imported)         │
 │ history: DashboardCommentVersion[]                          │
-│ tags?: string[] (tags associated with this comment)         │
+│ pointerUrl?: string (derived from active version)           │
+│ tags?: string[] (derived from active version)               │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
@@ -61,9 +64,14 @@ control.
 │ publishedDate?: number                                      │
 │ publishedBy?: string                                        │
 │ deleted: boolean                                            │
+│ pointerUrl?: string (specific page/chart link for version)  │
 │ tags?: string[] (tags snapshot for this version)            │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+> **Note:** The top-level `pointerUrl` and `tags` fields on `DashboardCommentEntry` are **derived** from the active
+> version in history. They are not stored separately on the comment entity. This ensures that when admins switch
+> versions (e.g., `restoreVersion`), the displayed `pointerUrl` and `tags` always match the active version's data.
 
 ## User Roles and Permissions
 
@@ -339,7 +347,6 @@ CREATE TABLE dashboard_comment
     dashboard_id     INTEGER      NOT NULL,
     dashboard_url    VARCHAR(2048),
     context_key      VARCHAR(255) NOT NULL,
-    pointer_url      VARCHAR(2048),
     author           VARCHAR(255),
     author_email     VARCHAR(255),
     created_date     BIGINT,
@@ -364,29 +371,22 @@ CREATE TABLE dashboard_comment_version
     published_date BIGINT,
     published_by   VARCHAR(255),
     deleted        BOOLEAN DEFAULT FALSE,
-    tags           TEXT -- Comma-separated tags snapshot for history tracking
-);
-
-CREATE TABLE dashboard_comment_tag
-(
-    id         BIGSERIAL PRIMARY KEY,
-    comment_id VARCHAR(36) NOT NULL REFERENCES dashboard_comment (id) ON DELETE CASCADE,
-    tag        VARCHAR(10) NOT NULL
+    tags           TEXT,        -- Comma-separated tags snapshot for this version
+    pointer_url    VARCHAR(2000) -- Optional link to specific page/chart for this version
 );
 
 CREATE INDEX idx_dashboard_comment_context_dashboard
     ON dashboard_comment (context_key, dashboard_id);
 
-CREATE INDEX idx_comment_tag_comment_id
-    ON dashboard_comment_tag (comment_id);
-
-CREATE INDEX idx_comment_tag_tag
-    ON dashboard_comment_tag (tag);
-
 -- Index for import duplicate detection
 CREATE INDEX idx_comment_imported_from
     ON dashboard_comment (imported_from_id, context_key, dashboard_id);
 ```
+
+> **Note:** `pointer_url` and `tags` are stored **per version** in `dashboard_comment_version`, not on the main
+> `dashboard_comment` table. This design ensures each version snapshot captures the complete state (text, tags,
+> pointerUrl) at that point in time. The application derives the current `pointerUrl` and `tags` from the active
+> version when building DTOs.
 
 ## Error Handling
 
@@ -467,9 +467,9 @@ Comments can be exported and imported between dashboards for migration, backup, 
 - **Permission**: Only admins (superuser, business_domain_admin, data_domain_admin) can import
 - **Status preservation**: Comments are imported with their original status (DRAFT or PUBLISHED) preserved
 - **History preservation**: Full version history is imported, allowing admins to review previous versions
-- **Pointer URL**: Intentionally excluded from import - cannot be reliably mapped to target dashboard
+- **Pointer URL**: Preserved per-version from export file (stored on each version in history)
 - **Dashboard URL**: Automatically set to the target dashboard URL (not copied from source)
-- **Tags**: Preserved from export file (normalized to max 10 characters, lowercased)
+- **Tags**: Preserved per-version from export file
 - **Author**: Preserved from export if available, otherwise uses importing user
 
 #### Import Scenarios
@@ -530,17 +530,7 @@ When importing from another environment (e.g., DEV → PROD):
 
 ### Import Tracking (importedFromId)
 
-The `importedFromId` field in the database tracks the original comment ID from import:
-
-```sql
-ALTER TABLE dashboard_comment
-    ADD COLUMN imported_from_id VARCHAR(36);
-
-CREATE INDEX idx_comment_imported_from
-    ON dashboard_comment (imported_from_id, context_key, dashboard_id);
-```
-
-This enables:
+The `importedFromId` field in the database tracks the original comment ID from import. This enables:
 
 - Detection of previously imported comments to prevent duplicates
 - Traceability of comment origins
