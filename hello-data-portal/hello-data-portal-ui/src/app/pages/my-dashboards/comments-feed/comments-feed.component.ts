@@ -110,7 +110,7 @@ export class CommentsFeed implements AfterViewInit {
   isAdmin$ = this.store.select(canViewMetadataAndVersions);
 
   // Filter options
-  yearOptions: FilterOption[] = [];
+  yearOptions$: Observable<FilterOption[]>;
   quarterOptions: FilterOption[] = [
     {label: 'All', value: null},
     {label: 'Q1', value: 1},
@@ -163,8 +163,26 @@ export class CommentsFeed implements AfterViewInit {
     });
     this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
 
-    // Initialize year options
-    this.initYearOptions();
+    // Initialize year options based on comments
+    this.yearOptions$ = this.comments$.pipe(
+      map(comments => {
+        const years = new Set<number>();
+        if (comments) {
+          comments.forEach(c => {
+            const date = new Date(c.createdDate);
+            years.add(date.getFullYear());
+          });
+        }
+        const sortedYears = Array.from(years).sort((a, b) => b - a);
+        return [
+          {label: 'All', value: null},
+          ...sortedYears.map(year => ({
+            label: String(year),
+            value: year
+          }))
+        ];
+      })
+    );
 
     // Initialize tag filter options
     this.tagFilterOptions$ = this.availableTags$.pipe(
@@ -256,17 +274,6 @@ export class CommentsFeed implements AfterViewInit {
     }
 
     return trimmedUrl;
-  }
-
-  private initYearOptions(): void {
-    const currentYear = new Date().getFullYear();
-    this.yearOptions = [
-      {label: 'All', value: null},
-      ...Array.from({length: 5}, (_, i) => ({
-        label: String(currentYear - i),
-        value: currentYear - i
-      }))
-    ];
   }
 
   onFilterChange(): void {

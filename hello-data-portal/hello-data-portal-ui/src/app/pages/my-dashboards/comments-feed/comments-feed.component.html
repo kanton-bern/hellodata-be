@@ -39,7 +39,7 @@
   <div class="comments-filters flex gap-2 px-2 py-1">
     <div class="filter-group">
       <span class="filter-label">{{ '@Year' | transloco }}</span>
-      <p-select [options]="yearOptions"
+      <p-select [options]="(yearOptions$ | async) || []"
                 [(ngModel)]="selectedYear"
                 (onChange)="onFilterChange()"
                 optionLabel="label"
@@ -289,4 +289,3 @@
               severity="success"/>
   </ng-template>
 </p-confirmDialog>
-
