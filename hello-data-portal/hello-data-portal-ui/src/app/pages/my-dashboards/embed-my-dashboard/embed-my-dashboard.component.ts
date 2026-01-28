@@ -47,6 +47,7 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
+import {ActivatedRoute} from '@angular/router';
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
@@ -60,6 +61,7 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
+  private readonly route = inject(ActivatedRoute);
 
   private static readonly COMMENTS_WIDTH_KEY = 'hd_comments_panel_width_px';
 
@@ -94,6 +96,13 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   override ngOnInit(): void {
     super.ngOnInit();
     // Overflow is handled by CSS using :has(app-embed-my-dashboard) selector
+
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
+      const pointerUrl = params['pointerUrl'];
+      if (pointerUrl) {
+        this.navigateToPointerUrl(pointerUrl);
+      }
+    });
   }
 
   get commentsGridTemplate(): string {

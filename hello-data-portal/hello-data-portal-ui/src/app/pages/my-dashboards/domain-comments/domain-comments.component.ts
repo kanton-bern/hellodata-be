@@ -220,14 +220,23 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return this.commentUtils.getAllVersions(comment, this.canViewMetadata());
   }
 
-  navigateToDashboard(comment: DomainDashboardComment): void {
+  navigateToDashboard(comment: DomainDashboardComment, pointerUrl?: string): void {
     if (comment.dashboardId && comment.instanceName) {
+      const queryParams: any = {};
+
+      // Use provided pointerUrl, or fallback to active version's pointerUrl
+      const targetUrl = pointerUrl || this.getActiveVersionData(comment)?.pointerUrl;
+
+      if (targetUrl) {
+        queryParams['pointerUrl'] = targetUrl;
+      }
+
       this.router.navigate([
         'my-dashboards',
         'detail',
         comment.instanceName,
         comment.dashboardId
-      ]);
+      ], {queryParams});
     }
   }
 

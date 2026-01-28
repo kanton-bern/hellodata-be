@@ -80,9 +80,9 @@
           </span>
         </td>
         <td>
-          @if (getActiveVersionData(comment)?.tags && getActiveVersionData(comment)!.tags.length > 0) {
+          @if (comment.tags && comment.tags.length > 0) {
             <div class="flex gap-1 flex-wrap">
-              @for (tag of getActiveVersionData(comment)!.tags; track tag) {
+              @for (tag of comment.tags; track tag) {
                 <span class="tag-chip">
                   <i class="fa-solid fa-tag text-xs mr-1"></i>{{ tag }}
                 </span>
@@ -208,11 +208,11 @@
                     }
                   </div>
                 }
-                @if (getActiveVersionData(comment)?.pointerUrl) {
+                @if (comment.pointerUrl) {
                   <div>
                     <strong>{{ '@Pointer URL' | transloco }}:</strong>
-                    <a [href]="getActiveVersionData(comment)!.pointerUrl" target="_blank" class="text-blue-600 hover:underline">
-                      {{ getActiveVersionData(comment)!.pointerUrl | slice:0:50 }}...
+                    <a [href]="comment.pointerUrl" target="_blank" class="text-blue-600 hover:underline">
+                      {{ comment.pointerUrl | slice:0:50 }}...
                     </a>
                   </div>
                 }
@@ -259,10 +259,14 @@
                           </td>
                           <td class="p-2">
                             @if (historyItem.pointerUrl) {
-                              <span [pTooltip]="historyItem.pointerUrl" tooltipPosition="top" class="text-blue-600">
+                              <button type="button"
+                                      class="text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0 text-left"
+                                      [pTooltip]="historyItem.pointerUrl"
+                                      tooltipPosition="top"
+                                      (click)="navigateToDashboard(comment, historyItem.pointerUrl)">
                                 <i class="fa-solid fa-thumbtack mr-1" style="font-size: 0.6rem;"></i>
                                 {{ historyItem.pointerUrl | slice:0:20 }}{{ historyItem.pointerUrl.length > 20 ? '...' : '' }}
-                              </span>
+                              </button>
                             } @else {
                               <span class="text-gray-400">-</span>
                             }
