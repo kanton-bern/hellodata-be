@@ -63,7 +63,7 @@
         <p-button (click)="createUser()" (keydown.enter)="createUser()"
                   [disabled]="inviteForm.invalid"
                   icon="fas fa-floppy-disk"
-                  label="{{'@Set permissions' | transloco}}"
+                  [label]="'@Set permissions' | transloco"
                   pRipple severity="success"/>
       </div>
     </p-toolbar>
@@ -81,7 +81,7 @@
         <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
                   [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
                   icon="fas fa-arrows-rotate"
-                  label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
+                  [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
                   severity="success" pRipple/>
       </div>
     }

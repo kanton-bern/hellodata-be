@@ -99,11 +99,11 @@
           <p-button (click)="saveRole(editedRole)"
                     [disabled]="roleForm.invalid||!roleForm.dirty"
                     icon="fas fa-floppy-disk"
-                    label="{{'@Save' | transloco}}"
+                    [label]="'@Save' | transloco"
                     severity="success"/>
           @if (editedRole.id) {
             <p-button (click)="openDeletePopup(editedRole)" icon="fas fa-trash"
-                      label="{{'@Delete' | transloco}}" severity="danger"/>
+                      [label]="'@Delete' | transloco" severity="danger"/>
           }
         </div>
       </p-toolbar>

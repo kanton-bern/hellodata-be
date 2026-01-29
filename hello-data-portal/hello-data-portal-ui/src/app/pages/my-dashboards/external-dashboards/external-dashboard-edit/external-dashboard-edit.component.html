@@ -114,14 +114,14 @@
             <p-button (click)="deleteExternalDashboard(editedExternalDashboard)"
                       severity="danger" pRipple
                       icon="fa-regular fa-trash-can"
-                      label="{{'@Delete' | transloco}}"
+                      [label]="'@Delete' | transloco"
                       class="mr-2 p-button-warning mr-2"/>
           }
           <p-button (click)="saveChanges(editedExternalDashboard)"
                     [disabled]="externalDashboardForm.invalid||!externalDashboardForm.dirty"
                     class="mr-2" pRipple
                     icon="fas fa-arrow-up-right-from-square"
-                    label="{{'@Save' | transloco}}"
+                    [label]="'@Save' | transloco"
                     severity="success"/>
         </div>
       </p-toolbar>
@@ -135,9 +135,9 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Cancel' | transloco"
               pRipple severity="secondary" type="button"/>
-    <p-button (click)="cd.onAccept()" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pRipple
+    <p-button (click)="cd.onAccept()" icon="fas fa-trash" [label]="'@Delete' | transloco" pRipple
               severity="danger" type="button"/>
   </ng-template>
 </p-confirmDialog>
