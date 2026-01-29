@@ -11,7 +11,7 @@
         [value]="roles"
         dataKey="id"
         class="p-datatable-striped"
-        >
+      >
         <ng-template pTemplate="header">
           <tr>
             <th id="name">
@@ -33,28 +33,28 @@
             <td>
               @for (permission of role.permissions; track permission) {
                 <span style="margin: 2px">
-                  <p-tag severity="warn" value="{{permission}}" />
+                  <p-tag severity="warn" value="{{permission}}"/>
                 </span>
               }
             </td>
             <td>
               @if (!role.systemDefault) {
                 <p-button (click)="editRole(role)"
-                  [pTooltip]="'@Edit' | transloco"
-                  severity="success"
-                  class="p-button-rounded"
-                  icon="fas fa-light fa-pen-to-square"
-                  pButton
-                pRipple />
+                          [pTooltip]="'@Edit' | transloco"
+                          severity="success"
+                          class="p-button-rounded"
+                          icon="fas fa-light fa-pen-to-square"
+
+                          pRipple/>
               }
               @if (!role.systemDefault) {
                 <p-button (click)="showRoleDeletionPopup(role)"
-                  [pTooltip]="'@Delete' | transloco"
-                  severity="danger"
-                  class="p-button-rounded"
-                  icon="fas fa-trash"
-                  pButton
-                pRipple />
+                          [pTooltip]="'@Delete' | transloco"
+                          severity="danger"
+                          class="p-button-rounded"
+                          icon="fas fa-trash"
+
+                          pRipple/>
               }
             </td>
           </tr>
@@ -64,4 +64,4 @@
   }
 </div>
 
-<app-delete-role-popup [action]="getDeletionAction()" />
+<app-delete-role-popup [action]="getDeletionAction()"/>

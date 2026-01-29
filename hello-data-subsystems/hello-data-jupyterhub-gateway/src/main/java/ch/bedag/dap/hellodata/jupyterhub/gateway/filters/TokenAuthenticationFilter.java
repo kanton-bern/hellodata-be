@@ -27,7 +27,6 @@
 package ch.bedag.dap.hellodata.jupyterhub.gateway.filters;
 
 import ch.bedag.dap.hellodata.jupyterhub.gateway.config.SecurityConfig;
-import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
@@ -38,6 +37,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 /**
  * This filter is used to propagate the auth.access_token cookie internally to the spring-cloud-gateway security filter as an Auth Header.

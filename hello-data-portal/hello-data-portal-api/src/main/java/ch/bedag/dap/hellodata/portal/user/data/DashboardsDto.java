@@ -27,8 +27,9 @@
 package ch.bedag.dap.hellodata.portal.user.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class DashboardsDto {

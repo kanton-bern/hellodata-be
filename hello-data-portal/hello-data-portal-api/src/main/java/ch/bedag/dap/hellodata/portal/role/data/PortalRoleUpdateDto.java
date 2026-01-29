@@ -27,9 +27,10 @@
 package ch.bedag.dap.hellodata.portal.role.data;
 
 import jakarta.validation.constraints.NotNull;
-import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.portal.user.data;
 
-import java.util.UUID;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 public class DataDomainDto {

@@ -26,14 +26,14 @@
  */
 package ch.bedag.dap.hellodata.sidecars.superset.client.exception;
 
-import java.rmi.ConnectException;
 import lombok.Getter;
 
-public class UnexpectedResponseException extends ConnectException {
-    @Getter
-    private int code;
-    @Getter
-    private String endpoint;
+import java.rmi.ConnectException;
+
+@Getter
+public class UnexpectedResponseException extends ConnectException { //NOSONAR
+    private int code; //NOSONAR
+    private String endpoint; //NOSONAR
 
     public UnexpectedResponseException(String endpoint, int code, String message) {
         this(String.format("endpoint=%s, code=%d, message=%s", endpoint, code, message));

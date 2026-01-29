@@ -105,7 +105,7 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="navigateToAnnouncementList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary" pRipple pButton
+                    icon="fas fa-arrow-left" severity="secondary" pRipple
                     (keydown)="navigateToAnnouncementList()"/>
         </div>
         @if ((defaultLanguage$ | async); as defaultLanguage) {
@@ -113,13 +113,13 @@
             <p-button (click)="saveAnnouncement(editedAnnouncement)" (keydown)="saveAnnouncement(editedAnnouncement)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       icon="fas fa-floppy-disk" class="mr-2"
-                      label="{{'@Save' | transloco}}"
-                      severity="success" pRipple pButton/>
+                      [label]="'@Save' | transloco"
+                      severity="success" pRipple/>
             @if (editedAnnouncement.id) {
               <p-button (click)="openDeletePopup(editedAnnouncement)" (keydown)="openDeletePopup(editedAnnouncement)"
                         icon="fas fa-trash" class="mr-2"
-                        label="{{'@Delete' | transloco}}"
-                        severity="danger" pRipple pButton/>
+                        [label]="'@Delete' | transloco"
+                        severity="danger" pRipple/>
             }
           </div>
         }

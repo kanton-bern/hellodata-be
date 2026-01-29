@@ -49,7 +49,7 @@ import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {Ripple} from 'primeng/ripple';
 import {Editor} from 'primeng/editor';
 import {Toolbar} from 'primeng/toolbar';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {DeleteFaqPopupComponent} from '../delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
@@ -58,13 +58,9 @@ import {TranslocoPipe} from '@jsverse/transloco';
   selector: 'app-faq-edit',
   templateUrl: './faq-edit.component.html',
   styleUrls: ['./faq-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, ButtonDirective]
+  imports: [FormsModule, ReactiveFormsModule, Select, Tabs, TabList, Ripple, Tab, TabPanels, TabPanel, Editor, Toolbar, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy {
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
-  private translateService = inject(TranslateService);
-
   editedFaq$: Observable<Faq>;
   faqForm!: FormGroup;
   availableDataDomains$: Observable<any>;
@@ -73,6 +69,9 @@ export class FaqEditComponent extends BaseComponent implements OnInit, OnDestroy
   formValueChangedSub!: Subscription;
   titleMinLenght = 3;
   messageMinLength = 3;
+  private store = inject<Store<AppState>>(Store);
+  private fb = inject(FormBuilder);
+  private translateService = inject(TranslateService);
 
   constructor() {
     super();

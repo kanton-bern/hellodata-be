@@ -38,23 +38,27 @@ public class CacheUpdateService {
     @JetStreamSubscribe(event = UPDATE_METAINFO_USERS_CACHE)
     public void updateMetainfoUsersCache(UserCacheUpdate userCacheUpdate) {
         if (Boolean.TRUE.equals(advisoryLockService.acquireLock(LOCK_ID))) {
-            try {
-                updateUsersWithRolesCache();
-                if (userCacheUpdate.getModuleType() == ModuleType.SUPERSET) {
-                    updateUsersWithDashboardsCache();
-                }
-            } finally {
-                advisoryLockService.releaseStaleLock(LOCK_ID);
-            }
+            rebuildCache(userCacheUpdate);
         } else {
             log.debug("[CACHE] Another instance is already synchronizing metainfo users cache.");
+        }
+    }
+
+    private void rebuildCache(UserCacheUpdate userCacheUpdate) {
+        try {
+            updateUsersWithRolesCache();
+            if (userCacheUpdate.getModuleType() == ModuleType.SUPERSET) {
+                updateUsersWithDashboardsCache();
+            }
+        } finally {
+            advisoryLockService.releaseStaleLock(LOCK_ID);
         }
     }
 
     private void updateUsersWithDashboardsCache() {
         log.debug("[CACHE] Updating subsystem users with dashboard permissions cache");
         LocalDateTime startTime = LocalDateTime.now();
-        metaInfoUsersService.getAllUsersWithRolesForDashboardsRefreshCache();
+        metaInfoUsersService.refreshDashboardUsersCache();
         Duration between = Duration.between(startTime, LocalDateTime.now());
         log.debug("[CACHE] Updating subsystem users with dashboard permissions completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }
@@ -62,7 +66,7 @@ public class CacheUpdateService {
     private void updateUsersWithRolesCache() {
         log.debug("[CACHE] Updating subsystem users aggregation cache");
         LocalDateTime startTime = LocalDateTime.now();
-        metaInfoUsersService.getAllUsersWithRolesRefreshCache();
+        metaInfoUsersService.refreshSubsystemUsersCache();
         Duration between = Duration.between(startTime, LocalDateTime.now());
         log.debug("[CACHE] Updating subsystem users aggregation completed. It took {}", DurationFormatUtils.formatDurationHMS(between.toMillis()));
     }

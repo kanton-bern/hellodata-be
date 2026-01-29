@@ -6,19 +6,19 @@
         <p-toolbar>
           <div class="p-toolbar-group-start">
             <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
+                      icon="fas fa-arrow-left" severity="secondary" pRipple/>
           </div>
           <div class="p-toolbar-group-end">
             @if (!editedUser.superuser && editedUser.enabled) {
               <p-button (click)="showUserDisablePopup(editedUser)"
-                        icon="fas fa-circle-xmark" pRipple pButton
-                        label="{{'@Disable' | transloco}}"
+                        icon="fas fa-circle-xmark" pRipple
+                        [label]="'@Disable' | transloco"
                         class="mr-2 p-button-warning"/>
             }
             @if (!editedUser.superuser && !editedUser.enabled) {
               <p-button (click)="showUserEnablePopup(editedUser)"
-                        icon="fas fa-circle-plus" pRipple pButton
-                        label="{{'@Enable' | transloco}}"
+                        icon="fas fa-circle-plus" pRipple
+                        [label]="'@Enable' | transloco"
                         severity="success"/>
             }
           </div>
@@ -159,11 +159,11 @@
         <p-toolbar>
           <div class="p-toolbar-group-start">
             <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
-            <p-button (click)="updateUser()" pButton
+                      icon="fas fa-arrow-left" severity="secondary" pRipple/>
+            <p-button (click)="updateUser()"
                       [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled"
                       severity="success" [loading]="userSaveButtonDisabled$ | async"
-                      label="{{'@Save' | transloco}}"
+                      [label]="'@Save' | transloco"
                       pRipple/>
           </div>
         </p-toolbar>

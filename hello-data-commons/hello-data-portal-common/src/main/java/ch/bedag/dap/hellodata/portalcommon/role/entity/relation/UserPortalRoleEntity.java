@@ -24,14 +24,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.commons.sidecars.cache.admin;
+package ch.bedag.dap.hellodata.portalcommon.role.entity.relation;
 
-import java.util.Set;
-import lombok.Data;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.PortalRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-@Data
-public class UserCache {
-    public static final String USER_CACHE_PREFIX = "[HD_USER_CACHE]:";
+@Getter
+@Setter
+@RequiredArgsConstructor
+@Entity(name = "user_portal_role")
+public class UserPortalRoleEntity extends BaseEntity {
 
-    private Set<String> supersetInstancesAdmin;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "portal_role_id")
+    private PortalRoleEntity role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "context_type", columnDefinition = "VARCHAR")
+    private HdContextType contextType;
+
+    @NotBlank
+    private String contextKey;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

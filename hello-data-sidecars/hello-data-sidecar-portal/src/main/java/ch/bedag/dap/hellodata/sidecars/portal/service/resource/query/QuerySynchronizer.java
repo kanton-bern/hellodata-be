@@ -69,7 +69,7 @@ public class QuerySynchronizer {
                 try {
                     queryEntity.setSqlTables(objectMapper.writeValueAsString(supersetQuery.getSqlTables()));
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException("Could not parse json string", e);
+                    throw new RuntimeException("Could not parse json string", e); //NOSONAR
                 }
                 queryEntity.setSql(supersetQuery.getSql());
                 queryEntity.setSchema(supersetQuery.getSchema());

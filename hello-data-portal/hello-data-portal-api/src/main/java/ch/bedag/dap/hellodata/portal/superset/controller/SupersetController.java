@@ -48,7 +48,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Set;
 
 @Log4j2
@@ -78,7 +77,7 @@ public class SupersetController {
     @PostMapping(value = "/upload-dashboards/{contextKey}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAnyAuthority('DASHBOARD_IMPORT_EXPORT')")
     @ResponseStatus(HttpStatus.CREATED)
-    public void uploadFile(@RequestParam MultipartFile file, @PathVariable String contextKey) throws IOException {
+    public void uploadFile(@RequestParam MultipartFile file, @PathVariable String contextKey) {
         dashboardService.uploadDashboardsFile(file, contextKey);
     }
 

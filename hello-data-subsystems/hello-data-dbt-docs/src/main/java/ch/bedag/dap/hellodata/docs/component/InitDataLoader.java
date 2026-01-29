@@ -32,7 +32,6 @@ import ch.bedag.dap.hellodata.docs.service.ProjectDocService;
 import ch.bedag.dap.hellodata.docs.service.SecurityService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -49,11 +48,15 @@ public class InitDataLoader implements ApplicationListener<ContextRefreshedEvent
 
     boolean alreadySetup = false;
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
 
-    @Autowired
-    private ProjectDocService projectDocService;
+    private final ProjectDocService projectDocService;
+
+
+    public InitDataLoader(SecurityService securityService, ProjectDocService projectDocService) {
+        this.securityService = securityService;
+        this.projectDocService = projectDocService;
+    }
 
     @Override
     @Transactional

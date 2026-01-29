@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.sidecars.airflow.client.user.response;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class AirflowRoleAction implements Serializable {

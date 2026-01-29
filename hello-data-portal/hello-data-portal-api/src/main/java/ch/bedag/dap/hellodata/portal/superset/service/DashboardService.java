@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
@@ -40,7 +41,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.UserResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardDto;
 import ch.bedag.dap.hellodata.portal.superset.data.SupersetDashboardWithMetadataDto;
 import ch.bedag.dap.hellodata.portal.superset.data.UpdateSupersetDashboardMetadataDto;
@@ -120,8 +120,7 @@ public class DashboardService {
                                                             boolean isAdmin, boolean isEditor, String instanceUrl) {
         for (SupersetDashboard dashboard : dashboards) {
             Set<String> dashboardRoles = dashboard.getRoles().stream().map(SubsystemRole::getName).collect(Collectors.toSet());
-            log.debug(String.format("Instance: '%s', Dashboard: '%s', requires any of following roles: %s", dashboardResource.getInstanceName(), dashboard.getDashboardTitle(),
-                    dashboardRoles));
+            log.debug("Instance: '{}', Dashboard: '{}', requires any of following roles: {}", dashboardResource.getInstanceName(), dashboard.getDashboardTitle(), dashboardRoles);
             checkRBACRoles(dashboardsWithAccess, metaInfoResource, dashboardResource, rolesOfCurrentUser, isAdmin, isEditor, instanceUrl, dashboard, dashboardRoles);
         }
     }
@@ -255,7 +254,7 @@ public class DashboardService {
         String responseContent = new String(reply.getData(), StandardCharsets.UTF_8);
         if ("OK".equalsIgnoreCase(responseContent)) {
             reply.ack();
-            log.debug("[uploadDashboardsFile] Response received: " + new String(reply.getData()));
+            log.debug("[uploadDashboardsFile] Response received: {}", new String(reply.getData()));
         } else {
             log.warn("Reply is NOK, please verify the uploaded file: {}", responseContent);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, responseContent);

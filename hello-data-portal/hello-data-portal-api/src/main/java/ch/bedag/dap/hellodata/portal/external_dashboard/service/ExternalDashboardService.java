@@ -34,7 +34,7 @@ import ch.bedag.dap.hellodata.portal.external_dashboard.data.UpdateExternalDashb
 import ch.bedag.dap.hellodata.portal.external_dashboard.entity.ExternalDashboardEntity;
 import ch.bedag.dap.hellodata.portal.external_dashboard.repository.ExternalDashboardRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;

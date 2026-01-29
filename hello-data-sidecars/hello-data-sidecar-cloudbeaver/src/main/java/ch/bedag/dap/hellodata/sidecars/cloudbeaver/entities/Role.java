@@ -55,12 +55,12 @@ public class Role extends BaseEntity {
     private boolean enabled;
 
     @ManyToMany(mappedBy = "roles")
-    private Collection<User> users;
+    private Collection<User> users; //NOSONAR
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "hd_roles_privileges", joinColumns = @JoinColumn(name = "hd_role_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "hd_privilege_id", referencedColumnName = "id"))
-    private Collection<Privilege> privileges;
+    private Collection<Privilege> privileges; //NOSONAR
 
     public Role(String key, String name, boolean enabled) {
         super();

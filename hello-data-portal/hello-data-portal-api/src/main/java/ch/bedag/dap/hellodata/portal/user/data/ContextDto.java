@@ -27,9 +27,10 @@
 package ch.bedag.dap.hellodata.portal.user.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.Data;
 
 @Data
 public class ContextDto {

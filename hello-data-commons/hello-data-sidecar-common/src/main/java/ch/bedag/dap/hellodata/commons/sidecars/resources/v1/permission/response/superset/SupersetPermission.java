@@ -27,8 +27,9 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.permission.response.superset;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

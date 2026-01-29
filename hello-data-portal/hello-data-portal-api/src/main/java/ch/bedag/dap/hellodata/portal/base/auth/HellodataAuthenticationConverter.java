@@ -28,27 +28,40 @@ package ch.bedag.dap.hellodata.portal.base.auth;
 
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import ch.bedag.dap.hellodata.commons.security.Permission;
-import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
+import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache.USER_CACHE_PREFIX;
-
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class HellodataAuthenticationConverter implements Converter<Jwt, HellodataAuthenticationToken> {
 
-    public static final String WORKSPACES_PERMISSION = "WORKSPACES";
     private final UserRepository userRepository;
-    private final RedisTemplate<String, UserCache> redisTemplate;
+
+    @Value("${hello-data.cache.user-database-ttl-minutes:2}")
+    private int userDatabaseTtlCacheMinutes;
+    private final Cache<String, UserDto> userDatabaseCache = Caffeine.newBuilder()
+            .expireAfterWrite(userDatabaseTtlCacheMinutes, java.util.concurrent.TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .build();
+    @Value("${hello-data.cache.user-permission-ttl-minutes:2}")
+    private int getUserDatabaseTtlCacheMinutes;
+    private final Cache<String, List<String>> userPermissionsCache = Caffeine.newBuilder()
+            .expireAfterWrite(getUserDatabaseTtlCacheMinutes, java.util.concurrent.TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .build();
 
     @Override
     @Transactional
@@ -56,33 +69,55 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
         String email = jwt.getClaims().get("email").toString();
         String givenName = jwt.getClaims().get("given_name").toString();
         String familyName = jwt.getClaims().get("family_name").toString();
-        String authId = jwt.getClaims().get("sub").toString();
         boolean isSuperuser = false;
         Set<String> permissions = new HashSet<>();
         UUID userId = null;
-        Optional<UserEntity> userEntityByEmail = userRepository.findUserEntityByEmailIgnoreCase(email);
-        if (userEntityByEmail.isPresent()) {
-            UserEntity userEntity = userEntityByEmail.get();
-            userId = userEntity.getId();
-            isSuperuser = userEntity.isSuperuser();
+
+        UserDto userDto = getUserDto(email);
+        if (userDto != null) { //NOSONAR
+            userId = UUID.fromString(userDto.getId());
+            isSuperuser = BooleanUtils.isTrue(userDto.getSuperuser());
             if (isSuperuser) {
                 permissions.addAll(Arrays.stream(Permission.values()).map(Enum::name).toList());
             } else {
-                List<String> portalPermissions = userEntity.getPermissionsFromAllRoles();
-                if (portalPermissions != null) {
+                List<String> portalPermissions = getPortalPermissions(email);
+                if (!portalPermissions.isEmpty()) {
                     permissions.addAll(portalPermissions);
                 }
             }
-            if (!userEntity.getId().toString().equalsIgnoreCase(authId) && !authId.equalsIgnoreCase(userEntity.getAuthId())) {
-                //user could be removed and added again in auth subsystem (keycloak) thus the id is different
-                userEntity.setAuthId(authId);
-                userRepository.saveAndFlush(userEntity);
-            }
-            UserCache userCache = redisTemplate.opsForValue().get(USER_CACHE_PREFIX + email);
-            if (isSuperuser || (userCache != null && userCache.getSupersetInstancesAdmin() != null && !userCache.getSupersetInstancesAdmin().isEmpty())) {
-                permissions.add(WORKSPACES_PERMISSION);
-            }
         }
         return new HellodataAuthenticationToken(userId, givenName, familyName, email, isSuperuser, permissions);
+    }
+
+    /**
+     * Get user entity from database and map to UserDto. Keeps a copy in local caffeine cache
+     *
+     * @param email - user email
+     * @return UserDto or null if not found
+     */
+    private UserDto getUserDto(String email) {
+        return userDatabaseCache.get(email, emailKey -> {
+            UserEntity userEntity = userRepository.findUserEntityByEmailIgnoreCase(emailKey).orElse(null);
+            if (userEntity != null) {
+                return UserDtoMapper.map(userEntity);
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Get portal permissions for user from database. Keeps a copy in local caffeine cache
+     *
+     * @param email - user email
+     * @return List of permissions or empty list if not found
+     */
+    private List<String> getPortalPermissions(String email) {
+        return userPermissionsCache.get(email, emailKey -> {
+            UserEntity userEntity = userRepository.findUserEntityByEmailIgnoreCase(emailKey).orElse(null);
+            if (userEntity != null) {
+                return new ArrayList<>(userEntity.getPermissionsFromAllRoles());
+            }
+            return Collections.emptyList();
+        });
     }
 }

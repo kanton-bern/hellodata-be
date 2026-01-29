@@ -2,8 +2,6 @@ package ch.bedag.dap.hellodata.jupyterhub.gateway.entities;
 
 import jakarta.persistence.Basic;
 import jakarta.persistence.FetchType;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +9,9 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Table(name = "portal_role")
 @Getter

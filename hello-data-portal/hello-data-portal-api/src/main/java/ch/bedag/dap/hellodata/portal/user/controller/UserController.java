@@ -49,7 +49,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Log4j2
 @RestController
@@ -111,7 +110,7 @@ public class UserController {
     @GetMapping("/admin-emails")
     public List<String> getAdminEmails() {
         List<UserEntity> users = userService.findHelloDataAdminUsers();
-        return users.stream().map(UserEntity::getEmail).collect(Collectors.toList());
+        return users.stream().map(UserEntity::getEmail).toList();
     }
 
     @GetMapping("/current/profile")

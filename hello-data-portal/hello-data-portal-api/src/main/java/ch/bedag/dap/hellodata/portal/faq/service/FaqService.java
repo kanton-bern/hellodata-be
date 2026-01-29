@@ -31,12 +31,11 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqCreateDto;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqDto;
-import ch.bedag.dap.hellodata.portal.faq.data.FaqMessage;
 import ch.bedag.dap.hellodata.portal.faq.data.FaqUpdateDto;
 import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
 import ch.bedag.dap.hellodata.portal.faq.repository.FaqRepository;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -61,13 +60,13 @@ public class FaqService {
     public List<FaqDto> getAll() {
         Set<UserContextRoleEntity> currentUserContextRoles = userService.getCurrentUserDataDomainRolesWithoutNone();
         if (SecurityUtils.isSuperuser()) {
-            return faqRepository.findAll().stream().map(entity -> map(entity)).map(this::mapContextName).toList();
+            return faqRepository.findAll().stream().map(this::map).map(this::mapContextName).toList();
         }
         if (!SecurityUtils.isSuperuser() && currentUserContextRoles.isEmpty()) {
             return faqRepository.findAll()
                     .stream()
                     .filter(entity -> entity.getContextKey() == null)
-                    .map(entity -> map(entity))
+                    .map(this::map)
                     .map(this::mapContextName)
                     .toList();
         }
@@ -76,7 +75,7 @@ public class FaqService {
             return faqRepository.findAll()
                     .stream()
                     .filter(entity -> entity.getContextKey() == null || contextKeys.contains(entity.getContextKey()))
-                    .map(entity -> map(entity))
+                    .map(this::map)
                     .map(this::mapContextName)
                     .toList();
         }
@@ -88,15 +87,6 @@ public class FaqService {
         FaqDto faqDto = modelMapper.map(entity, FaqDto.class);
         if (faqDto.getMessages() == null) {
             faqDto.setMessages(new HashMap<>());
-        }
-        //FIXME temporary workaround for existing, old non-i18n faq entities
-        //@Deprecated(forRemoval = true)
-        Locale oldDefault = Locale.forLanguageTag("de-CH");
-        if (!faqDto.getMessages().containsKey(oldDefault)) {
-            FaqMessage faqMessage = new FaqMessage();
-            faqMessage.setMessage(entity.getMessage());
-            faqMessage.setTitle(entity.getTitle());
-            faqDto.getMessages().put(oldDefault, faqMessage);
         }
         return faqDto;
     }

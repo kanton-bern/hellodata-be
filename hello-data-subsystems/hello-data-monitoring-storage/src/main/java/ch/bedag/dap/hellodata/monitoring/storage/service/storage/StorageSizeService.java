@@ -30,15 +30,16 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.storage.data.storage
 import ch.bedag.dap.hellodata.monitoring.storage.config.HelloDataStorageConfigurationProperties;
 import ch.bedag.dap.hellodata.monitoring.storage.config.storage.StorageConfigurationProperty;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
@@ -81,7 +82,7 @@ public class StorageSizeService {
                 result.add(storageSize);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error fetching free space in the filesystem", e);
+            throw new RuntimeException("Error fetching free space in the filesystem", e); //NOSONAR
         }
         log.info("^^^Finished storages size check\n");
         return result;

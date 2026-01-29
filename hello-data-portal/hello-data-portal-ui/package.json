@@ -15,17 +15,17 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^20.3.10",
+    "@angular/animations": "^20.3.16",
     "@angular/cdk": "^20.2.9",
-    "@angular/common": "^20.3.10",
-    "@angular/compiler": "^20.3.10",
-    "@angular/core": "^20.3.10",
-    "@angular/forms": "^20.3.10",
-    "@angular/localize": "^20.3.10",
+    "@angular/common": "^20.3.16",
+    "@angular/compiler": "^20.3.16",
+    "@angular/core": "^20.3.16",
+    "@angular/forms": "^20.3.16",
+    "@angular/localize": "^20.3.16",
     "@angular/material": "^20.2.12",
-    "@angular/platform-browser": "^20.3.10",
-    "@angular/platform-browser-dynamic": "^20.3.10",
-    "@angular/router": "^20.3.10",
+    "@angular/platform-browser": "^20.3.16",
+    "@angular/platform-browser-dynamic": "^20.3.16",
+    "@angular/router": "^20.3.16",
     "@fortawesome/angular-fontawesome": "^0.15.0",
     "@fortawesome/fontawesome-free": "^6.4.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
@@ -55,18 +55,18 @@
     "undici": "^7.16.0",
     "vite": "^7.2.1",
     "web-animations-js": "^2.3.2",
-    "zone.js": "^0.15.1"
+    "zone.js": "^0.16.0"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^20.0.0",
     "@angular-devkit/build-angular": "^20.3.7",
-    "@angular-eslint/builder": "^20.3.10",
-    "@angular-eslint/eslint-plugin": "^20.3.10",
-    "@angular-eslint/eslint-plugin-template": "^20.3.10",
-    "@angular-eslint/schematics": "^20.3.10",
-    "@angular-eslint/template-parser": "^20.3.10",
+    "@angular-eslint/builder": "^21.0.0",
+    "@angular-eslint/eslint-plugin": "^21.0.0",
+    "@angular-eslint/eslint-plugin-template": "^21.0.0",
+    "@angular-eslint/schematics": "^21.0.0",
+    "@angular-eslint/template-parser": "^21.0.0",
     "@angular/cli": "^20.3.7",
-    "@angular/compiler-cli": "^20.3.10",
+    "@angular/compiler-cli": "^20.3.16",
     "@jest/globals": "^30.2.0",
     "@testing-library/angular": "^18.1.0",
     "@testing-library/dom": "^10.4.1",
@@ -74,7 +74,7 @@
     "@types/jasminewd2": "^2.0.13",
     "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
-    "@typescript-eslint/parser": "8.46.3",
+    "@typescript-eslint/parser": "8.52.0",
     "eslint": "^9.39.1",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
@@ -88,10 +88,11 @@
     "typescript": "^5.5.4"
   },
   "resolutions": {
-    "tar": "^7.5.2",
+    "tar": "^7.5.4",
     "js-yaml": "^4.1.1",
     "glob": "^10.5.0",
-    "qs": "^6.14.1"
+    "qs": "^6.14.1",
+    "lodash-es": "^4.17.23"
   },
-  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
+  "packageManager": "yarn@4.12.0+sha512.f45ab632439a67f8bc759bf32ead036a1f413287b9042726b7cc4818b7b49e14e9423ba49b18f9e06ea4941c1ad062385b1d8760a8d5091a1a31e5f6219afca8"
 }

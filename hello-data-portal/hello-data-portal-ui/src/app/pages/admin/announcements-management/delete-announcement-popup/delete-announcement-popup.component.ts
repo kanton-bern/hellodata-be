@@ -35,7 +35,7 @@ import {TranslateService} from "../../../../shared/services/translate.service";
 import {hideDeleteAnnouncementPopup} from "../../../../store/announcement/announcement.action";
 import {AsyncPipe} from '@angular/common';
 import {ConfirmDialog} from 'primeng/confirmdialog';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
 
@@ -43,15 +43,14 @@ import {Ripple} from "primeng/ripple";
   selector: 'app-delete-announcement-popup[action]',
   templateUrl: './delete-announcement-popup.component.html',
   styleUrls: ['./delete-announcement-popup.component.scss'],
-  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe, ButtonDirective, Ripple]
+  imports: [ConfirmDialog, PrimeTemplate, Button, AsyncPipe, TranslocoPipe, Ripple]
 })
 export class DeleteAnnouncementPopupComponent {
+  readonly action = input.required<Action>();
+  announcementToBeDeleted$: Observable<any>;
   private store = inject<Store<AppState>>(Store);
   private confirmationService = inject(ConfirmationService);
   private translateService = inject(TranslateService);
-
-  readonly action = input.required<Action>();
-  announcementToBeDeleted$: Observable<any>;
 
   constructor() {
     this.announcementToBeDeleted$ = combineLatest([

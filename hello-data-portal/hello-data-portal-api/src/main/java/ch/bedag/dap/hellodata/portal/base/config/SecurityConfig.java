@@ -28,8 +28,6 @@ package ch.bedag.dap.hellodata.portal.base.config;
 
 import ch.bedag.dap.hellodata.portal.user.service.KeycloakLogoutHandler;
 import jakarta.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,13 +42,17 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+import java.util.List;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Log4j2
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true) //NOSONAR
 public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
@@ -59,7 +61,7 @@ public class SecurityConfig {
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**", "/swagger-ui/**", "/",
             // other public endpoints of your API may be appended to this array
-            "/actuator/**", };
+            "/actuator/**",};
 
     private static final List<String> CORS_ALLOWED_HEADERS =
             List.of("Access-Control-Allow-Methods", "Access-Control-Allow-Origin", "Authorization", "Access-Control-Allow-Headers", "Origin,Accept", "X-Requested-With",
@@ -67,7 +69,7 @@ public class SecurityConfig {
 
     private final Environment env;
     private final KeycloakLogoutHandler keycloakLogoutHandler;
-    private final Converter hellodataAuthenticationConverter;
+    private final Converter hellodataAuthenticationConverter; //NOSONAR
 
     @Value("${hello-data.cors.allowed-origins}")
     private String allowedOrigins;
@@ -84,9 +86,9 @@ public class SecurityConfig {
         configureCors(http);
         configureCsrf(http);
         http.authorizeHttpRequests(auth -> {
-            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length];
+            AntPathRequestMatcher[] matchers = new AntPathRequestMatcher[AUTH_WHITELIST.length]; //NOSONAR
             for (int i = 0; i < AUTH_WHITELIST.length; i++) {
-                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]);
+                matchers[i] = new AntPathRequestMatcher(AUTH_WHITELIST[i]); //NOSONAR
             }
             auth.requestMatchers(matchers).permitAll();
             auth.anyRequest().authenticated();

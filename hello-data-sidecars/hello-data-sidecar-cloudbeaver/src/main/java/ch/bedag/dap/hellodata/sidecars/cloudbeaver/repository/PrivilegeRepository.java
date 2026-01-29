@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.sidecars.cloudbeaver.repository;
 
 import ch.bedag.dap.hellodata.sidecars.cloudbeaver.entities.Privilege;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.UUID;
 
 public interface PrivilegeRepository extends JpaRepository<Privilege, UUID> {

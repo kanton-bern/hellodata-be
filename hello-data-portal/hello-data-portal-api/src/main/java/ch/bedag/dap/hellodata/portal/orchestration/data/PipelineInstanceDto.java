@@ -27,10 +27,11 @@
 package ch.bedag.dap.hellodata.portal.orchestration.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.pipeline.PipelineInstanceState;
-import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.OffsetDateTime;
 
 @Data
 @NoArgsConstructor

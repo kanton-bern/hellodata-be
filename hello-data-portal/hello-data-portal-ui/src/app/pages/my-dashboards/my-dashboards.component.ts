@@ -49,7 +49,7 @@ import {PrimeTemplate} from 'primeng/api';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {InputText} from 'primeng/inputtext';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
 import {Tooltip} from 'primeng/tooltip';
 import {Dialog} from 'primeng/dialog';
@@ -60,20 +60,16 @@ import {TranslocoPipe} from '@jsverse/transloco';
 @Component({
   templateUrl: 'my-dashboards.component.html',
   styleUrls: ['./my-dashboards.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, ButtonDirective, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private menuService = inject(MenuService);
-
-
   readonly dt = viewChild.required<Table | undefined>('dt');
-
   dashboards$: Observable<SupersetDashboard[]>;
   editDashboardMetadataDialog = false;
   viewDashboardDataDialog = false;
   selectedDashboard!: SupersetDashboardWithMetadata;
-
+  private store = inject<Store<AppState>>(Store);
+  private menuService = inject(MenuService);
   private filterTimer: any;
 
   constructor() {
@@ -95,35 +91,6 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
         }),
       )
 
-  }
-
-  private createBreadcrumbs(filteredBy: string | string[] | undefined, myDashboards: SupersetDashboardWithMetadata[]) {
-    if (filteredBy && myDashboards && myDashboards.length > 0 && myDashboards.filter(dashboard => dashboard.contextId === filteredBy).length > 0) {
-      this.store.dispatch(createBreadcrumbs({
-        breadcrumbs: [
-          {
-            label: naviElements.myDashboards.label,
-            routerLink: naviElements.myDashboards.path
-          },
-          {
-            label: myDashboards.filter(dashboard => dashboard.contextId === filteredBy)[0].contextName,
-            routerLink: naviElements.myDashboards.path,
-            queryParams: {
-              filteredBy
-            }
-          },
-        ]
-      }));
-    } else {
-      this.store.dispatch(createBreadcrumbs({
-        breadcrumbs: [
-          {
-            label: naviElements.myDashboards.label,
-            routerLink: naviElements.myDashboards.path
-          }
-        ]
-      }));
-    }
   }
 
   override ngOnInit(): void {
@@ -193,5 +160,34 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
       eventCategory: 'Dashboard',
       eventAction: '[Click Paging] - Moved to page ' + pageNumber
     }));
+  }
+
+  private createBreadcrumbs(filteredBy: string | string[] | undefined, myDashboards: SupersetDashboardWithMetadata[]) {
+    if (filteredBy && myDashboards && myDashboards.length > 0 && myDashboards.filter(dashboard => dashboard.contextId === filteredBy).length > 0) {
+      this.store.dispatch(createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.myDashboards.label,
+            routerLink: naviElements.myDashboards.path
+          },
+          {
+            label: myDashboards.filter(dashboard => dashboard.contextId === filteredBy)[0].contextName,
+            routerLink: naviElements.myDashboards.path,
+            queryParams: {
+              filteredBy
+            }
+          },
+        ]
+      }));
+    } else {
+      this.store.dispatch(createBreadcrumbs({
+        breadcrumbs: [
+          {
+            label: naviElements.myDashboards.label,
+            routerLink: naviElements.myDashboards.path
+          }
+        ]
+      }));
+    }
   }
 }

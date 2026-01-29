@@ -27,11 +27,14 @@
 package ch.bedag.dap.hellodata.portal.superset.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.List;
 import java.util.UUID;
-
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
-import lombok.*;
 
 @Getter
 @Setter

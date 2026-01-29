@@ -4,10 +4,6 @@ import ch.bedag.dap.hellodata.jupyterhub.gateway.entities.Permissions;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.r2dbc.postgresql.codec.Json;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +13,11 @@ import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.r2dbc.convert.R2dbcCustomConversions;
 import org.springframework.data.r2dbc.dialect.PostgresDialect;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 @Log4j2
 @Configuration
@@ -45,7 +46,7 @@ public class ReactivePostgresConfig {
                 return objectMapper.readValue(json.asString().getBytes(StandardCharsets.UTF_8), Permissions.class);
             } catch (IOException e) {
                 log.error("Problem while parsing JSON: {}", json, e);
-                throw new RuntimeException("Problem while parsing JSON", e);
+                throw new RuntimeException("Problem while parsing JSON", e); //NOSONAR
             }
         }
     }

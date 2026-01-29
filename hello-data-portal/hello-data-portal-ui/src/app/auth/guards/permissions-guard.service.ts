@@ -26,20 +26,19 @@
 ///
 
 import {inject, Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, Router, RouterStateSnapshot} from '@angular/router';
+import {ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
 import {asyncScheduler, Observable, scheduled} from 'rxjs';
 import {filter, map, switchMap, take} from 'rxjs/operators';
 import {Store} from '@ngrx/store';
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentUserPermissions, selectCurrentUserPermissionsLoaded} from "../../store/auth/auth.selector";
+import {navigate} from "../../store/app/app.action";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PermissionsGuard {
-  private store = inject<Store<AppState>>(Store);
-  private router = inject(Router);
-
+  private readonly store = inject<Store<AppState>>(Store);
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
     return this.store.select(selectCurrentUserPermissions).pipe(
@@ -78,7 +77,7 @@ export class PermissionsGuard {
       console.debug('[PermissionsGuard] Forbidden - Current user permissions:', currentUserPermissions);
       console.debug('[PermissionsGuard] Forbidden - Current route:', state.url);
       console.debug('[PermissionsGuard] Forbidden - Required permissions for route:', requiredPermissions);
-      void this.router.navigate(['/forbidden']);
+      this.store.dispatch(navigate({url: 'forbidden'}));
       return false;
     }
   }

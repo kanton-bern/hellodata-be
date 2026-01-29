@@ -1,8 +1,9 @@
 package ch.bedag.dap.hellodata.jupyterhub.gateway.entities;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
-import lombok.Data;
 
 @Data
 public class Permissions implements Serializable {

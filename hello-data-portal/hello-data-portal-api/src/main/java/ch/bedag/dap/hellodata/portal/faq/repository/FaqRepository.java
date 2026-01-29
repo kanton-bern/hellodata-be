@@ -27,9 +27,10 @@
 package ch.bedag.dap.hellodata.portal.faq.repository;
 
 import ch.bedag.dap.hellodata.portal.faq.entity.FaqEntity;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 @Repository
 public interface FaqRepository extends JpaRepository<FaqEntity, UUID> {

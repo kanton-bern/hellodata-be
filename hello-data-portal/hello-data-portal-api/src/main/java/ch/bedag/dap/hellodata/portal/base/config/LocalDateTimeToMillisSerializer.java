@@ -29,12 +29,12 @@ package ch.bedag.dap.hellodata.portal.base.config;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import lombok.extern.log4j.Log4j2;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class LocalDateTimeToMillisSerializer extends JsonSerializer<LocalDateTime> {

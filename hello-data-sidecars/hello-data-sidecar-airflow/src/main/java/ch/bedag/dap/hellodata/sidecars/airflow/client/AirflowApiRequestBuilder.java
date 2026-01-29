@@ -80,7 +80,7 @@ public class AirflowApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getUserRequest(String host, int port, String username, String password, String airflowUsername) throws URISyntaxException, IOException {
+    public static HttpUriRequest getUserRequest(String host, int port, String username, String password, String airflowUsername) throws URISyntaxException {
         URI apiUri = buildUri(host, port, String.format(GET_USER_API_ENDPOINT, airflowUsername), null);
         return RequestBuilder.get() //
                 .setUri(apiUri) //
@@ -100,7 +100,7 @@ public class AirflowApiRequestBuilder {
                 .build();
     }
 
-    public static HttpUriRequest getDeleteUserRequest(String host, int port, String username, String password, String userNameToUpdate) throws URISyntaxException, IOException {
+    public static HttpUriRequest getDeleteUserRequest(String host, int port, String username, String password, String userNameToUpdate) throws URISyntaxException {
         URI apiUri = buildUri(host, port, String.format(DELETE_USER_API_ENDPOINT, userNameToUpdate), Collections.emptyList());
         return RequestBuilder.delete() //
                 .setUri(apiUri) //
@@ -160,7 +160,7 @@ public class AirflowApiRequestBuilder {
     }
 
     private static HttpUriRequest getHttpUriRequestWithBasicParams(String host, int port, String username, String password, String endpoint) throws URISyntaxException {
-        URI apiUri = buildUri(host, port, endpoint, Collections.EMPTY_LIST);
+        URI apiUri = buildUri(host, port, endpoint, Collections.emptyList());
 
         return RequestBuilder.get() //
                 .setUri(apiUri) //
@@ -179,9 +179,9 @@ public class AirflowApiRequestBuilder {
         builder.setScheme("http").setHost(host).setPort(port).setPath(endpoint);
 
         if (!CollectionUtils.isEmpty(params)) {
-            params.forEach(p -> {
-                builder.addParameter(p.getKey(), p.getValue());
-            });
+            params.forEach(p ->
+                    builder.addParameter(p.getKey(), p.getValue())
+            );
         }
 
         return builder.build();

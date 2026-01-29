@@ -45,7 +45,7 @@ import {
 import {AsyncPipe} from '@angular/common';
 import {Ripple} from 'primeng/ripple';
 import {Toolbar} from 'primeng/toolbar';
-import {Button, ButtonDirective} from 'primeng/button';
+import {Button} from 'primeng/button';
 import {Tooltip} from 'primeng/tooltip';
 import {Fieldset} from 'primeng/fieldset';
 import {
@@ -65,17 +65,15 @@ import {TranslocoPipe} from '@jsverse/transloco';
   selector: 'app-selected-workspace',
   templateUrl: './selected-workspace.component.html',
   styleUrls: ['./selected-workspace.component.scss'],
-  imports: [Ripple, Toolbar, Button, Tooltip, Fieldset, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, AsyncPipe, TranslocoPipe, ButtonDirective]
+  imports: [Ripple, Toolbar, Button, Tooltip, Fieldset, SelectedWorkspaceDashboardsComponent, SelectedWorkspaceRolesComponent, SelectedWorkspacePermissionsComponent, SelectedWorkspaceUsersComponent, SelectedWorkspacePipelinesComponent, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-
-
   resources$: Observable<any>;
   selectedResource$: Observable<any>;
   headerInfo$: Observable<any>;
   selectedResourceUrl: any;
   selectedAppInfo$: Observable<any>;
+  private store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();

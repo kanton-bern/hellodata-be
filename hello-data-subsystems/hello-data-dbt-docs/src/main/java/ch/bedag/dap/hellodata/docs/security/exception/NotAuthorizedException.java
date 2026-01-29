@@ -28,10 +28,8 @@ package ch.bedag.dap.hellodata.docs.security.exception;
 
 public final class NotAuthorizedException extends RuntimeException {
     public static final String ERROR_MESSAGE = "You are not allowed to access resource: ";
-    private final String resourceName;
 
     public NotAuthorizedException(String requestedResource) {
         super(ERROR_MESSAGE + requestedResource);
-        this.resourceName = requestedResource;
     }
 }

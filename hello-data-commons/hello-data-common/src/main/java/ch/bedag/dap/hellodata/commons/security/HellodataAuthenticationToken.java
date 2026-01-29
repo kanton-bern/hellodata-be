@@ -26,11 +26,12 @@
  */
 package ch.bedag.dap.hellodata.commons.security;
 
-import java.util.Set;
-import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Set;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
 public class HellodataAuthenticationToken extends AbstractAuthenticationToken {

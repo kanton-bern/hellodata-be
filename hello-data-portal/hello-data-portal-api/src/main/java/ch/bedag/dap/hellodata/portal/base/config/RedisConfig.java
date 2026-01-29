@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.base.config;
 
-import ch.bedag.dap.hellodata.commons.sidecars.cache.admin.UserCache;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -35,20 +34,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.*;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
 @EnableCaching
 @Configuration
 public class RedisConfig {
+    public static final String USERS_WITH_DASHBOARD_CACHE = "users_with_dashboards";
+    public static final String SUBSYSTEM_USERS_CACHE = "subsystem_users";
 
     @Value("${hello-data.cache.users-with-dashboards-ttl-minutes}")
     private long usersWithDashboardsTtlCacheMinutes;
@@ -57,21 +59,7 @@ public class RedisConfig {
     private long subsystemUsersTtlCacheMinutes;
 
     @Bean
-    public RedisTemplate<String, UserCache> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, UserCache> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        // Use Jackson2JsonRedisSerializer as the default serializer
-        template.setDefaultSerializer(new Jackson2JsonRedisSerializer<>(UserCache.class));
-
-        return template;
-    }
-
-    @Bean
-    public CacheManager cacheManager(@Value("${hello-data.cache.enabled}") String enableCaching, RedisConnectionFactory factory) {
-        if (!enableCaching.equalsIgnoreCase("true")) {
-            return new NoOpCacheManager();
-        }
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(JsonGenerator.Feature.IGNORE_UNKNOWN);
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -92,9 +80,9 @@ public class RedisConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return builder -> builder
-                .withCacheConfiguration("users_with_dashboards",
+                .withCacheConfiguration(USERS_WITH_DASHBOARD_CACHE,
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(usersWithDashboardsTtlCacheMinutes)))
-                .withCacheConfiguration("subsystem_users",
+                .withCacheConfiguration(SUBSYSTEM_USERS_CACHE,
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(subsystemUsersTtlCacheMinutes)));
     }
 }

@@ -26,9 +26,10 @@
  */
 package ch.bedag.dap.hellodata.portal.faq.data;
 
-import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

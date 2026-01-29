@@ -85,14 +85,14 @@
                       class="p-button-rounded mr-2"
                       severity="info"
                       icon="fas fa-up-right-from-square"
-                      pButton
+
                       pRipple/>
             <p-button (click)="openInfoPanel(dashboard)" (keydown)="openInfoPanel(dashboard)"
                       [pTooltip]="'@Info' | transloco"
                       class="p-button-rounded mr-2"
                       severity="help"
                       icon="fas fa-circle-info"
-                      pButton
+
                       pRipple/>
             <p-button (click)="editDashboard(dashboard)" (keydown)="editDashboard(dashboard)"
                       [pTooltip]="'@Edit' | transloco"
@@ -100,7 +100,7 @@
                       class="p-button-rounded mr-2"
                       icon="fas fa-light fa-pen-to-square"
                       [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"
-                      pButton
+
                       pRipple/>
           </td>
         </tr>
@@ -148,10 +148,10 @@
 
   <ng-template pTemplate="footer">
     <p-button (click)="hideEditMetadataDialog()" (keydown)="hideEditMetadataDialog()" icon="fas fa-circle-xmark"
-              label="{{'@Cancel' | transloco}}" pButton pRipple severity="secondary"/>
+              [label]="'@Cancel' | transloco" pRipple severity="secondary"/>
     <p-button (click)="updateDashboard(selectedDashboard)" (keydown)="updateDashboard(selectedDashboard)"
-              icon="fas fa-check" label="{{'@Save' | transloco}}"
-              pButton pRipple
+              icon="fas fa-check" [label]="'@Save' | transloco"
+              pRipple
               severity="success"/>
   </ng-template>
 </p-dialog>
@@ -311,6 +311,6 @@
 
   <ng-template pTemplate="footer">
     <p-button (click)="hideInfoPanel()" (keydown)="hideInfoPanel()" icon="fas fa-circle-xmark"
-              label="{{'@Cancel' | transloco}}" pButton pRipple severity="secondary"/>
+              [label]="'@Cancel' | transloco" pRipple severity="secondary"/>
   </ng-template>
 </p-dialog>

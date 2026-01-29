@@ -54,7 +54,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 @ActiveProfiles("tc-postgres")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = {PersistenceConfig.class})
-public class PostgresTestContainerTest {
+class PostgresTestContainerTest {
 
     @Autowired
     private ResourceRepository resourceRepository;

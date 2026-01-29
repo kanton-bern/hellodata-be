@@ -108,7 +108,8 @@ export interface SubsystemUserDto {
   username: string;
   roles: string[];
   subsystemName: string;
-  enabled: boolean
+  enabled: boolean;
+  businessDomainRole?: string;
 }
 
 export interface SubsystemUsersResultDto {

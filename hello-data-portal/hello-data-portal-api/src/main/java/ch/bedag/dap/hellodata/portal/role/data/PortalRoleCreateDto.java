@@ -26,8 +26,9 @@
  */
 package ch.bedag.dap.hellodata.portal.role.data;
 
-import java.util.List;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class PortalRoleCreateDto {

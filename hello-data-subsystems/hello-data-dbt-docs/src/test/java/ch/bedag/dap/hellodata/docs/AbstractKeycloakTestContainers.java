@@ -188,7 +188,6 @@ public abstract class AbstractKeycloakTestContainers {
 
     @TestConfiguration
     public static class OverrideBean {
-        //FIXME temporary solution: https://stackoverflow.com/questions/77715151/spring-boot3-2-1-spring-security-config6-2-1-upgrade-issue-error-creating-b
         @Bean
         static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
             return registry -> registry.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)

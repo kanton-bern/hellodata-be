@@ -7,8 +7,9 @@
       <div class="col-span-12 md:col-span-10">
         <span class="p-fluid border-surface rounded-border appearance-none outline-0 focus:border-primary w-100"
               style="width: 100%; display: grid grid-cols-12 gap-4">
-          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)" class="w-100 mb-1"
-                          [suggestions]="suggestedAdUsers" field="email" formControlName="user" id="user"
+          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
+                          [suggestions]="suggestedAdUsers"
+                          class="w-100 mb-1" field="email" formControlName="user" id="user"
                           name="user">
             <ng-template let-user pTemplate="item">
               <div class="flex items-center gap-1">
@@ -62,8 +63,8 @@
         <p-button (click)="createUser()"
                   [disabled]="inviteForm.invalid"
                   icon="fas fa-floppy-disk"
-                  label="{{'@Set permissions' | transloco}}"
-                  severity="success" pRipple pButton/>
+                  [label]="'@Set permissions' | transloco"
+                  pRipple severity="success"/>
       </div>
     </p-toolbar>
   </form>
@@ -80,8 +81,8 @@
         <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
                   [pTooltip]="'@Sync Users Title' | transloco"
                   icon="fas fa-arrows-rotate"
-                  label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
-                  severity="success" pRipple pButton/>
+                  [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
+                  severity="success" pRipple/>
       </div>
     }
   </p-toolbar>
@@ -96,16 +97,16 @@
     [rowHover]="true"
     [rowsPerPageOptions]="[5, 10, 20]"
     [rows]="10"
+    [sortOrder]="1"
     [tableStyle]="{ 'min-width': '75rem' }"
     [totalRecords]="usersTotalRecords"
     [value]="users$ | async"
+    class="p-datatable-striped"
     dataKey="id"
     id="userTable"
+    sortField="email"
     stateKey="portal-users-table"
     stateStorage="session"
-    class="p-datatable-striped"
-    sortField="email"
-    [sortOrder]="1"
   >
     <ng-template pTemplate="caption">
       <div>
@@ -189,28 +190,28 @@
                       severity="success"
                       class="p-button-rounded mr-2"
                       icon="fas fa-light fa-pen-to-square"
-                      pButton
+
                       pRipple
                       pTooltip="{{'@Edit' | transloco}}"/>
             @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="enableUser(user)"
                         severity="success"
                         class="p-button-rounded mr-2"
-                        icon="fas fa-circle-plus" pButton pRipple
+                        icon="fas fa-circle-plus" pRipple
                         pTooltip="{{'@Enable' | transloco}}"/>
             }
             @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
               <p-button (click)="disableUser(user)"
                         severity="warn"
                         class="p-button-rounded mr-2"
-                        icon="fas fa-circle-xmark" pButton pRipple
+                        icon="fas fa-circle-xmark" pRipple
                         pTooltip="{{'@Disable' | transloco}}"/>
             }
             @if (!user.superuser && user.email !== loggedInUser.email) {
               <p-button (click)="showUserDeletionPopup(user)"
                         severity="danger"
                         class="p-button-rounded mr-2"
-                        icon="fas fa-trash" pButton pRipple
+                        icon="fas fa-trash" pRipple
                         pTooltip="{{'@Delete' | transloco}}"/>
             }
           </td>

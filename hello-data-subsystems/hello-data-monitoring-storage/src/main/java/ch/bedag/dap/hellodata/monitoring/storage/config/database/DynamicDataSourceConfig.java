@@ -27,11 +27,12 @@
 package ch.bedag.dap.hellodata.monitoring.storage.config.database;
 
 import ch.bedag.dap.hellodata.monitoring.storage.config.HelloDataStorageConfigurationProperties;
-import java.net.URI;
-import java.net.URISyntaxException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @RequiredArgsConstructor
 @Configuration

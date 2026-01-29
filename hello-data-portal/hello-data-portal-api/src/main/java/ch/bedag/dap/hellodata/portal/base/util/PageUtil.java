@@ -7,6 +7,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.Locale;
+
 @Log4j2
 @UtilityClass
 public class PageUtil {
@@ -17,7 +19,7 @@ public class PageUtil {
 
     public static Pageable createPageable(int page, int size, String sort, String defaultSortField, Sort.Direction defaultDirection) {
         log.debug("Creating page {} of size {}", page, size);
-        sort = StringUtils.defaultIfEmpty(sort, null);
+        sort = StringUtils.defaultIfEmpty(sort, defaultDirection.name().toLowerCase(Locale.ROOT));
 
         Sort sorting = Sort.by(Sort.Direction.ASC, defaultSortField);
         if (sort != null && !sort.isEmpty()) {

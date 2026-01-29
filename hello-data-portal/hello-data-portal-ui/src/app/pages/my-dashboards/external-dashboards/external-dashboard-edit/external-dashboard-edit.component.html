@@ -107,21 +107,21 @@
       <p-toolbar>
         <div class="p-toolbar-group-start">
           <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
-                    icon="fas fa-arrow-left" severity="secondary" pRipple pButton/>
+                    icon="fas fa-arrow-left" severity="secondary" pRipple/>
         </div>
         <div class="p-toolbar-group-end">
           @if (externalDashboardForm.controls['id'].getRawValue() !== '') {
             <p-button (click)="deleteExternalDashboard(editedExternalDashboard)"
-                      severity="danger" pRipple pButton
+                      severity="danger" pRipple
                       icon="fa-regular fa-trash-can"
-                      label="{{'@Delete' | transloco}}"
+                      [label]="'@Delete' | transloco"
                       class="mr-2 p-button-warning mr-2"/>
           }
           <p-button (click)="saveChanges(editedExternalDashboard)"
                     [disabled]="externalDashboardForm.invalid||!externalDashboardForm.dirty"
-                    class="mr-2" pRipple pButton
+                    class="mr-2" pRipple
                     icon="fas fa-arrow-up-right-from-square"
-                    label="{{'@Save' | transloco}}"
+                    [label]="'@Save' | transloco"
                     severity="success"/>
         </div>
       </p-toolbar>
@@ -135,9 +135,9 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-              type="button" severity="secondary" pRipple pButton/>
-    <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
-              pRipple pButton type="button"/>
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Cancel' | transloco"
+              pRipple severity="secondary" type="button"/>
+    <p-button (click)="cd.onAccept()" icon="fas fa-trash" [label]="'@Delete' | transloco" pRipple
+              severity="danger" type="button"/>
   </ng-template>
 </p-confirmDialog>

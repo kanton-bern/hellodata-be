@@ -48,7 +48,6 @@ import javax.naming.ldap.Rdn;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
@@ -88,7 +87,7 @@ public class LdapUserLookupProvider implements UserLookupProvider {
             groups.addAll(Collections.list(memberOf.getAll()).stream()
                     .map(String::valueOf)
                     .map(this::extractCnFromDn)
-                    .collect(Collectors.toList()));
+                    .toList());
         }
         log.debug("Extracted groups for email {}: {}", email, groups);
         var user = new AdUserDto();

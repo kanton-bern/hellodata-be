@@ -28,7 +28,7 @@ package ch.bedag.dap.hellodata.portal.email.service;
 
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.email.model.EmailTemplateData;
-import jakarta.annotation.Nonnull;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -62,7 +62,7 @@ class EmailSendService {
 
     void sendEmailFromTemplate(EmailTemplateData templateData) {
         if (templateData.getReceivers().isEmpty()) {
-            log.error("No receiver defined for given email data :" + templateData);
+            log.error("No receiver defined for given email data :{}", templateData);
             return;
         }
         sendEmail(toSimpleMailMessage(templateData));
@@ -99,10 +99,10 @@ class EmailSendService {
         return email;
     }
 
-    private MimeMessageHelper getMimeMessageHelper(@Nonnull SimpleMailMessage email, @Nonnull MimeMessage message) throws Exception {
+    private MimeMessageHelper getMimeMessageHelper(SimpleMailMessage email, MimeMessage message) throws MessagingException {
         MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
         if (email.getFrom() != null) {
-            helper.setFrom(email.getFrom());
+            helper.setFrom(email.getFrom()); //NOSONAR
         }
         String[] toArray = email.getTo();
         String[] ccArray = email.getCc();
@@ -122,10 +122,10 @@ class EmailSendService {
         if (StringUtils.isBlank(email.getSubject())) {
             helper.setSubject("");
         } else {
-            helper.setSubject(email.getSubject());
+            helper.setSubject(email.getSubject()); //NOSONAR
         }
         if (email.getText() != null) {
-            helper.setText(email.getText(), true);
+            helper.setText(email.getText(), true); //NOSONAR
         }
         return helper;
     }

@@ -4,7 +4,7 @@
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
         <p-button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
-                  label="{{'@Create announcement' | transloco }}" pButton pRipple></p-button>
+                  [label]="'@Create announcement' | transloco" pRipple></p-button>
       </ng-template>
     </p-toolbar>
     @if ((allAnnouncements$ | async); as announcements) {
@@ -68,14 +68,14 @@
                             severity="success"
                             icon="fas fa-light fa-pen-to-square"
                             class="p-button-rounded mr-2"
-                            pButton
+
                             pRipple/>
                   <p-button (click)="showAnnouncementDeletionPopup(announcement)"
                             [pTooltip]="'@Delete' | transloco"
                             severity="danger"
                             icon="fas fa-trash"
                             class="p-button-rounded mr-2"
-                            pButton
+
                             pRipple/>
                 </td>
               </tr>

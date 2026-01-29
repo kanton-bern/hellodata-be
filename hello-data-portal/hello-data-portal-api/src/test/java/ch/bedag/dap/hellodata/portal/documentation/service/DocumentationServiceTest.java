@@ -63,10 +63,7 @@ class DocumentationServiceTest {
     void testGetDocumentation() {
         // given
         DocumentationEntity documentationEntity = new DocumentationEntity();
-        documentationEntity.setText("Sample documentation text");
-
         when(documentationRepository.findFirstByOrderByIdAsc()).thenReturn(Optional.of(documentationEntity));
-
         DocumentationDto documentationDto = new DocumentationDto();
         Map<Locale, String> textMap = new HashMap<>();
         textMap.put(Locale.ENGLISH, "Sample documentation text");

@@ -49,7 +49,7 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
     public static String toCbRolesHeader(Collection<GrantedAuthority> authorities) {
         StringBuilder sb = new StringBuilder();
         for (GrantedAuthority grantedAuthority : authorities) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append("|"); // roles are split with |
             }
             sb.append(grantedAuthority.getAuthority().toUpperCase(Locale.ENGLISH));
@@ -79,25 +79,24 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
                 .header("X-First-name", (String) givenName)
                 .header("X-Last-name", (String) familyName)
                 .build();
-        ServerWebExchange serverWebExchange = exchange.mutate().request(serverHttpRequest).build();
-        return serverWebExchange;
+        return exchange.mutate().request(serverHttpRequest).build();
     }
 
     public static ServerWebExchange removeAuthorizationHeader(ServerWebExchange exchange) {
-        return exchange.mutate().request((r) -> {
-            r.headers((httpHeaders) -> {
-                httpHeaders.remove(SecurityConfig.AUTHORIZATION_HEADER_NAME); //don't need to pass the Authorization header to the cloudbeaver
-            });
-        }).build();
+        return exchange.mutate().request(r ->
+                r.headers(httpHeaders ->
+                        httpHeaders.remove(SecurityConfig.AUTHORIZATION_HEADER_NAME) //don't need to pass the Authorization header to the cloudbeaver
+                )
+        ).build();
     }
 
     public GatewayFilter apply(Object config) {
         return (exchange, chain) -> {
             Mono<ServerWebExchange> webExchange = exchange.getPrincipal()
                     .log("auth-gateway-filter-factory", Level.INFO)
-                    .filter((principal) -> principal instanceof JwtAuthenticationToken)
+                    .filter(principal -> principal instanceof JwtAuthenticationToken) //NOSONAR
                     .cast(JwtAuthenticationToken.class)
-                    .map((token) -> addCbAuthHeaders(exchange, token));
+                    .map(token -> addCbAuthHeaders(exchange, token));
             Objects.requireNonNull(chain);
             return webExchange.flatMap(chain::filter);
         };

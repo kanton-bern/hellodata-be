@@ -76,7 +76,7 @@ public class UpdateDashboardUserRolesListener {
     public void listenForRequests() {
         String supersetSidecarSubject = SlugifyUtil.slugify(instanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
         log.info("/*-/*- Listening for messages on subject {}", supersetSidecarSubject);
-        Dispatcher dispatcher = natsConnection.createDispatcher((msg) -> {
+        Dispatcher dispatcher = natsConnection.createDispatcher(msg -> {
             try {
                 SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
                 SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = objectMapper.readValue(msg.getData(), SupersetDashboardsForUserUpdate.class);
@@ -108,7 +108,7 @@ public class UpdateDashboardUserRolesListener {
                 natsConnection.publish(msg.getReplyTo(), objectMapper.writeValueAsBytes(updatedUser));
                 msg.ack();
             } catch (URISyntaxException | IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e); //NOSONAR
             }
         });
         dispatcher.subscribe(supersetSidecarSubject);

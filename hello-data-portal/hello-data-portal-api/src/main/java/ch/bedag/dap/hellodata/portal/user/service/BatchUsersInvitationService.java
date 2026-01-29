@@ -259,7 +259,7 @@ public class BatchUsersInvitationService {
                 }
             } catch (IOException e) {
                 log.error("Error processing batch users file: {}", file.getAbsolutePath(), e);
-                throw new RuntimeException("Error processing batch users file", e);
+                throw new RuntimeException("Error processing batch users file", e); //NOSONAR
             }
         }
         return allUsers;

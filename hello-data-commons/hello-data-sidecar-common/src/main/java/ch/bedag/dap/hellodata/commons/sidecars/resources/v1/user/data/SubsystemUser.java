@@ -28,10 +28,11 @@ package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)

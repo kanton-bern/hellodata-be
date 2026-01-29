@@ -26,20 +26,18 @@
  */
 package ch.bedag.dap.hellodata.portal.base;
 
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import java.io.IOException;
-import java.util.List;
+import jakarta.servlet.*;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,15 +48,19 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.web.filter.CompositeFilter;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.List;
+
 /**
  * Used to disable keycloak resource server and use custom one to mock jwt token
  */
 @Configuration
 @EnableWebSecurity(debug = true)
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 public class TestSecurityConfig {
 
-    //FIXME temporary solution: https://stackoverflow.com/questions/77715151/spring-boot3-2-1-spring-security-config6-2-1-upgrade-issue-error-creating-b
     @Bean
     static BeanDefinitionRegistryPostProcessor beanDefinitionRegistryPostProcessor() {
         return registry -> registry.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME).setBeanClassName(CompositeFilterChainProxy.class.getName());
@@ -66,11 +68,26 @@ public class TestSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.headers().frameOptions().disable().and().cors().and().csrf().disable().authorizeHttpRequests(auth -> {
-            auth.anyRequest().authenticated();
-        });
+        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .cors(cors -> {})
+                .csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(accessTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper mapper = new ModelMapper();
+
+        Converter<OffsetDateTime, LocalDateTime> offsetToLocal =
+                ctx -> ctx.getSource() == null ? null : ctx.getSource().toLocalDateTime();
+        mapper.addConverter(offsetToLocal);
+
+        Converter<OffsetDateTime, Long> offsetToEpochMilli =
+                ctx -> ctx.getSource() == null ? null : ctx.getSource().toInstant().toEpochMilli();
+        mapper.addConverter(offsetToEpochMilli);
+        return new ModelMapper();
     }
 
     @Bean

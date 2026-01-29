@@ -28,16 +28,17 @@ package ch.bedag.dap.hellodata.docs.service;
 
 import ch.bedag.dap.hellodata.docs.model.ProjectDoc;
 import com.github.benmanes.caffeine.cache.Cache;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -78,7 +79,7 @@ public class ProjectDocService {
         if (cache != null) {
             return cache;
         }
-        throw new RuntimeException("Projects cache not found");
+        throw new RuntimeException("Projects cache not found"); //NOSONAR
     }
 
     private Cache<String, ProjectDoc> getNativeCache() {

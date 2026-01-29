@@ -26,14 +26,15 @@
  */
 package ch.bedag.dap.hellodata.commons.security;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.UUID;
 import lombok.experimental.UtilityClass;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.UUID;
 
 @UtilityClass
 public class SecurityUtils {

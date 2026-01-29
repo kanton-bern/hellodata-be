@@ -27,10 +27,11 @@
 package ch.bedag.dap.hellodata.commons.sidecars.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
 
 @Data
 public abstract class BaseSupersetResponse implements Serializable {

@@ -62,7 +62,7 @@ public class SupersetDeleteUserConsumer {
             log.info("------- Received superset user deletion request {}", subsystemUserDelete);
             SupersetClient supersetClient = supersetClientProvider.getSupersetClientInstance();
             SupersetUsersResponse response = supersetClient.getUser(subsystemUserDelete.getUsername(), subsystemUserDelete.getEmail());
-            if (response == null || response.getResult().size() == 0) {
+            if (response == null || response.getResult().isEmpty()) {
                 log.info("User {} doesn't exist in instance, omitting deletion", subsystemUserDelete.getEmail());
                 return;
             }

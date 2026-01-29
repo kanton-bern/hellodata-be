@@ -6,10 +6,10 @@
     <h3>{{ '@Delete role' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}" pButton
-    type="button" severity="secondary" />
-    <p-button (click)="cd.onAccept()" severity="danger" icon="fas fa-trash" label="{{'@Delete' | transloco}}"
-      pButton
-    type="button" />
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Cancel' | transloco"
+              severity="secondary" type="button"/>
+    <p-button (click)="cd.onAccept()" icon="fas fa-trash" [label]="'@Delete' | transloco" severity="danger"
+
+              type="button"/>
   </ng-template>
 </p-confirmDialog>
