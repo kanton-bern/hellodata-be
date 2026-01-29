@@ -32,7 +32,7 @@
                       (keydown.enter)="createOrUpdateDocumentation(result.doc)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       icon="fas fa-floppy-disk" pRipple
-                      label="{{'@Save' | transloco}}"
+                      [label]="'@Save' | transloco"
                       severity="success"/>
           </div>
         }

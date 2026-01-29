@@ -4,7 +4,7 @@
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
         <p-button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
-                  label="{{'@Create' | transloco }}" pRipple></p-button>
+                  [label]="'@Create' | transloco" pRipple></p-button>
       </ng-template>
     </p-toolbar>
     @if ((faq$ | async); as faq) {

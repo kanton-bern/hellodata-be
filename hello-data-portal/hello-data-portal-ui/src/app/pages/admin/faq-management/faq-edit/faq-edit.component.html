@@ -124,12 +124,12 @@
                       icon="fas fa-floppy-disk"
                       class="mr-2" pRipple
                       id="saveFaqButton"
-                      label="{{'@Save' | transloco}}"
+                      [label]="'@Save' | transloco"
                       severity="success"/>
             @if (editedFaq.id) {
               <p-button (click)="openDeletePopup(editedFaq)" icon="fas fa-trash" pRipple
                         (keydown)="openDeletePopup(editedFaq)"
-                        label="{{'@Delete' | transloco}}" severity="danger"/>
+                        [label]="'@Delete' | transloco" severity="danger"/>
             }
           </div>
         }

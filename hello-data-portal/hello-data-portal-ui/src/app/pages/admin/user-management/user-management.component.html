@@ -7,7 +7,8 @@
       <div class="col-span-12 md:col-span-10">
         <span class="p-fluid border-surface rounded-border appearance-none outline-0 focus:border-primary w-100"
               style="width: 100%; display: grid grid-cols-12 gap-4">
-          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)" [suggestions]="suggestedAdUsers"
+          <p-autoComplete (completeMethod)="filterMails($event)" (onSelect)="onSelectEmail($event)"
+                          [suggestions]="suggestedAdUsers"
                           class="w-100 mb-1" field="email" formControlName="user" id="user"
                           name="user">
             <ng-template let-user pTemplate="item">
@@ -62,7 +63,7 @@
         <p-button (click)="createUser()"
                   [disabled]="inviteForm.invalid"
                   icon="fas fa-floppy-disk"
-                  label="{{'@Set permissions' | transloco}}"
+                  [label]="'@Set permissions' | transloco"
                   pRipple severity="success"/>
       </div>
     </p-toolbar>
@@ -80,7 +81,7 @@
         <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
                   [pTooltip]="'@Sync Users Title' | transloco"
                   icon="fas fa-arrows-rotate"
-                  label="{{(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco }}"
+                  [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
                   severity="success" pRipple/>
       </div>
     }
