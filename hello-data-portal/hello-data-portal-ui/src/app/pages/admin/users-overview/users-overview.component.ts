@@ -137,7 +137,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     return this.store.select(selectSubsystemUsersForDashboards).pipe(
       map((subsystemUsers) => [
         {field: 'email', header: '@Users'},
-        {field: 'businessDomainRole', header: '@Business Domain Role'},
+        // {field: 'businessDomainRole', header: '@Business Domain Role'},
         {field: 'enabled', header: '@Enabled'},
         ...subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
