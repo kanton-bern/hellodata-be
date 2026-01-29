@@ -5,18 +5,22 @@
         <h4>{{ '@User data' | transloco }}</h4>
         <p-toolbar>
           <div class="p-toolbar-group-start">
-            <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+            <p-button (click)="cancel()" (keydown.enter)="cancel()" (keydown.space)="cancel()"
+                      [pTooltip]="'@Cancel' | transloco"
+                      class="mr-2"
                       icon="fas fa-arrow-left" severity="secondary" pRipple/>
           </div>
           <div class="p-toolbar-group-end">
             @if (!editedUser.superuser && editedUser.enabled) {
-              <p-button (click)="showUserDisablePopup(editedUser)"
+              <p-button (click)="showUserDisablePopup(editedUser)" (keydown.enter)="showUserDisablePopup(editedUser)"
+                        (keydown.space)="showUserDisablePopup(editedUser)"
                         icon="fas fa-circle-xmark" pRipple
                         label="{{'@Disable' | transloco}}"
                         class="mr-2 p-button-warning"/>
             }
             @if (!editedUser.superuser && !editedUser.enabled) {
-              <p-button (click)="showUserEnablePopup(editedUser)"
+              <p-button (click)="showUserEnablePopup(editedUser)" (keydown.enter)="showUserEnablePopup(editedUser)"
+                        (keydown.space)="showUserEnablePopup(editedUser)"
                         icon="fas fa-circle-plus" pRipple
                         label="{{'@Enable' | transloco}}"
                         severity="success"/>
@@ -53,7 +57,7 @@
         </div>
         <br>
         <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ '@Enabled' | transloco }}</label>
+          <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ '@Enabled' | transloco }}</span>
           <div class="col-span-12 md:col-span-10">
             @if (editedUser.enabled) {
               <div>
@@ -95,7 +99,7 @@
                             <div>
                               <br>
                               <div class="field grid grid-cols-12 gap-4">
-                                <label class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ businessDomain.name }}</label>
+                                <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ businessDomain.name }}</span>
                                 <div class="col-span-12 md:col-span-10">
                                   <p-select
                                     (onChange)="onBusinessDomainRoleSelected($event, dataDomains, availableDataDomainRoles)"
@@ -126,9 +130,9 @@
                         @for (dataDomain of dataDomains; track dataDomain) {
                           <div>
                             <div class="field grid grid-cols-12 gap-4">
-                              <label class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.name }}</label>
-                              <label
-                                class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</label>
+                              <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.name }}</span>
+                              <span
+                                class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</span>
                               <div class="col-span-12 md:col-span-2">
                                 <p-select (onChange)="onDataDomainRoleSelected($event, dataDomain)"
                                           [options]="availableDataDomainRoles"
@@ -145,6 +149,49 @@
                                 </div>
                               }
                             </div>
+                            <!-- Comment permissions -->
+                            <div class="field grid grid-cols-12 gap-4 mt-2">
+                              <div class="col-span-12 md:col-span-4"></div>
+                              <div class="col-span-12 md:col-span-8 flex items-center flex-wrap gap-2"
+                                   [class.opacity-50]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole">
+                                <span
+                                  class="text-sm text-gray-600 mr-2">{{ '@Dashboard comment permissions' | transloco }}
+                                  :</span>
+                                <div class="flex items-center mr-3">
+                                  <p-checkbox
+                                    [binary]="true"
+                                    [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'readComments')"
+                                    [ngModelOptions]="{standalone: true}"
+                                    (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'readComments', $event)"
+                                    [disabled]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole"
+                                    inputId="read-{{dataDomain.contextKey}}"/>
+                                  <label [for]="'read-' + dataDomain.contextKey"
+                                         class="ml-1 text-sm">{{ '@Read' | transloco }}</label>
+                                </div>
+                                <div class="flex items-center mr-3">
+                                  <p-checkbox
+                                    [binary]="true"
+                                    [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'writeComments')"
+                                    [ngModelOptions]="{standalone: true}"
+                                    (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'writeComments', $event)"
+                                    [disabled]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole"
+                                    inputId="write-{{dataDomain.contextKey}}"/>
+                                  <label [for]="'write-' + dataDomain.contextKey"
+                                         class="ml-1 text-sm">{{ '@Write' | transloco }}</label>
+                                </div>
+                                <div class="flex items-center">
+                                  <p-checkbox
+                                    [binary]="true"
+                                    [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'reviewComments')"
+                                    [ngModelOptions]="{standalone: true}"
+                                    (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'reviewComments', $event)"
+                                    [disabled]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole"
+                                    inputId="review-{{dataDomain.contextKey}}"/>
+                                  <label [for]="'review-' + dataDomain.contextKey"
+                                         class="ml-1 text-sm">{{ '@Review' | transloco }}</label>
+                                </div>
+                              </div>
+                            </div>
                             <p-divider/>
                           </div>
                         }
@@ -158,9 +205,11 @@
         }
         <p-toolbar>
           <div class="p-toolbar-group-start">
-            <p-button (click)="cancel()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+            <p-button (click)="cancel()" (keydown.enter)="cancel()" (keydown.space)="cancel()"
+                      [pTooltip]="'@Cancel' | transloco"
+                      class="mr-2"
                       icon="fas fa-arrow-left" severity="secondary" pRipple/>
-            <p-button (click)="updateUser()"
+            <p-button (click)="updateUser()" (keydown.enter)="updateUser()" (keydown.space)="updateUser()"
                       [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled"
                       severity="success" [loading]="userSaveButtonDisabled$ | async"
                       label="{{'@Save' | transloco}}"
