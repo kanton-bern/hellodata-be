@@ -152,6 +152,10 @@ export class CommentsFeed implements AfterViewInit {
   private currentDashboardContextKey: string | undefined;
   private currentDashboardUrl: string | undefined;
 
+  // Auto-scroll control: enabled by default, disabled when user scrolls up
+  private autoScrollEnabled = true;
+  private readonly scrollThreshold = 50; // pixels from bottom to consider "at bottom"
+
   constructor() {
     this.currentDashboardId$.subscribe(id => {
       this.currentDashboardId = id;
@@ -203,13 +207,13 @@ export class CommentsFeed implements AfterViewInit {
     // Re-assign signal after filteredComments$ is initialized
     this.filteredCommentsSignal = toSignal(this.filteredComments$);
 
-    // Auto-scroll to bottom when comments change
+    // Auto-scroll to bottom when comments change (only if enabled)
     effect(() => {
       // Read the signal to track changes
       const comments = this.filteredCommentsSignal();
 
       // Add delay to ensure DOM is fully updated with new comments
-      if (comments && comments.length > 0) {
+      if (comments && comments.length > 0 && this.autoScrollEnabled) {
         setTimeout(() => {
           this.scrollToBottom();
         }, 150);
@@ -327,7 +331,30 @@ export class CommentsFeed implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    // Enable auto-scroll when panel opens and scroll to bottom
+    this.autoScrollEnabled = true;
     this.scrollToBottom();
+
+    // Listen for scroll events to manage auto-scroll behavior
+    const container = this.scrollContainer?.nativeElement;
+    if (container) {
+      container.addEventListener('scroll', () => this.onScroll());
+    }
+  }
+
+  private onScroll(): void {
+    const container = this.scrollContainer?.nativeElement;
+    if (!container) return;
+
+    const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight <= this.scrollThreshold;
+
+    if (isAtBottom) {
+      // User scrolled back to bottom - re-enable auto-scroll
+      this.autoScrollEnabled = true;
+    } else {
+      // User scrolled up - disable auto-scroll
+      this.autoScrollEnabled = false;
+    }
   }
 
   togglePointerUrlInput(): void {
@@ -400,6 +427,9 @@ export class CommentsFeed implements AfterViewInit {
         pointerUrl,
         tags
       }));
+
+      // Re-enable auto-scroll to show the new comment
+      this.autoScrollEnabled = true;
     }
 
     this.newCommentText = '';
@@ -407,9 +437,6 @@ export class CommentsFeed implements AfterViewInit {
     this.showPointerUrlInput = false;
     this.selectedTags = [];
     this.tagsDialogVisible = false;
-
-    // No need for manual scroll - effect() will handle it automatically
-    // when comments list updates from backend
   }
 
   onPointerUrlClick(url: string): void {
