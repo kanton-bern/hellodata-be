@@ -18,7 +18,7 @@
             <div class="flex items-center justify-between">
               @if (permissions | contains: 'EXTERNAL_DASHBOARDS_MANAGEMENT') {
                 <p-button (click)="openNew()" severity="success" icon="fas fa-circle-plus"
-                          label="{{'@Create' | transloco }}" pRipple></p-button>
+                          [label]="'@Create' | transloco" pRipple></p-button>
               }
               <h5 class="m-0">&nbsp;</h5>
               <span class="p-input-icon-left">
@@ -131,9 +131,9 @@
     <h3>{{ '@Delete external dashboard' | transloco }}</h3>
   </ng-template>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Cancel' | transloco"
               pRipple severity="secondary" type="button"/>
-    <p-button (click)="cd.onAccept()" icon="fas fa-trash" label="{{'@Delete' | transloco}}" pRipple
+    <p-button (click)="cd.onAccept()" icon="fas fa-trash" [label]="'@Delete' | transloco" pRipple
               severity="danger" type="button"/>
   </ng-template>
 </p-confirmDialog>

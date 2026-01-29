@@ -150,9 +150,9 @@
 
   <ng-template pTemplate="footer">
     <p-button (click)="hideEditMetadataDialog()" (keydown)="hideEditMetadataDialog()" icon="fas fa-circle-xmark"
-              label="{{'@Cancel' | transloco}}" pRipple severity="secondary"/>
+              [label]="'@Cancel' | transloco" pRipple severity="secondary"/>
     <p-button (click)="updateDashboard(selectedDashboard)" (keydown)="updateDashboard(selectedDashboard)"
-              icon="fas fa-check" label="{{'@Save' | transloco}}"
+              icon="fas fa-check" [label]="'@Save' | transloco"
               pRipple
               severity="success"/>
   </ng-template>
@@ -313,6 +313,6 @@
 
   <ng-template pTemplate="footer">
     <p-button (click)="hideInfoPanel()" (keydown)="hideInfoPanel()" icon="fas fa-circle-xmark"
-              label="{{'@Cancel' | transloco}}" pRipple severity="secondary"/>
+              [label]="'@Cancel' | transloco" pRipple severity="secondary"/>
   </ng-template>
 </p-dialog>

@@ -5,7 +5,7 @@
       <ng-template pTemplate="left">
         <p-button (click)="createAnnouncement()" severity="success" icon="fas fa-circle-plus"
                   label="{{'@Create announcement' | transloco }}" pRipple
-                  (keydown.enter)="createAnnouncement()"></p-button>
+                  (keydown.enter)="createAnnouncement()" ></p-button>
       </ng-template>
     </p-toolbar>
     @if ((allAnnouncements$ | async); as announcements) {

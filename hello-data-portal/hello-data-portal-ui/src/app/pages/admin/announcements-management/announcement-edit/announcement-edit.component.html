@@ -113,12 +113,12 @@
             <p-button (click)="saveAnnouncement(editedAnnouncement)" (keydown)="saveAnnouncement(editedAnnouncement)"
                       [disabled]="!isAtLeastDefaultLanguageFilled(defaultLanguage)"
                       icon="fas fa-floppy-disk" class="mr-2"
-                      label="{{'@Save' | transloco}}"
+                      [label]="'@Save' | transloco"
                       severity="success" pRipple/>
             @if (editedAnnouncement.id) {
               <p-button (click)="openDeletePopup(editedAnnouncement)" (keydown)="openDeletePopup(editedAnnouncement)"
                         icon="fas fa-trash" class="mr-2"
-                        label="{{'@Delete' | transloco}}"
+                        [label]="'@Delete' | transloco"
                         severity="danger" pRipple/>
             }
           </div>
