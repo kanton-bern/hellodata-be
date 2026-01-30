@@ -25,9 +25,9 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component, inject, input, ViewChild} from '@angular/core';
+import {Component, inject, input} from '@angular/core';
 
-import {AsyncPipe, NgClass} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {distinctUntilChanged, Observable} from "rxjs";
@@ -40,35 +40,26 @@ import {
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
 import {selectHasMinimalRequiredPermissions} from "../../store/auth/auth.selector";
 import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
-import {TieredMenu} from "primeng/tieredmenu";
-import {Badge} from "primeng/badge";
-import {MenuItem, PrimeTemplate} from "primeng/api";
-import {Ripple} from "primeng/ripple";
+import {MenuItem} from "primeng/api";
 import {HeaderComponent, SummaryComponent} from '../../shared/components';
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-  imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, SummaryComponent,
+  imports: [Tooltip, HeaderComponent, SummaryComponent,
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
-export class SideNavOuterToolbarComponent implements AfterViewInit {
+export class SideNavOuterToolbarComponent {
   private readonly store = inject<Store<AppState>>(Store);
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
   hasMinimalRequiredPermissions$: Observable<boolean>;
 
-  @ViewChild('menu') menu!: TieredMenu;
-
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
     this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
-  }
-
-  ngAfterViewInit(): void {
-    this.menu.dirty = true;
   }
 
   navigateHome() {
@@ -99,15 +90,6 @@ export class SideNavOuterToolbarComponent implements AfterViewInit {
     }
   }
 
-  onMouseleave() {
-    window.document.body.click();
-    this.menu.dirty = true;
-  }
-
-  showMenu(event: MouseEvent): void {
-    this.menu.dirty = true;
-    this.menu.toggle(event);
-  }
 }
 
 
