@@ -102,8 +102,9 @@ body {
   margin: 0;
   white-space: nowrap;
   opacity: 0;
+  transform: translateX(-8px);
   pointer-events: none;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
   z-index: 300;
@@ -111,11 +112,13 @@ body {
 
 .sidebar.close .nav-links li:hover > .second-level-menu {
   opacity: 1;
+  transform: translateX(0);
   pointer-events: auto;
 }
 
 .sidebar.close .nav-links .second-level-menu li:hover > .third-level-menu {
   opacity: 1;
+  transform: translateX(0);
   pointer-events: auto;
 }
 
