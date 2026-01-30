@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ElementRef, inject, input, NgZone, output, ViewChild} from '@angular/core';
 import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 
 import {Store} from "@ngrx/store";
@@ -88,12 +88,18 @@ export class HeaderComponent {
 
   translationsLoaded$: Observable<any>;
 
+  @ViewChild('menu') menuRef!: Menu;
+  @ViewChild('selectedDataDomainMenu') dataDomainMenuRef!: Menu;
+
   environment: Environment;
   userMenuItems: MenuItem[] = [];
   dataDomainSelectionItems: any[] = [];
   supportedLanguages: any[] = [];
 
   selectedLanguage: string | null = null;
+
+  private readonly zone = inject(NgZone);
+  private hideTimeout: any = null;
 
   constructor() {
     this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
@@ -197,6 +203,31 @@ export class HeaderComponent {
       eventAction: '[Click] - Changed language to ' + langCode
     }));
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
+  }
+
+  showMenu(menuRef: Menu, event: Event) {
+    clearTimeout(this.hideTimeout);
+    menuRef.show(event);
+    this.zone.runOutsideAngular(() => {
+      setTimeout(() => this.attachMenuMouseListeners(menuRef));
+    });
+  }
+
+  scheduleHideMenu(menuRef: Menu) {
+    this.hideTimeout = setTimeout(() => menuRef.hide(), 150);
+  }
+
+  cancelHideMenu() {
+    clearTimeout(this.hideTimeout);
+  }
+
+  private attachMenuMouseListeners(menuRef: Menu) {
+    const overlay = (menuRef as any).containerViewChild?.nativeElement
+      ?? (menuRef as any).container
+      ?? document.querySelector('.p-menu-overlay');
+    if (!overlay) return;
+    overlay.addEventListener('mouseenter', () => this.cancelHideMenu());
+    overlay.addEventListener('mouseleave', () => this.scheduleHideMenu(menuRef));
   }
 }
 
