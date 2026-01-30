@@ -136,8 +136,8 @@ body {
   align-items: center;
 }
 
-.sidebar .nav-links .second-level-menu li a:hover,
-.sidebar .nav-links .third-level-menu li a:hover {
+.sidebar .nav-links .second-level-menu li:hover > a,
+.sidebar .nav-links .third-level-menu li:hover > a {
   background-color: $background-color-hover;
 }
 
