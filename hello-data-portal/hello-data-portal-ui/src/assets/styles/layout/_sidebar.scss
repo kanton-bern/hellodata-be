@@ -89,77 +89,77 @@ body {
   pointer-events: none;
 }
 
-//new menu start
+// CSS-only flyout submenus
 
-p-tieredmenu > div {
-  width: 100% !important;
-  border: none !important;
+.sidebar.close .nav-links li .second-level-menu,
+.sidebar.close .nav-links li .third-level-menu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background: $background-color;
+  list-style: none;
+  padding: 4px 0;
+  margin: 0;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  z-index: 300;
 }
 
-p-tieredmenu > div > p-tieredmenusub {
-  position: absolute !important;
+.sidebar.close .nav-links li:hover > .second-level-menu {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-p-tieredmenu {
-  border: none;
-  width: auto !important;
+.sidebar.close .nav-links .second-level-menu li:hover > .third-level-menu {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-p-tieredmenu {
-  padding: 0;
+.sidebar .nav-links .second-level-menu li,
+.sidebar .nav-links .third-level-menu li {
+  position: relative;
 }
 
-p-tieredmenu > div > p-tieredmenusub > ul {
-  padding: 0 2px 0 0;
-}
-
-p-tieredmenu > div > p-tieredmenusub > ul > li > div {
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.p-tieredmenu-submenu {
-  width: auto !important;
-  min-width: unset !important;
-  white-space: nowrap !important;
-  padding-top: 2px;
-}
-
-.p-tieredmenu-item-content a {
-  cursor: pointer;
-}
-
-p-tieredmenu .p-menuitem-link {
-  width: 100%;
-}
-
-p-tieredmenusub {
-  width: 100%;
-}
-
-p-tieredmenusub p-tieredmenusub ul li div {
-  padding-bottom: 0;
-}
-
-p-tieredmenusub p-tieredmenusub ul li div a {
-  padding: 3px 3px 3px 0;
-}
-
-p-tieredmenusub p-tieredmenusub ul li div a span {
-  margin-right: 0.8rem;
-  margin-left: 0;
-  font-size: 1.1rem;
+.sidebar .nav-links .second-level-menu li a,
+.sidebar .nav-links .third-level-menu li a {
+  padding: 6px 14px;
+  font-size: 0.9rem;
   font-weight: 300;
+  color: $menu-item-text-color;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar .nav-links .second-level-menu li a:hover,
+.sidebar .nav-links .third-level-menu li a:hover {
+  background-color: $background-color-hover;
+}
+
+.sidebar .nav-links .second-level-menu li a .p-menuitem-icon,
+.sidebar .nav-links .third-level-menu li a .p-menuitem-icon {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.sidebar .nav-links .second-level-menu i,
+.sidebar .nav-links .third-level-menu i {
+  font-size: 0.75rem;
+  min-width: unset;
+  line-height: normal;
+  margin-left: 8px;
 }
 
 .first-level-item .text-container {
-  /* Ensure text wraps within container */
   white-space: normal;
   overflow-wrap: break-word;
   word-break: break-word;
 }
-
-// new menu end
 
 .sidebar .nav-links {
   height: 100%;
@@ -186,10 +186,6 @@ p-tieredmenusub p-tieredmenusub ul li div a span {
   color: var(--text-color);
   background-color: var(--surface-hover);
   border-radius: 3px !important;
-}
-
-.sidebar.close > .nav-links > li > a {
-  padding-bottom: 10px;
 }
 
 .sidebar .nav-links li .icon-link {
@@ -235,14 +231,16 @@ p-tieredmenusub p-tieredmenusub ul li div a span {
 }
 
 .sidebar.close .nav-links > li > a {
-  display: block;
-  text-align: center;
-  line-height: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  padding-top: 8px;
+  padding-bottom: 10px;
 }
 
 .sidebar.close .nav-links li a .link_name {
-  //opacity: 0;
   pointer-events: none;
   font-size: 10px;
 }
@@ -298,8 +296,6 @@ p-tieredmenusub p-tieredmenusub ul li div a span {
   }
   .sidebar.close .profile-details {
     background: none;
-  }
-  .sidebar.close .profile-details {
     width: 78px;
   }
   .content-section {
