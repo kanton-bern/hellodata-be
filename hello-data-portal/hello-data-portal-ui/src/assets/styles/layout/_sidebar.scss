@@ -98,7 +98,7 @@ body {
   top: 0;
   background: $background-color;
   list-style: none;
-  padding: 4px 0;
+  padding: 0;
   margin: 0;
   white-space: nowrap;
   opacity: 0;
@@ -130,9 +130,9 @@ body {
 .sidebar .nav-links .second-level-menu li a,
 .sidebar .nav-links .third-level-menu li a {
   padding: 6px 14px 6px 8px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 400;
-  color: $menu-item-text-color;
+  color: var(--text-color, rgba(0, 0, 0, .87));
   cursor: pointer;
   text-decoration: none;
   display: flex;
@@ -144,11 +144,16 @@ body {
   background-color: var(--p-menu-item-focus-background, var(--surface-hover));
 }
 
-.sidebar .nav-links .second-level-menu li a.menu-item-active,
-.sidebar .nav-links .third-level-menu li a.menu-item-active {
-  background-color: var(--p-highlight-background, var(--highlight-bg));
-  font-weight: 500;
+.sidebar .nav-links .second-level-menu li:first-child:hover > a,
+.sidebar .nav-links .third-level-menu li:first-child:hover > a {
+  border-radius: 4px 4px 0 0;
 }
+
+.sidebar .nav-links .second-level-menu li:last-child:hover > a,
+.sidebar .nav-links .third-level-menu li:last-child:hover > a {
+  border-radius: 0 0 4px 4px;
+}
+
 
 .sidebar .nav-links .second-level-menu li a .p-menuitem-icon,
 .sidebar .nav-links .third-level-menu li a .p-menuitem-icon {
@@ -194,7 +199,7 @@ body {
 .sidebar.close > .nav-links > li:hover {
   color: var(--text-color);
   background-color: var(--p-menu-item-focus-background, var(--surface-hover));
-  border-radius: 3px !important;
+  border-radius: 4px;
 }
 
 .sidebar .nav-links li .icon-link {

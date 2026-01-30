@@ -50,6 +50,14 @@
   color: inherit !important;
 }
 
+.p-menu .p-menu-list > .p-menu-item:first-child > .p-menu-item-content {
+  border-radius: var(--p-menu-border-radius, 4px) var(--p-menu-border-radius, 4px) 0 0;
+}
+
+.p-menu .p-menu-list > .p-menu-item:last-child > .p-menu-item-content {
+  border-radius: 0 0 var(--p-menu-border-radius, 4px) var(--p-menu-border-radius, 4px);
+}
+
 body {
   background-color: var(--p-surface-ground, #fafafa);
 }
