@@ -7,7 +7,7 @@
     </div>
     @if (permissions.length !== 0) {
       <div class="card col-span-1" id="subscriptionsHeader">
-        <h5>{{'@Subscriptions' | transloco}}</h5>
+        <h5>{{ '@Subscriptions' | transloco }}</h5>
         <app-subscriptions/>
       </div>
     }
@@ -58,7 +58,7 @@
                       <span pTooltip="{{ pipeline.description ? pipeline.description : pipeline.id }}"
                             placeholder="Left"
                             style="font-size: 0.9rem; font-weight: 400"
-                            tooltipPosition="left">{{ pipeline.id | truncate: 20 }}</span>
+                            tooltipPosition="top">{{ pipeline.id | truncate: 20 }}</span>
                     </div>
                     <div class="col-span-3" style="font-size: 0.6rem; margin-top: 0.4rem">
                       @if (pipeline?.lastInstance?.startDate) {
@@ -76,22 +76,22 @@
                           }
                           @case ('running') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end pi pi-spin pi-cog" tooltipPosition="left"
+                                  class="items-end pi pi-spin pi-cog" tooltipPosition="top"
                                   style="color: green"></span>
                           }
                           @case ('success') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end pi pi-check-circle" tooltipPosition="left"
+                                  class="items-end pi pi-check-circle" tooltipPosition="top"
                                   style="color: green"></span>
                           }
                           @case ('failed') {
                             <span [pTooltip]="pipeline.lastInstance.state"
-                                  class="items-end pi pi-exclamation-circle" tooltipPosition="left"
+                                  class="items-end pi pi-exclamation-circle" tooltipPosition="top"
                                   style="color: red"></span>
                           }
                           @default {
                             <span [pTooltip]="'unknown'" class="items-end pi pi-question-circle"
-                                  style="color: gray" tooltipPosition="left"></span>
+                                  style="color: gray" tooltipPosition="top"></span>
                           }
                         }
                       </div>
@@ -106,7 +106,7 @@
         @if ((storeSize$ | async); as storeSize) {
           <p-accordion>
             <p-accordion-panel value="1">
-              <p-accordion-header>{{'@Storage size' | transloco}}</p-accordion-header>
+              <p-accordion-header>{{ '@Storage size' | transloco }}</p-accordion-header>
               <p-accordion-content>
                 <div>
                   @for (storageSize of storeSize.storageSizes; track storageSize) {
@@ -123,7 +123,7 @@
           </p-accordion>
           <p-accordion>
             <p-accordion-panel value="2">
-              <p-accordion-header>{{'@Database size' | transloco}}</p-accordion-header>
+              <p-accordion-header>{{ '@Database size' | transloco }}</p-accordion-header>
               <p-accordion-content>
                 <div>
                   @for (databaseSize of storeSize.databaseSizes; track databaseSize) {
