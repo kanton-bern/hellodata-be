@@ -36,11 +36,11 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.content-section a:not(.p-button):not(.p-menuitem-link):not(.layout-topbar-button):not(.route-link) {
+.content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link) {
   color: var(--primary-color, #3F51B5);
 }
 
-.content-section a:not(.p-button):not(.p-menuitem-link):not(.layout-topbar-button):not(.route-link):hover {
+.content-section a:not(.p-button):not(.p-menuitem-link):not(.p-menu-item-link):not(.layout-topbar-button):not(.route-link):hover {
   text-decoration: underline;
 }
 

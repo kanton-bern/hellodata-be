@@ -141,7 +141,13 @@ body {
 
 .sidebar .nav-links .second-level-menu li:hover > a,
 .sidebar .nav-links .third-level-menu li:hover > a {
-  background-color: $background-color-hover;
+  background-color: var(--p-menu-item-focus-background, var(--surface-hover));
+}
+
+.sidebar .nav-links .second-level-menu li a.menu-item-active,
+.sidebar .nav-links .third-level-menu li a.menu-item-active {
+  background-color: var(--p-highlight-background, var(--highlight-bg));
+  font-weight: 500;
 }
 
 .sidebar .nav-links .second-level-menu li a .p-menuitem-icon,
@@ -187,7 +193,7 @@ body {
 
 .sidebar.close > .nav-links > li:hover {
   color: var(--text-color);
-  background-color: var(--surface-hover);
+  background-color: var(--p-menu-item-focus-background, var(--surface-hover));
   border-radius: 3px !important;
 }
 

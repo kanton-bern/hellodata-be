@@ -27,11 +27,12 @@
 
 import {Component, inject, input} from '@angular/core';
 
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {distinctUntilChanged, Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
+import {NavigationEnd, Router} from "@angular/router";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {Tooltip} from "primeng/tooltip";
 import {Toast} from "primeng/toast";
@@ -47,16 +48,30 @@ import {HeaderComponent} from '../../shared/components';
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
   imports: [Tooltip, HeaderComponent,
-    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
+    Toast, UnsavedChangesDialogComponent, AsyncPipe, NgClass, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
   private readonly store = inject<Store<AppState>>(Store);
+  private readonly router = inject(Router);
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
+  currentUrl = '';
 
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
+    this.currentUrl = this.router.url;
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.currentUrl = event.urlAfterRedirects;
+      }
+    });
+  }
+
+  isActive(item: MenuItem): boolean {
+    if (!item.routerLink) return false;
+    const link = typeof item.routerLink === 'string' ? item.routerLink : item.routerLink.join('/');
+    return this.currentUrl.startsWith('/' + link);
   }
 
   navigateHome() {

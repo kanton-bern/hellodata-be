@@ -16,7 +16,7 @@
             <ul class="second-level-menu">
               @for (sub of item.items; track sub.id) {
                 <li>
-                  <a class="flex items-center" (click)="openWindow(sub)">
+                  <a class="flex items-center" [ngClass]="{'menu-item-active': isActive(sub)}" (click)="openWindow(sub)">
                     @if (sub.icon) {
                       <span [class]="sub.icon" class="p-menuitem-icon"></span>
                     }
@@ -29,7 +29,7 @@
                     <ul class="third-level-menu">
                       @for (third of sub.items; track third.id) {
                         <li>
-                          <a class="flex items-center" (click)="openWindow(third)">
+                          <a class="flex items-center" [ngClass]="{'menu-item-active': isActive(third)}" (click)="openWindow(third)">
                             @if (third.icon) {
                               <span [class]="third.icon" class="p-menuitem-icon"></span>
                             }
