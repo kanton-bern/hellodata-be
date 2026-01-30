@@ -1,6 +1,7 @@
 @if (currentMyDashboardInfo$ | async) {
   <div #dashboardGrid class="grid w-full h-full embedded-dashboard"
-       [style.gridTemplateColumns]="isCommentsOpen ? commentsGridTemplate : '1fr auto'">
+       [class.resizing]="isResizing"
+       [style.gridTemplateColumns]="isCommentsOpen ? commentsGridTemplate : '1fr 0px 30px'">
     <div class="iframe-container h-full relative">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="false"/>
       @if (isResizing) {
@@ -8,9 +9,8 @@
       }
     </div>
 
-    @if (isCommentsOpen) {
-      <div class="resizer" (mousedown)="startResizing($event)"></div>
-    }
+    <div class="resizer" [class.resizer-hidden]="!isCommentsOpen"
+         (mousedown)="startResizing($event)"></div>
 
     <div
       class="comments-panel h-full"
