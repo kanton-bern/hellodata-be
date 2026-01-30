@@ -53,16 +53,8 @@
 
 <section class="content-section">
   <app-header [title]="title()"/>
-  <div class="grid [grid-template-columns:repeat(11,minmax(0,1fr))_30px]">
-    <div class="col-span-11 h-[calc(100vh-70px)] overflow-y-scroll pl-1" id="mainContentDiv">
-      <ng-content/>
-    </div>
-
-    @if (hasMinimalRequiredPermissions$ | async) {
-      <div class="right-panel w-[30px] right-panel-close">
-        <app-summary/>
-      </div>
-    }
+  <div class="h-[calc(100vh-70px)] overflow-y-scroll pl-1" id="mainContentDiv">
+    <ng-content/>
   </div>
 </section>
 

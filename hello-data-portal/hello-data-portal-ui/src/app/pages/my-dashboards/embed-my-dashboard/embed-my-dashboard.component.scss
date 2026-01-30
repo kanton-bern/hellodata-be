@@ -46,6 +46,7 @@
   align-items: stretch;
   justify-content: flex-start;
   height: 100%;
+  padding-right: 0.5rem;
 
   app-comments-toggle-panel {
     height: 100%;
@@ -56,10 +57,10 @@
 }
 
 .comments-panel-closed {
-  writing-mode: vertical-rl;
+  writing-mode: vertical-lr;
   text-orientation: mixed;
   background-color: var(--surface-ground, #f8f9fa);
-  padding: 0.5rem 0.25rem;
+  padding-right: 0.5rem;
   min-width: 1.5rem;
   white-space: nowrap;
 }

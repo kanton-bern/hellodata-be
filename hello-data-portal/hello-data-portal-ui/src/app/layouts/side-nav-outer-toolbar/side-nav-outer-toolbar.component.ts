@@ -38,16 +38,15 @@ import {Toast} from "primeng/toast";
 import {
   UnsavedChangesDialogComponent
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {selectHasMinimalRequiredPermissions} from "../../store/auth/auth.selector";
 import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
 import {MenuItem} from "primeng/api";
-import {HeaderComponent, SummaryComponent} from '../../shared/components';
+import {HeaderComponent} from '../../shared/components';
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-  imports: [Tooltip, HeaderComponent, SummaryComponent,
+  imports: [Tooltip, HeaderComponent,
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
@@ -55,11 +54,9 @@ export class SideNavOuterToolbarComponent {
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
-  hasMinimalRequiredPermissions$: Observable<boolean>;
 
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
-    this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
   }
 
   navigateHome() {

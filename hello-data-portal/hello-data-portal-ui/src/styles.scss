@@ -36,6 +36,20 @@
   font-family: 'Poppins', sans-serif;
 }
 
+.content-section a:not(.p-button):not(.p-menuitem-link):not(.layout-topbar-button):not(.route-link) {
+  color: var(--primary-color, #3F51B5);
+}
+
+.content-section a:not(.p-button):not(.p-menuitem-link):not(.layout-topbar-button):not(.route-link):hover {
+  text-decoration: underline;
+}
+
+.layout-topbar a,
+.p-menu a,
+.p-breadcrumb a {
+  color: inherit !important;
+}
+
 body {
   background-color: var(--p-surface-ground, #fafafa);
 }

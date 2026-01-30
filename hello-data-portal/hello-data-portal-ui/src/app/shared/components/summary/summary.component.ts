@@ -25,11 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, output} from '@angular/core';
-import {Drawer} from 'primeng/drawer';
-import {ScrollPanel, ScrollPanelModule} from "primeng/scrollpanel";
-import {AsyncPipe, DatePipe, NgClass} from "@angular/common";
-import {Fieldset} from "primeng/fieldset";
+import {Component, inject} from '@angular/core';
+import {AsyncPipe, DatePipe} from "@angular/common";
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from "primeng/accordion";
 import {Editor} from "primeng/editor";
 import {FormsModule} from "@angular/forms";
@@ -41,7 +38,6 @@ import {
   selectStorageSize
 } from "../../../store/summary/summary.selector";
 import {Button} from "primeng/button";
-import {Ripple} from "primeng/ripple";
 import {Observable} from "rxjs";
 import {
   selectCurrentUserPermissions,
@@ -54,10 +50,12 @@ import {Tooltip} from "primeng/tooltip";
 import {Documentation, Pipeline, StorageMonitoringResult} from "../../../store/summary/summary.model";
 import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {naviElements} from "../../../app-navi-elements";
 import {FooterComponent} from "../footer/footer.component";
 import {AppInfoService} from "../../services";
 import {TranslateService} from "../../services/translate.service";
-import {PrimeTemplate} from 'primeng/api';
+import {SharedModule} from 'primeng/api';
 import {ContainsPipe} from '../../pipes/contains.pipe';
 import {TruncatePipe} from "../../pipes/truncate.pipe";
 
@@ -66,24 +64,21 @@ import {TruncatePipe} from "../../pipes/truncate.pipe";
   selector: 'app-summary',
   templateUrl: './summary.component.html',
   styleUrls: ['./summary.component.scss'],
-  imports: [Drawer, PrimeTemplate, Fieldset, Accordion, AccordionPanel, Ripple, AccordionHeader,
-    AccordionContent, Tooltip, Button, Editor, FormsModule, ScrollPanelModule,
-    SubscriptionsComponent, FooterComponent, ScrollPanel, NgClass, AsyncPipe, ContainsPipe,
+  imports: [SharedModule, Accordion, AccordionPanel, AccordionHeader,
+    AccordionContent, Tooltip, Button, Editor, FormsModule,
+    SubscriptionsComponent, FooterComponent, AsyncPipe, ContainsPipe,
     TranslocoPipe, TruncatePipe, DatePipe]
 })
 export class SummaryComponent {
   appInfo = inject(AppInfoService);
   currentUserPermissions$: Observable<string[]>;
-  summarySidebarVisible = false;
-  readonly rightSidebarVisible = output<boolean>();
-  overlaySidebarVisible = false;
   pipelines$: Observable<Pipeline[]>;
   documentation$: Observable<Documentation | null>;
   storeSize$: Observable<StorageMonitoringResult | null>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;
-  private store = inject<Store<AppState>>(Store);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
 
   constructor() {
     const store = this.store;
@@ -94,15 +89,15 @@ export class SummaryComponent {
     this.storeSize$ = this.store.select(selectStorageSize);
     this.selectedLanguage$ = store.select(selectSelectedLanguage);
     this.defaultLanguage$ = store.select(selectDefaultLanguage);
-  }
 
-  toggleSummaryPanel() {
-    this.summarySidebarVisible = !this.summarySidebarVisible;
-    this.rightSidebarVisible.emit(this.summarySidebarVisible);
-  }
-
-  openOverlaySidebar() {
-    this.overlaySidebarVisible = true;
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.summary.label,
+          routerLink: naviElements.summary.path
+        }
+      ]
+    }));
   }
 
   editDocumentation() {

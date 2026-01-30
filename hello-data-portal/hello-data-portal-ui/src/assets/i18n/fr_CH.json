@@ -275,6 +275,7 @@
   "@Subscriptions": "Service d'abonnements",
   "@Subsystem users": "Utilisateurs du sous-système",
   "@Summary header": "Statut | Documentation | Service d'abonnements",
+  "@Info": "Info",
   "@Superset Instanz öffnen": "Ouvrir l'instance Superset",
   "@Superuser": "HELLODATA ADMIN",
   "@Sync Started": "La synchronisation des utilisateurs avec tous les systèmes environnants a été lancée avec succès",

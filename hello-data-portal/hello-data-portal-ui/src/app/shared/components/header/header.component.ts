@@ -112,9 +112,10 @@ export class HeaderComponent {
       this.translateService.selectTranslate('@Profile'),
       this.translateService.selectTranslate('@Logout'),
       this.translateService.selectTranslate('@View announcements'),
+      this.translateService.selectTranslate('@Info'),
       this.store.select(selectDisableLogout),
       this.store.select(selectHasMinimalRequiredPermissions)
-    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, disableLogout, hasMinimalRequiredPermissions]) => {
+    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, infoTranslation, disableLogout, hasMinimalRequiredPermissions]) => {
       this.userMenuItems = [
         {
           label: profileTranslation,
@@ -130,6 +131,13 @@ export class HeaderComponent {
           icon: 'fas fa-light fa-bell',
           command: () => {
             this.store.dispatch(navigate({url: '/published-announcements'}));
+          }
+        });
+        this.userMenuItems.push({
+          label: infoTranslation,
+          icon: 'fas fa-light fa-list-check',
+          command: () => {
+            this.store.dispatch(navigate({url: '/summary'}));
           }
         });
       }
