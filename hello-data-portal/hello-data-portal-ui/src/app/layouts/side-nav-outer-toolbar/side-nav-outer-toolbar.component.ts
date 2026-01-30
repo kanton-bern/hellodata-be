@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {AfterViewInit, Component, inject, input, ViewChild} from '@angular/core';
+import {Component, inject, input, ViewChild} from '@angular/core';
 
 import {AsyncPipe, NgClass} from '@angular/common';
 import {Store} from "@ngrx/store";
@@ -53,7 +53,7 @@ import {HeaderComponent, SummaryComponent} from '../../shared/components';
   imports: [Tooltip, TieredMenu, PrimeTemplate, Ripple, NgClass, Badge, HeaderComponent, SummaryComponent,
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
-export class SideNavOuterToolbarComponent implements AfterViewInit {
+export class SideNavOuterToolbarComponent {
   private readonly store = inject<Store<AppState>>(Store);
 
   readonly title = input.required<string>();
@@ -65,10 +65,6 @@ export class SideNavOuterToolbarComponent implements AfterViewInit {
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
     this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
-  }
-
-  ngAfterViewInit(): void {
-    this.menu.dirty = true;
   }
 
   navigateHome() {
@@ -100,8 +96,7 @@ export class SideNavOuterToolbarComponent implements AfterViewInit {
   }
 
   onMouseleave() {
-    window.document.body.click();
-    this.menu.dirty = true;
+    this.menu.hide();
   }
 
   showMenu(event: MouseEvent): void {
