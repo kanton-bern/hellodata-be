@@ -25,55 +25,28 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {FooterComponent} from './footer.component';
-import {AppInfoService} from '../../services';
-import {TestModule} from "../../../test.module";
-import {TitleCasePipe} from "@angular/common";
-import {beforeEach, describe, expect, it, jest} from "@jest/globals";
-import {TranslocoTestingModule} from "@jsverse/transloco";
-import {MatomoTracker} from "ngx-matomo-client";
+import {Component, input} from '@angular/core';
+import {AppInfoService} from "../../services";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {environment} from "../../../../environments/environment";
+import {RouterLink} from "@angular/router";
 
-class MockAppInfoService {
-  getAppInfo() {
-    return {};
-  }
+@Component({
+  selector: 'app-footer',
+  templateUrl: './app-info.component.html',
+  styleUrls: ['./app-info.component.scss'],
+  imports: [RouterLink, TranslocoPipe]
+})
+
+
+export class AppInfoComponent {
+  readonly appInfo = input.required<AppInfoService>();
+
+  openSourceDataPlatformUrl = environment.footerConfig.openSourceDataPlatformUrl;
+  licenseUrl = environment.footerConfig.licenseUrl;
+  githubUrl = environment.footerConfig.githubUrl;
+  versionLink = environment.footerConfig.versionLink;
+
 }
 
-describe('FooterComponent', () => {
-  let component: FooterComponent;
-  let fixture: ComponentFixture<FooterComponent>;
-  let appInfoService: AppInfoService;
-  let titleCasePipe: TitleCasePipe;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        TestModule,
-        FooterComponent,
-        TranslocoTestingModule.forRoot({
-          langs: {en: {}},
-          translocoConfig: {
-            availableLangs: ['en'],
-            defaultLang: 'en',
-          },
-          preloadLangs: true,
-        }),
-      ],
-      providers: [
-        {provide: AppInfoService, useClass: MockAppInfoService},
-        TitleCasePipe,
-        {provide: MatomoTracker, useValue: {trackEvent: jest.fn(), trackPageView: jest.fn()}},
-      ],
-    });
-    fixture = TestBed.createComponent(FooterComponent);
-    component = fixture.componentInstance;
-    appInfoService = TestBed.inject(AppInfoService);
-    titleCasePipe = TestBed.inject(TitleCasePipe);
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-});

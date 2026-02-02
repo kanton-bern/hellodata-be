@@ -25,6 +25,6 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-export * from './footer/footer.component';
+export * from './footer/app-info.component';
 export * from './header/header.component';
 export * from './summary/summary.component'

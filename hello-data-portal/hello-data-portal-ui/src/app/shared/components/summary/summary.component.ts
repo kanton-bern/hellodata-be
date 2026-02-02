@@ -52,7 +52,7 @@ import {SubscriptionsComponent} from "./subscriptions/subscriptions.component";
 import {navigate} from "../../../store/app/app.action";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
-import {FooterComponent} from "../footer/footer.component";
+import {AppInfoComponent} from "../footer/app-info.component";
 import {AppInfoService} from "../../services";
 import {TranslateService} from "../../services/translate.service";
 import {SharedModule} from 'primeng/api';
@@ -66,7 +66,7 @@ import {TruncatePipe} from "../../pipes/truncate.pipe";
   styleUrls: ['./summary.component.scss'],
   imports: [SharedModule, Accordion, AccordionPanel, AccordionHeader,
     AccordionContent, Tooltip, Button, Editor, FormsModule,
-    SubscriptionsComponent, FooterComponent, AsyncPipe, ContainsPipe,
+    SubscriptionsComponent, AppInfoComponent, AsyncPipe, ContainsPipe,
     TranslocoPipe, TruncatePipe, DatePipe]
 })
 export class SummaryComponent {
