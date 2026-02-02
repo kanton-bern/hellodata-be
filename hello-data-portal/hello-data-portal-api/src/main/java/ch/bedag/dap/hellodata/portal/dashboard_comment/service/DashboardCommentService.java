@@ -39,8 +39,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -65,55 +67,79 @@ import java.util.stream.Collectors;
 public class DashboardCommentService {
 
     private static final String COMMENT_NOT_FOUND_ERROR = "DashboardCommentEntity not found";
+    private static final String NO_WRITE_PERMISSION_ERROR = "No write permission for comments";
     private static final String DASHBOARD_TITLE_PREFIX = "Dashboard ";
 
     private final UserRepository userRepository;
     private final DashboardCommentRepository commentRepository;
+    private final DashboardCommentPermissionRepository commentPermissionRepository;
     private final DashboardCommentMapper commentMapper;
     private final MetaInfoResourceService metaInfoResourceService;
 
+    private DashboardCommentPermissionEntity getCommentPermissionForCurrentUser(String contextKey) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            return null;
+        }
+        return commentPermissionRepository.findByUserIdAndContextKey(currentUserId, contextKey).orElse(null);
+    }
+
     /**
      * Get all comments for a dashboard. Filters based on user permissions.
-     * - All users can see published comments
-     * - Users can see their own drafts
-     * - Admins (superuser, business_domain_admin, data_domain_admin) can see all drafts
-     * - If active version is a draft by someone else, non-admins see the last published version instead
+     * - read permission: only published comments
+     * - write permission: published + own drafts
+     * - review permission: all published + all drafts
+     * - Admins (superuser, business_domain_admin, data_domain_admin) see everything
      */
     @Transactional(readOnly = true)
     public List<DashboardCommentDto> getComments(String contextKey, int dashboardId) {
-        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
-
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
         boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
 
-        // Convert to DTOs, filter and transform comments based on user permissions
+        DashboardCommentPermissionEntity perm = null;
+        if (!isAdmin) {
+            perm = getCommentPermissionForCurrentUser(contextKey);
+            if (perm == null || !perm.isReadComments()) {
+                return Collections.emptyList();
+            }
+        }
+
+        boolean hasWritePermission = isAdmin || perm.isWriteComments();
+        boolean hasReviewPermission = isAdmin || perm.isReviewComments();
+
+        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
+
+        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
+
         return comments.stream()
                 .map(commentMapper::toDto)
                 .filter(c -> !c.isDeleted())
-                .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
+                .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin, hasWritePermission, hasReviewPermission))
                 .filter(Objects::nonNull)
                 .toList();
     }
 
     /**
      * Filter a single comment based on user permissions.
-     * Returns the comment if visible, or null if should be hidden.
+     * - read only: only published comments visible
+     * - write: published + own drafts visible
+     * - review/admin: all comments visible
      */
-    private DashboardCommentDto filterCommentByPermissions(DashboardCommentDto comment, String userEmail, String userFullName, boolean isAdmin) {
+    private DashboardCommentDto filterCommentByPermissions(DashboardCommentDto comment, String userEmail, String userFullName,
+                                                           boolean isAdmin, boolean hasWrite, boolean hasReview) {
         DashboardCommentVersionDto activeVersion = getActiveVersion(comment);
         if (activeVersion == null || activeVersion.isDeleted()) {
             return null;
         }
 
-        // Published comments are visible to everyone
+        // Published comments are visible to anyone with read permission
         if (activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
             return comment;
         }
 
         // Handle draft comments
         if (activeVersion.getStatus() == DashboardCommentStatus.DRAFT) {
-            return handleDraftComment(comment, activeVersion, userEmail, userFullName, isAdmin);
+            return handleDraftComment(comment, activeVersion, userEmail, userFullName, isAdmin, hasWrite, hasReview);
         }
 
         return null;
@@ -121,20 +147,24 @@ public class DashboardCommentService {
 
     /**
      * Handle visibility logic for draft comments.
+     * - review/admin: see all drafts
+     * - write: see own drafts, fallback to last published for others' drafts
+     * - read only: fallback to last published version
      */
     private DashboardCommentDto handleDraftComment(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
-                                                   String userEmail, String userFullName, boolean isAdmin) {
-        // Admins can see all drafts
-        if (isAdmin) {
+                                                   String userEmail, String userFullName,
+                                                   boolean isAdmin, boolean hasWrite, boolean hasReview) {
+        // Admins and reviewers can see all drafts
+        if (isAdmin || hasReview) {
             return comment;
         }
 
-        // Check if this is user's own draft
-        if (isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
+        // Writers can see their own drafts
+        if (hasWrite && isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
             return comment;
         }
 
-        // For drafts by others, show the last published version if it exists
+        // For drafts by others (or read-only users), show the last published version if it exists
         return showLastPublishedVersion(comment);
     }
 
@@ -194,6 +224,8 @@ public class DashboardCommentService {
      * Create a new comment.
      */
     public DashboardCommentDto createComment(String contextKey, int dashboardId, DashboardCommentCreateDto createDto) {
+        checkHasAccessToComment(contextKey);
+
         String authorFullName = SecurityUtils.getCurrentUserFullName();
         String authorEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
@@ -249,6 +281,8 @@ public class DashboardCommentService {
      * Update an existing comment (for DRAFT status).
      */
     public DashboardCommentDto updateComment(String contextKey, int dashboardId, String commentId, DashboardCommentUpdateDto updateDto) {
+        checkHasAccessToComment(contextKey);
+
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
@@ -318,6 +352,8 @@ public class DashboardCommentService {
      * Delete a comment (soft delete).
      */
     public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId, boolean deleteEntire) {
+        checkHasAccessToComment(contextKey);
+
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
@@ -375,14 +411,15 @@ public class DashboardCommentService {
      * Publish a comment (change status from DRAFT to PUBLISHED).
      */
     public DashboardCommentDto publishComment(String contextKey, int dashboardId, String commentId) {
+        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
+            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+            if (perm == null || !perm.isReviewComments()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No review permission for comments");
+            }
+        }
+
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        // Only admins (superuser, business_domain_admin, data_domain_admin) can publish
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (!SecurityUtils.isSuperuser() && !isAdminForContext(currentUserEmail, contextKey)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can publish comments");
-        }
 
         String publisherName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
@@ -409,14 +446,15 @@ public class DashboardCommentService {
      * Unpublish a comment (change status from PUBLISHED to DRAFT).
      */
     public DashboardCommentDto unpublishComment(String contextKey, int dashboardId, String commentId) {
+        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
+            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+            if (perm == null || !perm.isReviewComments()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No review permission for comments");
+            }
+        }
+
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        // Only admins (superuser, business_domain_admin, data_domain_admin) can unpublish
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        if (!SecurityUtils.isSuperuser() && !isAdminForContext(currentUserEmail, contextKey)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can unpublish comments");
-        }
 
         comment.getHistory().stream()
                 .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
@@ -440,6 +478,8 @@ public class DashboardCommentService {
      */
     public DashboardCommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
                                                    DashboardCommentUpdateDto updateDto) {
+        checkHasAccessToComment(contextKey);
+
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
@@ -502,10 +542,21 @@ public class DashboardCommentService {
         return commentMapper.toDto(savedComment);
     }
 
+    private void checkHasAccessToComment(String contextKey) {
+        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
+            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+            if (perm == null || !perm.isWriteComments()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_WRITE_PERMISSION_ERROR);
+            }
+        }
+    }
+
     /**
      * Restore a specific version of a comment.
      */
     public DashboardCommentDto restoreVersion(String contextKey, int dashboardId, String commentId, int versionNumber) {
+        checkHasAccessToComment(contextKey);
+
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
@@ -567,11 +618,23 @@ public class DashboardCommentService {
      */
     @Transactional(readOnly = true)
     public List<DomainDashboardCommentDto> getCommentsForDomain(String contextKey) {
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
+
+        DashboardCommentPermissionEntity perm = null;
+        if (!isAdmin) {
+            perm = getCommentPermissionForCurrentUser(contextKey);
+            if (perm == null || !perm.isReadComments()) {
+                return Collections.emptyList();
+            }
+        }
+
+        boolean hasWritePermission = isAdmin || perm.isWriteComments();
+        boolean hasReviewPermission = isAdmin || perm.isReviewComments();
+
         List<DashboardCommentEntity> comments = commentRepository.findByContextKeyOrderByCreatedDateAsc(contextKey);
 
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         String currentUserFullName = SecurityUtils.getCurrentUserFullName();
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
 
         // Get dashboard info map (title and instanceName)
         Map<Integer, DashboardInfo> dashboardInfoMap = getDashboardInfoMap(contextKey);
@@ -584,7 +647,7 @@ public class DashboardCommentService {
                 .filter(entity -> isAdmin || accessibleDashboardIds == null || accessibleDashboardIds.contains(entity.getDashboardId()))
                 .map(entity -> toDomainDashboardCommentDto(entity, dashboardInfoMap))
                 .filter(c -> !c.isDeleted())
-                .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin))
+                .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin, hasWritePermission, hasReviewPermission))
                 .filter(Objects::nonNull)
                 .toList();
     }
@@ -726,13 +789,14 @@ public class DashboardCommentService {
     /**
      * Filter domain dashboard comment by permissions (similar to filterCommentByPermissions but for DomainDashboardCommentDto).
      */
-    private DomainDashboardCommentDto filterDomainDashboardCommentByPermissions(DomainDashboardCommentDto comment, String userEmail, String userFullName, boolean isAdmin) {
+    private DomainDashboardCommentDto filterDomainDashboardCommentByPermissions(DomainDashboardCommentDto comment, String userEmail, String userFullName,
+                                                                                boolean isAdmin, boolean hasWrite, boolean hasReview) {
         DashboardCommentVersionDto activeVersion = getDomainDashboardActiveVersion(comment);
         if (activeVersion == null || activeVersion.isDeleted()) {
             return null;
         }
 
-        // Published comments are visible to everyone
+        // Published comments are visible to anyone with read permission
         if (activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
             return comment;
         }
@@ -741,12 +805,17 @@ public class DashboardCommentService {
             return null;
         }
 
-        // Admins and own-draft authors can see drafts directly
-        if (isAdmin || isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
+        // Admins and reviewers can see all drafts
+        if (isAdmin || hasReview) {
             return comment;
         }
 
-        // For drafts by others, show the last published version if it exists
+        // Writers can see their own drafts
+        if (hasWrite && isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
+            return comment;
+        }
+
+        // For drafts by others (or read-only users), show the last published version if it exists
         return fallbackToLastPublishedVersion(comment);
     }
 

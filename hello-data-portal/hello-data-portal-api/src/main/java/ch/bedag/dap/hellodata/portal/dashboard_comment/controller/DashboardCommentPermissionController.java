@@ -26,25 +26,35 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.controller;
 
+import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/{userId}/comment-permissions")
 public class DashboardCommentPermissionController {
 
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
 
-    @GetMapping
+    @GetMapping("/users/{userId}/comment-permissions")
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public List<DashboardCommentPermissionDto> getCommentPermissions(@PathVariable UUID userId) {
         return dashboardCommentPermissionService.getPermissions(userId);
+    }
+
+    @GetMapping("/users/current/comment-permissions")
+    public List<DashboardCommentPermissionDto> getCurrentUserCommentPermissions() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            return Collections.emptyList();
+        }
+        return dashboardCommentPermissionService.getPermissions(currentUserId);
     }
 }

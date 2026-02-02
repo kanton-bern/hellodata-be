@@ -42,7 +42,7 @@ import {
   selectCurrentDashboardUrl,
   selectCurrentMyDashboardInfo
 } from "../../../store/my-dashboards/my-dashboards.selector";
-import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {selectCurrentUserCommentPermissions, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
@@ -70,6 +70,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
+  canReadComments = false;
 
   commentsPanelWidth = this.loadSavedWidth();
   isResizing = false;
@@ -77,6 +78,7 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   private loadedDashboardId: number | null = null;
   private isNavigatingToPointerUrl = false;
   private commentsRefreshSubscription: Subscription | null = null;
+  private commentPermissionsSub: Subscription | null = null;
 
   constructor() {
     super();
@@ -101,6 +103,21 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       const pointerUrl = params['pointerUrl'];
       if (pointerUrl) {
         this.navigateToPointerUrl(pointerUrl);
+      }
+    });
+
+    this.commentPermissionsSub = combineLatest([
+      this.store.select(selectCurrentDashboardContextKey),
+      this.store.select(selectCurrentUserCommentPermissions)
+    ]).subscribe(([contextKey, commentPermissions]) => {
+      if (contextKey && commentPermissions[contextKey]) {
+        this.canReadComments = commentPermissions[contextKey].readComments;
+      } else {
+        this.canReadComments = false;
+      }
+      if (!this.canReadComments && this.isCommentsOpen) {
+        this.isCommentsOpen = false;
+        this.stopCommentsRefreshTimer();
       }
     });
   }
@@ -163,6 +180,10 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   ngOnDestroy(): void {
     this.stopCommentsRefreshTimer();
+    if (this.commentPermissionsSub) {
+      this.commentPermissionsSub.unsubscribe();
+      this.commentPermissionsSub = null;
+    }
   }
 
   private loadCommentsAndStartTimer(): void {

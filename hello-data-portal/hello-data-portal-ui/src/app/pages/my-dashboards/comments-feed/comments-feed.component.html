@@ -108,6 +108,7 @@
     }
   </div>
 
+  @if (canWriteComments$ | async) {
   <div class="comment-form mb-[0.5rem]">
       <textarea
         class="w-full border rounded-md"
@@ -186,6 +187,7 @@
       </div>
     }
   </div>
+  }
 
 </div>
 

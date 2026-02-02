@@ -28,6 +28,7 @@
 import {AuthState, initialAuthState} from "./auth.state";
 import {
   fetchContextRolesSuccess,
+  fetchCurrentUserCommentPermissionsSuccess,
   fetchPermissionSuccess,
   loginComplete,
   logout,
@@ -103,6 +104,12 @@ export const authReducer = createReducer(
       permissions: [],
       isSuperuser: false,
       userDisabled: true
+    };
+  }),
+  on(fetchCurrentUserCommentPermissionsSuccess, (state: AuthState, {commentPermissions}): AuthState => {
+    return {
+      ...state,
+      currentUserCommentPermissions: commentPermissions
     };
   }),
 );

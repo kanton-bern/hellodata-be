@@ -46,6 +46,7 @@ public class DashboardCommentPermissionService {
     @Transactional
     public void updatePermissions(UUID userId, List<DashboardCommentPermissionDto> permissions) {
         for (DashboardCommentPermissionDto dto : permissions) {
+            normalizePermissions(dto);
             Optional<DashboardCommentPermissionEntity> existing = repository.findByUserIdAndContextKey(userId, dto.getContextKey());
             if (existing.isPresent()) {
                 DashboardCommentPermissionEntity entity = existing.get();
@@ -71,6 +72,20 @@ public class DashboardCommentPermissionService {
         return repository.findByUserId(userId).stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    private void normalizePermissions(DashboardCommentPermissionDto dto) {
+        if (dto.isReviewComments()) {
+            dto.setWriteComments(true);
+            dto.setReadComments(true);
+        }
+        if (dto.isWriteComments()) {
+            dto.setReadComments(true);
+        }
+        if (!dto.isReadComments()) {
+            dto.setWriteComments(false);
+            dto.setReviewComments(false);
+        }
     }
 
     private DashboardCommentPermissionDto toDto(DashboardCommentPermissionEntity entity) {

@@ -174,7 +174,7 @@
                                     [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'writeComments')"
                                     [ngModelOptions]="{standalone: true}"
                                     (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'writeComments', $event)"
-                                    [disabled]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole"
+                                    [disabled]="isWriteCommentDisabled(dataDomain.contextKey)"
                                     inputId="write-{{dataDomain.contextKey}}"/>
                                   <label [for]="'write-' + dataDomain.contextKey"
                                          class="ml-1 text-sm">{{ '@Write' | transloco }}</label>

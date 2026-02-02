@@ -53,6 +53,7 @@ import {
   selectContextKey,
   selectContextName
 } from '../../../store/my-dashboards/my-dashboards.selector';
+import {selectCurrentUserCommentPermissions} from '../../../store/auth/auth.selector';
 import {ConfirmationService, PrimeTemplate} from 'primeng/api';
 import {Dialog} from "primeng/dialog";
 import {Textarea} from "primeng/textarea";
@@ -129,10 +130,17 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     // Subscribe to route params using ngrx selectors
     this.routeSubscription = combineLatest([
       this.store.select(selectContextKey),
-      this.store.select(selectContextName)
+      this.store.select(selectContextName),
+      this.store.select(selectCurrentUserCommentPermissions)
     ]).pipe(
       filter(([contextKey]) => !!contextKey)
-    ).subscribe(([contextKey, contextName]) => {
+    ).subscribe(([contextKey, contextName, commentPermissions]) => {
+      // Redirect if user doesn't have readComments permission for this context
+      const perms = commentPermissions[contextKey!];
+      if (!perms?.readComments) {
+        this.router.navigate(['/my-dashboards']);
+        return;
+      }
       // Only reload if contextKey changed
       if (contextKey !== this.contextKey) {
         this.contextKey = contextKey!;

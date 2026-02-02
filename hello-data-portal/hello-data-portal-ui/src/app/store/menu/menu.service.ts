@@ -32,6 +32,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {
   selectCurrentContextRoles,
+  selectCurrentUserCommentPermissions,
   selectCurrentUserPermissions,
   selectCurrentUserPermissionsLoaded
 } from "../auth/auth.selector";
@@ -47,6 +48,7 @@ import {selectAppInfos} from "../metainfo-resource/metainfo-resource.selector";
 import {MetaInfoResource} from "../metainfo-resource/metainfo-resource.model";
 import {
   BUSINESS_DOMAIN_ADMIN_ROLE,
+  CommentPermissions,
   DATA_DOMAIN_ADMIN_ROLE,
   DATA_DOMAIN_EDITOR_ROLE,
   HELLODATA_ADMIN_ROLE
@@ -103,10 +105,11 @@ export class MenuService {
       this._store.select(selectAppInfos),
       this._store.select(selectCurrentContextRoles),
       this._store.select(selectAvailableDataDomainItems),
-      this._store.select(selectSelectedDataDomain)
+      this._store.select(selectSelectedDataDomain),
+      this._store.select(selectCurrentUserCommentPermissions)
     ]).pipe(
       map(([myDashboards, myDocs,
-             appInfos, contextRoles, availableDomainItems, selectedDataDomain]) => {
+             appInfos, contextRoles, availableDomainItems, selectedDataDomain, commentPermissions]) => {
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         return filteredNavigationElements.map((item) => {
           if (item.routerLink && !(item.routerLink.startsWith("/"))) {
@@ -116,7 +119,7 @@ export class MenuService {
 
           // inject the users dashboards into the menu
           if (menuItem.label === '@Dashboards') {
-            menuItem.items = this.createMyDashboardsSubNav(myDashboards, appInfos, contextRoles);
+            menuItem.items = this.createMyDashboardsSubNav(myDashboards, appInfos, contextRoles, commentPermissions);
           }
           // inject the users lineage docs into the menu
           if (menuItem.label === '@Lineage') {
@@ -194,11 +197,11 @@ export class MenuService {
     return filteredNavigationElements;
   }
 
-  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[]) {
+  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>) {
     const myDashboards: any[] = [];
     myDashboards.push({id: 'dashboardList', label: '@Dashboard List', routerLink: 'my-dashboards'});
-    this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards);
-    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles);
+    this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards, commentPermissions);
+    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles, commentPermissions);
     myDashboards.push({
       id: 'externalDashboards',
       label: '@External dashboards',
@@ -208,7 +211,7 @@ export class MenuService {
     return myDashboards;
   }
 
-  private groupAndInsertDashboardMenuItems(dashboards: SupersetDashboard[], contextRoles: any[], appInfos: MetaInfoResource[], myDashboards: any[]) {
+  private groupAndInsertDashboardMenuItems(dashboards: SupersetDashboard[], contextRoles: any[], appInfos: MetaInfoResource[], myDashboards: any[], commentPermissions: Record<string, CommentPermissions>) {
     const groupedByInstance: Map<string, SupersetDashboard[]> = new Map<string, SupersetDashboard[]>();
     dashboards.forEach(db => {
       const contextName = db.contextName;
@@ -228,7 +231,7 @@ export class MenuService {
       if (this.displaySupersetLink(contextName, contextRoles)) {
         this.addLinkToOpenSuperset(dashboardEntries, contextName, appInfos);
       }
-      this.addLinkToDomainComments(dashboardEntries, contextName, contextKey);
+      this.addLinkToDomainComments(dashboardEntries, contextName, contextKey, commentPermissions);
       contextDashboards.forEach((db: SupersetDashboard) => {
         dashboardEntries.push({
           id: 'dashboardMenu' + db.id,
@@ -250,7 +253,11 @@ export class MenuService {
     });
   }
 
-  private addLinkToDomainComments(dashboardEntries: any[], contextName: string, contextKey: string) {
+  private addLinkToDomainComments(dashboardEntries: any[], contextName: string, contextKey: string, commentPermissions: Record<string, CommentPermissions>) {
+    const perms = commentPermissions[contextKey];
+    if (!perms?.readComments) {
+      return;
+    }
     dashboardEntries.push({
       id: 'domainComments_' + contextKey,
       label: "@All Dashboards Comments",
@@ -259,7 +266,7 @@ export class MenuService {
     });
   }
 
-  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[]) {
+  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>) {
     const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
     supersets.forEach((supersetInstance) => {
       const contextName = supersetInstance.businessContextInfo.subContext.name;
@@ -268,7 +275,7 @@ export class MenuService {
         if (myDashboards.filter(item => item.label === contextName).length === 0) {
           const items: any[] = [];
           this.addLinkToOpenSuperset(items, contextName, appInfos);
-          this.addLinkToDomainComments(items, contextName, contextKey);
+          this.addLinkToDomainComments(items, contextName, contextKey, commentPermissions);
           myDashboards.push({label: contextName, items});
         }
       }

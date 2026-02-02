@@ -31,6 +31,7 @@ import {AuthState} from "./auth.state";
 import {
   BUSINESS_DOMAIN_ADMIN_ROLE,
   BUSINESS_DOMAIN_CONTEXT_TYPE,
+  CommentPermissions,
   DATA_DOMAIN_ADMIN_ROLE,
   DATA_DOMAIN_CONTEXT_TYPE
 } from "../users-management/users-management.model";
@@ -139,5 +140,17 @@ export const selectSelectedLanguage = createSelector(
       }
     }
     return {code: state.selectedLanguage, typeTranslationKey: '@User selected language'};
+  }
+);
+
+export const selectCurrentUserCommentPermissions = createSelector(
+  authState,
+  (state: AuthState) => state.currentUserCommentPermissions
+);
+
+export const selectCurrentUserCommentPermissionsForContext = (contextKey: string) => createSelector(
+  authState,
+  (state: AuthState): CommentPermissions => {
+    return state.currentUserCommentPermissions[contextKey] || {readComments: false, writeComments: false, reviewComments: false};
   }
 );

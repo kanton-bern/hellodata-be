@@ -230,15 +230,22 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     const contextKey = dataDomain.contextKey as string;
     if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes($event.value.name)) {
       this.dashboardTableVisibility.set(contextKey, true);
-    } else if (![DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes($event.value.name)) {
+    } else {
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
       this.dashboardTableVisibility.set(contextKey, false);
     }
-    // Clear comment permissions when role is NONE
     if ($event.value.name === NONE_ROLE) {
+      // Clear comment permissions when role is NONE
       this.store.dispatch(setCommentPermissionsForUser({
         contextKey,
         permissions: {readComments: false, writeComments: false, reviewComments: false}
+      }));
+    } else {
+      // Any non-NONE role auto-enables readComments
+      const current = this.getCommentPermissions(contextKey);
+      this.store.dispatch(setCommentPermissionsForUser({
+        contextKey,
+        permissions: {...current, readComments: true}
       }));
     }
     this.store.dispatch(selectDataDomainRoleForEditedUser({
@@ -281,10 +288,26 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   onCommentPermissionChange(contextKey: string, permission: keyof CommentPermissions, value: boolean): void {
     const permissions = {...this.getCommentPermissions(contextKey)};
     permissions[permission] = value;
-    // Auto-enable readComments when writeComments or reviewComments is checked
-    if (value && (permission === 'writeComments' || permission === 'reviewComments')) {
+
+    // Cascade: reviewComments checked → also set writeComments and readComments
+    if (value && permission === 'reviewComments') {
+      permissions.writeComments = true;
       permissions.readComments = true;
     }
+    // Cascade: writeComments checked → also set readComments
+    if (value && permission === 'writeComments') {
+      permissions.readComments = true;
+    }
+    // Cascade: readComments unchecked → also unset writeComments and reviewComments
+    if (!value && permission === 'readComments') {
+      permissions.writeComments = false;
+      permissions.reviewComments = false;
+    }
+    // Cascade: writeComments unchecked → also unset reviewComments
+    if (!value && permission === 'writeComments') {
+      permissions.reviewComments = false;
+    }
+
     this.store.dispatch(setCommentPermissionsForUser({contextKey, permissions}));
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
@@ -294,12 +317,20 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     return control?.value?.name === NONE_ROLE;
   }
 
+  isWriteCommentDisabled(contextKey: string): boolean {
+    if (this.isRoleNone(contextKey) || this.hasBusinessAdminRole) {
+      return true;
+    }
+    const permissions = this.getCommentPermissions(contextKey);
+    return permissions.reviewComments;
+  }
+
   isReadCommentDisabled(contextKey: string): boolean {
     if (this.isRoleNone(contextKey) || this.hasBusinessAdminRole) {
       return true;
     }
     const permissions = this.getCommentPermissions(contextKey);
-    return permissions.writeComments || permissions.reviewComments;
+    return permissions.writeComments;
   }
 
   isCommentPermissionChecked(contextKey: string, permission: keyof CommentPermissions): boolean {

@@ -41,6 +41,7 @@ import {
   selectCurrentDashboardUrl,
   selectVisibleComments
 } from "../../../store/my-dashboards/my-dashboards.selector";
+import {selectCurrentUserCommentPermissions, selectIsBusinessDomainAdmin, selectIsSuperuser} from "../../../store/auth/auth.selector";
 import {AsyncPipe} from "@angular/common";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
@@ -108,6 +109,22 @@ export class CommentsFeed implements AfterViewInit {
 
   // Admin check for import/export functionality
   isAdmin$ = this.store.select(canViewMetadataAndVersions);
+
+  // Write permission check for showing the comment form
+  canWriteComments$: Observable<boolean> = combineLatest([
+    this.store.select(selectCurrentDashboardContextKey),
+    this.store.select(selectCurrentUserCommentPermissions),
+    this.store.select(selectIsSuperuser),
+    this.store.select(selectIsBusinessDomainAdmin),
+    this.store.select(canViewMetadataAndVersions)
+  ]).pipe(
+    map(([contextKey, commentPermissions, isSuperuser, isBusinessDomainAdmin, isAdmin]) => {
+      if (isSuperuser || isBusinessDomainAdmin || isAdmin) return true;
+      if (!contextKey) return false;
+      const perms = commentPermissions[contextKey];
+      return !!perms?.writeComments;
+    })
+  );
 
   // Filter options
   yearOptions$: Observable<FilterOption[]>;

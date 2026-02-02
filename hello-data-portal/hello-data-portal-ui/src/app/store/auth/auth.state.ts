@@ -25,6 +25,8 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
+import {CommentPermissions} from "../users-management/users-management.model";
+
 export interface AuthState {
   profile: any;
   isLoggedIn: boolean;
@@ -33,6 +35,7 @@ export interface AuthState {
   isSuperuser: boolean,
   businessDomain: string,
   contextRoles: any[],
+  currentUserCommentPermissions: Record<string, CommentPermissions>,
   disableLogout: boolean,
   userDisabled: boolean,
   supportedLanguages: string[],
@@ -57,6 +60,7 @@ export const initialAuthState: AuthState = {
   isSuperuser: false,
   businessDomain: '',
   contextRoles: [],
+  currentUserCommentPermissions: {},
   disableLogout: false,
   userDisabled: false,
   supportedLanguages: [],

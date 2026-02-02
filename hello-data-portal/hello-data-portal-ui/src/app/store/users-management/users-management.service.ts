@@ -170,6 +170,10 @@ export class UsersManagementService {
     return this.httpClient.get<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]>(`${this.baseUsersUrl}/${userId}/comment-permissions`);
   }
 
+  public getCurrentUserCommentPermissions(): Observable<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]> {
+    return this.httpClient.get<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]>(`${this.baseUsersUrl}/current/comment-permissions`);
+  }
+
   public searchUserByEmail(email: string | undefined): Observable<AdUser[]> {
     return this.httpClient.get<any>(`${this.baseUsersUrl}/search/${email}`);
   }

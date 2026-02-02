@@ -27,6 +27,7 @@
 
 import {createAction, props} from "@ngrx/store";
 import {CurrentUserAuthData} from "./auth.state";
+import {CommentPermissions} from "../users-management/users-management.model";
 
 export enum AuthActionType {
   LOGIN = '[AUTH] Login',
@@ -45,6 +46,8 @@ export enum AuthActionType {
   SET_ACTIVE_TRANSLOCO_LANGUAGE = '[AUTH] Set active transloco language',
   PROLONG_CB_SESSION = '[AUTH] Prolong the Cloudbeaver session',
   USER_FORBIDDEN = '[AUTH] User forbidden',
+  FETCH_CURRENT_USER_COMMENT_PERMISSIONS = '[AUTH] Fetch current user comment permissions',
+  FETCH_CURRENT_USER_COMMENT_PERMISSIONS_SUCCESS = '[AUTH] Fetch current user comment permissions success',
 }
 
 export const login = createAction(
@@ -117,4 +120,13 @@ export const prolongCBSession = createAction(
 
 export const userForbidden = createAction(
   AuthActionType.USER_FORBIDDEN
+);
+
+export const fetchCurrentUserCommentPermissions = createAction(
+  AuthActionType.FETCH_CURRENT_USER_COMMENT_PERMISSIONS
+);
+
+export const fetchCurrentUserCommentPermissionsSuccess = createAction(
+  AuthActionType.FETCH_CURRENT_USER_COMMENT_PERMISSIONS_SUCCESS,
+  props<{ commentPermissions: Record<string, CommentPermissions> }>()
 );
