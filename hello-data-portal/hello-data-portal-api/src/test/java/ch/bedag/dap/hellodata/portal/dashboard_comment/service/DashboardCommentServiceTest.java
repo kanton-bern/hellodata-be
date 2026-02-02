@@ -543,9 +543,17 @@ class DashboardCommentServiceTest {
     void updateComment_shouldThrowExceptionWhenNotAuthorOrSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             // Create comment as one user
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
@@ -554,8 +562,18 @@ class DashboardCommentServiceTest {
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Try to update as different user
+            UUID otherUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock other user without admin privileges but with write permission
+            UserEntity otherUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
+
+            // Mock write permission for other user
+            DashboardCommentPermissionEntity otherWritePermission = createWritePermission();
+            mockPermissionForUser(otherUserId, otherWritePermission);
 
             DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
                     .text("Updated text")
@@ -634,7 +652,7 @@ class DashboardCommentServiceTest {
             assertThatThrownBy(() ->
                     commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Only admins can publish comments");
+                    .hasMessageContaining("No review permission for comments");
         }
     }
 
@@ -782,10 +800,15 @@ class DashboardCommentServiceTest {
             UUID otherUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
             securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            // Mock other user without admin privileges
+            // Mock other user without admin privileges but with write permission
             UserEntity otherUser = new UserEntity();
             when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
+
+            // Mock write permission for other user
+            DashboardCommentPermissionEntity otherWritePermission = createWritePermission();
+            mockPermissionForUser(otherUserId, otherWritePermission);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
@@ -928,10 +951,15 @@ class DashboardCommentServiceTest {
             UUID otherUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
             securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            // Mock other user without admin privileges
+            // Mock other user without admin privileges but with write permission
             UserEntity otherUser = new UserEntity();
             when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
+
+            // Mock write permission for other user
+            DashboardCommentPermissionEntity otherWritePermission = createWritePermission();
+            mockPermissionForUser(otherUserId, otherWritePermission);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
@@ -1239,8 +1267,17 @@ class DashboardCommentServiceTest {
         final String USER_NAME = "Test User";
 
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             // Create a comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1277,8 +1314,10 @@ class DashboardCommentServiceTest {
     @Test
     void exportComments_shouldFailForNonAdminUser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             // Mock user repository for admin role check (user is not admin)
@@ -1297,9 +1336,17 @@ class DashboardCommentServiceTest {
     void exportComments_shouldExportDraftComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             // First create a draft as regular user
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             // Create a draft comment (not published)
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1441,8 +1488,10 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldFailForNonAdminUser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             // Mock user repository for admin role check (user is not admin)
