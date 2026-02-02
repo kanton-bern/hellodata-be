@@ -163,7 +163,7 @@
                                     [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'readComments')"
                                     [ngModelOptions]="{standalone: true}"
                                     (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'readComments', $event)"
-                                    [disabled]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole"
+                                    [disabled]="isReadCommentDisabled(dataDomain.contextKey)"
                                     inputId="read-{{dataDomain.contextKey}}"/>
                                   <label [for]="'read-' + dataDomain.contextKey"
                                          class="ml-1 text-sm">{{ '@Read' | transloco }}</label>

@@ -269,6 +269,10 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   onCommentPermissionChange(contextKey: string, permission: keyof CommentPermissions, value: boolean): void {
     const permissions = this.getCommentPermissions(contextKey);
     permissions[permission] = value;
+    // Auto-enable readComments when writeComments or reviewComments is checked
+    if (value && (permission === 'writeComments' || permission === 'reviewComments')) {
+      permissions.readComments = true;
+    }
     this.commentPermissions.set(contextKey, permissions);
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
@@ -276,6 +280,14 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   isRoleNone(contextKey: string): boolean {
     const control = this.userForm?.get(contextKey);
     return control?.value?.name === NONE_ROLE;
+  }
+
+  isReadCommentDisabled(contextKey: string): boolean {
+    if (this.isRoleNone(contextKey) || this.hasBusinessAdminRole) {
+      return true;
+    }
+    const permissions = this.getCommentPermissions(contextKey);
+    return permissions.writeComments || permissions.reviewComments;
   }
 
   isCommentPermissionChecked(contextKey: string, permission: keyof CommentPermissions): boolean {
