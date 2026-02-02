@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, Component, ElementRef, inject, input, NgZone, output, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input, NgZone, output, ViewChild} from '@angular/core';
 import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 
 import {Store} from "@ngrx/store";
@@ -141,7 +141,7 @@ export class HeaderComponent {
         });
         this.userMenuItems.push({
           label: infoTranslation,
-          icon: 'fas fa-light fa-list-check',
+          icon: 'fa-solid fa-circle-info',
           command: () => {
             this.store.dispatch(navigate({url: '/summary'}));
           }
