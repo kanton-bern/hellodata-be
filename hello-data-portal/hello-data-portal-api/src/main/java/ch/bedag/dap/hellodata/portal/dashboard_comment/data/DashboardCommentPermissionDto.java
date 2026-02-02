@@ -24,26 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.user.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
-import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UpdateContextRolesForUserDto {
-    private RoleDto businessDomainRole;
-    private List<UserContextRoleDto> dataDomainRoles;
-    private Map<String, List<DashboardForUserDto>> selectedDashboardsForUser;
-    //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
-    private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
-    private List<DashboardCommentPermissionDto> commentPermissions;
+public class DashboardCommentPermissionDto {
+    private String contextKey;
+    private boolean readComments;
+    private boolean writeComments;
+    private boolean reviewComments;
 }

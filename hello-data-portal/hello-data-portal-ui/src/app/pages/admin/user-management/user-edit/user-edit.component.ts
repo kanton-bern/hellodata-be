@@ -34,6 +34,7 @@ import {
   selectAllDataDomains,
   selectAvailableRolesForBusinessDomain,
   selectAvailableRolesForDataDomain,
+  selectCommentPermissionsForUser,
   selectEditedUser,
   selectUserContextRoles,
   selectUserSaveButtonDisabled
@@ -59,12 +60,14 @@ import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action"
 import {
   loadAvailableContextRoles,
   loadAvailableContexts,
+  loadCommentPermissions,
   loadDashboards,
   loadUserById,
   loadUserContextRoles,
   navigateToUsersManagement,
   selectBusinessDomainRoleForEditedUser,
   selectDataDomainRoleForEditedUser,
+  setCommentPermissionsForUser,
   setSelectedDashboardForUser,
   showUserActionPopup,
   updateUserRoles
@@ -115,6 +118,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly userContextRoles$: Observable<any>;
   private userContextRolesSub!: Subscription;
+  private commentPermissionsSub!: Subscription;
 
   constructor() {
     super();
@@ -123,6 +127,7 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     this.store.dispatch(loadAvailableContexts());
     this.store.dispatch(loadUserContextRoles());
     this.store.dispatch(loadUserById());
+    this.store.dispatch(loadCommentPermissions());
     this.editedUser$ = this.store.select(selectEditedUser).pipe(tap(editedUser => {
       this.createBreadcrumbs(editedUser);
     }));
@@ -143,11 +148,20 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   override ngOnInit() {
     super.ngOnInit();
     this.userContextRolesSub = this.userContextRoles$.subscribe();
+    this.commentPermissionsSub = this.store.select(selectCommentPermissionsForUser).subscribe(perms => {
+      this.commentPermissions.clear();
+      Object.entries(perms).forEach(([contextKey, permissions]) => {
+        this.commentPermissions.set(contextKey, {...permissions});
+      });
+    });
   }
 
   ngOnDestroy() {
     if (this.userContextRolesSub) {
       this.userContextRolesSub.unsubscribe();
+    }
+    if (this.commentPermissionsSub) {
+      this.commentPermissionsSub.unsubscribe();
     }
   }
 
@@ -201,11 +215,10 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     // Set all comment permissions to true when admin role is selected
     if (isAdminRole) {
       dataDomains.forEach(dataDomain => {
-        this.commentPermissions.set(dataDomain.contextKey as string, {
-          readComments: true,
-          writeComments: true,
-          reviewComments: true
-        });
+        this.store.dispatch(setCommentPermissionsForUser({
+          contextKey: dataDomain.contextKey as string,
+          permissions: {readComments: true, writeComments: true, reviewComments: true}
+        }));
       });
     }
 
@@ -223,11 +236,10 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     }
     // Clear comment permissions when role is NONE
     if ($event.value.name === NONE_ROLE) {
-      this.commentPermissions.set(contextKey, {
-        readComments: false,
-        writeComments: false,
-        reviewComments: false
-      });
+      this.store.dispatch(setCommentPermissionsForUser({
+        contextKey,
+        permissions: {readComments: false, writeComments: false, reviewComments: false}
+      }));
     }
     this.store.dispatch(selectDataDomainRoleForEditedUser({
       selectedRoleForContext: {
@@ -267,13 +279,13 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   onCommentPermissionChange(contextKey: string, permission: keyof CommentPermissions, value: boolean): void {
-    const permissions = this.getCommentPermissions(contextKey);
+    const permissions = {...this.getCommentPermissions(contextKey)};
     permissions[permission] = value;
     // Auto-enable readComments when writeComments or reviewComments is checked
     if (value && (permission === 'writeComments' || permission === 'reviewComments')) {
       permissions.readComments = true;
     }
-    this.commentPermissions.set(contextKey, permissions);
+    this.store.dispatch(setCommentPermissionsForUser({contextKey, permissions}));
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
 

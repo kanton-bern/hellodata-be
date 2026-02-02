@@ -30,6 +30,7 @@ import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
   AdUser,
+  CommentPermissions,
   ContextDashboardsForUser,
   CreateUserForm,
   CreateUserResponse,
@@ -142,17 +143,31 @@ export class UsersManagementService {
     return this.httpClient.get<any>(`${this.baseUsersUrl}/${userId}/context-roles`);
   }
 
-  public updateUserRoles(data: any, contextDashboardsForUser: ContextDashboardsForUser[]): Observable<any> {
+  public updateUserRoles(data: any, contextDashboardsForUser: ContextDashboardsForUser[], commentPermissions?: Map<string, CommentPermissions>): Observable<any> {
     const selectedDashboardsForUser = new Map<string, DashboardForUser[]>();
     contextDashboardsForUser.forEach(contextDashboardForUser => {
       selectedDashboardsForUser.set(contextDashboardForUser.contextKey, contextDashboardForUser.dashboards);
     })
 
+    const commentPermissionsList = commentPermissions
+      ? Array.from(commentPermissions.entries()).map(([contextKey, perms]) => ({
+        contextKey,
+        readComments: perms.readComments,
+        writeComments: perms.writeComments,
+        reviewComments: perms.reviewComments
+      }))
+      : undefined;
+
     return this.httpClient.patch<any>(`${this.baseUsersUrl}/${data.userId}/context-roles`, {
       businessDomainRole: data.businessDomainRole,
       dataDomainRoles: data.dataDomainRoles,
-      selectedDashboardsForUser: this.convertMapToJson(selectedDashboardsForUser)
+      selectedDashboardsForUser: this.convertMapToJson(selectedDashboardsForUser),
+      commentPermissions: commentPermissionsList
     });
+  }
+
+  public getCommentPermissions(userId: string): Observable<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]> {
+    return this.httpClient.get<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]>(`${this.baseUsersUrl}/${userId}/comment-permissions`);
   }
 
   public searchUserByEmail(email: string | undefined): Observable<AdUser[]> {

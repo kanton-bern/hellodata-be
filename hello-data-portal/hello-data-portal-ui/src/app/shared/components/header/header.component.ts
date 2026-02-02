@@ -99,7 +99,6 @@ export class HeaderComponent {
   selectedLanguage: string | null = null;
 
   private readonly zone = inject(NgZone);
-  private hideTimeout: any = null;
 
   constructor() {
     this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
@@ -205,30 +204,6 @@ export class HeaderComponent {
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
 
-  showMenu(menuRef: Menu, event: Event) {
-    clearTimeout(this.hideTimeout);
-    menuRef.show(event);
-    this.zone.runOutsideAngular(() => {
-      setTimeout(() => this.attachMenuMouseListeners(menuRef));
-    });
-  }
-
-  scheduleHideMenu(menuRef: Menu) {
-    this.hideTimeout = setTimeout(() => menuRef.hide(), 150);
-  }
-
-  cancelHideMenu() {
-    clearTimeout(this.hideTimeout);
-  }
-
-  private attachMenuMouseListeners(menuRef: Menu) {
-    const overlay = (menuRef as any).containerViewChild?.nativeElement
-      ?? (menuRef as any).container
-      ?? document.querySelector('.p-menu-overlay');
-    if (!overlay) return;
-    overlay.addEventListener('mouseenter', () => this.cancelHideMenu());
-    overlay.addEventListener('mouseleave', () => this.scheduleHideMenu(menuRef));
-  }
 }
 
 

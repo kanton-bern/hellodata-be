@@ -24,26 +24,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.user.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.entity;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
-import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UpdateContextRolesForUserDto {
-    private RoleDto businessDomainRole;
-    private List<UserContextRoleDto> dataDomainRoles;
-    private Map<String, List<DashboardForUserDto>> selectedDashboardsForUser;
-    //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
-    private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
-    private List<DashboardCommentPermissionDto> commentPermissions;
+@Getter
+@Setter
+@RequiredArgsConstructor
+@Entity(name = "dashboard_comment_permission")
+public class DashboardCommentPermissionEntity extends BaseEntity {
+
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
+    @Column(name = "context_key", nullable = false, length = 100)
+    private String contextKey;
+
+    @Column(name = "read_comments", nullable = false)
+    private boolean readComments;
+
+    @Column(name = "write_comments", nullable = false)
+    private boolean writeComments;
+
+    @Column(name = "review_comments", nullable = false)
+    private boolean reviewComments;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

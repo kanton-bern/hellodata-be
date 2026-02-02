@@ -27,6 +27,7 @@
 
 import {createAction, props} from "@ngrx/store";
 import {
+  CommentPermissions,
   CreateUserForm,
   DashboardForUser,
   DashboardUsersResultDto,
@@ -77,6 +78,9 @@ export enum UsersManagementActionType {
   DELETE_USER_IN_STORE = '[USERS MANAGEMENT] Delete user in store',
   CLEAR_SUBSYSTEM_USERS_CACHE = '[USERS MANAGEMENT] Clear subsystem users cache',
   CLEAR_SUBSYSTEM_USERS_FOR_DASHBOARDS_CACHE = '[USERS MANAGEMENT] Clear subsystem users for dashboard cache',
+  LOAD_COMMENT_PERMISSIONS = '[USERS MANAGEMENT] Load comment permissions',
+  LOAD_COMMENT_PERMISSIONS_SUCCESS = '[USERS MANAGEMENT] Load comment permissions SUCCESS',
+  SET_COMMENT_PERMISSIONS_FOR_USER = '[USERS MANAGEMENT] Set comment permissions for user',
 }
 
 export const loadUsers = createAction(
@@ -260,4 +264,18 @@ export const clearSubsystemUsersCache = createAction(
 
 export const clearSubsystemUsersForDashboardsCache = createAction(
   UsersManagementActionType.CLEAR_SUBSYSTEM_USERS_FOR_DASHBOARDS_CACHE
+);
+
+export const loadCommentPermissions = createAction(
+  UsersManagementActionType.LOAD_COMMENT_PERMISSIONS
+);
+
+export const loadCommentPermissionsSuccess = createAction(
+  UsersManagementActionType.LOAD_COMMENT_PERMISSIONS_SUCCESS,
+  props<{ payload: Record<string, CommentPermissions> }>()
+);
+
+export const setCommentPermissionsForUser = createAction(
+  UsersManagementActionType.SET_COMMENT_PERMISSIONS_FOR_USER,
+  props<{ contextKey: string, permissions: CommentPermissions }>()
 );

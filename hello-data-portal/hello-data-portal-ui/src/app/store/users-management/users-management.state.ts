@@ -26,6 +26,7 @@
 ///
 
 import {
+  CommentPermissions,
   ContextDashboardsForUser,
   DashboardForUser,
   DashboardUsersResultDto,
@@ -50,6 +51,7 @@ export interface UsersManagementState {
   selectedBusinessContextRoleForEditedUser: Role | null,
   selectedDataDomainRolesForEditedUser: any[],
   selectedDashboardsForUser: ContextDashboardsForUser[],
+  commentPermissionsForUser: Record<string, CommentPermissions>,
   adminEmails: string[],
   userSaveButtonDisabled: boolean,
   subsystemUsers: SubsystemUsersResultDto[],
@@ -75,6 +77,7 @@ export const initialUsersManagementState: UsersManagementState = {
   selectedBusinessContextRoleForEditedUser: null,
   selectedDataDomainRolesForEditedUser: [],
   selectedDashboardsForUser: [],
+  commentPermissionsForUser: {},
   adminEmails: [],
   userSaveButtonDisabled: false,
   subsystemUsers: [],

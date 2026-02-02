@@ -104,6 +104,7 @@ public class UserService {
     private final EmailNotificationService emailNotificationService;
     private final UserLookupProviderManager userLookupProviderManager;
     private final HelloDataContextConfig helloDataContextConfig;
+    private final ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService dashboardCommentPermissionService;
 
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
@@ -306,6 +307,9 @@ public class UserService {
         }
         updateContextRoles(userId, updateContextRolesForUserDto);
         synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
+        if (updateContextRolesForUserDto.getCommentPermissions() != null) {
+            dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
+        }
         UserEntity userEntity = getUserEntity(userId);
         synchronizeContextRolesWithSubsystems(userEntity, sendBackUserList, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
         notifyUserViaEmail(userId, updateContextRolesForUserDto);

@@ -24,26 +24,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.user.data;
+package ch.bedag.dap.hellodata.portal.dashboard_comment.repository;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
-import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UpdateContextRolesForUserDto {
-    private RoleDto businessDomainRole;
-    private List<UserContextRoleDto> dataDomainRoles;
-    private Map<String, List<DashboardForUserDto>> selectedDashboardsForUser;
-    //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
-    private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
-    private List<DashboardCommentPermissionDto> commentPermissions;
+@Repository
+public interface DashboardCommentPermissionRepository extends JpaRepository<DashboardCommentPermissionEntity, UUID> {
+
+    List<DashboardCommentPermissionEntity> findByUserId(UUID userId);
+
+    Optional<DashboardCommentPermissionEntity> findByUserIdAndContextKey(UUID userId, String contextKey);
+
+    void deleteByUserIdAndContextKey(UUID userId, String contextKey);
 }
