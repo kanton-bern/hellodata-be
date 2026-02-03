@@ -107,9 +107,19 @@
 
 .info-btn {
   color: var(--text-color-secondary, #6c757d);
+  transition: color 200ms ease-in-out;
 
   &:hover {
     color: var(--primary-color, #3b82f6);
+  }
+
+  // Green color when details panel is expanded
+  &.active {
+    color: var(--p-green-500, #22c55e);
+
+    &:hover {
+      color: var(--p-green-600, #16a34a);
+    }
   }
 }
 
@@ -145,11 +155,34 @@
   }
 }
 
+.comment-details-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  &.expanded {
+    grid-template-rows: 1fr;
+  }
+}
+
 .comment-details {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
+  overflow: hidden;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
   border-top: 1px solid var(--surface-border, #dee2e6);
   color: var(--text-color-secondary, #6c757d);
+  opacity: 0;
+  transition: opacity 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
+  padding 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
+  margin 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  .expanded & {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    opacity: 1;
+  }
 
   div {
     margin-bottom: 0.25rem;

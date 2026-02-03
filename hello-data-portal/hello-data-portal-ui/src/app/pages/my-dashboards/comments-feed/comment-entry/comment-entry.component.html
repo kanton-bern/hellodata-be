@@ -33,6 +33,7 @@
       <div class="comment-actions">
         @if (canViewMetadata()) {
           <button type="button" class="info-btn"
+                  [class.active]="expanded"
                   (click)="toggleDetails()"
                   (keydown)="onKeyDown($event, toggleDetails.bind(this))"
                   [pTooltip]="'@Info' | transloco" tooltipPosition="top">
@@ -87,7 +88,8 @@
       }
     </div>
   }
-  @if (expanded) {
+  <div class="comment-details-wrapper"
+       [class.expanded]="expanded">
     <div class="comment-details p-1">
       <small>
         <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + activeVersion()?.status | transloco }}</div>
@@ -186,7 +188,7 @@
         }
       </small>
     </div>
-  }
+  </div>
 </div>
 
 <!-- Edit Comment Dialog -->
