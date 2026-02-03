@@ -43,8 +43,10 @@
      private DashboardCommentStatus status;
      private Long editedDate;
      private String editedBy;
+     private String editedByEmail;
      private Long publishedDate;
      private String publishedBy;
+     private String publishedByEmail;
      private boolean deleted;
      private List<String> tags; // Tags snapshot for this version
      private String pointerUrl; // Pointer URL snapshot for this version

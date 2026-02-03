@@ -98,14 +98,18 @@
         @if (activeVersion()?.publishedDate) {
           <div><strong>{{ '@Published' | transloco }}:</strong> {{ activeVersion()?.publishedDate | date:'medium' }}
             @if (activeVersion()?.publishedBy) {
-              ({{ activeVersion()?.publishedBy }})
+              <span class="author-with-tooltip"
+                    [pTooltip]="activeVersion()?.publishedByEmail"
+                    tooltipPosition="top">({{ activeVersion()?.publishedBy }})</span>
             }
           </div>
         }
         @if (activeVersion()?.editedDate && activeVersion()?.editedDate !== comment().createdDate) {
           <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ activeVersion()?.editedDate | date:'medium' }}
             @if (activeVersion()?.editedBy) {
-              ({{ activeVersion()?.editedBy }})
+              <span class="author-with-tooltip"
+                    [pTooltip]="activeVersion()?.editedByEmail"
+                    tooltipPosition="top">({{ activeVersion()?.editedBy }})</span>
             }
           </div>
         }
@@ -140,7 +144,9 @@
                       {{ '@' + historyItem.status | transloco }}
                     </span>
                     <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
-                    <span class="history-author">{{ historyItem.editedBy }}</span>
+                    <span class="history-author"
+                          [pTooltip]="historyItem.editedByEmail"
+                          tooltipPosition="top">{{ historyItem.editedBy }}</span>
                     @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
                       <button type="button" class="restore-btn"
                               (click)="restoreVersion(historyItem.version)"

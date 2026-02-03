@@ -263,6 +263,7 @@ public class DashboardCommentService {
                 .status(DashboardCommentStatus.DRAFT)
                 .editedDate(now)
                 .editedBy(authorFullName)
+                .editedByEmail(authorEmail)
                 .deleted(false)
                 .tags(commentMapper.tagsToString(normalizedTags))
                 .pointerUrl(createDto.getPointerUrl())
@@ -422,6 +423,7 @@ public class DashboardCommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
         String publisherName = SecurityUtils.getCurrentUserFullName();
+        String publisherEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
 
         comment.getHistory().stream()
@@ -431,6 +433,7 @@ public class DashboardCommentService {
                     v.setStatus(DashboardCommentStatus.PUBLISHED);
                     v.setPublishedDate(now);
                     v.setPublishedBy(publisherName);
+                    v.setPublishedByEmail(publisherEmail);
                 });
 
         comment.setHasActiveDraft(false);
@@ -463,6 +466,7 @@ public class DashboardCommentService {
                     v.setStatus(DashboardCommentStatus.DRAFT);
                     v.setPublishedDate(null);
                     v.setPublishedBy(null);
+                    v.setPublishedByEmail(null);
                 });
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
@@ -501,6 +505,7 @@ public class DashboardCommentService {
         }
 
         String editorName = SecurityUtils.getCurrentUserFullName();
+        String editorEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
 
         // Get tags for new version - from updateDto or current comment tags
@@ -525,6 +530,7 @@ public class DashboardCommentService {
                 .status(DashboardCommentStatus.DRAFT)
                 .editedDate(now)
                 .editedBy(editorName)
+                .editedByEmail(editorEmail)
                 .deleted(false)
                 .tags(commentMapper.tagsToString(tagsForNewVersion))
                 .pointerUrl(pointerUrlForVersion)

@@ -188,6 +188,15 @@
     margin-bottom: 0.25rem;
   }
 
+  // Cursor pointer for names with tooltips (email)
+  .author-with-tooltip {
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   .pointer-url-info {
     display: flex;
     align-items: center;
@@ -245,6 +254,14 @@
       display: flex;
       gap: 0.5rem;
       align-items: center;
+    }
+
+    .history-author {
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
     .history-text-row {
