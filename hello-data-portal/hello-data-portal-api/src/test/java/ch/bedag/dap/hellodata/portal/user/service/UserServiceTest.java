@@ -33,6 +33,7 @@ import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersContextRoleUpdate;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
@@ -94,6 +95,9 @@ class UserServiceTest {
 
     @Mock
     private EmailNotificationService emailNotificationService;
+
+    @Mock
+    private DashboardCommentPermissionService dashboardCommentPermissionService;
 
     @InjectMocks
     private UserService userService;

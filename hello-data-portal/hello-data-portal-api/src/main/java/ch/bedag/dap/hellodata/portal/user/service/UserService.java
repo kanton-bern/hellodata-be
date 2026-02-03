@@ -44,6 +44,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.s
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -104,7 +105,7 @@ public class UserService {
     private final EmailNotificationService emailNotificationService;
     private final UserLookupProviderManager userLookupProviderManager;
     private final HelloDataContextConfig helloDataContextConfig;
-    private final ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService dashboardCommentPermissionService;
+    private final DashboardCommentPermissionService dashboardCommentPermissionService;
 
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
