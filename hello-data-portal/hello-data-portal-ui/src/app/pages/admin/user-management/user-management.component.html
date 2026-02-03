@@ -80,7 +80,7 @@
       <div class="p-toolbar-group-end">
         <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
                   [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
-                  icon="fas fa-arrows-rotate"
+                  icon="fas fa-arrows-rotate" tooltipPosition="top"
                   [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
                   severity="success" pRipple/>
       </div>
