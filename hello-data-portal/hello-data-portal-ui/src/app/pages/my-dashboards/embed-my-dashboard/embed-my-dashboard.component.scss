@@ -52,7 +52,6 @@
   justify-content: flex-start;
   height: 100%;
   padding-right: 0.5rem;
-  padding-top: 0.5rem;
 
   app-comments-toggle-panel {
     height: 100%;
@@ -69,6 +68,7 @@
   padding-right: 0.5rem;
   min-width: 1.5rem;
   white-space: nowrap;
+  padding-top: 0.5rem;
 }
 
 .comments-panel-open {
