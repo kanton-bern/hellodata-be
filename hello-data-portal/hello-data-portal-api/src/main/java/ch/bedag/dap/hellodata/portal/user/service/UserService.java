@@ -147,6 +147,10 @@ public class UserService {
                     roleService.createNoneContextRoles(userEntity);
                 }
             }
+
+            // Sync default comment permissions for user (creates permissions for new data domains)
+            dashboardCommentPermissionService.syncDefaultPermissionsForUser(userEntity);
+
             boolean isLast = counter.incrementAndGet() == allUsers.size();
             return getUserContextRoleUpdate(userEntity, isLast);
         }).toList();

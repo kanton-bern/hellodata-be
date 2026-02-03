@@ -26,10 +26,14 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
+import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
+import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,11 +41,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class DashboardCommentPermissionService {
 
     private final DashboardCommentPermissionRepository repository;
+    private final HdContextRepository hdContextRepository;
 
     @Transactional
     public void updatePermissions(UUID userId, List<DashboardCommentPermissionDto> permissions) {
@@ -72,6 +78,58 @@ public class DashboardCommentPermissionService {
         return repository.findByUserId(userId).stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    /**
+     * Synchronizes default comment permissions for a user across all data domains.
+     * If user has HELLODATA_ADMIN or BUSINESS_DOMAIN_ADMIN role, grants full access (read, write, review).
+     * Otherwise, grants read-only access.
+     * Only creates permissions for contexts where they don't already exist.
+     *
+     * @param user the user entity to sync permissions for
+     */
+    @Transactional
+    public void syncDefaultPermissionsForUser(UserEntity user) {
+        // Check if user has admin roles
+        boolean isAdmin = user.isHelloDataAdmin() || user.isBusinessDomainAdmin();
+
+        // Get all data domain contexts
+        List<HdContextEntity> contexts = hdContextRepository.findAll();
+
+        int createdCount = 0;
+        for (HdContextEntity context : contexts) {
+            // Check if permission already exists for this user and context
+            Optional<DashboardCommentPermissionEntity> existing =
+                    repository.findByUserIdAndContextKey(user.getId(), context.getContextKey());
+
+            if (existing.isEmpty()) {
+                // Create new permission
+                DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+                permission.setId(UUID.randomUUID());
+                permission.setUserId(user.getId());
+                permission.setContextKey(context.getContextKey());
+
+                if (isAdmin) {
+                    // Admin gets full access
+                    permission.setReadComments(true);
+                    permission.setWriteComments(true);
+                    permission.setReviewComments(true);
+                } else {
+                    // Regular user gets read-only access
+                    permission.setReadComments(true);
+                    permission.setWriteComments(false);
+                    permission.setReviewComments(false);
+                }
+
+                repository.save(permission);
+                createdCount++;
+            }
+        }
+
+        if (createdCount > 0) {
+            log.info("Created {} default comment permissions for user {} (admin: {})",
+                    createdCount, user.getEmail(), isAdmin);
+        }
     }
 
     private void normalizePermissions(DashboardCommentPermissionDto dto) {
