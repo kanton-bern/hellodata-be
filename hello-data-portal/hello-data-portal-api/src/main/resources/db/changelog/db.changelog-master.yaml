@@ -136,3 +136,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/53_drop_comment_entity_pointer_url_and_tags.xml
   - include:
       file: db/changelog/changelogs/54_create_dashboard_comment_permission_table.xml
+  - include:
+      file: db/changelog/changelogs/55_initialize_dashboard_comment_permissions.sql
