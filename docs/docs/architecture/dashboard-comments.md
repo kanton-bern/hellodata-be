@@ -14,8 +14,12 @@ control.
 
 - **DashboardCommentController** - REST API controller (`/dashboards/{contextKey}/{dashboardId}/comments`)
 - **DashboardCommentService** - Business logic and permission validation
-- **DashboardCommentRepository** - JPA repository for database operations
-- **DashboardCommentEntity** / **DashboardCommentVersionEntity** - JPA entities
+- **DashboardCommentPermissionService** - Permission management and synchronization
+- **DashboardCommentRepository** - JPA repository for comment database operations
+- **DashboardCommentPermissionRepository** - JPA repository for permission database operations
+- **DashboardCommentEntity** - JPA entity for comment metadata
+- **DashboardCommentVersionEntity** - JPA entity for versioned content
+- **DashboardCommentPermissionEntity** - JPA entity for user permissions per data domain
 
 #### Frontend (Angular)
 
@@ -27,8 +31,17 @@ control.
 
 ### Data Model
 
-The data model separates immutable comment metadata from versioned content. **`pointerUrl` and `tags` are stored
-per-version** and derived from the active version when displaying the comment.
+The data model consists of three main entities:
+
+1. **DashboardCommentEntry** - Immutable comment metadata
+2. **DashboardCommentVersion** - Versioned content with history
+3. **DashboardCommentPermission** - User permissions per data domain
+
+**Key Design Points:**
+
+- **`pointerUrl` and `tags`** are stored per-version and derived from the active version when displaying
+- **Permissions are independent** of comment data and stored in a separate table
+- **Hierarchical permission model** (REVIEW ⊃ WRITE ⊃ READ) is enforced at application layer
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -67,65 +80,155 @@ per-version** and derived from the active version when displaying the comment.
 │ pointerUrl?: string (specific page/chart link for version)  │
 │ tags?: string[] (tags snapshot for this version)            │
 └─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│               DashboardCommentPermission                    │
+├─────────────────────────────────────────────────────────────┤
+│ id: string (UUID)                                           │
+│ userId: string (UUID)                                       │
+│ contextKey: string                                          │
+│ readComments: boolean                                       │
+│ writeComments: boolean                                      │
+│ reviewComments: boolean                                     │
+│ createdDate?: number (timestamp)                            │
+│ createdBy?: string                                          │
+│ modifiedDate?: number (timestamp)                           │
+│ modifiedBy?: string                                         │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+**Relationships:**
+
+- `DashboardCommentEntry` → `DashboardCommentVersion`: One-to-Many (via `history` array)
+- `DashboardCommentPermission` → `User`: Many-to-One (via `userId`)
+- `DashboardCommentPermission` → `Context`: Many-to-One (via `contextKey`)
+- **Unique constraint**: One permission record per `(userId, contextKey)` pair
 
 > **Note:** The top-level `pointerUrl` and `tags` fields on `DashboardCommentEntry` are **derived** from the active
 > version in history. They are not stored separately on the comment entity. This ensures that when admins switch
 > versions (e.g., `restoreVersion`), the displayed `pointerUrl` and `tags` always match the active version's data.
 
+> **Permission Independence:** The `DashboardCommentPermission` entity is completely independent from comment data,
+> allowing administrators to manage commenting permissions separately from comment content. Permissions are
+> automatically
+> created during user synchronization and can be manually adjusted per user per data domain.
+
 ## User Roles and Permissions
 
-### Role Types
+### Permission System
 
-| Role                      | Description                                                            |
-|---------------------------|------------------------------------------------------------------------|
-| **Superuser**             | HELLODATA ADMIN - has full access to all comments                      |
-| **Business Domain Admin** | Admin for all data domains within a business domain                    |
-| **Data Domain Admin**     | Admin for a specific data domain (contextKey)                          |
-| **Data Domain Editor**    | User with edit access to dashboards within a data domain               |
-| **Data Domain Viewer**    | User with view-only access to assigned dashboards within a data domain |
+The dashboard commenting system uses a **three-level permission model** that is independent of data domain roles:
 
-> **Note:** Users with `DATA_DOMAIN_VIEWER` role can only see comments for dashboards that are explicitly assigned to
-> them. Dashboard access is validated by the frontend before loading comments.
+| Permission Level | Description                          | What it includes                                   |
+|------------------|--------------------------------------|----------------------------------------------------|
+| **READ**         | View published comments only         | Basic read-only access                             |
+| **WRITE**        | Create and manage own comments       | READ + create/edit own comments + view own drafts  |
+| **REVIEW**       | Full comment moderation capabilities | WRITE + view/manage all drafts + publish/unpublish |
+
+**Key Points:**
+
+- Permissions are stored per user per data domain in `dashboard_comment_permission` table
+- **Independent of data domain roles** - a user's commenting permissions can differ from their data access level
+- **Hierarchical** - REVIEW includes WRITE capabilities, WRITE includes READ capabilities
+- **Flexible** - administrators can assign custom permission combinations for fine-grained control
+- **Admins always have full access** - HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN, and DATA_DOMAIN_ADMIN bypass permission
+  checks
 
 ### Permission Matrix
 
-| Action                       | Data Domain Viewer             | Data Domain Editor | Data Domain Admin | Business Domain Admin | Superuser |
-|------------------------------|--------------------------------|--------------------|-------------------|-----------------------|-----------|
-| **View published comments**  | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
-| **View own drafts**          | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
-| **View all drafts**          | No                             | No                 | Yes               | Yes                   | Yes       |
-| **Create comment**           | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
-| **Edit own comment**         | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
-| **Edit any comment**         | No                             | No                 | Yes               | Yes                   | Yes       |
-| **Delete own comment**       | Yes (assigned dashboards only) | Yes                | Yes               | Yes                   | Yes       |
-| **Delete any comment**       | No                             | No                 | Yes               | Yes                   | Yes       |
-| **Publish comment**          | No                             | No                 | Yes               | Yes                   | Yes       |
-| **Unpublish comment**        | No                             | No                 | Yes               | Yes                   | Yes       |
-| **View metadata & versions** | No                             | No                 | Yes               | Yes                   | Yes       |
-| **Restore version**          | No                             | No                 | Yes               | Yes                   | Yes       |
-| **Export comments**          | No                             | No                 | Yes               | Yes                   | Yes       |
-| **Import comments**          | No                             | No                 | Yes               | Yes                   | Yes       |
+The table below shows what each permission level allows:
+
+| Action                       | READ | WRITE | REVIEW |
+|------------------------------|------|-------|--------|
+| **View published comments**  | ✔    | ✔     | ✔      |
+| **View own drafts**          |      | ✔     | ✔      |
+| **View all drafts**          |      |       | ✔      |
+| **Create comment**           |      | ✔     | ✔      |
+| **Edit own comment**         |      | ✔     | ✔      |
+| **Edit any comment**         |      |       | ✔      |
+| **Delete own comment**       |      | ✔     | ✔      |
+| **Delete any comment**       |      |       | ✔      |
+| **Publish comment**          |      |       | ✔      |
+| **Unpublish comment**        |      |       | ✔      |
+| **View metadata & versions** |      |       | ✔      |
+| **Restore version**          |      |       | ✔      |
+
+**Legend:**
+
+- ✔ = Action allowed
+- (empty) = Action not allowed
+
+> **Note for Administrators:** HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN always have full REVIEW
+
+> **Note:** Users with `DATA_DOMAIN_VIEWER` role typically receive READ-only permissions by default, but this can be
+> customized. Dashboard access is always validated by the frontend before loading comments.
+
+### Automatic Permission Assignment
+
+When users are synchronized or new domains are created, default permissions are automatically assigned based on portal
+roles:
+
+| Portal Role               | Default Comment Permissions | Scope                  |
+|---------------------------|-----------------------------|------------------------|
+| **HELLODATA_ADMIN**       | READ + WRITE + REVIEW       | All data domains       |
+| **BUSINESS_DOMAIN_ADMIN** | READ + WRITE + REVIEW       | All data domains       |
+| **DATA_DOMAIN_ADMIN**     | READ + WRITE + REVIEW       | Specific data domain   |
+| **Regular Users**         | READ only                   | All accessible domains |
+
+> **Important:** These are default assignments. Administrators can manually adjust individual user permissions through
+> the database to grant custom access levels.
 
 ### Permission Validation
 
 #### Backend (DashboardCommentService)
 
+The backend validates permissions at multiple levels, checking both admin status and explicit permissions:
+
 ```java
-// Check if user is admin for a specific context
-private boolean isAdminForContext(String userEmail, String contextKey) {
+// Check user's comment permissions for a context
+private void checkHasAccessToComment(String contextKey, UUID userId,
+                                     boolean needsWrite, boolean needsReview) {
+    // Admins (superuser, business domain admin, data domain admin) always have full access
+    if (SecurityUtils.isSuperuser() || isAdminForContext(contextKey)) {
+        return;
+    }
+
+    // Check explicit permission in database
+    DashboardCommentPermissionEntity permission =
+            commentPermissionRepository.findByUserIdAndContextKey(userId, contextKey)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.FORBIDDEN, "No read permission for comments"));
+
+    // Validate required permission level
+    if (needsReview && !permission.isReviewComments()) {
+        throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN, "No review permission for comments");
+    }
+
+    if (needsWrite && !permission.isWriteComments()) {
+        throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN, "No write permission for comments");
+    }
+}
+
+// Check if user is admin for context (bypasses permission table)
+private boolean isAdminForContext(String contextKey) {
+    String userEmail = SecurityUtils.getCurrentUserEmail();
     return userRepository.findUserEntityByEmailIgnoreCase(userEmail)
             .map(user -> {
-                // Business domain admin has access to all contexts
-                if (Boolean.TRUE.equals(user.isBusinessDomainAdmin())) {
-                    return true;
-                }
-                // Data domain admin only for specific context
-                return user.getContextRoles().stream()
-                        .anyMatch(role ->
-                                contextKey.equals(role.getContextKey()) &&
-                                        HdRoleName.DATA_DOMAIN_ADMIN.equals(role.getRole().getName())
-                        );
+                // Check portal roles for admin access
+                return user.getPortalRoles().stream()
+                        .anyMatch(upr -> {
+                            String roleName = upr.getRole().getName();
+                            return SystemDefaultPortalRoleName.HELLODATA_ADMIN.name().equals(roleName) ||
+                                    SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN.name().equals(roleName);
+                        }) ||
+                        // Check data domain admin for specific context
+                        user.getContextRoles().stream()
+                                .anyMatch(role ->
+                                        contextKey.equals(role.getContextKey()) &&
+                                                HdRoleName.DATA_DOMAIN_ADMIN.equals(role.getRole().getName())
+                                );
             })
             .orElse(false);
 }
@@ -133,20 +236,50 @@ private boolean isAdminForContext(String userEmail, String contextKey) {
 
 #### Frontend (NgRx Selectors)
 
+Frontend selectors check permissions from the NgRx store state:
+
 ```typescript
+// Check if user can publish comments (requires REVIEW permission)
 export const canPublishComment = createSelector(
     selectCurrentDashboardContextKey,
+    selectCurrentUserCommentPermissions,
     selectIsSuperuser,
     selectIsBusinessDomainAdmin,
     (state: AppState) => state.auth,
-    (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment) => {
-        // Check if user is data_domain_admin for this specific context
+    (contextKey, permissions, isSuperuser, isBusinessDomainAdmin, authState) => {
+        // Admins always have full access
+        if (isSuperuser || isBusinessDomainAdmin) {
+            return true;
+        }
+
+        // Check if user is data domain admin for this context
         const isDataDomainAdmin = authState.contextRoles.some(role =>
             role.context.contextKey === contextKey &&
             role.role.name === DATA_DOMAIN_ADMIN_ROLE
         );
 
-        return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
+        if (isDataDomainAdmin) {
+            return true;
+        }
+
+        // Check REVIEW permission from permission table
+        return permissions?.reviewComments || false;
+    }
+);
+
+// Check if user can create/edit comments (requires WRITE permission)
+export const canEditComment = createSelector(
+    selectCurrentDashboardContextKey,
+    selectCurrentUserCommentPermissions,
+    selectCurrentUserEmail,
+    (contextKey, permissions, currentUserEmail) => (comment) => {
+        // User can edit their own comments with WRITE permission
+        if (comment.authorEmail === currentUserEmail && permissions?.writeComments) {
+            return true;
+        }
+
+        // Or edit any comment with REVIEW permission
+        return permissions?.reviewComments || false;
     }
 );
 ```
@@ -340,6 +473,8 @@ Comments are automatically refreshed every 30 seconds when viewing a dashboard.
 
 ## Database Schema
 
+### Main Tables
+
 ```sql
 CREATE TABLE dashboard_comment
 (
@@ -371,22 +506,204 @@ CREATE TABLE dashboard_comment_version
     published_date BIGINT,
     published_by   VARCHAR(255),
     deleted        BOOLEAN DEFAULT FALSE,
-    tags           TEXT,        -- Comma-separated tags snapshot for this version
+    tags           TEXT,         -- Comma-separated tags snapshot for this version
     pointer_url    VARCHAR(2000) -- Optional link to specific page/chart for this version
 );
 
+CREATE TABLE dashboard_comment_permission
+(
+    id              UUID PRIMARY KEY,
+    user_id         UUID         NOT NULL,
+    context_key     VARCHAR(100) NOT NULL,
+    read_comments   BOOLEAN      NOT NULL DEFAULT false,
+    write_comments  BOOLEAN      NOT NULL DEFAULT false,
+    review_comments BOOLEAN      NOT NULL DEFAULT false,
+    created_date    TIMESTAMP,
+    created_by      VARCHAR(255),
+    modified_date   TIMESTAMP,
+    modified_by     VARCHAR(255),
+    CONSTRAINT uq_dashboard_comment_permission_user_context UNIQUE (user_id, context_key),
+    CONSTRAINT fk_dashboard_comment_permission_user FOREIGN KEY (user_id)
+        REFERENCES user_ (id) ON DELETE CASCADE,
+    CONSTRAINT fk_dashboard_comment_permission_context FOREIGN KEY (context_key)
+        REFERENCES context (context_key) ON DELETE CASCADE
+);
+
+-- Indexes for comment lookups
 CREATE INDEX idx_dashboard_comment_context_dashboard
     ON dashboard_comment (context_key, dashboard_id);
 
 -- Index for import duplicate detection
 CREATE INDEX idx_comment_imported_from
     ON dashboard_comment (imported_from_id, context_key, dashboard_id);
+
+-- Indexes for permission lookups
+CREATE INDEX idx_comment_permission_user
+    ON dashboard_comment_permission (user_id);
+
+CREATE INDEX idx_comment_permission_context
+    ON dashboard_comment_permission (context_key);
 ```
+
+### Table Descriptions
+
+#### dashboard_comment
+
+Main comment entity storing metadata and reference to active version. Uses optimistic locking via `entity_version`.
+
+#### dashboard_comment_version
+
+Stores complete version history including text, status, tags, and pointer URLs. Each version is immutable once created.
+
+#### dashboard_comment_permission
+
+Stores per-user per-data-domain commenting permissions. Independent of comment data, allowing flexible permission
+management.
 
 > **Note:** `pointer_url` and `tags` are stored **per version** in `dashboard_comment_version`, not on the main
 > `dashboard_comment` table. This design ensures each version snapshot captures the complete state (text, tags,
 > pointerUrl) at that point in time. The application derives the current `pointerUrl` and `tags` from the active
 > version when building DTOs.
+
+### Permission Table Details
+
+The `dashboard_comment_permission` table provides fine-grained control over commenting capabilities:
+
+- **Unique constraint** on `(user_id, context_key)` ensures one permission record per user per domain
+- **Cascade delete** on user and context ensures automatic cleanup
+- **Boolean flags** represent the three permission levels (read, write, review)
+- **Hierarchical permissions** are enforced by the application layer (review → write → read)
+- **Audit fields** track when and by whom permissions were created/modified
+- **Independent storage** allows permission management without affecting comment data
+
+## Permission Management and Synchronization
+
+### Automatic Permission Initialization
+
+#### Initial Setup via Liquibase Migration
+
+When the system is first deployed or upgraded, a Liquibase migration (`55_initialize_dashboard_comment_permissions.sql`)
+automatically creates default permissions for all existing users:
+
+**Migration Logic:**
+
+1. **Admins (HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN)** → Full access (READ + WRITE + REVIEW) in all domains
+2. **Data Domain Admins (DATA_DOMAIN_ADMIN)** → Full access (READ + WRITE + REVIEW) in their specific domain
+3. **Regular users** → Read-only access (READ) in all domains
+
+The migration uses SQL JOINs with `user_portal_role` and `user_context_role` tables to determine user roles and is *
+*idempotent** - running it multiple times will not create duplicates.
+
+#### User Synchronization (syncAllUsers)
+
+The `syncAllUsers()` method in `UserService` automatically maintains comment permissions when users are synchronized:
+
+```java
+// In UserService.syncAllUsers()
+dashboardCommentPermissionService.syncDefaultPermissionsForUser(userEntity);
+```
+
+**When it runs:**
+
+- During scheduled user synchronization
+- When new users are created
+- When new data domains are added
+
+**What it does:**
+
+- Checks if user has admin roles (HELLODATA_ADMIN or BUSINESS_DOMAIN_ADMIN)
+- Creates missing permissions for any data domains where user doesn't have permissions yet
+- **Never modifies existing permissions** - only creates new ones for new domains
+- Logs the number of permissions created for each user
+
+**Permission Assignment:**
+
+```java
+if(isAdmin){
+        // Admins get full access
+        permission.
+
+setReadComments(true);
+    permission.
+
+setWriteComments(true);
+    permission.
+
+setReviewComments(true);
+}else{
+        // Regular users get read-only
+        permission.
+
+setReadComments(true);
+    permission.
+
+setWriteComments(false);
+    permission.
+
+setReviewComments(false);
+}
+```
+
+### Use Cases for Automatic Synchronization
+
+#### 1. New Data Domain Added
+
+```
+Scenario: Administrator creates a new data domain "finance"
+Result:   syncAllUsers() runs automatically
+          - All admins receive READ+WRITE+REVIEW for "finance"
+          - All regular users receive READ for "finance"
+```
+
+#### 2. New User Created
+
+```
+Scenario: New user "john@example.com" is added to the system
+Result:   syncAllUsers() processes the new user
+          - Permissions created for all existing data domains
+          - Permission level based on user's portal role
+```
+
+#### 3. User Promoted to Admin
+
+```
+Scenario: Regular user is promoted to BUSINESS_DOMAIN_ADMIN
+Result:   syncAllUsers() does NOT automatically upgrade existing permissions
+Action:   Administrator must manually update permissions via database
+          OR re-run migration to reset all permissions
+```
+
+### Best Practices
+
+1. **New Domains**: Always run user sync after creating new data domains to ensure all users get appropriate permissions
+2. **Role Changes**: When promoting users to admin roles, consider manually updating their comment permissions if
+   immediate access is needed
+3. **Permission Auditing**: Use `created_by` and `modified_by` fields to track permission changes
+4. **Regular Sync**: Schedule regular `syncAllUsers()` execution to catch any missing permissions
+
+### Troubleshooting
+
+**Problem:** User cannot see comment actions despite having correct domain role
+
+**Solution:**
+
+1. Check `dashboard_comment_permission` table for user's permissions
+2. Verify `context_key` matches the current dashboard's domain
+3. Run `syncAllUsers()` to create missing permissions
+4. Check application logs for permission validation errors
+
+**SQL Query to Check Permissions:**
+
+```sql
+SELECT u.email,
+       dcp.context_key,
+       dcp.read_comments,
+       dcp.write_comments,
+       dcp.review_comments
+FROM dashboard_comment_permission dcp
+         JOIN user_ u ON dcp.user_id = u.id
+WHERE u.email = 'user@example.com';
+```
 
 ## Error Handling
 
