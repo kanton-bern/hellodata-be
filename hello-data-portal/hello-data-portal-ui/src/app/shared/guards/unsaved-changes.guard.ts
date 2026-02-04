@@ -27,13 +27,13 @@
 
 // unsaved-changes.guard.ts
 import {inject, Injectable} from '@angular/core';
-import {combineLatest, Observable} from 'rxjs';
+import {combineLatest, Observable, of} from 'rxjs';
 import {Store} from '@ngrx/store';
-import {map, take} from 'rxjs/operators';
+import {switchMap, take} from 'rxjs/operators';
 import {selectHasUnsavedChanges} from "../../store/unsaved-changes/unsaved-changes.selector";
 import {ConfirmationService} from "primeng/api";
 import {AppState} from "../../store/app/app.state";
-import {ActivatedRouteSnapshot, CanDeactivateFn, Router, RouterStateSnapshot} from "@angular/router";
+import {ActivatedRouteSnapshot, CanDeactivateFn, RouterStateSnapshot} from "@angular/router";
 import {clearUnsavedChanges, runSaveAction} from "../../store/unsaved-changes/unsaved-changes.actions";
 import {TranslateService} from "../services/translate.service";
 
@@ -44,49 +44,55 @@ export class UnsavedChangesGuard {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
-  private readonly router = inject(Router);
-
 
   canDeactivate(
-    component: any,
-    activatedRouteSnapshot: ActivatedRouteSnapshot,
-    currentState: RouterStateSnapshot,
-    nextState: RouterStateSnapshot
+    _component: any,
+    _activatedRouteSnapshot: ActivatedRouteSnapshot,
+    _currentState: RouterStateSnapshot,
+    _nextState: RouterStateSnapshot
   ): Observable<boolean> {
     return combineLatest([
       this.store.select(selectHasUnsavedChanges),
       this.translateService.selectTranslate('@Unsaved changes message')
     ]).pipe(
       take(1),
-      map(([hasUnsavedChanges, msg]) => {
+      switchMap(([hasUnsavedChanges, msg]) => {
         if (hasUnsavedChanges) {
-          // Schedule the confirmation dialog after the current cycle
-          setTimeout(() => {
-            this.confirmationService.confirm({
-              key: 'unsavedChangesConfirmation',
-              message: msg,
-              icon: 'fas fa-triangle-exclamation',
-              accept: () => {
-                this.store.dispatch(runSaveAction());
-                this.store.dispatch(clearUnsavedChanges());
-                // Use router directly for navigation
-                this.router.navigateByUrl(nextState.url);
-              },
-              reject: () => {
-                this.store.dispatch(clearUnsavedChanges());
-                // Use router directly for navigation
-                this.router.navigateByUrl(nextState.url);
-              },
-
-            });
-          }, 0);
-
-          return false; // Prevent immediate navigation
+          return this.showConfirmationDialog(msg);
         }
-
-        return true; // Allow navigation if no unsaved changes
+        return of(true); // Allow navigation if no unsaved changes
       })
     )
+  }
+
+  private showConfirmationDialog(message: string): Observable<boolean> {
+    return new Observable<boolean>(observer => {
+      // Schedule the confirmation dialog after the current cycle
+      setTimeout(() => {
+        this.confirmationService.confirm({
+          key: 'unsavedChangesConfirmation',
+          message: message,
+          icon: 'fas fa-triangle-exclamation',
+          accept: () => this.handleAccept(observer),
+          reject: () => this.handleReject(observer),
+        });
+      }, 0);
+    });
+  }
+
+  private handleAccept(observer: any): void {
+    this.store.dispatch(runSaveAction());
+    this.store.dispatch(clearUnsavedChanges());
+    // Allow navigation to proceed
+    observer.next(true);
+    observer.complete();
+  }
+
+  private handleReject(observer: any): void {
+    this.store.dispatch(clearUnsavedChanges());
+    // Allow navigation to proceed
+    observer.next(true);
+    observer.complete();
   }
 }
 
