@@ -886,7 +886,7 @@ class DashboardCommentServiceTest {
             assertThatThrownBy(() ->
                     commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, editDto)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("must be published to create a new edit version");
+                    .hasMessageContaining("must be published or declined to create a new edit version");
         }
     }
 
@@ -2060,6 +2060,189 @@ class DashboardCommentServiceTest {
             DashboardCommentEntity updated = commentStore.get(newCommentId);
             assertThat(updated).isNotNull();
             assertThat(updated.getHistory().get(0).getText()).isEqualTo("Updated imported comment");
+        }
+    }
+
+    @Test
+    void exportComments_shouldExportDeclinedCommentWithDeclineReason() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Create a comment as regular user
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Comment to decline")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+
+            // Decline as superuser
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            DashboardCommentDeclineDto declineDto = DashboardCommentDeclineDto.builder()
+                    .declineReason("Needs improvement")
+                    .build();
+            commentService.declineComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, declineDto);
+
+            // Export
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).hasSize(1);
+            CommentExportItemDto exported = exportData.getComments().get(0);
+            assertThat(exported.getStatus()).isEqualTo("DECLINED");
+
+            // Verify history contains the declined version with decline reason
+            assertThat(exported.getHistory()).hasSize(1);
+            CommentVersionExportDto declinedVersion = exported.getHistory().get(0);
+            assertThat(declinedVersion.getStatus()).isEqualTo("DECLINED");
+            assertThat(declinedVersion.getDeclineReason()).isEqualTo("Needs improvement");
+        }
+    }
+
+    @Test
+    void importComments_shouldPreserveDeclinedStatusAndDeclineReason() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            mockDashboardUrlRetrieval();
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Declined comment")
+                                    .author("Author")
+                                    .authorEmail("author@example.com")
+                                    .status("DECLINED")
+                                    .createdDate(1700000000000L)
+                                    .history(List.of(
+                                            CommentVersionExportDto.builder()
+                                                    .version(1)
+                                                    .text("Declined comment")
+                                                    .status("DECLINED")
+                                                    .editedDate(1700000000000L)
+                                                    .editedBy("Author")
+                                                    .editedByEmail("author@example.com")
+                                                    .publishedBy("Reviewer")
+                                                    .publishedByEmail("reviewer@example.com")
+                                                    .publishedDate(1700000001000L)
+                                                    .declineReason("Content not appropriate")
+                                                    .build()
+                                    ))
+                                    .activeVersion(1)
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            assertThat(result.getImported()).isEqualTo(1);
+            assertThat(result.getSkipped()).isZero();
+
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            assertThat(imported.getHistory()).hasSize(1);
+
+            DashboardCommentVersionEntity version = imported.getHistory().get(0);
+            assertThat(version.getStatus()).isEqualTo(DashboardCommentStatus.DECLINED);
+            assertThat(version.getDeclineReason()).isEqualTo("Content not appropriate");
+        }
+    }
+
+    @Test
+    void exportImport_shouldRoundTripDeclinedCommentWithFullHistory() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Create and publish a comment as regular user
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Version 1")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+
+            // Publish as superuser, then clone and decline
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            // Clone for edit (creates v2 draft)
+            DashboardCommentUpdateDto editDto = DashboardCommentUpdateDto.builder()
+                    .text("Version 2 - needs review")
+                    .entityVersion(comment.getEntityVersion() + 1)
+                    .build();
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, editDto);
+
+            // Decline v2
+            DashboardCommentDeclineDto declineDto = DashboardCommentDeclineDto.builder()
+                    .declineReason("Missing data sources")
+                    .build();
+            commentService.declineComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, declineDto);
+
+            // Export
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).hasSize(1);
+            CommentExportItemDto exported = exportData.getComments().get(0);
+            assertThat(exported.getStatus()).isEqualTo("DECLINED");
+            assertThat(exported.getHistory()).hasSize(2);
+
+            // v1 = PUBLISHED, v2 = DECLINED with reason
+            CommentVersionExportDto v1 = exported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 1).findFirst().orElseThrow();
+            CommentVersionExportDto v2 = exported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 2).findFirst().orElseThrow();
+            assertThat(v1.getStatus()).isEqualTo("PUBLISHED");
+            assertThat(v2.getStatus()).isEqualTo("DECLINED");
+            assertThat(v2.getDeclineReason()).isEqualTo("Missing data sources");
+
+            // Clear store and reimport
+            commentStore.clear();
+            mockDashboardUrlRetrieval();
+
+            CommentImportResultDto importResult = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, exportData);
+
+            assertThat(importResult.getImported()).isEqualTo(1);
+
+            DashboardCommentEntity reimported = commentStore.values().iterator().next();
+            assertThat(reimported.getHistory()).hasSize(2);
+            assertThat(reimported.getActiveVersion()).isEqualTo(2);
+
+            // Verify statuses and decline reason survived round-trip
+            DashboardCommentVersionEntity reimportedV1 = reimported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 1).findFirst().orElseThrow();
+            DashboardCommentVersionEntity reimportedV2 = reimported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 2).findFirst().orElseThrow();
+
+            assertThat(reimportedV1.getStatus()).isEqualTo(DashboardCommentStatus.PUBLISHED);
+            assertThat(reimportedV2.getStatus()).isEqualTo(DashboardCommentStatus.DECLINED);
+            assertThat(reimportedV2.getDeclineReason()).isEqualTo("Missing data sources");
         }
     }
 
