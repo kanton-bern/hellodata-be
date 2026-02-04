@@ -33,18 +33,18 @@ import {map, take} from 'rxjs/operators';
 import {selectHasUnsavedChanges} from "../../store/unsaved-changes/unsaved-changes.selector";
 import {ConfirmationService} from "primeng/api";
 import {AppState} from "../../store/app/app.state";
-import {ActivatedRouteSnapshot, CanDeactivateFn, RouterStateSnapshot} from "@angular/router";
+import {ActivatedRouteSnapshot, CanDeactivateFn, Router, RouterStateSnapshot} from "@angular/router";
 import {clearUnsavedChanges, runSaveAction} from "../../store/unsaved-changes/unsaved-changes.actions";
 import {TranslateService} from "../services/translate.service";
-import {navigate} from "../../store/app/app.action";
 
 @Injectable({
   providedIn: 'root',
 })
 export class UnsavedChangesGuard {
-  private confirmationService = inject(ConfirmationService);
-  private store = inject<Store<AppState>>(Store);
-  private translateService = inject(TranslateService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
+  private readonly router = inject(Router);
 
 
   canDeactivate(
@@ -60,20 +60,26 @@ export class UnsavedChangesGuard {
       take(1),
       map(([hasUnsavedChanges, msg]) => {
         if (hasUnsavedChanges) {
-          this.confirmationService.confirm({
-            key: 'unsavedChangesConfirmation',
-            message: msg,
-            icon: 'fas fa-triangle-exclamation',
-            accept: () => {
-              this.store.dispatch(runSaveAction());
-              this.store.dispatch(navigate({url: nextState.url}));
-            },
-            reject: () => {
-              this.store.dispatch(clearUnsavedChanges());
-              this.store.dispatch(navigate({url: nextState.url}));
-            },
+          // Schedule the confirmation dialog after the current cycle
+          setTimeout(() => {
+            this.confirmationService.confirm({
+              key: 'unsavedChangesConfirmation',
+              message: msg,
+              icon: 'fas fa-triangle-exclamation',
+              accept: () => {
+                this.store.dispatch(runSaveAction());
+                this.store.dispatch(clearUnsavedChanges());
+                // Use router directly for navigation
+                this.router.navigateByUrl(nextState.url);
+              },
+              reject: () => {
+                this.store.dispatch(clearUnsavedChanges());
+                // Use router directly for navigation
+                this.router.navigateByUrl(nextState.url);
+              },
 
-          });
+            });
+          }, 0);
 
           return false; // Prevent immediate navigation
         }
