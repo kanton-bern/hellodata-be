@@ -143,6 +143,7 @@ export const selectAvailableDataDomainsWithAllEntry = createSelector(
 );
 
 // Selector to get context name by context key
+// Returns contextKey as fallback when domains are not loaded yet (race condition fix)
 export const selectContextNameByKey = createSelector(
   myDashboardsState,
   selectContextKey,
@@ -151,7 +152,9 @@ export const selectContextNameByKey = createSelector(
       return undefined;
     }
     const domain = state.availableDataDomains.find(d => d.key === contextKey);
-    return domain?.name;
+    // Return domain name if found, otherwise return contextKey as fallback
+    // This prevents showing undefined in breadcrumb during initial load
+    return domain?.name || contextKey;
   }
 );
 

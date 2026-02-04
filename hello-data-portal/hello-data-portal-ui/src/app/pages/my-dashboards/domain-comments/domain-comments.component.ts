@@ -60,6 +60,7 @@ import {Textarea} from "primeng/textarea";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.service';
 import {AutoComplete} from 'primeng/autocomplete';
+import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
 
 
 @Component({
@@ -132,6 +133,9 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    // Load available data domains to populate contextName in breadcrumb
+    this.store.dispatch(loadAvailableDataDomains());
+
     // Subscribe to route params using ngrx selectors
     this.routeSubscription = combineLatest([
       this.store.select(selectContextKey),
@@ -140,15 +144,22 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     ]).pipe(
       filter(([contextKey]) => !!contextKey)
     ).subscribe(([contextKey, contextName, commentPermissions]) => {
-      // Redirect if user doesn't have readComments permission for this context
-      const perms = commentPermissions[contextKey!];
-      if (!perms?.readComments) {
-        this.router.navigate(['/my-dashboards']);
-        return;
+      // Check if permissions are loaded (not empty object)
+      const hasPermissionsLoaded = Object.keys(commentPermissions).length > 0;
+
+      // Redirect only if permissions are loaded AND user doesn't have readComments permission
+      if (hasPermissionsLoaded) {
+        const perms = commentPermissions[contextKey!];
+        if (!perms?.readComments) {
+          this.router.navigate(['/my-dashboards']);
+          return;
+        }
       }
+
       // Only reload if contextKey changed
       if (contextKey !== this.contextKey) {
         this.contextKey = contextKey!;
+        // contextName now comes from selector with built-in fallback to contextKey
         this.contextName = contextName || contextKey!;
         this.globalFilterValue = '';
         this.createBreadcrumbs();

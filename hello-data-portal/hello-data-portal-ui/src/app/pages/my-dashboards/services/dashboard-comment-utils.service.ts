@@ -183,6 +183,9 @@ export class DashboardCommentUtilsService {
       case DashboardCommentStatus.DRAFT:
       case 'DRAFT':
         return 'warn';
+      case DashboardCommentStatus.DECLINED:
+      case 'DECLINED':
+        return 'danger';
       default:
         return 'info';
     }
@@ -192,7 +195,13 @@ export class DashboardCommentUtilsService {
    * Gets status label for translation
    */
   getStatusLabel(status: DashboardCommentStatus | string): string {
-    return status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED' ? '@Published' : '@DRAFT';
+    if (status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED') {
+      return '@Published';
+    }
+    if (status === DashboardCommentStatus.DECLINED || status === 'DECLINED') {
+      return '@DECLINED';
+    }
+    return '@DRAFT';
   }
 
   /**
