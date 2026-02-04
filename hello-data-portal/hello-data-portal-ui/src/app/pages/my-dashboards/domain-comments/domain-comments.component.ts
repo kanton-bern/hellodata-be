@@ -61,6 +61,7 @@ import {ConfirmDialog} from "primeng/confirmdialog";
 import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.service';
 import {AutoComplete} from 'primeng/autocomplete';
 import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
+import {TranslateService} from '../../../shared/services/translate.service';
 
 
 @Component({
@@ -93,6 +94,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);
   readonly commentUtils = inject(DashboardCommentUtilsService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
@@ -201,12 +203,18 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     this.domainCommentsService.getCommentsForDomain(this.contextKey).subscribe({
       next: (comments: DomainDashboardComment[]) => {
         // Map active version text to 'text' field and tags to 'tagsString' for filtering
-        this.comments = comments.map(comment => ({
-          ...comment,
-          text: this.commentUtils.getActiveVersionData(comment)?.text || '',
-          status: this.commentUtils.getActiveVersionData(comment)?.status || '',
-          tagsString: (this.commentUtils.getActiveVersionData(comment)?.tags || []).join(' ')
-        }));
+        this.comments = comments.map(comment => {
+          const activeVersion = this.commentUtils.getActiveVersionData(comment);
+          const status = activeVersion?.status || '';
+          const statusLabel = this.translateService.translate(this.commentUtils.getStatusLabel(status));
+          return {
+            ...comment,
+            text: activeVersion?.text || '',
+            status,
+            statusLabel,
+            tagsString: (activeVersion?.tags || []).join(' ')
+          };
+        });
 
         this.domainTags = this.extractUniqueTags(comments);
         this.loading = false;
