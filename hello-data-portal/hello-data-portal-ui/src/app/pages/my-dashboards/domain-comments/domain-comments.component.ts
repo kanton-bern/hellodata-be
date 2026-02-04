@@ -51,7 +51,7 @@ import {
   canUnpublishComment,
   canViewMetadataAndVersions,
   selectContextKey,
-  selectContextName
+  selectContextNameByKey
 } from '../../../store/my-dashboards/my-dashboards.selector';
 import {selectCurrentUserCommentPermissions} from '../../../store/auth/auth.selector';
 import {ConfirmationService, PrimeTemplate} from 'primeng/api';
@@ -98,7 +98,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
 
   contextKey: string = '';
-  contextName: string | string[] = '';
+  contextName: string = '';
   comments: DomainDashboardComment[] = [];
   loading = true;
 
@@ -135,7 +135,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     // Subscribe to route params using ngrx selectors
     this.routeSubscription = combineLatest([
       this.store.select(selectContextKey),
-      this.store.select(selectContextName),
+      this.store.select(selectContextNameByKey),
       this.store.select(selectCurrentUserCommentPermissions)
     ]).pipe(
       filter(([contextKey]) => !!contextKey)
@@ -169,7 +169,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           routerLink: naviElements.myDashboards.path
         },
         {
-          label: this.contextName,
+          label: this.contextName || this.contextKey,
           routerLink: naviElements.myDashboards.path
         },
         {

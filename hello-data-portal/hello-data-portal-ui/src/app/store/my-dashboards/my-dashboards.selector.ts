@@ -30,9 +30,18 @@ import {createSelector} from "@ngrx/store";
 import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
-import {selectCurrentUserCommentPermissions, selectIsBusinessDomainAdmin, selectIsSuperuser, selectProfile} from "../auth/auth.selector";
+import {
+  selectCurrentUserCommentPermissions,
+  selectIsBusinessDomainAdmin,
+  selectIsSuperuser,
+  selectProfile
+} from "../auth/auth.selector";
 import {DashboardCommentEntry, DashboardCommentStatus, DashboardCommentVersion} from "./my-dashboards.model";
-import {CommentPermissions, DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_CONTEXT_TYPE} from "../users-management/users-management.model";
+import {
+  CommentPermissions,
+  DATA_DOMAIN_ADMIN_ROLE,
+  DATA_DOMAIN_CONTEXT_TYPE
+} from "../users-management/users-management.model";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
 const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
@@ -130,6 +139,19 @@ export const selectAvailableDataDomainsWithAllEntry = createSelector(
         }
       })
     ]
+  }
+);
+
+// Selector to get context name by context key
+export const selectContextNameByKey = createSelector(
+  myDashboardsState,
+  selectContextKey,
+  (state: MyDashboardsState, contextKey) => {
+    if (!contextKey) {
+      return undefined;
+    }
+    const domain = state.availableDataDomains.find(d => d.key === contextKey);
+    return domain?.name;
   }
 );
 
