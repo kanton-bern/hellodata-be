@@ -975,8 +975,10 @@ public class DashboardCommentService {
                         .status(v.getStatus().name())
                         .editedDate(v.getEditedDate())
                         .editedBy(v.getEditedBy())
+                        .editedByEmail(v.getEditedByEmail())
                         .publishedDate(v.getPublishedDate())
                         .publishedBy(v.getPublishedBy())
+                        .publishedByEmail(v.getPublishedByEmail())
                         .tags(parseTagsFromString(v.getTags()))
                         .pointerUrl(v.getPointerUrl())
                         .build())
@@ -1188,8 +1190,10 @@ public class DashboardCommentService {
         existingVersion.setStatus(status);
         existingVersion.setEditedDate(historyItem.getEditedDate() > 0 ? historyItem.getEditedDate() : now);
         existingVersion.setEditedBy(historyItem.getEditedBy() != null ? historyItem.getEditedBy() : updatedBy);
+        existingVersion.setEditedByEmail(historyItem.getEditedByEmail());
         existingVersion.setPublishedDate(historyItem.getPublishedDate());
         existingVersion.setPublishedBy(historyItem.getPublishedBy());
+        existingVersion.setPublishedByEmail(historyItem.getPublishedByEmail());
         existingVersion.setDeleted(false);
         existingVersion.setTags(convertTagsToString(historyItem.getTags()));
         existingVersion.setPointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null);
@@ -1203,8 +1207,10 @@ public class DashboardCommentService {
                 .status(status)
                 .editedDate(historyItem.getEditedDate() > 0 ? historyItem.getEditedDate() : now)
                 .editedBy(historyItem.getEditedBy() != null ? historyItem.getEditedBy() : updatedBy)
+                .editedByEmail(historyItem.getEditedByEmail())
                 .publishedDate(historyItem.getPublishedDate())
                 .publishedBy(historyItem.getPublishedBy())
+                .publishedByEmail(historyItem.getPublishedByEmail())
                 .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)
@@ -1346,8 +1352,10 @@ public class DashboardCommentService {
                 .status(status)
                 .editedDate(historyItem.getEditedDate() > 0 ? historyItem.getEditedDate() : now)
                 .editedBy(historyItem.getEditedBy() != null ? historyItem.getEditedBy() : importedBy)
+                .editedByEmail(historyItem.getEditedByEmail())
                 .publishedDate(historyItem.getPublishedDate())
                 .publishedBy(historyItem.getPublishedBy())
+                .publishedByEmail(historyItem.getPublishedByEmail())
                 .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)

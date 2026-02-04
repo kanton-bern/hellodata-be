@@ -46,8 +46,10 @@ public class CommentVersionExportDto {
     private String status;
     private long editedDate;
     private String editedBy;
+    private String editedByEmail;
     private Long publishedDate;
     private String publishedBy;
+    private String publishedByEmail;
     private List<String> tags;
     private String pointerUrl;
 }
