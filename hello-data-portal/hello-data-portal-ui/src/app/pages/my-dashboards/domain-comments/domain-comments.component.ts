@@ -156,14 +156,20 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         }
       }
 
-      // Only reload if contextKey changed
-      if (contextKey !== this.contextKey) {
+      const resolvedName = contextName || contextKey!;
+      const contextKeyChanged = contextKey !== this.contextKey;
+      const contextNameChanged = resolvedName !== this.contextName;
+
+      if (contextKeyChanged) {
         this.contextKey = contextKey!;
-        // contextName now comes from selector with built-in fallback to contextKey
-        this.contextName = contextName || contextKey!;
+        this.contextName = resolvedName;
         this.globalFilterValue = '';
         this.createBreadcrumbs();
         this.loadComments();
+      } else if (contextNameChanged) {
+        // Update breadcrumb when contextName resolves after data domains load
+        this.contextName = resolvedName;
+        this.createBreadcrumbs();
       }
     });
   }
