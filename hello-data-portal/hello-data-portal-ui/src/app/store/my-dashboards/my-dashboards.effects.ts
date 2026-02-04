@@ -35,6 +35,8 @@ import {
   addCommentSuccess,
   cloneCommentForEdit,
   cloneCommentForEditSuccess,
+  declineComment,
+  declineCommentSuccess,
   deleteComment,
   deleteCommentSuccess,
   loadAvailableDataDomains,
@@ -299,6 +301,30 @@ export class MyDashboardsEffects {
             const actions: any[] = [
               unpublishCommentSuccess({comment}),
               showSuccess({message: '@Comment unpublished successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  declineComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(declineComment),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, declineReason}, dashboardUrl]) => {
+        return this._myDashboardsService.declineComment(contextKey, dashboardId, commentId, declineReason).pipe(
+          switchMap(comment => {
+            const actions: any[] = [
+              declineCommentSuccess({comment}),
+              showSuccess({message: '@Comment declined successfully'})
             ];
             if (dashboardUrl) {
               actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));

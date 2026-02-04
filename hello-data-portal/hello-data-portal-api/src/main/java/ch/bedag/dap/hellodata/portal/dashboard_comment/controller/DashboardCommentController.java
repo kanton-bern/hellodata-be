@@ -104,6 +104,16 @@ public class DashboardCommentController {
         return commentService.unpublishComment(contextKey, dashboardId, commentId);
     }
 
+    @PostMapping("/{commentId}/decline")
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    public DashboardCommentDto declineComment(
+            @PathVariable String contextKey,
+            @PathVariable int dashboardId,
+            @PathVariable String commentId,
+            @RequestBody DashboardCommentDeclineDto declineDto) {
+        return commentService.declineComment(contextKey, dashboardId, commentId, declineDto);
+    }
+
     @PostMapping("/{commentId}/clone")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     public DashboardCommentDto cloneCommentForEdit(

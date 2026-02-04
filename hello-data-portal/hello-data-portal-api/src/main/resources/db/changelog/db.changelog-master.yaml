@@ -135,4 +135,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/changelogs/53_drop_comment_entity_pointer_url_and_tags.xml
   - include:
+      file: db/changelog/changelogs/54_create_dashboard_comment_permission_table.xml
+  - include:
       file: db/changelog/changelogs/56_add_email_columns_to_dashboard_comment_version.xml
+  - include:
+      file: db/changelog/changelogs/57_add_decline_status_and_reason.xml

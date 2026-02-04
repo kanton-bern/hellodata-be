@@ -68,6 +68,7 @@ public class DashboardCommentService {
 
     private static final String COMMENT_NOT_FOUND_ERROR = "DashboardCommentEntity not found";
     private static final String NO_WRITE_PERMISSION_ERROR = "No write permission for comments";
+    private static final String NO_REVIEW_PERMISSION_ERROR = "No review permission for comments";
     private static final String DASHBOARD_TITLE_PREFIX = "Dashboard ";
 
     private final UserRepository userRepository;
@@ -122,7 +123,7 @@ public class DashboardCommentService {
     /**
      * Filter a single comment based on user permissions.
      * - read only: only published comments visible
-     * - write: published + own drafts visible
+     * - write: published + own drafts + own declined visible
      * - review/admin: all comments visible
      */
     private DashboardCommentDto filterCommentByPermissions(DashboardCommentDto comment, String userEmail, String userFullName,
@@ -142,7 +143,42 @@ public class DashboardCommentService {
             return handleDraftComment(comment, activeVersion, userEmail, userFullName, isAdmin, hasWrite, hasReview);
         }
 
+        // Handle declined comments - author sees declined version instead of last published
+        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
+            return handleDeclinedComment(comment, userEmail, isAdmin, hasReview);
+        }
+
         return null;
+    }
+
+    /**
+     * Handle visibility logic for declined comments.
+     * - review/admin: see declined comments
+     * - author: see declined version (instead of last published) to view decline reason
+     * - others: fallback to last published version
+     */
+    private DashboardCommentDto handleDeclinedComment(DashboardCommentDto comment,
+                                                      String userEmail,
+                                                      boolean isAdmin, boolean hasReview) {
+        // Admins and reviewers can see declined comments
+        if (isAdmin || hasReview) {
+            return comment;
+        }
+
+        // Author sees the declined version to view the decline reason
+        if (isOwnComment(comment, userEmail)) {
+            return comment;
+        }
+
+        // For others, show the last published version if it exists
+        return showLastPublishedVersion(comment);
+    }
+
+    /**
+     * Check if the comment belongs to the current user.
+     */
+    private boolean isOwnComment(DashboardCommentDto comment, String userEmail) {
+        return userEmail != null && userEmail.equals(comment.getAuthorEmail());
     }
 
     /**
@@ -303,22 +339,51 @@ public class DashboardCommentService {
                 ? validateAndNormalizeTags(updateDto.getTags())
                 : getCurrentTags(comment);
 
-        // Update the active version in history
-        String editorName = SecurityUtils.getCurrentUserFullName();
-        long now = System.currentTimeMillis();
-
-        comment.getHistory().stream()
+        // Check if active version is DECLINED - if so, create a new DRAFT version instead of updating
+        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
                 .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
                 .findFirst()
-                .ifPresent(v -> {
-                    v.setText(updateDto.getText());
-                    v.setEditedDate(now);
-                    v.setEditedBy(editorName);
-                    v.setTags(commentMapper.tagsToString(normalizedTags));
-                    // Update pointerUrl - allow clearing by setting to null/empty
-                    String newPointerUrl = updateDto.getPointerUrl();
-                    v.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
-                });
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active version not found"));
+
+        String editorName = SecurityUtils.getCurrentUserFullName();
+        String editorEmail = SecurityUtils.getCurrentUserEmail();
+        long now = System.currentTimeMillis();
+
+        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
+            // Create a new DRAFT version when editing a declined comment
+            int newVersionNumber = comment.getHistory().stream()
+                    .mapToInt(DashboardCommentVersionEntity::getVersion)
+                    .max()
+                    .orElse(0) + 1;
+
+            String newPointerUrl = updateDto.getPointerUrl();
+            DashboardCommentVersionEntity newVersion = DashboardCommentVersionEntity.builder()
+                    .version(newVersionNumber)
+                    .text(updateDto.getText())
+                    .status(DashboardCommentStatus.DRAFT)
+                    .editedDate(now)
+                    .editedBy(editorName)
+                    .editedByEmail(editorEmail)
+                    .deleted(false)
+                    .tags(commentMapper.tagsToString(normalizedTags))
+                    .pointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null)
+                    .comment(comment)
+                    .build();
+
+            comment.getHistory().add(newVersion);
+            comment.setActiveVersion(newVersionNumber);
+            comment.setHasActiveDraft(true);
+        } else {
+            // Update the active version in history (for DRAFT or PUBLISHED)
+            activeVersion.setText(updateDto.getText());
+            activeVersion.setEditedDate(now);
+            activeVersion.setEditedBy(editorName);
+            activeVersion.setEditedByEmail(editorEmail);
+            activeVersion.setTags(commentMapper.tagsToString(normalizedTags));
+            // Update pointerUrl - allow clearing by setting to null/empty
+            String newPointerUrl = updateDto.getPointerUrl();
+            activeVersion.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
+        }
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
@@ -415,7 +480,7 @@ public class DashboardCommentService {
         if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
             DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
             if (perm == null || !perm.isReviewComments()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No review permission for comments");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
             }
         }
 
@@ -452,7 +517,7 @@ public class DashboardCommentService {
         if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
             DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
             if (perm == null || !perm.isReviewComments()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No review permission for comments");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
             }
         }
 
@@ -473,6 +538,54 @@ public class DashboardCommentService {
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Unpublished comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Decline a draft comment (reviewer rejects the draft with a reason).
+     * The draft status is changed to DECLINED and stored in history.
+     * Author will see the declined version instead of the last published one.
+     */
+    public DashboardCommentDto declineComment(String contextKey, int dashboardId, String commentId,
+                                              DashboardCommentDeclineDto declineDto) {
+        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
+            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+            if (perm == null || !perm.isReviewComments()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
+            }
+        }
+
+        if (declineDto.getDeclineReason() == null || declineDto.getDeclineReason().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Decline reason is required");
+        }
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        String reviewerName = SecurityUtils.getCurrentUserFullName();
+        String reviewerEmail = SecurityUtils.getCurrentUserEmail();
+        long now = System.currentTimeMillis();
+
+        // Find the active draft version and change its status to DECLINED
+        DashboardCommentVersionEntity draftVersion = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .filter(v -> v.getStatus() == DashboardCommentStatus.DRAFT)
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Cannot decline - no active draft version found"));
+
+        draftVersion.setStatus(DashboardCommentStatus.DECLINED);
+        draftVersion.setPublishedDate(now);
+        draftVersion.setPublishedBy(reviewerName);
+        draftVersion.setPublishedByEmail(reviewerEmail);
+        draftVersion.setDeclineReason(declineDto.getDeclineReason());
+
+        comment.setHasActiveDraft(false);
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        log.info("Declined draft comment {} for dashboard {}/{} by {} with reason: {}",
+                commentId, contextKey, dashboardId, reviewerName, declineDto.getDeclineReason());
         return commentMapper.toDto(savedComment);
     }
 
@@ -498,10 +611,13 @@ public class DashboardCommentService {
         // verify entityVersion matches
         checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
 
-        // Check business validation
+        // Check business validation - allow cloning for PUBLISHED or DECLINED status
         DashboardCommentVersionDto activeVersion = getActiveVersion(commentMapper.toDto(comment));
-        if (activeVersion == null || activeVersion.getStatus() != DashboardCommentStatus.PUBLISHED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "DashboardCommentEntity must be published to create a new edit version");
+        if (activeVersion == null ||
+                (activeVersion.getStatus() != DashboardCommentStatus.PUBLISHED &&
+                        activeVersion.getStatus() != DashboardCommentStatus.DECLINED)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Comment must be published or declined to create a new edit version");
         }
 
         String editorName = SecurityUtils.getCurrentUserFullName();
@@ -572,6 +688,17 @@ public class DashboardCommentService {
         boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
         if (!isAuthor && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
+        }
+
+        // Find the version to restore and validate it's not declined
+        DashboardCommentVersionEntity versionToRestore = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(versionNumber))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Version not found"));
+
+        if (versionToRestore.getStatus() == DashboardCommentStatus.DECLINED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot restore a declined version. Declined versions are kept in history only.");
         }
 
         comment.setActiveVersion(versionNumber);
@@ -979,6 +1106,7 @@ public class DashboardCommentService {
                         .publishedDate(v.getPublishedDate())
                         .publishedBy(v.getPublishedBy())
                         .publishedByEmail(v.getPublishedByEmail())
+                        .declineReason(v.getDeclineReason())
                         .tags(parseTagsFromString(v.getTags()))
                         .pointerUrl(v.getPointerUrl())
                         .build())
@@ -1194,6 +1322,7 @@ public class DashboardCommentService {
         existingVersion.setPublishedDate(historyItem.getPublishedDate());
         existingVersion.setPublishedBy(historyItem.getPublishedBy());
         existingVersion.setPublishedByEmail(historyItem.getPublishedByEmail());
+        existingVersion.setDeclineReason(historyItem.getDeclineReason());
         existingVersion.setDeleted(false);
         existingVersion.setTags(convertTagsToString(historyItem.getTags()));
         existingVersion.setPointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null);
@@ -1211,6 +1340,7 @@ public class DashboardCommentService {
                 .publishedDate(historyItem.getPublishedDate())
                 .publishedBy(historyItem.getPublishedBy())
                 .publishedByEmail(historyItem.getPublishedByEmail())
+                .declineReason(historyItem.getDeclineReason())
                 .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)
@@ -1356,6 +1486,7 @@ public class DashboardCommentService {
                 .publishedDate(historyItem.getPublishedDate())
                 .publishedBy(historyItem.getPublishedBy())
                 .publishedByEmail(historyItem.getPublishedByEmail())
+                .declineReason(historyItem.getDeclineReason())
                 .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)

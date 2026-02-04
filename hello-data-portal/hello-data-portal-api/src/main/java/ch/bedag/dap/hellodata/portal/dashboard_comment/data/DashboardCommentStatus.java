@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
 public enum DashboardCommentStatus {
     DRAFT,
-    PUBLISHED
+    PUBLISHED,
+    DECLINED // Draft rejected by reviewer with a decline reason
 }
 

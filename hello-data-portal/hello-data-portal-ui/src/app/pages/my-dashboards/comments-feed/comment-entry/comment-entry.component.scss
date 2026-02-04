@@ -66,6 +66,16 @@
     border-radius: 0.25rem;
     font-weight: 500;
   }
+
+  .declined-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--red-500, #ef4444);
+    color: white;
+    border-radius: 0.25rem;
+    font-weight: 500;
+  }
 }
 
 .comment-actions {
@@ -93,12 +103,18 @@
   border-color: var(--surface-400, #9ca3af);
 }
 
+.comment-item.declined-border {
+  border-style: solid;
+  border-color: var(--red-500, #ef4444);
+  border-width: 2px;
+}
+
 ::ng-deep .p-tooltip {
   font-size: 0.625rem;
 }
 
 // Action buttons - shared styles
-.info-btn, .publish-btn, .unpublish-btn, .delete-btn, .edit-btn {
+.info-btn, .publish-btn, .decline-btn, .unpublish-btn, .delete-btn, .edit-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -128,6 +144,14 @@
 
   &:hover {
     color: var(--green-600, #16a34a);
+  }
+}
+
+.decline-btn {
+  color: var(--red-500, #ef4444);
+
+  &:hover {
+    color: var(--red-600, #dc2626);
   }
 }
 
@@ -257,6 +281,7 @@
     }
 
     .history-author {
+      min-width: 5rem;
       cursor: pointer;
 
       &:hover {
@@ -275,6 +300,28 @@
       font-size: 0.6rem;
       color: var(--text-color-secondary, #6c757d);
       flex-shrink: 0;
+    }
+
+    .history-decline-reason-row {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-start;
+      padding: 0.25rem 0.5rem 0.25rem 1.5rem;
+      background-color: var(--red-50, #fef2f2);
+      border-radius: 0.25rem;
+      margin: 0.25rem 0;
+    }
+
+    .history-decline-reason-label {
+      font-size: 0.6rem;
+      color: var(--red-600, #dc2626);
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .history-decline-reason {
+      font-size: 0.65rem;
+      color: var(--red-700, #b91c1c);
     }
 
     .history-pointer-url-row {
@@ -354,6 +401,11 @@
         background-color: var(--blue-100, #dbeafe);
         color: var(--blue-700, #1d4ed8);
       }
+
+      &.status-declined {
+        background-color: var(--red-100, #fee2e2);
+        color: var(--red-700, #b91c1c);
+      }
     }
 
     .history-version {
@@ -370,9 +422,6 @@
       min-width: 4rem;
     }
 
-    .history-author {
-      min-width: 5rem;
-    }
 
     .history-text {
       font-size: 0.65rem;
@@ -522,3 +571,26 @@
   }
 }
 
+// Decline reason banner
+.decline-reason-banner {
+  font-size: 0.75rem;
+}
+
+// Decline dialog
+.decline-dialog-content {
+  .decline-warning {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: var(--orange-50, #fff7ed);
+    border: 1px solid var(--orange-200, #fed7aa);
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--orange-700, #c2410c);
+  }
+
+  textarea {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+}

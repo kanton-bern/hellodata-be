@@ -92,6 +92,10 @@ export class CommentEntryComponent {
   editNewTagText = '';
   editTagSuggestions: string[] = [];
 
+  // Decline dialog
+  declineDialogVisible = false;
+  declineReason = '';
+
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
@@ -110,6 +114,12 @@ export class CommentEntryComponent {
   canPublish = computed(() => this.canPublishFn()(this.comment()));
   canUnpublish = computed(() => this.canUnpublishFn()(this.comment()));
   canDelete = computed(() => this.canDeleteFn()(this.comment()));
+
+  // Reviewer can decline draft comments
+  canDecline = computed(() => {
+    const activeVer = this.activeVersion();
+    return this.canPublish() && activeVer?.status === DashboardCommentStatus.DRAFT;
+  });
 
   // Get active version from comment
   activeVersion = computed(() => {
@@ -204,7 +214,8 @@ export class CommentEntryComponent {
           const tagsToSave = this.editedTags.length > 0 ? this.editedTags : undefined;
           // Send empty string to clear pointerUrl, or normalized URL
           const pointerUrlToSave = normalizedPointerUrl ?? '';
-          if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
+          // If status is PUBLISHED or DECLINED, clone to create new draft version
+          if (activeVer?.status === DashboardCommentStatus.PUBLISHED || activeVer?.status === DashboardCommentStatus.DECLINED) {
             this.commentUtils.dispatchClonePublishedComment(
               dashboardId,
               contextKey,
@@ -215,6 +226,7 @@ export class CommentEntryComponent {
               tagsToSave
             );
           } else {
+            // For DRAFT status, just update the existing draft
             this.commentUtils.dispatchUpdateDraftComment(
               dashboardId,
               contextKey,
@@ -301,6 +313,36 @@ export class CommentEntryComponent {
         }
       });
     });
+  }
+
+  openDeclineDialog(): void {
+    this.declineReason = '';
+    this.declineDialogVisible = true;
+  }
+
+  closeDeclineDialog(): void {
+    this.declineDialogVisible = false;
+    this.declineReason = '';
+  }
+
+  submitDecline(): void {
+    if (!this.declineReason || this.declineReason.trim().length === 0) {
+      return;
+    }
+
+    const comment = this.comment();
+    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+        if (dashboardId && contextKey) {
+          this.commentUtils.declineComment(dashboardId, contextKey, comment.id, this.declineReason.trim());
+          this.closeDeclineDialog();
+        }
+      });
+    });
+  }
+
+  isDeclineDisabled(): boolean {
+    return !this.declineReason || this.declineReason.trim().length === 0;
   }
 
   deleteComment(): void {

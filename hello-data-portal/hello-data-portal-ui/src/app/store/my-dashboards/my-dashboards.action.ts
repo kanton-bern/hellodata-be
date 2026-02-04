@@ -60,6 +60,9 @@ export enum MyDashboardsActionType {
   UNPUBLISH_COMMENT = '[MYDASHBOARDS] Unpublish comment',
   UNPUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Unpublish comment SUCCESS',
   UNPUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Unpublish comment ERROR',
+  DECLINE_COMMENT = '[MYDASHBOARDS] Decline comment',
+  DECLINE_COMMENT_SUCCESS = '[MYDASHBOARDS] Decline comment SUCCESS',
+  DECLINE_COMMENT_ERROR = '[MYDASHBOARDS] Decline comment ERROR',
   CLONE_COMMENT_FOR_EDIT = '[MYDASHBOARDS] Clone comment for edit',
   CLONE_COMMENT_FOR_EDIT_SUCCESS = '[MYDASHBOARDS] Clone comment for edit SUCCESS',
   CLONE_COMMENT_FOR_EDIT_ERROR = '[MYDASHBOARDS] Clone comment for edit ERROR',
@@ -215,6 +218,21 @@ export const unpublishCommentSuccess = createAction(
 
 export const unpublishCommentError = createAction(
   MyDashboardsActionType.UNPUBLISH_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const declineComment = createAction(
+  MyDashboardsActionType.DECLINE_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string; declineReason: string }>()
+);
+
+export const declineCommentSuccess = createAction(
+  MyDashboardsActionType.DECLINE_COMMENT_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const declineCommentError = createAction(
+  MyDashboardsActionType.DECLINE_COMMENT_ERROR,
   props<{ error: any }>()
 );
 

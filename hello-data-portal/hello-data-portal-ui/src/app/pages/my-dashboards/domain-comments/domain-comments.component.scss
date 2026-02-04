@@ -110,3 +110,13 @@
   padding-bottom: 0.25rem;
   font-size: 0.875rem;
 }
+
+/* Info button active state (green when expanded) */
+::ng-deep .info-btn-active button {
+  color: var(--p-green-500, #22c55e) !important;
+
+  &:hover {
+    color: var(--p-green-600, #16a34a) !important;
+  }
+}
+

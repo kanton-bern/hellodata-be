@@ -80,6 +80,9 @@ public class DashboardCommentVersionEntity {
     @Column(name = "published_by_email", length = 255)
     private String publishedByEmail;
 
+    @Column(name = "decline_reason", columnDefinition = "TEXT")
+    private String declineReason;
+
     @Column(name = "deleted", nullable = false)
     @Builder.Default
     private boolean deleted = false;

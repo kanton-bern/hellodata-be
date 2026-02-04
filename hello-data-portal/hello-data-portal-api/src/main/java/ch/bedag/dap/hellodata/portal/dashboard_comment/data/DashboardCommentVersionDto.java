@@ -47,6 +47,7 @@
      private Long publishedDate;
      private String publishedBy;
      private String publishedByEmail;
+     private String declineReason; // Reason for declining the draft (only for DECLINED status)
      private boolean deleted;
      private List<String> tags; // Tags snapshot for this version
      private String pointerUrl; // Pointer URL snapshot for this version

@@ -100,14 +100,25 @@
         </td>
         <td>
           <div class="action-buttons">
+            <!-- Open dashboard button -->
+            <p-button
+              icon="fa-up-right-from-square fas"
+              [rounded]="true"
+              class="mr-2"
+              [text]="true"
+              severity="info"
+              [pTooltip]="'@Open Dashboard' | transloco"
+              tooltipPosition="top"
+              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Info button -->
             @if (canViewMetadata()) {
               <p-button
                 icon="fa fa-info-circle"
                 [rounded]="true"
                 [text]="true"
-                severity="info"
+                severity="help"
                 class="mr-2"
+                [styleClass]="isExpanded(comment) ? 'info-btn-active' : ''"
                 [pTooltip]="'@Info' | transloco"
                 tooltipPosition="top"
                 (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
@@ -136,6 +147,18 @@
                 tooltipPosition="top"
                 (click)="publishCommentAction(comment)" (keydown.enter)="publishCommentAction(comment)"/>
             }
+            <!-- Decline button -->
+            @if (canDecline(comment)) {
+              <p-button
+                icon="fa-solid fa-circle-stop"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                class="mr-2"
+                [pTooltip]="'@Decline' | transloco"
+                tooltipPosition="top"
+                (click)="openDeclineDialog(comment)" (keydown.enter)="openDeclineDialog(comment)"/>
+            }
             <!-- Unpublish button -->
             @if (canUnpublish(comment)) {
               <p-button
@@ -155,20 +178,10 @@
                 [rounded]="true"
                 [text]="true"
                 severity="danger"
-                class="mr-2"
                 [pTooltip]="'@Delete' | transloco"
                 tooltipPosition="top"
                 (click)="deleteCommentAction(comment)" (keydown.enter)="deleteCommentAction(comment)"/>
             }
-            <!-- Open dashboard button -->
-            <p-button
-              icon="fa-up-right-from-square fas"
-              [rounded]="true"
-              [text]="true"
-              severity="info"
-              [pTooltip]="'@Open Dashboard' | transloco"
-              tooltipPosition="top"
-              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
           </div>
         </td>
       </tr>
@@ -197,6 +210,22 @@
                     @if (getActiveVersionData(comment)?.publishedBy) {
                       ({{ getActiveVersionData(comment)?.publishedBy }})
                     }
+                  </div>
+                }
+                @if (getActiveVersionData(comment)?.status === DashboardCommentStatus.DECLINED && getActiveVersionData(comment)?.declineReason) {
+                  <div class="col-span-2">
+                    <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+                      <strong class="text-red-700">{{ '@Decline reason' | transloco }}:</strong>
+                      <p class="text-red-600 mt-1">{{ getActiveVersionData(comment)?.declineReason }}</p>
+                      @if (getActiveVersionData(comment)?.publishedBy) {
+                        <p class="text-red-500 text-sm mt-1">
+                          {{ '@Declined by' | transloco }}: {{ getActiveVersionData(comment)?.publishedBy }}
+                          @if (getActiveVersionData(comment)?.publishedDate) {
+                            - {{ getActiveVersionData(comment)?.publishedDate | date:'short' }}
+                          }
+                        </p>
+                      }
+                    </div>
                   </div>
                 }
                 @if (getActiveVersionData(comment)?.editedDate && getActiveVersionData(comment)?.editedDate !== comment.createdDate) {
@@ -298,6 +327,16 @@
                             }
                           </td>
                         </tr>
+                        @if (historyItem.status === DashboardCommentStatus.DECLINED && historyItem.declineReason) {
+                          <tr [class.bg-blue-50]="historyItem.isCurrentVersion">
+                            <td colspan="8" class="p-2">
+                              <div class="bg-red-50 border-l-4 border-red-500 p-2 rounded">
+                                <strong class="text-red-700 text-xs">{{ '@Decline reason' | transloco }}:</strong>
+                                <p class="text-red-600 text-xs mt-1">{{ historyItem.declineReason }}</p>
+                              </div>
+                            </td>
+                          </tr>
+                        }
                       }
                     </tbody>
                   </table>
@@ -331,6 +370,12 @@
       <div class="edit-warning mb-3">
         <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
         <span>{{ '@Edit published comment warning' | transloco }}</span>
+      </div>
+    }
+    @if (editingComment && getActiveVersionData(editingComment)?.status === DashboardCommentStatus.DECLINED) {
+      <div class="edit-warning mb-3">
+        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <span>{{ '@Edit declined comment warning' | transloco }}</span>
       </div>
     }
     <textarea pInputTextarea
@@ -416,6 +461,42 @@
               [label]="'@Save' | transloco"
               severity="success"
               [disabled]="isSaveEditDisabled()"/>
+  </ng-template>
+</p-dialog>
+
+<!-- Decline Comment Dialog -->
+<p-dialog [header]="'@Decline draft' | transloco"
+          [(visible)]="declineDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '500px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="decline-dialog-content">
+    <div class="decline-warning mb-3 flex items-center p-3 bg-orange-50 border border-orange-200 rounded">
+      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <span class="text-orange-700 text-sm">{{ '@Decline comment warning' | transloco }}</span>
+    </div>
+    <label for="declineReasonInput" class="block text-sm font-medium text-gray-700 mb-2">
+      {{ '@Decline reason' | transloco }} *
+    </label>
+    <textarea pInputTextarea
+              id="declineReasonInput"
+              [(ngModel)]="declineReason"
+              [rows]="4"
+              [autoResize]="true"
+              class="w-full"
+              placeholder="{{ '@Enter reason for declining this draft' | transloco }}"></textarea>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button (click)="closeDeclineDialog()" (keydown.escape)="closeDeclineDialog()"
+              icon="fas fa-circle-xmark"
+              [label]="'@Cancel' | transloco"
+              severity="secondary"/>
+    <p-button (click)="submitDecline()" (keydown.enter)="submitDecline()"
+              icon="fas fa-ban"
+              [label]="'@Decline' | transloco"
+              severity="danger"
+              [disabled]="isDeclineDisabled()"/>
   </ng-template>
 </p-dialog>
 

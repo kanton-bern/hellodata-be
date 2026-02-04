@@ -33,6 +33,7 @@ import {ConfirmationService} from 'primeng/api';
 import {TranslateService} from '../../../shared/services/translate.service';
 import {
   cloneCommentForEdit,
+  declineComment,
   deleteComment,
   publishComment,
   restoreCommentVersion,
@@ -228,6 +229,14 @@ export class DashboardCommentUtilsService {
         onSuccess?.();
       }
     });
+  }
+
+  /**
+   * Dispatches decline comment action (no confirmation needed - done via dialog)
+   */
+  declineComment(dashboardId: number, contextKey: string, commentId: string, declineReason: string, onSuccess?: () => void): void {
+    this.store.dispatch(declineComment({dashboardId, contextKey, commentId, declineReason}));
+    onSuccess?.();
   }
 
   /**

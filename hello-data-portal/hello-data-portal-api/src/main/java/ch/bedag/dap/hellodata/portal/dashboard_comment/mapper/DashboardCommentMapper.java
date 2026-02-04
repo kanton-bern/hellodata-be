@@ -124,6 +124,7 @@ public class DashboardCommentMapper {
                 .publishedDate(entity.getPublishedDate())
                 .publishedBy(entity.getPublishedBy())
                 .publishedByEmail(entity.getPublishedByEmail())
+                .declineReason(entity.getDeclineReason())
                 .deleted(entity.isDeleted())
                 .tags(parseTagsFromString(entity.getTags()))
                 .pointerUrl(entity.getPointerUrl())

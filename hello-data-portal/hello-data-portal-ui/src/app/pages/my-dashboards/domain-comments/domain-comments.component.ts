@@ -118,6 +118,11 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   editTagSuggestions: string[] = [];
   domainTags: string[] = [];
 
+  // Decline dialog
+  declineDialogVisible = false;
+  decliningComment: DomainDashboardComment | null = null;
+  declineReason = '';
+
   // Permission selectors
   canEditFn = this.store.selectSignal(canEditComment);
   canPublishFn = this.store.selectSignal(canPublishComment);
@@ -361,7 +366,9 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     const contextKey = comment.contextKey;
 
     if (dashboardId && contextKey) {
-      if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
+      // If status is PUBLISHED or DECLINED, clone to create new draft version
+      if (activeVer?.status === DashboardCommentStatus.PUBLISHED ||
+        activeVer?.status === DashboardCommentStatus.DECLINED) {
         this.commentUtils.dispatchClonePublishedComment(
           dashboardId,
           contextKey,
@@ -372,6 +379,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           this.editedTags
         );
       } else {
+        // For DRAFT status, just update the existing draft
         this.commentUtils.dispatchUpdateDraftComment(
           dashboardId,
           contextKey,
@@ -420,6 +428,47 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       () => setTimeout(() => this.loadComments(), 500),
       this.confirmationService
     );
+  }
+
+  // Open decline dialog
+  openDeclineDialog(comment: DomainDashboardComment): void {
+    this.decliningComment = comment;
+    this.declineReason = '';
+    this.declineDialogVisible = true;
+  }
+
+  // Close decline dialog
+  closeDeclineDialog(): void {
+    this.declineDialogVisible = false;
+    this.decliningComment = null;
+    this.declineReason = '';
+  }
+
+  // Submit decline
+  submitDecline(): void {
+    if (!this.decliningComment || !this.declineReason || this.declineReason.trim().length === 0) {
+      return;
+    }
+
+    this.commentUtils.declineComment(
+      this.decliningComment.dashboardId,
+      this.decliningComment.contextKey,
+      this.decliningComment.id,
+      this.declineReason.trim(),
+      () => setTimeout(() => this.loadComments(), 500)
+    );
+    this.closeDeclineDialog();
+  }
+
+  // Check if decline button is disabled
+  isDeclineDisabled(): boolean {
+    return !this.declineReason || this.declineReason.trim().length === 0;
+  }
+
+  // Check if comment can be declined (reviewer can decline drafts)
+  canDecline(comment: DomainDashboardComment): boolean {
+    const activeVer = this.getActiveVersionData(comment);
+    return this.canPublish(comment) && activeVer?.status === DashboardCommentStatus.DRAFT;
   }
 
   // Delete comment

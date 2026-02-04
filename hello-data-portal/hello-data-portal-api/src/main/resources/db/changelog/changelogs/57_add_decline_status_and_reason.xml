@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="57-1" author="hellodata">
+        <comment>Add DECLINED status to dashboard comments and decline_reason field to dashboard_comment_version table
+        </comment>
+
+        <!-- Add decline_reason column to dashboard_comment_version table -->
+        <addColumn tableName="dashboard_comment_version">
+            <column name="decline_reason" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="dashboard_comment_version" columnName="decline_reason"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

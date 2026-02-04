@@ -90,6 +90,10 @@ export class MyDashboardsService {
     return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/unpublish`, {});
   }
 
+  public declineComment(contextKey: string, dashboardId: number, commentId: string, declineReason: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/decline`, {declineReason});
+  }
+
   public cloneCommentForEdit(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<DashboardCommentEntry> {
     return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/clone`, request);
   }
