@@ -377,4 +377,10 @@ export class CommentEntryComponent {
       });
     });
   }
+
+  isCurrentVersionReadyForReview(): boolean {
+    const comment = this.comment();
+    const currentVersion = comment.history.find(v => v.version === comment.activeVersion);
+    return currentVersion?.status === DashboardCommentStatus.READY_FOR_REVIEW;
+  }
 }

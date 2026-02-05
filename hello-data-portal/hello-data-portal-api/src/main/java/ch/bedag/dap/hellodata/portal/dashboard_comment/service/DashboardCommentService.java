@@ -803,6 +803,17 @@ public class DashboardCommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
         }
 
+        // Check if current comment is in READY_FOR_REVIEW status
+        DashboardCommentVersionEntity currentVersion = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current version not found"));
+
+        if (currentVersion.getStatus() == DashboardCommentStatus.READY_FOR_REVIEW) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot restore version while comment is waiting for review. Please wait for reviewer decision first.");
+        }
+
         // Find the version to restore and validate it's not declined or deleted
         DashboardCommentVersionEntity versionToRestore = comment.getHistory().stream()
                 .filter(v -> v.getVersion().equals(versionNumber))
@@ -983,7 +994,8 @@ public class DashboardCommentService {
 
         // Handle other statuses based on permissions
         return switch (activeVersion.getStatus()) {
-            case READY_FOR_REVIEW, DECLINED -> handleReviewOrDeclinedVisibility(comment, userEmail, hasWrite, hasReview);
+            case READY_FOR_REVIEW, DECLINED ->
+                    handleReviewOrDeclinedVisibility(comment, userEmail, hasWrite, hasReview);
             case DRAFT -> handleDraftVisibility(comment, activeVersion, userEmail, userFullName, hasWrite);
             default -> null;
         };

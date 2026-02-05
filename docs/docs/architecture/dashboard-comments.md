@@ -71,11 +71,14 @@ The data model consists of three main entities:
 ├─────────────────────────────────────────────────────────────┤
 │ version: number                                             │
 │ text: string                                                │
-│ status: DashboardCommentStatus (DRAFT | PUBLISHED)          │
+│ status: DashboardCommentStatus                              │
+│         (DRAFT | READY_FOR_REVIEW | PUBLISHED | DECLINED    │
+│          | DELETED)                                         │
 │ editedDate: number                                          │
 │ editedBy: string                                            │
 │ publishedDate?: number                                      │
 │ publishedBy?: string                                        │
+│ declineReason?: string                                      │
 │ deleted: boolean                                            │
 │ pointerUrl?: string (specific page/chart link for version)  │
 │ tags?: string[] (tags snapshot for this version)            │
@@ -138,30 +141,35 @@ The dashboard commenting system uses a **three-level permission model** that is 
 
 The table below shows what each permission level allows:
 
-| Action                       | READ | WRITE | REVIEW |
-|------------------------------|------|-------|--------|
-| **View published comments**  | ✔    | ✔     | ✔      |
-| **View own drafts**          |      | ✔     | ✔      |
-| **View all drafts**          |      |       | ✔      |
-| **Create comment**           |      | ✔     | ✔      |
-| **Edit own comment**         |      | ✔     | ✔      |
-| **Edit any comment**         |      |       | ✔      |
-| **Delete own comment**       |      | ✔     | ✔      |
-| **Delete any comment**       |      |       | ✔      |
-| **Publish comment**          |      |       | ✔      |
-| **Unpublish comment**        |      |       | ✔      |
-| **View metadata & versions** |      |       | ✔      |
-| **Restore version**          |      |       | ✔      |
+| Action                        | READ | WRITE | REVIEW |
+|-------------------------------|------|-------|--------|
+| **View published comments**   | ✔    | ✔     | ✔      |
+| **View own drafts/declined**  |      | ✔     | ✔      |
+| **View all drafts/declined**  |      |       | ✔      |
+| **Create comment**            |      | ✔     | ✔      |
+| **Edit own comment**          |      | ✔     | ✔      |
+| **Edit any comment**          |      |       | ✔      |
+| **Delete own version/entire** |      | ✔     | ✔      |
+| **Delete any version/entire** |      |       | ✔      |
+| **Send for review (own)**     |      | ✔     | ✔      |
+| **Publish comment**           |      |       | ✔      |
+| **Decline comment**           |      |       | ✔      |
+| **View metadata & versions**  |      |       | ✔      |
+| **Restore version (own)***    |      | ✔     | ✔      |
 
 **Legend:**
 
 - ✔ = Action allowed
 - (empty) = Action not allowed
+- \* = Cannot restore version when comment is in READY_FOR_REVIEW status
 
-> **Note for Administrators:** HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN always have full REVIEW
+> **Note for Administrators:** HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN, and DATA_DOMAIN_ADMIN roles act as templates for
+> default permissions. Their permissions are synced to the `dashboard_comment_permission` table, which is the primary
+> source of truth for all authorization checks.
 
-> **Note:** Users with `DATA_DOMAIN_VIEWER` role typically receive READ-only permissions by default, but this can be
-> customized. Dashboard access is always validated by the frontend before loading comments.
+> **Note:** Dashboard-level access (Superset RBAC) is also validated for restricted roles like `DATA_DOMAIN_VIEWER`.
+> Even if they have READ permission for comments in the domain, they can only see comments for dashboards they
+> can access in Superset.
 
 ### Automatic Permission Assignment
 
@@ -174,63 +182,24 @@ roles:
 | **BUSINESS_DOMAIN_ADMIN** | READ + WRITE + REVIEW       | All data domains       |
 | **DATA_DOMAIN_ADMIN**     | READ + WRITE + REVIEW       | Specific data domain   |
 | **Regular Users**         | READ only                   | All accessible domains |
+| **NONE role**             | No access                   | Specific data domain   |
 
 > **Important:** These are default assignments. Administrators can manually adjust individual user permissions through
-> the database to grant custom access levels.
+> the User Management UI or database to grant custom access levels.
 
 ### Permission Validation
 
 #### Backend (DashboardCommentService)
 
-The backend validates permissions at multiple levels, checking both admin status and explicit permissions:
+The backend validates permissions solely by checking the `dashboard_comment_permission` table:
 
 ```java
 // Check user's comment permissions for a context
-private void checkHasAccessToComment(String contextKey, UUID userId,
-                                     boolean needsWrite, boolean needsReview) {
-    // Admins (superuser, business domain admin, data domain admin) always have full access
-    if (SecurityUtils.isSuperuser() || isAdminForContext(contextKey)) {
-        return;
+private void checkHasAccessToComment(String contextKey) {
+    DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+    if (perm == null || !perm.isWriteComments()) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No write permission for comments");
     }
-
-    // Check explicit permission in database
-    DashboardCommentPermissionEntity permission =
-            commentPermissionRepository.findByUserIdAndContextKey(userId, contextKey)
-                    .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.FORBIDDEN, "No read permission for comments"));
-
-    // Validate required permission level
-    if (needsReview && !permission.isReviewComments()) {
-        throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN, "No review permission for comments");
-    }
-
-    if (needsWrite && !permission.isWriteComments()) {
-        throw new ResponseStatusException(
-                HttpStatus.FORBIDDEN, "No write permission for comments");
-    }
-}
-
-// Check if user is admin for context (bypasses permission table)
-private boolean isAdminForContext(String contextKey) {
-    String userEmail = SecurityUtils.getCurrentUserEmail();
-    return userRepository.findUserEntityByEmailIgnoreCase(userEmail)
-            .map(user -> {
-                // Check portal roles for admin access
-                return user.getPortalRoles().stream()
-                        .anyMatch(upr -> {
-                            String roleName = upr.getRole().getName();
-                            return SystemDefaultPortalRoleName.HELLODATA_ADMIN.name().equals(roleName) ||
-                                    SystemDefaultPortalRoleName.BUSINESS_DOMAIN_ADMIN.name().equals(roleName);
-                        }) ||
-                        // Check data domain admin for specific context
-                        user.getContextRoles().stream()
-                                .anyMatch(role ->
-                                        contextKey.equals(role.getContextKey()) &&
-                                                HdRoleName.DATA_DOMAIN_ADMIN.equals(role.getRole().getName())
-                                );
-            })
-            .orElse(false);
 }
 ```
 
@@ -289,23 +258,28 @@ export const canEditComment = createSelector(
 ### States
 
 ```
-  ┌──────────┐     publish      ┌───────────┐
-  │  DRAFT   │ ───────────────► │ PUBLISHED │
-  └──────────┘                  └───────────┘
-       ▲                              │
-       │          unpublish           │
-       └──────────────────────────────┘
+  ┌──────────┐   send for review   ┌──────────────────┐    publish     ┌───────────┐
+  │  DRAFT   │ ──────────────────► │ READY_FOR_REVIEW │ ─────────────► │ PUBLISHED │
+  └──────────┘                     └──────────────────┘                └───────────┘
+       ▲                                   │                                 │
+       │              decline              │                                 │
+       └───────────────────────────────────┘                                 │
+                                                                             │
+       ▲                                                                     │
+       │                          edit published                             │
+       └─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Workflow
 
 1. **Create Comment** - User creates a comment (status: DRAFT, version: 1)
 2. **Edit Draft** - Author or admin can edit the draft text
-3. **Publish** - Admin publishes the comment (status: PUBLISHED)
-4. **Edit Published** - Creates a new DRAFT version while keeping the published version
-5. **Publish New Version** - Admin publishes the new version
-6. **Unpublish** - Admin can revert published comment to draft
-7. **Delete** - Soft deletes current version; restores last published if available
+3. **Send for Review** - Author sends the draft for moderation (status: READY_FOR_REVIEW)
+4. **Decline** - Reviewer declines the draft with a reason (status: DECLINED)
+5. **Publish** - Reviewer publishes the comment (status: PUBLISHED)
+6. **Edit Published** - Creates a new DRAFT version while keeping the published version active
+7. **Delete** - Soft deletes current version; restores last published if available. If `deleteEntire` is true, soft
+   deletes the entire comment entity.
 
 ### Versioning
 
@@ -328,9 +302,10 @@ Version 1 (PUBLISHED) ─► Version 2 (DRAFT) ─► Version 2 (PUBLISHED) ─�
 | `GET`    | `/dashboards/{contextKey}/{dashboardId}/comments`                                     | Get all visible comments             |
 | `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments`                                     | Create new comment                   |
 | `PUT`    | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}`                         | Update draft comment                 |
-| `DELETE` | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}`                         | Delete comment                       |
+| `DELETE` | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}`                         | Delete comment version or entire     |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/send-for-review`         | Send draft for review                |
+| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/decline`                 | Decline draft with reason            |
 | `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/publish`                 | Publish comment                      |
-| `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/unpublish`               | Unpublish comment                    |
 | `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/clone`                   | Clone for edit (creates new version) |
 | `POST`   | `/dashboards/{contextKey}/{dashboardId}/comments/{commentId}/restore/{versionNumber}` | Restore specific version             |
 | `GET`    | `/dashboards/{contextKey}/{dashboardId}/comments/tags`                                | Get all tags for dashboard           |
@@ -406,18 +381,43 @@ private void checkEntityVersion(DashboardCommentEntity comment, Integer provided
 
 ## Visibility Rules
 
-### For Regular Users
+### For Regular Users (READ)
 
 - See all PUBLISHED comments
-- See own DRAFT comments
-- If current activeVersion is a DRAFT by someone else → show last PUBLISHED version instead
+- If current activeVersion is a DRAFT, READY_FOR_REVIEW or DECLINED by someone else → show last PUBLISHED version
+  instead
 - If no PUBLISHED version exists → comment is hidden
 
-### For Admins
+### For Authors (WRITE)
 
-- See all comments (DRAFT and PUBLISHED)
+- See all rules for Regular Users
+- See own DRAFT, READY_FOR_REVIEW, and DECLINED versions
+- Author can see their own declined version to read the decline reason
+
+### For Reviewers (REVIEW)
+
+- See all comments (DRAFT, READY_FOR_REVIEW, PUBLISHED, DECLINED)
 - See complete version history
-- Can switch between versions
+- Can switch between versions for any comment
+
+### Dashboard Access Restriction
+
+Users with certain roles (e.g., `DATA_DOMAIN_VIEWER`, `BUSINESS_SPECIALIST`) are restricted to seeing comments only on
+dashboards they have explicit access to via Superset RBAC. This is enforced by the backend by matching user roles
+against the required roles for each dashboard.
+
+## Consolidated Deletion Logic
+
+The deletion process has been simplified into a single "Delete" action:
+
+1. **Delete Version (Default)**: By default, the delete action soft-deletes the current active version (sets status to
+   `DELETED`).
+    - If a previous `PUBLISHED` version exists, the comment is restored to that version.
+    - If no published version exists, the entire comment is soft-deleted.
+2. **Delete Entire Comment**: If the user explicitly selects "Delete entire comment", the entire comment entity is
+   soft-deleted regardless of version history.
+
+Authors can delete their own DRAFT or DECLINED versions. Reviewers can delete any version or entire comments.
 
 ## Features
 

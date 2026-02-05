@@ -314,7 +314,7 @@
                             }
                           </td>
                           <td class="p-2">
-                            @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
+                            @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata() && !isCurrentVersionReadyForReview(comment)) {
                               <p-button
                                 icon="fa-solid fa-rotate-left"
                                 [rounded]="true"

@@ -187,7 +187,7 @@
                     <span class="history-author"
                           [pTooltip]="historyItem.editedByEmail"
                           tooltipPosition="top">{{ historyItem.editedBy }}</span>
-                    @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
+                    @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata() && !isCurrentVersionReadyForReview()) {
                       <button type="button" class="restore-btn"
                               (click)="restoreVersion(historyItem.version)"
                               (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
