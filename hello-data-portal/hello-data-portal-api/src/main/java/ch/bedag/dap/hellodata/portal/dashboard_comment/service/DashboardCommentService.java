@@ -416,7 +416,7 @@ public class DashboardCommentService {
                 ? validateAndNormalizeTags(updateDto.getTags())
                 : getCurrentTags(comment);
 
-        // Check if active version is DECLINED - if so, create a new DRAFT version instead of updating
+        // Check if active version is DECLINED or PUBLISHED - if so, create a new DRAFT version instead of updating
         DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
                 .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
                 .findFirst()
@@ -426,8 +426,9 @@ public class DashboardCommentService {
         String editorEmail = SecurityUtils.getCurrentUserEmail();
         long now = System.currentTimeMillis();
 
-        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
-            // Create a new DRAFT version when editing a declined comment
+        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED
+                || activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
+            // Create a new DRAFT version when editing a declined or published comment
             int newVersionNumber = comment.getHistory().stream()
                     .mapToInt(DashboardCommentVersionEntity::getVersion)
                     .max()
@@ -450,7 +451,7 @@ public class DashboardCommentService {
             comment.setActiveVersion(newVersionNumber);
             comment.setHasActiveDraft(true);
         } else {
-            // Update the active version in history (for DRAFT or PUBLISHED)
+            // Update the active version in history (for DRAFT)
             activeVersion.setText(updateDto.getText());
             activeVersion.setEditedDate(now);
             activeVersion.setEditedBy(editorName);
