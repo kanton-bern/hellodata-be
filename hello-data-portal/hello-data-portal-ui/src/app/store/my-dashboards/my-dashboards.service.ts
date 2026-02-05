@@ -78,20 +78,30 @@ export class MyDashboardsService {
   }
 
   public deleteComment(contextKey: string, dashboardId: number, commentId: string, deleteEntire?: boolean): Observable<DashboardCommentEntry> {
-    const params = deleteEntire ? {deleteEntire: 'true'} : {};
-    return this.httpClient.delete<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, {params});
+    let params: any = undefined;
+    if (deleteEntire) {
+      params = {deleteEntire: 'true'};
+    }
+    return this.httpClient.delete<DashboardCommentEntry>(
+      `${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`,
+      params ? {params} : {}
+    );
   }
 
   public publishComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
     return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/publish`, {});
   }
 
-  public unpublishComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
-    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/unpublish`, {});
+  public sendForReview(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/send-for-review`, {});
   }
 
   public declineComment(contextKey: string, dashboardId: number, commentId: string, declineReason: string): Observable<DashboardCommentEntry> {
     return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/decline`, {declineReason});
+  }
+
+  public deleteVersion(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/delete-version`, {});
   }
 
   public cloneCommentForEdit(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<DashboardCommentEntry> {

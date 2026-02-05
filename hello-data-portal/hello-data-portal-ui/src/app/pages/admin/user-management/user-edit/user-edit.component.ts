@@ -240,8 +240,14 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
         contextKey,
         permissions: {readComments: false, writeComments: false, reviewComments: false}
       }));
+    } else if ($event.value.name === 'DATA_DOMAIN_ADMIN') {
+      // Data Domain Admin auto-enables all comment permissions
+      this.store.dispatch(setCommentPermissionsForUser({
+        contextKey,
+        permissions: {readComments: true, writeComments: true, reviewComments: true}
+      }));
     } else {
-      // Any non-NONE role auto-enables readComments
+      // Any other non-NONE role auto-enables readComments
       const current = this.getCommentPermissions(contextKey);
       this.store.dispatch(setCommentPermissionsForUser({
         contextKey,

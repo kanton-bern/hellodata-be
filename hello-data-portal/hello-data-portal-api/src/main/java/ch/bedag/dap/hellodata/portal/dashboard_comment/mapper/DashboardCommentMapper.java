@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.dashboard_comment.mapper;
 
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentStatus;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentVersionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
@@ -125,7 +126,7 @@ public class DashboardCommentMapper {
                 .publishedBy(entity.getPublishedBy())
                 .publishedByEmail(entity.getPublishedByEmail())
                 .declineReason(entity.getDeclineReason())
-                .deleted(entity.isDeleted())
+                .deleted(entity.getStatus() == DashboardCommentStatus.DELETED || entity.isDeleted())
                 .tags(parseTagsFromString(entity.getTags()))
                 .pointerUrl(entity.getPointerUrl())
                 .build();

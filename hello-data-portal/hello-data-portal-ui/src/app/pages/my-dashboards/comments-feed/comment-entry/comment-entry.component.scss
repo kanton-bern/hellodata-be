@@ -76,6 +76,16 @@
     border-radius: 0.25rem;
     font-weight: 500;
   }
+
+  .ready-review-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--blue-100, #dbeafe);
+    color: var(--blue-700, #1d4ed8);
+    border-radius: 0.25rem;
+    font-weight: 600;
+  }
 }
 
 .comment-actions {
@@ -148,6 +158,22 @@
 }
 
 .decline-btn {
+  color: var(--red-500, #ef4444);
+
+  &:hover {
+    color: var(--red-600, #dc2626);
+  }
+}
+
+.send-review-btn {
+  color: var(--blue-500, #3b82f6);
+
+  &:hover {
+    color: var(--blue-600, #2563eb);
+  }
+}
+
+.delete-version-btn {
   color: var(--red-500, #ef4444);
 
   &:hover {

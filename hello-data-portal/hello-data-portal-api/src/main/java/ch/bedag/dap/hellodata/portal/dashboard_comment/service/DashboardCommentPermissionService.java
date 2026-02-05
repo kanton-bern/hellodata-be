@@ -28,6 +28,8 @@ package ch.bedag.dap.hellodata.portal.dashboard_comment.service;
 
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
+import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
@@ -82,19 +84,23 @@ public class DashboardCommentPermissionService {
 
     /**
      * Synchronizes default comment permissions for a user across all data domains.
-     * If user has HELLODATA_ADMIN or BUSINESS_DOMAIN_ADMIN role, grants full access (read, write, review).
-     * Otherwise, grants read-only access.
+     * Portal admins (HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN) get full access (READ+WRITE+REVIEW) in all domains.
+     * Data Domain Admins (DATA_DOMAIN_ADMIN) get full access in their specific domain.
+     * Other users with any non-NONE role in a domain get read-only access (READ) in that domain.
+     * Users with NONE role get no access.
      * Only creates permissions for contexts where they don't already exist.
      *
      * @param user the user entity to sync permissions for
      */
     @Transactional
     public void syncDefaultPermissionsForUser(UserEntity user) {
-        // Check if user has admin roles
-        boolean isAdmin = user.isHelloDataAdmin() || user.isBusinessDomainAdmin();
+        // Check if user has portal-wide admin roles
+        boolean isPortalAdmin = user.isHelloDataAdmin() || user.isBusinessDomainAdmin();
 
         // Get all data domain contexts
-        List<HdContextEntity> contexts = hdContextRepository.findAll();
+        List<HdContextEntity> contexts = hdContextRepository.findAll().stream()
+                .filter(ctx -> HdContextType.DATA_DOMAIN.equals(ctx.getType()))
+                .toList();
 
         int createdCount = 0;
         for (HdContextEntity context : contexts) {
@@ -109,16 +115,35 @@ public class DashboardCommentPermissionService {
                 permission.setUserId(user.getId());
                 permission.setContextKey(context.getContextKey());
 
-                if (isAdmin) {
-                    // Admin gets full access
+                if (isPortalAdmin) {
+                    // Portal admins get full access to all contexts
                     permission.setReadComments(true);
                     permission.setWriteComments(true);
                     permission.setReviewComments(true);
                 } else {
-                    // Regular user gets read-only access
-                    permission.setReadComments(true);
-                    permission.setWriteComments(false);
-                    permission.setReviewComments(false);
+                    // Check user's role in this specific context
+                    HdRoleName contextRoleName = user.getContextRoles().stream()
+                            .filter(cr -> cr.getContextKey().equals(context.getContextKey()))
+                            .map(cr -> cr.getRole().getName())
+                            .findFirst()
+                            .orElse(HdRoleName.NONE);
+
+                    if (HdRoleName.DATA_DOMAIN_ADMIN.equals(contextRoleName)) {
+                        // Data Domain Admin gets full access to their context
+                        permission.setReadComments(true);
+                        permission.setWriteComments(true);
+                        permission.setReviewComments(true);
+                    } else if (!HdRoleName.NONE.equals(contextRoleName)) {
+                        // Other non-NONE roles get read-only access
+                        permission.setReadComments(true);
+                        permission.setWriteComments(false);
+                        permission.setReviewComments(false);
+                    } else {
+                        // NONE role gets no access
+                        permission.setReadComments(false);
+                        permission.setWriteComments(false);
+                        permission.setReviewComments(false);
+                    }
                 }
 
                 repository.save(permission);
@@ -127,8 +152,8 @@ public class DashboardCommentPermissionService {
         }
 
         if (createdCount > 0) {
-            log.info("Created {} default comment permissions for user {} (admin: {})",
-                    createdCount, user.getEmail(), isAdmin);
+            log.info("Created {} default comment permissions for user {} (portal admin: {})",
+                    createdCount, user.getEmail(), isPortalAdmin);
         }
     }
 

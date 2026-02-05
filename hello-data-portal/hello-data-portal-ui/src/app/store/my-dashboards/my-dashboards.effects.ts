@@ -39,6 +39,8 @@ import {
   declineCommentSuccess,
   deleteComment,
   deleteCommentSuccess,
+  deleteVersion,
+  deleteVersionSuccess,
   loadAvailableDataDomains,
   loadAvailableDataDomainsSuccess,
   loadAvailableTags,
@@ -51,9 +53,9 @@ import {
   publishCommentSuccess,
   restoreCommentVersion,
   restoreCommentVersionSuccess,
+  sendForReview,
+  sendForReviewSuccess,
   setSelectedDataDomain,
-  unpublishComment,
-  unpublishCommentSuccess,
   updateComment,
   updateCommentError,
   updateCommentSuccess,
@@ -67,6 +69,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectCurrentUserPermissions} from "../auth/auth.selector";
 import {selectCurrentDashboardUrl} from "./my-dashboards.selector";
+import {DashboardCommentEntry} from "./my-dashboards.model";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -289,18 +292,42 @@ export class MyDashboardsEffects {
     )
   });
 
-  unpublishComment$ = createEffect(() => {
+  sendForReview$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType(unpublishComment),
+      ofType(sendForReview),
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
       switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
-        return this._myDashboardsService.unpublishComment(contextKey, dashboardId, commentId).pipe(
+        return this._myDashboardsService.sendForReview(contextKey, dashboardId, commentId).pipe(
           switchMap(comment => {
             const actions: any[] = [
-              unpublishCommentSuccess({comment}),
-              showSuccess({message: '@Comment unpublished successfully'})
+              sendForReviewSuccess({comment}),
+              showSuccess({message: '@Comment sent for review successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  deleteVersion$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteVersion),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
+        return this._myDashboardsService.deleteVersion(contextKey, dashboardId, commentId).pipe(
+          switchMap((comment: DashboardCommentEntry) => {
+            const actions: any[] = [
+              deleteVersionSuccess({comment}),
+              showSuccess({message: '@Version deleted successfully'})
             ];
             if (dashboardUrl) {
               actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));

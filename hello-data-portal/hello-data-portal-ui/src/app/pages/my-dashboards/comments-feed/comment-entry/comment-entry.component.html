@@ -53,6 +53,9 @@
         @if (activeVersion()?.status === DashboardCommentStatus.DRAFT) {
           <span class="draft-badge">{{ '@draft' | transloco }}</span>
         }
+        @if (activeVersion()?.status === DashboardCommentStatus.READY_FOR_REVIEW) {
+          <span class="ready-review-badge">{{ '@Ready for review' | transloco }}</span>
+        }
         @if (activeVersion()?.status === DashboardCommentStatus.DECLINED) {
           <span class="declined-badge">{{ '@declined' | transloco }}</span>
         }
@@ -85,6 +88,15 @@
             <i class="fa-solid fa-cloud-arrow-up"></i>
           </button>
         }
+        @if (canSendForReview()) {
+          <button type="button" class="send-review-btn"
+                  (click)="sendForReview()"
+                  (keydown)="onKeyDown($event, sendForReview.bind(this))"
+                  [pTooltip]="'@Send for review' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        }
         @if (canDecline()) {
           <button type="button" class="decline-btn"
                   (click)="openDeclineDialog()"
@@ -94,13 +106,13 @@
             <i class="fa-solid fa-circle-stop"></i>
           </button>
         }
-        @if (canUnpublish()) {
-          <button type="button" class="unpublish-btn"
-                  (click)="unpublishComment()"
-                  (keydown)="onKeyDown($event, unpublishComment.bind(this))"
-                  [pTooltip]="'@Unpublish' | transloco"
+        @if (canDeleteVersion()) {
+          <button type="button" class="delete-version-btn"
+                  (click)="deleteVersion()"
+                  (keydown)="onKeyDown($event, deleteVersion.bind(this))"
+                  [pTooltip]="'@Delete version' | transloco"
                   tooltipPosition="top">
-            <i class="fa-solid fa-cloud-arrow-down"></i>
+            <i class="fa-solid fa-trash"></i>
           </button>
         }
         @if (canDelete()) {

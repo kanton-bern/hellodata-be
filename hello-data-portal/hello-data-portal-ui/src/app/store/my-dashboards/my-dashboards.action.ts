@@ -57,12 +57,15 @@ export enum MyDashboardsActionType {
   PUBLISH_COMMENT = '[MYDASHBOARDS] Publish comment',
   PUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Publish comment SUCCESS',
   PUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Publish comment ERROR',
-  UNPUBLISH_COMMENT = '[MYDASHBOARDS] Unpublish comment',
-  UNPUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Unpublish comment SUCCESS',
-  UNPUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Unpublish comment ERROR',
+  SEND_FOR_REVIEW = '[MYDASHBOARDS] Send for review',
+  SEND_FOR_REVIEW_SUCCESS = '[MYDASHBOARDS] Send for review SUCCESS',
+  SEND_FOR_REVIEW_ERROR = '[MYDASHBOARDS] Send for review ERROR',
   DECLINE_COMMENT = '[MYDASHBOARDS] Decline comment',
   DECLINE_COMMENT_SUCCESS = '[MYDASHBOARDS] Decline comment SUCCESS',
   DECLINE_COMMENT_ERROR = '[MYDASHBOARDS] Decline comment ERROR',
+  DELETE_VERSION = '[MYDASHBOARDS] Delete version',
+  DELETE_VERSION_SUCCESS = '[MYDASHBOARDS] Delete version SUCCESS',
+  DELETE_VERSION_ERROR = '[MYDASHBOARDS] Delete version ERROR',
   CLONE_COMMENT_FOR_EDIT = '[MYDASHBOARDS] Clone comment for edit',
   CLONE_COMMENT_FOR_EDIT_SUCCESS = '[MYDASHBOARDS] Clone comment for edit SUCCESS',
   CLONE_COMMENT_FOR_EDIT_ERROR = '[MYDASHBOARDS] Clone comment for edit ERROR',
@@ -206,18 +209,18 @@ export const publishCommentError = createAction(
   props<{ error: any }>()
 );
 
-export const unpublishComment = createAction(
-  MyDashboardsActionType.UNPUBLISH_COMMENT,
+export const sendForReview = createAction(
+  MyDashboardsActionType.SEND_FOR_REVIEW,
   props<{ dashboardId: number; contextKey: string; commentId: string }>()
 );
 
-export const unpublishCommentSuccess = createAction(
-  MyDashboardsActionType.UNPUBLISH_COMMENT_SUCCESS,
+export const sendForReviewSuccess = createAction(
+  MyDashboardsActionType.SEND_FOR_REVIEW_SUCCESS,
   props<{ comment: DashboardCommentEntry }>()
 );
 
-export const unpublishCommentError = createAction(
-  MyDashboardsActionType.UNPUBLISH_COMMENT_ERROR,
+export const sendForReviewError = createAction(
+  MyDashboardsActionType.SEND_FOR_REVIEW_ERROR,
   props<{ error: any }>()
 );
 
@@ -233,6 +236,21 @@ export const declineCommentSuccess = createAction(
 
 export const declineCommentError = createAction(
   MyDashboardsActionType.DECLINE_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const deleteVersion = createAction(
+  MyDashboardsActionType.DELETE_VERSION,
+  props<{ dashboardId: number; contextKey: string; commentId: string }>()
+);
+
+export const deleteVersionSuccess = createAction(
+  MyDashboardsActionType.DELETE_VERSION_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const deleteVersionError = createAction(
+  MyDashboardsActionType.DELETE_VERSION_ERROR,
   props<{ error: any }>()
 );
 

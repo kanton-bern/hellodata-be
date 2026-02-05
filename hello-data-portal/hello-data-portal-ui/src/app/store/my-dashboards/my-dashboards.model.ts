@@ -54,8 +54,10 @@ export interface DataDomain {
 
 export enum DashboardCommentStatus {
   DRAFT = 'DRAFT',
+  READY_FOR_REVIEW = 'READY_FOR_REVIEW',
   PUBLISHED = 'PUBLISHED',
-  DECLINED = 'DECLINED' // Draft rejected by reviewer with a decline reason
+  DECLINED = 'DECLINED',
+  DELETED = 'DELETED'
 }
 
 export interface DashboardCommentVersion {

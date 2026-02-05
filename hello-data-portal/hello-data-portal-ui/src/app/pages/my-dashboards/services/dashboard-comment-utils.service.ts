@@ -35,9 +35,10 @@ import {
   cloneCommentForEdit,
   declineComment,
   deleteComment,
+  deleteVersion,
   publishComment,
   restoreCommentVersion,
-  unpublishComment,
+  sendForReview,
   updateComment
 } from '../../../store/my-dashboards/my-dashboards.action';
 
@@ -183,9 +184,15 @@ export class DashboardCommentUtilsService {
       case DashboardCommentStatus.DRAFT:
       case 'DRAFT':
         return 'warn';
+      case DashboardCommentStatus.READY_FOR_REVIEW:
+      case 'READY_FOR_REVIEW':
+        return 'info';
       case DashboardCommentStatus.DECLINED:
       case 'DECLINED':
         return 'danger';
+      case DashboardCommentStatus.DELETED:
+      case 'DELETED':
+        return 'secondary';
       default:
         return 'info';
     }
@@ -198,8 +205,14 @@ export class DashboardCommentUtilsService {
     if (status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED') {
       return '@Published';
     }
+    if (status === DashboardCommentStatus.READY_FOR_REVIEW || status === 'READY_FOR_REVIEW') {
+      return '@Ready for review';
+    }
     if (status === DashboardCommentStatus.DECLINED || status === 'DECLINED') {
       return '@DECLINED';
+    }
+    if (status === DashboardCommentStatus.DELETED || status === 'DELETED') {
+      return '@DELETED';
     }
     return '@DRAFT';
   }
@@ -223,18 +236,36 @@ export class DashboardCommentUtilsService {
   }
 
   /**
-   * Dispatches unpublish comment action with confirmation dialog
+   * Dispatches send for review action with confirmation dialog
    */
-  confirmUnpublishComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
-    const message = this.translateService.translate('@Unpublish comment question');
+  confirmSendForReview(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
+    const message = this.translateService.translate('@Send for review question');
     const service = confirmationService || this.confirmationService;
     service.confirm({
-      key: 'unpublishComment',
+      key: 'sendForReview',
+      message: message,
+      icon: 'fas fa-paper-plane',
+      closeOnEscape: false,
+      accept: () => {
+        this.store.dispatch(sendForReview({dashboardId, contextKey, commentId}));
+        onSuccess?.();
+      }
+    });
+  }
+
+  /**
+   * Dispatches delete version action with confirmation dialog
+   */
+  confirmDeleteVersion(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
+    const message = this.translateService.translate('@Delete version question');
+    const service = confirmationService || this.confirmationService;
+    service.confirm({
+      key: 'deleteVersion',
       message: message,
       icon: 'fas fa-triangle-exclamation',
       closeOnEscape: false,
       accept: () => {
-        this.store.dispatch(unpublishComment({dashboardId, contextKey, commentId}));
+        this.store.dispatch(deleteVersion({dashboardId, contextKey, commentId}));
         onSuccess?.();
       }
     });

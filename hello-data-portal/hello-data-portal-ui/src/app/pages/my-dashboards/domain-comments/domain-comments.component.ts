@@ -48,7 +48,6 @@ import {
   canDeleteComment,
   canEditComment,
   canPublishComment,
-  canUnpublishComment,
   canViewMetadataAndVersions,
   selectContextKey,
   selectContextNameByKey
@@ -126,10 +125,9 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   decliningComment: DomainDashboardComment | null = null;
   declineReason = '';
 
-  // Permission selectors
+  // Computed signals for permissions
   canEditFn = this.store.selectSignal(canEditComment);
   canPublishFn = this.store.selectSignal(canPublishComment);
-  canUnpublishFn = this.store.selectSignal(canUnpublishComment);
   canDeleteFn = this.store.selectSignal(canDeleteComment);
   canViewMetadata = this.store.selectSignal(canViewMetadataAndVersions);
 
@@ -280,6 +278,11 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   // Permission checks
   canEdit(comment: DomainDashboardComment): boolean {
+    const activeVer = this.getActiveVersionData(comment);
+    // Cannot edit READY_FOR_REVIEW status - it's locked for review
+    if (activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW) {
+      return false;
+    }
     return this.canEditFn()(comment);
   }
 
@@ -287,8 +290,22 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return this.canPublishFn()(comment);
   }
 
-  canUnpublish(comment: DomainDashboardComment): boolean {
-    return this.canUnpublishFn()(comment);
+
+  canSendForReview(comment: DomainDashboardComment): boolean {
+    const activeVer = this.getActiveVersionData(comment);
+    return this.canEdit(comment) && activeVer?.status === DashboardCommentStatus.DRAFT;
+  }
+
+  canDecline(comment: DomainDashboardComment): boolean {
+    const activeVer = this.getActiveVersionData(comment);
+    return this.canPublish(comment) && activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW;
+  }
+
+  canDeleteVersion(comment: DomainDashboardComment): boolean {
+    const activeVer = this.getActiveVersionData(comment);
+    return (activeVer?.status === DashboardCommentStatus.DECLINED ||
+        activeVer?.status === DashboardCommentStatus.DRAFT) &&
+      (this.canEdit(comment) || this.canPublish(comment));
   }
 
   canDelete(comment: DomainDashboardComment): boolean {
@@ -444,9 +461,20 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Unpublish comment
-  unpublishCommentAction(comment: DomainDashboardComment): void {
-    this.commentUtils.confirmUnpublishComment(
+  // Send comment for review
+  sendForReviewAction(comment: DomainDashboardComment): void {
+    this.commentUtils.confirmSendForReview(
+      comment.dashboardId,
+      comment.contextKey,
+      comment.id,
+      () => setTimeout(() => this.loadComments(), 500),
+      this.confirmationService
+    );
+  }
+
+  // Delete version
+  deleteVersionAction(comment: DomainDashboardComment): void {
+    this.commentUtils.confirmDeleteVersion(
       comment.dashboardId,
       comment.contextKey,
       comment.id,
@@ -490,11 +518,6 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return !this.declineReason || this.declineReason.trim().length === 0;
   }
 
-  // Check if comment can be declined (reviewer can decline drafts)
-  canDecline(comment: DomainDashboardComment): boolean {
-    const activeVer = this.getActiveVersionData(comment);
-    return this.canPublish(comment) && activeVer?.status === DashboardCommentStatus.DRAFT;
-  }
 
   // Delete comment
   deleteCommentAction(comment: DomainDashboardComment): void {

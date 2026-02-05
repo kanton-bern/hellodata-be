@@ -30,18 +30,9 @@ import {createSelector} from "@ngrx/store";
 import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
-import {
-  selectCurrentUserCommentPermissions,
-  selectIsBusinessDomainAdmin,
-  selectIsSuperuser,
-  selectProfile
-} from "../auth/auth.selector";
+import {selectCurrentUserCommentPermissions, selectProfile} from "../auth/auth.selector";
 import {DashboardCommentEntry, DashboardCommentStatus, DashboardCommentVersion} from "./my-dashboards.model";
-import {
-  CommentPermissions,
-  DATA_DOMAIN_ADMIN_ROLE,
-  DATA_DOMAIN_CONTEXT_TYPE
-} from "../users-management/users-management.model";
+import {CommentPermissions} from "../users-management/users-management.model";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
 const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
@@ -214,7 +205,7 @@ export const selectVisibleComments = createSelector(
       .filter(comment => !comment.deleted)
       .map(comment => {
         const currentActive = getActiveVersion(comment);
-        if (!currentActive || currentActive.deleted) return null;
+        if (!currentActive || currentActive.status === DashboardCommentStatus.DELETED) return null;
 
         return {
           ...comment,
@@ -230,7 +221,7 @@ export const selectPublishedComments = createSelector(
   selectCurrentDashboardComments,
   (comments) => comments.filter(c => {
     const activeVersion = getActiveVersion(c);
-    return activeVersion && !activeVersion.deleted && activeVersion.status === DashboardCommentStatus.PUBLISHED;
+    return activeVersion?.status === DashboardCommentStatus.PUBLISHED;
   }).sort((a, b) => a.createdDate - b.createdDate)
 );
 
@@ -238,7 +229,7 @@ export const selectDraftComments = createSelector(
   selectCurrentDashboardComments,
   (comments) => comments.filter(c => {
     const activeVersion = getActiveVersion(c);
-    return activeVersion && !activeVersion.deleted && activeVersion.status === DashboardCommentStatus.DRAFT;
+    return activeVersion?.status === DashboardCommentStatus.DRAFT;
   }).sort((a, b) => a.createdDate - b.createdDate)
 );
 
@@ -255,104 +246,50 @@ export const selectPublishedCommentsCount = createSelector(
 export const canEditComment = createSelector(
   selectProfile,
   selectCurrentDashboardContextKey,
-  selectIsSuperuser,
-  selectIsBusinessDomainAdmin,
-  (state: AppState) => state.auth,
   selectCurrentUserCommentPermissions,
-  (profile, contextKey, isSuperuser, isBusinessDomainAdmin, authState, commentPermissions) => (comment: DashboardCommentEntry) => {
+  (profile, contextKey, commentPermissions) => (comment: DashboardCommentEntry) => {
     const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
-    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
-
-    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
-      ? authState.contextRoles.some(userContextRole =>
-        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
-        userContextRole.context.contextKey === contextKey &&
-        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
-      )
-      : false;
-
-    if (isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin) return true;
+    if (!activeVersion || activeVersion.status === DashboardCommentStatus.DELETED || comment.deleted) return false;
 
     const perms: CommentPermissions | undefined = contextKey ? commentPermissions[contextKey] : undefined;
-    if (!perms?.writeComments) return false;
+
+    // Review users can edit any comment
+    if (perms?.reviewComments) return true;
 
     // Write users can only edit their own comments
-    return !!(currentUserEmail && comment.authorEmail === currentUserEmail);
+    if (perms?.writeComments) {
+      return !!(currentUserEmail && comment.authorEmail === currentUserEmail);
+    }
+
+    return false;
   }
 );
 
 export const canPublishComment = createSelector(
   selectCurrentDashboardContextKey,
-  selectIsSuperuser,
-  selectIsBusinessDomainAdmin,
-  (state: AppState) => state.auth,
   selectCurrentUserCommentPermissions,
-  (contextKey, isSuperuser, isBusinessDomainAdmin, authState, commentPermissions) => (comment: DashboardCommentEntry) => {
+  (contextKey, commentPermissions) => (comment: DashboardCommentEntry) => {
     const activeVersion = getActiveVersion(comment);
-    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
-
-    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
-      ? authState.contextRoles.some(userContextRole =>
-        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
-        userContextRole.context.contextKey === contextKey &&
-        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
-      )
-      : false;
+    if (!activeVersion || activeVersion.status === DashboardCommentStatus.DELETED || comment.deleted) return false;
 
     const perms: CommentPermissions | undefined = contextKey ? commentPermissions[contextKey] : undefined;
-    const canPublish = isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin || !!perms?.reviewComments;
-    return activeVersion.status === DashboardCommentStatus.DRAFT &&
-      activeVersion.text.length > 0 &&
-      canPublish;
-  }
-);
+    if (!perms?.reviewComments) return false;
 
-export const canUnpublishComment = createSelector(
-  selectCurrentDashboardContextKey,
-  selectIsSuperuser,
-  selectIsBusinessDomainAdmin,
-  (state: AppState) => state.auth,
-  selectCurrentUserCommentPermissions,
-  (contextKey, isSuperuser, isBusinessDomainAdmin, authState, commentPermissions) => (comment: DashboardCommentEntry) => {
-    const activeVersion = getActiveVersion(comment);
-    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
-
-    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
-      ? authState.contextRoles.some(userContextRole =>
-        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
-        userContextRole.context.contextKey === contextKey &&
-        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
-      )
-      : false;
-
-    const perms: CommentPermissions | undefined = contextKey ? commentPermissions[contextKey] : undefined;
-    const canUnpublish = isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin || !!perms?.reviewComments;
-    return activeVersion.status === DashboardCommentStatus.PUBLISHED && canUnpublish;
+    return (activeVersion.status === DashboardCommentStatus.READY_FOR_REVIEW ||
+        activeVersion.status === DashboardCommentStatus.DECLINED) &&
+      activeVersion.text.length > 0;
   }
 );
 
 export const canDeleteComment = createSelector(
   selectProfile,
   selectCurrentDashboardContextKey,
-  selectIsSuperuser,
-  selectIsBusinessDomainAdmin,
-  (state: AppState) => state.auth,
   selectCurrentUserCommentPermissions,
-  (profile, contextKey, isSuperuser, isBusinessDomainAdmin, authState, commentPermissions) => (comment: DashboardCommentEntry) => {
+  (profile, contextKey, commentPermissions) => (comment: DashboardCommentEntry) => {
     const currentUserEmail = profile?.email;
     const activeVersion = getActiveVersion(comment);
     if (!activeVersion || comment.deleted) return false;
-
-    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
-      ? authState.contextRoles.some(userContextRole =>
-        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
-        userContextRole.context.contextKey === contextKey &&
-        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
-      )
-      : false;
-
-    if (isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin) return true;
 
     const perms: CommentPermissions | undefined = contextKey ? commentPermissions[contextKey] : undefined;
 
@@ -370,23 +307,10 @@ export const canDeleteComment = createSelector(
 
 export const canViewMetadataAndVersions = createSelector(
   selectCurrentDashboardContextKey,
-  selectIsSuperuser,
-  selectIsBusinessDomainAdmin,
-  (state: AppState) => state.auth,
   selectCurrentUserCommentPermissions,
-  (contextKey, isSuperuser, isBusinessDomainAdmin, authState, commentPermissions) => {
-    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
-      ? authState.contextRoles.some(userContextRole =>
-        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
-        userContextRole.context.contextKey === contextKey &&
-        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
-      )
-      : false;
-
+  (contextKey, commentPermissions) => {
     const perms: CommentPermissions | undefined = contextKey ? commentPermissions[contextKey] : undefined;
-
-    // Can view metadata and switch versions: superuser, business_domain_admin, data_domain_admin, or reviewComments permission
-    return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin || !!perms?.reviewComments;
+    return !!perms?.reviewComments;
   }
 );
 

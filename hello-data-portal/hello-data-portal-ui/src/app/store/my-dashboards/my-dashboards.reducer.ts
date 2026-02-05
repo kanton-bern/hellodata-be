@@ -31,16 +31,18 @@ import {createReducer, on} from "@ngrx/store";
 import {
   addCommentSuccess,
   cloneCommentForEditSuccess,
+  declineCommentSuccess,
   deleteCommentSuccess,
+  deleteVersionSuccess,
   loadAvailableDataDomainsSuccess,
   loadAvailableTagsSuccess,
   loadDashboardCommentsSuccess,
   loadMyDashboardsSuccess,
   publishCommentSuccess,
   restoreCommentVersionSuccess,
+  sendForReviewSuccess,
   setCurrentDashboard,
   setSelectedDataDomain,
-  unpublishCommentSuccess,
   updateCommentSuccess
 } from "./my-dashboards.action";
 import {DataDomain} from "./my-dashboards.model";
@@ -134,7 +136,23 @@ export const myDashboardsReducer = createReducer(
       )
     }
   }),
-  on(unpublishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+  on(sendForReviewSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(declineCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(deleteVersionSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
     return {
       ...state,
       currentDashboardComments: state.currentDashboardComments.map(c =>

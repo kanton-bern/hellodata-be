@@ -95,13 +95,13 @@ public class DashboardCommentController {
         return commentService.publishComment(contextKey, dashboardId, commentId);
     }
 
-    @PostMapping("/{commentId}/unpublish")
+    @PostMapping("/{commentId}/send-for-review")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public DashboardCommentDto unpublishComment(
+    public DashboardCommentDto sendForReview(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId) {
-        return commentService.unpublishComment(contextKey, dashboardId, commentId);
+        return commentService.sendForReview(contextKey, dashboardId, commentId);
     }
 
     @PostMapping("/{commentId}/decline")
@@ -112,6 +112,15 @@ public class DashboardCommentController {
             @PathVariable String commentId,
             @RequestBody DashboardCommentDeclineDto declineDto) {
         return commentService.declineComment(contextKey, dashboardId, commentId, declineDto);
+    }
+
+    @PostMapping("/{commentId}/delete-version")
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    public DashboardCommentDto deleteVersion(
+            @PathVariable String contextKey,
+            @PathVariable int dashboardId,
+            @PathVariable String commentId) {
+        return commentService.deleteVersion(contextKey, dashboardId, commentId);
     }
 
     @PostMapping("/{commentId}/clone")

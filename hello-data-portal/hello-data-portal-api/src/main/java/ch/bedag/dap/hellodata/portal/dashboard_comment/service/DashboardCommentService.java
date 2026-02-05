@@ -44,7 +44,6 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVe
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
-import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -69,720 +68,32 @@ public class DashboardCommentService {
     private static final String COMMENT_NOT_FOUND_ERROR = "DashboardCommentEntity not found";
     private static final String NO_WRITE_PERMISSION_ERROR = "No write permission for comments";
     private static final String NO_REVIEW_PERMISSION_ERROR = "No review permission for comments";
+    private static final String ACTIVE_VERSION_NOT_FOUND_ERROR = "Active version not found";
     private static final String DASHBOARD_TITLE_PREFIX = "Dashboard ";
 
-    private final UserRepository userRepository;
     private final DashboardCommentRepository commentRepository;
     private final DashboardCommentPermissionRepository commentPermissionRepository;
     private final DashboardCommentMapper commentMapper;
     private final MetaInfoResourceService metaInfoResourceService;
+    private final UserRepository userRepository;
 
-    private DashboardCommentPermissionEntity getCommentPermissionForCurrentUser(String contextKey) {
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
-        if (currentUserId == null) {
-            return null;
-        }
-        return commentPermissionRepository.findByUserIdAndContextKey(currentUserId, contextKey).orElse(null);
-    }
-
-    /**
-     * Get all comments for a dashboard. Filters based on user permissions.
-     * - read permission: only published comments
-     * - write permission: published + own drafts
-     * - review permission: all published + all drafts
-     * - Admins (superuser, business_domain_admin, data_domain_admin) see everything
-     */
-    @Transactional(readOnly = true)
-    public List<DashboardCommentDto> getComments(String contextKey, int dashboardId) {
+    private void checkDashboardAccess(String contextKey, int dashboardId) {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-
-        DashboardCommentPermissionEntity perm = null;
-        if (!isAdmin) {
-            perm = getCommentPermissionForCurrentUser(contextKey);
-            if (perm == null || !perm.isReadComments()) {
-                return Collections.emptyList();
+        if (shouldFilterByDashboardAccess(contextKey, currentUserEmail)) {
+            Set<Integer> accessibleDashboardIds = getAccessibleDashboardIdsForUser(contextKey, currentUserEmail);
+            if (!accessibleDashboardIds.contains(dashboardId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No access to this dashboard");
             }
         }
-
-        boolean hasWritePermission = isAdmin || perm.isWriteComments();
-        boolean hasReviewPermission = isAdmin || perm.isReviewComments();
-
-        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
-
-        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
-
-        return comments.stream()
-                .map(commentMapper::toDto)
-                .filter(c -> !c.isDeleted())
-                .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin, hasWritePermission, hasReviewPermission))
-                .filter(Objects::nonNull)
-                .toList();
     }
 
-    /**
-     * Filter a single comment based on user permissions.
-     * - read only: only published comments visible
-     * - write: published + own drafts + own declined visible
-     * - review/admin: all comments visible
-     */
-    private DashboardCommentDto filterCommentByPermissions(DashboardCommentDto comment, String userEmail, String userFullName,
-                                                           boolean isAdmin, boolean hasWrite, boolean hasReview) {
-        DashboardCommentVersionDto activeVersion = getActiveVersion(comment);
-        if (activeVersion == null || activeVersion.isDeleted()) {
-            return null;
-        }
-
-        // Published comments are visible to anyone with read permission
-        if (activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
-            return comment;
-        }
-
-        // Handle draft comments
-        if (activeVersion.getStatus() == DashboardCommentStatus.DRAFT) {
-            return handleDraftComment(comment, activeVersion, userEmail, userFullName, isAdmin, hasWrite, hasReview);
-        }
-
-        // Handle declined comments - author sees declined version instead of last published
-        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
-            return handleDeclinedComment(comment, userEmail, isAdmin, hasReview);
-        }
-
-        return null;
-    }
-
-    /**
-     * Handle visibility logic for declined comments.
-     * - review/admin: see declined comments
-     * - author: see declined version (instead of last published) to view decline reason
-     * - others: fallback to last published version
-     */
-    private DashboardCommentDto handleDeclinedComment(DashboardCommentDto comment,
-                                                      String userEmail,
-                                                      boolean isAdmin, boolean hasReview) {
-        // Admins and reviewers can see declined comments
-        if (isAdmin || hasReview) {
-            return comment;
-        }
-
-        // Author sees the declined version to view the decline reason
-        if (isOwnComment(comment, userEmail)) {
-            return comment;
-        }
-
-        // For others, show the last published version if it exists
-        return showLastPublishedVersion(comment);
-    }
-
-    /**
-     * Check if the comment belongs to the current user.
-     */
-    private boolean isOwnComment(DashboardCommentDto comment, String userEmail) {
-        return userEmail != null && userEmail.equals(comment.getAuthorEmail());
-    }
-
-    /**
-     * Handle visibility logic for draft comments.
-     * - review/admin: see all drafts
-     * - write: see own drafts, fallback to last published for others' drafts
-     * - read only: fallback to last published version
-     */
-    private DashboardCommentDto handleDraftComment(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
-                                                   String userEmail, String userFullName,
-                                                   boolean isAdmin, boolean hasWrite, boolean hasReview) {
-        // Admins and reviewers can see all drafts
-        if (isAdmin || hasReview) {
-            return comment;
-        }
-
-        // Writers can see their own drafts
-        if (hasWrite && isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
-            return comment;
-        }
-
-        // For drafts by others (or read-only users), show the last published version if it exists
-        return showLastPublishedVersion(comment);
-    }
-
-    /**
-     * Check if the draft belongs to the current user.
-     */
-    private boolean isOwnDraft(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion, String userEmail, String userFullName) {
-        return (userEmail != null && userEmail.equals(comment.getAuthorEmail())) ||
-                (userFullName != null && userFullName.equals(activeVersion.getEditedBy()));
-    }
-
-    /**
-     * Create a copy of the comment showing the last published version, or null if none exists.
-     */
-    private DashboardCommentDto showLastPublishedVersion(DashboardCommentDto comment) {
-        DashboardCommentVersionDto lastPublishedVersion = findLastPublishedVersion(comment);
-        if (lastPublishedVersion != null) {
-            return comment.toBuilder()
-                    .activeVersion(lastPublishedVersion.getVersion())
-                    .pointerUrl(lastPublishedVersion.getPointerUrl())
-                    .tags(lastPublishedVersion.getTags() != null ? lastPublishedVersion.getTags() : Collections.emptyList())
-                    .build();
-        }
-        return null;
-    }
-
-    /**
-     * Check if current user has admin privileges (business_domain_admin or data_domain_admin for specific context).
-     * Fetches UserEntity once to check both roles.
-     */
-    private boolean isAdminForContext(String userEmail, String contextKey) {
-        if (userEmail == null) return false;
-
+    private boolean shouldFilterByDashboardAccess(String contextKey, String userEmail) {
         return userRepository.findUserEntityByEmailIgnoreCase(userEmail)
-                .map(user -> {
-                    // Check if user is business domain admin
-                    if (Boolean.TRUE.equals(user.isBusinessDomainAdmin())) {
-                        return true;
-                    }
-
-                    // Check if user is data domain admin for this specific context
-                    Set<UserContextRoleEntity> contextRoles = user.getContextRoles();
-                    if (contextRoles == null || contextKey == null) return false;
-
-                    return contextRoles.stream()
-                            .anyMatch(role ->
-                                    role.getContextKey() != null &&
-                                            contextKey.equals(role.getContextKey()) &&
-                                            role.getRole() != null &&
-                                            HdRoleName.DATA_DOMAIN_ADMIN.equals(role.getRole().getName())
-                            );
-                })
+                .map(user -> user.getContextRoles().stream()
+                        .filter(cr -> contextKey.equals(cr.getContextKey()))
+                        .anyMatch(cr -> cr.getRole().getName() == HdRoleName.DATA_DOMAIN_VIEWER ||
+                                cr.getRole().getName() == HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST))
                 .orElse(false);
-    }
-
-    /**
-     * Create a new comment.
-     */
-    public DashboardCommentDto createComment(String contextKey, int dashboardId, DashboardCommentCreateDto createDto) {
-        checkHasAccessToComment(contextKey);
-
-        String authorFullName = SecurityUtils.getCurrentUserFullName();
-        String authorEmail = SecurityUtils.getCurrentUserEmail();
-        long now = System.currentTimeMillis();
-
-        // Get dashboard URL - use provided URL or generate from dashboard info
-        String dashboardUrl = createDto.getDashboardUrl();
-        if (dashboardUrl == null || dashboardUrl.isBlank()) {
-            dashboardUrl = getDashboardUrl(contextKey, dashboardId);
-        }
-        if (dashboardUrl == null || dashboardUrl.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dashboard URL is required and could not be determined");
-        }
-
-        // Validate and normalize tags
-        List<String> normalizedTags = validateAndNormalizeTags(createDto.getTags());
-
-        // Create comment entity
-        DashboardCommentEntity comment = DashboardCommentEntity.builder()
-                .id(UUID.randomUUID().toString())
-                .dashboardId(dashboardId)
-                .dashboardUrl(dashboardUrl)
-                .contextKey(contextKey)
-                .author(authorFullName)
-                .authorEmail(authorEmail)
-                .createdDate(now)
-                .deleted(false)
-                .activeVersion(1)
-                .hasActiveDraft(false)
-                .build();
-
-        // Create first version with tags snapshot
-        DashboardCommentVersionEntity version = DashboardCommentVersionEntity.builder()
-                .version(1)
-                .text(createDto.getText())
-                .status(DashboardCommentStatus.DRAFT)
-                .editedDate(now)
-                .editedBy(authorFullName)
-                .editedByEmail(authorEmail)
-                .deleted(false)
-                .tags(commentMapper.tagsToString(normalizedTags))
-                .pointerUrl(createDto.getPointerUrl())
-                .build();
-
-        comment.addVersion(version);
-
-        // Save to database
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-
-        log.info("Created comment {} for dashboard {}/{}", savedComment.getId(), contextKey, dashboardId);
-        return commentMapper.toDto(savedComment);
-    }
-
-    /**
-     * Update an existing comment (for DRAFT status).
-     */
-    public DashboardCommentDto updateComment(String contextKey, int dashboardId, String commentId, DashboardCommentUpdateDto updateDto) {
-        checkHasAccessToComment(contextKey);
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        // Check permissions - only author or admin can update
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-        if (!isAuthor && !isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to update this comment");
-        }
-
-        // verify entityVersion matches
-        checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
-
-        // Normalize tags for version snapshot
-        List<String> normalizedTags = updateDto.getTags() != null
-                ? validateAndNormalizeTags(updateDto.getTags())
-                : getCurrentTags(comment);
-
-        // Check if active version is DECLINED - if so, create a new DRAFT version instead of updating
-        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Active version not found"));
-
-        String editorName = SecurityUtils.getCurrentUserFullName();
-        String editorEmail = SecurityUtils.getCurrentUserEmail();
-        long now = System.currentTimeMillis();
-
-        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
-            // Create a new DRAFT version when editing a declined comment
-            int newVersionNumber = comment.getHistory().stream()
-                    .mapToInt(DashboardCommentVersionEntity::getVersion)
-                    .max()
-                    .orElse(0) + 1;
-
-            String newPointerUrl = updateDto.getPointerUrl();
-            DashboardCommentVersionEntity newVersion = DashboardCommentVersionEntity.builder()
-                    .version(newVersionNumber)
-                    .text(updateDto.getText())
-                    .status(DashboardCommentStatus.DRAFT)
-                    .editedDate(now)
-                    .editedBy(editorName)
-                    .editedByEmail(editorEmail)
-                    .deleted(false)
-                    .tags(commentMapper.tagsToString(normalizedTags))
-                    .pointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null)
-                    .comment(comment)
-                    .build();
-
-            comment.getHistory().add(newVersion);
-            comment.setActiveVersion(newVersionNumber);
-            comment.setHasActiveDraft(true);
-        } else {
-            // Update the active version in history (for DRAFT or PUBLISHED)
-            activeVersion.setText(updateDto.getText());
-            activeVersion.setEditedDate(now);
-            activeVersion.setEditedBy(editorName);
-            activeVersion.setEditedByEmail(editorEmail);
-            activeVersion.setTags(commentMapper.tagsToString(normalizedTags));
-            // Update pointerUrl - allow clearing by setting to null/empty
-            String newPointerUrl = updateDto.getPointerUrl();
-            activeVersion.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
-        }
-
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-
-        log.info("Updated comment {} for dashboard {}/{}, new entityVersion: {}",
-                commentId, contextKey, dashboardId, savedComment.getEntityVersion());
-        return commentMapper.toDto(savedComment);
-    }
-
-    /**
-     * Get current tags from the active version in history.
-     */
-    private List<String> getCurrentTags(DashboardCommentEntity comment) {
-        return comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .findFirst()
-                .map(v -> {
-                    String tags = v.getTags();
-                    if (tags == null || tags.isBlank()) {
-                        return Collections.<String>emptyList();
-                    }
-                    return Arrays.stream(tags.split(","))
-                            .map(String::trim)
-                            .filter(s -> !s.isEmpty())
-                            .collect(Collectors.<String>toList());
-                })
-                .orElse(Collections.emptyList());
-    }
-
-    /**
-     * Delete a comment (soft delete).
-     */
-    public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId, boolean deleteEntire) {
-        checkHasAccessToComment(contextKey);
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        // Check permissions - only author or admin can delete
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-        if (!isAuthor && !isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment");
-        }
-
-        String deleterName = SecurityUtils.getCurrentUserFullName();
-        long now = System.currentTimeMillis();
-
-        if (deleteEntire) {
-            // Delete entire comment (soft delete)
-            comment.setDeleted(true);
-            comment.setDeletedDate(now);
-            comment.setDeletedBy(deleterName);
-            log.info("Soft deleted entire comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-        } else {
-            // Mark current active version as deleted
-            comment.getHistory().stream()
-                    .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                    .findFirst()
-                    .ifPresent(v -> v.setDeleted(true));
-
-            // Try to find last non-deleted PUBLISHED version
-            Optional<DashboardCommentVersionEntity> lastPublished = comment.getHistory().stream()
-                    .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
-                    .reduce((first, second) -> second); // Get last one
-
-            if (lastPublished.isPresent()) {
-                // Restore to last published version
-                comment.setActiveVersion(lastPublished.get().getVersion());
-                comment.setHasActiveDraft(false);
-                log.info("Restored comment {} to version {} for dashboard {}/{}",
-                        commentId, lastPublished.get().getVersion(), contextKey, dashboardId);
-            } else {
-                // No published versions left - soft delete entire comment
-                comment.setDeleted(true);
-                comment.setDeletedDate(now);
-                comment.setDeletedBy(deleterName);
-                log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-            }
-        }
-
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-        return commentMapper.toDto(savedComment);
-    }
-
-    /**
-     * Publish a comment (change status from DRAFT to PUBLISHED).
-     */
-    public DashboardCommentDto publishComment(String contextKey, int dashboardId, String commentId) {
-        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
-            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
-            if (perm == null || !perm.isReviewComments()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
-            }
-        }
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        String publisherName = SecurityUtils.getCurrentUserFullName();
-        String publisherEmail = SecurityUtils.getCurrentUserEmail();
-        long now = System.currentTimeMillis();
-
-        comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .findFirst()
-                .ifPresent(v -> {
-                    v.setStatus(DashboardCommentStatus.PUBLISHED);
-                    v.setPublishedDate(now);
-                    v.setPublishedBy(publisherName);
-                    v.setPublishedByEmail(publisherEmail);
-                });
-
-        comment.setHasActiveDraft(false);
-
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-        log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-        return commentMapper.toDto(savedComment);
-    }
-
-    /**
-     * Unpublish a comment (change status from PUBLISHED to DRAFT).
-     */
-    public DashboardCommentDto unpublishComment(String contextKey, int dashboardId, String commentId) {
-        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
-            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
-            if (perm == null || !perm.isReviewComments()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
-            }
-        }
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .findFirst()
-                .ifPresent(v -> {
-                    v.setStatus(DashboardCommentStatus.DRAFT);
-                    v.setPublishedDate(null);
-                    v.setPublishedBy(null);
-                    v.setPublishedByEmail(null);
-                });
-
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-        log.info("Unpublished comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-        return commentMapper.toDto(savedComment);
-    }
-
-    /**
-     * Decline a draft comment (reviewer rejects the draft with a reason).
-     * The draft status is changed to DECLINED and stored in history.
-     * Author will see the declined version instead of the last published one.
-     */
-    public DashboardCommentDto declineComment(String contextKey, int dashboardId, String commentId,
-                                              DashboardCommentDeclineDto declineDto) {
-        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
-            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
-            if (perm == null || !perm.isReviewComments()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
-            }
-        }
-
-        if (declineDto.getDeclineReason() == null || declineDto.getDeclineReason().trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Decline reason is required");
-        }
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        String reviewerName = SecurityUtils.getCurrentUserFullName();
-        String reviewerEmail = SecurityUtils.getCurrentUserEmail();
-        long now = System.currentTimeMillis();
-
-        // Find the active draft version and change its status to DECLINED
-        DashboardCommentVersionEntity draftVersion = comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .filter(v -> v.getStatus() == DashboardCommentStatus.DRAFT)
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Cannot decline - no active draft version found"));
-
-        draftVersion.setStatus(DashboardCommentStatus.DECLINED);
-        draftVersion.setPublishedDate(now);
-        draftVersion.setPublishedBy(reviewerName);
-        draftVersion.setPublishedByEmail(reviewerEmail);
-        draftVersion.setDeclineReason(declineDto.getDeclineReason());
-
-        comment.setHasActiveDraft(false);
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-        log.info("Declined draft comment {} for dashboard {}/{} by {} with reason: {}",
-                commentId, contextKey, dashboardId, reviewerName, declineDto.getDeclineReason());
-        return commentMapper.toDto(savedComment);
-    }
-
-
-    /**
-     * Clone a published comment for editing (creates a new DRAFT version) - with optimistic locking support.
-     */
-    public DashboardCommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
-                                                   DashboardCommentUpdateDto updateDto) {
-        checkHasAccessToComment(contextKey);
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        // Check permissions - only author or admin can edit
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-        if (!isAuthor && !isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to edit this comment");
-        }
-
-        // verify entityVersion matches
-        checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
-
-        // Check business validation - allow cloning for PUBLISHED or DECLINED status
-        DashboardCommentVersionDto activeVersion = getActiveVersion(commentMapper.toDto(comment));
-        if (activeVersion == null ||
-                (activeVersion.getStatus() != DashboardCommentStatus.PUBLISHED &&
-                        activeVersion.getStatus() != DashboardCommentStatus.DECLINED)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Comment must be published or declined to create a new edit version");
-        }
-
-        String editorName = SecurityUtils.getCurrentUserFullName();
-        String editorEmail = SecurityUtils.getCurrentUserEmail();
-        long now = System.currentTimeMillis();
-
-        // Get tags for new version - from updateDto or current comment tags
-        List<String> tagsForNewVersion = updateDto.getTags() != null
-                ? validateAndNormalizeTags(updateDto.getTags())
-                : getCurrentTags(comment);
-
-        int newVersionNumber = comment.getHistory().stream()
-                .mapToInt(DashboardCommentVersionEntity::getVersion)
-                .max()
-                .orElse(0) + 1;
-
-        // Determine pointerUrl for new version - allow clearing
-        String pointerUrlForVersion = updateDto.getPointerUrl();
-        if (pointerUrlForVersion == null || pointerUrlForVersion.trim().isEmpty()) {
-            pointerUrlForVersion = null; // Explicitly clear if empty
-        }
-
-        DashboardCommentVersionEntity newVersion = DashboardCommentVersionEntity.builder()
-                .version(newVersionNumber)
-                .text(updateDto.getText())
-                .status(DashboardCommentStatus.DRAFT)
-                .editedDate(now)
-                .editedBy(editorName)
-                .editedByEmail(editorEmail)
-                .deleted(false)
-                .tags(commentMapper.tagsToString(tagsForNewVersion))
-                .pointerUrl(pointerUrlForVersion)
-                .build();
-
-        comment.addVersion(newVersion);
-        comment.setActiveVersion(newVersionNumber);
-        comment.setHasActiveDraft(true);
-
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-        log.info("Created new version {} for comment {} on dashboard {}/{}",
-                newVersionNumber, commentId, contextKey, dashboardId);
-        return commentMapper.toDto(savedComment);
-    }
-
-    private void checkHasAccessToComment(String contextKey) {
-        if (!SecurityUtils.isSuperuser() && !isAdminForContext(SecurityUtils.getCurrentUserEmail(), contextKey)) {
-            DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
-            if (perm == null || !perm.isWriteComments()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_WRITE_PERMISSION_ERROR);
-            }
-        }
-    }
-
-    /**
-     * Restore a specific version of a comment.
-     */
-    public DashboardCommentDto restoreVersion(String contextKey, int dashboardId, String commentId, int versionNumber) {
-        checkHasAccessToComment(contextKey);
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        // Check permissions - only author or admin can restore
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-        if (!isAuthor && !isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
-        }
-
-        // Find the version to restore and validate it's not declined
-        DashboardCommentVersionEntity versionToRestore = comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(versionNumber))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Version not found"));
-
-        if (versionToRestore.getStatus() == DashboardCommentStatus.DECLINED) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Cannot restore a declined version. Declined versions are kept in history only.");
-        }
-
-        comment.setActiveVersion(versionNumber);
-        comment.setHasActiveDraft(false);
-
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-        log.info("Restored comment {} to version {} for dashboard {}/{}",
-                commentId, versionNumber, contextKey, dashboardId);
-        return commentMapper.toDto(savedComment);
-    }
-
-    /**
-     * Find the last published (non-deleted) version in the comment's history.
-     */
-    private DashboardCommentVersionDto findLastPublishedVersion(DashboardCommentDto comment) {
-        return comment.getHistory().stream()
-                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
-                .max(Comparator.comparingInt(DashboardCommentVersionDto::getVersion))
-                .orElse(null);
-    }
-
-    private DashboardCommentVersionDto getActiveVersion(DashboardCommentDto comment) {
-        return comment.getHistory().stream()
-                .filter(v -> v.getVersion() == comment.getActiveVersion())
-                .findFirst()
-                .orElse(null);
-    }
-
-    /**
-     * Check if the provided entity version matches the current version in database.
-     * Throws CONFLICT (409) if versions don't match.
-     */
-    private void checkEntityVersion(DashboardCommentEntity comment, long providedVersion, String userEmail) {
-        long currentVersion = comment.getEntityVersion();
-
-        if (currentVersion != providedVersion) {
-            log.warn("Entity version mismatch for comment {}. Current: {}, Provided: {}, User: {}",
-                    comment.getId(), currentVersion, providedVersion, userEmail);
-
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Comment was modified by another user. Please refresh and try again.");
-        }
-    }
-
-    /**
-     * Get all comments for a data domain (contextKey) across all dashboards.
-     * Admins see all comments, viewers only see comments for dashboards they have access to.
-     */
-    @Transactional(readOnly = true)
-    public List<DomainDashboardCommentDto> getCommentsForDomain(String contextKey) {
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-
-        DashboardCommentPermissionEntity perm = null;
-        if (!isAdmin) {
-            perm = getCommentPermissionForCurrentUser(contextKey);
-            if (perm == null || !perm.isReadComments()) {
-                return Collections.emptyList();
-            }
-        }
-
-        boolean hasWritePermission = isAdmin || perm.isWriteComments();
-        boolean hasReviewPermission = isAdmin || perm.isReviewComments();
-
-        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyOrderByCreatedDateAsc(contextKey);
-
-        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
-
-        // Get dashboard info map (title and instanceName)
-        Map<Integer, DashboardInfo> dashboardInfoMap = getDashboardInfoMap(contextKey);
-
-        // For non-admin users (viewers), get the set of dashboard IDs they have access to
-        Set<Integer> accessibleDashboardIds = isAdmin ? null : getAccessibleDashboardIdsForUser(contextKey, currentUserEmail);
-
-        // Convert to DTOs, filter and transform comments based on user permissions
-        return comments.stream()
-                .filter(entity -> isAdmin || accessibleDashboardIds == null || accessibleDashboardIds.contains(entity.getDashboardId()))
-                .map(entity -> toDomainDashboardCommentDto(entity, dashboardInfoMap))
-                .filter(c -> !c.isDeleted())
-                .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, isAdmin, hasWritePermission, hasReviewPermission))
-                .filter(Objects::nonNull)
-                .toList();
     }
 
     /**
@@ -854,6 +165,799 @@ public class DashboardCommentService {
         return accessibleDashboardIds;
     }
 
+    private DashboardCommentPermissionEntity getCommentPermissionForCurrentUser(String contextKey) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        if (currentUserId == null) {
+            return null;
+        }
+        return commentPermissionRepository.findByUserIdAndContextKey(currentUserId, contextKey).orElse(null);
+    }
+
+    /**
+     * Get all comments for a dashboard. Filters based on user permissions.
+     * - read permission: only published comments
+     * - write permission: published + own drafts + own declined
+     * - review permission: published + READY_FOR_REVIEW + all declined (NOT other users' drafts)
+     * - Superuser: see everything
+     */
+    @Transactional(readOnly = true)
+    public List<DashboardCommentDto> getComments(String contextKey, int dashboardId) {
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isReadComments()) {
+            return Collections.emptyList();
+        }
+
+        // Exception for DATA_DOMAIN_VIEWER and DATA_DOMAIN_BUSINESS_SPECIALIST: check dashboard access
+        if (shouldFilterByDashboardAccess(contextKey, currentUserEmail)) {
+            Set<Integer> accessibleDashboardIds = getAccessibleDashboardIdsForUser(contextKey, currentUserEmail);
+            if (!accessibleDashboardIds.contains(dashboardId)) {
+                return Collections.emptyList();
+            }
+        }
+
+        boolean hasWritePermission = perm.isWriteComments();
+        boolean hasReviewPermission = perm.isReviewComments();
+
+        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
+
+        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
+
+        return comments.stream()
+                .map(commentMapper::toDto)
+                .filter(c -> !c.isDeleted())
+                .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, hasWritePermission, hasReviewPermission))
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    /**
+     * Filter a single comment based on user permissions.
+     * - read only: only published comments visible
+     * - write: published + own drafts + own declined visible
+     * - review: published + READY_FOR_REVIEW + all declined visible (NOT other users' drafts)
+     * - superuser: all comments visible
+     */
+    private DashboardCommentDto filterCommentByPermissions(DashboardCommentDto comment, String userEmail, String userFullName,
+                                                           boolean hasWrite, boolean hasReview) {
+        DashboardCommentVersionDto activeVersion = getActiveVersion(comment);
+        if (activeVersion == null) {
+            return null;
+        }
+
+        // DELETED versions are not visible (only kept in history)
+        if (activeVersion.getStatus() == DashboardCommentStatus.DELETED) {
+            return null;
+        }
+
+        // Published comments are visible to anyone with read permission
+        if (activeVersion.getStatus() == DashboardCommentStatus.PUBLISHED) {
+            return comment;
+        }
+
+        // READY_FOR_REVIEW: visible to author (with write) and reviewers
+        if (activeVersion.getStatus() == DashboardCommentStatus.READY_FOR_REVIEW) {
+            if (hasReview || (hasWrite && isOwnComment(comment, userEmail))) {
+                return comment;
+            }
+            // Others see last published version
+            return showLastPublishedVersion(comment);
+        }
+
+        // Handle draft comments: visible only to author with write permission
+        if (activeVersion.getStatus() == DashboardCommentStatus.DRAFT) {
+            return handleDraftComment(comment, activeVersion, userEmail, userFullName, hasWrite);
+        }
+
+        // Handle declined comments: author sees declined version instead of last published
+        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
+            return handleDeclinedComment(comment, userEmail, hasWrite, hasReview);
+        }
+
+        return null;
+    }
+
+    /**
+     * Handle visibility logic for declined comments.
+     * - review/admin: see declined comments
+     * - author: see declined version (instead of last published) to view decline reason
+     * - others: fallback to last published version
+     */
+    private DashboardCommentDto handleDeclinedComment(DashboardCommentDto comment,
+                                                      String userEmail,
+                                                      boolean hasWrite, boolean hasReview) {
+        // Reviewers can see all declined comments
+        if (hasReview) {
+            return comment;
+        }
+
+        // Author (with write permission) sees the declined version to view the decline reason
+        if (hasWrite && isOwnComment(comment, userEmail)) {
+            return comment;
+        }
+
+        // For others, show the last published version if it exists
+        return showLastPublishedVersion(comment);
+    }
+
+    /**
+     * Check if the comment belongs to the current user.
+     */
+    private boolean isOwnComment(DashboardCommentDto comment, String userEmail) {
+        return userEmail != null && userEmail.equals(comment.getAuthorEmail());
+    }
+
+    /**
+     * Handle visibility logic for draft comments.
+     * - admin: see all drafts
+     * - write: see own drafts, fallback to last published for others' drafts
+     * - review: do NOT see others' drafts, fallback to last published
+     * - read only: fallback to last published version
+     */
+    private DashboardCommentDto handleDraftComment(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
+                                                   String userEmail, String userFullName,
+                                                   boolean hasWrite) {
+        // Writers can see their own drafts
+        if (hasWrite && isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
+            return comment;
+        }
+
+        // Reviewers should NOT see others' drafts - they only see READY_FOR_REVIEW status
+        // For drafts by others (or read-only users), show the last published version if it exists
+        return showLastPublishedVersion(comment);
+    }
+
+    /**
+     * Check if the draft belongs to the current user.
+     */
+    private boolean isOwnDraft(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion, String userEmail, String userFullName) {
+        return (userEmail != null && userEmail.equals(comment.getAuthorEmail())) ||
+                (userFullName != null && userFullName.equals(activeVersion.getEditedBy()));
+    }
+
+    /**
+     * Create a copy of the comment showing the last published version, or null if none exists.
+     */
+    private DashboardCommentDto showLastPublishedVersion(DashboardCommentDto comment) {
+        DashboardCommentVersionDto lastPublishedVersion = findLastPublishedVersion(comment);
+        if (lastPublishedVersion != null) {
+            return comment.toBuilder()
+                    .activeVersion(lastPublishedVersion.getVersion())
+                    .pointerUrl(lastPublishedVersion.getPointerUrl())
+                    .tags(lastPublishedVersion.getTags() != null ? lastPublishedVersion.getTags() : Collections.emptyList())
+                    .build();
+        }
+        return null;
+    }
+
+    /**
+     * Create a new comment.
+     */
+    public DashboardCommentDto createComment(String contextKey, int dashboardId, DashboardCommentCreateDto createDto) {
+        checkHasAccessToComment(contextKey);
+        checkDashboardAccess(contextKey, dashboardId);
+
+        String authorFullName = SecurityUtils.getCurrentUserFullName();
+        String authorEmail = SecurityUtils.getCurrentUserEmail();
+        long now = System.currentTimeMillis();
+
+        // Get dashboard URL - use provided URL or generate from dashboard info
+        String dashboardUrl = createDto.getDashboardUrl();
+        if (dashboardUrl == null || dashboardUrl.isBlank()) {
+            dashboardUrl = getDashboardUrl(contextKey, dashboardId);
+        }
+        if (dashboardUrl == null || dashboardUrl.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dashboard URL is required and could not be determined");
+        }
+
+        // Validate and normalize tags
+        List<String> normalizedTags = validateAndNormalizeTags(createDto.getTags());
+
+        // Create comment entity
+        DashboardCommentEntity comment = DashboardCommentEntity.builder()
+                .id(UUID.randomUUID().toString())
+                .dashboardId(dashboardId)
+                .dashboardUrl(dashboardUrl)
+                .contextKey(contextKey)
+                .author(authorFullName)
+                .authorEmail(authorEmail)
+                .createdDate(now)
+                .deleted(false)
+                .activeVersion(1)
+                .hasActiveDraft(false)
+                .build();
+
+        // Create first version with tags snapshot
+        DashboardCommentVersionEntity version = DashboardCommentVersionEntity.builder()
+                .version(1)
+                .text(createDto.getText())
+                .status(DashboardCommentStatus.DRAFT)
+                .editedDate(now)
+                .editedBy(authorFullName)
+                .editedByEmail(authorEmail)
+                .tags(commentMapper.tagsToString(normalizedTags))
+                .pointerUrl(createDto.getPointerUrl())
+                .build();
+
+        comment.addVersion(version);
+
+        // Save to database
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+
+        log.info("Created comment {} for dashboard {}/{}", savedComment.getId(), contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Update an existing comment (for DRAFT status).
+     */
+    public DashboardCommentDto updateComment(String contextKey, int dashboardId, String commentId, DashboardCommentUpdateDto updateDto) {
+        checkHasAccessToComment(contextKey);
+        checkDashboardAccess(contextKey, dashboardId);
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        // Check permissions - only author or reviewer can update
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        boolean isReviewer = perm != null && perm.isReviewComments();
+        if (!isAuthor && !isReviewer) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to update this comment");
+        }
+
+        // verify entityVersion matches
+        checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
+
+        // Normalize tags for version snapshot
+        List<String> normalizedTags = updateDto.getTags() != null
+                ? validateAndNormalizeTags(updateDto.getTags())
+                : getCurrentTags(comment);
+
+        // Check if active version is DECLINED - if so, create a new DRAFT version instead of updating
+        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ACTIVE_VERSION_NOT_FOUND_ERROR));
+
+        String editorName = SecurityUtils.getCurrentUserFullName();
+        String editorEmail = SecurityUtils.getCurrentUserEmail();
+        long now = System.currentTimeMillis();
+
+        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
+            // Create a new DRAFT version when editing a declined comment
+            int newVersionNumber = comment.getHistory().stream()
+                    .mapToInt(DashboardCommentVersionEntity::getVersion)
+                    .max()
+                    .orElse(0) + 1;
+
+            String newPointerUrl = updateDto.getPointerUrl();
+            DashboardCommentVersionEntity newVersion = DashboardCommentVersionEntity.builder()
+                    .version(newVersionNumber)
+                    .text(updateDto.getText())
+                    .status(DashboardCommentStatus.DRAFT)
+                    .editedDate(now)
+                    .editedBy(editorName)
+                    .editedByEmail(editorEmail)
+                    .tags(commentMapper.tagsToString(normalizedTags))
+                    .pointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null)
+                    .comment(comment)
+                    .build();
+
+            comment.getHistory().add(newVersion);
+            comment.setActiveVersion(newVersionNumber);
+            comment.setHasActiveDraft(true);
+        } else {
+            // Update the active version in history (for DRAFT or PUBLISHED)
+            activeVersion.setText(updateDto.getText());
+            activeVersion.setEditedDate(now);
+            activeVersion.setEditedBy(editorName);
+            activeVersion.setEditedByEmail(editorEmail);
+            activeVersion.setTags(commentMapper.tagsToString(normalizedTags));
+            // Update pointerUrl - allow clearing by setting to null/empty
+            String newPointerUrl = updateDto.getPointerUrl();
+            activeVersion.setPointerUrl(newPointerUrl != null && !newPointerUrl.trim().isEmpty() ? newPointerUrl : null);
+        }
+
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+
+        log.info("Updated comment {} for dashboard {}/{}, new entityVersion: {}",
+                commentId, contextKey, dashboardId, savedComment.getEntityVersion());
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Get current tags from the active version in history.
+     */
+    private List<String> getCurrentTags(DashboardCommentEntity comment) {
+        return comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .map(v -> {
+                    String tags = v.getTags();
+                    if (tags == null || tags.isBlank()) {
+                        return Collections.<String>emptyList();
+                    }
+                    return Arrays.stream(tags.split(","))
+                            .map(String::trim)
+                            .filter(s -> !s.isEmpty())
+                            .collect(Collectors.<String>toList());
+                })
+                .orElse(Collections.emptyList());
+    }
+
+    /**
+     * Delete a comment (soft delete).
+     */
+    public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId, boolean deleteEntire) {
+        checkHasAccessToComment(contextKey);
+        checkDashboardAccess(contextKey, dashboardId);
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        // Check permissions - author (with write) or reviewer can delete
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        boolean isReviewer = perm != null && perm.isReviewComments();
+        if (!isReviewer && !isAuthor) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment");
+        }
+
+        String deleterName = SecurityUtils.getCurrentUserFullName();
+        long now = System.currentTimeMillis();
+
+        if (deleteEntire) {
+            // Delete entire comment (soft delete)
+            comment.setDeleted(true);
+            comment.setDeletedDate(now);
+            comment.setDeletedBy(deleterName);
+            log.info("Soft deleted entire comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+        } else {
+            // Mark current active version as deleted
+            comment.getHistory().stream()
+                    .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                    .findFirst()
+                    .ifPresent(v -> v.setStatus(DashboardCommentStatus.DELETED));
+
+            // Try to find last non-deleted PUBLISHED version
+            Optional<DashboardCommentVersionEntity> lastPublished = comment.getHistory().stream()
+                    .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
+                    .reduce((first, second) -> second); // Get last one
+
+            if (lastPublished.isPresent()) {
+                // Restore to last published version
+                comment.setActiveVersion(lastPublished.get().getVersion());
+                comment.setHasActiveDraft(false);
+                log.info("Restored comment {} to version {} for dashboard {}/{}",
+                        commentId, lastPublished.get().getVersion(), contextKey, dashboardId);
+            } else {
+                // No published versions left - soft delete entire comment
+                comment.setDeleted(true);
+                comment.setDeletedDate(now);
+                comment.setDeletedBy(deleterName);
+                log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+            }
+        }
+
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Send comment for review (change status from DRAFT to READY_FOR_REVIEW).
+     * Only author can send their draft for review.
+     */
+    public DashboardCommentDto sendForReview(String contextKey, int dashboardId, String commentId) {
+        checkHasAccessToComment(contextKey);
+        checkDashboardAccess(contextKey, dashboardId);
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        // Check permissions - only author can send for review
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        if (!isAuthor) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to send this comment for review");
+        }
+
+        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ACTIVE_VERSION_NOT_FOUND_ERROR));
+
+        // Validate current status is DRAFT
+        if (activeVersion.getStatus() != DashboardCommentStatus.DRAFT) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only DRAFT comments can be sent for review");
+        }
+
+        activeVersion.setStatus(DashboardCommentStatus.READY_FOR_REVIEW);
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        log.info("Sent comment {} for review for dashboard {}/{}", commentId, contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Publish a comment (change status from READY_FOR_REVIEW to PUBLISHED).
+     * Reviewer can publish comments that are ready for review or declined.
+     */
+    public DashboardCommentDto publishComment(String contextKey, int dashboardId, String commentId) {
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isReviewComments()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
+        }
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ACTIVE_VERSION_NOT_FOUND_ERROR));
+
+        // Validate current status is DRAFT, READY_FOR_REVIEW or DECLINED
+        if (activeVersion.getStatus() != DashboardCommentStatus.DRAFT &&
+                activeVersion.getStatus() != DashboardCommentStatus.READY_FOR_REVIEW &&
+                activeVersion.getStatus() != DashboardCommentStatus.DECLINED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Only DRAFT, READY_FOR_REVIEW or DECLINED comments can be published");
+        }
+
+        String publisherName = SecurityUtils.getCurrentUserFullName();
+        String publisherEmail = SecurityUtils.getCurrentUserEmail();
+        long now = System.currentTimeMillis();
+
+        // If publishing a declined comment, create a new version to preserve history
+        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
+            int newVersionNumber = comment.getHistory().stream()
+                    .mapToInt(DashboardCommentVersionEntity::getVersion)
+                    .max()
+                    .orElse(0) + 1;
+
+            DashboardCommentVersionEntity newVersion = DashboardCommentVersionEntity.builder()
+                    .version(newVersionNumber)
+                    .text(activeVersion.getText())
+                    .status(DashboardCommentStatus.PUBLISHED)
+                    .editedDate(now)
+                    .editedBy(activeVersion.getEditedBy())
+                    .editedByEmail(activeVersion.getEditedByEmail())
+                    .publishedDate(now)
+                    .publishedBy(publisherName)
+                    .publishedByEmail(publisherEmail)
+                    .tags(activeVersion.getTags())
+                    .pointerUrl(activeVersion.getPointerUrl())
+                    .comment(comment)
+                    .build();
+
+            comment.getHistory().add(newVersion);
+            comment.setActiveVersion(newVersionNumber);
+        } else {
+            // For READY_FOR_REVIEW, just change status
+            activeVersion.setStatus(DashboardCommentStatus.PUBLISHED);
+            activeVersion.setPublishedDate(now);
+            activeVersion.setPublishedBy(publisherName);
+            activeVersion.setPublishedByEmail(publisherEmail);
+        }
+
+        comment.setHasActiveDraft(false);
+
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Decline a comment (reviewer rejects READY_FOR_REVIEW with a reason).
+     * Status is changed to DECLINED and stored in history.
+     * Author will see the declined version with the decline reason.
+     */
+    public DashboardCommentDto declineComment(String contextKey, int dashboardId, String commentId,
+                                              DashboardCommentDeclineDto declineDto) {
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isReviewComments()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
+        }
+
+        if (declineDto.getDeclineReason() == null || declineDto.getDeclineReason().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Decline reason is required");
+        }
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        String reviewerName = SecurityUtils.getCurrentUserFullName();
+        String reviewerEmail = SecurityUtils.getCurrentUserEmail();
+        long now = System.currentTimeMillis();
+
+        // Find the active version and validate it's READY_FOR_REVIEW
+        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .filter(v -> v.getStatus() == DashboardCommentStatus.READY_FOR_REVIEW)
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Cannot decline - only READY_FOR_REVIEW comments can be declined"));
+
+        activeVersion.setStatus(DashboardCommentStatus.DECLINED);
+        activeVersion.setPublishedDate(now);
+        activeVersion.setPublishedBy(reviewerName);
+        activeVersion.setPublishedByEmail(reviewerEmail);
+        activeVersion.setDeclineReason(declineDto.getDeclineReason());
+
+        comment.setHasActiveDraft(false);
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        log.info("Declined comment {} for dashboard {}/{} by {} with reason: {}",
+                commentId, contextKey, dashboardId, reviewerName, declineDto.getDeclineReason());
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Delete a comment version (change status to DELETED).
+     * Can delete DECLINED or DRAFT versions.
+     * Author can delete their own DECLINED/DRAFT versions.
+     * Reviewer can delete DECLINED versions.
+     */
+    public DashboardCommentDto deleteVersion(String contextKey, int dashboardId, String commentId) {
+        checkHasAccessToComment(contextKey);
+        checkDashboardAccess(contextKey, dashboardId);
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        // Check permissions - author or reviewer can delete versions
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        boolean isReviewer = perm != null && perm.isReviewComments();
+
+        if (!isAuthor && !isReviewer) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment version");
+        }
+
+        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ACTIVE_VERSION_NOT_FOUND_ERROR));
+
+        // Validate status - can only delete DECLINED or DRAFT
+        if (activeVersion.getStatus() != DashboardCommentStatus.DECLINED &&
+                activeVersion.getStatus() != DashboardCommentStatus.DRAFT) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Can only delete DECLINED or DRAFT versions");
+        }
+
+        activeVersion.setStatus(DashboardCommentStatus.DELETED);
+        comment.setHasActiveDraft(false);
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        // Find last PUBLISHED version and make it active, or keep current if no published exists
+        Integer lastPublishedVersion = comment.getHistory().stream()
+                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
+                .map(DashboardCommentVersionEntity::getVersion)
+                .max(Integer::compareTo)
+                .orElse(null);
+
+        if (lastPublishedVersion != null) {
+            comment.setActiveVersion(lastPublishedVersion);
+        }
+        // If no published version exists, the DELETED version remains as active (but won't be visible)
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        log.info("Deleted version {} of comment {} for dashboard {}/{}",
+                activeVersion.getVersion(), commentId, contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Clone a published comment for editing (creates a new DRAFT version) - with optimistic locking support.
+     */
+    public DashboardCommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
+                                                   DashboardCommentUpdateDto updateDto) {
+        checkHasAccessToComment(contextKey);
+        checkDashboardAccess(contextKey, dashboardId);
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        // Check permissions - only author or reviewer can edit
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        boolean isReviewer = perm != null && perm.isReviewComments();
+        if (!isAuthor && !isReviewer) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to edit this comment");
+        }
+
+        // verify entityVersion matches
+        checkEntityVersion(comment, updateDto.getEntityVersion(), currentUserEmail);
+
+        // Check business validation - allow cloning for PUBLISHED or DECLINED status
+        DashboardCommentVersionDto activeVersion = getActiveVersion(commentMapper.toDto(comment));
+        if (activeVersion == null ||
+                (activeVersion.getStatus() != DashboardCommentStatus.PUBLISHED &&
+                        activeVersion.getStatus() != DashboardCommentStatus.DECLINED)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Comment must be published or declined to create a new edit version");
+        }
+
+        String editorName = SecurityUtils.getCurrentUserFullName();
+        String editorEmail = SecurityUtils.getCurrentUserEmail();
+        long now = System.currentTimeMillis();
+
+        // Get tags for new version - from updateDto or current comment tags
+        List<String> tagsForNewVersion = updateDto.getTags() != null
+                ? validateAndNormalizeTags(updateDto.getTags())
+                : getCurrentTags(comment);
+
+        int newVersionNumber = comment.getHistory().stream()
+                .mapToInt(DashboardCommentVersionEntity::getVersion)
+                .max()
+                .orElse(0) + 1;
+
+        // Determine pointerUrl for new version - allow clearing
+        String pointerUrlForVersion = updateDto.getPointerUrl();
+        if (pointerUrlForVersion == null || pointerUrlForVersion.trim().isEmpty()) {
+            pointerUrlForVersion = null; // Explicitly clear if empty
+        }
+
+        DashboardCommentVersionEntity newVersion = DashboardCommentVersionEntity.builder()
+                .version(newVersionNumber)
+                .text(updateDto.getText())
+                .status(DashboardCommentStatus.DRAFT)
+                .editedDate(now)
+                .editedBy(editorName)
+                .editedByEmail(editorEmail)
+                .tags(commentMapper.tagsToString(tagsForNewVersion))
+                .pointerUrl(pointerUrlForVersion)
+                .build();
+
+        comment.addVersion(newVersion);
+        comment.setActiveVersion(newVersionNumber);
+        comment.setHasActiveDraft(true);
+
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        log.info("Created new version {} for comment {} on dashboard {}/{}",
+                newVersionNumber, commentId, contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
+    }
+
+    private void checkHasAccessToComment(String contextKey) {
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isWriteComments()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_WRITE_PERMISSION_ERROR);
+        }
+    }
+
+    /**
+     * Restore a specific version of a comment.
+     */
+    public DashboardCommentDto restoreVersion(String contextKey, int dashboardId, String commentId, int versionNumber) {
+        checkHasAccessToComment(contextKey);
+        checkDashboardAccess(contextKey, dashboardId);
+
+        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
+
+        // Check permissions - only author can restore
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
+        if (!isAuthor) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
+        }
+
+        // Find the version to restore and validate it's not declined or deleted
+        DashboardCommentVersionEntity versionToRestore = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(versionNumber))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Version not found"));
+
+        if (versionToRestore.getStatus() == DashboardCommentStatus.DECLINED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot restore a declined version. Declined versions are kept in history only.");
+        }
+
+        if (versionToRestore.getStatus() == DashboardCommentStatus.DELETED) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Cannot restore a deleted version. Deleted versions are kept in history only.");
+        }
+
+        comment.setActiveVersion(versionNumber);
+        comment.setHasActiveDraft(false);
+
+        comment.setEntityVersion(comment.getEntityVersion() + 1);
+
+        DashboardCommentEntity savedComment = commentRepository.save(comment);
+        log.info("Restored comment {} to version {} for dashboard {}/{}",
+                commentId, versionNumber, contextKey, dashboardId);
+        return commentMapper.toDto(savedComment);
+    }
+
+    /**
+     * Find the last published (non-deleted) version in the comment's history.
+     */
+    private DashboardCommentVersionDto findLastPublishedVersion(DashboardCommentDto comment) {
+        return comment.getHistory().stream()
+                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
+                .max(Comparator.comparingInt(DashboardCommentVersionDto::getVersion))
+                .orElse(null);
+    }
+
+    private DashboardCommentVersionDto getActiveVersion(DashboardCommentDto comment) {
+        return comment.getHistory().stream()
+                .filter(v -> v.getVersion() == comment.getActiveVersion())
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Check if the provided entity version matches the current version in database.
+     * Throws CONFLICT (409) if versions don't match.
+     */
+    private void checkEntityVersion(DashboardCommentEntity comment, long providedVersion, String userEmail) {
+        long currentVersion = comment.getEntityVersion();
+
+        if (currentVersion != providedVersion) {
+            log.warn("Entity version mismatch for comment {}. Current: {}, Provided: {}, User: {}",
+                    comment.getId(), currentVersion, providedVersion, userEmail);
+
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Comment was modified by another user. Please refresh and try again.");
+        }
+    }
+
+    /**
+     * Get all comments for a data domain (contextKey) across all dashboards.
+     * Users with read permission see all comments in the domain.
+     */
+    @Transactional(readOnly = true)
+    public List<DomainDashboardCommentDto> getCommentsForDomain(String contextKey) {
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isReadComments()) {
+            return Collections.emptyList();
+        }
+
+        boolean hasWritePermission = perm.isWriteComments();
+        boolean hasReviewPermission = perm.isReviewComments();
+
+        List<DashboardCommentEntity> comments = commentRepository.findByContextKeyOrderByCreatedDateAsc(contextKey);
+
+        String currentUserFullName = SecurityUtils.getCurrentUserFullName();
+
+        // Exception for DATA_DOMAIN_VIEWER and DATA_DOMAIN_BUSINESS_SPECIALIST: filter by dashboard access
+        Set<Integer> accessibleDashboardIds = shouldFilterByDashboardAccess(contextKey, currentUserEmail)
+                ? getAccessibleDashboardIdsForUser(contextKey, currentUserEmail)
+                : null;
+
+        // Get dashboard info map (title and instanceName)
+        Map<Integer, DashboardInfo> dashboardInfoMap = getDashboardInfoMap(contextKey);
+
+        // Convert to DTOs, filter and transform comments based on user permissions
+        return comments.stream()
+                .filter(entity -> accessibleDashboardIds == null || accessibleDashboardIds.contains(entity.getDashboardId()))
+                .map(entity -> toDomainDashboardCommentDto(entity, dashboardInfoMap))
+                .filter(c -> !c.isDeleted())
+                .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, hasWritePermission, hasReviewPermission))
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
     /**
      * Helper record to store dashboard info (title and instanceName).
      */
@@ -923,9 +1027,9 @@ public class DashboardCommentService {
      * Filter domain dashboard comment by permissions (similar to filterCommentByPermissions but for DomainDashboardCommentDto).
      */
     private DomainDashboardCommentDto filterDomainDashboardCommentByPermissions(DomainDashboardCommentDto comment, String userEmail, String userFullName,
-                                                                                boolean isAdmin, boolean hasWrite, boolean hasReview) {
+                                                                                boolean hasWrite, boolean hasReview) {
         DashboardCommentVersionDto activeVersion = getDomainDashboardActiveVersion(comment);
-        if (activeVersion == null || activeVersion.isDeleted()) {
+        if (activeVersion == null || activeVersion.getStatus() == DashboardCommentStatus.DELETED) {
             return null;
         }
 
@@ -934,23 +1038,39 @@ public class DashboardCommentService {
             return comment;
         }
 
-        if (activeVersion.getStatus() != DashboardCommentStatus.DRAFT) {
-            return null;
-        }
+        // Handle other statuses based on permissions
+        return switch (activeVersion.getStatus()) {
+            case READY_FOR_REVIEW -> handleReadyForReviewVisibility(comment, userEmail, hasWrite, hasReview);
+            case DRAFT -> handleDraftVisibility(comment, activeVersion, userEmail, userFullName, hasWrite);
+            case DECLINED -> handleDeclinedVisibility(comment, userEmail, hasWrite, hasReview);
+            default -> null;
+        };
+    }
 
-        // Admins and reviewers can see all drafts
-        if (isAdmin || hasReview) {
+    private DomainDashboardCommentDto handleReadyForReviewVisibility(DomainDashboardCommentDto comment, String userEmail,
+                                                                     boolean hasWrite, boolean hasReview) {
+        if (hasReview || (hasWrite && isOwnComment(comment, userEmail))) {
             return comment;
         }
+        return fallbackToLastPublishedVersion(comment);
+    }
 
-        // Writers can see their own drafts
+    private DomainDashboardCommentDto handleDraftVisibility(DomainDashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
+                                                            String userEmail, String userFullName, boolean hasWrite) {
         if (hasWrite && isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
             return comment;
         }
-
-        // For drafts by others (or read-only users), show the last published version if it exists
         return fallbackToLastPublishedVersion(comment);
     }
+
+    private DomainDashboardCommentDto handleDeclinedVisibility(DomainDashboardCommentDto comment, String userEmail,
+                                                               boolean hasWrite, boolean hasReview) {
+        if (hasReview || (hasWrite && isOwnComment(comment, userEmail))) {
+            return comment;
+        }
+        return fallbackToLastPublishedVersion(comment);
+    }
+
 
     private boolean isOwnDraft(DomainDashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
                                String userEmail, String userFullName) {
@@ -990,7 +1110,7 @@ public class DashboardCommentService {
             return null;
         }
         return comment.getHistory().stream()
-                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED && !v.isDeleted())
+                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
                 .max(Comparator.comparingInt(DashboardCommentVersionDto::getVersion))
                 .orElse(null);
     }
@@ -1048,12 +1168,10 @@ public class DashboardCommentService {
      */
     @Transactional(readOnly = true)
     public CommentExportDto exportComments(String contextKey, int dashboardId) {
-        // Validate that user is admin
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-
-        if (!isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can export comments");
+        // Validate that user has review permission
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isReviewComments()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
         }
 
         List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
@@ -1095,7 +1213,7 @@ public class DashboardCommentService {
 
         // Export all non-deleted versions (preserve full history)
         List<CommentVersionExportDto> historyExport = entity.getHistory().stream()
-                .filter(v -> !v.isDeleted())
+                .filter(v -> v.getStatus() != DashboardCommentStatus.DELETED)
                 .map(v -> CommentVersionExportDto.builder()
                         .version(v.getVersion())
                         .text(v.getText())
@@ -1191,10 +1309,9 @@ public class DashboardCommentService {
     }
 
     private void validateImportPermissions(String contextKey) {
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAdmin = SecurityUtils.isSuperuser() || isAdminForContext(currentUserEmail, contextKey);
-        if (!isAdmin) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can import comments");
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        if (perm == null || !perm.isReviewComments()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_REVIEW_PERMISSION_ERROR);
         }
     }
 
@@ -1323,7 +1440,6 @@ public class DashboardCommentService {
         existingVersion.setPublishedBy(historyItem.getPublishedBy());
         existingVersion.setPublishedByEmail(historyItem.getPublishedByEmail());
         existingVersion.setDeclineReason(historyItem.getDeclineReason());
-        existingVersion.setDeleted(false);
         existingVersion.setTags(convertTagsToString(historyItem.getTags()));
         existingVersion.setPointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null);
     }
@@ -1341,7 +1457,6 @@ public class DashboardCommentService {
                 .publishedBy(historyItem.getPublishedBy())
                 .publishedByEmail(historyItem.getPublishedByEmail())
                 .declineReason(historyItem.getDeclineReason())
-                .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)
                 .comment(entity)
@@ -1373,7 +1488,6 @@ public class DashboardCommentService {
         existingVersion.setStatus(status);
         existingVersion.setEditedDate(now);
         existingVersion.setEditedBy(updatedBy);
-        existingVersion.setDeleted(false);
         existingVersion.setTags(convertTagsToString(item.getTags()));
         existingVersion.setPointerUrl(keepPointerUrl ? item.getPointerUrl() : null);
     }
@@ -1386,7 +1500,6 @@ public class DashboardCommentService {
                 .status(status)
                 .editedDate(now)
                 .editedBy(updatedBy)
-                .deleted(false)
                 .tags(convertTagsToString(item.getTags()))
                 .pointerUrl(keepPointerUrl ? item.getPointerUrl() : null)
                 .comment(entity)
@@ -1398,13 +1511,13 @@ public class DashboardCommentService {
                                      Set<Integer> importedVersionNumbers) {
         existingVersionsMap.values().stream()
                 .filter(v -> !importedVersionNumbers.contains(v.getVersion()))
-                .forEach(v -> v.setDeleted(true));
+                .forEach(v -> v.setStatus(DashboardCommentStatus.DELETED));
     }
 
     private void markOtherVersionsAsDeleted(Map<Integer, DashboardCommentVersionEntity> existingVersionsMap) {
         existingVersionsMap.values().stream()
                 .filter(v -> v.getVersion() != 1)
-                .forEach(v -> v.setDeleted(true));
+                .forEach(v -> v.setStatus(DashboardCommentStatus.DELETED));
     }
 
     private void updateEntityMetadata(DashboardCommentEntity entity, CommentExportItemDto item,
@@ -1487,7 +1600,6 @@ public class DashboardCommentService {
                 .publishedBy(historyItem.getPublishedBy())
                 .publishedByEmail(historyItem.getPublishedByEmail())
                 .declineReason(historyItem.getDeclineReason())
-                .deleted(false)
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)
                 .build();
@@ -1501,7 +1613,6 @@ public class DashboardCommentService {
                 .status(status)
                 .editedDate(now)
                 .editedBy(editedBy)
-                .deleted(false)
                 .tags(convertTagsToString(tags))
                 .pointerUrl(pointerUrl)
                 .build();

@@ -147,6 +147,18 @@
                 tooltipPosition="top"
                 (click)="publishCommentAction(comment)" (keydown.enter)="publishCommentAction(comment)"/>
             }
+            <!-- Send for review button -->
+            @if (canSendForReview(comment)) {
+              <p-button
+                icon="fa-solid fa-paper-plane"
+                [rounded]="true"
+                [text]="true"
+                severity="info"
+                class="mr-2"
+                [pTooltip]="'@Send for review' | transloco"
+                tooltipPosition="top"
+                (click)="sendForReviewAction(comment)" (keydown.enter)="sendForReviewAction(comment)"/>
+            }
             <!-- Decline button -->
             @if (canDecline(comment)) {
               <p-button
@@ -159,17 +171,17 @@
                 tooltipPosition="top"
                 (click)="openDeclineDialog(comment)" (keydown.enter)="openDeclineDialog(comment)"/>
             }
-            <!-- Unpublish button -->
-            @if (canUnpublish(comment)) {
+            <!-- Delete version button -->
+            @if (canDeleteVersion(comment)) {
               <p-button
-                icon="fa-solid fa-cloud-arrow-down"
+                icon="fa-solid fa-trash"
                 [rounded]="true"
                 [text]="true"
-                severity="warn"
+                severity="danger"
                 class="mr-2"
-                [pTooltip]="'@Unpublish' | transloco"
+                [pTooltip]="'@Delete version' | transloco"
                 tooltipPosition="top"
-                (click)="unpublishCommentAction(comment)" (keydown.enter)="unpublishCommentAction(comment)"/>
+                (click)="deleteVersionAction(comment)" (keydown.enter)="deleteVersionAction(comment)"/>
             }
             <!-- Delete button -->
             @if (canDelete(comment)) {
