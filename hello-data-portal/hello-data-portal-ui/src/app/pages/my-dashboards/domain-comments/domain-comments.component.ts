@@ -301,13 +301,6 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     return this.canPublish(comment) && activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW;
   }
 
-  canDeleteVersion(comment: DomainDashboardComment): boolean {
-    const activeVer = this.getActiveVersionData(comment);
-    return (activeVer?.status === DashboardCommentStatus.DECLINED ||
-        activeVer?.status === DashboardCommentStatus.DRAFT) &&
-      (this.canEdit(comment) || this.canPublish(comment));
-  }
-
   canDelete(comment: DomainDashboardComment): boolean {
     return this.canDeleteFn()(comment);
   }
@@ -464,17 +457,6 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   // Send comment for review
   sendForReviewAction(comment: DomainDashboardComment): void {
     this.commentUtils.confirmSendForReview(
-      comment.dashboardId,
-      comment.contextKey,
-      comment.id,
-      () => setTimeout(() => this.loadComments(), 500),
-      this.confirmationService
-    );
-  }
-
-  // Delete version
-  deleteVersionAction(comment: DomainDashboardComment): void {
-    this.commentUtils.confirmDeleteVersion(
       comment.dashboardId,
       comment.contextKey,
       comment.id,

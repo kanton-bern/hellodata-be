@@ -246,8 +246,18 @@
     <p-button (click)="cd1.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
               severity="secondary" (keydown.escape)="cd1.onReject()"/>
     <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
-              label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onReject()"
+              label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
               severity="success"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-confirmDialog #cd5 key="sendForReview" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd5.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd5.onReject()"/>
+    <p-button (click)="cd5.onAccept()" icon="fas fa-paper-plane"
+              label="{{'@Send for review' | transloco}}" (keydown.enter)="cd5.onAccept()"
+              severity="info"/>
   </ng-template>
 </p-confirmDialog>
 

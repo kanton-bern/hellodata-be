@@ -705,63 +705,6 @@ public class DashboardCommentService {
     }
 
     /**
-     * Delete a comment version (change status to DELETED).
-     * Can delete DECLINED or DRAFT versions.
-     * Author can delete their own DECLINED/DRAFT versions.
-     * Reviewer can delete DECLINED versions.
-     */
-    public DashboardCommentDto deleteVersion(String contextKey, int dashboardId, String commentId) {
-        checkHasAccessToComment(contextKey);
-        checkDashboardAccess(contextKey, dashboardId);
-
-        DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
-
-        // Check permissions - author or reviewer can delete versions
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
-        boolean isReviewer = perm != null && perm.isReviewComments();
-
-        if (!isAuthor && !isReviewer) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment version");
-        }
-
-        DashboardCommentVersionEntity activeVersion = comment.getHistory().stream()
-                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, ACTIVE_VERSION_NOT_FOUND_ERROR));
-
-        // Validate status - can only delete DECLINED or DRAFT
-        if (activeVersion.getStatus() != DashboardCommentStatus.DECLINED &&
-                activeVersion.getStatus() != DashboardCommentStatus.DRAFT) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Can only delete DECLINED or DRAFT versions");
-        }
-
-        activeVersion.setStatus(DashboardCommentStatus.DELETED);
-        comment.setHasActiveDraft(false);
-        comment.setEntityVersion(comment.getEntityVersion() + 1);
-
-        // Find last PUBLISHED version and make it active, or keep current if no published exists
-        Integer lastPublishedVersion = comment.getHistory().stream()
-                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
-                .map(DashboardCommentVersionEntity::getVersion)
-                .max(Integer::compareTo)
-                .orElse(null);
-
-        if (lastPublishedVersion != null) {
-            comment.setActiveVersion(lastPublishedVersion);
-        }
-        // If no published version exists, the DELETED version remains as active (but won't be visible)
-
-        DashboardCommentEntity savedComment = commentRepository.save(comment);
-        log.info("Deleted version {} of comment {} for dashboard {}/{}",
-                activeVersion.getVersion(), commentId, contextKey, dashboardId);
-        return commentMapper.toDto(savedComment);
-    }
-
-    /**
      * Clone a published comment for editing (creates a new DRAFT version) - with optimistic locking support.
      */
     public DashboardCommentDto cloneCommentForEdit(String contextKey, int dashboardId, String commentId,
@@ -1040,15 +983,14 @@ public class DashboardCommentService {
 
         // Handle other statuses based on permissions
         return switch (activeVersion.getStatus()) {
-            case READY_FOR_REVIEW -> handleReadyForReviewVisibility(comment, userEmail, hasWrite, hasReview);
+            case READY_FOR_REVIEW, DECLINED -> handleReviewOrDeclinedVisibility(comment, userEmail, hasWrite, hasReview);
             case DRAFT -> handleDraftVisibility(comment, activeVersion, userEmail, userFullName, hasWrite);
-            case DECLINED -> handleDeclinedVisibility(comment, userEmail, hasWrite, hasReview);
             default -> null;
         };
     }
 
-    private DomainDashboardCommentDto handleReadyForReviewVisibility(DomainDashboardCommentDto comment, String userEmail,
-                                                                     boolean hasWrite, boolean hasReview) {
+    private DomainDashboardCommentDto handleReviewOrDeclinedVisibility(DomainDashboardCommentDto comment, String userEmail,
+                                                                       boolean hasWrite, boolean hasReview) {
         if (hasReview || (hasWrite && isOwnComment(comment, userEmail))) {
             return comment;
         }
@@ -1062,15 +1004,6 @@ public class DashboardCommentService {
         }
         return fallbackToLastPublishedVersion(comment);
     }
-
-    private DomainDashboardCommentDto handleDeclinedVisibility(DomainDashboardCommentDto comment, String userEmail,
-                                                               boolean hasWrite, boolean hasReview) {
-        if (hasReview || (hasWrite && isOwnComment(comment, userEmail))) {
-            return comment;
-        }
-        return fallbackToLastPublishedVersion(comment);
-    }
-
 
     private boolean isOwnDraft(DomainDashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
                                String userEmail, String userFullName) {

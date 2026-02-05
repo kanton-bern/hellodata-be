@@ -35,7 +35,6 @@ import {
   cloneCommentForEdit,
   declineComment,
   deleteComment,
-  deleteVersion,
   publishComment,
   restoreCommentVersion,
   sendForReview,
@@ -248,24 +247,6 @@ export class DashboardCommentUtilsService {
       closeOnEscape: false,
       accept: () => {
         this.store.dispatch(sendForReview({dashboardId, contextKey, commentId}));
-        onSuccess?.();
-      }
-    });
-  }
-
-  /**
-   * Dispatches delete version action with confirmation dialog
-   */
-  confirmDeleteVersion(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
-    const message = this.translateService.translate('@Delete version question');
-    const service = confirmationService || this.confirmationService;
-    service.confirm({
-      key: 'deleteVersion',
-      message: message,
-      icon: 'fas fa-triangle-exclamation',
-      closeOnEscape: false,
-      accept: () => {
-        this.store.dispatch(deleteVersion({dashboardId, contextKey, commentId}));
         onSuccess?.();
       }
     });

@@ -93,7 +93,7 @@
                   (click)="sendForReview()"
                   (keydown)="onKeyDown($event, sendForReview.bind(this))"
                   [pTooltip]="'@Send for review' | transloco"
-                  tooltipPosition="top">
+                  tooltipPosition="left">
             <i class="fa-solid fa-paper-plane"></i>
           </button>
         }
@@ -104,15 +104,6 @@
                   [pTooltip]="'@Decline' | transloco"
                   tooltipPosition="top">
             <i class="fa-solid fa-circle-stop"></i>
-          </button>
-        }
-        @if (canDeleteVersion()) {
-          <button type="button" class="delete-version-btn"
-                  (click)="deleteVersion()"
-                  (keydown)="onKeyDown($event, deleteVersion.bind(this))"
-                  [pTooltip]="'@Delete version' | transloco"
-                  tooltipPosition="top">
-            <i class="fa-solid fa-trash"></i>
           </button>
         }
         @if (canDelete()) {

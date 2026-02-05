@@ -63,9 +63,6 @@ export enum MyDashboardsActionType {
   DECLINE_COMMENT = '[MYDASHBOARDS] Decline comment',
   DECLINE_COMMENT_SUCCESS = '[MYDASHBOARDS] Decline comment SUCCESS',
   DECLINE_COMMENT_ERROR = '[MYDASHBOARDS] Decline comment ERROR',
-  DELETE_VERSION = '[MYDASHBOARDS] Delete version',
-  DELETE_VERSION_SUCCESS = '[MYDASHBOARDS] Delete version SUCCESS',
-  DELETE_VERSION_ERROR = '[MYDASHBOARDS] Delete version ERROR',
   CLONE_COMMENT_FOR_EDIT = '[MYDASHBOARDS] Clone comment for edit',
   CLONE_COMMENT_FOR_EDIT_SUCCESS = '[MYDASHBOARDS] Clone comment for edit SUCCESS',
   CLONE_COMMENT_FOR_EDIT_ERROR = '[MYDASHBOARDS] Clone comment for edit ERROR',
@@ -236,21 +233,6 @@ export const declineCommentSuccess = createAction(
 
 export const declineCommentError = createAction(
   MyDashboardsActionType.DECLINE_COMMENT_ERROR,
-  props<{ error: any }>()
-);
-
-export const deleteVersion = createAction(
-  MyDashboardsActionType.DELETE_VERSION,
-  props<{ dashboardId: number; contextKey: string; commentId: string }>()
-);
-
-export const deleteVersionSuccess = createAction(
-  MyDashboardsActionType.DELETE_VERSION_SUCCESS,
-  props<{ comment: DashboardCommentEntry }>()
-);
-
-export const deleteVersionError = createAction(
-  MyDashboardsActionType.DELETE_VERSION_ERROR,
   props<{ error: any }>()
 );
 

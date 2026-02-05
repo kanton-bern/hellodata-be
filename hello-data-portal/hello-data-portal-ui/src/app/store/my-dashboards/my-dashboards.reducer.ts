@@ -33,7 +33,6 @@ import {
   cloneCommentForEditSuccess,
   declineCommentSuccess,
   deleteCommentSuccess,
-  deleteVersionSuccess,
   loadAvailableDataDomainsSuccess,
   loadAvailableTagsSuccess,
   loadDashboardCommentsSuccess,
@@ -145,14 +144,6 @@ export const myDashboardsReducer = createReducer(
     }
   }),
   on(declineCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
-    return {
-      ...state,
-      currentDashboardComments: state.currentDashboardComments.map(c =>
-        c.id === comment.id ? comment : c
-      )
-    }
-  }),
-  on(deleteVersionSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
     return {
       ...state,
       currentDashboardComments: state.currentDashboardComments.map(c =>

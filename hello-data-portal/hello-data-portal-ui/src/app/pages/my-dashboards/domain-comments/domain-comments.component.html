@@ -171,18 +171,6 @@
                 tooltipPosition="top"
                 (click)="openDeclineDialog(comment)" (keydown.enter)="openDeclineDialog(comment)"/>
             }
-            <!-- Delete version button -->
-            @if (canDeleteVersion(comment)) {
-              <p-button
-                icon="fa-solid fa-trash"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                class="mr-2"
-                [pTooltip]="'@Delete version' | transloco"
-                tooltipPosition="top"
-                (click)="deleteVersionAction(comment)" (keydown.enter)="deleteVersionAction(comment)"/>
-            }
             <!-- Delete button -->
             @if (canDelete(comment)) {
               <p-button
@@ -520,6 +508,16 @@
     <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
               label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
               severity="success"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-confirmDialog #cd5 key="sendForReview" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd5.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd5.onReject()"/>
+    <p-button (click)="cd5.onAccept()" icon="fas fa-paper-plane"
+              label="{{'@Send for review' | transloco}}" (keydown.enter)="cd5.onAccept()"
+              severity="info"/>
   </ng-template>
 </p-confirmDialog>
 

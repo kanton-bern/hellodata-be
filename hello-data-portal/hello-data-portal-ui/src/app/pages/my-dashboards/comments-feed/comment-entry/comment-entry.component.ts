@@ -132,14 +132,6 @@ export class CommentEntryComponent {
     return this.canPublish() && activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW;
   });
 
-  // Author or Reviewer can delete DECLINED or DRAFT versions
-  canDeleteVersion = computed(() => {
-    const activeVer = this.activeVersion();
-    return (activeVer?.status === DashboardCommentStatus.DECLINED ||
-        activeVer?.status === DashboardCommentStatus.DRAFT) &&
-      (this.canEdit() || this.canPublish());
-  });
-
   // Get active version from comment
   activeVersion = computed(() => {
     return this.commentUtils.getActiveVersionData(this.comment());
@@ -280,16 +272,6 @@ export class CommentEntryComponent {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
           this.commentUtils.confirmSendForReview(dashboardId, contextKey, this.comment().id);
-        }
-      });
-    });
-  }
-
-  deleteVersion(): void {
-    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
-      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
-        if (dashboardId && contextKey) {
-          this.commentUtils.confirmDeleteVersion(dashboardId, contextKey, this.comment().id);
         }
       });
     });

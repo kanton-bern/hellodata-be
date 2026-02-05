@@ -114,15 +114,6 @@ public class DashboardCommentController {
         return commentService.declineComment(contextKey, dashboardId, commentId, declineDto);
     }
 
-    @PostMapping("/{commentId}/delete-version")
-    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public DashboardCommentDto deleteVersion(
-            @PathVariable String contextKey,
-            @PathVariable int dashboardId,
-            @PathVariable String commentId) {
-        return commentService.deleteVersion(contextKey, dashboardId, commentId);
-    }
-
     @PostMapping("/{commentId}/clone")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     public DashboardCommentDto cloneCommentForEdit(
