@@ -122,11 +122,11 @@ The data model consists of three main entities:
 
 The dashboard commenting system uses a **three-level permission model** that is independent of data domain roles:
 
-| Permission Level | Description                          | What it includes                                   |
-|------------------|--------------------------------------|----------------------------------------------------|
-| **READ**         | View published comments only         | Basic read-only access                             |
-| **WRITE**        | Create and manage own comments       | READ + create/edit own comments + view own drafts  |
-| **REVIEW**       | Full comment moderation capabilities | WRITE + view/manage all drafts + publish/unpublish |
+| Permission Level | Description                          | What it includes                                                        |
+|------------------|--------------------------------------|-------------------------------------------------------------------------|
+| **READ**         | View published comments only         | Basic read-only access                                                  |
+| **WRITE**        | Create and manage own comments       | READ + create/edit own comments + view own drafts + delete own comments |
+| **REVIEW**       | Full comment moderation capabilities | WRITE + view/manage all drafts + publish/decline + delete               |
 
 **Key Points:**
 
@@ -134,8 +134,6 @@ The dashboard commenting system uses a **three-level permission model** that is 
 - **Independent of data domain roles** - a user's commenting permissions can differ from their data access level
 - **Hierarchical** - REVIEW includes WRITE capabilities, WRITE includes READ capabilities
 - **Flexible** - administrators can assign custom permission combinations for fine-grained control
-- **Admins always have full access** - HELLODATA_ADMIN, BUSINESS_DOMAIN_ADMIN, and DATA_DOMAIN_ADMIN bypass permission
-  checks
 
 ### Permission Matrix
 
