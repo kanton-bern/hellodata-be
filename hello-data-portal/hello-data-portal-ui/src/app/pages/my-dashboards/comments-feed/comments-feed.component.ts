@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, effect, ElementRef, inject, input, output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, effect, ElementRef, inject, input, OnDestroy, output, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button} from "primeng/button";
@@ -48,7 +48,7 @@ import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
 import {DashboardCommentEntry, DashboardCommentStatus} from "../../../store/my-dashboards/my-dashboards.model";
-import {BehaviorSubject, combineLatest, map, Observable, take} from "rxjs";
+import {BehaviorSubject, combineLatest, interval, map, Observable, Subscription, take} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {AutoComplete} from "primeng/autocomplete";
 import {Dialog} from "primeng/dialog";
@@ -56,6 +56,9 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {NotificationService} from "../../../shared/services/notification.service";
 import {DashboardCommentUtilsService} from "../services/dashboard-comment-utils.service";
+import {filter, switchMap} from "rxjs/operators";
+
+const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 interface FilterOption {
   label: string;
@@ -90,7 +93,7 @@ interface StatusFilterOption {
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
-export class CommentsFeed implements AfterViewInit {
+export class CommentsFeed implements AfterViewInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
@@ -167,6 +170,7 @@ export class CommentsFeed implements AfterViewInit {
   private currentDashboardId: number | undefined;
   private currentDashboardContextKey: string | undefined;
   private currentDashboardUrl: string | undefined;
+  private commentsRefreshSubscription: Subscription | null = null;
 
   // Auto-scroll control: enabled by default, disabled when user scrolls up
   private autoScrollEnabled = true;
@@ -222,6 +226,8 @@ export class CommentsFeed implements AfterViewInit {
 
     // Re-assign signal after filteredComments$ is initialized
     this.filteredCommentsSignal = toSignal(this.filteredComments$);
+
+    this.startRefreshTimer();
 
     // Auto-scroll to bottom when comments change (only if enabled)
     effect(() => {
@@ -297,6 +303,12 @@ export class CommentsFeed implements AfterViewInit {
   }
 
   onFilterChange(): void {
+    if (this.selectedStatus === DashboardCommentStatus.DELETED) {
+      this.reloadComments(true);
+    } else {
+      // If we previously had DELETED selected, we should reload without deleted
+      this.reloadComments(false);
+    }
     this.filterTrigger$.next();
   }
 
@@ -327,15 +339,22 @@ export class CommentsFeed implements AfterViewInit {
       }
 
       // Filter by status
-      if (this.selectedStatus !== null) {
-        const activeVersion = comment.history?.find(v => v.version === comment.activeVersion);
-        if (activeVersion && activeVersion.status !== this.selectedStatus) {
-          return false;
-        }
-      }
-
-      return true;
+      const activeVersion = comment.history?.find(v => v.version === comment.activeVersion);
+      return this.shouldShowByStatus(comment, activeVersion);
     });
+  }
+
+  private shouldShowByStatus(comment: DashboardCommentEntry, activeVersion?: any): boolean {
+    if (this.selectedStatus !== null) {
+      if (activeVersion && activeVersion.status !== this.selectedStatus) {
+        // Special case: if entire comment is deleted, treat it as DELETED status
+        return this.selectedStatus === DashboardCommentStatus.DELETED && !!comment.deleted;
+      }
+      return true;
+    }
+
+    // If "All" is selected, hide deleted comments
+    return !comment.deleted && activeVersion?.status !== DashboardCommentStatus.DELETED;
   }
 
   private getQuarter(date: Date): number {
@@ -355,6 +374,31 @@ export class CommentsFeed implements AfterViewInit {
     const container = this.scrollContainer?.nativeElement;
     if (container) {
       container.addEventListener('scroll', () => this.onScroll());
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopRefreshTimer();
+  }
+
+  private startRefreshTimer(): void {
+    this.stopRefreshTimer();
+    this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
+      switchMap(() => combineLatest([
+        this.store.select(selectCurrentDashboardId),
+        this.store.select(selectCurrentDashboardContextKey),
+        this.store.select(selectCurrentDashboardUrl)
+      ]).pipe(take(1))),
+      filter(([id, key, url]) => id !== null && key !== null && url !== null)
+    ).subscribe(() => {
+      this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
+    });
+  }
+
+  private stopRefreshTimer(): void {
+    if (this.commentsRefreshSubscription) {
+      this.commentsRefreshSubscription.unsubscribe();
+      this.commentsRefreshSubscription = null;
     }
   }
 
@@ -559,7 +603,7 @@ export class CommentsFeed implements AfterViewInit {
           this.notificationService.success('@Comments imported successfully', {count: response.imported});
         }
         // Reload comments list
-        this.reloadComments();
+        this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
         // Reload tags
         this.loadTagsIfNeeded();
       },
@@ -571,12 +615,13 @@ export class CommentsFeed implements AfterViewInit {
   }
 
   // Reload comments from backend
-  private reloadComments(): void {
+  private reloadComments(includeDeleted: boolean = false): void {
     if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
       this.store.dispatch(loadDashboardComments({
         dashboardId: this.currentDashboardId,
         contextKey: this.currentDashboardContextKey,
-        dashboardUrl: this.currentDashboardUrl
+        dashboardUrl: this.currentDashboardUrl,
+        includeDeleted
       }));
     }
   }

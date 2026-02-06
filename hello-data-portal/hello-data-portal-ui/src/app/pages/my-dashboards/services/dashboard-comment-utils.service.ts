@@ -95,7 +95,15 @@ export class DashboardCommentUtilsService {
 
     return comment.history
       .filter(h => {
-        if (h.deleted) return false;
+        // canViewMetadata allows seeing DELETED versions (except for the current active version if handled by main list filter)
+        // If canViewMetadata is false, filter out DELETED versions
+        if (h.status === DashboardCommentStatus.DELETED) {
+          return canViewMetadata;
+        }
+        if (h.deleted) {
+          // Legacy check for soft-deleted versions if any
+          return canViewMetadata;
+        }
         return canViewMetadata || h.status === DashboardCommentStatus.PUBLISHED;
       })
       .map(h => ({

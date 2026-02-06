@@ -25,27 +25,22 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
+import {Component, inject, OnInit} from '@angular/core';
+import {combineLatest, Observable, tap} from "rxjs";
 import {Store} from "@ngrx/store";
-import {filter, switchMap, take} from "rxjs/operators";
+import {filter} from "rxjs/operators";
 import {AsyncPipe} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {AppState} from "../../../store/app/app.state";
 import {OpenedSubsystemsService} from "../../../shared/services/opened-subsystems.service";
-import {
-  selectCurrentDashboardContextKey,
-  selectCurrentDashboardId,
-  selectCurrentDashboardUrl,
-  selectCurrentMyDashboardInfo
-} from "../../../store/my-dashboards/my-dashboards.selector";
+import {selectCurrentMyDashboardInfo} from "../../../store/my-dashboards/my-dashboards.selector";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
+import {setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
 import {Drawer} from "primeng/drawer";
 import {CommentsFeed} from "../comments-feed/comments-feed.component";
 
@@ -57,7 +52,7 @@ const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
   styleUrls: ['./embed-my-dashboard-mobile.component.scss'],
   imports: [SubsystemIframeComponent, AsyncPipe, TranslocoPipe, Drawer, CommentsFeed]
 })
-export class EmbedMyDashboardMobileComponent extends BaseComponent implements OnInit, OnDestroy {
+export class EmbedMyDashboardMobileComponent extends BaseComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly openedSupersetsService = inject(OpenedSubsystemsService);
 
@@ -65,7 +60,6 @@ export class EmbedMyDashboardMobileComponent extends BaseComponent implements On
   currentMyDashboardInfo$!: Observable<any>;
   isDrawerVisible = false;
   private loadedDashboardId: number | null = null;
-  private commentsRefreshSubscription: Subscription | null = null;
 
   constructor() {
     super();
@@ -88,58 +82,11 @@ export class EmbedMyDashboardMobileComponent extends BaseComponent implements On
 
   openCommentsDrawer(): void {
     this.isDrawerVisible = true;
-    this.loadCommentsAndStartTimer();
   }
 
   onDrawerHide(): void {
-    this.stopCommentsRefreshTimer();
   }
 
-  ngOnDestroy(): void {
-    this.stopCommentsRefreshTimer();
-  }
-
-  private loadCommentsAndStartTimer(): void {
-    combineLatest([
-      this.store.select(selectCurrentDashboardId),
-      this.store.select(selectCurrentDashboardContextKey),
-      this.store.select(selectCurrentDashboardUrl)
-    ]).pipe(
-      filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null),
-      take(1)
-    ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
-      if (dashboardId && contextKey && dashboardUrl) {
-        // Load comments immediately
-        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
-
-        // Start refresh timer - fetch current values from store on each tick
-        this.stopCommentsRefreshTimer();
-        this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
-          switchMap(() => combineLatest([
-            this.store.select(selectCurrentDashboardId),
-            this.store.select(selectCurrentDashboardContextKey),
-            this.store.select(selectCurrentDashboardUrl)
-          ]).pipe(take(1))),
-          filter(([id, key, url]) => id !== null && key !== null && url !== null)
-        ).subscribe(([currentDashboardId, currentContextKey, currentDashboardUrl]) => {
-          if (currentDashboardId && currentContextKey && currentDashboardUrl) {
-            this.store.dispatch(loadDashboardComments({
-              dashboardId: currentDashboardId,
-              contextKey: currentContextKey,
-              dashboardUrl: currentDashboardUrl
-            }));
-          }
-        });
-      }
-    });
-  }
-
-  private stopCommentsRefreshTimer(): void {
-    if (this.commentsRefreshSubscription) {
-      this.commentsRefreshSubscription.unsubscribe();
-      this.commentsRefreshSubscription = null;
-    }
-  }
 
   private load(dashboardInfo: any, selectedLanguage: string) {
     if (dashboardInfo.appinfo && dashboardInfo.dashboard && dashboardInfo.profile) {

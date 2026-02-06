@@ -26,9 +26,9 @@
 ///
 
 import {Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
+import {combineLatest, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
-import {filter, switchMap, take} from "rxjs/operators";
+import {filter, take} from "rxjs/operators";
 import {AsyncPipe, NgClass} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
@@ -38,8 +38,6 @@ import {AppState} from "../../../store/app/app.state";
 import {OpenedSubsystemsService} from "../../../shared/services/opened-subsystems.service";
 import {
   selectCurrentDashboardContextKey,
-  selectCurrentDashboardId,
-  selectCurrentDashboardUrl,
   selectCurrentMyDashboardInfo
 } from "../../../store/my-dashboards/my-dashboards.selector";
 import {selectCurrentUserCommentPermissions, selectSelectedLanguage} from "../../../store/auth/auth.selector";
@@ -77,7 +75,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   private loadedDashboardId: number | null = null;
   private isNavigatingToPointerUrl = false;
-  private commentsRefreshSubscription: Subscription | null = null;
   private commentPermissionsSub: Subscription | null = null;
 
   constructor() {
@@ -117,7 +114,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       }
       if (!this.canReadComments && this.isCommentsOpen) {
         this.isCommentsOpen = false;
-        this.stopCommentsRefreshTimer();
       }
     });
   }
@@ -128,14 +124,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   toggleComments(): void {
     this.isCommentsOpen = !this.isCommentsOpen;
-
-    if (this.isCommentsOpen) {
-      // Load fresh comments when opening the panel and start refresh timer
-      this.loadCommentsAndStartTimer();
-    } else {
-      // Stop refresh timer when closing the panel
-      this.stopCommentsRefreshTimer();
-    }
   }
 
   startResizing(event: MouseEvent): void {
@@ -179,52 +167,9 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   }
 
   ngOnDestroy(): void {
-    this.stopCommentsRefreshTimer();
     if (this.commentPermissionsSub) {
       this.commentPermissionsSub.unsubscribe();
       this.commentPermissionsSub = null;
-    }
-  }
-
-  private loadCommentsAndStartTimer(): void {
-    combineLatest([
-      this.store.select(selectCurrentDashboardId),
-      this.store.select(selectCurrentDashboardContextKey),
-      this.store.select(selectCurrentDashboardUrl)
-    ]).pipe(
-      filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null),
-      take(1)
-    ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
-      if (dashboardId && contextKey && dashboardUrl) {
-        // Load comments immediately
-        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
-
-        // Start refresh timer - fetch current values from store on each tick
-        this.stopCommentsRefreshTimer();
-        this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
-          switchMap(() => combineLatest([
-            this.store.select(selectCurrentDashboardId),
-            this.store.select(selectCurrentDashboardContextKey),
-            this.store.select(selectCurrentDashboardUrl)
-          ]).pipe(take(1))),
-          filter(([id, key, url]) => id !== null && key !== null && url !== null)
-        ).subscribe(([currentDashboardId, currentContextKey, currentDashboardUrl]) => {
-          if (currentDashboardId && currentContextKey && currentDashboardUrl) {
-            this.store.dispatch(loadDashboardComments({
-              dashboardId: currentDashboardId,
-              contextKey: currentContextKey,
-              dashboardUrl: currentDashboardUrl
-            }));
-          }
-        });
-      }
-    });
-  }
-
-  private stopCommentsRefreshTimer(): void {
-    if (this.commentsRefreshSubscription) {
-      this.commentsRefreshSubscription.unsubscribe();
-      this.commentsRefreshSubscription = null;
     }
   }
 

@@ -27,6 +27,23 @@
             (input)="onGlobalFilter(dt, $event)"
             [placeholder]="'@Search' | transloco"/>
         </p-iconfield>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500 uppercase" [class.font-bold]="selectedStatus !== null">{{ '@Status' | transloco }}:</span>
+          <p-select [options]="statusOptions"
+                    [(ngModel)]="selectedStatus"
+                    (onChange)="onFilterChange()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="{{ '@All' | transloco }}"
+                    size="small">
+            <ng-template pTemplate="item" let-option>
+              {{ option.label | transloco }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-option>
+              {{ option.label | transloco }}
+            </ng-template>
+          </p-select>
+        </div>
       </div>
     </ng-template>
 
@@ -111,7 +128,7 @@
               tooltipPosition="top"
               (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Info button -->
-            @if (canViewMetadata()) {
+            @if (canViewMetadataFn()(comment)) {
               <p-button
                 icon="fa fa-info-circle"
                 [rounded]="true"
@@ -193,7 +210,7 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <strong>{{ '@Status' | transloco }}:</strong>
-                  {{ '@' + getActiveVersionData(comment)?.status | transloco }}
+                  {{ (comment.deleted ? '@deleted' : '@' + getActiveVersionData(comment)?.status) | transloco }}
                 </div>
                 <div>
                   <strong>{{ '@Version' | transloco }}:</strong>
@@ -263,7 +280,7 @@
                 }
               </div>
               <!-- Version history -->
-              @if (getAllVersions(comment).length > 1) {
+              @if (getAllVersions(comment).length > 1 || comment.deleted) {
                 <div class="version-history mt-4">
                   <strong>{{ '@Version history' | transloco }}:</strong>
                   <table class="history-table w-full mt-2 text-sm">
@@ -330,7 +347,7 @@
                             }
                           </td>
                           <td class="p-2">
-                            @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata() && !isCurrentVersionReadyForReview(comment)) {
+                            @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && userHasReviewPermission() && !isCurrentVersionReadyForReview(comment)) {
                               <p-button
                                 icon="fa-solid fa-rotate-left"
                                 [rounded]="true"
@@ -573,12 +590,10 @@
     <label for="deletionReasonInputDomain" class="block text-sm font-medium text-gray-700 mb-2">
       {{ '@Deletion reason' | transloco }} *
     </label>
-    <textarea pInputTextarea
+    <textarea class="w-full border rounded-md px-2 py-2"
               id="deletionReasonInputDomain"
               [(ngModel)]="commentUtils.deletionReason"
-              [rows]="4"
-              [autoResize]="true"
-              class="w-full"
+              rows="4"
               placeholder="{{ '@Enter reason for deleting this comment' | transloco }}"></textarea>
     <div class="flex items-center gap-2 mt-3">
       <input type="checkbox" id="deleteEntireCheckboxDomain"

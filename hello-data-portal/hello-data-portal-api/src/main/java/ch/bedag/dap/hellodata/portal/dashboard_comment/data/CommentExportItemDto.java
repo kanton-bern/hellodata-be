@@ -46,6 +46,10 @@ public class CommentExportItemDto {
     private String author;
     private String authorEmail;
     private long createdDate;
+    private boolean deleted;
+    private Long deletedDate;
+    private String deletedBy;
+    private String deletionReason;
     private String status; // DRAFT or PUBLISHED
     private int activeVersion; // Current active version number
     private List<String> tags;

@@ -37,6 +37,7 @@ import {
   canDeleteComment,
   canEditComment,
   canPublishComment,
+  canViewCommentMetadata,
   canViewMetadataAndVersions,
   selectAvailableTags,
   selectCurrentDashboardContextKey,
@@ -106,7 +107,8 @@ export class CommentEntryComponent {
   canEditFn = this.store.selectSignal(canEditComment);
   canPublishFn = this.store.selectSignal(canPublishComment);
   canDeleteFn = this.store.selectSignal(canDeleteComment);
-  canViewMetadata = this.store.selectSignal(canViewMetadataAndVersions);
+  canViewMetadataFn = this.store.selectSignal(canViewCommentMetadata);
+  userHasReviewPermission = this.store.selectSignal(canViewMetadataAndVersions);
 
   canEdit = computed(() => {
     const activeVer = this.activeVersion();
@@ -119,6 +121,7 @@ export class CommentEntryComponent {
 
   canPublish = computed(() => this.canPublishFn()(this.comment()));
   canDelete = computed(() => this.canDeleteFn()(this.comment()));
+  canViewMetadata = computed(() => this.canViewMetadataFn()(this.comment()));
 
   // Author can send DRAFT for review
   canSendForReview = computed(() => {
@@ -138,8 +141,9 @@ export class CommentEntryComponent {
   });
 
   // All visible versions:
-  // - Admins can see all non-deleted versions (both PUBLISHED and DRAFT)
-  // - Non-admins can see only non-deleted PUBLISHED versions
+  // - Admins/Reviewers can see all non-deleted versions (both PUBLISHED and DRAFT)
+  // - Author can see all their versions (including deleted/declined)
+  // - Non-admins see only non-deleted PUBLISHED versions
   allVersions = computed(() => {
     return this.commentUtils.getAllVersions(this.comment(), this.canViewMetadata());
   });

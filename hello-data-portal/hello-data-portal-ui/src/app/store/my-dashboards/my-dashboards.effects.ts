@@ -159,8 +159,8 @@ export class MyDashboardsEffects {
   loadDashboardComments$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadDashboardComments),
-      switchMap(({dashboardId, contextKey, dashboardUrl}) => {
-        return this._myDashboardsService.getDashboardComments(contextKey, dashboardId).pipe(
+      switchMap(({dashboardId, contextKey, dashboardUrl, includeDeleted}) => {
+        return this._myDashboardsService.getDashboardComments(contextKey, dashboardId, includeDeleted).pipe(
           switchMap(comments => scheduled([loadDashboardCommentsSuccess({comments})], asyncScheduler)),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );

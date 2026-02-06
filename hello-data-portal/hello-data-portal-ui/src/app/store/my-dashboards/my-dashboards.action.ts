@@ -115,7 +115,7 @@ export const setCurrentDashboard = createAction(
 
 export const loadDashboardComments = createAction(
   MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS,
-  props<{ dashboardId: number; contextKey: string; dashboardUrl: string }>()
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string; includeDeleted?: boolean }>()
 );
 
 export const loadDashboardCommentsSuccess = createAction(

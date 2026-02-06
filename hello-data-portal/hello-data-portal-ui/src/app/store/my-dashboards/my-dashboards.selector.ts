@@ -202,10 +202,9 @@ export const selectVisibleComments = createSelector(
     // Backend already filters comments based on user permissions
     // Just ensure we're showing the correct active version for each comment
     return comments
-      .filter(comment => !comment.deleted)
       .map(comment => {
         const currentActive = getActiveVersion(comment);
-        if (!currentActive || currentActive.status === DashboardCommentStatus.DELETED) return null;
+        if (!currentActive) return null;
 
         return {
           ...comment,
@@ -302,6 +301,17 @@ export const canDeleteComment = createSelector(
     }
 
     return false;
+  }
+);
+
+export const canViewCommentMetadata = createSelector(
+  selectProfile,
+  selectCurrentDashboardContextKey,
+  selectCurrentUserCommentPermissions,
+  (profile, contextKey, commentPermissions) => (comment: DashboardCommentEntry) => {
+    const perms: CommentPermissions | undefined = contextKey ? commentPermissions[contextKey] : undefined;
+    if (perms?.reviewComments) return true;
+    return !!(profile?.email && comment.authorEmail === profile.email);
   }
 );
 

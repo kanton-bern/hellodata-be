@@ -43,11 +43,13 @@ import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
+import {Select} from 'primeng/select';
 import {combineLatest, filter, Subscription} from 'rxjs';
 import {
   canDeleteComment,
   canEditComment,
   canPublishComment,
+  canViewCommentMetadata,
   canViewMetadataAndVersions,
   selectContextKey,
   selectContextNameByKey
@@ -79,6 +81,7 @@ import {TranslateService} from '../../../shared/services/translate.service';
     FormsModule,
     IconField,
     InputIcon,
+    Select,
     PrimeTemplate,
     Dialog,
     Textarea,
@@ -106,6 +109,17 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   // For filtering
   globalFilterValue: string = '';
+  selectedStatus: DashboardCommentStatus | null = null;
+
+  // Status filter options
+  statusOptions: any[] = [
+    {label: '@All', value: null},
+    {label: '@draft', value: DashboardCommentStatus.DRAFT},
+    {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
+    {label: '@published', value: DashboardCommentStatus.PUBLISHED},
+    {label: '@declined', value: DashboardCommentStatus.DECLINED},
+    {label: '@deleted', value: DashboardCommentStatus.DELETED}
+  ];
 
   // For expanded rows (info panel)
   expandedComments: Set<string> = new Set();
@@ -129,7 +143,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   canEditFn = this.store.selectSignal(canEditComment);
   canPublishFn = this.store.selectSignal(canPublishComment);
   canDeleteFn = this.store.selectSignal(canDeleteComment);
-  canViewMetadata = this.store.selectSignal(canViewMetadataAndVersions);
+  canViewMetadataFn = this.store.selectSignal(canViewCommentMetadata);
+  userHasReviewPermission = this.store.selectSignal(canViewMetadataAndVersions);
 
 
   ngOnInit(): void {
@@ -196,12 +211,28 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private loadComments(): void {
+  onFilterChange(): void {
+    if (this.selectedStatus === DashboardCommentStatus.DELETED) {
+      this.loadComments(true);
+    } else {
+      this.loadComments(false);
+    }
+  }
+
+  private loadComments(includeDeleted: boolean = false): void {
     this.loading = true;
-    this.domainCommentsService.getCommentsForDomain(this.contextKey).subscribe({
+    this.domainCommentsService.getCommentsForDomain(this.contextKey, includeDeleted).subscribe({
       next: (comments: DomainDashboardComment[]) => {
         // Map active version text to 'text' field and tags to 'tagsString' for filtering
-        this.comments = comments.map(comment => {
+        this.comments = comments.filter(comment => {
+          if (this.selectedStatus === DashboardCommentStatus.DELETED) {
+            // If deleted filter is on, show all returned comments (already filtered by backend)
+            return true;
+          }
+          // Default filter: hide deleted comments when "All" or other statuses are selected
+          const activeVersion = this.getActiveVersionData(comment);
+          return !comment.deleted && activeVersion?.status !== DashboardCommentStatus.DELETED;
+        }).map(comment => {
           const activeVersion = this.commentUtils.getActiveVersionData(comment);
           const status = activeVersion?.status || '';
           const statusLabel = this.translateService.translate(this.commentUtils.getStatusLabel(status));
@@ -253,7 +284,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   getAllVersions(comment: DomainDashboardComment): (DashboardCommentVersion & { isCurrentVersion: boolean })[] {
-    return this.commentUtils.getAllVersions(comment, this.canViewMetadata());
+    return this.commentUtils.getAllVersions(comment, this.canViewMetadataFn()(comment));
   }
 
   navigateToDashboard(comment: DomainDashboardComment, pointerUrl?: string): void {

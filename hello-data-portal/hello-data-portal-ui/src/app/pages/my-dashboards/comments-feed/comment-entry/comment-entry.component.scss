@@ -328,26 +328,47 @@
       flex-shrink: 0;
     }
 
-    .history-decline-reason-row {
+    .history-decline-reason-row, .history-deletion-reason-row {
       display: flex;
       gap: 0.25rem;
       align-items: flex-start;
       padding: 0.25rem 0.5rem 0.25rem 1.5rem;
-      background-color: var(--red-50, #fef2f2);
       border-radius: 0.25rem;
       margin: 0.25rem 0;
     }
 
-    .history-decline-reason-label {
+    .history-decline-reason-row {
+      background-color: var(--red-50, #fef2f2);
+    }
+
+    .history-deletion-reason-row {
+      background-color: var(--gray-100, #f3f4f6);
+    }
+
+    .history-decline-reason-label, .history-deletion-reason-label {
       font-size: 0.6rem;
-      color: var(--red-600, #dc2626);
       flex-shrink: 0;
       font-weight: 600;
     }
 
-    .history-decline-reason {
+    .history-decline-reason-label {
+      color: var(--red-600, #dc2626);
+    }
+
+    .history-deletion-reason-label {
+      color: var(--gray-600, #4b5563);
+    }
+
+    .history-decline-reason, .history-deletion-reason {
       font-size: 0.65rem;
+    }
+
+    .history-decline-reason {
       color: var(--red-700, #b91c1c);
+    }
+
+    .history-deletion-reason {
+      color: var(--gray-700, #374151);
     }
 
     .history-pointer-url-row {

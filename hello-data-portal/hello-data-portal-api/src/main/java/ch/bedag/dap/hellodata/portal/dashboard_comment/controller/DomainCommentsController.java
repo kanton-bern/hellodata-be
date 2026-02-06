@@ -30,10 +30,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DomainDashboardComme
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,8 +50,10 @@ public class DomainCommentsController {
      */
     @GetMapping("/domain/{contextKey}")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public List<DomainDashboardCommentDto> getCommentsForDomain(@PathVariable String contextKey) {
-        return commentService.getCommentsForDomain(contextKey);
+    public List<DomainDashboardCommentDto> getCommentsForDomain(
+            @PathVariable String contextKey,
+            @RequestParam(required = false, defaultValue = "false") boolean includeDeleted) {
+        return commentService.getCommentsForDomain(contextKey, includeDeleted);
     }
 }
 

@@ -281,7 +281,7 @@ class DashboardCommentServiceTest {
             when(commentPermissionRepository.findByUserIdAndContextKey(testUserId, TEST_CONTEXT_KEY))
                     .thenReturn(Optional.empty());
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             // Without read permission, user should see no comments
             assertThat(comments).isEmpty();
@@ -309,7 +309,7 @@ class DashboardCommentServiceTest {
             when(commentPermissionRepository.findByUserIdAndContextKey(any(), eq(TEST_CONTEXT_KEY)))
                     .thenReturn(Optional.of(permission));
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             assertThat(comments).isEmpty();
         }
@@ -442,7 +442,7 @@ class DashboardCommentServiceTest {
             DashboardCommentPermissionEntity readPermission = createReadOnlyPermission();
             mockPermissionForUser(otherUserId, readPermission);
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             // Should only see the published comment, not the draft
             assertThat(comments).hasSize(1);
@@ -473,7 +473,7 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             // User with WRITE permission should see their own drafts
             assertThat(comments).hasSize(1);
@@ -519,7 +519,7 @@ class DashboardCommentServiceTest {
             DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
             mockPermissionForUser(reviewerUserId, reviewPermission);
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             // Reviewer should NOT see other users' DRAFT comments (only READY_FOR_REVIEW)
             // Since the draft has no published version, reviewer should not see it at all
@@ -555,7 +555,7 @@ class DashboardCommentServiceTest {
             // Switch to reviewer user
             mockSuperUser(securityUtils);
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             // Reviewer should see only the READY_FOR_REVIEW comment, not the DRAFT
             assertThat(comments).hasSize(1);
@@ -1424,9 +1424,73 @@ class DashboardCommentServiceTest {
             commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             assertThat(comments).isEmpty();
+        }
+    }
+
+    @Test
+    void getComments_shouldHideDeletedCommentsByDefault() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            // Create and delete a comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), true, "Reason");
+
+            // Fetch comments with default (false) includeDeleted
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
+
+            assertThat(comments).isEmpty();
+        }
+    }
+
+    @Test
+    void getComments_shouldIncludeDeletedCommentsWhenRequestedByAuthor() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            // Create and delete a comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Deleted comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), true, "Reason");
+
+            // Fetch comments with includeDeleted = true
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, true);
+
+            assertThat(comments).hasSize(1);
+            assertThat(comments.get(0).getId()).isEqualTo(comment.getId());
+            assertThat(comments.get(0).isDeleted()).isTrue();
         }
     }
 
@@ -1497,7 +1561,7 @@ class DashboardCommentServiceTest {
             DashboardCommentPermissionEntity readPermission = createReadOnlyPermission();
             mockPermissionForUser(otherUserId, readPermission);
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             // Verify: Other user should see the comment with the last published version (v1), not the draft (v2)
             assertThat(comments).hasSize(1);
@@ -1885,7 +1949,7 @@ class DashboardCommentServiceTest {
     }
 
     @Test
-    void exportComments_shouldNotExportDeletedComments() {
+    void exportComments_shouldIncludeDeletedComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             mockSuperUser(securityUtils);
 
@@ -1898,12 +1962,14 @@ class DashboardCommentServiceTest {
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Delete it
-            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, "Deletion reason");
 
-            // Export should be empty
+            // Export should include the deleted comment
             CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
-            assertThat(exportData.getComments()).isEmpty();
+            assertThat(exportData.getComments()).hasSize(1);
+            assertThat(exportData.getComments().get(0).getStatus()).isEqualTo("DELETED");
+            assertThat(exportData.getComments().get(0).getHistory().get(0).getDeletionReason()).isEqualTo("Deletion reason");
         }
     }
 

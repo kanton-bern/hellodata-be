@@ -2,6 +2,7 @@
      [class.bg-white]="activeVersion()?.status === DashboardCommentStatus.PUBLISHED"
      [class.bg-gray-100]="activeVersion()?.status === DashboardCommentStatus.DRAFT"
      [class.bg-red-50]="activeVersion()?.status === DashboardCommentStatus.DECLINED"
+     [class.bg-gray-300]="activeVersion()?.status === DashboardCommentStatus.DELETED || comment().deleted"
      [class.draft-border]="activeVersion()?.status === DashboardCommentStatus.DRAFT"
      [class.declined-border]="activeVersion()?.status === DashboardCommentStatus.DECLINED">
   @if (activeVersion()?.status === DashboardCommentStatus.DECLINED && activeVersion()?.declineReason) {
@@ -61,59 +62,72 @@
         }
       </small>
       <div class="comment-actions">
-        @if (canViewMetadata()) {
-          <button type="button" class="info-btn"
-                  [class.active]="expanded"
-                  (click)="toggleDetails()"
-                  (keydown)="onKeyDown($event, toggleDetails.bind(this))"
-                  [pTooltip]="'@Info' | transloco" tooltipPosition="top">
-            <i class="fa fa-info-circle"></i>
-          </button>
-        }
-        @if (canEdit()) {
-          <button type="button" class="edit-btn"
-                  (click)="editComment()"
-                  (keydown)="onKeyDown($event, editComment.bind(this))"
-                  [pTooltip]="'@Edit' | transloco"
-                  tooltipPosition="top">
-            <i class="fa-solid fa-pen"></i>
-          </button>
-        }
-        @if (canPublish()) {
-          <button type="button" class="publish-btn"
-                  (click)="publishComment()"
-                  (keydown)="onKeyDown($event, publishComment.bind(this))"
-                  [pTooltip]="'@Publish' | transloco"
-                  tooltipPosition="top">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-          </button>
-        }
-        @if (canSendForReview()) {
-          <button type="button" class="send-review-btn"
-                  (click)="sendForReview()"
-                  (keydown)="onKeyDown($event, sendForReview.bind(this))"
-                  [pTooltip]="'@Send for review' | transloco"
-                  tooltipPosition="left">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
-        }
-        @if (canDecline()) {
-          <button type="button" class="decline-btn"
-                  (click)="openDeclineDialog()"
-                  (keydown)="onKeyDown($event, openDeclineDialog.bind(this))"
-                  [pTooltip]="'@Decline' | transloco"
-                  tooltipPosition="top">
-            <i class="fa-solid fa-circle-stop"></i>
-          </button>
-        }
-        @if (canDelete()) {
-          <button type="button" class="delete-btn"
-                  (click)="deleteComment()"
-                  (keydown)="onKeyDown($event, deleteComment.bind(this))"
-                  [pTooltip]="'@Delete' | transloco"
-                  tooltipPosition="top">
-            <i class="fa fa-trash"></i>
-          </button>
+        @if (!comment().deleted && activeVersion()?.status !== DashboardCommentStatus.DELETED) {
+          @if (canViewMetadata()) {
+            <button type="button" class="info-btn"
+                    [class.active]="expanded"
+                    (click)="toggleDetails()"
+                    (keydown)="onKeyDown($event, toggleDetails.bind(this))"
+                    [pTooltip]="'@Info' | transloco" tooltipPosition="top">
+              <i class="fa fa-info-circle"></i>
+            </button>
+          }
+          @if (canEdit()) {
+            <button type="button" class="edit-btn"
+                    (click)="editComment()"
+                    (keydown)="onKeyDown($event, editComment.bind(this))"
+                    [pTooltip]="'@Edit' | transloco"
+                    tooltipPosition="top">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          }
+          @if (canPublish()) {
+            <button type="button" class="publish-btn"
+                    (click)="publishComment()"
+                    (keydown)="onKeyDown($event, publishComment.bind(this))"
+                    [pTooltip]="'@Publish' | transloco"
+                    tooltipPosition="top">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </button>
+          }
+          @if (canSendForReview()) {
+            <button type="button" class="send-review-btn"
+                    (click)="sendForReview()"
+                    (keydown)="onKeyDown($event, sendForReview.bind(this))"
+                    [pTooltip]="'@Send for review' | transloco"
+                    tooltipPosition="left">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          }
+          @if (canDecline()) {
+            <button type="button" class="decline-btn"
+                    (click)="openDeclineDialog()"
+                    (keydown)="onKeyDown($event, openDeclineDialog.bind(this))"
+                    [pTooltip]="'@Decline' | transloco"
+                    tooltipPosition="top">
+              <i class="fa-solid fa-circle-stop"></i>
+            </button>
+          }
+          @if (canDelete()) {
+            <button type="button" class="delete-btn"
+                    (click)="deleteComment()"
+                    (keydown)="onKeyDown($event, deleteComment.bind(this))"
+                    [pTooltip]="'@Delete' | transloco"
+                    tooltipPosition="top">
+              <i class="fa fa-trash"></i>
+            </button>
+          }
+        } @else {
+          <span class="deleted-label text-xs text-gray-500 italic uppercase mr-2">{{ '@deleted' | transloco }}</span>
+          @if (canViewMetadata()) {
+            <button type="button" class="info-btn"
+                    [class.active]="expanded"
+                    (click)="toggleDetails()"
+                    (keydown)="onKeyDown($event, toggleDetails.bind(this))"
+                    [pTooltip]="'@Info' | transloco" tooltipPosition="top">
+              <i class="fa fa-info-circle"></i>
+            </button>
+          }
         }
       </div>
     </div>
@@ -131,9 +145,24 @@
        [class.expanded]="expanded">
     <div class="comment-details p-1">
       <small>
-        <div><strong>{{ '@Status' | transloco }}
-          :</strong> {{ getStatusLabel(activeVersion()?.status || '') | transloco }}
-        </div>
+        @if (comment().deleted) {
+          <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@deleted' | transloco }}</div>
+          @if (comment().deletedBy) {
+            <div><strong>{{ '@Deleted by' | transloco }}:</strong> {{ comment().deletedBy }}
+              @if (comment().deletedDate) {
+                <span> - {{ comment().deletedDate | date:'short' }}</span>
+              }
+            </div>
+          }
+          @if (comment().deletionReason) {
+            <div class="history-deletion-reason-row mb-2">
+              <span class="history-deletion-reason-label"><strong>{{ '@Deletion reason' | transloco }}:</strong></span>
+              <span class="history-deletion-reason text-gray-700">{{ comment().deletionReason }}</span>
+            </div>
+          }
+        } @else {
+          <div><strong>{{ '@Status' | transloco }}:</strong> {{ getStatusLabel(activeVersion()?.status || '') | transloco }}</div>
+        }
         <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().activeVersion }}</div>
         <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
         @if (activeVersion()?.publishedDate) {
@@ -168,7 +197,7 @@
             </button>
           </div>
         }
-        @if (allVersions().length > 1) {
+        @if (allVersions().length > 1 || comment().deleted) {
           <div class="version-history mt-2">
             <strong>{{ '@Version history' | transloco }}:</strong>
             <ul class="history-list">
@@ -191,7 +220,7 @@
                     <span class="history-author"
                           [pTooltip]="historyItem.editedByEmail"
                           tooltipPosition="top">{{ historyItem.editedBy }}</span>
-                    @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata() && !isCurrentVersionReadyForReview()) {
+                    @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && userHasReviewPermission() && !isCurrentVersionReadyForReview()) {
                       <button type="button" class="restore-btn"
                               (click)="restoreVersion(historyItem.version)"
                               (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
@@ -215,7 +244,7 @@
                   }
                   @if (historyItem.status === DashboardCommentStatus.DELETED && historyItem.deletionReason) {
                     <div class="history-deletion-reason-row">
-                      <span class="history-deletion-reason-label">{{ '@Deletion reason' | transloco }}:</span>
+                      <span class="history-deletion-reason-label"><strong>{{ '@Deletion reason' | transloco }}:</strong></span>
                       <span class="history-deletion-reason text-gray-700">{{ historyItem.deletionReason }}</span>
                     </div>
                   }

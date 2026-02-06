@@ -179,9 +179,11 @@ public class DashboardCommentService {
      * - write permission: published + own drafts + own declined
      * - review permission: published + READY_FOR_REVIEW + all declined (NOT other users' drafts)
      * - Superuser: see everything
+     *
+     * @param includeDeleted if true, author can see their own deleted comments
      */
     @Transactional(readOnly = true)
-    public List<DashboardCommentDto> getComments(String contextKey, int dashboardId) {
+    public List<DashboardCommentDto> getComments(String contextKey, int dashboardId, boolean includeDeleted) {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
 
         DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
@@ -206,10 +208,42 @@ public class DashboardCommentService {
 
         return comments.stream()
                 .map(commentMapper::toDto)
-                .filter(c -> !c.isDeleted())
-                .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, hasWritePermission, hasReviewPermission))
+                .filter(c -> includeDeleted || !c.isDeleted())
+                .map(c -> filterCommentByPermissions(c, currentUserEmail, currentUserFullName, hasWritePermission, hasReviewPermission, includeDeleted))
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    private DashboardCommentDto handleReviewOrDeclinedVisibility(DashboardCommentDto comment, String userEmail,
+                                                                 boolean hasWrite, boolean hasReview) {
+        if (hasReview || (hasWrite && isOwnComment(comment, userEmail))) {
+            return comment;
+        }
+        return showLastPublishedVersion(comment);
+    }
+
+    private DashboardCommentDto handleDraftVisibility(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
+                                                      String userEmail, String userFullName, boolean hasWrite) {
+        if (hasWrite && isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
+            return comment;
+        }
+        return showLastPublishedVersion(comment);
+    }
+
+    private DashboardCommentDto handleDeletedVisibility(DashboardCommentDto comment, String userEmail,
+                                                        boolean hasWrite, boolean hasReview, boolean includeDeleted) {
+        if (includeDeleted && (hasReview || (hasWrite && isOwnComment(comment, userEmail)))) {
+            return comment;
+        }
+        return null;
+    }
+
+    private DomainDashboardCommentDto handleDeletedVisibility(DomainDashboardCommentDto comment, String userEmail,
+                                                              boolean hasWrite, boolean hasReview, boolean includeDeleted) {
+        if (includeDeleted && (hasReview || (hasWrite && isOwnComment(comment, userEmail)))) {
+            return comment;
+        }
+        return null;
     }
 
     /**
@@ -218,17 +252,19 @@ public class DashboardCommentService {
      * - write: published + own drafts + own declined visible
      * - review: published + READY_FOR_REVIEW + all declined visible (NOT other users' drafts)
      * - superuser: all comments visible
+     *
+     * @param includeDeleted if true, author can see their own deleted comments
      */
     private DashboardCommentDto filterCommentByPermissions(DashboardCommentDto comment, String userEmail, String userFullName,
-                                                           boolean hasWrite, boolean hasReview) {
+                                                           boolean hasWrite, boolean hasReview, boolean includeDeleted) {
         DashboardCommentVersionDto activeVersion = getActiveVersion(comment);
         if (activeVersion == null) {
             return null;
         }
 
-        // DELETED versions are not visible (only kept in history)
-        if (activeVersion.getStatus() == DashboardCommentStatus.DELETED) {
-            return null;
+        // DELETED versions or soft-deleted entire comments
+        if (activeVersion.getStatus() == DashboardCommentStatus.DELETED || comment.isDeleted()) {
+            return handleDeletedVisibility(comment, userEmail, hasWrite, hasReview, includeDeleted);
         }
 
         // Published comments are visible to anyone with read permission
@@ -236,76 +272,17 @@ public class DashboardCommentService {
             return comment;
         }
 
-        // READY_FOR_REVIEW: visible to author (with write) and reviewers
-        if (activeVersion.getStatus() == DashboardCommentStatus.READY_FOR_REVIEW) {
-            if (hasReview || (hasWrite && isOwnComment(comment, userEmail))) {
-                return comment;
-            }
-            // Others see last published version
-            return showLastPublishedVersion(comment);
-        }
-
-        // Handle draft comments: visible only to author with write permission
-        if (activeVersion.getStatus() == DashboardCommentStatus.DRAFT) {
-            return handleDraftComment(comment, activeVersion, userEmail, userFullName, hasWrite);
-        }
-
-        // Handle declined comments: author sees declined version instead of last published
-        if (activeVersion.getStatus() == DashboardCommentStatus.DECLINED) {
-            return handleDeclinedComment(comment, userEmail, hasWrite, hasReview);
-        }
-
-        return null;
+        // Handle other statuses based on permissions
+        return switch (activeVersion.getStatus()) {
+            case READY_FOR_REVIEW, DECLINED ->
+                    handleReviewOrDeclinedVisibility(comment, userEmail, hasWrite, hasReview);
+            case DRAFT -> handleDraftVisibility(comment, activeVersion, userEmail, userFullName, hasWrite);
+            default -> null;
+        };
     }
 
-    /**
-     * Handle visibility logic for declined comments.
-     * - review/admin: see declined comments
-     * - author: see declined version (instead of last published) to view decline reason
-     * - others: fallback to last published version
-     */
-    private DashboardCommentDto handleDeclinedComment(DashboardCommentDto comment,
-                                                      String userEmail,
-                                                      boolean hasWrite, boolean hasReview) {
-        // Reviewers can see all declined comments
-        if (hasReview) {
-            return comment;
-        }
-
-        // Author (with write permission) sees the declined version to view the decline reason
-        if (hasWrite && isOwnComment(comment, userEmail)) {
-            return comment;
-        }
-
-        // For others, show the last published version if it exists
-        return showLastPublishedVersion(comment);
-    }
-
-    /**
-     * Check if the comment belongs to the current user.
-     */
     private boolean isOwnComment(DashboardCommentDto comment, String userEmail) {
         return userEmail != null && userEmail.equals(comment.getAuthorEmail());
-    }
-
-    /**
-     * Handle visibility logic for draft comments.
-     * - admin: see all drafts
-     * - write: see own drafts, fallback to last published for others' drafts
-     * - review: do NOT see others' drafts, fallback to last published
-     * - read only: fallback to last published version
-     */
-    private DashboardCommentDto handleDraftComment(DashboardCommentDto comment, DashboardCommentVersionDto activeVersion,
-                                                   String userEmail, String userFullName,
-                                                   boolean hasWrite) {
-        // Writers can see their own drafts
-        if (hasWrite && isOwnDraft(comment, activeVersion, userEmail, userFullName)) {
-            return comment;
-        }
-
-        // Reviewers should NOT see others' drafts - they only see READY_FOR_REVIEW status
-        // For drafts by others (or read-only users), show the last published version if it exists
-        return showLastPublishedVersion(comment);
     }
 
     /**
@@ -906,7 +883,7 @@ public class DashboardCommentService {
      * Users with read permission see all comments in the domain.
      */
     @Transactional(readOnly = true)
-    public List<DomainDashboardCommentDto> getCommentsForDomain(String contextKey) {
+    public List<DomainDashboardCommentDto> getCommentsForDomain(String contextKey, boolean includeDeleted) {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
 
         DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
@@ -933,8 +910,8 @@ public class DashboardCommentService {
         return comments.stream()
                 .filter(entity -> accessibleDashboardIds == null || accessibleDashboardIds.contains(entity.getDashboardId()))
                 .map(entity -> toDomainDashboardCommentDto(entity, dashboardInfoMap))
-                .filter(c -> !c.isDeleted())
-                .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, hasWritePermission, hasReviewPermission))
+                .filter(c -> includeDeleted || !c.isDeleted())
+                .map(c -> filterDomainDashboardCommentByPermissions(c, currentUserEmail, currentUserFullName, hasWritePermission, hasReviewPermission, includeDeleted))
                 .filter(Objects::nonNull)
                 .toList();
     }
@@ -986,6 +963,9 @@ public class DashboardCommentService {
         domainDto.setAuthorEmail(baseDto.getAuthorEmail());
         domainDto.setCreatedDate(baseDto.getCreatedDate());
         domainDto.setDeleted(baseDto.isDeleted());
+        domainDto.setDeletedDate(baseDto.getDeletedDate());
+        domainDto.setDeletedBy(baseDto.getDeletedBy());
+        domainDto.setDeletionReason(baseDto.getDeletionReason());
         domainDto.setActiveVersion(baseDto.getActiveVersion());
         domainDto.setHistory(baseDto.getHistory());
         domainDto.setHasActiveDraft(baseDto.isHasActiveDraft());
@@ -1008,10 +988,15 @@ public class DashboardCommentService {
      * Filter domain dashboard comment by permissions (similar to filterCommentByPermissions but for DomainDashboardCommentDto).
      */
     private DomainDashboardCommentDto filterDomainDashboardCommentByPermissions(DomainDashboardCommentDto comment, String userEmail, String userFullName,
-                                                                                boolean hasWrite, boolean hasReview) {
+                                                                                boolean hasWrite, boolean hasReview, boolean includeDeleted) {
         DashboardCommentVersionDto activeVersion = getDomainDashboardActiveVersion(comment);
-        if (activeVersion == null || activeVersion.getStatus() == DashboardCommentStatus.DELETED) {
+        if (activeVersion == null) {
             return null;
+        }
+
+        // DELETED versions or soft-deleted entire comments
+        if (activeVersion.getStatus() == DashboardCommentStatus.DELETED || comment.isDeleted()) {
+            return handleDeletedVisibility(comment, userEmail, hasWrite, hasReview, includeDeleted);
         }
 
         // Published comments are visible to anyone with read permission
@@ -1149,7 +1134,6 @@ public class DashboardCommentService {
         List<DashboardCommentEntity> comments = commentRepository.findByContextKeyAndDashboardIdOrderByCreatedDateAsc(contextKey, dashboardId);
 
         List<CommentExportItemDto> exportItems = comments.stream()
-                .filter(c -> !c.isDeleted())
                 .map(this::toExportItem)
                 .toList();
 
@@ -1183,9 +1167,8 @@ public class DashboardCommentService {
                 .findFirst()
                 .orElse(null);
 
-        // Export all non-deleted versions (preserve full history)
+        // Export all versions (preserve full history including DELETED)
         List<CommentVersionExportDto> historyExport = entity.getHistory().stream()
-                .filter(v -> v.getStatus() != DashboardCommentStatus.DELETED)
                 .map(v -> CommentVersionExportDto.builder()
                         .version(v.getVersion())
                         .text(v.getText())
@@ -1210,6 +1193,10 @@ public class DashboardCommentService {
                 .author(entity.getAuthor())
                 .authorEmail(entity.getAuthorEmail())
                 .createdDate(entity.getCreatedDate())
+                .deleted(entity.isDeleted())
+                .deletedDate(entity.getDeletedDate())
+                .deletedBy(entity.getDeletedBy())
+                .deletionReason(entity.getDeletionReason())
                 .status(activeVersion != null ? activeVersion.getStatus().name() : DashboardCommentStatus.DRAFT.name())
                 .activeVersion(entity.getActiveVersion())
                 .tags(activeVersion != null ? parseTagsFromString(activeVersion.getTags()) : Collections.emptyList())
@@ -1500,6 +1487,10 @@ public class DashboardCommentService {
         int activeVersion = item.getActiveVersion() > 0 ? item.getActiveVersion() : result.maxVersion();
         entity.setActiveVersion(activeVersion);
         entity.setHasActiveDraft(result.hasActiveDraft());
+        entity.setDeleted(item.isDeleted());
+        entity.setDeletedDate(item.getDeletedDate());
+        entity.setDeletedBy(item.getDeletedBy());
+        entity.setDeletionReason(item.getDeletionReason());
         entity.setEntityVersion(entity.getEntityVersion() + 1);
     }
 
@@ -1607,7 +1598,10 @@ public class DashboardCommentService {
                 .author(item.getAuthor() != null ? item.getAuthor() : ctx.importedBy())
                 .authorEmail(item.getAuthorEmail() != null ? item.getAuthorEmail() : ctx.importedByEmail())
                 .createdDate(item.getCreatedDate() > 0 ? item.getCreatedDate() : ctx.now())
-                .deleted(false)
+                .deleted(item.isDeleted())
+                .deletedDate(item.getDeletedDate())
+                .deletedBy(item.getDeletedBy())
+                .deletionReason(item.getDeletionReason())
                 .activeVersion(activeVersion)
                 .hasActiveDraft(versionResult.hasActiveDraft())
                 .entityVersion(0L)

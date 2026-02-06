@@ -65,8 +65,15 @@ export class MyDashboardsService {
   }
 
   // Comments API methods
-  public getDashboardComments(contextKey: string, dashboardId: number): Observable<DashboardCommentEntry[]> {
-    return this.httpClient.get<DashboardCommentEntry[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`);
+  public getDashboardComments(contextKey: string, dashboardId: number, includeDeleted?: boolean): Observable<DashboardCommentEntry[]> {
+    let params: any = undefined;
+    if (includeDeleted) {
+      params = {includeDeleted: 'true'};
+    }
+    return this.httpClient.get<DashboardCommentEntry[]>(
+      `${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`,
+      params ? {params} : {}
+    );
   }
 
   public createComment(contextKey: string, dashboardId: number, request: CommentCreateRequest): Observable<DashboardCommentEntry> {

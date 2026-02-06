@@ -38,7 +38,7 @@
 
   <div class="comments-filters flex gap-2 px-2 py-1">
     <div class="filter-group">
-      <span class="filter-label">{{ '@Year' | transloco }}</span>
+      <span class="filter-label" [class.font-bold]="selectedYear !== null">{{ '@Year' | transloco }}</span>
       <p-select [options]="(yearOptions$ | async) || []"
                 [(ngModel)]="selectedYear"
                 (onChange)="onFilterChange()"
@@ -49,7 +49,7 @@
                 size="small"/>
     </div>
     <div class="filter-group">
-      <span class="filter-label">{{ '@Quarter' | transloco }}</span>
+      <span class="filter-label" [class.font-bold]="selectedQuarter !== null">{{ '@Quarter' | transloco }}</span>
       <p-select [options]="quarterOptions"
                 [(ngModel)]="selectedQuarter"
                 (onChange)="onFilterChange()"
@@ -60,7 +60,7 @@
                 size="small"/>
     </div>
     <div class="filter-group">
-      <span class="filter-label">{{ '@Status' | transloco }}</span>
+      <span class="filter-label" [class.font-bold]="selectedStatus !== null">{{ '@Status' | transloco }}</span>
       <p-select [options]="statusOptions"
                 [(ngModel)]="selectedStatus"
                 (onChange)="onFilterChange()"
@@ -80,7 +80,7 @@
     @if ((tagFilterOptions$ | async); as tagOptions) {
       @if (tagOptions.length > 1) {
         <div class="filter-group">
-          <span class="filter-label">{{ '@Tag' | transloco }}</span>
+          <span class="filter-label" [class.font-bold]="selectedTagFilter !== null">{{ '@Tag' | transloco }}</span>
           <p-select [options]="tagOptions"
                     [(ngModel)]="selectedTagFilter"
                     (onChange)="onFilterChange()"

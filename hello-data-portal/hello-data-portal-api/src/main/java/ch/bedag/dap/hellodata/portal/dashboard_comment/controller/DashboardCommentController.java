@@ -45,8 +45,9 @@ public class DashboardCommentController {
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     public List<DashboardCommentDto> getComments(
             @PathVariable String contextKey,
-            @PathVariable int dashboardId) {
-        return commentService.getComments(contextKey, dashboardId);
+            @PathVariable int dashboardId,
+            @RequestParam(required = false, defaultValue = "false") boolean includeDeleted) {
+        return commentService.getComments(contextKey, dashboardId, includeDeleted);
     }
 
     @GetMapping("/tags")

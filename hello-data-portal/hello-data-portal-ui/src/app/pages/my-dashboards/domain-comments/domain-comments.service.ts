@@ -44,10 +44,12 @@ export interface DomainDashboardComment extends DashboardCommentEntry {
 export class DomainDashboardCommentsService {
   private readonly http = inject(HttpClient);
 
-  getCommentsForDomain(contextKey: string): Observable<DomainDashboardComment[]> {
-    return this.http.get<DomainDashboardComment[]>(
-      `${environment.portalApi}/dashboard-comments/domain/${contextKey}`
-    );
+  getCommentsForDomain(contextKey: string, includeDeleted: boolean = false): Observable<DomainDashboardComment[]> {
+    let url = `${environment.portalApi}/dashboard-comments/domain/${contextKey}`;
+    if (includeDeleted) {
+      url += '?includeDeleted=true';
+    }
+    return this.http.get<DomainDashboardComment[]>(url);
   }
 }
 
