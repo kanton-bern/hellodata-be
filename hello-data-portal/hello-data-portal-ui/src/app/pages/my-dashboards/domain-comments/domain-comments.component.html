@@ -27,23 +27,6 @@
             (input)="onGlobalFilter(dt, $event)"
             [placeholder]="'@Search' | transloco"/>
         </p-iconfield>
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-gray-500 uppercase" [class.font-bold]="selectedStatus !== null">{{ '@Status' | transloco }}:</span>
-          <p-select [options]="statusOptions"
-                    [(ngModel)]="selectedStatus"
-                    (onChange)="onFilterChange()"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="{{ '@All' | transloco }}"
-                    size="small">
-            <ng-template pTemplate="item" let-option>
-              {{ option.label | transloco }}
-            </ng-template>
-            <ng-template pTemplate="selectedItem" let-option>
-              {{ option.label | transloco }}
-            </ng-template>
-          </p-select>
-        </div>
       </div>
     </ng-template>
 
@@ -225,7 +208,8 @@
                     <strong>{{ '@Published' | transloco }}:</strong>
                     {{ getActiveVersionData(comment)?.publishedDate | date:'medium' }}
                     @if (getActiveVersionData(comment)?.publishedBy) {
-                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail" tooltipPosition="top">
+                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail"
+                            tooltipPosition="top">
                         ({{ getActiveVersionData(comment)?.publishedBy }})
                       </span>
                     }
@@ -239,7 +223,8 @@
                       @if (getActiveVersionData(comment)?.publishedBy) {
                         <p class="text-red-500 text-sm mt-1">
                           {{ '@Declined by' | transloco }}:
-                          <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail" tooltipPosition="top">
+                          <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail"
+                                tooltipPosition="top">
                             {{ getActiveVersionData(comment)?.publishedBy }}
                           </span>
                           @if (getActiveVersionData(comment)?.publishedDate) {
@@ -274,7 +259,8 @@
                     <strong>{{ '@Last edited' | transloco }}:</strong>
                     {{ getActiveVersionData(comment)?.editedDate | date:'medium' }}
                     @if (getActiveVersionData(comment)?.editedBy) {
-                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.editedByEmail" tooltipPosition="top">
+                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.editedByEmail"
+                            tooltipPosition="top">
                         ({{ getActiveVersionData(comment)?.editedBy }})
                       </span>
                     }

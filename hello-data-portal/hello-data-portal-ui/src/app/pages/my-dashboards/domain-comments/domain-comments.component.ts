@@ -43,7 +43,6 @@ import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
-import {Select} from 'primeng/select';
 import {combineLatest, filter, Subscription} from 'rxjs';
 import {
   canDeleteComment,
@@ -82,7 +81,6 @@ import {TranslateService} from '../../../shared/services/translate.service';
     FormsModule,
     IconField,
     InputIcon,
-    Select,
     PrimeTemplate,
     Dialog,
     Textarea,
@@ -210,14 +208,6 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         }
       ]
     }));
-  }
-
-  onFilterChange(): void {
-    if (this.selectedStatus === DashboardCommentStatus.DELETED) {
-      this.loadComments(true);
-    } else {
-      this.loadComments(false);
-    }
   }
 
   private loadComments(includeDeleted: boolean = false): void {
