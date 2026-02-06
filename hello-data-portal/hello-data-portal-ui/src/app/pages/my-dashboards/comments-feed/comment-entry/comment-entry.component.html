@@ -54,7 +54,7 @@
           <span class="draft-badge">{{ '@draft' | transloco }}</span>
         }
         @if (activeVersion()?.status === DashboardCommentStatus.READY_FOR_REVIEW) {
-          <span class="ready-review-badge">{{ '@Ready for review' | transloco }}</span>
+          <span class="ready-review-badge">{{ '@ready for review' | transloco }}</span>
         }
         @if (activeVersion()?.status === DashboardCommentStatus.DECLINED) {
           <span class="declined-badge">{{ '@declined' | transloco }}</span>
