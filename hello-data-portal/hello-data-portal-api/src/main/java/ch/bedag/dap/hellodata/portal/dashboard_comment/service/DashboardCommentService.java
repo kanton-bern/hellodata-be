@@ -501,6 +501,7 @@ public class DashboardCommentService {
             comment.setDeleted(true);
             comment.setDeletedDate(now);
             comment.setDeletedBy(deleterName);
+            comment.setDeletedByEmail(SecurityUtils.getCurrentUserEmail());
             if (deletionReason != null && !deletionReason.trim().isEmpty()) {
                 comment.setDeletionReason(deletionReason.trim());
             }
@@ -543,6 +544,7 @@ public class DashboardCommentService {
             comment.setDeleted(true);
             comment.setDeletedDate(now);
             comment.setDeletedBy(deleterName);
+            comment.setDeletedByEmail(SecurityUtils.getCurrentUserEmail());
             if (deletionReason != null && !deletionReason.trim().isEmpty()) {
                 comment.setDeletionReason(deletionReason.trim());
             }
@@ -965,6 +967,7 @@ public class DashboardCommentService {
         domainDto.setDeleted(baseDto.isDeleted());
         domainDto.setDeletedDate(baseDto.getDeletedDate());
         domainDto.setDeletedBy(baseDto.getDeletedBy());
+        domainDto.setDeletedByEmail(baseDto.getDeletedByEmail());
         domainDto.setDeletionReason(baseDto.getDeletionReason());
         domainDto.setActiveVersion(baseDto.getActiveVersion());
         domainDto.setHistory(baseDto.getHistory());

@@ -15,7 +15,7 @@
           @if (activeVersion()?.publishedBy) {
             <div class="text-red-600 text-xs mt-1">
               {{ '@Declined by' | transloco }}:
-              <span [pTooltip]="activeVersion()?.publishedByEmail" tooltipPosition="top">
+              <span class="cursor-pointer" [pTooltip]="activeVersion()?.publishedByEmail" tooltipPosition="top">
                 {{ activeVersion()?.publishedBy }}
               </span>
               @if (activeVersion()?.publishedDate) {
@@ -41,7 +41,7 @@
   <div class="comment-footer p-1">
     <div class="comment-meta-row">
       <small class="comment-meta">
-        <span class="author-name"
+        <span class="author-name cursor-pointer"
               [pTooltip]="comment().authorEmail"
               tooltipPosition="top">{{ comment().author }}</span>
         – {{ comment().createdDate | date:'short' }}
@@ -148,7 +148,10 @@
         @if (comment().deleted) {
           <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@deleted' | transloco }}</div>
           @if (comment().deletedBy) {
-            <div><strong>{{ '@Deleted by' | transloco }}:</strong> {{ comment().deletedBy }}
+            <div><strong>{{ '@Deleted by' | transloco }}:</strong>
+              <span class="cursor-pointer" [pTooltip]="comment().deletedByEmail" tooltipPosition="top">
+                {{ comment().deletedBy }}
+              </span>
               @if (comment().deletedDate) {
                 <span> - {{ comment().deletedDate | date:'short' }}</span>
               }
@@ -168,7 +171,7 @@
         @if (activeVersion()?.publishedDate) {
           <div><strong>{{ '@Published' | transloco }}:</strong> {{ activeVersion()?.publishedDate | date:'medium' }}
             @if (activeVersion()?.publishedBy) {
-              <span class="author-with-tooltip"
+              <span class="author-with-tooltip cursor-pointer"
                     [pTooltip]="activeVersion()?.publishedByEmail"
                     tooltipPosition="top">({{ activeVersion()?.publishedBy }})</span>
             }
@@ -177,7 +180,7 @@
         @if (activeVersion()?.editedDate && activeVersion()?.editedDate !== comment().createdDate) {
           <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ activeVersion()?.editedDate | date:'medium' }}
             @if (activeVersion()?.editedBy) {
-              <span class="author-with-tooltip"
+              <span class="author-with-tooltip cursor-pointer"
                     [pTooltip]="activeVersion()?.editedByEmail"
                     tooltipPosition="top">({{ activeVersion()?.editedBy }})</span>
             }
@@ -217,7 +220,7 @@
                       {{ getStatusLabel(historyItem.status) | transloco }}
                     </span>
                     <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
-                    <span class="history-author"
+                    <span class="history-author cursor-pointer"
                           [pTooltip]="historyItem.editedByEmail"
                           tooltipPosition="top">{{ historyItem.editedBy }}</span>
                     @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && userHasReviewPermission() && !isCurrentVersionReadyForReview()) {

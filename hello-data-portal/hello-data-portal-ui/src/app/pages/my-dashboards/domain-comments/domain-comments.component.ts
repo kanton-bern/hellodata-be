@@ -30,7 +30,7 @@ import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {DatePipe, SlicePipe} from '@angular/common';
+import {DatePipe, LowerCasePipe, SlicePipe} from '@angular/common';
 import {Table, TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {Tag} from 'primeng/tag';
@@ -73,6 +73,7 @@ import {TranslateService} from '../../../shared/services/translate.service';
     TranslocoPipe,
     DatePipe,
     SlicePipe,
+    LowerCasePipe,
     TableModule,
     Button,
     Tag,

@@ -92,7 +92,7 @@
           </span>
         </td>
         <td>
-          <span [pTooltip]="comment.authorEmail" tooltipPosition="top">
+          <span class="cursor-pointer" [pTooltip]="comment.authorEmail" tooltipPosition="top">
             {{ comment.author }}
           </span>
         </td>
@@ -210,7 +210,7 @@
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <strong>{{ '@Status' | transloco }}:</strong>
-                  {{ (comment.deleted ? '@deleted' : '@' + getActiveVersionData(comment)?.status) | transloco }}
+                  {{ (comment.deleted ? '@deleted' : '@' + (getActiveVersionData(comment)?.status | lowercase)) | transloco }}
                 </div>
                 <div>
                   <strong>{{ '@Version' | transloco }}:</strong>
@@ -225,7 +225,9 @@
                     <strong>{{ '@Published' | transloco }}:</strong>
                     {{ getActiveVersionData(comment)?.publishedDate | date:'medium' }}
                     @if (getActiveVersionData(comment)?.publishedBy) {
-                      ({{ getActiveVersionData(comment)?.publishedBy }})
+                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail" tooltipPosition="top">
+                        ({{ getActiveVersionData(comment)?.publishedBy }})
+                      </span>
                     }
                   </div>
                 }
@@ -236,7 +238,10 @@
                       <p class="text-red-600 mt-1">{{ getActiveVersionData(comment)?.declineReason }}</p>
                       @if (getActiveVersionData(comment)?.publishedBy) {
                         <p class="text-red-500 text-sm mt-1">
-                          {{ '@Declined by' | transloco }}: {{ getActiveVersionData(comment)?.publishedBy }}
+                          {{ '@Declined by' | transloco }}:
+                          <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail" tooltipPosition="top">
+                            {{ getActiveVersionData(comment)?.publishedBy }}
+                          </span>
                           @if (getActiveVersionData(comment)?.publishedDate) {
                             - {{ getActiveVersionData(comment)?.publishedDate | date:'short' }}
                           }
@@ -252,7 +257,10 @@
                       <p class="text-gray-600 mt-1">{{ comment.deletionReason }}</p>
                       @if (comment.deletedBy) {
                         <p class="text-gray-500 text-sm mt-1">
-                          {{ '@Deleted by' | transloco }}: {{ comment.deletedBy }}
+                          {{ '@Deleted by' | transloco }}:
+                          <span class="cursor-pointer" [pTooltip]="comment.deletedByEmail" tooltipPosition="top">
+                            {{ comment.deletedBy }}
+                          </span>
                           @if (comment.deletedDate) {
                             - {{ comment.deletedDate | date:'short' }}
                           }
@@ -266,7 +274,9 @@
                     <strong>{{ '@Last edited' | transloco }}:</strong>
                     {{ getActiveVersionData(comment)?.editedDate | date:'medium' }}
                     @if (getActiveVersionData(comment)?.editedBy) {
-                      ({{ getActiveVersionData(comment)?.editedBy }})
+                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.editedByEmail" tooltipPosition="top">
+                        ({{ getActiveVersionData(comment)?.editedBy }})
+                      </span>
                     }
                   </div>
                 }
@@ -313,7 +323,11 @@
                               [style]="{fontSize: '0.7rem'}"/>
                           </td>
                           <td class="p-2">{{ historyItem.editedDate | date:'short' }}</td>
-                          <td class="p-2">{{ historyItem.editedBy }}</td>
+                          <td class="p-2">
+                            <span class="cursor-pointer" [pTooltip]="historyItem.editedByEmail" tooltipPosition="top">
+                              {{ historyItem.editedBy }}
+                            </span>
+                          </td>
                           <td class="p-2">
                           <span [pTooltip]="historyItem.text" tooltipPosition="top">
                             {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}

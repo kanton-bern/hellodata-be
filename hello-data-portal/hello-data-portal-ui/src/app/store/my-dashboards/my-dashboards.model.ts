@@ -89,6 +89,7 @@ export interface DashboardCommentEntry {
   deleted: boolean;
   deletedDate?: number;
   deletedBy?: string;
+  deletedByEmail?: string;
   deletionReason?: string; // Reason for deleting entire comment (when deleteEntire=true)
   // Versioning
   activeVersion: number; // Currently active version from history

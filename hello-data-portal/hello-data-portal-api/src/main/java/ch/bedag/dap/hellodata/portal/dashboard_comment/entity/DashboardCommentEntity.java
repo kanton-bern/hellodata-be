@@ -78,6 +78,9 @@ public class DashboardCommentEntity {
     @Column(name = "deleted_by", length = 200)
     private String deletedBy;
 
+    @Column(name = "deleted_by_email", length = 255)
+    private String deletedByEmail;
+
     @Column(name = "deletion_reason", columnDefinition = "TEXT")
     private String deletionReason;
 

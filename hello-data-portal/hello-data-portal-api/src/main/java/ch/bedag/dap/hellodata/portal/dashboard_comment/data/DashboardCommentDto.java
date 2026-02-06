@@ -49,6 +49,7 @@ public class DashboardCommentDto {
     private boolean deleted;
     private Long deletedDate;
     private String deletedBy;
+    private String deletedByEmail;
     private String deletionReason;
     private int activeVersion;
     private boolean hasActiveDraft;
