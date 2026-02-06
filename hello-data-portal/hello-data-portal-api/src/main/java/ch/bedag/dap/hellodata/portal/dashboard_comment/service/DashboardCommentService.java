@@ -797,11 +797,12 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Check permissions - only author can restore
-        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
-        boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        if (!isAuthor) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to restore this comment version");
+        // Check permissions - only reviewer (REVIEW) can restore versions
+        DashboardCommentPermissionEntity permission = getCommentPermissionForCurrentUser(contextKey);
+        boolean hasReviewPermission = permission != null && permission.isReviewComments();
+
+        if (!hasReviewPermission) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only reviewers can restore comment versions");
         }
 
         // Check if current comment is in READY_FOR_REVIEW status

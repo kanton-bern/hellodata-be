@@ -153,7 +153,7 @@ The table below shows what each permission level allows:
 | **Publish comment**           |      |       | ✔      |
 | **Decline comment**           |      |       | ✔      |
 | **View metadata & versions**  |      |       | ✔      |
-| **Restore version (own)***    |      | ✔     | ✔      |
+| **Restore version***          |      |       | ✔      |
 
 **Legend:**
 
