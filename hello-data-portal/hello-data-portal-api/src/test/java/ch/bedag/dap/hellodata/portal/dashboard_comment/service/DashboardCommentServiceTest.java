@@ -773,10 +773,20 @@ class DashboardCommentServiceTest {
     }
 
     @Test
-    void sendForReview_shouldThrowExceptionWhenNotAuthor() {
+    void sendForReview_shouldThrowExceptionWhenNotAuthorAndNotReviewer() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            // Create comment as one user
-            mockSuperUser(securityUtils);
+            // Create comment as author
+            UUID authorId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity author = new UserEntity();
+            author.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(author));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
@@ -784,23 +794,79 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            // Try to send for review as different user
-            UUID testUserId = UUID.randomUUID();
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            // Try to send for review as different user with only READ permission (not author, not reviewer)
+            UUID otherUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            UserEntity regularUser = new UserEntity();
-            regularUser.setContextRoles(Collections.emptySet());
-            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
-            DashboardCommentPermissionEntity writePermission = createWritePermission();
-            mockPermissionForUser(testUserId, writePermission);
+            UserEntity otherUser = new UserEntity();
+            otherUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
+            // Give WRITE permission (to pass checkHasAccessToComment) but not REVIEW (so not reviewer)
+            DashboardCommentPermissionEntity otherWritePermission = createWritePermission();
+            mockPermissionForUser(otherUserId, otherWritePermission);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
                     commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
             ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Not authorized");
+        }
+    }
+
+    @Test
+    void sendForReview_shouldAllowReviewerToSendForReview() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Create comment as author
+            UUID authorId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity author = new UserEntity();
+            author.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(author));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorId, writePermission);
+
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Publish it
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(REVIEWER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(REVIEWER_EMAIL)).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Reviewer edits comment (creates new draft)
+            DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
+                    .text("Updated by reviewer")
+                    .entityVersion(1)
+                    .build();
+            DashboardCommentDto updated = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), updateDto);
+
+            // Reviewer should be able to send for review
+            DashboardCommentDto sentForReview = commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, updated.getId());
+
+            assertThat(sentForReview).isNotNull();
+            DashboardCommentVersionDto activeVersion = sentForReview.getHistory().stream()
+                    .filter(v -> v.getVersion() == sentForReview.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(activeVersion.getStatus()).isEqualTo(DashboardCommentStatus.READY_FOR_REVIEW);
         }
     }
 

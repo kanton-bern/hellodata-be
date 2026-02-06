@@ -68,7 +68,14 @@
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
                 [style]="{'width': '100%'}"
-                size="small"/>
+                size="small">
+        <ng-template pTemplate="item" let-option>
+          {{ option.label | transloco }}
+        </ng-template>
+        <ng-template pTemplate="selectedItem" let-option>
+          {{ option.label | transloco }}
+        </ng-template>
+      </p-select>
     </div>
     @if ((tagFilterOptions$ | async); as tagOptions) {
       @if (tagOptions.length > 1) {
@@ -109,7 +116,7 @@
   </div>
 
   @if (canWriteComments$ | async) {
-  <div class="comment-form mb-[0.5rem]">
+    <div class="comment-form mb-[0.5rem]">
       <textarea
         class="w-full border rounded-md"
         [(ngModel)]="newCommentText"
@@ -117,11 +124,11 @@
         rows="3">
       </textarea>
 
-    <!-- Selected tags display -->
-    @if (selectedTags.length > 0) {
-      <div class="flex gap-1 flex-wrap mt-2">
-        @for (tag of selectedTags; track tag) {
-          <span class="tag-item tag-item-small">
+      <!-- Selected tags display -->
+      @if (selectedTags.length > 0) {
+        <div class="flex gap-1 flex-wrap mt-2">
+          @for (tag of selectedTags; track tag) {
+            <span class="tag-item tag-item-small">
             <i class="fa-solid fa-tag"></i>
             <span>{{ tag }}</span>
             <button type="button" class="tag-remove"
@@ -131,62 +138,62 @@
               <i class="fa-solid fa-xmark"></i>
             </button>
           </span>
-        }
-      </div>
-    }
-
-    <!-- Icons, pointer URL input and submit button -->
-    <div class="mt-2 flex gap-2 items-center">
-      <!-- Tags icon - opens dialog -->
-      <button type="button"
-              class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
-              (click)="openTagsDialog()"
-              (keydown.enter)="openTagsDialog()"
-              (keydown.space)="openTagsDialog()"
-              [pTooltip]="'@Add tags (optional)' | transloco"
-              tooltipPosition="top">
-        <i class="fa-solid fa-tags"></i>
-      </button>
-
-      <!-- Pointer URL icon - toggles input -->
-      <button type="button"
-              class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
-              (click)="togglePointerUrlInput()"
-              (keydown.enter)="togglePointerUrlInput()"
-              (keydown.space)="togglePointerUrlInput()"
-              [pTooltip]="'@Link to dashboard element (optional)' | transloco"
-              tooltipPosition="top">
-        <i class="fa-solid fa-link"></i>
-      </button>
-
-      <!-- Pointer URL input (when expanded) -->
-      @if (showPointerUrlInput) {
-        <div class="flex-1">
-          <input type="text"
-                 class="w-full border rounded-md px-2 py-1 text-sm"
-                 [class.border-red-500]="pointerUrl && !isPointerUrlValid()"
-                 [class.border-2]="pointerUrl && !isPointerUrlValid()"
-                 [(ngModel)]="pointerUrl"
-                 placeholder="{{ '@Link to dashboard element (optional)' | transloco }}"/>
+          }
         </div>
       }
 
-      <!-- Submit button -->
-      <p-button severity="success" (keydown.enter)="submitComment()"
-                label="{{ '@Add' | transloco }}"
-                (click)="submitComment()"
-                [disabled]="!newCommentText?.trim() || (showPointerUrlInput && pointerUrl && !isPointerUrlValid())"
-                class="ml-auto">
-      </p-button>
-    </div>
+      <!-- Icons, pointer URL input and submit button -->
+      <div class="mt-2 flex gap-2 items-center">
+        <!-- Tags icon - opens dialog -->
+        <button type="button"
+                class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                (click)="openTagsDialog()"
+                (keydown.enter)="openTagsDialog()"
+                (keydown.space)="openTagsDialog()"
+                [pTooltip]="'@Add tags (optional)' | transloco"
+                tooltipPosition="top">
+          <i class="fa-solid fa-tags"></i>
+        </button>
 
-    <!-- Pointer URL validation error -->
-    @if (showPointerUrlInput && pointerUrl && !isPointerUrlValid()) {
-      <div class="text-red-500 mt-1"
-           style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+        <!-- Pointer URL icon - toggles input -->
+        <button type="button"
+                class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                (click)="togglePointerUrlInput()"
+                (keydown.enter)="togglePointerUrlInput()"
+                (keydown.space)="togglePointerUrlInput()"
+                [pTooltip]="'@Link to dashboard element (optional)' | transloco"
+                tooltipPosition="top">
+          <i class="fa-solid fa-link"></i>
+        </button>
+
+        <!-- Pointer URL input (when expanded) -->
+        @if (showPointerUrlInput) {
+          <div class="flex-1">
+            <input type="text"
+                   class="w-full border rounded-md px-2 py-1 text-sm"
+                   [class.border-red-500]="pointerUrl && !isPointerUrlValid()"
+                   [class.border-2]="pointerUrl && !isPointerUrlValid()"
+                   [(ngModel)]="pointerUrl"
+                   placeholder="{{ '@Link to dashboard element (optional)' | transloco }}"/>
+          </div>
+        }
+
+        <!-- Submit button -->
+        <p-button severity="success" (keydown.enter)="submitComment()"
+                  label="{{ '@Add' | transloco }}"
+                  (click)="submitComment()"
+                  [disabled]="!newCommentText?.trim() || (showPointerUrlInput && pointerUrl && !isPointerUrlValid())"
+                  class="ml-auto">
+        </p-button>
       </div>
-    }
-  </div>
+
+      <!-- Pointer URL validation error -->
+      @if (showPointerUrlInput && pointerUrl && !isPointerUrlValid()) {
+        <div class="text-red-500 mt-1"
+             style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+        </div>
+      }
+    </div>
   }
 
 </div>

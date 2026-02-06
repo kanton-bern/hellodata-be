@@ -138,9 +138,12 @@ export class CommentsFeed implements AfterViewInit {
 
   // Status filter options
   statusOptions: StatusFilterOption[] = [
-    {label: 'All', value: null},
-    {label: 'Draft', value: DashboardCommentStatus.DRAFT},
-    {label: 'Published', value: DashboardCommentStatus.PUBLISHED}
+    {label: '@All', value: null},
+    {label: '@draft', value: DashboardCommentStatus.DRAFT},
+    {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
+    {label: '@published', value: DashboardCommentStatus.PUBLISHED},
+    {label: '@declined', value: DashboardCommentStatus.DECLINED},
+    {label: '@deleted', value: DashboardCommentStatus.DELETED}
   ];
 
   filteredComments$: Observable<DashboardCommentEntry[]>;

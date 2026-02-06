@@ -149,7 +149,7 @@ The table below shows what each permission level allows:
 | **Edit any comment**          |      |       | ✔      |
 | **Delete own version/entire** |      | ✔     | ✔      |
 | **Delete any version/entire** |      |       | ✔      |
-| **Send for review (own)**     |      | ✔     | ✔      |
+| **Send for review**           |      | ✔     | ✔      |
 | **Publish comment**           |      |       | ✔      |
 | **Decline comment**           |      |       | ✔      |
 | **View metadata & versions**  |      |       | ✔      |

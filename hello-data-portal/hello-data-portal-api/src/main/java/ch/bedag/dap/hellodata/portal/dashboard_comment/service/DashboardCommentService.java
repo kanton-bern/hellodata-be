@@ -563,10 +563,13 @@ public class DashboardCommentService {
         DashboardCommentEntity comment = commentRepository.findByIdWithHistoryForUpdate(commentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, COMMENT_NOT_FOUND_ERROR));
 
-        // Check permissions - only author can send for review
+        // Check permissions - author or reviewer can send for review
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
         boolean isAuthor = currentUserEmail != null && currentUserEmail.equals(comment.getAuthorEmail());
-        if (!isAuthor) {
+        DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
+        boolean isReviewer = perm != null && perm.isReviewComments();
+
+        if (!isAuthor && !isReviewer) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to send this comment for review");
         }
 
@@ -584,7 +587,8 @@ public class DashboardCommentService {
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
-        log.info("Sent comment {} for review for dashboard {}/{}", commentId, contextKey, dashboardId);
+        log.info("Sent comment {} for review for dashboard {}/{} by {}",
+                commentId, contextKey, dashboardId, isReviewer ? "reviewer" : "author");
         return commentMapper.toDto(savedComment);
     }
 

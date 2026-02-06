@@ -144,6 +144,9 @@ export class CommentEntryComponent {
     return this.commentUtils.getAllVersions(this.comment(), this.canViewMetadata());
   });
 
+  getStatusLabel(status: DashboardCommentStatus | string): string {
+    return this.commentUtils.getStatusLabel(status);
+  }
 
   constructor() {
     this.currentDashboardUrl$.pipe(

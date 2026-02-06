@@ -202,18 +202,18 @@ export class DashboardCommentUtilsService {
    */
   getStatusLabel(status: DashboardCommentStatus | string): string {
     if (status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED') {
-      return '@Published';
+      return '@published';
     }
     if (status === DashboardCommentStatus.READY_FOR_REVIEW || status === 'READY_FOR_REVIEW') {
-      return '@Ready for review';
+      return '@ready for review';
     }
     if (status === DashboardCommentStatus.DECLINED || status === 'DECLINED') {
-      return '@DECLINED';
+      return '@declined';
     }
     if (status === DashboardCommentStatus.DELETED || status === 'DELETED') {
-      return '@DELETED';
+      return '@deleted';
     }
-    return '@DRAFT';
+    return '@draft';
   }
 
   /**

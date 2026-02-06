@@ -131,7 +131,9 @@
        [class.expanded]="expanded">
     <div class="comment-details p-1">
       <small>
-        <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + activeVersion()?.status | transloco }}</div>
+        <div><strong>{{ '@Status' | transloco }}
+          :</strong> {{ getStatusLabel(activeVersion()?.status || '') | transloco }}
+        </div>
         <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().activeVersion }}</div>
         <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
         @if (activeVersion()?.publishedDate) {
@@ -179,9 +181,11 @@
                     }
                     <span class="status-badge"
                           [class.status-draft]="historyItem.status === DashboardCommentStatus.DRAFT"
+                          [class.status-ready-for-review]="historyItem.status === DashboardCommentStatus.READY_FOR_REVIEW"
                           [class.status-published]="historyItem.status === DashboardCommentStatus.PUBLISHED"
-                          [class.status-declined]="historyItem.status === DashboardCommentStatus.DECLINED">
-                      {{ '@' + historyItem.status | transloco }}
+                          [class.status-declined]="historyItem.status === DashboardCommentStatus.DECLINED"
+                          [class.status-deleted]="historyItem.status === DashboardCommentStatus.DELETED">
+                      {{ getStatusLabel(historyItem.status) | transloco }}
                     </span>
                     <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
                     <span class="history-author"

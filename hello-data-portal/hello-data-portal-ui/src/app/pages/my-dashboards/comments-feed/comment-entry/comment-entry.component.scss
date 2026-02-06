@@ -423,6 +423,11 @@
         color: var(--gray-700, #374151);
       }
 
+      &.status-ready-for-review {
+        background-color: var(--yellow-100, #fef3c7);
+        color: var(--yellow-700, #a16207);
+      }
+
       &.status-published {
         background-color: var(--blue-100, #dbeafe);
         color: var(--blue-700, #1d4ed8);
@@ -431,6 +436,11 @@
       &.status-declined {
         background-color: var(--red-100, #fee2e2);
         color: var(--red-700, #b91c1c);
+      }
+
+      &.status-deleted {
+        background-color: var(--gray-300, #d1d5db);
+        color: var(--gray-600, #4b5563);
       }
     }
 
