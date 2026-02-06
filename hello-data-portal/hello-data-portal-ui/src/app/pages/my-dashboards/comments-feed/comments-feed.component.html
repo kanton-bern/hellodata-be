@@ -278,26 +278,45 @@
   </ng-template>
 </p-confirmDialog>
 
-<p-confirmDialog #cd3 key="deleteComment" [style]="{width: '50vw'}">
-  <ng-template pTemplate="message">
-    <div class="flex flex-col gap-3">
-      <span>{{ '@Delete comment question' | transloco }}</span>
-      <div class="flex items-center gap-2">
-        <input type="checkbox" id="deleteEntireCheckbox"
-               [checked]="commentUtils.deleteEntireFlag"
-               (change)="commentUtils.deleteEntireFlag = $any($event.target).checked"/>
-        <label for="deleteEntireCheckbox">{{ '@Delete entire comment' | transloco }}</label>
-      </div>
+<!-- Delete Comment Dialog -->
+<p-dialog [header]="'@Delete comment' | transloco"
+          [(visible)]="commentUtils.deletionDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '500px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="delete-dialog-content">
+    <div class="delete-warning mb-3 flex items-center p-3 bg-orange-50 border border-orange-200 rounded">
+      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <span class="text-orange-700 text-sm">{{ '@Delete comment warning' | transloco }}</span>
     </div>
-  </ng-template>
+    <label for="deletionReasonInput" class="block text-sm font-medium text-gray-700 mb-2">
+      {{ '@Deletion reason' | transloco }} *
+    </label>
+    <textarea class="w-full border rounded-md px-2 py-2"
+              id="deletionReasonInput"
+              [(ngModel)]="commentUtils.deletionReason"
+              rows="4"
+              placeholder="{{ '@Enter reason for deleting this comment' | transloco }}"></textarea>
+    <div class="flex items-center gap-2 mt-3">
+      <input type="checkbox" id="deleteEntireCheckbox"
+             [checked]="commentUtils.deleteEntireFlag"
+             (change)="commentUtils.deleteEntireFlag = $any($event.target).checked"/>
+      <label for="deleteEntireCheckbox">{{ '@Delete entire comment' | transloco }}</label>
+    </div>
+  </div>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd3.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-              severity="secondary" (keydown.escape)="cd3.onReject()"/>
-    <p-button (click)="cd3.onAccept()" icon="fas fa-trash"
-              label="{{'@Delete' | transloco}}" (keydown.enter)="cd3.onAccept()"
-              severity="danger"/>
+    <p-button (click)="commentUtils.closeDeleteDialog()" (keydown.escape)="commentUtils.closeDeleteDialog()"
+              icon="fas fa-circle-xmark"
+              [label]="'@Cancel' | transloco"
+              severity="secondary"/>
+    <p-button (click)="commentUtils.submitDelete()" (keydown.enter)="commentUtils.submitDelete()"
+              icon="fas fa-trash"
+              [label]="'@Delete' | transloco"
+              severity="danger"
+              [disabled]="commentUtils.isDeleteDisabled()"/>
   </ng-template>
-</p-confirmDialog>
+</p-dialog>
 
 <p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">

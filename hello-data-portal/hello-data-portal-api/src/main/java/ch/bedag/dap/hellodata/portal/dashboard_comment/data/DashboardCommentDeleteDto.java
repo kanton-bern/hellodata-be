@@ -31,28 +31,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 /**
- * DTO representing a comment version in export/import format.
+ * DTO for deleting a comment.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentVersionExportDto {
-    private int version;
-    private String text;
-    private String status;
-    private long editedDate;
-    private String editedBy;
-    private String editedByEmail;
-    private Long publishedDate;
-    private String publishedBy;
-    private String publishedByEmail;
-    private String declineReason;
+public class DashboardCommentDeleteDto {
     private String deletionReason;
-    private List<String> tags;
-    private String pointerUrl;
+    private boolean deleteEntire;
 }
-

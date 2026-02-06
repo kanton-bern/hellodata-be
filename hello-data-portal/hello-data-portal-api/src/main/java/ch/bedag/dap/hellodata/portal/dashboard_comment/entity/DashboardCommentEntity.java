@@ -77,6 +77,9 @@ public class DashboardCommentEntity {
     @Column(name = "deleted_by", length = 200)
     private String deletedBy;
 
+    @Column(name = "deletion_reason", columnDefinition = "TEXT")
+    private String deletionReason;
+
     @Column(name = "active_version", nullable = false)
     @Builder.Default
     private Integer activeVersion = 1;

@@ -142,7 +142,8 @@ export class CommentsFeed implements AfterViewInit {
     {label: '@draft', value: DashboardCommentStatus.DRAFT},
     {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
     {label: '@published', value: DashboardCommentStatus.PUBLISHED},
-    {label: '@declined', value: DashboardCommentStatus.DECLINED}
+    {label: '@declined', value: DashboardCommentStatus.DECLINED},
+    {label: '@deleted', value: DashboardCommentStatus.DELETED}
   ];
 
   filteredComments$: Observable<DashboardCommentEntry[]>;

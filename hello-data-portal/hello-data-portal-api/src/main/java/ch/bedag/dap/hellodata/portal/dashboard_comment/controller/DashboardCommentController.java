@@ -82,8 +82,10 @@ public class DashboardCommentController {
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestParam(defaultValue = "false") boolean deleteEntire) {
-        return commentService.deleteComment(contextKey, dashboardId, commentId, deleteEntire);
+            @RequestBody(required = false) DashboardCommentDeleteDto deleteDto) {
+        boolean deleteEntire = deleteDto != null && deleteDto.isDeleteEntire();
+        String deletionReason = deleteDto != null ? deleteDto.getDeletionReason() : null;
+        return commentService.deleteComment(contextKey, dashboardId, commentId, deleteEntire, deletionReason);
     }
 
     @PostMapping("/{commentId}/publish")

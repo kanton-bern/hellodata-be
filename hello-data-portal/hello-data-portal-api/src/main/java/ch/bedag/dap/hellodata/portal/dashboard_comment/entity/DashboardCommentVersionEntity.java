@@ -83,6 +83,9 @@ public class DashboardCommentVersionEntity {
     @Column(name = "decline_reason", columnDefinition = "TEXT")
     private String declineReason;
 
+    @Column(name = "deletion_reason", columnDefinition = "TEXT")
+    private String deletionReason;
+
     @Column(name = "deleted", nullable = false)
     @Builder.Default
     private boolean deleted = false;

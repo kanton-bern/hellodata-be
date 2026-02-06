@@ -503,12 +503,11 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   // Delete comment
   deleteCommentAction(comment: DomainDashboardComment): void {
-    this.commentUtils.confirmDeleteComment(
+    this.commentUtils.openDeleteDialog(
       comment.dashboardId,
       comment.contextKey,
       comment.id,
-      () => setTimeout(() => this.loadComments(), 500),
-      this.confirmationService
+      () => setTimeout(() => this.loadComments(), 500)
     );
   }
 

@@ -364,7 +364,7 @@ export class CommentEntryComponent {
     this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
-          this.commentUtils.confirmDeleteComment(dashboardId, contextKey, comment.id);
+          this.commentUtils.openDeleteDialog(dashboardId, contextKey, comment.id);
         }
       });
     });

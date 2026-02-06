@@ -183,6 +183,8 @@ class DashboardCommentServiceTest {
                         .deleted(v.isDeleted())
                         .pointerUrl(v.getPointerUrl())
                         .tags(parseTagsFromString(v.getTags()))
+                        .deletionReason(v.getDeletionReason())
+                        .declineReason(v.getDeclineReason())
                         .build())
                 .collect(Collectors.toList());
 
@@ -204,6 +206,7 @@ class DashboardCommentServiceTest {
                 .deleted(entity.isDeleted())
                 .deletedDate(entity.getDeletedDate())
                 .deletedBy(entity.getDeletedBy())
+                .deletionReason(entity.getDeletionReason())
                 .activeVersion(entity.getActiveVersion())
                 .hasActiveDraft(entity.isHasActiveDraft())
                 .entityVersion(entity.getEntityVersion())
@@ -892,7 +895,7 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
             assertThat(deleted.isDeleted()).isTrue();
             assertThat(deleted.getDeletedDate()).isNotNull();
@@ -921,7 +924,7 @@ class DashboardCommentServiceTest {
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto);
 
             // Delete current version (should restore to version 1)
-            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
             assertThat(deleted.isDeleted()).isFalse();
             assertThat(deleted.getActiveVersion()).isEqualTo(1);
@@ -968,9 +971,114 @@ class DashboardCommentServiceTest {
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
-                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false)
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false, null)
             ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Not authorized to delete this comment");
+        }
+    }
+
+    @Test
+    void deleteComment_shouldRequireDeletionReasonForReviewer() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Setup author to create the comment
+            UUID authorId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity author = new UserEntity();
+            author.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(author));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorId, writePermission);
+
+            // Create comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Switch to reviewer
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("reviewer@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn("Reviewer");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("reviewer@example.com")).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
+            // Try to delete without reason - should fail
+            String commentId = comment.getId();
+            assertThatThrownBy(() ->
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false, null)
+            ).isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Deletion reason is required");
+
+            // Try to delete with empty reason - should fail
+            assertThatThrownBy(() ->
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false, "  ")
+            ).isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Deletion reason is required");
+        }
+    }
+
+    @Test
+    void deleteComment_shouldStoreDeletionReason() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            // Create and publish comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Delete with reason
+            String deletionReason = "This comment violates policy";
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
+                    comment.getId(), false, deletionReason);
+
+            // Verify deletion reason is stored on the deleted version
+            DashboardCommentVersionDto deletedVersion = deleted.getHistory().stream()
+                    .filter(v -> v.getStatus() == DashboardCommentStatus.DELETED)
+                    .findFirst()
+                    .orElse(null);
+
+            assertThat(deletedVersion).isNotNull();
+            assertThat(deletedVersion.getDeletionReason()).isEqualTo(deletionReason);
+        }
+    }
+
+    @Test
+    void deleteComment_shouldStoreDeletionReasonOnEntityWhenDeleteEntire() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            // Create and publish comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Delete entire comment with reason
+            String deletionReason = "This comment is no longer relevant";
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
+                    comment.getId(), true, deletionReason);
+
+            // Verify deletion reason is stored on the main entity
+            assertThat(deleted.isDeleted()).isTrue();
+            assertThat(deleted.getDeletedBy()).isEqualTo(SUPERUSER_NAME);
+            assertThat(deleted.getDeletionReason()).isEqualTo(deletionReason);
         }
     }
 
@@ -1313,7 +1421,7 @@ class DashboardCommentServiceTest {
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
 
             List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
@@ -1790,7 +1898,7 @@ class DashboardCommentServiceTest {
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Delete it
-            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
             // Export should be empty
             CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);

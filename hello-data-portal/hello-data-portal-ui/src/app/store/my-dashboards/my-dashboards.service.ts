@@ -77,14 +77,14 @@ export class MyDashboardsService {
     return this.httpClient.put<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, request);
   }
 
-  public deleteComment(contextKey: string, dashboardId: number, commentId: string, deleteEntire?: boolean): Observable<DashboardCommentEntry> {
-    let params: any = undefined;
-    if (deleteEntire) {
-      params = {deleteEntire: 'true'};
-    }
+  public deleteComment(contextKey: string, dashboardId: number, commentId: string, deleteEntire?: boolean, deletionReason?: string): Observable<DashboardCommentEntry> {
+    const body = {
+      deleteEntire: deleteEntire || false,
+      deletionReason: deletionReason
+    };
     return this.httpClient.delete<DashboardCommentEntry>(
       `${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`,
-      params ? {params} : {}
+      {body}
     );
   }
 

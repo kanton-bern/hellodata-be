@@ -66,6 +66,11 @@ export class DashboardCommentUtilsService {
 
   deleteEntireFlag = false;
 
+  // Delete dialog state
+  deletionDialogVisible = false;
+  deletionReason = '';
+  private deleteCommentCallback?: () => void;
+
   /**
    * Gets the active version data from a comment
    */
@@ -261,7 +266,52 @@ export class DashboardCommentUtilsService {
   }
 
   /**
-   * Dispatches delete comment action with confirmation dialog
+   * Opens delete dialog for reviewer (requires deletion reason)
+   */
+  openDeleteDialog(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void): void {
+    this.deleteEntireFlag = false;
+    this.deletionReason = '';
+    this.deletionDialogVisible = true;
+    this.deleteCommentCallback = () => {
+      this.store.dispatch(deleteComment({
+        dashboardId,
+        contextKey,
+        commentId,
+        deleteEntire: this.deleteEntireFlag,
+        deletionReason: this.deletionReason.trim()
+      }));
+      onSuccess?.();
+    };
+  }
+
+  /**
+   * Submit delete with reason from dialog
+   */
+  submitDelete(): void {
+    if (this.deleteCommentCallback) {
+      this.deleteCommentCallback();
+    }
+    this.closeDeleteDialog();
+  }
+
+  /**
+   * Close delete dialog
+   */
+  closeDeleteDialog(): void {
+    this.deletionDialogVisible = false;
+    this.deletionReason = '';
+    this.deleteCommentCallback = undefined;
+  }
+
+  /**
+   * Check if delete is disabled (no reason provided)
+   */
+  isDeleteDisabled(): boolean {
+    return !this.deletionReason || this.deletionReason.trim().length === 0;
+  }
+
+  /**
+   * Dispatches delete comment action with confirmation dialog (for non-reviewers/authors)
    */
   confirmDeleteComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
     this.deleteEntireFlag = false;

@@ -213,6 +213,12 @@
                       <span class="history-decline-reason text-red-700">{{ historyItem.declineReason }}</span>
                     </div>
                   }
+                  @if (historyItem.status === DashboardCommentStatus.DELETED && historyItem.deletionReason) {
+                    <div class="history-deletion-reason-row">
+                      <span class="history-deletion-reason-label">{{ '@Deletion reason' | transloco }}:</span>
+                      <span class="history-deletion-reason text-gray-700">{{ historyItem.deletionReason }}</span>
+                    </div>
+                  }
                   @if (historyItem.pointerUrl) {
                     <div class="history-pointer-url-row">
                       <span class="history-pointer-url-label">{{ '@Link' | transloco }}:</span>

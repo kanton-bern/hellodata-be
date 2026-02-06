@@ -493,8 +493,9 @@ public class DashboardCommentService {
 
     /**
      * Delete a comment (soft delete).
+     * Reviewers must provide a deletion reason.
      */
-    public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId, boolean deleteEntire) {
+    public DashboardCommentDto deleteComment(String contextKey, int dashboardId, String commentId, boolean deleteEntire, String deletionReason) {
         checkHasAccessToComment(contextKey);
         checkDashboardAccess(contextKey, dashboardId);
 
@@ -510,6 +511,11 @@ public class DashboardCommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to delete this comment");
         }
 
+        // Reviewer must provide a deletion reason
+        if (isReviewer && !isAuthor && (deletionReason == null || deletionReason.trim().isEmpty())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deletion reason is required");
+        }
+
         String deleterName = SecurityUtils.getCurrentUserFullName();
         long now = System.currentTimeMillis();
 
@@ -518,38 +524,53 @@ public class DashboardCommentService {
             comment.setDeleted(true);
             comment.setDeletedDate(now);
             comment.setDeletedBy(deleterName);
+            if (deletionReason != null && !deletionReason.trim().isEmpty()) {
+                comment.setDeletionReason(deletionReason.trim());
+            }
             log.info("Soft deleted entire comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
         } else {
-            // Mark current active version as deleted
-            comment.getHistory().stream()
-                    .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
-                    .findFirst()
-                    .ifPresent(v -> v.setStatus(DashboardCommentStatus.DELETED));
-
-            // Try to find last non-deleted PUBLISHED version
-            Optional<DashboardCommentVersionEntity> lastPublished = comment.getHistory().stream()
-                    .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
-                    .reduce((first, second) -> second); // Get last one
-
-            if (lastPublished.isPresent()) {
-                // Restore to last published version
-                comment.setActiveVersion(lastPublished.get().getVersion());
-                comment.setHasActiveDraft(false);
-                log.info("Restored comment {} to version {} for dashboard {}/{}",
-                        commentId, lastPublished.get().getVersion(), contextKey, dashboardId);
-            } else {
-                // No published versions left - soft delete entire comment
-                comment.setDeleted(true);
-                comment.setDeletedDate(now);
-                comment.setDeletedBy(deleterName);
-                log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
-            }
+            markAsDeletedAndStoreReason(contextKey, dashboardId, commentId, deletionReason, comment, now, deleterName);
         }
 
         comment.setEntityVersion(comment.getEntityVersion() + 1);
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         return commentMapper.toDto(savedComment);
+    }
+
+    private void markAsDeletedAndStoreReason(String contextKey, int dashboardId, String commentId, String deletionReason, DashboardCommentEntity comment, long now, String deleterName) {
+        // Mark current active version as deleted and store deletion reason
+        comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .findFirst()
+                .ifPresent(v -> {
+                    v.setStatus(DashboardCommentStatus.DELETED);
+                    if (deletionReason != null && !deletionReason.trim().isEmpty()) {
+                        v.setDeletionReason(deletionReason.trim());
+                    }
+                });
+
+        // Try to find last non-deleted PUBLISHED version
+        Optional<DashboardCommentVersionEntity> lastPublished = comment.getHistory().stream()
+                .filter(v -> v.getStatus() == DashboardCommentStatus.PUBLISHED)
+                .reduce((first, second) -> second); // Get last one
+
+        if (lastPublished.isPresent()) {
+            // Restore to last published version
+            comment.setActiveVersion(lastPublished.get().getVersion());
+            comment.setHasActiveDraft(false);
+            log.info("Restored comment {} to version {} for dashboard {}/{}",
+                    commentId, lastPublished.get().getVersion(), contextKey, dashboardId);
+        } else {
+            // No published versions left - soft delete entire comment
+            comment.setDeleted(true);
+            comment.setDeletedDate(now);
+            comment.setDeletedBy(deleterName);
+            if (deletionReason != null && !deletionReason.trim().isEmpty()) {
+                comment.setDeletionReason(deletionReason.trim());
+            }
+            log.info("Soft deleted comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+        }
     }
 
     /**
@@ -1176,6 +1197,7 @@ public class DashboardCommentService {
                         .publishedBy(v.getPublishedBy())
                         .publishedByEmail(v.getPublishedByEmail())
                         .declineReason(v.getDeclineReason())
+                        .deletionReason(v.getDeletionReason())
                         .tags(parseTagsFromString(v.getTags()))
                         .pointerUrl(v.getPointerUrl())
                         .build())
@@ -1391,6 +1413,7 @@ public class DashboardCommentService {
         existingVersion.setPublishedBy(historyItem.getPublishedBy());
         existingVersion.setPublishedByEmail(historyItem.getPublishedByEmail());
         existingVersion.setDeclineReason(historyItem.getDeclineReason());
+        existingVersion.setDeletionReason(historyItem.getDeletionReason());
         existingVersion.setTags(convertTagsToString(historyItem.getTags()));
         existingVersion.setPointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null);
     }
@@ -1408,6 +1431,7 @@ public class DashboardCommentService {
                 .publishedBy(historyItem.getPublishedBy())
                 .publishedByEmail(historyItem.getPublishedByEmail())
                 .declineReason(historyItem.getDeclineReason())
+                .deletionReason(historyItem.getDeletionReason())
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)
                 .comment(entity)
@@ -1551,6 +1575,7 @@ public class DashboardCommentService {
                 .publishedBy(historyItem.getPublishedBy())
                 .publishedByEmail(historyItem.getPublishedByEmail())
                 .declineReason(historyItem.getDeclineReason())
+                .deletionReason(historyItem.getDeletionReason())
                 .tags(convertTagsToString(historyItem.getTags()))
                 .pointerUrl(keepPointerUrl ? historyItem.getPointerUrl() : null)
                 .build();
