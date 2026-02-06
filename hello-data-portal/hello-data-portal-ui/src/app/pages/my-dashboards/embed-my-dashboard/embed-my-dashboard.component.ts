@@ -48,7 +48,6 @@ import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dash
 import {ActivatedRoute} from '@angular/router';
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
-const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 @Component({
   selector: 'app-embed-my-dashboard',
