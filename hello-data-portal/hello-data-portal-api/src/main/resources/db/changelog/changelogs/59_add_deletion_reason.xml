@@ -6,7 +6,9 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
     <changeSet id="59-1" author="hellodata">
-        <comment>Add deletion_reason column to dashboard_comment_version table for storing the reason when a reviewer deletes a comment version</comment>
+        <comment>Add deletion_reason column to dashboard_comment_version table for storing the reason when a reviewer
+            deletes a comment version
+        </comment>
 
         <addColumn tableName="dashboard_comment_version">
             <column name="deletion_reason" type="TEXT">
@@ -20,7 +22,9 @@
     </changeSet>
 
     <changeSet id="59-2" author="hellodata">
-        <comment>Add deletion_reason column to dashboard_comment table for storing the reason when a reviewer deletes entire comment</comment>
+        <comment>Add deletion_reason column to dashboard_comment table for storing the reason when a reviewer deletes
+            entire comment
+        </comment>
 
         <addColumn tableName="dashboard_comment">
             <column name="deletion_reason" type="TEXT">
@@ -32,5 +36,4 @@
             <dropColumn tableName="dashboard_comment" columnName="deletion_reason"/>
         </rollback>
     </changeSet>
-
 </databaseChangeLog>
