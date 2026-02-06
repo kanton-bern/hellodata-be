@@ -144,3 +144,5 @@ databaseChangeLog:
       file: db/changelog/changelogs/58_add_ready_for_review_and_deleted_status.xml
   - include:
       file: db/changelog/changelogs/59_add_deletion_reason.xml
+  - include:
+      file: db/changelog/changelogs/60_add_deleted_by_email_to_dashboard_comment.xml
