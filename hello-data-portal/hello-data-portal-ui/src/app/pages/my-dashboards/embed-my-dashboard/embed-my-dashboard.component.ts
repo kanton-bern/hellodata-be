@@ -44,7 +44,7 @@ import {selectCurrentUserCommentPermissions, selectSelectedLanguage} from "../..
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
+import {setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
 import {ActivatedRoute} from '@angular/router';
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
@@ -196,7 +196,8 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
         this.loadedDashboardId = dashboardId;
         this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
-        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+        // Note: loadDashboardComments is handled by comments-feed.component.ts
+        // which respects the current filter state (includeDeleted)
       }
     }
   }

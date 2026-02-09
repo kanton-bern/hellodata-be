@@ -178,23 +178,26 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   private readonly scrollThreshold = 50; // pixels from bottom to consider "at bottom"
 
   constructor() {
-    this.currentDashboardId$.subscribe(id => {
+    // Combined subscription for dashboard changes - ensures all values are available before loading
+    combineLatest([
+      this.currentDashboardId$,
+      this.currentDashboardContextKey$,
+      this.currentDashboardUrl$
+    ]).subscribe(([id, contextKey, url]) => {
       const previousId = this.currentDashboardId;
       this.currentDashboardId = id;
+      this.currentDashboardContextKey = contextKey;
+      this.currentDashboardUrl = url;
+
       this.loadTagsIfNeeded();
 
       // Reload comments when dashboard changes, respecting current filter
-      if (previousId !== id && id !== undefined) {
+      if (previousId !== id && id !== undefined && contextKey && url) {
         this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
         // Update previousSelectedStatus to avoid unnecessary reload on filter change
         this.previousSelectedStatus = this.selectedStatus;
       }
     });
-    this.currentDashboardContextKey$.subscribe(key => {
-      this.currentDashboardContextKey = key;
-      this.loadTagsIfNeeded();
-    });
-    this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
 
     // Initialize year options based on comments
     this.yearOptions$ = this.comments$.pipe(
