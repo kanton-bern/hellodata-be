@@ -118,7 +118,7 @@
                 [text]="true"
                 severity="help"
                 class="mr-2"
-                [styleClass]="isExpanded(comment) ? 'info-btn-active' : ''"
+                [styleClass]="isExpanded(comment) ? 'info-btn-active' : 'info-btn'"
                 [pTooltip]="'@Info' | transloco"
                 tooltipPosition="top"
                 (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
@@ -186,9 +186,9 @@
         </td>
       </tr>
       <!-- Expanded details row -->
-      @if (isExpanded(comment)) {
-        <tr class="expanded-row">
-          <td colspan="7">
+      <tr class="expanded-row" [class.expanded]="isExpanded(comment)">
+        <td colspan="7" class="expanded-row-cell">
+          <div class="comment-details-wrapper">
             <div class="comment-details p-3 bg-gray-50 rounded-md">
               <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -353,6 +353,7 @@
                                 [rounded]="true"
                                 [text]="true"
                                 severity="help"
+                                styleClass="restore-btn"
                                 [pTooltip]="'@Restore this version' | transloco"
                                 tooltipPosition="left"
                                 (click)="restoreVersion(comment, historyItem.version)"
@@ -386,9 +387,9 @@
                 </div>
               }
             </div>
-          </td>
-        </tr>
-      }
+          </div>
+        </td>
+      </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
