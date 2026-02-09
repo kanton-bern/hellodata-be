@@ -45,15 +45,16 @@ import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {combineLatest, filter, Subscription} from 'rxjs';
 import {
-  canDeleteComment,
-  canEditComment,
-  canPublishComment,
-  canViewCommentMetadata,
-  canViewMetadataAndVersions,
+  canDeleteCommentForContext,
+  canEditCommentForContext,
+  canPublishCommentForContext,
+  canViewCommentMetadataForContext,
+  canViewMetadataAndVersionsForContext,
   selectContextKey,
   selectContextNameByKey
 } from '../../../store/my-dashboards/my-dashboards.selector';
 import {selectCurrentUserCommentPermissions} from '../../../store/auth/auth.selector';
+import {fetchCurrentUserCommentPermissions} from '../../../store/auth/auth.action';
 import {ConfirmationService, PrimeTemplate} from 'primeng/api';
 import {Dialog} from "primeng/dialog";
 import {Textarea} from "primeng/textarea";
@@ -138,17 +139,20 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   decliningComment: DomainDashboardComment | null = null;
   declineReason = '';
 
-  // Computed signals for permissions
-  canEditFn = this.store.selectSignal(canEditComment);
-  canPublishFn = this.store.selectSignal(canPublishComment);
-  canDeleteFn = this.store.selectSignal(canDeleteComment);
-  canViewMetadataFn = this.store.selectSignal(canViewCommentMetadata);
-  userHasReviewPermission = this.store.selectSignal(canViewMetadataAndVersions);
+  // Computed signals for permissions - will be initialized after contextKey is loaded
+  canEditFn: any;
+  canPublishFn: any;
+  canDeleteFn: any;
+  canViewMetadataFn: any;
+  userHasReviewPermission: any;
 
 
   ngOnInit(): void {
     // Load available data domains to populate contextName in breadcrumb
     this.store.dispatch(loadAvailableDataDomains());
+
+    // Ensure comment permissions are loaded (important after browser refresh)
+    this.store.dispatch(fetchCurrentUserCommentPermissions());
 
     // Subscribe to route params using ngrx selectors
     this.routeSubscription = combineLatest([
@@ -178,6 +182,14 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         this.contextKey = contextKey!;
         this.contextName = resolvedName;
         this.globalFilterValue = '';
+
+        // Initialize permission selectors with the contextKey
+        this.canEditFn = this.store.selectSignal(canEditCommentForContext(contextKey!));
+        this.canPublishFn = this.store.selectSignal(canPublishCommentForContext(contextKey!));
+        this.canDeleteFn = this.store.selectSignal(canDeleteCommentForContext(contextKey!));
+        this.canViewMetadataFn = this.store.selectSignal(canViewCommentMetadataForContext(contextKey!));
+        this.userHasReviewPermission = this.store.selectSignal(canViewMetadataAndVersionsForContext(contextKey!));
+
         this.createBreadcrumbs();
         this.loadComments();
       } else if (contextNameChanged) {
@@ -275,7 +287,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   getAllVersions(comment: DomainDashboardComment): (DashboardCommentVersion & { isCurrentVersion: boolean })[] {
-    return this.commentUtils.getAllVersions(comment, this.canViewMetadataFn()(comment));
+    const canView = this.canViewMetadataFn ? this.canViewMetadataFn()(comment) : false;
+    return this.commentUtils.getAllVersions(comment, canView);
   }
 
   navigateToDashboard(comment: DomainDashboardComment, pointerUrl?: string): void {
@@ -300,6 +313,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   // Permission checks
   canEdit(comment: DomainDashboardComment): boolean {
+    if (!this.canEditFn) return false;
     const activeVer = this.getActiveVersionData(comment);
     // Cannot edit READY_FOR_REVIEW status - it's locked for review
     if (activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW) {
@@ -309,6 +323,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   canPublish(comment: DomainDashboardComment): boolean {
+    if (!this.canPublishFn) return false;
     return this.canPublishFn()(comment);
   }
 
@@ -324,6 +339,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   canDelete(comment: DomainDashboardComment): boolean {
+    if (!this.canDeleteFn) return false;
     return this.canDeleteFn()(comment);
   }
 

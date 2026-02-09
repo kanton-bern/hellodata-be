@@ -324,3 +324,80 @@ export const canViewMetadataAndVersions = createSelector(
   }
 );
 
+// Selectors for domain-comments component (with explicit contextKey parameter)
+export const canEditCommentForContext = (contextKey: string) => createSelector(
+  selectProfile,
+  selectCurrentUserCommentPermissions,
+  (profile, commentPermissions) => (comment: DashboardCommentEntry) => {
+    const currentUserEmail = profile?.email;
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.status === DashboardCommentStatus.DELETED || comment.deleted) return false;
+
+    const perms: CommentPermissions | undefined = commentPermissions[contextKey];
+
+    // Review users can edit any comment
+    if (perms?.reviewComments) return true;
+
+    // Write users can only edit their own comments
+    if (perms?.writeComments) {
+      return !!(currentUserEmail && comment.authorEmail === currentUserEmail);
+    }
+
+    return false;
+  }
+);
+
+export const canPublishCommentForContext = (contextKey: string) => createSelector(
+  selectCurrentUserCommentPermissions,
+  (commentPermissions) => (comment: DashboardCommentEntry) => {
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.status === DashboardCommentStatus.DELETED || comment.deleted) return false;
+
+    const perms: CommentPermissions | undefined = commentPermissions[contextKey];
+    if (!perms?.reviewComments) return false;
+
+    return (activeVersion.status === DashboardCommentStatus.READY_FOR_REVIEW ||
+        activeVersion.status === DashboardCommentStatus.DECLINED) &&
+      activeVersion.text.length > 0;
+  }
+);
+
+export const canDeleteCommentForContext = (contextKey: string) => createSelector(
+  selectProfile,
+  selectCurrentUserCommentPermissions,
+  (profile, commentPermissions) => (comment: DashboardCommentEntry) => {
+    const currentUserEmail = profile?.email;
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || comment.deleted) return false;
+
+    const perms: CommentPermissions | undefined = commentPermissions[contextKey];
+
+    // Review users can delete any comment
+    if (perms?.reviewComments) return true;
+
+    // Write users can delete their own comments
+    if (perms?.writeComments) {
+      return !!(currentUserEmail && comment.authorEmail === currentUserEmail);
+    }
+
+    return false;
+  }
+);
+
+export const canViewCommentMetadataForContext = (contextKey: string) => createSelector(
+  selectProfile,
+  selectCurrentUserCommentPermissions,
+  (profile, commentPermissions) => (comment: DashboardCommentEntry) => {
+    const perms: CommentPermissions | undefined = commentPermissions[contextKey];
+    if (perms?.reviewComments) return true;
+    return !!(profile?.email && comment.authorEmail === profile.email);
+  }
+);
+
+export const canViewMetadataAndVersionsForContext = (contextKey: string) => createSelector(
+  selectCurrentUserCommentPermissions,
+  (commentPermissions) => {
+    const perms: CommentPermissions | undefined = commentPermissions[contextKey];
+    return !!perms?.reviewComments;
+  }
+);
