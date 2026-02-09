@@ -46,7 +46,14 @@
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
                 [style]="{'width': '100%'}"
-                size="small"/>
+                size="small">
+        <ng-template pTemplate="item" let-option>
+          {{ option.label.startsWith('@') ? (option.label | transloco) : option.label }}
+        </ng-template>
+        <ng-template pTemplate="selectedItem" let-option>
+          {{ option.label.startsWith('@') ? (option.label | transloco) : option.label }}
+        </ng-template>
+      </p-select>
     </div>
     <div class="filter-group">
       <span class="filter-label" [class.font-bold]="selectedQuarter !== null">{{ '@Quarter' | transloco }}</span>
@@ -57,7 +64,14 @@
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
                 [style]="{'width': '100%'}"
-                size="small"/>
+                size="small">
+        <ng-template pTemplate="item" let-option>
+          {{ option.label | transloco }}
+        </ng-template>
+        <ng-template pTemplate="selectedItem" let-option>
+          {{ option.label | transloco }}
+        </ng-template>
+      </p-select>
     </div>
     <div class="filter-group">
       <span class="filter-label" [class.font-bold]="selectedStatus !== null">{{ '@Status' | transloco }}</span>
@@ -88,7 +102,14 @@
                     optionValue="value"
                     placeholder="{{ '@All' | transloco }}"
                     [style]="{'width': '100%'}"
-                    size="small"/>
+                    size="small">
+            <ng-template pTemplate="item" let-option>
+              {{ option.label.startsWith('@') ? (option.label | transloco) : option.label }}
+            </ng-template>
+            <ng-template pTemplate="selectedItem" let-option>
+              {{ option.label.startsWith('@') ? (option.label | transloco) : option.label }}
+            </ng-template>
+          </p-select>
         </div>
       }
     }

@@ -128,11 +128,11 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   // Filter options
   yearOptions$: Observable<FilterOption[]>;
   quarterOptions: FilterOption[] = [
-    {label: 'All', value: null},
-    {label: 'Q1', value: 1},
-    {label: 'Q2', value: 2},
-    {label: 'Q3', value: 3},
-    {label: 'Q4', value: 4}
+    {label: '@All', value: null},
+    {label: '@Q1', value: 1},
+    {label: '@Q2', value: 2},
+    {label: '@Q3', value: 3},
+    {label: '@Q4', value: 4}
   ];
 
   selectedYear: number | null = null;
@@ -142,7 +142,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
 
   // Status filter options
   statusOptions: StatusFilterOption[] = [
-    {label: '@All', value: null},
+    {label: '@All active', value: null},
     {label: '@draft', value: DashboardCommentStatus.DRAFT},
     {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
     {label: '@published', value: DashboardCommentStatus.PUBLISHED},
@@ -211,7 +211,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
         }
         const sortedYears = Array.from(years).sort((a, b) => b - a);
         return [
-          {label: 'All', value: null},
+          {label: '@All', value: null},
           ...sortedYears.map(year => ({
             label: String(year),
             value: year
@@ -223,7 +223,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     // Initialize tag filter options
     this.tagFilterOptions$ = this.availableTags$.pipe(
       map(tags => [
-        {label: 'All', value: null},
+        {label: '@All', value: null},
         ...tags.map(t => ({label: t, value: t}))
       ])
     );
