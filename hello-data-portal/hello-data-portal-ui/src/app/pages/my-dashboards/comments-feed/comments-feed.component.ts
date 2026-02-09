@@ -138,6 +138,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   selectedYear: number | null = null;
   selectedQuarter: number | null = null;
   selectedStatus: DashboardCommentStatus | null = null;
+  private previousSelectedStatus: DashboardCommentStatus | null = null;
 
   // Status filter options
   statusOptions: StatusFilterOption[] = [
@@ -178,8 +179,16 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
 
   constructor() {
     this.currentDashboardId$.subscribe(id => {
+      const previousId = this.currentDashboardId;
       this.currentDashboardId = id;
       this.loadTagsIfNeeded();
+
+      // Reload comments when dashboard changes, respecting current filter
+      if (previousId !== id && id !== undefined) {
+        this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
+        // Update previousSelectedStatus to avoid unnecessary reload on filter change
+        this.previousSelectedStatus = this.selectedStatus;
+      }
     });
     this.currentDashboardContextKey$.subscribe(key => {
       this.currentDashboardContextKey = key;
@@ -303,12 +312,20 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   }
 
   onFilterChange(): void {
-    if (this.selectedStatus === DashboardCommentStatus.DELETED) {
-      this.reloadComments(true);
-    } else {
-      // If we previously had DELETED selected, we should reload without deleted
-      this.reloadComments(false);
+    // Check if status filter changed between DELETED and non-DELETED
+    const statusChanged = this.previousSelectedStatus !== this.selectedStatus;
+    const wasDeleted = this.previousSelectedStatus === DashboardCommentStatus.DELETED;
+    const isDeleted = this.selectedStatus === DashboardCommentStatus.DELETED;
+
+    // Only reload from API if status changed and involves DELETED status
+    if (statusChanged && (wasDeleted || isDeleted)) {
+      this.reloadComments(isDeleted);
     }
+
+    // Update previous status
+    this.previousSelectedStatus = this.selectedStatus;
+
+    // Always trigger filter refresh for client-side filtering
     this.filterTrigger$.next();
   }
 
