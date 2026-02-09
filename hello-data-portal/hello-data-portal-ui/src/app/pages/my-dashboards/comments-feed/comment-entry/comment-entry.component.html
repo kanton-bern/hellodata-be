@@ -1,10 +1,10 @@
 <div class="comment-item border rounded-md px-2 py-2"
-     [class.bg-white]="activeVersion()?.status === DashboardCommentStatus.PUBLISHED"
-     [class.bg-gray-100]="activeVersion()?.status === DashboardCommentStatus.DRAFT"
-     [class.bg-red-50]="activeVersion()?.status === DashboardCommentStatus.DECLINED"
+     [class.bg-white]="activeVersion()?.status === DashboardCommentStatus.PUBLISHED && !comment().deleted"
+     [class.bg-gray-100]="activeVersion()?.status === DashboardCommentStatus.DRAFT && !comment().deleted"
+     [class.bg-red-50]="activeVersion()?.status === DashboardCommentStatus.DECLINED && !comment().deleted"
      [class.bg-gray-300]="activeVersion()?.status === DashboardCommentStatus.DELETED || comment().deleted"
-     [class.draft-border]="activeVersion()?.status === DashboardCommentStatus.DRAFT"
-     [class.declined-border]="activeVersion()?.status === DashboardCommentStatus.DECLINED">
+     [class.draft-border]="activeVersion()?.status === DashboardCommentStatus.DRAFT && !comment().deleted"
+     [class.declined-border]="activeVersion()?.status === DashboardCommentStatus.DECLINED && !comment().deleted">
   @if (activeVersion()?.status === DashboardCommentStatus.DECLINED && activeVersion()?.declineReason) {
     <div class="decline-reason-banner bg-red-100 border-l-4 border-red-500 px-2 py-2 mb-2">
       <div class="flex items-start">
