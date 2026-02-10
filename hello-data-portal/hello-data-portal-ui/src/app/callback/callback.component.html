@@ -1,2 +1,17 @@
+<div class="callback-container">
+  @if (isLoading && !errorMessage) {
+    <div class="loading-state">
+      <p>Setting everything up...you are getting redirected...</p>
+    </div>
+  }
 
-<p>Setting everything up...you are getting redirected...</p>
+  @if (errorMessage) {
+    <div class="error-state">
+      <p class="error-message">{{ errorMessage }}</p>
+      <div class="button-group">
+        <button (click)="retry()" class="retry-button">Try Again</button>
+        <button (click)="goToLogin()" class="login-button">Go to Login</button>
+      </div>
+    </div>
+  }
+</div>

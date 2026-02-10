@@ -223,9 +223,10 @@ export class AuthEffects {
   authError$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(authError),
+      tap(action => console.error('Auth error:', action.error)),
       switchMap(action => scheduled([showError({error: action.error})], asyncScheduler))
     )
-  }, {dispatch: false});
+  });
 
   fetchContextRoles$ = createEffect(() => {
     return this._actions$.pipe(

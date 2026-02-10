@@ -100,36 +100,41 @@ export class TokenInterceptor implements HttpInterceptor {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
+      console.debug('[TokenInterceptor] Attempting token refresh for request:', req.url);
+
       // Try to refresh the token using OIDC library
       return this.oidcSecurityService.forceRefreshSession().pipe(
         switchMap((result) => {
           this.isRefreshing = false;
+          console.debug('[TokenInterceptor] Token refresh result:', result?.isAuthenticated ? 'authenticated' : 'not authenticated');
 
           if (result?.isAuthenticated) {
             // Token refresh successful, get new token and retry request
             return this.authService.accessToken.pipe(
               take(1),
               switchMap(newToken => {
+                console.debug('[TokenInterceptor] Retrying request with new token');
                 this.refreshTokenSubject.next(newToken);
                 return next.handle(this.addTokenToRequest(req, newToken));
               })
             );
           } else {
             // Refresh failed, redirect to login
-            console.warn('Token refresh failed, redirecting to login');
+            console.warn('[TokenInterceptor] Token refresh failed (not authenticated), redirecting to login. Original URL:', req.url);
             this.redirectToLogin();
             return throwError(() => originalError);
           }
         }),
         catchError((refreshError) => {
           this.isRefreshing = false;
-          console.warn('Token refresh error, redirecting to login:', refreshError);
+          console.warn('[TokenInterceptor] Token refresh error, redirecting to login. Error:', refreshError, 'Original URL:', req.url);
           this.redirectToLogin();
           return throwError(() => originalError);
         })
       );
     } else {
       // Another request is already refreshing the token, wait for it
+      console.debug('[TokenInterceptor] Waiting for ongoing token refresh');
       return this.refreshTokenSubject.pipe(
         filter(token => token !== null),
         take(1),
