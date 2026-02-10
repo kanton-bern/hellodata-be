@@ -60,6 +60,10 @@ describe('MyDashboardsComponent', () => {
   const mockDashboards: SupersetDashboard[] = [];
 
   beforeEach(() => {
+    // Mock the select method BEFORE creating the component, as the component calls
+    // store.select() in its constructor for combineLatest
+    mockStore.select.mockReturnValue(scheduled([mockDashboards], asyncScheduler));
+
     TestBed.configureTestingModule({
       providers: [
         {provide: Store, useValue: mockStore},
@@ -82,8 +86,6 @@ describe('MyDashboardsComponent', () => {
     fixture = TestBed.createComponent(MyDashboardsComponent);
     component = fixture.componentInstance;
     store = TestBed.inject(Store);
-
-    mockStore.select.mockReturnValue(scheduled([mockDashboards], asyncScheduler)); // Mock the select method to return an Observable with mock data
 
     fixture.detectChanges();
   });
