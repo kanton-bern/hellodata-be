@@ -4,7 +4,7 @@
 <div class="w-full bg-white border-surface border-b fixed top-0 left-0 z-50 flex items-center justify-between px-4"
      style="height: 4rem;">
   <div class="flex items-center">
-    <p-button type="button" severity="secondary"
+    <p-button type="button" severity="secondary" (keydown.enter)="showDashboardMenu = true"
               (click)="showDashboardMenu = true"
               aria-label="Open menu">
       <i class="pi pi-bars text-2xl" style="color: black"></i>
@@ -27,7 +27,8 @@
     <p-button pRipple
               type="button" severity="secondary"
               aria-label="User Profile">
-      <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"></i>
+      <i class="pi pi-user text-2xl" (click)="showUserMenu = true" style="color: black"
+         (keydown.enter)="showUserMenu = true"></i>
     </p-button>
   </div>
 </div>
@@ -36,26 +37,22 @@
 <p-drawer
   [(visible)]="showDashboardMenu"
   position="left"
-  [baseZIndex]="10000">
-  <ng-template pTemplate="header">
-    <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Dashboard' | transloco }}</div>
-  </ng-template>
-  <ng-template pTemplate="content">
-    @if (groupedDashboards$ | async; as groupedDashboards) {
-      <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
-        @for (context of groupedDashboards.keys(); track context) {
-          <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
-          @for (dash of groupedDashboards.get(context); track dash) {
-            <a class="cursor-pointer hover:underline ml-2 text-black"
-               (click)="openDashboard(dash)">
-              {{ dash.dashboardTitle }}
-            </a>
-            <hr class="my-1 border-t border-surface"/>
-          }
+  [baseZIndex]="10000"
+  [header]="'@Select a Dashboard' | transloco">
+  @if (groupedDashboards$ | async; as groupedDashboards) {
+    <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
+      @for (context of groupedDashboards.keys(); track context) {
+        <div class="font-bold text-sm text-gray-600 mb-1">{{ context }}</div>
+        @for (dash of groupedDashboards.get(context); track dash) {
+          <a class="cursor-pointer hover:underline ml-2 text-black"
+             (click)="openDashboard(dash)">
+            {{ dash.dashboardTitle }}
+          </a>
+          <hr class="my-1 border-t border-surface"/>
         }
-      </div>
-    }
-  </ng-template>
+      }
+    </div>
+  }
 </p-drawer>
 
 <!--User menu-->
@@ -63,7 +60,6 @@
   [(visible)]="showUserMenu"
   position="top"
   [baseZIndex]="10000"
-  class="p-6"
   [style]="{'height': 'auto'}">
   <ng-template pTemplate="header">
     @if ((languages$ | async); as languages) {
@@ -80,38 +76,35 @@
       </span>
     }
   </ng-template>
-  <ng-template pTemplate="content">
-    <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
-      <hr class="m-0 border-t border-surface"/>
-      <a (click)="navigateToProfile()"
-         class="cursor-pointer hover:underline"
-         style="color: black;">
-        {{ '@Profile' | transloco }}
-      </a>
+  <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0 p-3">
+    <hr class="m-0 border-t border-surface"/>
+    <a (click)="navigateToProfile()"
+       class="cursor-pointer hover:underline"
+       style="color: black;">
+      {{ '@Profile' | transloco }}
+    </a>
 
-      <hr class="m-0 border-t border-surface"/>
+    <hr class="m-0 border-t border-surface"/>
 
-      <a (click)="logout()"
-         class="cursor-pointer hover:underline"
-         style="color: black;">
-        {{ '@Logout' | transloco }}
-      </a>
+    <a (click)="logout()"
+       class="cursor-pointer hover:underline"
+       style="color: black;">
+      {{ '@Logout' | transloco }}
+    </a>
 
-      <hr class="m-0 border-t border-surface"/>
+    <hr class="m-0 border-t border-surface"/>
 
-      <a (click)="navigateToHome()">{{ '@HelloDATA' | transloco }}</a>
-      <a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">
-        OpenSource Data Platform  {{ appInfo.currentYear }}
-      </a>
+    <a (click)="navigateToHome()">{{ '@HelloDATA' | transloco }}</a>
+    <a href="{{openSourceDataPlatformUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">
+      OpenSource Data Platform  {{ appInfo.currentYear }}
+    </a>
 
-      <a href="{{licenseUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">License</a>
-      <a href="{{githubUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">GitHub</a>
-      <a href="{{versionLink}}" rel="noopener" target="_blank" style="font-size: 0.9em; color: black">
-        <b>{{ '@Version' | transloco }}:</b>{{ ' ' }}{{ appInfo.buildInfo }}
-      </a>
-    </div>
-
-  </ng-template>
+    <a href="{{licenseUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">License</a>
+    <a href="{{githubUrl}}" rel="noopener" target="_blank" style="font-size: 0.9em;">GitHub</a>
+    <a href="{{versionLink}}" rel="noopener" target="_blank" style="font-size: 0.9em; color: black">
+      <b>{{ '@Version' | transloco }}:</b>{{ ' ' }}{{ appInfo.buildInfo }}
+    </a>
+  </div>
 </p-drawer>
 
 <!--Data Domain menu-->
@@ -121,28 +114,24 @@
   [modal]="true"
   [baseZIndex]="10000"
   [style]="{'height': 'auto'}"
-  class="p-6">
-  <ng-template pTemplate="header">
-    <div class="font-bold text-sm text-gray-600 mb-1">{{ '@Select a Data Domain' | transloco }}</div>
-  </ng-template>
-  <ng-template pTemplate="content">
-    <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0">
+  [header]="'@Select a Data Domain' | transloco">
+  <div class="flex flex-col gap-4 text-surface-900 dark:text-surface-0 p-3">
+    <hr class="m-0 border-t border-surface"/>
+    @for (item of dataDomainSelectionItems; track item) {
+      <a class="cursor-pointer hover:underline"
+         style="color: black;"
+         (click)="onDataDomainClicked(item)">
+        {{ item.label | transloco }}
+      </a>
       <hr class="m-0 border-t border-surface"/>
-      @for (item of dataDomainSelectionItems; track item) {
-        <a class="cursor-pointer hover:underline"
-           style="color: black;"
-           (click)="onDataDomainClicked(item)">
-          {{ item.label | transloco }}
-        </a>
-        <hr class="m-0 border-t border-surface"/>
-      }
-    </div>
-  </ng-template>
+    }
+  </div>
 </p-drawer>
 
-<div class="min-h-screen">
-  <div [ngClass]="'col'" [style]="{'height':'100vh', 'overflow-y': 'scroll'}"
-       id="mainContentDiv">
+<div class="mobile-content-wrapper">
+  <div
+    [style]="{'height':'100vh', 'padding-top': '4rem', 'overflow-y': 'auto', 'overflow-x': 'hidden', 'box-sizing': 'border-box'}"
+    id="mainContentDiv">
     <ng-content/>
   </div>
 </div>

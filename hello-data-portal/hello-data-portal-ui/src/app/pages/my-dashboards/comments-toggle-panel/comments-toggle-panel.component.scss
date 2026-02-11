@@ -24,3 +24,90 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+.comments-panel {
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.close-btn-container {
+  flex-shrink: 0;
+}
+
+.comments-feed-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 30px);
+  overflow: hidden;
+}
+
+.close-btn {
+  position: absolute;
+  top: -6px;
+  left: -12px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #111;
+  border: 1px solid var(--surface-border, #dee2e6);
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.size-buttons {
+  position: absolute;
+  top: -2px;
+  left: 30px;
+  display: none;
+  gap: 1px;
+  z-index: 2;
+
+  @media (min-width: 768px) {
+    display: inline-flex;
+  }
+}
+
+.size-btn {
+  height: 24px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #555;
+  border: 1px solid var(--surface-border, #dee2e6);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.625rem;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1;
+
+  &:hover:not(:disabled) {
+    background: var(--surface-hover, #f0f0f0);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &-active {
+    background: var(--primary-color, #3B82F6);
+    color: #fff;
+    border-color: var(--primary-color, #3B82F6);
+  }
+}
+
+.close-btn::before {
+  font-size: 20px;
+  line-height: 1;
+}

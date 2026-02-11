@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright © 2024, Kanton Bern
+  ~ All rights reserved.
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="48.1-make-entity-version-nullable" author="hellodata">
+        <comment>Make entity_version nullable for JPA @Version to work correctly</comment>
+        <dropNotNullConstraint tableName="dashboard_comment" columnName="entity_version" columnDataType="BIGINT"/>
+    </changeSet>
+
+</databaseChangeLog>
+

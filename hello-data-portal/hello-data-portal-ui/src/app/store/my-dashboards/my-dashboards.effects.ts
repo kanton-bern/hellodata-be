@@ -29,13 +29,32 @@ import {inject, Injectable} from "@angular/core";
 import {Actions, createEffect, ofType} from "@ngrx/effects";
 import {asyncScheduler, catchError, scheduled, switchMap, withLatestFrom} from "rxjs";
 import {MyDashboardsService} from "./my-dashboards.service";
-import {navigate, navigateToList, showError, showSuccess, trackEvent} from "../app/app.action";
+import {navigate, navigateToList, showError, showSuccess, showWarning, trackEvent} from "../app/app.action";
 import {
+  addComment,
+  addCommentSuccess,
+  cloneCommentForEdit,
+  cloneCommentForEditSuccess,
+  deleteComment,
+  deleteCommentSuccess,
   loadAvailableDataDomains,
   loadAvailableDataDomainsSuccess,
+  loadAvailableTags,
+  loadAvailableTagsSuccess,
+  loadDashboardComments,
+  loadDashboardCommentsSuccess,
   loadMyDashboards,
   loadMyDashboardsSuccess,
+  publishComment,
+  publishCommentSuccess,
+  restoreCommentVersion,
+  restoreCommentVersionSuccess,
   setSelectedDataDomain,
+  unpublishComment,
+  unpublishCommentSuccess,
+  updateComment,
+  updateCommentError,
+  updateCommentSuccess,
   uploadDashboardsError,
   uploadDashboardsSuccess
 } from "./my-dashboards.action";
@@ -45,15 +64,16 @@ import {ScreenService} from "../../shared/services";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectCurrentUserPermissions} from "../auth/auth.selector";
+import {selectCurrentDashboardUrl} from "./my-dashboards.selector";
 
 @Injectable()
 export class MyDashboardsEffects {
-  private _actions$ = inject(Actions);
-  private _myDashboardsService = inject(MyDashboardsService);
-  private _notificationService = inject(NotificationService);
-  private _translateService = inject(TranslateService);
-  private _screenService = inject(ScreenService);
-  private _store = inject<Store<AppState>>(Store);
+  private readonly _actions$ = inject(Actions);
+  private readonly _myDashboardsService = inject(MyDashboardsService);
+  private readonly _notificationService = inject(NotificationService);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _screenService = inject(ScreenService);
+  private readonly _store = inject<Store<AppState>>(Store);
 
 
   loadMyDashboards$ = createEffect(() => {
@@ -130,6 +150,260 @@ export class MyDashboardsEffects {
         return scheduled([showError({error: payload.error}), navigate({url: 'redirect/dashboard-import-export'})], asyncScheduler)
       }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
+    )
+  });
+
+  // Comments effects
+  loadDashboardComments$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadDashboardComments),
+      switchMap(({dashboardId, contextKey, dashboardUrl}) => {
+        return this._myDashboardsService.getDashboardComments(contextKey, dashboardId).pipe(
+          switchMap(comments => scheduled([loadDashboardCommentsSuccess({comments})], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  addComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(addComment),
+      switchMap(({dashboardId, contextKey, dashboardUrl, text, pointerUrl, tags}) => {
+        return this._myDashboardsService.createComment(contextKey, dashboardId, {
+          dashboardUrl,
+          pointerUrl,
+          text,
+          tags
+        }).pipe(
+          switchMap(comment => scheduled([
+            addCommentSuccess({comment}),
+            showSuccess({message: '@Comment added successfully'}),
+            // Reload comments to ensure proper visibility filtering
+            loadDashboardComments({dashboardId, contextKey, dashboardUrl})
+          ], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  updateComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(updateComment),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, text, pointerUrl, entityVersion, tags}, dashboardUrl]) => {
+        return this._myDashboardsService.updateComment(contextKey, dashboardId, commentId, {
+          text,
+          pointerUrl,
+          entityVersion,
+          tags
+        }).pipe(
+          switchMap(comment => {
+            const actions: any[] = [
+              updateCommentSuccess({comment}),
+              showSuccess({message: '@Comment updated successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => {
+            const actions: any[] = [updateCommentError({error: e})];
+
+            // Handle optimistic locking conflict (409)
+            if (e.status === 409) {
+              actions.push(showWarning({message: '@Comment was modified by another user. Refreshing...'}));
+              if (dashboardUrl) {
+                actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+              }
+            } else {
+              actions.push(showError({error: e}));
+            }
+
+            return scheduled(actions, asyncScheduler);
+          })
+        );
+      })
+    )
+  });
+
+  deleteComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(deleteComment),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, deleteEntire}, dashboardUrl]) => {
+        return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId, deleteEntire).pipe(
+          switchMap(restoredComment => {
+            const actions: any[] = [
+              deleteCommentSuccess({commentId, restoredComment})
+            ];
+
+            // Check if comment was soft deleted or restored to previous version
+            if (restoredComment.deleted) {
+              actions.push(showSuccess({message: '@Comment deleted successfully'}));
+            } else {
+              actions.push(showSuccess({message: '@Comment version restored'}));
+            }
+
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  publishComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(publishComment),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
+        return this._myDashboardsService.publishComment(contextKey, dashboardId, commentId).pipe(
+          switchMap(comment => {
+            const actions: any[] = [
+              publishCommentSuccess({comment}),
+              showSuccess({message: '@Comment published successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  unpublishComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(unpublishComment),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
+        return this._myDashboardsService.unpublishComment(contextKey, dashboardId, commentId).pipe(
+          switchMap(comment => {
+            const actions: any[] = [
+              unpublishCommentSuccess({comment}),
+              showSuccess({message: '@Comment unpublished successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  cloneCommentForEdit$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(cloneCommentForEdit),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, newText, newPointerUrl, entityVersion, tags}, dashboardUrl]) => {
+        return this._myDashboardsService.cloneCommentForEdit(contextKey, dashboardId, commentId, {
+          text: newText,
+          pointerUrl: newPointerUrl,
+          entityVersion,
+          tags
+        }).pipe(
+          switchMap(clonedComment => {
+            const actions: any[] = [
+              cloneCommentForEditSuccess({clonedComment, originalCommentId: commentId}),
+              showSuccess({message: '@Comment edited successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => {
+            const actions: any[] = [];
+
+            // Handle optimistic locking conflict (409)
+            if (e.status === 409) {
+              actions.push(showWarning({message: '@Comment was modified by another user. Refreshing...'}));
+              if (dashboardUrl) {
+                actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+              }
+            } else {
+              actions.push(showError({error: e}));
+            }
+
+            return scheduled(actions, asyncScheduler);
+          })
+        );
+      })
+    )
+  });
+
+  restoreCommentVersion$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(restoreCommentVersion),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, versionNumber}, dashboardUrl]) => {
+        return this._myDashboardsService.restoreVersion(contextKey, dashboardId, commentId, versionNumber).pipe(
+          switchMap(comment => {
+            const actions: any[] = [
+              restoreCommentVersionSuccess({comment}),
+              showSuccess({message: '@Comment version restored successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  loadAvailableTags$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadAvailableTags),
+      switchMap(({dashboardId, contextKey}) => {
+        return this._myDashboardsService.getAvailableTags(contextKey, dashboardId).pipe(
+          switchMap(tags => scheduled([loadAvailableTagsSuccess({tags})], asyncScheduler)),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  // Reload tags after adding/updating comment
+  reloadTagsAfterCommentChange$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(addCommentSuccess, updateCommentSuccess, cloneCommentForEditSuccess),
+      withLatestFrom(
+        this._store.select(state => state.myDashboards.currentDashboardId),
+        this._store.select(state => state.myDashboards.currentDashboardContextKey)
+      ),
+      switchMap(([action, dashboardId, contextKey]) => {
+        if (dashboardId && contextKey) {
+          return scheduled([loadAvailableTags({dashboardId, contextKey})], asyncScheduler);
+        }
+        return scheduled([], asyncScheduler);
+      })
     )
   });
 }

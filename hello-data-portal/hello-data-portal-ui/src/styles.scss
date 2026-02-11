@@ -36,6 +36,10 @@
   font-family: 'Poppins', sans-serif;
 }
 
+body {
+  background-color: var(--p-surface-ground, #fafafa);
+}
+
 .p-fieldset-legend {
   background-color: transparent;
   border-radius: 2px;
@@ -126,5 +130,12 @@ p-button[severity="contrast"] .p-button {
   background-color: var(--p-button-contrast-background, var(--p-surface-950)) !important;
   border-color: var(--p-button-contrast-border-color, var(--p-surface-950)) !important;
   color: var(--p-button-contrast-color, var(--p-surface-0)) !important;
+}
+
+.p-button.p-button-help,
+p-button[severity="help"] .p-button {
+  background: var(--p-button-help-background) !important;
+  border: 1px solid var(--p-button-help-border-color) !important;
+  color: var(--p-button-help-color) !important;
 }
 

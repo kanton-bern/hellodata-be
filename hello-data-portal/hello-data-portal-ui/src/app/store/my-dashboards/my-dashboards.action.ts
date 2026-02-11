@@ -26,7 +26,7 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
-import {DataDomain} from "./my-dashboards.model";
+import {DashboardCommentEntry, DataDomain} from "./my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../start-page/start-page.model";
 
 export enum MyDashboardsActionType {
@@ -39,6 +39,37 @@ export enum MyDashboardsActionType {
 
   UPLOAD_DASHBOARDS_FILE_SUCCESS = '[MYDASHBOARDS] Upload dashboards file SUCCESS',
   UPLOAD_DASHBOARDS_FILE_ERROR = '[MYDASHBOARDS] Upload dashboards file ERROR',
+
+  // Comments actions
+  SET_CURRENT_DASHBOARD = '[MYDASHBOARDS] Set current dashboard',
+  LOAD_DASHBOARD_COMMENTS = '[MYDASHBOARDS] Load dashboard comments',
+  LOAD_DASHBOARD_COMMENTS_SUCCESS = '[MYDASHBOARDS] Load dashboard comments SUCCESS',
+  LOAD_DASHBOARD_COMMENTS_ERROR = '[MYDASHBOARDS] Load dashboard comments ERROR',
+  ADD_COMMENT = '[MYDASHBOARDS] Add comment',
+  ADD_COMMENT_SUCCESS = '[MYDASHBOARDS] Add comment SUCCESS',
+  ADD_COMMENT_ERROR = '[MYDASHBOARDS] Add comment ERROR',
+  UPDATE_COMMENT = '[MYDASHBOARDS] Update comment',
+  UPDATE_COMMENT_SUCCESS = '[MYDASHBOARDS] Update comment SUCCESS',
+  UPDATE_COMMENT_ERROR = '[MYDASHBOARDS] Update comment ERROR',
+  DELETE_COMMENT = '[MYDASHBOARDS] Delete comment',
+  DELETE_COMMENT_SUCCESS = '[MYDASHBOARDS] Delete comment SUCCESS',
+  DELETE_COMMENT_ERROR = '[MYDASHBOARDS] Delete comment ERROR',
+  PUBLISH_COMMENT = '[MYDASHBOARDS] Publish comment',
+  PUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Publish comment SUCCESS',
+  PUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Publish comment ERROR',
+  UNPUBLISH_COMMENT = '[MYDASHBOARDS] Unpublish comment',
+  UNPUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Unpublish comment SUCCESS',
+  UNPUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Unpublish comment ERROR',
+  CLONE_COMMENT_FOR_EDIT = '[MYDASHBOARDS] Clone comment for edit',
+  CLONE_COMMENT_FOR_EDIT_SUCCESS = '[MYDASHBOARDS] Clone comment for edit SUCCESS',
+  CLONE_COMMENT_FOR_EDIT_ERROR = '[MYDASHBOARDS] Clone comment for edit ERROR',
+  RESTORE_COMMENT_VERSION = '[MYDASHBOARDS] Restore comment version',
+  RESTORE_COMMENT_VERSION_SUCCESS = '[MYDASHBOARDS] Restore comment version SUCCESS',
+  RESTORE_COMMENT_VERSION_ERROR = '[MYDASHBOARDS] Restore comment version ERROR',
+  // Tags actions
+  LOAD_AVAILABLE_TAGS = '[MYDASHBOARDS] Load available tags',
+  LOAD_AVAILABLE_TAGS_SUCCESS = '[MYDASHBOARDS] Load available tags SUCCESS',
+  LOAD_AVAILABLE_TAGS_ERROR = '[MYDASHBOARDS] Load available tags ERROR',
 }
 
 export const loadMyDashboards = createAction(
@@ -70,5 +101,175 @@ export const uploadDashboardsSuccess = createAction(
 
 export const uploadDashboardsError = createAction(
   MyDashboardsActionType.UPLOAD_DASHBOARDS_FILE_ERROR,
+  props<{ error: any }>()
+);
+
+// Comments actions
+export const setCurrentDashboard = createAction(
+  MyDashboardsActionType.SET_CURRENT_DASHBOARD,
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string }>()
+);
+
+export const loadDashboardComments = createAction(
+  MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS,
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string }>()
+);
+
+export const loadDashboardCommentsSuccess = createAction(
+  MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS_SUCCESS,
+  props<{ comments: DashboardCommentEntry[] }>()
+);
+
+export const loadDashboardCommentsError = createAction(
+  MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS_ERROR,
+  props<{ error: any }>()
+);
+
+export const addComment = createAction(
+  MyDashboardsActionType.ADD_COMMENT,
+  props<{
+    dashboardId: number;
+    contextKey: string;
+    dashboardUrl: string;
+    text: string;
+    pointerUrl?: string;
+    tags?: string[]
+  }>()
+);
+
+export const addCommentSuccess = createAction(
+  MyDashboardsActionType.ADD_COMMENT_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const addCommentError = createAction(
+  MyDashboardsActionType.ADD_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const updateComment = createAction(
+  MyDashboardsActionType.UPDATE_COMMENT,
+  props<{
+    dashboardId: number;
+    contextKey: string;
+    commentId: string;
+    text: string;
+    pointerUrl?: string;
+    entityVersion: number;
+    tags?: string[];
+  }>()
+);
+
+export const updateCommentSuccess = createAction(
+  MyDashboardsActionType.UPDATE_COMMENT_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const updateCommentError = createAction(
+  MyDashboardsActionType.UPDATE_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const deleteComment = createAction(
+  MyDashboardsActionType.DELETE_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string; deleteEntire?: boolean }>()
+);
+
+export const deleteCommentSuccess = createAction(
+  MyDashboardsActionType.DELETE_COMMENT_SUCCESS,
+  props<{
+    commentId: string;
+    restoredComment?: DashboardCommentEntry
+  }>()
+);
+
+export const deleteCommentError = createAction(
+  MyDashboardsActionType.DELETE_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const publishComment = createAction(
+  MyDashboardsActionType.PUBLISH_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string }>()
+);
+
+export const publishCommentSuccess = createAction(
+  MyDashboardsActionType.PUBLISH_COMMENT_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const publishCommentError = createAction(
+  MyDashboardsActionType.PUBLISH_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+export const unpublishComment = createAction(
+  MyDashboardsActionType.UNPUBLISH_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string }>()
+);
+
+export const unpublishCommentSuccess = createAction(
+  MyDashboardsActionType.UNPUBLISH_COMMENT_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const unpublishCommentError = createAction(
+  MyDashboardsActionType.UNPUBLISH_COMMENT_ERROR,
+  props<{ error: any }>()
+);
+
+// Clone published comment for editing (creates a draft copy with new text)
+export const cloneCommentForEdit = createAction(
+  MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT,
+  props<{
+    dashboardId: number;
+    contextKey: string;
+    commentId: string;
+    newText: string;
+    newPointerUrl?: string;
+    entityVersion: number;
+    tags?: string[];
+  }>()
+);
+
+export const cloneCommentForEditSuccess = createAction(
+  MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT_SUCCESS,
+  props<{ clonedComment: DashboardCommentEntry; originalCommentId: string }>()
+);
+
+export const cloneCommentForEditError = createAction(
+  MyDashboardsActionType.CLONE_COMMENT_FOR_EDIT_ERROR,
+  props<{ error: any }>()
+);
+
+// Restore a specific version from history
+export const restoreCommentVersion = createAction(
+  MyDashboardsActionType.RESTORE_COMMENT_VERSION,
+  props<{ dashboardId: number; contextKey: string; commentId: string; versionNumber: number }>()
+);
+
+export const restoreCommentVersionSuccess = createAction(
+  MyDashboardsActionType.RESTORE_COMMENT_VERSION_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const restoreCommentVersionError = createAction(
+  MyDashboardsActionType.RESTORE_COMMENT_VERSION_ERROR,
+  props<{ error: any }>()
+);
+
+// Tags actions
+export const loadAvailableTags = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_TAGS,
+  props<{ dashboardId: number; contextKey: string }>()
+);
+
+export const loadAvailableTagsSuccess = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_TAGS_SUCCESS,
+  props<{ tags: string[] }>()
+);
+
+export const loadAvailableTagsError = createAction(
+  MyDashboardsActionType.LOAD_AVAILABLE_TAGS_ERROR,
   props<{ error: any }>()
 );

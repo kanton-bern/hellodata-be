@@ -1,0 +1,288 @@
+<div class="comment-item border rounded-md px-2 py-2"
+     [class.bg-white]="activeVersion()?.status === DashboardCommentStatus.PUBLISHED"
+     [class.bg-gray-100]="activeVersion()?.status === DashboardCommentStatus.DRAFT"
+     [class.draft-border]="activeVersion()?.status === DashboardCommentStatus.DRAFT">
+  @if (activeVersion()?.pointerUrl) {
+    <div class="pointer-url-container px-1 pb-1">
+      <button type="button"
+              class="pointer-url-link text-xs text-blue-600 hover:underline cursor-pointer bg-transparent border-none p-0"
+              (click)="navigateToPointerUrl()"
+              (keydown.enter)="navigateToPointerUrl()">
+        <i class="fa-solid fa-thumbtack mr-1"></i>{{ '@Go to dashboard element' | transloco }}
+      </button>
+    </div>
+  }
+  <p class="comment-text p-1">{{ activeVersion()?.text }}</p>
+  <div class="comment-footer p-1">
+    <div class="comment-meta-row">
+      <small class="comment-meta">
+        <span class="author-name"
+              [pTooltip]="comment().authorEmail"
+              tooltipPosition="top">{{ comment().author }}</span>
+        – {{ comment().createdDate | date:'short' }}
+        @if (activeVersion()?.editedDate && activeVersion()?.editedDate !== comment().createdDate) {
+          <span class="edited-badge">({{ '@edited' | transloco }})</span>
+        }
+        @if (comment().activeVersion > 1) {
+          <span class="version-badge">v{{ comment().activeVersion }}</span>
+        }
+        @if (activeVersion()?.status === DashboardCommentStatus.DRAFT) {
+          <span class="draft-badge">{{ '@draft' | transloco }}</span>
+        }
+      </small>
+      <div class="comment-actions">
+        @if (canViewMetadata()) {
+          <button type="button" class="info-btn"
+                  (click)="toggleDetails()"
+                  (keydown)="onKeyDown($event, toggleDetails.bind(this))"
+                  [pTooltip]="'@Info' | transloco" tooltipPosition="top">
+            <i class="fa fa-info-circle"></i>
+          </button>
+        }
+        @if (canEdit()) {
+          <button type="button" class="edit-btn"
+                  (click)="editComment()"
+                  (keydown)="onKeyDown($event, editComment.bind(this))"
+                  [pTooltip]="'@Edit' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+        }
+        @if (canPublish()) {
+          <button type="button" class="publish-btn"
+                  (click)="publishComment()"
+                  (keydown)="onKeyDown($event, publishComment.bind(this))"
+                  [pTooltip]="'@Publish' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </button>
+        }
+        @if (canUnpublish()) {
+          <button type="button" class="unpublish-btn"
+                  (click)="unpublishComment()"
+                  (keydown)="onKeyDown($event, unpublishComment.bind(this))"
+                  [pTooltip]="'@Unpublish' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-cloud-arrow-down"></i>
+          </button>
+        }
+        @if (canDelete()) {
+          <button type="button" class="delete-btn"
+                  (click)="deleteComment()"
+                  (keydown)="onKeyDown($event, deleteComment.bind(this))"
+                  [pTooltip]="'@Delete' | transloco"
+                  tooltipPosition="top">
+            <i class="fa fa-trash"></i>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+  @if (activeVersion()?.tags && activeVersion()!.tags.length > 0) {
+    <div class="comment-tags px-1 pt-1 flex gap-1 flex-wrap">
+      @for (tag of activeVersion()!.tags; track tag) {
+        <span class="tag-chip">
+          <i class="fa-solid fa-tag text-xs mr-1"></i>{{ tag }}
+        </span>
+      }
+    </div>
+  }
+  @if (expanded) {
+    <div class="comment-details p-1">
+      <small>
+        <div><strong>{{ '@Status' | transloco }}:</strong> {{ '@' + activeVersion()?.status | transloco }}</div>
+        <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().activeVersion }}</div>
+        <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>
+        @if (activeVersion()?.publishedDate) {
+          <div><strong>{{ '@Published' | transloco }}:</strong> {{ activeVersion()?.publishedDate | date:'medium' }}
+            @if (activeVersion()?.publishedBy) {
+              ({{ activeVersion()?.publishedBy }})
+            }
+          </div>
+        }
+        @if (activeVersion()?.editedDate && activeVersion()?.editedDate !== comment().createdDate) {
+          <div><strong>{{ '@Last edited' | transloco }}:</strong> {{ activeVersion()?.editedDate | date:'medium' }}
+            @if (activeVersion()?.editedBy) {
+              ({{ activeVersion()?.editedBy }})
+            }
+          </div>
+        }
+        @if (activeVersion()?.pointerUrl) {
+          <div class="pointer-url-info">
+            <strong>{{ '@Link' | transloco }}:</strong>
+            <button type="button"
+                    class="pointer-url-info-link ml-1"
+                    [pTooltip]="activeVersion()?.pointerUrl"
+                    tooltipPosition="top"
+                    (click)="navigateToUrl(activeVersion()!.pointerUrl)"
+                    (keydown.enter)="navigateToUrl(activeVersion()!.pointerUrl)">
+              <i class="fa-solid fa-thumbtack mr-1"></i>
+              {{ activeVersion()?.pointerUrl | slice:0:40 }}{{ activeVersion()!.pointerUrl.length > 40 ? '...' : '' }}
+            </button>
+          </div>
+        }
+        @if (allVersions().length > 1) {
+          <div class="version-history mt-2">
+            <strong>{{ '@Version history' | transloco }}:</strong>
+            <ul class="history-list">
+              @for (historyItem of allVersions(); track historyItem.version) {
+                <li class="history-item" [class.active-version]="historyItem.isCurrentVersion">
+                  <div class="history-item-main">
+                    <span class="history-version">v{{ historyItem.version }}</span>
+                    @if (historyItem.isCurrentVersion) {
+                      <span class="active-badge">{{ '@Active' | transloco }}</span>
+                    }
+                    <span class="status-badge"
+                          [class.status-draft]="historyItem.status === DashboardCommentStatus.DRAFT"
+                          [class.status-published]="historyItem.status === DashboardCommentStatus.PUBLISHED">
+                      {{ '@' + historyItem.status | transloco }}
+                    </span>
+                    <span class="history-date">{{ historyItem.editedDate | date:'short' }}</span>
+                    <span class="history-author">{{ historyItem.editedBy }}</span>
+                    @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
+                      <button type="button" class="restore-btn"
+                              (click)="restoreVersion(historyItem.version)"
+                              (keydown)="onKeyDown($event, restoreVersion.bind(this, historyItem.version))"
+                              [pTooltip]="'@Restore this version' | transloco"
+                              tooltipPosition="left">
+                        <i class="fa-solid fa-rotate-left"></i>
+                      </button>
+                    }
+                  </div>
+                  <div class="history-text-row">
+                    <span class="history-text-label">{{ '@Text' | transloco }}:</span>
+                    <span class="history-text" [pTooltip]="historyItem.text" tooltipPosition="top">
+                      {{ historyItem.text | slice:0:80 }}{{ historyItem.text.length > 80 ? '...' : '' }}
+                    </span>
+                  </div>
+                  @if (historyItem.pointerUrl) {
+                    <div class="history-pointer-url-row">
+                      <span class="history-pointer-url-label">{{ '@Link' | transloco }}:</span>
+                      <button type="button"
+                              class="history-pointer-url-link"
+                              [pTooltip]="historyItem.pointerUrl"
+                              tooltipPosition="top"
+                              (click)="navigateToUrl(historyItem.pointerUrl)"
+                              (keydown.enter)="navigateToUrl(historyItem.pointerUrl)">
+                        <i
+                          class="fa-solid fa-thumbtack mr-1"></i>{{ historyItem.pointerUrl | slice:0:50 }}{{ historyItem.pointerUrl.length > 50 ? '...' : '' }}
+                      </button>
+                    </div>
+                  }
+                  @if (historyItem.tags && historyItem.tags.length > 0) {
+                    <div class="history-tags-row">
+                      <span class="history-tags-label">{{ '@Tags' | transloco }}:</span>
+                      @for (tag of historyItem.tags; track tag) {
+                        <span class="history-tag">
+                          <i class="fa-solid fa-tag"></i>{{ tag }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </small>
+    </div>
+  }
+</div>
+
+<!-- Edit Comment Dialog -->
+<p-dialog [header]="'@Edit comment' | transloco"
+          [(visible)]="editDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '500px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="edit-dialog-content">
+    @if (activeVersion()?.status === DashboardCommentStatus.PUBLISHED) {
+      <div class="edit-warning mb-3">
+        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <span>{{ '@Edit published comment warning' | transloco }}</span>
+      </div>
+    }
+    <textarea pInputTextarea
+              [(ngModel)]="editedText"
+              [rows]="5"
+              [autoResize]="true"
+              class="w-full"
+              placeholder="{{ '@Write a comment' | transloco }}"></textarea>
+    <div class="mt-3">
+      <div class="flex gap-1 items-center">
+        <input type="text"
+               class="flex-1 border rounded-md px-2 py-1 text-sm"
+               [class.border-red-500]="editedPointerUrl && !isEditedPointerUrlValid()"
+               [class.border-2]="editedPointerUrl && !isEditedPointerUrlValid()"
+               [(ngModel)]="editedPointerUrl"
+               placeholder="{{ '@Link to dashboard element (optional)' | transloco }}"/>
+        @if (editedPointerUrl) {
+          <button type="button"
+                  class="clear-pointer-url-btn"
+                  (click)="clearEditedPointerUrl()"
+                  (keydown.enter)="clearEditedPointerUrl()"
+                  [pTooltip]="'@Clear' | transloco"
+                  tooltipPosition="top">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        }
+      </div>
+      @if (editedPointerUrl && !isEditedPointerUrlValid()) {
+        <div class="text-red-500 mt-1"
+             style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+        </div>
+      }
+    </div>
+    <!-- Tags section -->
+    <div class="mt-3">
+      <label for="editTagInput" class="block text-sm font-medium text-gray-700 mb-1">{{ '@Tags' | transloco }}</label>
+      <div class="flex gap-1 flex-wrap mb-2">
+        @for (tag of editedTags; track tag) {
+          <span class="tag-item">
+            <i class="fa-solid fa-tag"></i>
+            <span>{{ tag }}</span>
+            <button type="button" class="tag-remove"
+                    (click)="removeEditTag(tag)"
+                    (keydown.enter)="removeEditTag(tag)"
+                    (keydown.space)="removeEditTag(tag)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        }
+        @if (editedTags.length === 0) {
+          <span class="text-gray-400 text-sm">{{ '@No tags selected' | transloco }}</span>
+        }
+      </div>
+      <div class="flex gap-2">
+        <p-autoComplete [(ngModel)]="editNewTagText"
+                        [suggestions]="editTagSuggestions"
+                        (completeMethod)="searchEditTags($event)"
+                        (onSelect)="onEditTagSelect($event)"
+                        (onKeyUp)="$event.key === 'Enter' && addEditTag()"
+                        [maxlength]="10"
+                        placeholder="{{ '@Add tag (max 10 chars)' | transloco }}"
+                        styleClass="tags-autocomplete flex-1"
+                        appendTo="body"
+                        inputId="editTagInput"/>
+        <p-button icon="fas fa-plus"
+                  (click)="addEditTag()"
+                  (keydown.enter)="addEditTag()"
+                  [disabled]="!editNewTagText?.trim()"
+                  severity="secondary"/>
+      </div>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button (click)="cancelEdit()" (keydown.escape)="cancelEdit()"
+              icon="fas fa-circle-xmark"
+              [label]="'@Cancel' | transloco"
+              severity="secondary"/>
+    <p-button (click)="saveEdit()" (keydown.enter)="saveEdit()"
+              icon="fas fa-save"
+              [label]="'@Save' | transloco"
+              severity="success"
+              [disabled]="isSaveEditDisabled()"/>
+  </ng-template>
+</p-dialog>
+

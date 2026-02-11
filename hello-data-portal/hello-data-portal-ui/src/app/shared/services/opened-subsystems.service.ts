@@ -26,7 +26,9 @@
 ///
 
 import {Injectable} from "@angular/core";
-import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../../pages/my-dashboards/embed-my-dashboard.component";
+import {
+  VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY
+} from "../../pages/my-dashboards/embed-my-dashboard/embed-my-dashboard.component";
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +37,7 @@ export class OpenedSubsystemsService {
   public rememberOpenedSubsystem(url: string) {
     const openedSupersets = sessionStorage.getItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY);
     if (openedSupersets) {
-      const storedSetArray: string[] = JSON.parse(openedSupersets || '[]');
+      const storedSetArray: string[] = JSON.parse(openedSupersets);
       storedSetArray.push(url);
       // Convert the array back into a set to have unique urls
       const storedSet: Set<string> = new Set<string>(storedSetArray);

@@ -39,6 +39,7 @@ import {
   showError,
   showInfo,
   showSuccess,
+  showWarning,
   trackEvent
 } from "./app.action";
 import {AuthEffects} from "../auth/auth.effects";
@@ -66,29 +67,50 @@ import {DashboardAccessEffects} from "../dashboard-access/dashboard-access.effec
 
 @Injectable()
 export class AppEffects {
-  private _store = inject<Store<AppState>>(Store);
-  private _router = inject(Router);
-  private _actions$ = inject(Actions);
-  private _notificationService = inject(NotificationService);
-  private _tracker = inject(MatomoTracker);
-  private _windowManagementService = inject(WindowManagementService);
+  private readonly _store = inject<Store<AppState>>(Store);
+  private readonly _router = inject(Router);
+  private readonly _actions$ = inject(Actions);
+  private readonly _notificationService = inject(NotificationService);
+  private readonly _tracker = inject(MatomoTracker);
+  private readonly _windowManagementService = inject(WindowManagementService);
 
   showError$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(showError),
       tap(action => {
         console.error(action.error);
-        let errorMessage = '@Unexpected error occurred';
-        if (action?.error?.error?.message) {
-          errorMessage = action.error.error.message;
-        } else if (action?.error?.message) {
-          errorMessage = action.error.message;
-        }
+        const errorMessage = this.extractErrorMessage(action.error);
         this._notificationService.error(errorMessage);
         this._tracker.trackEvent("Error", errorMessage);
       })
     )
   }, {dispatch: false});
+
+  private extractErrorMessage(error: any): string {
+    // Angular HttpClient error (HttpErrorResponse)
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+    // Direct message property
+    if (error?.message) {
+      return error.message;
+    }
+    // PrimeNG FileUpload XHR error - try to parse response
+    if (error?.error && typeof error.error === 'string') {
+      try {
+        const parsed = JSON.parse(error.error);
+        if (parsed.message) {
+          return parsed.message;
+        }
+      } catch {
+        // Not JSON, return as-is if it's a reasonable message
+        if (error.error.length < 500) {
+          return error.error;
+        }
+      }
+    }
+    return '@Unexpected error occurred';
+  }
 
   logError$ = createEffect(() => {
     return this._actions$.pipe(
@@ -120,6 +142,13 @@ export class AppEffects {
     )
   }, {dispatch: false});
 
+  showWarning$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(showWarning),
+      tap(action => this._notificationService.warn(action.message, action.interpolateParams))
+    )
+  }, {dispatch: false});
+
   navigate$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(navigate),
@@ -133,7 +162,7 @@ export class AppEffects {
       withLatestFrom(this._store.select(selectSelectedDataDomain)),
       tap(([action, selectedDD]) => {
         const currentUrl = this._router.url;
-        if (selectedDD && selectedDD.name !== ALL_DATA_DOMAINS && !decodeURIComponent(currentUrl).includes(selectedDD!.name) && !decodeURIComponent(currentUrl).includes(selectedDD!.key)) {
+        if (selectedDD && selectedDD.name !== ALL_DATA_DOMAINS && !decodeURIComponent(currentUrl).includes(selectedDD.name) && !decodeURIComponent(currentUrl).includes(selectedDD.key)) {
           if (currentUrl.includes(naviElements.myDashboards.path)) {
             this._router.navigate([naviElements.myDashboards.path]);
           }

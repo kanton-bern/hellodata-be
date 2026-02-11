@@ -5,8 +5,8 @@ import {map} from 'rxjs/operators';
 
 @Injectable()
 export class ScreenService {
-  private breakpointObserver = inject(BreakpointObserver);
-  private changedSubject = new Subject<boolean>();
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly changedSubject = new Subject<boolean>();
 
   // Expose as observable for subscribers
   readonly changed$ = this.changedSubject.asObservable();

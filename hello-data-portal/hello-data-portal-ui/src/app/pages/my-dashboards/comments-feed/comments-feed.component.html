@@ -1,0 +1,291 @@
+<div class="comments-container">
+
+  <div class="comments-header">
+    <h4 class="text-center">{{ '@Comments' | transloco }}</h4>
+    <div class="header-actions">
+      <!-- Export comments button (admin only) -->
+      @if (isAdmin$ | async) {
+        <button type="button"
+                class="action-btn export-btn"
+                (click)="exportComments()"
+                (keydown.enter)="exportComments()"
+                [pTooltip]="'@Export comments' | transloco"
+                tooltipPosition="left">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <!-- Import comments button (admin only) -->
+        <button type="button"
+                class="action-btn import-btn"
+                (click)="triggerImport()"
+                (keydown.enter)="triggerImport()"
+                [pTooltip]="'@Import comments' | transloco"
+                tooltipPosition="bottom">
+          <i class="fa-solid fa-upload"></i>
+        </button>
+        <input type="file"
+               #fileInput
+               accept=".json"
+               style="display: none"
+               (change)="onFileSelected($event)"/>
+      }
+      @if (showCloseButton()) {
+        <button type="button" class="close-button" (click)="closePanel.emit()" aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="comments-filters flex gap-2 px-2 py-1">
+    <div class="filter-group">
+      <span class="filter-label">{{ '@Year' | transloco }}</span>
+      <p-select [options]="(yearOptions$ | async) || []"
+                [(ngModel)]="selectedYear"
+                (onChange)="onFilterChange()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="{{ '@All' | transloco }}"
+                [style]="{'width': '100%'}"
+                size="small"/>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">{{ '@Quarter' | transloco }}</span>
+      <p-select [options]="quarterOptions"
+                [(ngModel)]="selectedQuarter"
+                (onChange)="onFilterChange()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="{{ '@All' | transloco }}"
+                [style]="{'width': '100%'}"
+                size="small"/>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">{{ '@Status' | transloco }}</span>
+      <p-select [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                (onChange)="onFilterChange()"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="{{ '@All' | transloco }}"
+                [style]="{'width': '100%'}"
+                size="small"/>
+    </div>
+    @if ((tagFilterOptions$ | async); as tagOptions) {
+      @if (tagOptions.length > 1) {
+        <div class="filter-group">
+          <span class="filter-label">{{ '@Tag' | transloco }}</span>
+          <p-select [options]="tagOptions"
+                    [(ngModel)]="selectedTagFilter"
+                    (onChange)="onFilterChange()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="{{ '@All' | transloco }}"
+                    [style]="{'width': '100%'}"
+                    size="small"/>
+        </div>
+      }
+    }
+  </div>
+
+  <div class="comment-scrollpanel" #scrollContainer>
+    @if ((filteredComments$ | async); as comments) {
+      @if (comments.length) {
+        <div class="comments-list">
+          @for (comment of comments; track comment.id) {
+            <app-comment-entry [comment]="comment"
+                               (pointerUrlClick)="onPointerUrlClick($event)"></app-comment-entry>
+          }
+        </div>
+      } @else {
+        <div class="h-full flex items-center justify-center text-gray-400">
+          {{ '@No comments' | transloco }}
+        </div>
+      }
+    } @else {
+      <div class="h-full flex items-center justify-center text-gray-400">
+        {{ '@No comments' | transloco }}
+      </div>
+    }
+  </div>
+
+  <div class="comment-form mb-[0.5rem]">
+      <textarea
+        class="w-full border rounded-md"
+        [(ngModel)]="newCommentText"
+        placeholder="{{ '@Write a comment' | transloco }}"
+        rows="3">
+      </textarea>
+
+    <!-- Selected tags display -->
+    @if (selectedTags.length > 0) {
+      <div class="flex gap-1 flex-wrap mt-2">
+        @for (tag of selectedTags; track tag) {
+          <span class="tag-item tag-item-small">
+            <i class="fa-solid fa-tag"></i>
+            <span>{{ tag }}</span>
+            <button type="button" class="tag-remove"
+                    (click)="removeTag(tag)"
+                    (keydown.enter)="removeTag(tag)"
+                    (keydown.space)="removeTag(tag)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </span>
+        }
+      </div>
+    }
+
+    <!-- Icons, pointer URL input and submit button -->
+    <div class="mt-2 flex gap-2 items-center">
+      <!-- Tags icon - opens dialog -->
+      <button type="button"
+              class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
+              (click)="openTagsDialog()"
+              (keydown.enter)="openTagsDialog()"
+              (keydown.space)="openTagsDialog()"
+              [pTooltip]="'@Add tags (optional)' | transloco"
+              tooltipPosition="top">
+        <i class="fa-solid fa-tags"></i>
+      </button>
+
+      <!-- Pointer URL icon - toggles input -->
+      <button type="button"
+              class="action-toggle p-1 text-gray-500 hover:text-blue-600 transition-colors"
+              (click)="togglePointerUrlInput()"
+              (keydown.enter)="togglePointerUrlInput()"
+              (keydown.space)="togglePointerUrlInput()"
+              [pTooltip]="'@Link to dashboard element (optional)' | transloco"
+              tooltipPosition="top">
+        <i class="fa-solid fa-link"></i>
+      </button>
+
+      <!-- Pointer URL input (when expanded) -->
+      @if (showPointerUrlInput) {
+        <div class="flex-1">
+          <input type="text"
+                 class="w-full border rounded-md px-2 py-1 text-sm"
+                 [class.border-red-500]="pointerUrl && !isPointerUrlValid()"
+                 [class.border-2]="pointerUrl && !isPointerUrlValid()"
+                 [(ngModel)]="pointerUrl"
+                 placeholder="{{ '@Link to dashboard element (optional)' | transloco }}"/>
+        </div>
+      }
+
+      <!-- Submit button -->
+      <p-button severity="success" (keydown.enter)="submitComment()"
+                label="{{ '@Add' | transloco }}"
+                (click)="submitComment()"
+                [disabled]="!newCommentText?.trim() || (showPointerUrlInput && pointerUrl && !isPointerUrlValid())"
+                class="ml-auto">
+      </p-button>
+    </div>
+
+    <!-- Pointer URL validation error -->
+    @if (showPointerUrlInput && pointerUrl && !isPointerUrlValid()) {
+      <div class="text-red-500 mt-1"
+           style="font-size: 0.65rem; line-height: 1;">{{ '@Pointer URL must be a Superset link' | transloco }}
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- Tags Dialog -->
+<p-dialog [header]="'@Add tags' | transloco"
+          [(visible)]="tagsDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '400px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="tags-dialog-content">
+    <div class="flex gap-1 flex-wrap mb-3">
+      @for (tag of selectedTags; track tag) {
+        <span class="tag-item">
+          <i class="fa-solid fa-tag"></i>
+          <span>{{ tag }}</span>
+          <button type="button" class="tag-remove"
+                  (click)="removeTag(tag)"
+                  (keydown.enter)="removeTag(tag)"
+                  (keydown.space)="removeTag(tag)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </span>
+      }
+      @if (selectedTags.length === 0) {
+        <span class="text-gray-400 text-sm">{{ '@No tags selected' | transloco }}</span>
+      }
+    </div>
+    <div class="flex gap-2">
+      <p-autoComplete [(ngModel)]="newTagText"
+                      [suggestions]="tagSuggestions"
+                      (completeMethod)="searchTags($event)"
+                      (onSelect)="onTagSelect($event)"
+                      (onKeyUp)="$event.key === 'Enter' && addTag()"
+                      [maxlength]="10"
+                      placeholder="{{ '@Add tag (max 10 chars)' | transloco }}"
+                      styleClass="tags-autocomplete flex-1"
+                      appendTo="body"/>
+      <p-button icon="fas fa-plus"
+                (click)="addTag()"
+                (keydown.enter)="addTag()"
+                [disabled]="!newTagText?.trim()"
+                severity="secondary"/>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button (click)="closeTagsDialog()"
+              (keydown.enter)="closeTagsDialog()"
+              [label]="'@Done' | transloco"
+              severity="success"/>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog #cd1 key="publishComment" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd1.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd1.onReject()"/>
+    <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
+              label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onReject()"
+              severity="success"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-confirmDialog #cd2 key="unpublishComment" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd2.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd2.onReject()"/>
+    <p-button (click)="cd2.onAccept()" icon="fas fa-cloud-arrow-down"
+              label="{{'@Unpublish' | transloco}}" (keydown.enter)="cd2.onAccept()"
+              severity="warn"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-confirmDialog #cd3 key="deleteComment" [style]="{width: '50vw'}">
+  <ng-template pTemplate="message">
+    <div class="flex flex-col gap-3">
+      <span>{{ '@Delete comment question' | transloco }}</span>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="deleteEntireCheckbox"
+               [checked]="commentUtils.deleteEntireFlag"
+               (change)="commentUtils.deleteEntireFlag = $any($event.target).checked"/>
+        <label for="deleteEntireCheckbox">{{ '@Delete entire comment' | transloco }}</label>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd3.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd3.onReject()"/>
+    <p-button (click)="cd3.onAccept()" icon="fas fa-trash"
+              label="{{'@Delete' | transloco}}" (keydown.enter)="cd3.onAccept()"
+              severity="danger"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd4.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd4.onReject()"/>
+    <p-button (click)="cd4.onAccept()" icon="fas fa-rotate-left"
+              label="{{'@Restore' | transloco}}" (keydown.enter)="cd4.onAccept()"
+              severity="success"/>
+  </ng-template>
+</p-confirmDialog>

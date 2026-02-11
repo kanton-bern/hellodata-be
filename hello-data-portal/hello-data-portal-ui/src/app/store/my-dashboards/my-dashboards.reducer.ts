@@ -28,7 +28,21 @@
 import {initialMyDashboardsState, MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {createReducer, on} from "@ngrx/store";
-import {loadAvailableDataDomainsSuccess, loadMyDashboardsSuccess, setSelectedDataDomain} from "./my-dashboards.action";
+import {
+  addCommentSuccess,
+  cloneCommentForEditSuccess,
+  deleteCommentSuccess,
+  loadAvailableDataDomainsSuccess,
+  loadAvailableTagsSuccess,
+  loadDashboardCommentsSuccess,
+  loadMyDashboardsSuccess,
+  publishCommentSuccess,
+  restoreCommentVersionSuccess,
+  setCurrentDashboard,
+  setSelectedDataDomain,
+  unpublishCommentSuccess,
+  updateCommentSuccess
+} from "./my-dashboards.action";
 import {DataDomain} from "./my-dashboards.model";
 
 export const SELECTED_DATA_DOMAIN_KEY = 'Selected_Data_Domain';
@@ -65,8 +79,90 @@ export const myDashboardsReducer = createReducer(
     }
     return {
       ...state,
-      selectedDataDomain: selectedDataDomain ? selectedDataDomain : defaultDataDomain,
+      selectedDataDomain: selectedDataDomain ?? defaultDataDomain,
       availableDataDomains: uniqueDataDomains,
+    }
+  }),
+  // Comments reducers
+  on(setCurrentDashboard, (state: MyDashboardsState, {dashboardId, contextKey, dashboardUrl}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardId: dashboardId,
+      currentDashboardContextKey: contextKey,
+      currentDashboardUrl: dashboardUrl,
+      currentDashboardComments: []
+    }
+  }),
+  on(loadDashboardCommentsSuccess, (state: MyDashboardsState, {comments}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: comments
+    }
+  }),
+  on(addCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: [...state.currentDashboardComments, comment]
+    }
+  }),
+  on(updateCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(deleteCommentSuccess, (state: MyDashboardsState, {
+    commentId,
+    restoredComment
+  }): MyDashboardsState => {
+    const updatedComments = state.currentDashboardComments.map(c =>
+      c.id === commentId && restoredComment ? restoredComment : c
+    );
+
+    return {
+      ...state,
+      currentDashboardComments: updatedComments
+    }
+  }),
+  on(publishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(unpublishCommentSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(cloneCommentForEditSuccess, (state: MyDashboardsState, {clonedComment, originalCommentId}): MyDashboardsState => {
+    // Update the comment with new draft version added to history
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === originalCommentId ? clonedComment : c
+      )
+    }
+  }),
+  on(restoreCommentVersionSuccess, (state: MyDashboardsState, {comment}): MyDashboardsState => {
+    return {
+      ...state,
+      currentDashboardComments: state.currentDashboardComments.map(c =>
+        c.id === comment.id ? comment : c
+      )
+    }
+  }),
+  on(loadAvailableTagsSuccess, (state: MyDashboardsState, {tags}): MyDashboardsState => {
+    return {
+      ...state,
+      availableTags: tags
     }
   }),
 );

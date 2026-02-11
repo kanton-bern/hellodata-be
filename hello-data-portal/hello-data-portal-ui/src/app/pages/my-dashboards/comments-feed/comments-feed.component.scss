@@ -1,0 +1,295 @@
+/**
+ * Copyright © 2024, Kanton Bern
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--surface-border, #dee2e6);
+}
+
+.comments-header {
+  flex-shrink: 0;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+
+  h4 {
+    margin: 0;
+    flex: 1;
+    text-align: center;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.35rem;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary, #6c757d);
+    transition: color 0.2s;
+    border-radius: 0.25rem;
+
+    &:hover {
+      color: var(--primary-color, #3b82f6);
+      background-color: var(--surface-100, #f8f9fa);
+    }
+
+    &.export-btn:hover {
+      color: var(--green-500, #22c55e);
+    }
+
+    &.import-btn:hover {
+      color: var(--blue-500, #3b82f6);
+    }
+  }
+
+  .close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.35rem;
+    font-size: 1.2rem;
+    color: var(--p-text-muted-color);
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--p-text-color);
+    }
+  }
+}
+
+.comments-filters {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--surface-border, #dee2e6);
+
+  .filter-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .filter-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--text-color-secondary, #6c757d);
+    text-transform: uppercase;
+  }
+
+  ::ng-deep .p-select {
+    font-size: 0.65rem;
+
+    .p-select-label {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.65rem;
+    }
+
+    .p-select-dropdown {
+      width: 1.5rem;
+    }
+  }
+}
+
+.comment-scrollpanel {
+  flex: 1 1 0;
+  min-height: 0; // important for the flexbox with overflow
+  overflow-y: auto; // auto instead scroll - shows scrollbar only when needed
+  overflow-x: hidden;
+  padding: 0.5rem;
+
+  // enforce scrollbar visibility (WebKit/Blink/macOS)
+  &::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--surface-ground, #f1f1f1);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--surface-400, #888);
+    border-radius: 4px;
+    min-height: 40px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-500, #555);
+  }
+}
+
+.comments-list {
+  padding-bottom: 0.5rem;
+}
+
+
+.comment-form {
+  flex: 0 0 auto;
+  padding: 0.5rem;
+  background: var(--surface-ground, #fff);
+
+  textarea {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  ::ng-deep .p-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .action-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: var(--surface-hover, #f0f0f0);
+    }
+  }
+
+  // Style for tags autocomplete to match pointerUrl input
+  ::ng-deep .tags-autocomplete {
+    width: 100%;
+
+    .p-autocomplete-input {
+      width: 100%;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      border: 1px solid var(--surface-border, #dee2e6);
+      border-radius: 0.375rem;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary-color, #3b82f6);
+        box-shadow: 0 0 0 1px var(--primary-color, #3b82f6);
+      }
+    }
+  }
+}
+
+// Tags dialog styles
+.tags-dialog-content {
+  ::ng-deep .tags-autocomplete {
+    flex: 1;
+
+    .p-autocomplete-input {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    // Ensure dropdown appears above dialog footer
+    .p-autocomplete-overlay {
+      z-index: 1100;
+    }
+  }
+}
+
+// Custom tag item styles
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--surface-200, #e9ecef);
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-color, #333);
+
+  i.fa-tag {
+    font-size: 0.7rem;
+    color: var(--text-color-secondary, #6c757d);
+  }
+
+  .tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.1rem;
+    color: var(--text-color-secondary, #6c757d);
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--red-500, #ef4444);
+    }
+
+    i {
+      font-size: 0.65rem;
+    }
+  }
+
+  &.tag-item-small {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    gap: 0.25rem;
+
+    i.fa-tag {
+      font-size: 0.55rem;
+    }
+
+    .tag-remove i {
+      font-size: 0.55rem;
+    }
+  }
+}
+

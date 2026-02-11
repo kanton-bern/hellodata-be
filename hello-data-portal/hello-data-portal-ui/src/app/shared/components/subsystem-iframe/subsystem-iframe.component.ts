@@ -83,20 +83,11 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
             const mainContentDiv = document.getElementById('mainContentDiv');
             mainContentDiv!.style.overflow = 'hidden';
           }
-          this.clickScrollTopIfExists();
         }, this.delay())
       }
     });
   }
 
-  private clickScrollTopIfExists() {
-    setTimeout(() => {
-      const elementsByClassNameElement = document.getElementsByClassName('p-scrolltop-sticky')[0];
-      if (elementsByClassNameElement) {
-        (elementsByClassNameElement as HTMLElement).click();
-      }
-    }, 500);
-  }
 
   ngOnDestroy() {
     if (this.accessTokenSub) {

@@ -9,7 +9,7 @@
           <ng-template pTemplate="caption">
             <div class="flex">
               <div style="text-align: left">
-                <p-button (onClick)="dt.exportCSV()"
+                <p-button (onClick)="dt.exportCSV()" severity="info"
                           [disabled]="(dataLoading$ | async) ?? false"
                           icon="pi pi-external-link" pRipple
                           label="{{ '@Export' | transloco }}"/>

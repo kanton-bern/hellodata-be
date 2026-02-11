@@ -58,7 +58,7 @@ import {PrimeTemplate} from "primeng/api";
   imports: [Button, Ripple, Drawer, PrimeTemplate, NgClass, AsyncPipe, TranslocoPipe]
 })
 export class MobileComponent {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
   appInfo = inject(AppInfoService);
   translateService = inject(TranslateService);
 

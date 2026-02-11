@@ -1,0 +1,272 @@
+///
+/// Copyright © 2024, Kanton Bern
+/// All rights reserved.
+///
+/// Redistribution and use in source and binary forms, with or without
+/// modification, are permitted provided that the following conditions are met:
+///     * Redistributions of source code must retain the above copyright
+///       notice, this list of conditions and the following disclaimer.
+///     * Redistributions in binary form must reproduce the above copyright
+///       notice, this list of conditions and the following disclaimer in the
+///       documentation and/or other materials provided with the distribution.
+///     * Neither the name of the <organization> nor the
+///       names of its contributors may be used to endorse or promote products
+///       derived from this software without specific prior written permission.
+///
+/// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+/// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+/// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+/// DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+/// DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+/// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+/// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+/// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+/// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+/// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+///
+
+import {Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
+import {Store} from "@ngrx/store";
+import {filter, switchMap, take} from "rxjs/operators";
+import {AsyncPipe, NgClass} from '@angular/common';
+import {TranslocoPipe} from "@jsverse/transloco";
+import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
+import {CommentsTogglePanelComponent} from "../comments-toggle-panel/comments-toggle-panel.component";
+import {BaseComponent} from "../../../shared/components/base/base.component";
+import {AppState} from "../../../store/app/app.state";
+import {OpenedSubsystemsService} from "../../../shared/services/opened-subsystems.service";
+import {
+  selectCurrentDashboardContextKey,
+  selectCurrentDashboardId,
+  selectCurrentDashboardUrl,
+  selectCurrentMyDashboardInfo
+} from "../../../store/my-dashboards/my-dashboards.selector";
+import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
+import {naviElements} from "../../../app-navi-elements";
+import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
+import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
+import {ActivatedRoute} from '@angular/router';
+
+export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
+const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
+
+@Component({
+  selector: 'app-embed-my-dashboard',
+  templateUrl: 'embed-my-dashboard.component.html',
+  styleUrls: ['./embed-my-dashboard.component.scss'],
+  imports: [SubsystemIframeComponent, AsyncPipe, NgClass, CommentsTogglePanelComponent, TranslocoPipe]
+})
+export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, OnDestroy {
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly openedSupersetsService = inject(OpenedSubsystemsService);
+  private readonly route = inject(ActivatedRoute);
+
+  private static readonly COMMENTS_WIDTH_KEY = 'hd_comments_panel_width_px';
+
+  @ViewChild('dashboardGrid') dashboardGrid!: ElementRef<HTMLElement>;
+
+  url!: string;
+  currentMyDashboardInfo$!: Observable<any>;
+  isCommentsOpen = false;
+
+  commentsPanelWidth = this.loadSavedWidth();
+  isResizing = false;
+
+  private loadedDashboardId: number | null = null;
+  private isNavigatingToPointerUrl = false;
+  private commentsRefreshSubscription: Subscription | null = null;
+
+  constructor() {
+    super();
+    this.currentMyDashboardInfo$ = combineLatest([
+      this.store.select(selectCurrentMyDashboardInfo),
+      this.store.select(selectSelectedLanguage),
+    ]).pipe(
+      filter(([_dashboardInfo, selectedLanguage]) => selectedLanguage !== null),
+      tap(([dashboardInfo, selectedLanguage]) => {
+        if (dashboardInfo) {
+          this.load(dashboardInfo, selectedLanguage.code as string);
+        }
+      }),
+    )
+  }
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+    // Overflow is handled by CSS using :has(app-embed-my-dashboard) selector
+
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
+      const pointerUrl = params['pointerUrl'];
+      if (pointerUrl) {
+        this.navigateToPointerUrl(pointerUrl);
+      }
+    });
+  }
+
+  get commentsGridTemplate(): string {
+    return `1fr 4px ${this.commentsPanelWidth}px`;
+  }
+
+  toggleComments(): void {
+    this.isCommentsOpen = !this.isCommentsOpen;
+
+    if (this.isCommentsOpen) {
+      // Load fresh comments when opening the panel and start refresh timer
+      this.loadCommentsAndStartTimer();
+    } else {
+      // Stop refresh timer when closing the panel
+      this.stopCommentsRefreshTimer();
+    }
+  }
+
+  startResizing(event: MouseEvent): void {
+    event.preventDefault();
+    this.isResizing = true;
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent): void {
+    if (!this.isResizing) return;
+
+    const gridRect = this.dashboardGrid.nativeElement.getBoundingClientRect();
+    const newWidth = gridRect.right - event.clientX;
+
+    // Min width 300px, max width 80% of screen
+    const minWidth = 300;
+    const maxWidth = gridRect.width * 0.8;
+
+    if (newWidth >= minWidth && newWidth <= maxWidth) {
+      this.commentsPanelWidth = newWidth;
+    }
+  }
+
+  @HostListener('document:mouseup')
+  stopResizing(): void {
+    if (this.isResizing) {
+      this.isResizing = false;
+      localStorage.setItem(EmbedMyDashboardComponent.COMMENTS_WIDTH_KEY, String(this.commentsPanelWidth));
+    }
+  }
+
+  private loadSavedWidth(): number {
+    const saved = localStorage.getItem(EmbedMyDashboardComponent.COMMENTS_WIDTH_KEY);
+    if (saved !== null) {
+      const width = Number(saved);
+      if (!isNaN(width) && width > 100) {
+        return width;
+      }
+    }
+    return 400; // Default width
+  }
+
+  ngOnDestroy(): void {
+    this.stopCommentsRefreshTimer();
+  }
+
+  private loadCommentsAndStartTimer(): void {
+    combineLatest([
+      this.store.select(selectCurrentDashboardId),
+      this.store.select(selectCurrentDashboardContextKey),
+      this.store.select(selectCurrentDashboardUrl)
+    ]).pipe(
+      filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null),
+      take(1)
+    ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
+      if (dashboardId && contextKey && dashboardUrl) {
+        // Load comments immediately
+        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+
+        // Start refresh timer - fetch current values from store on each tick
+        this.stopCommentsRefreshTimer();
+        this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
+          switchMap(() => combineLatest([
+            this.store.select(selectCurrentDashboardId),
+            this.store.select(selectCurrentDashboardContextKey),
+            this.store.select(selectCurrentDashboardUrl)
+          ]).pipe(take(1))),
+          filter(([id, key, url]) => id !== null && key !== null && url !== null)
+        ).subscribe(([currentDashboardId, currentContextKey, currentDashboardUrl]) => {
+          if (currentDashboardId && currentContextKey && currentDashboardUrl) {
+            this.store.dispatch(loadDashboardComments({
+              dashboardId: currentDashboardId,
+              contextKey: currentContextKey,
+              dashboardUrl: currentDashboardUrl
+            }));
+          }
+        });
+      }
+    });
+  }
+
+  private stopCommentsRefreshTimer(): void {
+    if (this.commentsRefreshSubscription) {
+      this.commentsRefreshSubscription.unsubscribe();
+      this.commentsRefreshSubscription = null;
+    }
+  }
+
+  private load(dashboardInfo: any, selectedLanguage: string) {
+    if (dashboardInfo.appinfo && dashboardInfo.dashboard && dashboardInfo.profile) {
+      const supersetUrl = dashboardInfo.appinfo?.data.url;
+      const dashboardPath = 'superset/dashboard/' + dashboardInfo.dashboard?.id + '/?standalone=1';
+      const supersetLogoutUrl = supersetUrl + 'logout';
+      const supersetLoginUrl = supersetUrl + `login/keycloak?lang=${selectedLanguage.slice(0, 2)}${encodeURIComponent('&')}next=${supersetUrl + dashboardPath}`;
+      const defaultUrl = supersetLogoutUrl + `?redirect=${supersetLoginUrl}`;
+
+      // Only set URL if not navigating to pointer URL
+      if (!this.isNavigatingToPointerUrl) {
+        this.url = defaultUrl;
+      }
+
+      this.openedSupersetsService.rememberOpenedSubsystem(supersetUrl + 'logout');
+      const dataDomainName = dashboardInfo.appinfo?.businessContextInfo.subContext.name;
+      this.createBreadcrumbs(dataDomainName, dashboardInfo.dashboard, dashboardInfo.currentUrl);
+
+      // Load comments for current dashboard
+      const dashboardId = dashboardInfo.dashboard.id;
+      const contextKey = dashboardInfo.appinfo?.businessContextInfo.subContext.key;
+      const dashboardUrl = defaultUrl;
+      if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
+        this.loadedDashboardId = dashboardId;
+        this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
+        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+      }
+    }
+  }
+
+  private createBreadcrumbs(dataDomainName: string, dashboard: SupersetDashboard | undefined, currentUrl: string) {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.myDashboards.label,
+          routerLink: naviElements.myDashboards.path
+        },
+        {
+          label: dataDomainName,
+          routerLink: naviElements.myDashboards.path,
+          queryParams: {
+            filteredBy: dashboard?.contextId
+          }
+        },
+        {
+          label: dashboard?.dashboardTitle,
+          routerLink: decodeURIComponent(currentUrl)
+        }
+      ]
+    }));
+  }
+
+  navigateToPointerUrl(pointerUrl: string): void {
+    if (pointerUrl) {
+      this.isNavigatingToPointerUrl = true;
+      // Force iframe reload by temporarily clearing URL, then setting the new one
+      // This ensures reload even when clicking the same link twice
+      this.url = '';
+      setTimeout(() => {
+        this.url = pointerUrl;
+      }, 0);
+    }
+  }
+}

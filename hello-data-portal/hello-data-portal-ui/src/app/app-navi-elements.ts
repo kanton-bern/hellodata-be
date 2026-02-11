@@ -109,6 +109,10 @@ export const naviElements: any = {
     path: 'detail/:instanceName/:id',
     label: '@Detail'
   },
+  domainComments: {
+    path: 'comments/:contextKey',
+    label: '@Domain Comments'
+  },
   query: {
     path: 'queries/list/:contextKey',
     label: '@Queries'

@@ -4,7 +4,7 @@
       <b>{{ ('@Business domain' | transloco) + ' ' + businessDomain.name }}</b>
       @for (dataDomain of dataDomains$ | async; track dataDomain) {
         <ul class="px-2">
-          <li [pTooltip]="dataDomain.contextKey">
+          <li [pTooltip]="dataDomain.contextKey" tooltipPosition="left">
             {{ ('@Data domain' | transloco) + ' ' + dataDomain.name + ' | ' + (dataDomain.extra ? 'Extra' : 'Standard') }}
           </li>
         </ul>

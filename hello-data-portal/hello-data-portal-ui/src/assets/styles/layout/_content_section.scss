@@ -26,6 +26,7 @@
  */
 .content-section {
   background-color: var(--surface-ground);
+  padding-top: 90px; /* Offset for fixed header (60px topbar + 30px breadcrumb) */
 
   .content-block, .card {
     margin-left: 40px;
@@ -33,6 +34,12 @@
     margin-top: 20px;
   }
 
+}
+
+/* Layout for .embedded-dashboard - using normal flow for proper zoom scaling */
+#mainContentDiv:has(.embedded-dashboard) {
+  height: calc(100vh - 90px) !important;
+  overflow-y: hidden !important;
 }
 
 .p-button.p-button-icon-only.p-button-rounded {

@@ -306,7 +306,12 @@ const routes: Routes = [
       },
       {
         path: naviElements.myDashboardDetail.path,
-        loadComponent: () => import('./pages/my-dashboards/embed-my-dashboard.component').then(m => m.EmbedMyDashboardComponent),
+        loadComponent: () => import('./pages/my-dashboards/embed-my-dashboard-wrapper/embed-my-dashboard-wrapper.component').then(m => m.EmbedMyDashboardWrapperComponent),
+        canActivate: [AutoLoginPartialRoutesGuard],
+      },
+      {
+        path: naviElements.domainComments.path,
+        loadComponent: () => import('./pages/my-dashboards/domain-comments/domain-comments.component').then(m => m.DomainDashboardCommentsComponent),
         canActivate: [AutoLoginPartialRoutesGuard],
       },
     ]

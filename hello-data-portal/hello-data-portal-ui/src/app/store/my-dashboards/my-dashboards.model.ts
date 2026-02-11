@@ -52,3 +52,40 @@ export interface DataDomain {
   key: string
 }
 
+export enum DashboardCommentStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED'
+}
+
+export interface DashboardCommentVersion {
+  version: number;
+  text: string;
+  status: DashboardCommentStatus;
+  editedDate: number;
+  editedBy: string;
+  publishedDate?: number;
+  publishedBy?: string;
+  deleted: boolean; // Soft delete - only non-deleted PUBLISHED versions are shown
+  tags?: string[]; // Tags snapshot for this version (for history tracking)
+  pointerUrl?: string; // Pointer URL snapshot for this version (for history tracking)
+}
+
+export interface DashboardCommentEntry {
+  id: string;
+  dashboardId: number;
+  dashboardUrl: string;
+  contextKey: string;
+  pointerUrl?: string; // Optional - URL to specific dashboard page/tab/chart the comment refers to
+  author: string;
+  authorEmail: string;
+  createdDate: number;
+  deleted: boolean;
+  deletedDate?: number;
+  deletedBy?: string;
+  // Versioning
+  activeVersion: number; // Currently active version from history
+  hasActiveDraft?: boolean; // True when this comment has an active draft edit
+  history: DashboardCommentVersion[]; // All versions of this comment
+  entityVersion: number; // incremented on each modification
+  tags?: string[]; // Tags associated with this comment
+}

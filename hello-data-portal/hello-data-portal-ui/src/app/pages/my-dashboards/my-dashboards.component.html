@@ -80,28 +80,30 @@
             {{ dashboard.status }}
           </td>
           <td>
-            <p-button (click)="openDashboard(dashboard)" (keydown)="openDashboard(dashboard)"
+            <p-button (click)="openDashboard(dashboard)" (keydown.enter)="openDashboard(dashboard)"
                       [pTooltip]="'@Open' | transloco"
-                      class="p-button-rounded mr-2"
+                      tooltipPosition="top"
+                      [rounded]="true"
+                      [text]="true"
                       severity="info"
-                      icon="fas fa-up-right-from-square"
-
-                      pRipple/>
-            <p-button (click)="openInfoPanel(dashboard)" (keydown)="openInfoPanel(dashboard)"
+                      class="mr-2"
+                      icon="fas fa-up-right-from-square"/>
+            <p-button (click)="openInfoPanel(dashboard)" (keydown.enter)="openInfoPanel(dashboard)"
                       [pTooltip]="'@Info' | transloco"
-                      class="p-button-rounded mr-2"
+                      tooltipPosition="top"
+                      [rounded]="true"
+                      [text]="true"
                       severity="help"
-                      icon="fas fa-circle-info"
-
-                      pRipple/>
-            <p-button (click)="editDashboard(dashboard)" (keydown)="editDashboard(dashboard)"
+                      class="mr-2"
+                      icon="fas fa-circle-info"/>
+            <p-button (click)="editDashboard(dashboard)" (keydown.enter)="editDashboard(dashboard)"
                       [pTooltip]="'@Edit' | transloco"
+                      tooltipPosition="top"
+                      [rounded]="true"
+                      [text]="true"
                       severity="success"
-                      class="p-button-rounded mr-2"
                       icon="fas fa-light fa-pen-to-square"
-                      [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"
-
-                      pRipple/>
+                      [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"/>
           </td>
         </tr>
       </ng-template>

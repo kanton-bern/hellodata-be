@@ -1,0 +1,11 @@
+<div class="comments-panel">
+  <div class="close-btn-container">
+    <button class="close-btn"
+            [pTooltip]="'@Close comments panel' | transloco"
+            tooltipPosition="bottom"
+            (click)="toggleComments.emit()">
+      <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+    </button>
+  </div>
+  <app-comments-feed class="comments-feed-wrapper" (pointerUrlClick)="pointerUrlClick.emit($event)"></app-comments-feed>
+</div>

@@ -60,7 +60,7 @@
       <div class="p-toolbar-group-start">
       </div>
       <div class="p-toolbar-group-end">
-        <p-button (click)="createUser()"
+        <p-button (click)="createUser()" (keydown.enter)="createUser()"
                   [disabled]="inviteForm.invalid"
                   icon="fas fa-floppy-disk"
                   [label]="'@Set permissions' | transloco"
@@ -79,7 +79,7 @@
     @if ((syncStatus$ | async); as syncStatus) {
       <div class="p-toolbar-group-end">
         <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
-                  [pTooltip]="'@Sync Users Title' | transloco"
+                  [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
                   icon="fas fa-arrows-rotate"
                   [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
                   severity="success" pRipple/>
@@ -186,33 +186,42 @@
         </td>
         @if ((loggedInUser$ | async); as loggedInUser) {
           <td>
-            <p-button (click)="editUser(user)"
+            <p-button (click)="editUser(user)" (keydown.enter)="editUser(user)"
                       severity="success"
-                      class="p-button-rounded mr-2"
+                      [rounded]="true"
+                      [text]="true"
+                      class="mr-2"
                       icon="fas fa-light fa-pen-to-square"
-
-                      pRipple
-                      pTooltip="{{'@Edit' | transloco}}"/>
+                      [pTooltip]="'@Edit' | transloco"
+                      tooltipPosition="top"/>
             @if (!user.superuser && !user.enabled && user.email !== loggedInUser.email) {
-              <p-button (click)="enableUser(user)"
+              <p-button (click)="enableUser(user)" (keydown.enter)="enableUser(user)"
                         severity="success"
-                        class="p-button-rounded mr-2"
-                        icon="fas fa-circle-plus" pRipple
-                        pTooltip="{{'@Enable' | transloco}}"/>
+                        [rounded]="true"
+                        [text]="true"
+                        class="mr-2"
+                        icon="fas fa-circle-plus"
+                        [pTooltip]="'@Enable' | transloco"
+                        tooltipPosition="top"/>
             }
             @if (!user.superuser && user.enabled && user.email !== loggedInUser.email) {
-              <p-button (click)="disableUser(user)"
+              <p-button (click)="disableUser(user)" (keydown.enter)="disableUser(user)"
                         severity="warn"
-                        class="p-button-rounded mr-2"
-                        icon="fas fa-circle-xmark" pRipple
-                        pTooltip="{{'@Disable' | transloco}}"/>
+                        [rounded]="true"
+                        [text]="true"
+                        class="mr-2"
+                        icon="fas fa-circle-xmark"
+                        [pTooltip]="'@Disable' | transloco"
+                        tooltipPosition="top"/>
             }
             @if (!user.superuser && user.email !== loggedInUser.email) {
-              <p-button (click)="showUserDeletionPopup(user)"
+              <p-button (click)="showUserDeletionPopup(user)" (keydown.enter)="showUserDeletionPopup(user)"
                         severity="danger"
-                        class="p-button-rounded mr-2"
-                        icon="fas fa-trash" pRipple
-                        pTooltip="{{'@Delete' | transloco}}"/>
+                        [rounded]="true"
+                        [text]="true"
+                        icon="fas fa-trash"
+                        [pTooltip]="'@Delete' | transloco"
+                        tooltipPosition="top"/>
             }
           </td>
         }

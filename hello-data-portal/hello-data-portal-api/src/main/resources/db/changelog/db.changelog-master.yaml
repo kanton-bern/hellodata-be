@@ -120,3 +120,17 @@ databaseChangeLog:
       file: db/changelog/changelogs/45_remove_deprecated_faq.xml
   - include:
       file: db/changelog/changelogs/46_remove_deprecated_documentation.xml
+  - include:
+      file: db/changelog/changelogs/47_create_dashboard_comments_tables.xml
+  - include:
+      file: db/changelog/changelogs/48_fix_entity_version_nullable.xml
+  - include:
+      file: db/changelog/changelogs/49_create_dashboard_comment_tags_table.xml
+  - include:
+      file: db/changelog/changelogs/50_add_tags_to_comment_version.xml
+  - include:
+      file: db/changelog/changelogs/51_add_imported_from_id_to_dashboard_comment.xml
+  - include:
+      file: db/changelog/changelogs/52_add_pointer_url_to_comment_version.xml
+  - include:
+      file: db/changelog/changelogs/53_drop_comment_entity_pointer_url_and_tags.xml

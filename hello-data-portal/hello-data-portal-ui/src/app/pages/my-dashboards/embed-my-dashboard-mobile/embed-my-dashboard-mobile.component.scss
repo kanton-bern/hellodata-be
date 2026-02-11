@@ -1,0 +1,100 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mobile-comments-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  width: 100%;
+  background-color: var(--p-surface-100);
+  border: none;
+  border-bottom: 1px solid var(--p-surface-border);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: var(--p-surface-200);
+  }
+
+  &:focus {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: -2px;
+  }
+
+  i {
+    font-size: 1.2rem;
+    color: var(--p-primary-color);
+  }
+
+  span {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--p-text-color);
+  }
+}
+
+.mobile-dashboard-container {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+
+  app-subsystem-iframe {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 1.2rem;
+    color: var(--p-primary-color);
+  }
+
+  span {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+}
+
+.mobile-comments-feed {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  ::ng-deep .comments-container {
+    border-right: none !important;
+  }
+}
+
+::ng-deep {
+  .p-drawer-content {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .comments-drawer-no-header {
+    .p-drawer-header,
+    .p-sidebar-header {
+      display: none !important;
+    }
+
+    .p-drawer-content,
+    .p-sidebar-content {
+      height: 100% !important;
+    }
+  }
+}
+

@@ -1,0 +1,85 @@
+/**
+ * Copyright © 2024, Kanton Bern
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.embedded-dashboard {
+  width: 100%;
+  height: 100%;
+}
+
+.iframe-container {
+  border-right: 1px solid var(--surface-border, #dee2e6);
+  overflow-anchor: none;
+  position: relative; /* Needed for overlay */
+}
+
+.comments-panel {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  height: 100%;
+
+  app-comments-toggle-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+}
+
+.comments-panel-closed {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  background-color: var(--surface-ground, #f8f9fa);
+  padding: 0.5rem 0.25rem;
+  min-width: 1.5rem;
+  white-space: nowrap;
+}
+
+.comments-panel-open {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.resizer {
+  width: 4px;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 0.2s;
+  z-index: 10;
+
+  &:hover, &:active {
+    background-color: var(--primary-color, #3B82F6);
+  }
+}

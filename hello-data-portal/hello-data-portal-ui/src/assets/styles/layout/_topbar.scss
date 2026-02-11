@@ -36,8 +36,9 @@ $background-color: #ffffff;
 }
 
 #layout-topbar {
-  height: 65px;
-  padding-top: 20px;
+  height: 60px;
+  display: flex;
+  align-items: center;
 }
 
 #topbar-right-group {
@@ -67,8 +68,14 @@ $background-color: #ffffff;
 
 app-header {
   z-index: 100;
-  position: inherit;
+  position: fixed;
+  top: 0;
+  left: 260px;
+  right: 0;
+  width: calc(100% - 260px);
+  transition: all 0.5s ease;
 }
+
 
 app-published-announcements p-toolbar .p-toolbar-group-start i {
   font-size: 30px;
@@ -91,7 +98,10 @@ app-breadcrumb {
   background-color: var(--surface-ground) !important;
   border-radius: 0 !important;
   border: 1px solid #e5e5e5;
-
+  height: 30px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
 }
 
 .topbar-left-group {

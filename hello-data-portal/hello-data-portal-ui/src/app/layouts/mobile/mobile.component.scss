@@ -29,3 +29,84 @@
   font-weight: bold;
   text-decoration: underline;
 }
+
+.mobile-content-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+::ng-deep {
+  .p-drawer {
+    .p-drawer-content {
+      padding: 1rem !important;
+    }
+
+    .p-drawer-header {
+      padding: 1rem !important;
+    }
+  }
+
+  // Sidebar fallback (older PrimeNG versions)
+  .p-sidebar {
+    .p-sidebar-content {
+      padding: 1rem !important;
+    }
+
+    .p-sidebar-header {
+      padding: 1rem !important;
+    }
+  }
+
+  // Confirm dialog mobile styles
+  .p-confirmdialog {
+    max-width: 90vw !important;
+    width: 90vw !important;
+    margin: 0 auto;
+
+    .p-confirmdialog-message {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .p-dialog-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem !important;
+
+      button, p-button {
+        width: 100% !important;
+        justify-content: center;
+      }
+    }
+  }
+
+  // Toast mobile styles
+  .p-toast {
+    max-width: 90vw !important;
+    width: 90vw !important;
+    left: 5vw !important;
+    right: 5vw !important;
+
+    .p-toast-message {
+      width: 100% !important;
+    }
+
+    .p-toast-message-content {
+      flex-wrap: wrap;
+    }
+
+    .p-toast-summary {
+      word-wrap: break-word;
+    }
+
+    .p-toast-detail {
+      word-wrap: break-word;
+    }
+  }
+}
+

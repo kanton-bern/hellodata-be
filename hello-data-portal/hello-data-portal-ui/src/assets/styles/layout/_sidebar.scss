@@ -246,7 +246,6 @@ body {
 }
 
 .content-section {
-  top: -8px;
   position: relative;
   left: 260px;
   width: calc(100% - 260px);
@@ -256,6 +255,11 @@ body {
 .sidebar.close ~ .content-section {
   left: 70px;
   width: calc(100% - 63px);
+}
+
+.sidebar.close ~ .content-section app-header {
+  left: 70px;
+  width: calc(100% - 70px);
 }
 
 .home-content {

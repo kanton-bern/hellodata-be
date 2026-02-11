@@ -28,7 +28,7 @@
 import {AfterViewInit, Component, inject, ViewContainerRef} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-dashboard.component";
+import {VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY} from "../my-dashboards/embed-my-dashboard/embed-my-dashboard.component";
 import {SubsystemIframeComponent} from "../../shared/components/subsystem-iframe/subsystem-iframe.component";
 import {environment} from "../../../environments/environment";
 import {logout} from "../../store/auth/auth.action";
@@ -41,14 +41,14 @@ import {TranslocoPipe} from '@jsverse/transloco';
   imports: [TranslocoPipe]
 })
 export class LogoutComponent implements AfterViewInit {
-  private store = inject<Store<AppState>>(Store);
-  private dynamicComponentContainer = inject(ViewContainerRef);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly dynamicComponentContainer = inject(ViewContainerRef);
 
   constructor() {
     // check if superset was opened in an iframe, if so call for logout there as well
     const openedSubsystems = sessionStorage.getItem(VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY);
     if (openedSubsystems) {
-      const storedSetArray: string[] = JSON.parse(openedSubsystems || '[]');
+      const storedSetArray: string[] = JSON.parse(openedSubsystems);
       storedSetArray.forEach(url => {
         const componentRefSupersetIframe = this.dynamicComponentContainer.createComponent(SubsystemIframeComponent);
         componentRefSupersetIframe.setInput('url', url);

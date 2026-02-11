@@ -1,0 +1,474 @@
+:host {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.comment-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.comment-footer {
+  display: block;
+}
+
+.comment-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  .author-name {
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+      color: var(--primary-color, #3b82f6);
+    }
+  }
+
+  .edited-badge {
+    font-style: italic;
+    color: var(--text-color-secondary, #6c757d);
+  }
+
+  .version-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--primary-color, #3b82f6);
+    color: white;
+    border-radius: 0.25rem;
+  }
+
+  .draft-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--orange-500, #f97316);
+    color: white;
+    border-radius: 0.25rem;
+    font-weight: 500;
+  }
+}
+
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+
+    i {
+      font-size: 0.7rem;
+      line-height: 1;
+    }
+  }
+}
+
+.comment-item.draft-border {
+  border-style: dashed;
+  border-color: var(--surface-400, #9ca3af);
+}
+
+::ng-deep .p-tooltip {
+  font-size: 0.625rem;
+}
+
+// Action buttons - shared styles
+.info-btn, .publish-btn, .unpublish-btn, .delete-btn, .edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.info-btn {
+  color: var(--text-color-secondary, #6c757d);
+
+  &:hover {
+    color: var(--primary-color, #3b82f6);
+  }
+}
+
+.publish-btn {
+  color: var(--green-500, #22c55e);
+
+  &:hover {
+    color: var(--green-600, #16a34a);
+  }
+}
+
+.unpublish-btn {
+  color: var(--orange-500, #f97316);
+
+  &:hover {
+    color: var(--orange-600, #ea580c);
+  }
+}
+
+.delete-btn {
+  color: var(--red-500, #ef4444);
+
+  &:hover {
+    color: var(--red-600, #dc2626);
+  }
+}
+
+.edit-btn {
+  color: var(--blue-500, #3b82f6);
+
+  &:hover {
+    color: var(--blue-600, #2563eb);
+  }
+}
+
+.comment-details {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--surface-border, #dee2e6);
+  color: var(--text-color-secondary, #6c757d);
+
+  div {
+    margin-bottom: 0.25rem;
+  }
+
+  .pointer-url-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .pointer-url-info-link {
+    color: var(--primary-color, #3b82f6);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 250px;
+    font-size: inherit;
+
+    &:hover {
+      text-decoration: underline;
+      color: var(--primary-700, #1d4ed8);
+    }
+  }
+
+  .version-history {
+    margin-top: 0.5rem;
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.25rem 0 0 0;
+    }
+
+    .history-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 0.25rem 0;
+      border-bottom: 1px dashed var(--surface-border, #dee2e6);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &.active-version {
+        background-color: var(--green-50, #f0fdf4);
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        margin: 0 -0.5rem;
+      }
+    }
+
+    .history-item-main {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .history-text-row {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-start;
+      padding-left: 1.5rem;
+    }
+
+    .history-text-label {
+      font-size: 0.6rem;
+      color: var(--text-color-secondary, #6c757d);
+      flex-shrink: 0;
+    }
+
+    .history-pointer-url-row {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-start;
+      padding-left: 1.5rem;
+    }
+
+    .history-pointer-url-label {
+      font-size: 0.6rem;
+      color: var(--text-color-secondary, #6c757d);
+      flex-shrink: 0;
+    }
+
+    .history-pointer-url {
+      font-size: 0.6rem;
+      color: var(--primary-color, #3b82f6);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .history-pointer-url-link {
+      font-size: 0.6rem;
+      color: var(--primary-color, #3b82f6);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &:hover {
+        text-decoration: underline;
+        color: var(--primary-700, #1d4ed8);
+      }
+    }
+
+    .history-tags-row {
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      align-items: center;
+      padding-left: 1.5rem;
+    }
+
+    .history-tags-label {
+      font-size: 0.6rem;
+      color: var(--text-color-secondary, #6c757d);
+    }
+
+    .active-badge {
+      font-size: 0.6rem;
+      padding: 0.1rem 0.3rem;
+      background-color: var(--green-500, #22c55e);
+      color: white;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge {
+      font-size: 0.6rem;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      text-transform: uppercase;
+
+      &.status-draft {
+        background-color: var(--gray-200, #e5e7eb);
+        color: var(--gray-700, #374151);
+      }
+
+      &.status-published {
+        background-color: var(--blue-100, #dbeafe);
+        color: var(--blue-700, #1d4ed8);
+      }
+    }
+
+    .history-version {
+      font-weight: 600;
+      color: var(--primary-color, #3b82f6);
+      min-width: 1.5rem;
+    }
+
+    .history-date, .history-author {
+      color: var(--text-color-secondary, #6c757d);
+    }
+
+    .history-date {
+      min-width: 4rem;
+    }
+
+    .history-author {
+      min-width: 5rem;
+    }
+
+    .history-text {
+      font-size: 0.65rem;
+      color: var(--text-color, #333);
+      cursor: pointer;
+
+      &:hover {
+        color: var(--primary-color, #3b82f6);
+      }
+    }
+
+    .history-tags {
+      display: flex;
+      gap: 0.2rem;
+      flex-wrap: wrap;
+      max-width: 8rem;
+    }
+
+    .history-tag {
+      font-size: 0.55rem;
+      padding: 0.1rem 0.25rem;
+      background-color: var(--blue-100, #dbeafe);
+      color: var(--blue-700, #1d4ed8);
+      border-radius: 0.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+
+      i {
+        font-size: 0.5rem;
+      }
+    }
+
+    .restore-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--green-500, #22c55e);
+      padding: 0;
+      margin-left: auto;
+
+      &:hover {
+        color: var(--green-600, #16a34a);
+      }
+
+      i {
+        font-size: 0.7rem;
+      }
+    }
+  }
+}
+
+.edit-dialog-content {
+  .edit-warning {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: var(--orange-50, #fff7ed);
+    border: 1px solid var(--orange-200, #fed7aa);
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--orange-700, #c2410c);
+  }
+
+  textarea {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+}
+
+.comment-tags .tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.65rem;
+  background-color: var(--blue-50, #eff6ff);
+  color: var(--blue-700, #1d4ed8);
+  border: 1px solid var(--blue-200, #bfdbfe);
+  border-radius: 0.75rem;
+
+  i {
+    color: var(--blue-500, #3b82f6);
+  }
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--surface-200, #e9ecef);
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-color, #333);
+
+  i.fa-tag {
+    font-size: 0.7rem;
+    color: var(--text-color-secondary, #6c757d);
+  }
+
+  .tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.1rem;
+    color: var(--text-color-secondary, #6c757d);
+
+    &:hover {
+      color: var(--red-500, #ef4444);
+    }
+
+    i {
+      font-size: 0.65rem;
+    }
+  }
+}
+
+::ng-deep .tags-autocomplete {
+  width: 100%;
+
+  .p-autocomplete-input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+.clear-pointer-url-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--text-color-secondary, #6c757d);
+  border-radius: 0.25rem;
+
+  &:hover {
+    color: var(--red-500, #ef4444);
+    background-color: var(--red-50, #fef2f2);
+  }
+
+  i {
+    font-size: 0.875rem;
+  }
+}
+

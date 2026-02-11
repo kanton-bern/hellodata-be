@@ -30,7 +30,9 @@ import {createSelector} from "@ngrx/store";
 import {MyDashboardsState} from "./my-dashboards.state";
 import {ALL_DATA_DOMAINS} from "../app/app.constants";
 import {selectQueryParam, selectRouteParam, selectUrl} from "../router/router.selectors";
-import {selectProfile} from "../auth/auth.selector";
+import {selectIsBusinessDomainAdmin, selectIsSuperuser, selectProfile} from "../auth/auth.selector";
+import {DashboardCommentEntry, DashboardCommentStatus, DashboardCommentVersion} from "./my-dashboards.model";
+import {DATA_DOMAIN_ADMIN_ROLE, DATA_DOMAIN_CONTEXT_TYPE} from "../users-management/users-management.model";
 
 const myDashboardsState = (state: AppState) => state.myDashboards;
 const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
@@ -38,6 +40,8 @@ const metaInfoResourcesState = (state: AppState) => state.metaInfoResources;
 export const selectDashboardId = selectRouteParam('id');
 export const selectInstanceName = selectRouteParam('instanceName');
 export const selectFilteredBy = selectQueryParam('filteredBy');
+export const selectContextKey = selectRouteParam('contextKey');
+export const selectContextName = selectQueryParam('contextName');
 
 export const selectSelectedDataDomain = createSelector(
   myDashboardsState,
@@ -96,7 +100,7 @@ export const selectAvailableDataDomainItems = createSelector(
   selectAvailableDataDomains,
   selectSelectedDataDomain,
   (availableDataDomains, selectedDataDomain) => {
-    if (selectedDataDomain && selectedDataDomain.id === '') {
+    if (selectedDataDomain?.id === '') {
       return availableDataDomains
         .filter(availableDataDomain => availableDataDomain.id)
         .map(availableDataDomain => ({
@@ -145,3 +149,201 @@ export const selectCurrentMyDashboardInfo = createSelector(
     }
   }
 );
+
+// Comments selectors
+export const selectCurrentDashboardId = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardId
+);
+
+export const selectCurrentDashboardContextKey = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardContextKey
+);
+
+export const selectCurrentDashboardUrl = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardUrl
+);
+
+export const selectCurrentDashboardComments = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.currentDashboardComments
+);
+
+export const selectAvailableTags = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.availableTags
+);
+
+// Helper function to get active version from comment
+const getActiveVersion = (comment: DashboardCommentEntry): DashboardCommentVersion | undefined =>
+  comment.history.find(v => v.version === comment.activeVersion);
+
+export const selectVisibleComments = createSelector(
+  selectCurrentDashboardComments,
+  (comments) => {
+    // Backend already filters comments based on user permissions
+    // Just ensure we're showing the correct active version for each comment
+    return comments
+      .filter(comment => !comment.deleted)
+      .map(comment => {
+        const currentActive = getActiveVersion(comment);
+        if (!currentActive || currentActive.deleted) return null;
+
+        return {
+          ...comment,
+          activeVersion: currentActive.version
+        };
+      })
+      .filter((c): c is DashboardCommentEntry => c !== null)
+      .sort((a, b) => a.createdDate - b.createdDate);
+  }
+);
+
+export const selectPublishedComments = createSelector(
+  selectCurrentDashboardComments,
+  (comments) => comments.filter(c => {
+    const activeVersion = getActiveVersion(c);
+    return activeVersion && !activeVersion.deleted && activeVersion.status === DashboardCommentStatus.PUBLISHED;
+  }).sort((a, b) => a.createdDate - b.createdDate)
+);
+
+export const selectDraftComments = createSelector(
+  selectCurrentDashboardComments,
+  (comments) => comments.filter(c => {
+    const activeVersion = getActiveVersion(c);
+    return activeVersion && !activeVersion.deleted && activeVersion.status === DashboardCommentStatus.DRAFT;
+  }).sort((a, b) => a.createdDate - b.createdDate)
+);
+
+export const selectCommentsCount = createSelector(
+  selectCurrentDashboardComments,
+  (comments) => comments.length
+);
+
+export const selectPublishedCommentsCount = createSelector(
+  selectPublishedComments,
+  (comments) => comments.length
+);
+
+export const canEditComment = createSelector(
+  selectProfile,
+  selectCurrentDashboardContextKey,
+  selectIsSuperuser,
+  selectIsBusinessDomainAdmin,
+  (state: AppState) => state.auth,
+  (profile, contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
+    const currentUserEmail = profile?.email;
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
+
+    // Check if user is data_domain_admin for this specific context
+    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
+      ? authState.contextRoles.some(userContextRole =>
+        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+        userContextRole.context.contextKey === contextKey &&
+        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+      )
+      : false;
+
+    // Can edit: author (by email), superuser, business_domain_admin, data_domain_admin
+    return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
+  }
+);
+
+export const canPublishComment = createSelector(
+  selectCurrentDashboardContextKey,
+  selectIsSuperuser,
+  selectIsBusinessDomainAdmin,
+  (state: AppState) => state.auth,
+  (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
+
+    // Check if user is data_domain_admin for this specific context
+    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
+      ? authState.contextRoles.some(userContextRole =>
+        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+        userContextRole.context.contextKey === contextKey &&
+        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+      )
+      : false;
+
+    // Can publish: superuser, business_domain_admin, data_domain_admin
+    const canPublish = isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
+    return activeVersion.status === DashboardCommentStatus.DRAFT &&
+      activeVersion.text.length > 0 &&
+      canPublish;
+  }
+);
+
+export const canUnpublishComment = createSelector(
+  selectCurrentDashboardContextKey,
+  selectIsSuperuser,
+  selectIsBusinessDomainAdmin,
+  (state: AppState) => state.auth,
+  (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || activeVersion.deleted || comment.deleted) return false;
+
+    // Check if user is data_domain_admin for this specific context
+    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
+      ? authState.contextRoles.some(userContextRole =>
+        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+        userContextRole.context.contextKey === contextKey &&
+        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+      )
+      : false;
+
+    // Can unpublish: superuser, business_domain_admin, data_domain_admin
+    const canUnpublish = isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
+    return activeVersion.status === DashboardCommentStatus.PUBLISHED && canUnpublish;
+  }
+);
+
+export const canDeleteComment = createSelector(
+  selectProfile,
+  selectCurrentDashboardContextKey,
+  selectIsSuperuser,
+  selectIsBusinessDomainAdmin,
+  (state: AppState) => state.auth,
+  (profile, contextKey, isSuperuser, isBusinessDomainAdmin, authState) => (comment: DashboardCommentEntry) => {
+    const currentUserEmail = profile?.email;
+    const activeVersion = getActiveVersion(comment);
+    if (!activeVersion || comment.deleted) return false;
+
+    // Check if user is data_domain_admin for this specific context
+    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
+      ? authState.contextRoles.some(userContextRole =>
+        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+        userContextRole.context.contextKey === contextKey &&
+        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+      )
+      : false;
+
+    // Can delete: author (by email), superuser, business_domain_admin, data_domain_admin
+    return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin || (currentUserEmail && comment.authorEmail === currentUserEmail);
+  }
+);
+
+export const canViewMetadataAndVersions = createSelector(
+  selectCurrentDashboardContextKey,
+  selectIsSuperuser,
+  selectIsBusinessDomainAdmin,
+  (state: AppState) => state.auth,
+  (contextKey, isSuperuser, isBusinessDomainAdmin, authState) => {
+    // Check if user is data_domain_admin for this specific context
+    const isDataDomainAdmin = contextKey && authState.contextRoles.length > 0
+      ? authState.contextRoles.some(userContextRole =>
+        userContextRole.context.type === DATA_DOMAIN_CONTEXT_TYPE &&
+        userContextRole.context.contextKey === contextKey &&
+        userContextRole.role.name === DATA_DOMAIN_ADMIN_ROLE
+      )
+      : false;
+
+    // Can view metadata and switch versions: superuser, business_domain_admin, data_domain_admin
+    return isSuperuser || isBusinessDomainAdmin || isDataDomainAdmin;
+  }
+);
+

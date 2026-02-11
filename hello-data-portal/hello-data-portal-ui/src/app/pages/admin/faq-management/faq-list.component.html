@@ -4,7 +4,7 @@
     <p-toolbar class="mb-6 gap-2">
       <ng-template pTemplate="left">
         <p-button (click)="createFaq()" severity="success" icon="fas fa-circle-plus" id="createFaqButton"
-                  [label]="'@Create' | transloco" pRipple></p-button>
+                  [label]="'@Create' | transloco" pRipple (keydown.enter)="createFaq()"></p-button>
       </ng-template>
     </p-toolbar>
     @if ((faq$ | async); as faq) {
@@ -50,21 +50,23 @@
                   </p-editor>
                 </td>
                 <td>
-                  <p-button (click)="editFaq(faq)"
+                  <p-button (click)="editFaq(faq)" (keydown.enter)="editFaq(faq)"
                             [pTooltip]="'@Edit' | transloco"
+                            tooltipPosition="top"
                             severity="success"
-                            class="p-button-rounded mr-2"
-                            icon="fas fa-light fa-pen-to-square" id="{{'editFaq_' + faq.title}}"
-
-                            pRipple/>
-                  <p-button (click)="showFaqDeletionPopup(faq)"
+                            [rounded]="true"
+                            [text]="true"
+                            class="mr-2"
+                            icon="fas fa-light fa-pen-to-square"
+                            id="{{'editFaq_' + faq.title}}"/>
+                  <p-button (click)="showFaqDeletionPopup(faq)" (keydown.enter)="showFaqDeletionPopup(faq)"
                             [pTooltip]="'@Delete' | transloco"
+                            tooltipPosition="top"
                             severity="danger"
-                            class="p-button-rounded mr-2"
+                            [rounded]="true"
+                            [text]="true"
                             icon="fas fa-trash"
-                            id="{{'deleteFaq_' + faq.title}}"
-
-                            pRipple/>
+                            id="{{'deleteFaq_' + faq.title}}"/>
                 </td>
               </tr>
             </ng-template>

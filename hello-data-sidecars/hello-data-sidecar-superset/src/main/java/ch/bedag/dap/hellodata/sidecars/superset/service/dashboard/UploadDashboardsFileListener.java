@@ -4,11 +4,15 @@ import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardUpload;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
+import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.DashboardResourceProviderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Message;
@@ -41,6 +45,11 @@ public class UploadDashboardsFileListener {
     private static final String CHUNK_SUFFIX = ".tmp";
     private static final int FILE_BUFFER_SIZE = 1024 * 1024;
     private static final String FOLDER_NAMES_REGEX_PATTERN = "[^A-Za-z0-9\\-_]";
+    private static final String JSON_KEY_ERRORS = "errors";
+    private static final String JSON_KEY_MESSAGE = "message";
+    private static final String JSON_KEY_EXTRA = "extra";
+    private static final String JSON_KEY_ISSUE_CODES = "issue_codes";
+    private static final String RAW_MESSAGE_PREFIX = "message=";
     private final Connection natsConnection;
     private final SupersetClientProvider supersetClientProvider;
     private final ObjectMapper objectMapper;
@@ -90,7 +99,8 @@ public class UploadDashboardsFileListener {
                 dashboardResourceProviderService.publishDashboards();
             } catch (URISyntaxException | IOException | RuntimeException e) {
                 log.error("Error uploading dashboards", e);
-                natsConnection.publish(msg.getReplyTo(), e.getMessage().getBytes(StandardCharsets.UTF_8));
+                String userFriendlyMessage = extractUserFriendlyErrorMessage(e);
+                natsConnection.publish(msg.getReplyTo(), userFriendlyMessage.getBytes(StandardCharsets.UTF_8));
             } finally {
                 if (binaryFileId != null) {
                     deleteTempBinaryFileData(binaryFileId);
@@ -350,6 +360,99 @@ public class UploadDashboardsFileListener {
                         length = in.read(buffer);
                     }
                 }
+            }
+        }
+    }
+
+    private String extractUserFriendlyErrorMessage(Exception e) {
+        if (e instanceof UnexpectedResponseException ure) {
+            return extractMessageFromSupersetError(e.getMessage(), ure.getCode());
+        }
+        if (e instanceof UploadDashboardsFileException) {
+            return e.getMessage();
+        }
+        return "Dashboard import failed: " + e.getMessage();
+    }
+
+    private String extractMessageFromSupersetError(String rawMessage, int statusCode) {
+        try {
+            String jsonPart = extractJsonFromRawMessage(rawMessage);
+            if (jsonPart == null) {
+                return rawMessage;
+            }
+            String extracted = parseErrorJson(jsonPart);
+            if (extracted != null) {
+                return extracted;
+            }
+        } catch (Exception parseException) {
+            log.debug("Could not parse Superset error JSON, returning raw message", parseException);
+        }
+        return "Dashboard import failed (HTTP " + statusCode + ")";
+    }
+
+    private String extractJsonFromRawMessage(String rawMessage) {
+        int messageStart = rawMessage.indexOf(RAW_MESSAGE_PREFIX);
+        if (messageStart == -1) {
+            return null;
+        }
+        return rawMessage.substring(messageStart + RAW_MESSAGE_PREFIX.length());
+    }
+
+    private String parseErrorJson(String jsonPart) {
+        JsonElement jsonElement = JsonParser.parseString(jsonPart);
+        if (!jsonElement.isJsonObject()) {
+            return null;
+        }
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        String errorsMessage = extractFromErrorsArray(jsonObject);
+        if (errorsMessage != null) {
+            return errorsMessage;
+        }
+        if (jsonObject.has(JSON_KEY_MESSAGE)) {
+            return jsonObject.get(JSON_KEY_MESSAGE).getAsString();
+        }
+        return null;
+    }
+
+    private String extractFromErrorsArray(JsonObject jsonObject) {
+        if (!jsonObject.has(JSON_KEY_ERRORS) || !jsonObject.get(JSON_KEY_ERRORS).isJsonArray()) {
+            return null;
+        }
+        JsonArray errors = jsonObject.getAsJsonArray(JSON_KEY_ERRORS);
+        if (errors.isEmpty()) {
+            return null;
+        }
+        StringBuilder messages = new StringBuilder();
+        for (JsonElement error : errors) {
+            if (error.isJsonObject()) {
+                appendErrorMessage(error.getAsJsonObject(), messages);
+            }
+        }
+        return messages.isEmpty() ? null : messages.toString().trim();
+    }
+
+    private void appendErrorMessage(JsonObject errorObj, StringBuilder messages) {
+        if (!errorObj.has(JSON_KEY_MESSAGE)) {
+            return;
+        }
+        if (!messages.isEmpty()) {
+            messages.append("; ");
+        }
+        messages.append(errorObj.get(JSON_KEY_MESSAGE).getAsString());
+        appendIssueCodes(errorObj, messages);
+    }
+
+    private void appendIssueCodes(JsonObject errorObj, StringBuilder messages) {
+        if (!errorObj.has(JSON_KEY_EXTRA) || !errorObj.get(JSON_KEY_EXTRA).isJsonObject()) {
+            return;
+        }
+        JsonObject extra = errorObj.getAsJsonObject(JSON_KEY_EXTRA);
+        if (!extra.has(JSON_KEY_ISSUE_CODES) || !extra.get(JSON_KEY_ISSUE_CODES).isJsonArray()) {
+            return;
+        }
+        for (JsonElement issueCode : extra.getAsJsonArray(JSON_KEY_ISSUE_CODES)) {
+            if (issueCode.isJsonObject() && issueCode.getAsJsonObject().has(JSON_KEY_MESSAGE)) {
+                messages.append(" - ").append(issueCode.getAsJsonObject().get(JSON_KEY_MESSAGE).getAsString());
             }
         }
     }
