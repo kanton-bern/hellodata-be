@@ -106,6 +106,7 @@
                                     [options]="availableBusinessDomainRoles$ | async"
                                     formControlName="{{businessDomain.contextKey}}"
                                     id="businessDomain"
+                                    scrollHeight="flex"
                                     optionLabel="name"/>
                                 </div>
                               </div>
@@ -138,6 +139,7 @@
                                           [options]="availableDataDomainRoles"
                                           formControlName="{{dataDomain.contextKey}}"
                                           id="dataDomain"
+                                          scrollHeight="flex"
                                           optionLabel="name"
                                           [style]="{'width': '100%'}"/>
                               </div>
