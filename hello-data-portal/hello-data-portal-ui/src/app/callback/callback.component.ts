@@ -43,31 +43,27 @@ export class CallbackComponent implements OnInit, OnDestroy {
   private readonly actions$ = inject(Actions);
   private readonly destroy$ = new Subject<void>();
 
-  errorMessage: string | null = null;
   isLoading = true;
   private readonly AUTH_TIMEOUT_MS = 30000; // 30 seconds timeout
 
   ngOnInit(): void {
     this.startAuth();
 
-    // Listen for auth errors
+    // On auth error or timeout, reload the page to trigger a fresh auth cycle
     this.actions$.pipe(
       ofType(authError),
       takeUntil(this.destroy$)
     ).subscribe(action => {
-      console.error('Callback received auth error:', action.error);
-      this.isLoading = false;
-      this.errorMessage = action.error?.message || 'Authentication failed. Please try again.';
+      console.error('Callback received auth error, reloading page:', action.error);
+      window.location.reload();
     });
 
-    // Set a timeout in case auth hangs
     timer(this.AUTH_TIMEOUT_MS).pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
-      if (this.isLoading && !this.errorMessage) {
-        console.warn('Auth timeout - checkAuth did not complete within', this.AUTH_TIMEOUT_MS, 'ms');
-        this.isLoading = false;
-        this.errorMessage = 'Authentication timed out. Please try again.';
+      if (this.isLoading) {
+        console.warn('Auth timeout - checkAuth did not complete within', this.AUTH_TIMEOUT_MS, 'ms, reloading page');
+        window.location.reload();
       }
     });
   }
@@ -79,16 +75,7 @@ export class CallbackComponent implements OnInit, OnDestroy {
 
   private startAuth(): void {
     this.isLoading = true;
-    this.errorMessage = null;
     this.store.dispatch(checkAuth());
   }
 
-  retry(): void {
-    this.startAuth();
-  }
-
-  goToLogin(): void {
-    // Clear any stale state and redirect to login page
-    window.location.href = '/';
-  }
 }
