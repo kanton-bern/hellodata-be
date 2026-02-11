@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.dashboard_comment.mapper;
 
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentStatus;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentVersionDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
@@ -70,6 +71,8 @@ public class DashboardCommentMapper {
                 .deleted(entity.isDeleted())
                 .deletedDate(entity.getDeletedDate())
                 .deletedBy(entity.getDeletedBy())
+                .deletedByEmail(entity.getDeletedByEmail())
+                .deletionReason(entity.getDeletionReason())
                 .activeVersion(entity.getActiveVersion())
                 .hasActiveDraft(entity.isHasActiveDraft())
                 .entityVersion(entity.getEntityVersion())
@@ -94,6 +97,7 @@ public class DashboardCommentMapper {
                 .deleted(dto.isDeleted())
                 .deletedDate(dto.getDeletedDate())
                 .deletedBy(dto.getDeletedBy())
+                .deletedByEmail(dto.getDeletedByEmail())
                 .activeVersion(dto.getActiveVersion())
                 .hasActiveDraft(dto.isHasActiveDraft())
                 .entityVersion(dto.getEntityVersion())
@@ -120,9 +124,13 @@ public class DashboardCommentMapper {
                 .status(entity.getStatus())
                 .editedDate(entity.getEditedDate())
                 .editedBy(entity.getEditedBy())
+                .editedByEmail(entity.getEditedByEmail())
                 .publishedDate(entity.getPublishedDate())
                 .publishedBy(entity.getPublishedBy())
-                .deleted(entity.isDeleted())
+                .publishedByEmail(entity.getPublishedByEmail())
+                .declineReason(entity.getDeclineReason())
+                .deletionReason(entity.getDeletionReason())
+                .deleted(entity.getStatus() == DashboardCommentStatus.DELETED || entity.isDeleted())
                 .tags(parseTagsFromString(entity.getTags()))
                 .pointerUrl(entity.getPointerUrl())
                 .build();

@@ -65,8 +65,15 @@ export class MyDashboardsService {
   }
 
   // Comments API methods
-  public getDashboardComments(contextKey: string, dashboardId: number): Observable<DashboardCommentEntry[]> {
-    return this.httpClient.get<DashboardCommentEntry[]>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`);
+  public getDashboardComments(contextKey: string, dashboardId: number, includeDeleted?: boolean): Observable<DashboardCommentEntry[]> {
+    let params: any = undefined;
+    if (includeDeleted) {
+      params = {includeDeleted: 'true'};
+    }
+    return this.httpClient.get<DashboardCommentEntry[]>(
+      `${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments`,
+      params ? {params} : {}
+    );
   }
 
   public createComment(contextKey: string, dashboardId: number, request: CommentCreateRequest): Observable<DashboardCommentEntry> {
@@ -77,17 +84,27 @@ export class MyDashboardsService {
     return this.httpClient.put<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, request);
   }
 
-  public deleteComment(contextKey: string, dashboardId: number, commentId: string, deleteEntire?: boolean): Observable<DashboardCommentEntry> {
-    const params = deleteEntire ? {deleteEntire: 'true'} : {};
-    return this.httpClient.delete<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`, {params});
+  public deleteComment(contextKey: string, dashboardId: number, commentId: string, deleteEntire?: boolean, deletionReason?: string): Observable<DashboardCommentEntry> {
+    const body = {
+      deleteEntire: deleteEntire || false,
+      deletionReason: deletionReason
+    };
+    return this.httpClient.delete<DashboardCommentEntry>(
+      `${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}`,
+      {body}
+    );
   }
 
   public publishComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
     return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/publish`, {});
   }
 
-  public unpublishComment(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
-    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/unpublish`, {});
+  public sendForReview(contextKey: string, dashboardId: number, commentId: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/send-for-review`, {});
+  }
+
+  public declineComment(contextKey: string, dashboardId: number, commentId: string, declineReason: string): Observable<DashboardCommentEntry> {
+    return this.httpClient.post<DashboardCommentEntry>(`${this.commentsBaseUrl}/${contextKey}/${dashboardId}/comments/${commentId}/decline`, {declineReason});
   }
 
   public cloneCommentForEdit(contextKey: string, dashboardId: number, commentId: string, request: CommentUpdateRequest): Observable<DashboardCommentEntry> {

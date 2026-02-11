@@ -57,9 +57,12 @@ export enum MyDashboardsActionType {
   PUBLISH_COMMENT = '[MYDASHBOARDS] Publish comment',
   PUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Publish comment SUCCESS',
   PUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Publish comment ERROR',
-  UNPUBLISH_COMMENT = '[MYDASHBOARDS] Unpublish comment',
-  UNPUBLISH_COMMENT_SUCCESS = '[MYDASHBOARDS] Unpublish comment SUCCESS',
-  UNPUBLISH_COMMENT_ERROR = '[MYDASHBOARDS] Unpublish comment ERROR',
+  SEND_FOR_REVIEW = '[MYDASHBOARDS] Send for review',
+  SEND_FOR_REVIEW_SUCCESS = '[MYDASHBOARDS] Send for review SUCCESS',
+  SEND_FOR_REVIEW_ERROR = '[MYDASHBOARDS] Send for review ERROR',
+  DECLINE_COMMENT = '[MYDASHBOARDS] Decline comment',
+  DECLINE_COMMENT_SUCCESS = '[MYDASHBOARDS] Decline comment SUCCESS',
+  DECLINE_COMMENT_ERROR = '[MYDASHBOARDS] Decline comment ERROR',
   CLONE_COMMENT_FOR_EDIT = '[MYDASHBOARDS] Clone comment for edit',
   CLONE_COMMENT_FOR_EDIT_SUCCESS = '[MYDASHBOARDS] Clone comment for edit SUCCESS',
   CLONE_COMMENT_FOR_EDIT_ERROR = '[MYDASHBOARDS] Clone comment for edit ERROR',
@@ -112,7 +115,7 @@ export const setCurrentDashboard = createAction(
 
 export const loadDashboardComments = createAction(
   MyDashboardsActionType.LOAD_DASHBOARD_COMMENTS,
-  props<{ dashboardId: number; contextKey: string; dashboardUrl: string }>()
+  props<{ dashboardId: number; contextKey: string; dashboardUrl: string; includeDeleted?: boolean }>()
 );
 
 export const loadDashboardCommentsSuccess = createAction(
@@ -172,7 +175,7 @@ export const updateCommentError = createAction(
 
 export const deleteComment = createAction(
   MyDashboardsActionType.DELETE_COMMENT,
-  props<{ dashboardId: number; contextKey: string; commentId: string; deleteEntire?: boolean }>()
+  props<{ dashboardId: number; contextKey: string; commentId: string; deleteEntire?: boolean; deletionReason?: string }>()
 );
 
 export const deleteCommentSuccess = createAction(
@@ -203,18 +206,33 @@ export const publishCommentError = createAction(
   props<{ error: any }>()
 );
 
-export const unpublishComment = createAction(
-  MyDashboardsActionType.UNPUBLISH_COMMENT,
+export const sendForReview = createAction(
+  MyDashboardsActionType.SEND_FOR_REVIEW,
   props<{ dashboardId: number; contextKey: string; commentId: string }>()
 );
 
-export const unpublishCommentSuccess = createAction(
-  MyDashboardsActionType.UNPUBLISH_COMMENT_SUCCESS,
+export const sendForReviewSuccess = createAction(
+  MyDashboardsActionType.SEND_FOR_REVIEW_SUCCESS,
   props<{ comment: DashboardCommentEntry }>()
 );
 
-export const unpublishCommentError = createAction(
-  MyDashboardsActionType.UNPUBLISH_COMMENT_ERROR,
+export const sendForReviewError = createAction(
+  MyDashboardsActionType.SEND_FOR_REVIEW_ERROR,
+  props<{ error: any }>()
+);
+
+export const declineComment = createAction(
+  MyDashboardsActionType.DECLINE_COMMENT,
+  props<{ dashboardId: number; contextKey: string; commentId: string; declineReason: string }>()
+);
+
+export const declineCommentSuccess = createAction(
+  MyDashboardsActionType.DECLINE_COMMENT_SUCCESS,
+  props<{ comment: DashboardCommentEntry }>()
+);
+
+export const declineCommentError = createAction(
+  MyDashboardsActionType.DECLINE_COMMENT_ERROR,
   props<{ error: any }>()
 );
 

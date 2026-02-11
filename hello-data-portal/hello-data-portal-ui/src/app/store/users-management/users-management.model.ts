@@ -35,6 +35,17 @@ export const DATA_DOMAIN_VIEWER_ROLE = 'DATA_DOMAIN_VIEWER';
 export const DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE = 'DATA_DOMAIN_BUSINESS_SPECIALIST';
 export const NONE_ROLE = 'NONE';
 
+// Comment permissions
+export const COMMENT_PERMISSION_READ = 'READ_COMMENTS';
+export const COMMENT_PERMISSION_WRITE = 'WRITE_COMMENTS';
+export const COMMENT_PERMISSION_REVIEW = 'REVIEW_COMMENTS';
+
+export interface CommentPermissions {
+  readComments: boolean;
+  writeComments: boolean;
+  reviewComments: boolean;
+}
+
 export interface User {
   id: string;
   username: string;

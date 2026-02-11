@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="59-1" author="hellodata">
+        <comment>Add deletion_reason column to dashboard_comment_version table for storing the reason when a reviewer
+            deletes a comment version
+        </comment>
+
+        <addColumn tableName="dashboard_comment_version">
+            <column name="deletion_reason" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="dashboard_comment_version" columnName="deletion_reason"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="59-2" author="hellodata">
+        <comment>Add deletion_reason column to dashboard_comment table for storing the reason when a reviewer deletes
+            entire comment
+        </comment>
+
+        <addColumn tableName="dashboard_comment">
+            <column name="deletion_reason" type="TEXT">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <rollback>
+            <dropColumn tableName="dashboard_comment" columnName="deletion_reason"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

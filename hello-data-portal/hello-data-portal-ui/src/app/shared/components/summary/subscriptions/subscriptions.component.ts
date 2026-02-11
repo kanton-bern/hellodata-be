@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject } from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {
@@ -35,18 +35,18 @@ import {
 import {Observable} from "rxjs";
 import {Context} from "../../../../store/users-management/context-role.model";
 import {loadAvailableContexts} from "../../../../store/users-management/users-management.action";
-import { AsyncPipe } from "@angular/common";
-import { Tooltip } from "primeng/tooltip";
-import { TranslocoPipe } from "@jsverse/transloco";
+import {AsyncPipe} from "@angular/common";
+import {Tooltip} from "primeng/tooltip";
+import {TranslocoPipe} from "@jsverse/transloco";
 
 @Component({
-    selector: 'app-subscriptions',
-    templateUrl: './subscriptions.component.html',
-    styleUrls: ['./subscriptions.component.scss'],
-    imports: [Tooltip, AsyncPipe, TranslocoPipe]
+  selector: 'app-subscriptions',
+  templateUrl: './subscriptions.component.html',
+  styleUrls: ['./subscriptions.component.scss'],
+  imports: [Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class SubscriptionsComponent {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
   businessDomains$: Observable<Context[]>;
   dataDomains$: Observable<Context[]>;

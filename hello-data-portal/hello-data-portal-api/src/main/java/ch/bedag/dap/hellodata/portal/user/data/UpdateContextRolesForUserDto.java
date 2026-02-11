@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.user.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -44,4 +45,5 @@ public class UpdateContextRolesForUserDto {
     private Map<String, List<DashboardForUserDto>> selectedDashboardsForUser;
     //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
     private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
+    private List<DashboardCommentPermissionDto> commentPermissions;
 }

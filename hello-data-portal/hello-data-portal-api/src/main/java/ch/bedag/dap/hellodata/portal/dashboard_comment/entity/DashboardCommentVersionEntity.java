@@ -68,11 +68,23 @@ public class DashboardCommentVersionEntity {
     @Column(name = "edited_by", nullable = false, length = 200)
     private String editedBy;
 
+    @Column(name = "edited_by_email", length = 255)
+    private String editedByEmail;
+
     @Column(name = "published_date")
     private Long publishedDate;
 
     @Column(name = "published_by", length = 200)
     private String publishedBy;
+
+    @Column(name = "published_by_email", length = 255)
+    private String publishedByEmail;
+
+    @Column(name = "decline_reason", columnDefinition = "TEXT")
+    private String declineReason;
+
+    @Column(name = "deletion_reason", columnDefinition = "TEXT")
+    private String deletionReason;
 
     @Column(name = "deleted", nullable = false)
     @Builder.Default

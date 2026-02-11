@@ -98,12 +98,13 @@ body {
   top: 0;
   background: $background-color;
   list-style: none;
-  padding: 4px 0;
+  padding: 0;
   margin: 0;
   white-space: nowrap;
   opacity: 0;
+  transform: translateX(-8px);
   pointer-events: none;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
   border-radius: 4px;
   z-index: 300;
@@ -111,11 +112,13 @@ body {
 
 .sidebar.close .nav-links li:hover > .second-level-menu {
   opacity: 1;
+  transform: translateX(0);
   pointer-events: auto;
 }
 
 .sidebar.close .nav-links .second-level-menu li:hover > .third-level-menu {
   opacity: 1;
+  transform: translateX(0);
   pointer-events: auto;
 }
 
@@ -126,10 +129,10 @@ body {
 
 .sidebar .nav-links .second-level-menu li a,
 .sidebar .nav-links .third-level-menu li a {
-  padding: 6px 14px;
-  font-size: 0.9rem;
-  font-weight: 300;
-  color: $menu-item-text-color;
+  padding: 6px 14px 6px 8px;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-color, rgba(0, 0, 0, .87));
   cursor: pointer;
   text-decoration: none;
   display: flex;
@@ -138,8 +141,19 @@ body {
 
 .sidebar .nav-links .second-level-menu li:hover > a,
 .sidebar .nav-links .third-level-menu li:hover > a {
-  background-color: $background-color-hover;
+  background-color: var(--p-menu-item-focus-background, var(--surface-hover));
 }
+
+.sidebar .nav-links .second-level-menu li:first-child:hover > a,
+.sidebar .nav-links .third-level-menu li:first-child:hover > a {
+  border-radius: 4px 4px 0 0;
+}
+
+.sidebar .nav-links .second-level-menu li:last-child:hover > a,
+.sidebar .nav-links .third-level-menu li:last-child:hover > a {
+  border-radius: 0 0 4px 4px;
+}
+
 
 .sidebar .nav-links .second-level-menu li a .p-menuitem-icon,
 .sidebar .nav-links .third-level-menu li a .p-menuitem-icon {
@@ -184,8 +198,8 @@ body {
 
 .sidebar.close > .nav-links > li:hover {
   color: var(--text-color);
-  background-color: var(--surface-hover);
-  border-radius: 3px !important;
+  background-color: var(--p-menu-item-focus-background, var(--surface-hover));
+  border-radius: 4px;
 }
 
 .sidebar .nav-links li .icon-link {

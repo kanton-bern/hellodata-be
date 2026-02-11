@@ -26,8 +26,16 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_comment.data;
 
+/**
+ * Status lifecycle:
+ * DRAFT → READY_FOR_REVIEW → PUBLISHED
+ * └→ DECLINED → DELETED
+ */
 public enum DashboardCommentStatus {
-    DRAFT,
-    PUBLISHED
+    DRAFT,                  // Visible only to author, can be edited/deleted/sent for review
+    READY_FOR_REVIEW,       // Visible to author and reviewers, cannot be edited, reviewer can publish or decline
+    PUBLISHED,              // Visible to everyone
+    DECLINED,               // Draft rejected by reviewer with a decline reason, visible to author and reviewers
+    DELETED                 // Version marked as deleted in history
 }
 

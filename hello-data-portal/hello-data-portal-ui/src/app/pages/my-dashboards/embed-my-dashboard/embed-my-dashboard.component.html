@@ -1,6 +1,7 @@
 @if (currentMyDashboardInfo$ | async) {
   <div #dashboardGrid class="grid w-full h-full embedded-dashboard"
-       [style.gridTemplateColumns]="isCommentsOpen ? commentsGridTemplate : '1fr auto'">
+       [class.resizing]="isResizing"
+       [style.gridTemplateColumns]="canReadComments ? (isCommentsOpen ? commentsGridTemplate : '1fr 0px 30px') : '1fr'">
     <div class="iframe-container h-full relative">
       <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="false"/>
       @if (isResizing) {
@@ -8,22 +9,23 @@
       }
     </div>
 
-    @if (isCommentsOpen) {
-      <div class="resizer" (mousedown)="startResizing($event)"></div>
-    }
+    @if (canReadComments) {
+      <div class="resizer" [class.resizer-hidden]="!isCommentsOpen"
+           (mousedown)="startResizing($event)"></div>
 
-    <div
-      class="comments-panel h-full"
-      [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-1 comments-panel-closed'"
-    >
-      <div [hidden]="isCommentsOpen" (click)="toggleComments()" (keydown)="toggleComments()"
-           style="cursor: pointer">{{ '@Comments' | transloco }}
+      <div
+        class="comments-panel h-full"
+        [ngClass]="isCommentsOpen ? 'mt-2 pb-1 comments-panel-open' : 'mt-1 comments-panel-closed'"
+      >
+        <div [hidden]="isCommentsOpen" (click)="toggleComments()" (keydown)="toggleComments()"
+             style="cursor: pointer">{{ '@Comments' | transloco }}
+        </div>
+
+        <app-comments-toggle-panel [style.display]="isCommentsOpen ? 'flex' : 'none'"
+                                   (toggleComments)="toggleComments()"
+                                   (pointerUrlClick)="navigateToPointerUrl($event)"
+                                   class="w-full h-full"></app-comments-toggle-panel>
       </div>
-
-      <app-comments-toggle-panel [style.display]="isCommentsOpen ? 'flex' : 'none'"
-                                 (toggleComments)="toggleComments()"
-                                 (pointerUrlClick)="navigateToPointerUrl($event)"
-                                 class="w-full h-full"></app-comments-toggle-panel>
-    </div>
+    }
   </div>
 }

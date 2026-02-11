@@ -33,10 +33,11 @@ import {ConfirmationService} from 'primeng/api';
 import {TranslateService} from '../../../shared/services/translate.service';
 import {
   cloneCommentForEdit,
+  declineComment,
   deleteComment,
   publishComment,
   restoreCommentVersion,
-  unpublishComment,
+  sendForReview,
   updateComment
 } from '../../../store/my-dashboards/my-dashboards.action';
 
@@ -65,6 +66,11 @@ export class DashboardCommentUtilsService {
 
   deleteEntireFlag = false;
 
+  // Delete dialog state
+  deletionDialogVisible = false;
+  deletionReason = '';
+  private deleteCommentCallback?: () => void;
+
   /**
    * Gets the active version data from a comment
    */
@@ -89,7 +95,15 @@ export class DashboardCommentUtilsService {
 
     return comment.history
       .filter(h => {
-        if (h.deleted) return false;
+        // canViewMetadata allows seeing DELETED versions (except for the current active version if handled by main list filter)
+        // If canViewMetadata is false, filter out DELETED versions
+        if (h.status === DashboardCommentStatus.DELETED) {
+          return canViewMetadata;
+        }
+        if (h.deleted) {
+          // Legacy check for soft-deleted versions if any
+          return canViewMetadata;
+        }
         return canViewMetadata || h.status === DashboardCommentStatus.PUBLISHED;
       })
       .map(h => ({
@@ -182,6 +196,15 @@ export class DashboardCommentUtilsService {
       case DashboardCommentStatus.DRAFT:
       case 'DRAFT':
         return 'warn';
+      case DashboardCommentStatus.READY_FOR_REVIEW:
+      case 'READY_FOR_REVIEW':
+        return 'info';
+      case DashboardCommentStatus.DECLINED:
+      case 'DECLINED':
+        return 'danger';
+      case DashboardCommentStatus.DELETED:
+      case 'DELETED':
+        return 'secondary';
       default:
         return 'info';
     }
@@ -191,7 +214,19 @@ export class DashboardCommentUtilsService {
    * Gets status label for translation
    */
   getStatusLabel(status: DashboardCommentStatus | string): string {
-    return status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED' ? '@Published' : '@DRAFT';
+    if (status === DashboardCommentStatus.PUBLISHED || status === 'PUBLISHED') {
+      return '@published';
+    }
+    if (status === DashboardCommentStatus.READY_FOR_REVIEW || status === 'READY_FOR_REVIEW') {
+      return '@ready for review';
+    }
+    if (status === DashboardCommentStatus.DECLINED || status === 'DECLINED') {
+      return '@declined';
+    }
+    if (status === DashboardCommentStatus.DELETED || status === 'DELETED') {
+      return '@deleted';
+    }
+    return '@draft';
   }
 
   /**
@@ -213,25 +248,78 @@ export class DashboardCommentUtilsService {
   }
 
   /**
-   * Dispatches unpublish comment action with confirmation dialog
+   * Dispatches send for review action with confirmation dialog
    */
-  confirmUnpublishComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
-    const message = this.translateService.translate('@Unpublish comment question');
+  confirmSendForReview(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
+    const message = this.translateService.translate('@Send for review question');
     const service = confirmationService || this.confirmationService;
     service.confirm({
-      key: 'unpublishComment',
+      key: 'sendForReview',
       message: message,
-      icon: 'fas fa-triangle-exclamation',
+      icon: 'fas fa-paper-plane',
       closeOnEscape: false,
       accept: () => {
-        this.store.dispatch(unpublishComment({dashboardId, contextKey, commentId}));
+        this.store.dispatch(sendForReview({dashboardId, contextKey, commentId}));
         onSuccess?.();
       }
     });
   }
 
   /**
-   * Dispatches delete comment action with confirmation dialog
+   * Dispatches decline comment action (no confirmation needed - done via dialog)
+   */
+  declineComment(dashboardId: number, contextKey: string, commentId: string, declineReason: string, onSuccess?: () => void): void {
+    this.store.dispatch(declineComment({dashboardId, contextKey, commentId, declineReason}));
+    onSuccess?.();
+  }
+
+  /**
+   * Opens delete dialog for reviewer (requires deletion reason)
+   */
+  openDeleteDialog(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void): void {
+    this.deleteEntireFlag = false;
+    this.deletionReason = '';
+    this.deletionDialogVisible = true;
+    this.deleteCommentCallback = () => {
+      this.store.dispatch(deleteComment({
+        dashboardId,
+        contextKey,
+        commentId,
+        deleteEntire: this.deleteEntireFlag,
+        deletionReason: this.deletionReason.trim()
+      }));
+      onSuccess?.();
+    };
+  }
+
+  /**
+   * Submit delete with reason from dialog
+   */
+  submitDelete(): void {
+    if (this.deleteCommentCallback) {
+      this.deleteCommentCallback();
+    }
+    this.closeDeleteDialog();
+  }
+
+  /**
+   * Close delete dialog
+   */
+  closeDeleteDialog(): void {
+    this.deletionDialogVisible = false;
+    this.deletionReason = '';
+    this.deleteCommentCallback = undefined;
+  }
+
+  /**
+   * Check if delete is disabled (no reason provided)
+   */
+  isDeleteDisabled(): boolean {
+    return !this.deletionReason || this.deletionReason.trim().length === 0;
+  }
+
+  /**
+   * Dispatches delete comment action with confirmation dialog (for non-reviewers/authors)
    */
   confirmDeleteComment(dashboardId: number, contextKey: string, commentId: string, onSuccess?: () => void, confirmationService?: ConfirmationService): void {
     this.deleteEntireFlag = false;

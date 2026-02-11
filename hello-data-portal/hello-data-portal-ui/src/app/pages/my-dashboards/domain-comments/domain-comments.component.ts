@@ -30,7 +30,7 @@ import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
 import {TranslocoPipe} from '@jsverse/transloco';
-import {DatePipe, SlicePipe} from '@angular/common';
+import {DatePipe, LowerCasePipe, SlicePipe} from '@angular/common';
 import {Table, TableModule} from 'primeng/table';
 import {Button} from 'primeng/button';
 import {Tag} from 'primeng/tag';
@@ -45,20 +45,24 @@ import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {combineLatest, filter, Subscription} from 'rxjs';
 import {
-  canDeleteComment,
-  canEditComment,
-  canPublishComment,
-  canUnpublishComment,
-  canViewMetadataAndVersions,
+  canDeleteCommentForContext,
+  canEditCommentForContext,
+  canPublishCommentForContext,
+  canViewCommentMetadataForContext,
+  canViewMetadataAndVersionsForContext,
   selectContextKey,
-  selectContextName
+  selectContextNameByKey
 } from '../../../store/my-dashboards/my-dashboards.selector';
+import {selectCurrentUserCommentPermissions} from '../../../store/auth/auth.selector';
+import {fetchCurrentUserCommentPermissions} from '../../../store/auth/auth.action';
 import {ConfirmationService, PrimeTemplate} from 'primeng/api';
 import {Dialog} from "primeng/dialog";
 import {Textarea} from "primeng/textarea";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.service';
 import {AutoComplete} from 'primeng/autocomplete';
+import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
+import {TranslateService} from '../../../shared/services/translate.service';
 
 
 @Component({
@@ -69,6 +73,7 @@ import {AutoComplete} from 'primeng/autocomplete';
     TranslocoPipe,
     DatePipe,
     SlicePipe,
+    LowerCasePipe,
     TableModule,
     Button,
     Tag,
@@ -91,18 +96,30 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   private readonly domainCommentsService = inject(DomainDashboardCommentsService);
   readonly commentUtils = inject(DashboardCommentUtilsService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
   private routeSubscription?: Subscription;
 
   contextKey: string = '';
-  contextName: string | string[] = '';
+  contextName: string = '';
   comments: DomainDashboardComment[] = [];
   loading = true;
 
   // For filtering
   globalFilterValue: string = '';
+  selectedStatus: DashboardCommentStatus | null = null;
+
+  // Status filter options
+  statusOptions: any[] = [
+    {label: '@All', value: null},
+    {label: '@draft', value: DashboardCommentStatus.DRAFT},
+    {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
+    {label: '@published', value: DashboardCommentStatus.PUBLISHED},
+    {label: '@declined', value: DashboardCommentStatus.DECLINED},
+    {label: '@deleted', value: DashboardCommentStatus.DELETED}
+  ];
 
   // For expanded rows (info panel)
   expandedComments: Set<string> = new Set();
@@ -117,29 +134,68 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   editTagSuggestions: string[] = [];
   domainTags: string[] = [];
 
-  // Permission selectors
-  canEditFn = this.store.selectSignal(canEditComment);
-  canPublishFn = this.store.selectSignal(canPublishComment);
-  canUnpublishFn = this.store.selectSignal(canUnpublishComment);
-  canDeleteFn = this.store.selectSignal(canDeleteComment);
-  canViewMetadata = this.store.selectSignal(canViewMetadataAndVersions);
+  // Decline dialog
+  declineDialogVisible = false;
+  decliningComment: DomainDashboardComment | null = null;
+  declineReason = '';
+
+  // Computed signals for permissions - will be initialized after contextKey is loaded
+  canEditFn: any;
+  canPublishFn: any;
+  canDeleteFn: any;
+  canViewMetadataFn: any;
+  userHasReviewPermission: any;
 
 
   ngOnInit(): void {
+    // Load available data domains to populate contextName in breadcrumb
+    this.store.dispatch(loadAvailableDataDomains());
+
+    // Ensure comment permissions are loaded (important after browser refresh)
+    this.store.dispatch(fetchCurrentUserCommentPermissions());
+
     // Subscribe to route params using ngrx selectors
     this.routeSubscription = combineLatest([
       this.store.select(selectContextKey),
-      this.store.select(selectContextName)
+      this.store.select(selectContextNameByKey),
+      this.store.select(selectCurrentUserCommentPermissions)
     ]).pipe(
       filter(([contextKey]) => !!contextKey)
-    ).subscribe(([contextKey, contextName]) => {
-      // Only reload if contextKey changed
-      if (contextKey !== this.contextKey) {
+    ).subscribe(([contextKey, contextName, commentPermissions]) => {
+      // Check if permissions are loaded (not empty object)
+      const hasPermissionsLoaded = Object.keys(commentPermissions).length > 0;
+
+      // Redirect only if permissions are loaded AND user doesn't have readComments permission
+      if (hasPermissionsLoaded) {
+        const perms = commentPermissions[contextKey!];
+        if (!perms?.readComments) {
+          this.router.navigate(['/my-dashboards']);
+          return;
+        }
+      }
+
+      const resolvedName = contextName || contextKey!;
+      const contextKeyChanged = contextKey !== this.contextKey;
+      const contextNameChanged = resolvedName !== this.contextName;
+
+      if (contextKeyChanged) {
         this.contextKey = contextKey!;
-        this.contextName = contextName || contextKey!;
+        this.contextName = resolvedName;
         this.globalFilterValue = '';
+
+        // Initialize permission selectors with the contextKey
+        this.canEditFn = this.store.selectSignal(canEditCommentForContext(contextKey!));
+        this.canPublishFn = this.store.selectSignal(canPublishCommentForContext(contextKey!));
+        this.canDeleteFn = this.store.selectSignal(canDeleteCommentForContext(contextKey!));
+        this.canViewMetadataFn = this.store.selectSignal(canViewCommentMetadataForContext(contextKey!));
+        this.userHasReviewPermission = this.store.selectSignal(canViewMetadataAndVersionsForContext(contextKey!));
+
         this.createBreadcrumbs();
         this.loadComments();
+      } else if (contextNameChanged) {
+        // Update breadcrumb when contextName resolves after data domains load
+        this.contextName = resolvedName;
+        this.createBreadcrumbs();
       }
     });
   }
@@ -156,7 +212,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           routerLink: naviElements.myDashboards.path
         },
         {
-          label: this.contextName,
+          label: this.contextName || this.contextKey,
           routerLink: naviElements.myDashboards.path
         },
         {
@@ -166,17 +222,31 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     }));
   }
 
-  private loadComments(): void {
+  private loadComments(includeDeleted: boolean = false): void {
     this.loading = true;
-    this.domainCommentsService.getCommentsForDomain(this.contextKey).subscribe({
+    this.domainCommentsService.getCommentsForDomain(this.contextKey, includeDeleted).subscribe({
       next: (comments: DomainDashboardComment[]) => {
         // Map active version text to 'text' field and tags to 'tagsString' for filtering
-        this.comments = comments.map(comment => ({
-          ...comment,
-          text: this.commentUtils.getActiveVersionData(comment)?.text || '',
-          status: this.commentUtils.getActiveVersionData(comment)?.status || '',
-          tagsString: (this.commentUtils.getActiveVersionData(comment)?.tags || []).join(' ')
-        }));
+        this.comments = comments.filter(comment => {
+          if (this.selectedStatus === DashboardCommentStatus.DELETED) {
+            // If deleted filter is on, show all returned comments (already filtered by backend)
+            return true;
+          }
+          // Default filter: hide deleted comments when "All" or other statuses are selected
+          const activeVersion = this.getActiveVersionData(comment);
+          return !comment.deleted && activeVersion?.status !== DashboardCommentStatus.DELETED;
+        }).map(comment => {
+          const activeVersion = this.commentUtils.getActiveVersionData(comment);
+          const status = activeVersion?.status || '';
+          const statusLabel = this.translateService.translate(this.commentUtils.getStatusLabel(status));
+          return {
+            ...comment,
+            text: activeVersion?.text || '',
+            status,
+            statusLabel,
+            tagsString: (activeVersion?.tags || []).join(' ')
+          };
+        });
 
         this.domainTags = this.extractUniqueTags(comments);
         this.loading = false;
@@ -217,7 +287,8 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   }
 
   getAllVersions(comment: DomainDashboardComment): (DashboardCommentVersion & { isCurrentVersion: boolean })[] {
-    return this.commentUtils.getAllVersions(comment, this.canViewMetadata());
+    const canView = this.canViewMetadataFn ? this.canViewMetadataFn()(comment) : false;
+    return this.commentUtils.getAllVersions(comment, canView);
   }
 
   navigateToDashboard(comment: DomainDashboardComment, pointerUrl?: string): void {
@@ -242,18 +313,33 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   // Permission checks
   canEdit(comment: DomainDashboardComment): boolean {
+    if (!this.canEditFn) return false;
+    const activeVer = this.getActiveVersionData(comment);
+    // Cannot edit READY_FOR_REVIEW status - it's locked for review
+    if (activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW) {
+      return false;
+    }
     return this.canEditFn()(comment);
   }
 
   canPublish(comment: DomainDashboardComment): boolean {
+    if (!this.canPublishFn) return false;
     return this.canPublishFn()(comment);
   }
 
-  canUnpublish(comment: DomainDashboardComment): boolean {
-    return this.canUnpublishFn()(comment);
+
+  canSendForReview(comment: DomainDashboardComment): boolean {
+    const activeVer = this.getActiveVersionData(comment);
+    return this.canEdit(comment) && activeVer?.status === DashboardCommentStatus.DRAFT;
+  }
+
+  canDecline(comment: DomainDashboardComment): boolean {
+    const activeVer = this.getActiveVersionData(comment);
+    return this.canPublish(comment) && activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW;
   }
 
   canDelete(comment: DomainDashboardComment): boolean {
+    if (!this.canDeleteFn) return false;
     return this.canDeleteFn()(comment);
   }
 
@@ -353,7 +439,9 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     const contextKey = comment.contextKey;
 
     if (dashboardId && contextKey) {
-      if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
+      // If status is PUBLISHED or DECLINED, clone to create new draft version
+      if (activeVer?.status === DashboardCommentStatus.PUBLISHED ||
+        activeVer?.status === DashboardCommentStatus.DECLINED) {
         this.commentUtils.dispatchClonePublishedComment(
           dashboardId,
           contextKey,
@@ -364,6 +452,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           this.editedTags
         );
       } else {
+        // For DRAFT status, just update the existing draft
         this.commentUtils.dispatchUpdateDraftComment(
           dashboardId,
           contextKey,
@@ -403,9 +492,9 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Unpublish comment
-  unpublishCommentAction(comment: DomainDashboardComment): void {
-    this.commentUtils.confirmUnpublishComment(
+  // Send comment for review
+  sendForReviewAction(comment: DomainDashboardComment): void {
+    this.commentUtils.confirmSendForReview(
       comment.dashboardId,
       comment.contextKey,
       comment.id,
@@ -414,14 +503,49 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     );
   }
 
+  // Open decline dialog
+  openDeclineDialog(comment: DomainDashboardComment): void {
+    this.decliningComment = comment;
+    this.declineReason = '';
+    this.declineDialogVisible = true;
+  }
+
+  // Close decline dialog
+  closeDeclineDialog(): void {
+    this.declineDialogVisible = false;
+    this.decliningComment = null;
+    this.declineReason = '';
+  }
+
+  // Submit decline
+  submitDecline(): void {
+    if (!this.decliningComment || !this.declineReason || this.declineReason.trim().length === 0) {
+      return;
+    }
+
+    this.commentUtils.declineComment(
+      this.decliningComment.dashboardId,
+      this.decliningComment.contextKey,
+      this.decliningComment.id,
+      this.declineReason.trim(),
+      () => setTimeout(() => this.loadComments(), 500)
+    );
+    this.closeDeclineDialog();
+  }
+
+  // Check if decline button is disabled
+  isDeclineDisabled(): boolean {
+    return !this.declineReason || this.declineReason.trim().length === 0;
+  }
+
+
   // Delete comment
   deleteCommentAction(comment: DomainDashboardComment): void {
-    this.commentUtils.confirmDeleteComment(
+    this.commentUtils.openDeleteDialog(
       comment.dashboardId,
       comment.contextKey,
       comment.id,
-      () => setTimeout(() => this.loadComments(), 500),
-      this.confirmationService
+      () => setTimeout(() => this.loadComments(), 500)
     );
   }
 
@@ -435,6 +559,11 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
       () => setTimeout(() => this.loadComments(), 500),
       this.confirmationService
     );
+  }
+
+  isCurrentVersionReadyForReview(comment: DomainDashboardComment): boolean {
+    const currentVersion = comment.history.find(v => v.version === comment.activeVersion);
+    return currentVersion?.status === DashboardCommentStatus.READY_FOR_REVIEW;
   }
 
   onGlobalFilter(table: Table, event: Event): void {

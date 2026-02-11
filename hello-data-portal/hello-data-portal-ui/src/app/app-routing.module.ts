@@ -474,6 +474,14 @@ const routes: Routes = [
     ]
   },
   {
+    path: naviElements.summary.path,
+    loadComponent: () => import('./shared/components/summary/summary.component').then(m => m.SummaryComponent),
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARDS'],
+    },
+  },
+  {
     path: naviElements.callback.path,
     loadComponent: () => import('./callback/callback.component').then(m => m.CallbackComponent)
   },

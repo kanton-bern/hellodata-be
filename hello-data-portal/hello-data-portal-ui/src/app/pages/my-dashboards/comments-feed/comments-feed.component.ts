@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {AfterViewInit, Component, effect, ElementRef, inject, input, output, ViewChild} from "@angular/core";
+import {AfterViewInit, Component, effect, ElementRef, inject, input, OnDestroy, output, ViewChild} from "@angular/core";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {FormsModule} from "@angular/forms";
 import {Button} from "primeng/button";
@@ -41,13 +41,14 @@ import {
   selectCurrentDashboardUrl,
   selectVisibleComments
 } from "../../../store/my-dashboards/my-dashboards.selector";
+import {selectCurrentUserCommentPermissions} from "../../../store/auth/auth.selector";
 import {AsyncPipe} from "@angular/common";
 import {ConfirmDialog} from "primeng/confirmdialog";
 import {PrimeTemplate} from "primeng/api";
 import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
 import {DashboardCommentEntry, DashboardCommentStatus} from "../../../store/my-dashboards/my-dashboards.model";
-import {BehaviorSubject, combineLatest, map, Observable, take} from "rxjs";
+import {BehaviorSubject, combineLatest, interval, map, Observable, Subscription, take} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {AutoComplete} from "primeng/autocomplete";
 import {Dialog} from "primeng/dialog";
@@ -55,6 +56,9 @@ import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {NotificationService} from "../../../shared/services/notification.service";
 import {DashboardCommentUtilsService} from "../services/dashboard-comment-utils.service";
+import {filter, switchMap} from "rxjs/operators";
+
+const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 interface FilterOption {
   label: string;
@@ -89,7 +93,7 @@ interface StatusFilterOption {
   ],
   styleUrls: ['./comments-feed.component.scss']
 })
-export class CommentsFeed implements AfterViewInit {
+export class CommentsFeed implements AfterViewInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly http = inject(HttpClient);
   private readonly notificationService = inject(NotificationService);
@@ -109,25 +113,41 @@ export class CommentsFeed implements AfterViewInit {
   // Admin check for import/export functionality
   isAdmin$ = this.store.select(canViewMetadataAndVersions);
 
+  // Write permission check for showing the comment form
+  canWriteComments$: Observable<boolean> = combineLatest([
+    this.store.select(selectCurrentDashboardContextKey),
+    this.store.select(selectCurrentUserCommentPermissions)
+  ]).pipe(
+    map(([contextKey, commentPermissions]) => {
+      if (!contextKey) return false;
+      const perms = commentPermissions[contextKey];
+      return !!perms?.writeComments;
+    })
+  );
+
   // Filter options
   yearOptions$: Observable<FilterOption[]>;
   quarterOptions: FilterOption[] = [
-    {label: 'All', value: null},
-    {label: 'Q1', value: 1},
-    {label: 'Q2', value: 2},
-    {label: 'Q3', value: 3},
-    {label: 'Q4', value: 4}
+    {label: '@All', value: null},
+    {label: '@Q1', value: 1},
+    {label: '@Q2', value: 2},
+    {label: '@Q3', value: 3},
+    {label: '@Q4', value: 4}
   ];
 
   selectedYear: number | null = null;
   selectedQuarter: number | null = null;
   selectedStatus: DashboardCommentStatus | null = null;
+  private previousSelectedStatus: DashboardCommentStatus | null = null;
 
   // Status filter options
   statusOptions: StatusFilterOption[] = [
-    {label: 'All', value: null},
-    {label: 'Draft', value: DashboardCommentStatus.DRAFT},
-    {label: 'Published', value: DashboardCommentStatus.PUBLISHED}
+    {label: '@All active', value: null},
+    {label: '@draft', value: DashboardCommentStatus.DRAFT},
+    {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
+    {label: '@published', value: DashboardCommentStatus.PUBLISHED},
+    {label: '@declined', value: DashboardCommentStatus.DECLINED},
+    {label: '@deleted', value: DashboardCommentStatus.DELETED}
   ];
 
   filteredComments$: Observable<DashboardCommentEntry[]>;
@@ -151,21 +171,33 @@ export class CommentsFeed implements AfterViewInit {
   private currentDashboardId: number | undefined;
   private currentDashboardContextKey: string | undefined;
   private currentDashboardUrl: string | undefined;
+  private commentsRefreshSubscription: Subscription | null = null;
 
   // Auto-scroll control: enabled by default, disabled when user scrolls up
   private autoScrollEnabled = true;
   private readonly scrollThreshold = 50; // pixels from bottom to consider "at bottom"
 
   constructor() {
-    this.currentDashboardId$.subscribe(id => {
+    // Combined subscription for dashboard changes - ensures all values are available before loading
+    combineLatest([
+      this.currentDashboardId$,
+      this.currentDashboardContextKey$,
+      this.currentDashboardUrl$
+    ]).subscribe(([id, contextKey, url]) => {
+      const previousId = this.currentDashboardId;
       this.currentDashboardId = id;
+      this.currentDashboardContextKey = contextKey;
+      this.currentDashboardUrl = url;
+
       this.loadTagsIfNeeded();
+
+      // Reload comments when dashboard changes, respecting current filter
+      if (previousId !== id && id !== undefined && contextKey && url) {
+        this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
+        // Update previousSelectedStatus to avoid unnecessary reload on filter change
+        this.previousSelectedStatus = this.selectedStatus;
+      }
     });
-    this.currentDashboardContextKey$.subscribe(key => {
-      this.currentDashboardContextKey = key;
-      this.loadTagsIfNeeded();
-    });
-    this.currentDashboardUrl$.subscribe(url => this.currentDashboardUrl = url);
 
     // Initialize year options based on comments
     this.yearOptions$ = this.comments$.pipe(
@@ -179,7 +211,7 @@ export class CommentsFeed implements AfterViewInit {
         }
         const sortedYears = Array.from(years).sort((a, b) => b - a);
         return [
-          {label: 'All', value: null},
+          {label: '@All', value: null},
           ...sortedYears.map(year => ({
             label: String(year),
             value: year
@@ -191,7 +223,7 @@ export class CommentsFeed implements AfterViewInit {
     // Initialize tag filter options
     this.tagFilterOptions$ = this.availableTags$.pipe(
       map(tags => [
-        {label: 'All', value: null},
+        {label: '@All', value: null},
         ...tags.map(t => ({label: t, value: t}))
       ])
     );
@@ -206,6 +238,8 @@ export class CommentsFeed implements AfterViewInit {
 
     // Re-assign signal after filteredComments$ is initialized
     this.filteredCommentsSignal = toSignal(this.filteredComments$);
+
+    this.startRefreshTimer();
 
     // Auto-scroll to bottom when comments change (only if enabled)
     effect(() => {
@@ -281,6 +315,20 @@ export class CommentsFeed implements AfterViewInit {
   }
 
   onFilterChange(): void {
+    // Check if status filter changed between DELETED and non-DELETED
+    const statusChanged = this.previousSelectedStatus !== this.selectedStatus;
+    const wasDeleted = this.previousSelectedStatus === DashboardCommentStatus.DELETED;
+    const isDeleted = this.selectedStatus === DashboardCommentStatus.DELETED;
+
+    // Only reload from API if status changed and involves DELETED status
+    if (statusChanged && (wasDeleted || isDeleted)) {
+      this.reloadComments(isDeleted);
+    }
+
+    // Update previous status
+    this.previousSelectedStatus = this.selectedStatus;
+
+    // Always trigger filter refresh for client-side filtering
     this.filterTrigger$.next();
   }
 
@@ -311,15 +359,22 @@ export class CommentsFeed implements AfterViewInit {
       }
 
       // Filter by status
-      if (this.selectedStatus !== null) {
-        const activeVersion = comment.history?.find(v => v.version === comment.activeVersion);
-        if (activeVersion && activeVersion.status !== this.selectedStatus) {
-          return false;
-        }
-      }
-
-      return true;
+      const activeVersion = comment.history?.find(v => v.version === comment.activeVersion);
+      return this.shouldShowByStatus(comment, activeVersion);
     });
+  }
+
+  private shouldShowByStatus(comment: DashboardCommentEntry, activeVersion?: any): boolean {
+    if (this.selectedStatus !== null) {
+      if (activeVersion && activeVersion.status !== this.selectedStatus) {
+        // Special case: if entire comment is deleted, treat it as DELETED status
+        return this.selectedStatus === DashboardCommentStatus.DELETED && !!comment.deleted;
+      }
+      return true;
+    }
+
+    // If "All" is selected, hide deleted comments
+    return !comment.deleted && activeVersion?.status !== DashboardCommentStatus.DELETED;
   }
 
   private getQuarter(date: Date): number {
@@ -339,6 +394,31 @@ export class CommentsFeed implements AfterViewInit {
     const container = this.scrollContainer?.nativeElement;
     if (container) {
       container.addEventListener('scroll', () => this.onScroll());
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopRefreshTimer();
+  }
+
+  private startRefreshTimer(): void {
+    this.stopRefreshTimer();
+    this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
+      switchMap(() => combineLatest([
+        this.store.select(selectCurrentDashboardId),
+        this.store.select(selectCurrentDashboardContextKey),
+        this.store.select(selectCurrentDashboardUrl)
+      ]).pipe(take(1))),
+      filter(([id, key, url]) => id !== null && key !== null && url !== null)
+    ).subscribe(() => {
+      this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
+    });
+  }
+
+  private stopRefreshTimer(): void {
+    if (this.commentsRefreshSubscription) {
+      this.commentsRefreshSubscription.unsubscribe();
+      this.commentsRefreshSubscription = null;
     }
   }
 
@@ -543,7 +623,7 @@ export class CommentsFeed implements AfterViewInit {
           this.notificationService.success('@Comments imported successfully', {count: response.imported});
         }
         // Reload comments list
-        this.reloadComments();
+        this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
         // Reload tags
         this.loadTagsIfNeeded();
       },
@@ -555,12 +635,13 @@ export class CommentsFeed implements AfterViewInit {
   }
 
   // Reload comments from backend
-  private reloadComments(): void {
+  private reloadComments(includeDeleted: boolean = false): void {
     if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
       this.store.dispatch(loadDashboardComments({
         dashboardId: this.currentDashboardId,
         contextKey: this.currentDashboardContextKey,
-        dashboardUrl: this.currentDashboardUrl
+        dashboardUrl: this.currentDashboardUrl,
+        includeDeleted
       }));
     }
   }

@@ -19,7 +19,7 @@
     </span>
     @if ((currentUserContextRolesNotNone$ | async)?.length > 0) {
       @if ((selectedDataDomain$ | async); as selectedDataDomain) {
-        <span class="data-domain-selector" [pTooltip]="selectedDataDomain.name | transloco" tooltipPosition="bottom">
+        <span class="data-domain-selector">
           <a (click)="selectedDataDomainMenu.toggle($event)"
              class="route-link p-button-link layout-topbar-button inline-flex items-center gap-1" pRipple>
             <span class="cursor-pointer truncate data-domain-name">{{ selectedDataDomain.name | transloco }}</span>

@@ -26,9 +26,9 @@
 ///
 
 import {Component, ElementRef, HostListener, inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {combineLatest, interval, Observable, Subscription, tap} from "rxjs";
+import {combineLatest, Observable, Subscription, tap} from "rxjs";
 import {Store} from "@ngrx/store";
-import {filter, switchMap, take} from "rxjs/operators";
+import {filter, take} from "rxjs/operators";
 import {AsyncPipe, NgClass} from '@angular/common';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {SubsystemIframeComponent} from "../../../shared/components/subsystem-iframe/subsystem-iframe.component";
@@ -38,19 +38,16 @@ import {AppState} from "../../../store/app/app.state";
 import {OpenedSubsystemsService} from "../../../shared/services/opened-subsystems.service";
 import {
   selectCurrentDashboardContextKey,
-  selectCurrentDashboardId,
-  selectCurrentDashboardUrl,
   selectCurrentMyDashboardInfo
 } from "../../../store/my-dashboards/my-dashboards.selector";
-import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
+import {selectCurrentUserCommentPermissions, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.model";
 import {naviElements} from "../../../app-navi-elements";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
-import {loadDashboardComments, setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
+import {setCurrentDashboard} from "../../../store/my-dashboards/my-dashboards.action";
 import {ActivatedRoute} from '@angular/router';
 
 export const VISITED_SUBSYSTEMS_SESSION_STORAGE_KEY = 'visited_subsystems';
-const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 @Component({
   selector: 'app-embed-my-dashboard',
@@ -70,13 +67,14 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   url!: string;
   currentMyDashboardInfo$!: Observable<any>;
   isCommentsOpen = false;
+  canReadComments = false;
 
   commentsPanelWidth = this.loadSavedWidth();
   isResizing = false;
 
   private loadedDashboardId: number | null = null;
   private isNavigatingToPointerUrl = false;
-  private commentsRefreshSubscription: Subscription | null = null;
+  private commentPermissionsSub: Subscription | null = null;
 
   constructor() {
     super();
@@ -103,6 +101,20 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
         this.navigateToPointerUrl(pointerUrl);
       }
     });
+
+    this.commentPermissionsSub = combineLatest([
+      this.store.select(selectCurrentDashboardContextKey),
+      this.store.select(selectCurrentUserCommentPermissions)
+    ]).subscribe(([contextKey, commentPermissions]) => {
+      if (contextKey && commentPermissions[contextKey]) {
+        this.canReadComments = commentPermissions[contextKey].readComments;
+      } else {
+        this.canReadComments = false;
+      }
+      if (!this.canReadComments && this.isCommentsOpen) {
+        this.isCommentsOpen = false;
+      }
+    });
   }
 
   get commentsGridTemplate(): string {
@@ -111,14 +123,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
 
   toggleComments(): void {
     this.isCommentsOpen = !this.isCommentsOpen;
-
-    if (this.isCommentsOpen) {
-      // Load fresh comments when opening the panel and start refresh timer
-      this.loadCommentsAndStartTimer();
-    } else {
-      // Stop refresh timer when closing the panel
-      this.stopCommentsRefreshTimer();
-    }
   }
 
   startResizing(event: MouseEvent): void {
@@ -162,48 +166,9 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
   }
 
   ngOnDestroy(): void {
-    this.stopCommentsRefreshTimer();
-  }
-
-  private loadCommentsAndStartTimer(): void {
-    combineLatest([
-      this.store.select(selectCurrentDashboardId),
-      this.store.select(selectCurrentDashboardContextKey),
-      this.store.select(selectCurrentDashboardUrl)
-    ]).pipe(
-      filter(([id, contextKey, dashboardUrl]) => id !== null && contextKey !== null && dashboardUrl !== null),
-      take(1)
-    ).subscribe(([dashboardId, contextKey, dashboardUrl]) => {
-      if (dashboardId && contextKey && dashboardUrl) {
-        // Load comments immediately
-        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
-
-        // Start refresh timer - fetch current values from store on each tick
-        this.stopCommentsRefreshTimer();
-        this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
-          switchMap(() => combineLatest([
-            this.store.select(selectCurrentDashboardId),
-            this.store.select(selectCurrentDashboardContextKey),
-            this.store.select(selectCurrentDashboardUrl)
-          ]).pipe(take(1))),
-          filter(([id, key, url]) => id !== null && key !== null && url !== null)
-        ).subscribe(([currentDashboardId, currentContextKey, currentDashboardUrl]) => {
-          if (currentDashboardId && currentContextKey && currentDashboardUrl) {
-            this.store.dispatch(loadDashboardComments({
-              dashboardId: currentDashboardId,
-              contextKey: currentContextKey,
-              dashboardUrl: currentDashboardUrl
-            }));
-          }
-        });
-      }
-    });
-  }
-
-  private stopCommentsRefreshTimer(): void {
-    if (this.commentsRefreshSubscription) {
-      this.commentsRefreshSubscription.unsubscribe();
-      this.commentsRefreshSubscription = null;
+    if (this.commentPermissionsSub) {
+      this.commentPermissionsSub.unsubscribe();
+      this.commentPermissionsSub = null;
     }
   }
 
@@ -231,7 +196,8 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
       if (dashboardId && contextKey && this.loadedDashboardId !== dashboardId) {
         this.loadedDashboardId = dashboardId;
         this.store.dispatch(setCurrentDashboard({dashboardId, contextKey, dashboardUrl}));
-        this.store.dispatch(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+        // Note: loadDashboardComments is handled by comments-feed.component.ts
+        // which respects the current filter state (includeDeleted)
       }
     }
   }

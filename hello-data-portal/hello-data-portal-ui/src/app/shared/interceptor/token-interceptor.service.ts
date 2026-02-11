@@ -26,15 +26,27 @@
 ///
 
 import {inject, Injectable} from '@angular/core';
-import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from "@angular/common/http";
-import {map, Observable, switchMap} from "rxjs";
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+  HttpResponse
+} from "@angular/common/http";
+import {BehaviorSubject, map, Observable, switchMap, throwError} from "rxjs";
+import {catchError, filter, take} from "rxjs/operators";
 import {AuthService} from "../services";
 import {environment} from "../../../environments/environment";
+import {OidcSecurityService} from "angular-auth-oidc-client";
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
+  private readonly oidcSecurityService = inject(OidcSecurityService);
 
+  private isRefreshing = false;
+  private readonly refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   intercept(
     req: HttpRequest<any>,
@@ -56,9 +68,95 @@ export class TokenInterceptor implements HttpInterceptor {
               document.cookie = 'auth.access_token=' + event.body.access_token + '; path=/; domain=.' + environment.baseDomain + '; secure;';
             }
             return event;
-          })
+          }),
+          catchError((error: HttpErrorResponse) => this.handleError(error, req, next))
         );
       })
     );
+  }
+
+  private handleError(error: HttpErrorResponse, req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Skip auth-related URLs
+    if (req.url.includes(environment.authConfig.authority)) {
+      return throwError(() => error);
+    }
+
+    // Handle 401 Unauthorized or status 0 (network error, often caused by expired token/CORS issues)
+    if (error.status === 401 || error.status === 0) {
+      return this.handle401Error(req, next, error);
+    }
+
+    // Handle 403 Forbidden - user is authenticated but not authorized
+    if (error.status === 403) {
+      console.warn('Access forbidden for resource:', req.url);
+      return throwError(() => error);
+    }
+
+    return throwError(() => error);
+  }
+
+  private handle401Error(req: HttpRequest<any>, next: HttpHandler, originalError: HttpErrorResponse): Observable<HttpEvent<any>> {
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(null);
+
+      console.debug('[TokenInterceptor] Attempting token refresh for request:', req.url);
+
+      // Try to refresh the token using OIDC library
+      return this.oidcSecurityService.forceRefreshSession().pipe(
+        switchMap((result) => {
+          this.isRefreshing = false;
+          console.debug('[TokenInterceptor] Token refresh result:', result?.isAuthenticated ? 'authenticated' : 'not authenticated');
+
+          if (result?.isAuthenticated) {
+            // Token refresh successful, get new token and retry request
+            return this.authService.accessToken.pipe(
+              take(1),
+              switchMap(newToken => {
+                console.debug('[TokenInterceptor] Retrying request with new token');
+                this.refreshTokenSubject.next(newToken);
+                return next.handle(this.addTokenToRequest(req, newToken));
+              })
+            );
+          } else {
+            // Refresh failed, redirect to login
+            console.warn('[TokenInterceptor] Token refresh failed (not authenticated), redirecting to login. Original URL:', req.url);
+            this.redirectToLogin();
+            return throwError(() => originalError);
+          }
+        }),
+        catchError((refreshError) => {
+          this.isRefreshing = false;
+          console.warn('[TokenInterceptor] Token refresh error, redirecting to login. Error:', refreshError, 'Original URL:', req.url);
+          this.redirectToLogin();
+          return throwError(() => originalError);
+        })
+      );
+    } else {
+      // Another request is already refreshing the token, wait for it
+      console.debug('[TokenInterceptor] Waiting for ongoing token refresh');
+      return this.refreshTokenSubject.pipe(
+        filter(token => token !== null),
+        take(1),
+        switchMap(token => next.handle(this.addTokenToRequest(req, token)))
+      );
+    }
+  }
+
+  private addTokenToRequest(req: HttpRequest<any>, token: string | null): HttpRequest<any> {
+    if (token) {
+      return req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+    }
+    return req;
+  }
+
+  private redirectToLogin(): void {
+    // Clear any stale auth state and redirect to login
+    this.oidcSecurityService.logoffLocal();
+    this.authService.doLogin();
   }
 }

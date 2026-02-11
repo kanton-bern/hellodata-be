@@ -173,6 +173,10 @@ export const naviElements: any = {
     path: 'users-overview',
     label: '@Users overview'
   },
+  summary: {
+    path: 'summary',
+    label: '@Summary header'
+  },
   logout: {
     path: 'logout'
   },

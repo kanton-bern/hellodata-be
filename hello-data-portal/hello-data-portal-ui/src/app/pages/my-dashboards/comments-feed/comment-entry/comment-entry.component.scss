@@ -66,6 +66,26 @@
     border-radius: 0.25rem;
     font-weight: 500;
   }
+
+  .declined-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--red-500, #ef4444);
+    color: white;
+    border-radius: 0.25rem;
+    font-weight: 500;
+  }
+
+  .ready-review-badge {
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 0.6rem;
+    background-color: var(--blue-100, #dbeafe);
+    color: var(--blue-700, #1d4ed8);
+    border-radius: 0.25rem;
+    font-weight: 600;
+  }
 }
 
 .comment-actions {
@@ -93,12 +113,18 @@
   border-color: var(--surface-400, #9ca3af);
 }
 
+.comment-item.declined-border {
+  border-style: solid;
+  border-color: var(--red-500, #ef4444);
+  border-width: 2px;
+}
+
 ::ng-deep .p-tooltip {
   font-size: 0.625rem;
 }
 
 // Action buttons - shared styles
-.info-btn, .publish-btn, .unpublish-btn, .delete-btn, .edit-btn {
+.info-btn, .publish-btn, .decline-btn, .unpublish-btn, .delete-btn, .edit-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -107,9 +133,19 @@
 
 .info-btn {
   color: var(--text-color-secondary, #6c757d);
+  transition: color 200ms ease-in-out;
 
   &:hover {
     color: var(--primary-color, #3b82f6);
+  }
+
+  // Green color when details panel is expanded
+  &.active {
+    color: var(--p-green-500, #22c55e);
+
+    &:hover {
+      color: var(--p-green-600, #16a34a);
+    }
   }
 }
 
@@ -118,6 +154,30 @@
 
   &:hover {
     color: var(--green-600, #16a34a);
+  }
+}
+
+.decline-btn {
+  color: var(--red-500, #ef4444);
+
+  &:hover {
+    color: var(--red-600, #dc2626);
+  }
+}
+
+.send-review-btn {
+  color: var(--blue-500, #3b82f6);
+
+  &:hover {
+    color: var(--blue-600, #2563eb);
+  }
+}
+
+.delete-version-btn {
+  color: var(--red-500, #ef4444);
+
+  &:hover {
+    color: var(--red-600, #dc2626);
   }
 }
 
@@ -145,14 +205,46 @@
   }
 }
 
+.comment-details-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  &.expanded {
+    grid-template-rows: 1fr;
+  }
+}
+
 .comment-details {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
+  overflow: hidden;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
   border-top: 1px solid var(--surface-border, #dee2e6);
   color: var(--text-color-secondary, #6c757d);
+  opacity: 0;
+  transition: opacity 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
+  padding 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
+  margin 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  .expanded & {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    opacity: 1;
+  }
 
   div {
     margin-bottom: 0.25rem;
+  }
+
+  // Cursor pointer for names with tooltips (email)
+  .author-with-tooltip {
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   .pointer-url-info {
@@ -214,6 +306,15 @@
       align-items: center;
     }
 
+    .history-author {
+      min-width: 5rem;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
     .history-text-row {
       display: flex;
       gap: 0.25rem;
@@ -225,6 +326,49 @@
       font-size: 0.6rem;
       color: var(--text-color-secondary, #6c757d);
       flex-shrink: 0;
+    }
+
+    .history-decline-reason-row, .history-deletion-reason-row {
+      display: flex;
+      gap: 0.25rem;
+      align-items: flex-start;
+      padding: 0.25rem 0.5rem 0.25rem 1.5rem;
+      border-radius: 0.25rem;
+      margin: 0.25rem 0;
+    }
+
+    .history-decline-reason-row {
+      background-color: var(--red-50, #fef2f2);
+    }
+
+    .history-deletion-reason-row {
+      background-color: var(--gray-100, #f3f4f6);
+    }
+
+    .history-decline-reason-label, .history-deletion-reason-label {
+      font-size: 0.6rem;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .history-decline-reason-label {
+      color: var(--red-600, #dc2626);
+    }
+
+    .history-deletion-reason-label {
+      color: var(--gray-600, #4b5563);
+    }
+
+    .history-decline-reason, .history-deletion-reason {
+      font-size: 0.65rem;
+    }
+
+    .history-decline-reason {
+      color: var(--red-700, #b91c1c);
+    }
+
+    .history-deletion-reason {
+      color: var(--gray-700, #374151);
     }
 
     .history-pointer-url-row {
@@ -300,9 +444,24 @@
         color: var(--gray-700, #374151);
       }
 
+      &.status-ready-for-review {
+        background-color: var(--yellow-100, #fef3c7);
+        color: var(--yellow-700, #a16207);
+      }
+
       &.status-published {
         background-color: var(--blue-100, #dbeafe);
         color: var(--blue-700, #1d4ed8);
+      }
+
+      &.status-declined {
+        background-color: var(--red-100, #fee2e2);
+        color: var(--red-700, #b91c1c);
+      }
+
+      &.status-deleted {
+        background-color: var(--gray-300, #d1d5db);
+        color: var(--gray-600, #4b5563);
       }
     }
 
@@ -320,9 +479,6 @@
       min-width: 4rem;
     }
 
-    .history-author {
-      min-width: 5rem;
-    }
 
     .history-text {
       font-size: 0.65rem;
@@ -472,3 +628,26 @@
   }
 }
 
+// Decline reason banner
+.decline-reason-banner {
+  font-size: 0.75rem;
+}
+
+// Decline dialog
+.decline-dialog-content {
+  .decline-warning {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: var(--orange-50, #fff7ed);
+    border: 1px solid var(--orange-200, #fed7aa);
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--orange-700, #c2410c);
+  }
+
+  textarea {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+}

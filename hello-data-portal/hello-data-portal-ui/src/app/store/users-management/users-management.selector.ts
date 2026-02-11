@@ -225,4 +225,9 @@ export const selectUserSaveButtonDisabled = createSelector(
   (state: UsersManagementState) => state.userSaveButtonDisabled
 );
 
+export const selectCommentPermissionsForUser = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.commentPermissionsForUser
+);
+
 

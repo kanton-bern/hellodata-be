@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, Component, inject, input, output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, input, NgZone, output, ViewChild} from '@angular/core';
 import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 
 import {Store} from "@ngrx/store";
@@ -88,12 +88,17 @@ export class HeaderComponent {
 
   translationsLoaded$: Observable<any>;
 
+  @ViewChild('menu') menuRef!: Menu;
+  @ViewChild('selectedDataDomainMenu') dataDomainMenuRef!: Menu;
+
   environment: Environment;
   userMenuItems: MenuItem[] = [];
   dataDomainSelectionItems: any[] = [];
   supportedLanguages: any[] = [];
 
   selectedLanguage: string | null = null;
+
+  private readonly zone = inject(NgZone);
 
   constructor() {
     this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
@@ -112,9 +117,10 @@ export class HeaderComponent {
       this.translateService.selectTranslate('@Profile'),
       this.translateService.selectTranslate('@Logout'),
       this.translateService.selectTranslate('@View announcements'),
+      this.translateService.selectTranslate('@Info'),
       this.store.select(selectDisableLogout),
       this.store.select(selectHasMinimalRequiredPermissions)
-    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, disableLogout, hasMinimalRequiredPermissions]) => {
+    ]).pipe(tap(([profileTranslation, logoutTranslation, announcementsTranslation, infoTranslation, disableLogout, hasMinimalRequiredPermissions]) => {
       this.userMenuItems = [
         {
           label: profileTranslation,
@@ -130,6 +136,13 @@ export class HeaderComponent {
           icon: 'fas fa-light fa-bell',
           command: () => {
             this.store.dispatch(navigate({url: '/published-announcements'}));
+          }
+        });
+        this.userMenuItems.push({
+          label: infoTranslation,
+          icon: 'fa-solid fa-circle-info',
+          command: () => {
+            this.store.dispatch(navigate({url: '/summary'}));
           }
         });
       }
@@ -190,6 +203,7 @@ export class HeaderComponent {
     }));
     this.store.dispatch(setSelectedLanguage({lang: langCode}))
   }
+
 }
 
 

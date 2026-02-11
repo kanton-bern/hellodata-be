@@ -56,3 +56,15 @@
   line-height: 1;
   width: 100%;
 }
+
+/* Align chevron arrow to the right in second level menu */
+.second-level-menu a {
+  position: relative;
+  padding-right: 2rem !important;
+
+  .pi-angle-right {
+    position: absolute;
+    right: 0.5rem;
+  }
+}
+

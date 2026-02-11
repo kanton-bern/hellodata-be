@@ -34,8 +34,10 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.*;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVersionEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
@@ -45,6 +47,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -56,13 +60,27 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DashboardCommentServiceTest {
+
+    /**
+     * Comment Permission System:
+     * - READ: Can view published comments only
+     * - WRITE: Can create/edit own comments (drafts), view published + own drafts
+     * - REVIEW: Can view all comments including all drafts from all users
+     * - ADMIN (superuser/data_domain_admin/business_domain_admin): Full access to all operations
+     * <p>
+     * Tests are organized to verify each permission level and operation.
+     */
 
     @Mock
     private UserRepository userRepository;
 
     @Mock
     private DashboardCommentRepository commentRepository;
+
+    @Mock
+    private DashboardCommentPermissionRepository commentPermissionRepository;
 
     @Mock
     private DashboardCommentMapper commentMapper;
@@ -81,6 +99,8 @@ class DashboardCommentServiceTest {
     private static final String TEST_USER_NAME = "Test User";
     private static final String SUPERUSER_EMAIL = "admin@example.com";
     private static final String SUPERUSER_NAME = "Admin User";
+    private static final String REVIEWER_EMAIL = "reviewer@example.com";
+    private static final String REVIEWER_NAME = "Reviewer User";
     private static final String TEST_DASHBOARD_URL = "https://example.com/superset/dashboard/123/?standalone=1";
     private static final String TEST_POINTER_URL = "https://example.com/dashboard/123?tab=1";
     private static final String TEST_INSTANCE_NAME = "example.com";
@@ -88,7 +108,7 @@ class DashboardCommentServiceTest {
     @BeforeEach
     void setUp() {
         commentStore.clear();
-        commentService = new DashboardCommentService(userRepository, commentRepository, commentMapper, metaInfoResourceService);
+        commentService = new DashboardCommentService(commentRepository, commentPermissionRepository, commentMapper, metaInfoResourceService, userRepository);
 
         // Setup default mocking behavior for repository save
         lenient().when(commentRepository.save(any(DashboardCommentEntity.class)))
@@ -163,6 +183,8 @@ class DashboardCommentServiceTest {
                         .deleted(v.isDeleted())
                         .pointerUrl(v.getPointerUrl())
                         .tags(parseTagsFromString(v.getTags()))
+                        .deletionReason(v.getDeletionReason())
+                        .declineReason(v.getDeclineReason())
                         .build())
                 .collect(Collectors.toList());
 
@@ -184,6 +206,7 @@ class DashboardCommentServiceTest {
                 .deleted(entity.isDeleted())
                 .deletedDate(entity.getDeletedDate())
                 .deletedBy(entity.getDeletedBy())
+                .deletionReason(entity.getDeletionReason())
                 .activeVersion(entity.getActiveVersion())
                 .hasActiveDraft(entity.isHasActiveDraft())
                 .entityVersion(entity.getEntityVersion())
@@ -202,20 +225,122 @@ class DashboardCommentServiceTest {
                 .collect(Collectors.toList());
     }
 
+    // Helper methods for creating permissions
+    private DashboardCommentPermissionEntity createReadOnlyPermission() {
+        DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+        permission.setReadComments(true);
+        permission.setWriteComments(false);
+        permission.setReviewComments(false);
+        return permission;
+    }
+
+    private DashboardCommentPermissionEntity createWritePermission() {
+        DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+        permission.setReadComments(true);
+        permission.setWriteComments(true);
+        permission.setReviewComments(false);
+        return permission;
+    }
+
+    private DashboardCommentPermissionEntity createReviewPermission() {
+        DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+        permission.setReadComments(true);
+        permission.setWriteComments(true);
+        permission.setReviewComments(true);
+        return permission;
+    }
+
+    private void mockPermissionForUser(UUID userId, DashboardCommentPermissionEntity permission) {
+        when(commentPermissionRepository.findByUserIdAndContextKey(userId, TEST_CONTEXT_KEY))
+                .thenReturn(Optional.of(permission));
+    }
+
+    private void mockSuperUser(MockedStatic<SecurityUtils> securityUtils) {
+        securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
+        securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+        UUID superUserId = UUID.randomUUID();
+        securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(superUserId);
+        securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+        mockPermissionForUser(superUserId, createReviewPermission());
+    }
+
+    @Test
+    void getComments_shouldReturnEmptyListWhenUserHasNoReadPermission() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            // Mock no permission found
+            when(commentPermissionRepository.findByUserIdAndContextKey(testUserId, TEST_CONTEXT_KEY))
+                    .thenReturn(Optional.empty());
+
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
+
+            // Without read permission, user should see no comments
+            assertThat(comments).isEmpty();
+        }
+    }
+
     @Test
     void getComments_shouldReturnEmptyListWhenNoComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(UUID.randomUUID());
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            // Mock user repository for admin role check
+            // Mock user with read permission
             UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
             when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            // Mock permission entity with read access
+            DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+            permission.setReadComments(true);
+            permission.setWriteComments(false);
+            permission.setReviewComments(false);
+            when(commentPermissionRepository.findByUserIdAndContextKey(any(), eq(TEST_CONTEXT_KEY)))
+                    .thenReturn(Optional.of(permission));
+
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             assertThat(comments).isEmpty();
+        }
+    }
+
+    @Test
+    void createComment_shouldFailWhenUserHasNoWritePermission() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            // Mock permission with only read access, no write
+            DashboardCommentPermissionEntity permission = createReadOnlyPermission();
+            mockPermissionForUser(testUserId, permission);
+
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+
+            assertThatThrownBy(() ->
+                    commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto)
+            ).isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("No write permission for comments");
         }
     }
 
@@ -224,6 +349,19 @@ class DashboardCommentServiceTest {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(UUID.randomUUID());
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user without admin privileges
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            // Mock permission entity with write access
+            DashboardCommentPermissionEntity permission = new DashboardCommentPermissionEntity();
+            permission.setWriteComments(true);
+            when(commentPermissionRepository.findByUserIdAndContextKey(any(), eq(TEST_CONTEXT_KEY)))
+                    .thenReturn(Optional.of(permission));
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
@@ -258,10 +396,19 @@ class DashboardCommentServiceTest {
     @Test
     void getComments_shouldReturnOnlyPublishedCommentsForRegularUser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // User with write permission can create drafts
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             // Create draft comment
             DashboardCommentCreateDto draftDto = DashboardCommentCreateDto.builder()
@@ -270,8 +417,9 @@ class DashboardCommentServiceTest {
                     .build();
             commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, draftDto);
 
-            // Create and publish another comment
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            // Create and publish another comment as superuser
+            mockSuperUser(securityUtils);
+
             DashboardCommentCreateDto publishedDto = DashboardCommentCreateDto.builder()
                     .text("Published comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
@@ -279,17 +427,24 @@ class DashboardCommentServiceTest {
             DashboardCommentDto publishedComment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, publishedDto);
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, publishedComment.getId());
 
-            // Now check as regular user (different from author)
+            // Now check as different user with only read permission
+            UUID otherUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn("Other User");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            // Mock user repository for admin role check
-            UserEntity regularUser = new UserEntity();
-            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(regularUser));
+            UserEntity otherUser = new UserEntity();
+            otherUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            // Mock read-only permission for other user
+            DashboardCommentPermissionEntity readPermission = createReadOnlyPermission();
+            mockPermissionForUser(otherUserId, readPermission);
 
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
+
+            // Should only see the published comment, not the draft
             assertThat(comments).hasSize(1);
             assertThat(comments.get(0).getId()).isEqualTo(publishedComment.getId());
         }
@@ -298,10 +453,19 @@ class DashboardCommentServiceTest {
     @Test
     void getComments_shouldReturnDraftCommentsForAuthor() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            // Mock write permission for user
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("My draft comment")
@@ -309,25 +473,30 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            // Mock user repository for admin role check
-            UserEntity regularUser = new UserEntity();
-            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
-
+            // User with WRITE permission should see their own drafts
             assertThat(comments).hasSize(1);
             assertThat(comments.get(0).getId()).isEqualTo(comment.getId());
         }
     }
 
     @Test
-    void getComments_shouldReturnAllDraftsForSuperuser() {
+    void getComments_shouldNotReturnDraftsForReviewerIfNotAuthor() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            // Create draft as regular user
+            // Create draft as regular user with write permission
+            UUID authorUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity authorUser = new UserEntity();
+            authorUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(authorUser));
+
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("User draft")
@@ -335,22 +504,86 @@ class DashboardCommentServiceTest {
                     .build();
             commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            // Check as superuser - no need for user repository mock as isSuperuser short-circuits the check
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            // Check as user with review permission (not author, not superuser)
+            UUID reviewerUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("reviewer@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn("Reviewer");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            UserEntity reviewerUser = new UserEntity();
+            reviewerUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("reviewer@example.com")).thenReturn(Optional.of(reviewerUser));
 
+            // Mock review permission
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerUserId, reviewPermission);
+
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
+
+            // Reviewer should NOT see other users' DRAFT comments (only READY_FOR_REVIEW)
+            // Since the draft has no published version, reviewer should not see it at all
+            assertThat(comments).isEmpty();
+        }
+    }
+
+    @Test
+    void getComments_reviewerSeesReadyForReviewButNotDraft() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Create two comments as author
+            UUID authorUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity authorUser = new UserEntity();
+            authorUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(authorUser));
+
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorUserId, writePermission);
+
+            // Create first comment and send for review
+            DashboardCommentCreateDto createDto1 = DashboardCommentCreateDto.builder()
+                    .text("Comment for review")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment1 = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto1);
+            commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment1.getId());
+
+            // Switch to reviewer user
+            mockSuperUser(securityUtils);
+
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
+
+            // Reviewer should see only the READY_FOR_REVIEW comment, not the DRAFT
             assertThat(comments).hasSize(1);
+            assertThat(comments.get(0).getId()).isEqualTo(comment1.getId());
+            assertThat(comments.get(0).getHistory().stream()
+                    .filter(v -> v.getVersion() == comments.get(0).getActiveVersion())
+                    .findFirst()
+                    .get()
+                    .getStatus()).isEqualTo(DashboardCommentStatus.READY_FOR_REVIEW);
         }
     }
 
     @Test
     void updateComment_shouldUpdateDraftComment() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+
+            // Mock write permission
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
@@ -377,9 +610,18 @@ class DashboardCommentServiceTest {
     void updateComment_shouldThrowExceptionWhenNotAuthorOrSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             // Create comment as one user
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original text")
@@ -388,8 +630,19 @@ class DashboardCommentServiceTest {
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Try to update as different user
+            UUID otherUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock other user without admin privileges but with write permission
+            UserEntity otherUser = new UserEntity();
+            otherUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
+
+            // Mock write permission for other user
+            DashboardCommentPermissionEntity otherWritePermission = createWritePermission();
+            mockPermissionForUser(otherUserId, otherWritePermission);
 
             DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
                     .text("Updated text")
@@ -406,8 +659,18 @@ class DashboardCommentServiceTest {
     @Test
     void publishComment_shouldPublishDraftComment() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission for creating comment
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
@@ -415,10 +678,19 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
+            // Send for review as author
+            DashboardCommentDto readyForReview = commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Verify status is READY_FOR_REVIEW
+            DashboardCommentVersionDto reviewVersion = readyForReview.getHistory().stream()
+                    .filter(v -> v.getVersion() == readyForReview.getActiveVersion())
+                    .findFirst()
+                    .orElse(null);
+            assertThat(reviewVersion).isNotNull();
+            assertThat(reviewVersion.getStatus()).isEqualTo(DashboardCommentStatus.READY_FOR_REVIEW);
+
             // Publish as superuser
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             DashboardCommentDto published = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
@@ -437,9 +709,18 @@ class DashboardCommentServiceTest {
     @Test
     void publishComment_shouldThrowExceptionWhenNotSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission for creating comment
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
@@ -447,73 +728,166 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
+            // Send for review as author
+            commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Try to publish without review permissions
             String commentId = comment.getId();
             assertThatThrownBy(() ->
                     commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Only admins can publish comments");
+                    .hasMessageContaining("No review permission for comments");
         }
     }
 
     @Test
-    void unpublishComment_shouldUnpublishComment() {
+    void sendForReview_shouldChangeStatusFromDraftToReadyForReview() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            // Create draft comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            DashboardCommentDto unpublished = commentService.unpublishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+            // Send for review
+            DashboardCommentDto sentForReview = commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            DashboardCommentVersionDto activeVersion = unpublished.getHistory().stream()
-                    .filter(v -> v.getVersion() == unpublished.getActiveVersion())
+            DashboardCommentVersionDto activeVersion = sentForReview.getHistory().stream()
+                    .filter(v -> v.getVersion() == sentForReview.getActiveVersion())
                     .findFirst()
                     .orElse(null);
             assertThat(activeVersion).isNotNull();
-            assertThat(activeVersion.getStatus()).isEqualTo(DashboardCommentStatus.DRAFT);
-            assertThat(activeVersion.getPublishedBy()).isNull();
-            assertThat(activeVersion.getPublishedDate()).isNull();
+            assertThat(activeVersion.getStatus()).isEqualTo(DashboardCommentStatus.READY_FOR_REVIEW);
         }
     }
 
     @Test
-    void unpublishComment_shouldThrowExceptionWhenNotSuperuser() {
+    void sendForReview_shouldThrowExceptionWhenNotAuthorAndNotReviewer() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            // Create comment as author
+            UUID authorId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity author = new UserEntity();
+            author.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(author));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
-            // Try to unpublish as regular user
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            // Try to send for review as different user with only READ permission (not author, not reviewer)
+            UUID otherUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity otherUser = new UserEntity();
+            otherUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
+            // Give WRITE permission (to pass checkHasAccessToComment) but not REVIEW (so not reviewer)
+            DashboardCommentPermissionEntity otherWritePermission = createWritePermission();
+            mockPermissionForUser(otherUserId, otherWritePermission);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
-                    commentService.unpublishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
+                    commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Only admins can unpublish comments");
+                    .hasMessageContaining("Not authorized");
+        }
+    }
+
+    @Test
+    void sendForReview_shouldAllowReviewerToSendForReview() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Create comment as author
+            UUID authorId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity author = new UserEntity();
+            author.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(author));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorId, writePermission);
+
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Publish it
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(REVIEWER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(REVIEWER_EMAIL)).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Reviewer edits comment (creates new draft)
+            DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
+                    .text("Updated by reviewer")
+                    .entityVersion(1)
+                    .build();
+            DashboardCommentDto updated = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), updateDto);
+
+            // Reviewer should be able to send for review
+            DashboardCommentDto sentForReview = commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, updated.getId());
+
+            assertThat(sentForReview).isNotNull();
+            DashboardCommentVersionDto activeVersion = sentForReview.getHistory().stream()
+                    .filter(v -> v.getVersion() == sentForReview.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(activeVersion.getStatus()).isEqualTo(DashboardCommentStatus.READY_FOR_REVIEW);
         }
     }
 
     @Test
     void deleteComment_shouldSoftDeleteDraftWithNoPublishedVersions() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
@@ -521,7 +895,7 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
             assertThat(deleted.isDeleted()).isTrue();
             assertThat(deleted.getDeletedDate()).isNotNull();
@@ -532,9 +906,7 @@ class DashboardCommentServiceTest {
     @Test
     void deleteComment_shouldRestoreToLastPublishedVersion() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Create and publish comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -552,7 +924,7 @@ class DashboardCommentServiceTest {
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto);
 
             // Delete current version (should restore to version 1)
-            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
             assertThat(deleted.isDeleted()).isFalse();
             assertThat(deleted.getActiveVersion()).isEqualTo(1);
@@ -563,9 +935,18 @@ class DashboardCommentServiceTest {
     @Test
     void deleteComment_shouldThrowExceptionWhenNotAuthorOrSuperuser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
@@ -574,22 +955,137 @@ class DashboardCommentServiceTest {
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Try to delete as different user
+            UUID otherUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock other user without admin privileges but with write permission
+            UserEntity otherUser = new UserEntity();
+            otherUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("other@example.com")).thenReturn(Optional.of(otherUser));
+
+            // Mock write permission for other user
+            DashboardCommentPermissionEntity otherWritePermission = createWritePermission();
+            mockPermissionForUser(otherUserId, otherWritePermission);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
-                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false)
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false, null)
             ).isInstanceOf(ResponseStatusException.class)
                     .hasMessageContaining("Not authorized to delete this comment");
         }
     }
 
     @Test
+    void deleteComment_shouldRequireDeletionReasonForReviewer() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Setup author to create the comment
+            UUID authorId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity author = new UserEntity();
+            author.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(author));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorId, writePermission);
+
+            // Create comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Switch to reviewer
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("reviewer@example.com");
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn("Reviewer");
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase("reviewer@example.com")).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
+            // Try to delete without reason - should fail
+            String commentId = comment.getId();
+            assertThatThrownBy(() ->
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false, null)
+            ).isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Deletion reason is required");
+
+            // Try to delete with empty reason - should fail
+            assertThatThrownBy(() ->
+                    commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, false, "  ")
+            ).isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Deletion reason is required");
+        }
+    }
+
+    @Test
+    void deleteComment_shouldStoreDeletionReason() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            // Create and publish comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Delete with reason
+            String deletionReason = "This comment violates policy";
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
+                    comment.getId(), false, deletionReason);
+
+            // Verify deletion reason is stored on the deleted version
+            DashboardCommentVersionDto deletedVersion = deleted.getHistory().stream()
+                    .filter(v -> v.getStatus() == DashboardCommentStatus.DELETED)
+                    .findFirst()
+                    .orElse(null);
+
+            assertThat(deletedVersion).isNotNull();
+            assertThat(deletedVersion.getDeletionReason()).isEqualTo(deletionReason);
+        }
+    }
+
+    @Test
+    void deleteComment_shouldStoreDeletionReasonOnEntityWhenDeleteEntire() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            // Create and publish comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Delete entire comment with reason
+            String deletionReason = "This comment is no longer relevant";
+            DashboardCommentDto deleted = commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID,
+                    comment.getId(), true, deletionReason);
+
+            // Verify deletion reason is stored on the main entity
+            assertThat(deleted.isDeleted()).isTrue();
+            assertThat(deleted.getDeletedBy()).isEqualTo(SUPERUSER_NAME);
+            assertThat(deleted.getDeletionReason()).isEqualTo(deletionReason);
+        }
+    }
+
+    @Test
     void cloneCommentForEdit_shouldCreateNewDraftVersion() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Create and publish comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -626,9 +1122,18 @@ class DashboardCommentServiceTest {
     @Test
     void cloneCommentForEdit_shouldThrowExceptionWhenNotPublished() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Draft comment")
@@ -644,31 +1149,65 @@ class DashboardCommentServiceTest {
             assertThatThrownBy(() ->
                     commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, editDto)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("must be published to create a new edit version");
+                    .hasMessageContaining("must be published or declined to create a new edit version");
         }
     }
 
     @Test
     void restoreVersion_shouldRestoreSpecificVersion() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            // Setup author
+            UUID authorId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
-            // Create, publish, and create multiple versions
+            UserEntity author = new UserEntity();
+            author.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(author));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorId, writePermission);
+
+            // Create comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Version 1")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Switch to reviewer to publish
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(REVIEWER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(REVIEWER_EMAIL)).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
             DashboardCommentDto published1 = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Back to author for edit
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
 
             DashboardCommentUpdateDto editDto2 = DashboardCommentUpdateDto.builder()
                     .text("Version 2")
                     .entityVersion(published1.getEntityVersion())
                     .build();
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto2);
+
+            // Reviewer publishes version 2
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
             DashboardCommentDto published2 = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Author creates version 3
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorId);
 
             DashboardCommentUpdateDto editDto3 = DashboardCommentUpdateDto.builder()
                     .text("Version 3")
@@ -676,7 +1215,10 @@ class DashboardCommentServiceTest {
                     .build();
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), editDto3);
 
-            // Restore to version 1
+            // Reviewer restores to version 1
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+
             DashboardCommentDto restored = commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), 1);
 
             assertThat(restored.getActiveVersion()).isEqualTo(1);
@@ -685,11 +1227,20 @@ class DashboardCommentServiceTest {
     }
 
     @Test
-    void restoreVersion_shouldThrowExceptionWhenNotAuthorOrSuperuser() {
+    void restoreVersion_shouldThrowExceptionWhenNotReviewer() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission (but no review permission)
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
@@ -697,39 +1248,249 @@ class DashboardCommentServiceTest {
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
-            // Try to restore as different user
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn("other@example.com");
+            // Publish as reviewer
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(REVIEWER_EMAIL)).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Try to restore as author (who has write but not review permission)
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
 
             String commentId = comment.getId();
             assertThatThrownBy(() ->
                     commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, 1)
             ).isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Not authorized to restore this comment version");
+                    .hasMessageContaining("Only reviewers can restore comment versions");
+        }
+    }
+
+    @Test
+    void restoreVersion_shouldAllowReviewerToRestoreVersion() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            // Create comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment version 1")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Publish as reviewer
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(REVIEWER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(REVIEWER_EMAIL)).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Edit as author (creates v2)
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+
+            DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
+                    .text("Test comment version 2")
+                    .entityVersion(1)
+                    .build();
+            commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), updateDto);
+
+            // Publish v2 as reviewer
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Reviewer should be able to restore version 1
+            DashboardCommentDto restored = commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), 1);
+
+            assertThat(restored.getActiveVersion()).isEqualTo(1);
+            DashboardCommentVersionDto activeVersion = restored.getHistory().stream()
+                    .filter(v -> v.getVersion() == restored.getActiveVersion())
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(activeVersion.getText()).isEqualTo("Test comment version 1");
+        }
+    }
+
+    @Test
+    void restoreVersion_shouldThrowExceptionWhenCommentIsReadyForReview() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            // Create comment and publish it
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+
+            // Publish the comment (as reviewer)
+            UUID reviewerId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(REVIEWER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity reviewer = new UserEntity();
+            reviewer.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(REVIEWER_EMAIL)).thenReturn(Optional.of(reviewer));
+            DashboardCommentPermissionEntity reviewPermission = createReviewPermission();
+            mockPermissionForUser(reviewerId, reviewPermission);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
+
+            // Edit comment as author (creates draft v2)
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+
+            DashboardCommentUpdateDto updateDto = DashboardCommentUpdateDto.builder()
+                    .text("Updated comment")
+                    .entityVersion(1)
+                    .build();
+            DashboardCommentDto updatedComment = commentService.updateComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), updateDto);
+
+            // Send for review
+            DashboardCommentDto readyForReview = commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, updatedComment.getId());
+
+            // Switch back to reviewer and try to restore version 1 while version 2 is READY_FOR_REVIEW
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(REVIEWER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(reviewerId);
+
+            String commentId = readyForReview.getId();
+            assertThatThrownBy(() ->
+                    commentService.restoreVersion(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, 1)
+            ).isInstanceOf(ResponseStatusException.class)
+                    .hasMessageContaining("Cannot restore version while comment is waiting for review");
         }
     }
 
     @Test
     void getComments_shouldNotReturnDeletedComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Test comment")
                     .dashboardUrl(TEST_DASHBOARD_URL)
                     .build();
             DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
-            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, null);
 
-            // Mock user repository for admin role check
-            UserEntity regularUser = new UserEntity();
-            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             assertThat(comments).isEmpty();
+        }
+    }
+
+    @Test
+    void getComments_shouldHideDeletedCommentsByDefault() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            // Create and delete a comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Test comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), true, "Reason");
+
+            // Fetch comments with default (false) includeDeleted
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
+
+            assertThat(comments).isEmpty();
+        }
+    }
+
+    @Test
+    void getComments_shouldIncludeDeletedCommentsWhenRequestedByAuthor() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            // Create and delete a comment
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Deleted comment")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), true, "Reason");
+
+            // Fetch comments with includeDeleted = true
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, true);
+
+            assertThat(comments).hasSize(1);
+            assertThat(comments.get(0).getId()).isEqualTo(comment.getId());
+            assertThat(comments.get(0).isDeleted()).isTrue();
         }
     }
 
@@ -745,8 +1506,18 @@ class DashboardCommentServiceTest {
 
         // Step 1: Author creates a comment
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID authorUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(AUTHOR_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(AUTHOR_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission for author
+            UserEntity authorUser = new UserEntity();
+            authorUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(AUTHOR_EMAIL)).thenReturn(Optional.of(authorUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(authorUserId, writePermission);
 
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
                     .text("Original comment text")
@@ -758,14 +1529,14 @@ class DashboardCommentServiceTest {
             String commentId = comment.getId();
 
             // Step 2: Admin publishes the comment
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
+            mockSuperUser(securityUtils);
 
             DashboardCommentDto publishedComment = commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
 
             // Step 3: Author edits the published comment (creates a new draft version)
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(AUTHOR_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(AUTHOR_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(authorUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             DashboardCommentUpdateDto editDto = DashboardCommentUpdateDto.builder()
@@ -776,14 +1547,21 @@ class DashboardCommentServiceTest {
             commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, editDto);
 
             // Step 4: Other non-admin user (showcase-editor) requests comments
+            UUID otherUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(OTHER_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(OTHER_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(otherUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             UserEntity otherUser = new UserEntity();
+            otherUser.setContextRoles(Collections.emptySet());
             when(userRepository.findUserEntityByEmailIgnoreCase(OTHER_USER_EMAIL)).thenReturn(Optional.of(otherUser));
 
-            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+            // Mock read-only permission for other user
+            DashboardCommentPermissionEntity readPermission = createReadOnlyPermission();
+            mockPermissionForUser(otherUserId, readPermission);
+
+            List<DashboardCommentDto> comments = commentService.getComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, false);
 
             // Verify: Other user should see the comment with the last published version (v1), not the draft (v2)
             assertThat(comments).hasSize(1);
@@ -809,8 +1587,18 @@ class DashboardCommentServiceTest {
         final String USER_NAME = "Test User";
 
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             // Step 1: Create a comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -861,8 +1649,18 @@ class DashboardCommentServiceTest {
         final String USER_NAME = "Test User";
 
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             // Create a comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -912,14 +1710,8 @@ class DashboardCommentServiceTest {
     @Test
     void cloneCommentForEdit_shouldThrowConflictWhenVersionMismatch() {
         // Test that when one user edits a published comment, another user with stale version gets CONFLICT
-
-        final String USER_EMAIL = "user@example.com";
-        final String USER_NAME = "Test User";
-
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Step 1: Create and publish a comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -968,8 +1760,18 @@ class DashboardCommentServiceTest {
         final String USER_NAME = "Test User";
 
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             // Create a comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1006,19 +1808,22 @@ class DashboardCommentServiceTest {
     @Test
     void exportComments_shouldFailForNonAdminUser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             // Mock user repository for admin role check (user is not admin)
             UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
             when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
             assertThatThrownBy(() ->
                     commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID)
             )
                     .isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Only admins can export comments");
+                    .hasMessageContaining("No review permission for comments");
         }
     }
 
@@ -1026,9 +1831,18 @@ class DashboardCommentServiceTest {
     void exportComments_shouldExportDraftComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
             // First create a draft as regular user
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Mock user and write permission
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
 
             // Create a draft comment (not published)
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1038,9 +1852,7 @@ class DashboardCommentServiceTest {
             commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
 
             // Now export as admin
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Export should include the draft comment (all non-deleted comments are exported)
             CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
@@ -1058,9 +1870,7 @@ class DashboardCommentServiceTest {
     @Test
     void exportComments_shouldExportAllNonDeletedComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Create and publish a comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1099,9 +1909,7 @@ class DashboardCommentServiceTest {
     @Test
     void exportComments_shouldIncludeAllVersionsInHistory() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Create, publish, edit and publish again
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1141,11 +1949,9 @@ class DashboardCommentServiceTest {
     }
 
     @Test
-    void exportComments_shouldNotExportDeletedComments() {
+    void exportComments_shouldIncludeDeletedComments() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Create and publish a comment
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1156,12 +1962,14 @@ class DashboardCommentServiceTest {
             commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId());
 
             // Delete it
-            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false);
+            commentService.deleteComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, comment.getId(), false, "Deletion reason");
 
-            // Export should be empty
+            // Export should include the deleted comment
             CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
 
-            assertThat(exportData.getComments()).isEmpty();
+            assertThat(exportData.getComments()).hasSize(1);
+            assertThat(exportData.getComments().get(0).getStatus()).isEqualTo("DELETED");
+            assertThat(exportData.getComments().get(0).getHistory().get(0).getDeletionReason()).isEqualTo("Deletion reason");
         }
     }
 
@@ -1170,12 +1978,15 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldFailForNonAdminUser() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            UUID testUserId = UUID.randomUUID();
             securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
             securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
             securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
 
             // Mock user repository for admin role check (user is not admin)
             UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
             when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
 
             CommentExportDto importData = CommentExportDto.builder()
@@ -1191,16 +2002,14 @@ class DashboardCommentServiceTest {
                     commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData)
             )
                     .isInstanceOf(ResponseStatusException.class)
-                    .hasMessageContaining("Only admins can import comments");
+                    .hasMessageContaining("No review permission for comments");
         }
     }
 
     @Test
     void importComments_shouldFailWithInvalidImportData() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Null import data
             assertThatThrownBy(() ->
@@ -1228,9 +2037,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldPreserveStatusFromImportData() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1254,8 +2061,10 @@ class DashboardCommentServiceTest {
                                                     .status("PUBLISHED")
                                                     .editedDate(1700000000000L)
                                                     .editedBy("Original Author")
+                                                    .editedByEmail("original@example.com")
                                                     .publishedDate(1700000001000L)
                                                     .publishedBy("Admin")
+                                                    .publishedByEmail("admin@example.com")
                                                     .build()
                                     ))
                                     .activeVersion(1)
@@ -1281,9 +2090,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldSkipInvalidItems() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1323,9 +2130,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldUpdateExistingCommentIfIdMatches() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Create an existing comment first
             DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
@@ -1375,9 +2180,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldReplaceDashboardUrlWithCurrentUrl() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval to return current URL
             mockDashboardUrlRetrieval();
@@ -1404,9 +2207,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldNotImportPointerUrl() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1438,9 +2239,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldPreserveOriginalAuthorInfo() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1475,9 +2274,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldUseCurrentUserWhenAuthorNotProvided() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1505,9 +2302,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldNormalizeTagsDuringImport() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1547,9 +2342,7 @@ class DashboardCommentServiceTest {
     @Test
     void exportImport_shouldMaintainCommentDataIntegrity() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Create and publish some comments
             DashboardCommentCreateDto createDto1 = DashboardCommentCreateDto.builder()
@@ -1592,9 +2385,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldPreserveFullHistoryWithStatuses() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1620,8 +2411,10 @@ class DashboardCommentServiceTest {
                                                     .status("PUBLISHED")
                                                     .editedDate(1700000000000L)
                                                     .editedBy("Original Author")
+                                                    .editedByEmail("author@example.com")
                                                     .publishedDate(1700000001000L)
                                                     .publishedBy("Admin")
+                                                    .publishedByEmail("admin@example.com")
                                                     .tags(List.of("v1tag"))
                                                     .build(),
                                             CommentVersionExportDto.builder()
@@ -1630,8 +2423,10 @@ class DashboardCommentServiceTest {
                                                     .status("PUBLISHED")
                                                     .editedDate(1700001000000L)
                                                     .editedBy("Editor")
+                                                    .editedByEmail("editor@example.com")
                                                     .publishedDate(1700001001000L)
                                                     .publishedBy("Admin")
+                                                    .publishedByEmail("admin@example.com")
                                                     .tags(List.of("v2tag"))
                                                     .build(),
                                             CommentVersionExportDto.builder()
@@ -1640,8 +2435,10 @@ class DashboardCommentServiceTest {
                                                     .status("PUBLISHED")
                                                     .editedDate(1700002000000L)
                                                     .editedBy("Editor")
+                                                    .editedByEmail("editor@example.com")
                                                     .publishedDate(1700002001000L)
                                                     .publishedBy("Admin")
+                                                    .publishedByEmail("admin@example.com")
                                                     .tags(List.of("v3tag"))
                                                     .build()
                                     ))
@@ -1670,9 +2467,7 @@ class DashboardCommentServiceTest {
     @Test
     void importComments_shouldNotDuplicateOnReimportFromOtherDashboard() {
         try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
-            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(SUPERUSER_EMAIL);
-            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(SUPERUSER_NAME);
-            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(true);
+            mockSuperUser(securityUtils);
 
             // Mock dashboard URL retrieval
             mockDashboardUrlRetrieval();
@@ -1732,6 +2527,194 @@ class DashboardCommentServiceTest {
             DashboardCommentEntity updated = commentStore.get(newCommentId);
             assertThat(updated).isNotNull();
             assertThat(updated.getHistory().get(0).getText()).isEqualTo("Updated imported comment");
+        }
+    }
+
+    @Test
+    void exportComments_shouldExportDeclinedCommentWithDeclineReason() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Create a comment as regular user
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Comment to decline")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+            commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            // Decline as superuser
+            mockSuperUser(securityUtils);
+
+            DashboardCommentDeclineDto declineDto = DashboardCommentDeclineDto.builder()
+                    .declineReason("Needs improvement")
+                    .build();
+            commentService.declineComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, declineDto);
+
+            // Export
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).hasSize(1);
+            CommentExportItemDto exported = exportData.getComments().get(0);
+            assertThat(exported.getStatus()).isEqualTo("DECLINED");
+
+            // Verify history contains the declined version with decline reason
+            assertThat(exported.getHistory()).hasSize(1);
+            CommentVersionExportDto declinedVersion = exported.getHistory().get(0);
+            assertThat(declinedVersion.getStatus()).isEqualTo("DECLINED");
+            assertThat(declinedVersion.getDeclineReason()).isEqualTo("Needs improvement");
+        }
+    }
+
+    @Test
+    void importComments_shouldPreserveDeclinedStatusAndDeclineReason() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            mockSuperUser(securityUtils);
+
+            mockDashboardUrlRetrieval();
+
+            CommentExportDto importData = CommentExportDto.builder()
+                    .exportVersion("1.0")
+                    .contextKey(TEST_CONTEXT_KEY)
+                    .dashboardId(TEST_DASHBOARD_ID)
+                    .comments(List.of(
+                            CommentExportItemDto.builder()
+                                    .text("Declined comment")
+                                    .author("Author")
+                                    .authorEmail("author@example.com")
+                                    .status("DECLINED")
+                                    .createdDate(1700000000000L)
+                                    .history(List.of(
+                                            CommentVersionExportDto.builder()
+                                                    .version(1)
+                                                    .text("Declined comment")
+                                                    .status("DECLINED")
+                                                    .editedDate(1700000000000L)
+                                                    .editedBy("Author")
+                                                    .editedByEmail("author@example.com")
+                                                    .publishedBy("Reviewer")
+                                                    .publishedByEmail("reviewer@example.com")
+                                                    .publishedDate(1700000001000L)
+                                                    .declineReason("Content not appropriate")
+                                                    .build()
+                                    ))
+                                    .activeVersion(1)
+                                    .build()
+                    ))
+                    .build();
+
+            CommentImportResultDto result = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, importData);
+
+            assertThat(result.getImported()).isEqualTo(1);
+            assertThat(result.getSkipped()).isZero();
+
+            DashboardCommentEntity imported = commentStore.values().iterator().next();
+            assertThat(imported.getHistory()).hasSize(1);
+
+            DashboardCommentVersionEntity version = imported.getHistory().get(0);
+            assertThat(version.getStatus()).isEqualTo(DashboardCommentStatus.DECLINED);
+            assertThat(version.getDeclineReason()).isEqualTo("Content not appropriate");
+        }
+    }
+
+    @Test
+    void exportImport_shouldRoundTripDeclinedCommentWithFullHistory() {
+        try (MockedStatic<SecurityUtils> securityUtils = mockStatic(SecurityUtils.class)) {
+            // Create and publish a comment as regular user
+            UUID testUserId = UUID.randomUUID();
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            UserEntity regularUser = new UserEntity();
+            regularUser.setContextRoles(Collections.emptySet());
+            when(userRepository.findUserEntityByEmailIgnoreCase(TEST_USER_EMAIL)).thenReturn(Optional.of(regularUser));
+            DashboardCommentPermissionEntity writePermission = createWritePermission();
+            mockPermissionForUser(testUserId, writePermission);
+
+            DashboardCommentCreateDto createDto = DashboardCommentCreateDto.builder()
+                    .text("Version 1")
+                    .dashboardUrl(TEST_DASHBOARD_URL)
+                    .build();
+            DashboardCommentDto comment = commentService.createComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, createDto);
+            String commentId = comment.getId();
+
+            // Publish as superuser, then clone and decline
+            mockSuperUser(securityUtils);
+
+            commentService.publishComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            // Re-mock author to send v2 for review
+            securityUtils.when(SecurityUtils::getCurrentUserEmail).thenReturn(TEST_USER_EMAIL);
+            securityUtils.when(SecurityUtils::getCurrentUserFullName).thenReturn(TEST_USER_NAME);
+            securityUtils.when(SecurityUtils::getCurrentUserId).thenReturn(testUserId);
+            securityUtils.when(SecurityUtils::isSuperuser).thenReturn(false);
+
+            // Clone for edit (creates v2 draft)
+            DashboardCommentUpdateDto editDto = DashboardCommentUpdateDto.builder()
+                    .text("Version 2 - needs review")
+                    .entityVersion(comment.getEntityVersion() + 1)
+                    .build();
+            commentService.cloneCommentForEdit(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, editDto);
+            commentService.sendForReview(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId);
+
+            // Decline v2 as reviewer
+            mockSuperUser(securityUtils);
+            DashboardCommentDeclineDto declineDto = DashboardCommentDeclineDto.builder()
+                    .declineReason("Missing data sources")
+                    .build();
+            commentService.declineComment(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, commentId, declineDto);
+
+            // Export
+            CommentExportDto exportData = commentService.exportComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID);
+
+            assertThat(exportData.getComments()).hasSize(1);
+            CommentExportItemDto exported = exportData.getComments().get(0);
+            assertThat(exported.getStatus()).isEqualTo("DECLINED");
+            assertThat(exported.getHistory()).hasSize(2);
+
+            // v1 = PUBLISHED, v2 = DECLINED with reason
+            CommentVersionExportDto v1 = exported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 1).findFirst().orElseThrow();
+            CommentVersionExportDto v2 = exported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 2).findFirst().orElseThrow();
+            assertThat(v1.getStatus()).isEqualTo("PUBLISHED");
+            assertThat(v2.getStatus()).isEqualTo("DECLINED");
+            assertThat(v2.getDeclineReason()).isEqualTo("Missing data sources");
+
+            // Clear store and reimport
+            commentStore.clear();
+            mockDashboardUrlRetrieval();
+
+            CommentImportResultDto importResult = commentService.importComments(TEST_CONTEXT_KEY, TEST_DASHBOARD_ID, exportData);
+
+            assertThat(importResult.getImported()).isEqualTo(1);
+
+            DashboardCommentEntity reimported = commentStore.values().iterator().next();
+            assertThat(reimported.getHistory()).hasSize(2);
+            assertThat(reimported.getActiveVersion()).isEqualTo(2);
+
+            // Verify statuses and decline reason survived round-trip
+            DashboardCommentVersionEntity reimportedV1 = reimported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 1).findFirst().orElseThrow();
+            DashboardCommentVersionEntity reimportedV2 = reimported.getHistory().stream()
+                    .filter(v -> v.getVersion() == 2).findFirst().orElseThrow();
+
+            assertThat(reimportedV1.getStatus()).isEqualTo(DashboardCommentStatus.PUBLISHED);
+            assertThat(reimportedV2.getStatus()).isEqualTo(DashboardCommentStatus.DECLINED);
+            assertThat(reimportedV2.getDeclineReason()).isEqualTo("Missing data sources");
         }
     }
 

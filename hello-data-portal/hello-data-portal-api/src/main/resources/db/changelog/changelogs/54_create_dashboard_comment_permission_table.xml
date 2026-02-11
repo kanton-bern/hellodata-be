@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="54.1-create-dashboard-comment-permission-table" author="hellodata">
+        <comment>Create dashboard_comment_permission table to persist read/write/review comment permissions per user per data domain.</comment>
+        <createTable tableName="dashboard_comment_permission">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context_key" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="read_comments" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="write_comments" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="review_comments" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="created_by" type="varchar(255)"/>
+            <column name="modified_date" type="timestamp"/>
+            <column name="modified_by" type="varchar(255)"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="dashboard_comment_permission"
+                             columnNames="user_id, context_key"
+                             constraintName="uq_dashboard_comment_permission_user_context"/>
+
+        <addForeignKeyConstraint baseTableName="dashboard_comment_permission"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="user_"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_dashboard_comment_permission_user"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="dashboard_comment_permission"
+                                 baseColumnNames="context_key"
+                                 referencedTableName="context"
+                                 referencedColumnNames="context_key"
+                                 constraintName="fk_dashboard_comment_permission_context"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

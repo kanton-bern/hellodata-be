@@ -33,6 +33,7 @@ import {NotificationService} from "../../shared/services/notification.service";
 import {Store} from '@ngrx/store';
 import {AppState} from "../app/app.state";
 import {
+  selectCommentPermissionsForUser,
   selectCurrentPagination,
   selectDashboardsForUser,
   selectParamUserId,
@@ -59,6 +60,8 @@ import {
   loadAvailableContextRolesSuccess,
   loadAvailableContexts,
   loadAvailableContextsSuccess,
+  loadCommentPermissions,
+  loadCommentPermissionsSuccess,
   loadDashboards,
   loadDashboardsSuccess,
   loadSubsystemUsers,
@@ -85,12 +88,12 @@ import {
 
 @Injectable()
 export class UsersManagementEffects {
-  private _router = inject(Router);
-  private _actions$ = inject(Actions);
-  private _store = inject<Store<AppState>>(Store);
-  private _usersManagementService = inject(UsersManagementService);
-  private _contextRoleService = inject(ContextRoleService);
-  private _notificationService = inject(NotificationService);
+  private readonly _router = inject(Router);
+  private readonly _actions$ = inject(Actions);
+  private readonly _store = inject<Store<AppState>>(Store);
+  private readonly _usersManagementService = inject(UsersManagementService);
+  private readonly _contextRoleService = inject(ContextRoleService);
+  private readonly _notificationService = inject(NotificationService);
 
 
   loadUsers$ = createEffect(() =>
@@ -307,9 +310,13 @@ export class UsersManagementEffects {
       ofType(updateUserRoles),
       withLatestFrom(
         this._store.select(selectSelectedRolesForUser),
-        this._store.select(selectDashboardsForUser)
+        this._store.select(selectDashboardsForUser),
+        this._store.select(selectCommentPermissionsForUser)
       ),
-      switchMap(([action, selectedRoles, selectedDashboards]) => this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards)),
+      switchMap(([action, selectedRoles, selectedDashboards, commentPermissions]) => {
+        const commentPermissionsMap = new Map(Object.entries(commentPermissions));
+        return this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards, commentPermissionsMap);
+      }),
       switchMap(() => scheduled([updateUserRolesSuccess(), clearUnsavedChanges()], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
@@ -320,7 +327,7 @@ export class UsersManagementEffects {
       ofType(updateUserRolesSuccess),
       delay(200),
       switchMap((action) =>
-        scheduled([loadUserContextRoles(), loadUserById(), showSuccess({message: '@User roles updated'})], asyncScheduler)),
+        scheduled([loadUserContextRoles(), loadUserById(), loadCommentPermissions(), showSuccess({message: '@User roles updated'})], asyncScheduler)),
     )
   });
 
@@ -356,6 +363,30 @@ export class UsersManagementEffects {
       ofType(clearSubsystemUsersForDashboardsCache),
       switchMap(() => this._usersManagementService.clearAllUsersWithRolesForDashboardsCache()),
       switchMap(() => scheduled([loadSubsystemUsersForDashboards()], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
+    )
+  });
+
+  loadCommentPermissions$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadCommentPermissions),
+      withLatestFrom(this._store.select(selectParamUserId)),
+      switchMap(([action, userId]) => this._usersManagementService.getCommentPermissions(userId as string)),
+      map(result => {
+        const permissionsMap: Record<string, {
+          readComments: boolean,
+          writeComments: boolean,
+          reviewComments: boolean
+        }> = {};
+        result.forEach(p => {
+          permissionsMap[p.contextKey] = {
+            readComments: p.readComments,
+            writeComments: p.writeComments,
+            reviewComments: p.reviewComments
+          };
+        });
+        return loadCommentPermissionsSuccess({payload: permissionsMap});
+      }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     )
   });

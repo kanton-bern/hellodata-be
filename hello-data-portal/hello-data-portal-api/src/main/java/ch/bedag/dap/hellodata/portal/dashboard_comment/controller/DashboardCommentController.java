@@ -45,8 +45,9 @@ public class DashboardCommentController {
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
     public List<DashboardCommentDto> getComments(
             @PathVariable String contextKey,
-            @PathVariable int dashboardId) {
-        return commentService.getComments(contextKey, dashboardId);
+            @PathVariable int dashboardId,
+            @RequestParam(required = false, defaultValue = "false") boolean includeDeleted) {
+        return commentService.getComments(contextKey, dashboardId, includeDeleted);
     }
 
     @GetMapping("/tags")
@@ -82,8 +83,10 @@ public class DashboardCommentController {
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId,
-            @RequestParam(defaultValue = "false") boolean deleteEntire) {
-        return commentService.deleteComment(contextKey, dashboardId, commentId, deleteEntire);
+            @RequestBody(required = false) DashboardCommentDeleteDto deleteDto) {
+        boolean deleteEntire = deleteDto != null && deleteDto.isDeleteEntire();
+        String deletionReason = deleteDto != null ? deleteDto.getDeletionReason() : null;
+        return commentService.deleteComment(contextKey, dashboardId, commentId, deleteEntire, deletionReason);
     }
 
     @PostMapping("/{commentId}/publish")
@@ -95,13 +98,23 @@ public class DashboardCommentController {
         return commentService.publishComment(contextKey, dashboardId, commentId);
     }
 
-    @PostMapping("/{commentId}/unpublish")
+    @PostMapping("/{commentId}/send-for-review")
     @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
-    public DashboardCommentDto unpublishComment(
+    public DashboardCommentDto sendForReview(
             @PathVariable String contextKey,
             @PathVariable int dashboardId,
             @PathVariable String commentId) {
-        return commentService.unpublishComment(contextKey, dashboardId, commentId);
+        return commentService.sendForReview(contextKey, dashboardId, commentId);
+    }
+
+    @PostMapping("/{commentId}/decline")
+    @PreAuthorize("hasAnyAuthority('DASHBOARDS')")
+    public DashboardCommentDto declineComment(
+            @PathVariable String contextKey,
+            @PathVariable int dashboardId,
+            @PathVariable String commentId,
+            @RequestBody DashboardCommentDeclineDto declineDto) {
+        return commentService.declineComment(contextKey, dashboardId, commentId, declineDto);
     }
 
     @PostMapping("/{commentId}/clone")

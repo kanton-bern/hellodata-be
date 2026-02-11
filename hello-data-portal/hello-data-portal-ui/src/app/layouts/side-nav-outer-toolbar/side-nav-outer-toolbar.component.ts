@@ -32,34 +32,32 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {distinctUntilChanged, Observable} from "rxjs";
 import {selectNavItems} from "../../store/menu/menu.selector";
+import {Router} from "@angular/router";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {Tooltip} from "primeng/tooltip";
 import {Toast} from "primeng/toast";
 import {
   UnsavedChangesDialogComponent
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {selectHasMinimalRequiredPermissions} from "../../store/auth/auth.selector";
 import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
 import {MenuItem} from "primeng/api";
-import {HeaderComponent, SummaryComponent} from '../../shared/components';
+import {HeaderComponent} from '../../shared/components';
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
-  imports: [Tooltip, HeaderComponent, SummaryComponent,
+  imports: [Tooltip, HeaderComponent,
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
   private readonly store = inject<Store<AppState>>(Store);
+  private readonly router = inject(Router);
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
-  hasMinimalRequiredPermissions$: Observable<boolean>;
-
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
-    this.hasMinimalRequiredPermissions$ = this.store.select(selectHasMinimalRequiredPermissions);
   }
 
   navigateHome() {

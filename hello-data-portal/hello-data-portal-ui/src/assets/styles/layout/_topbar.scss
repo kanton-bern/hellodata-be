@@ -62,7 +62,7 @@ $background-color: #ffffff;
 
 .layout-topbar .layout-topbar-button:hover {
   color: var(--text-color);
-  background-color: var(--surface-hover);
+  background-color: var(--p-menu-item-focus-background, var(--surface-hover));
   border-radius: 3px !important;
 }
 

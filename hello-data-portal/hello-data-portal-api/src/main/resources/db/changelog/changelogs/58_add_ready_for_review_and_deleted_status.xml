@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="58-add-ready-for-review-and-deleted-status" author="system">
+        <comment>Add READY_FOR_REVIEW and DELETED statuses, migrate deleted flag to DELETED status</comment>
+
+        <!-- Update existing deleted records to have DELETED status -->
+        <sql>
+            UPDATE dashboard_comment_version
+            SET status = 'DELETED'
+            WHERE deleted = true
+        </sql>
+
+        <!-- Note: We keep the deleted column for backwards compatibility but it's no longer used in logic -->
+
+    </changeSet>
+
+</databaseChangeLog>

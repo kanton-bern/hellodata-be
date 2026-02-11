@@ -37,7 +37,7 @@ import {
   canDeleteComment,
   canEditComment,
   canPublishComment,
-  canUnpublishComment,
+  canViewCommentMetadata,
   canViewMetadataAndVersions,
   selectAvailableTags,
   selectCurrentDashboardContextKey,
@@ -92,6 +92,10 @@ export class CommentEntryComponent {
   editNewTagText = '';
   editTagSuggestions: string[] = [];
 
+  // Decline dialog
+  declineDialogVisible = false;
+  declineReason = '';
+
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
@@ -102,14 +106,34 @@ export class CommentEntryComponent {
   // Computed properties for permissions
   canEditFn = this.store.selectSignal(canEditComment);
   canPublishFn = this.store.selectSignal(canPublishComment);
-  canUnpublishFn = this.store.selectSignal(canUnpublishComment);
   canDeleteFn = this.store.selectSignal(canDeleteComment);
-  canViewMetadata = this.store.selectSignal(canViewMetadataAndVersions);
+  canViewMetadataFn = this.store.selectSignal(canViewCommentMetadata);
+  userHasReviewPermission = this.store.selectSignal(canViewMetadataAndVersions);
 
-  canEdit = computed(() => this.canEditFn()(this.comment()));
+  canEdit = computed(() => {
+    const activeVer = this.activeVersion();
+    // Cannot edit READY_FOR_REVIEW status - it's locked for review
+    if (activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW) {
+      return false;
+    }
+    return this.canEditFn()(this.comment());
+  });
+
   canPublish = computed(() => this.canPublishFn()(this.comment()));
-  canUnpublish = computed(() => this.canUnpublishFn()(this.comment()));
   canDelete = computed(() => this.canDeleteFn()(this.comment()));
+  canViewMetadata = computed(() => this.canViewMetadataFn()(this.comment()));
+
+  // Author can send DRAFT for review
+  canSendForReview = computed(() => {
+    const activeVer = this.activeVersion();
+    return this.canEdit() && activeVer?.status === DashboardCommentStatus.DRAFT;
+  });
+
+  // Reviewer can decline READY_FOR_REVIEW comments
+  canDecline = computed(() => {
+    const activeVer = this.activeVersion();
+    return this.canPublish() && activeVer?.status === DashboardCommentStatus.READY_FOR_REVIEW;
+  });
 
   // Get active version from comment
   activeVersion = computed(() => {
@@ -117,12 +141,16 @@ export class CommentEntryComponent {
   });
 
   // All visible versions:
-  // - Admins can see all non-deleted versions (both PUBLISHED and DRAFT)
-  // - Non-admins can see only non-deleted PUBLISHED versions
+  // - Admins/Reviewers can see all non-deleted versions (both PUBLISHED and DRAFT)
+  // - Author can see all their versions (including deleted/declined)
+  // - Non-admins see only non-deleted PUBLISHED versions
   allVersions = computed(() => {
     return this.commentUtils.getAllVersions(this.comment(), this.canViewMetadata());
   });
 
+  getStatusLabel(status: DashboardCommentStatus | string): string {
+    return this.commentUtils.getStatusLabel(status);
+  }
 
   constructor() {
     this.currentDashboardUrl$.pipe(
@@ -204,7 +232,8 @@ export class CommentEntryComponent {
           const tagsToSave = this.editedTags.length > 0 ? this.editedTags : undefined;
           // Send empty string to clear pointerUrl, or normalized URL
           const pointerUrlToSave = normalizedPointerUrl ?? '';
-          if (activeVer?.status === DashboardCommentStatus.PUBLISHED) {
+          // If status is PUBLISHED or DECLINED, clone to create new draft version
+          if (activeVer?.status === DashboardCommentStatus.PUBLISHED || activeVer?.status === DashboardCommentStatus.DECLINED) {
             this.commentUtils.dispatchClonePublishedComment(
               dashboardId,
               contextKey,
@@ -215,6 +244,7 @@ export class CommentEntryComponent {
               tagsToSave
             );
           } else {
+            // For DRAFT status, just update the existing draft
             this.commentUtils.dispatchUpdateDraftComment(
               dashboardId,
               contextKey,
@@ -242,6 +272,16 @@ export class CommentEntryComponent {
 
   clearEditedPointerUrl(): void {
     this.editedPointerUrl = '';
+  }
+
+  sendForReview(): void {
+    this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
+      this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
+        if (dashboardId && contextKey) {
+          this.commentUtils.confirmSendForReview(dashboardId, contextKey, this.comment().id);
+        }
+      });
+    });
   }
 
   // Tag methods for edit dialog
@@ -292,15 +332,35 @@ export class CommentEntryComponent {
     });
   }
 
-  unpublishComment(): void {
+
+  openDeclineDialog(): void {
+    this.declineReason = '';
+    this.declineDialogVisible = true;
+  }
+
+  closeDeclineDialog(): void {
+    this.declineDialogVisible = false;
+    this.declineReason = '';
+  }
+
+  submitDecline(): void {
+    if (!this.declineReason || this.declineReason.trim().length === 0) {
+      return;
+    }
+
     const comment = this.comment();
     this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
-          this.commentUtils.confirmUnpublishComment(dashboardId, contextKey, comment.id);
+          this.commentUtils.declineComment(dashboardId, contextKey, comment.id, this.declineReason.trim());
+          this.closeDeclineDialog();
         }
       });
     });
+  }
+
+  isDeclineDisabled(): boolean {
+    return !this.declineReason || this.declineReason.trim().length === 0;
   }
 
   deleteComment(): void {
@@ -308,7 +368,7 @@ export class CommentEntryComponent {
     this.currentDashboardId$.pipe(take(1)).subscribe(dashboardId => {
       this.currentDashboardContextKey$.pipe(take(1)).subscribe(contextKey => {
         if (dashboardId && contextKey) {
-          this.commentUtils.confirmDeleteComment(dashboardId, contextKey, comment.id);
+          this.commentUtils.openDeleteDialog(dashboardId, contextKey, comment.id);
         }
       });
     });
@@ -323,5 +383,11 @@ export class CommentEntryComponent {
         }
       });
     });
+  }
+
+  isCurrentVersionReadyForReview(): boolean {
+    const comment = this.comment();
+    const currentVersion = comment.history.find(v => v.version === comment.activeVersion);
+    return currentVersion?.status === DashboardCommentStatus.READY_FOR_REVIEW;
   }
 }

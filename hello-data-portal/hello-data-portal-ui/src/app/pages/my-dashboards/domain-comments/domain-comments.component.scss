@@ -110,3 +110,67 @@
   padding-bottom: 0.25rem;
   font-size: 0.875rem;
 }
+
+/* Info button styles - matching comment-entry */
+::ng-deep p-button.info-btn button {
+  color: var(--text-color-secondary, #6c757d) !important;
+  transition: color 200ms ease-in-out !important;
+
+  &:hover {
+    color: var(--primary-color, #3b82f6) !important;
+  }
+}
+
+/* Info button active state (green when expanded) */
+::ng-deep .info-btn-active button,
+::ng-deep p-button.info-btn-active button {
+  color: var(--p-green-500, #22c55e) !important;
+
+  &:hover {
+    color: var(--p-green-600, #16a34a) !important;
+  }
+}
+
+/* Restore version button styles - matching comment-entry */
+::ng-deep p-button.restore-btn button {
+  color: var(--green-500, #22c55e) !important;
+  transition: color 200ms ease-in-out !important;
+
+  &:hover {
+    color: var(--green-600, #16a34a) !important;
+  }
+}
+
+.font-bold {
+  font-weight: 800 !important;
+  color: var(--text-color, #333) !important;
+}
+
+/* Smooth transition for expanded row */
+.expanded-row {
+  .expanded-row-cell {
+    padding: 0 !important;
+  }
+}
+
+.comment-details-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  .expanded & {
+    grid-template-rows: 1fr;
+  }
+}
+
+.comment-details {
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
+  padding 300ms cubic-bezier(0.4, 0.0, 0.2, 1),
+  margin 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  .expanded & {
+    opacity: 1;
+  }
+}

@@ -34,6 +34,7 @@ import {
   loadAdminEmailsSuccess,
   loadAvailableContextRolesSuccess,
   loadAvailableContextsSuccess,
+  loadCommentPermissionsSuccess,
   loadDashboardsSuccess,
   loadSubsystemUsers,
   loadSubsystemUsersForDashboards,
@@ -47,6 +48,7 @@ import {
   navigateToUsersManagement,
   selectBusinessDomainRoleForEditedUser,
   selectDataDomainRoleForEditedUser,
+  setCommentPermissionsForUser,
   setSelectedDashboardForUser,
   showUserActionPopup,
   syncUsersSuccess,
@@ -166,7 +168,7 @@ export const usersManagementReducer = createReducer(
       ...state,
       userContextRoles: payload,
       selectedBusinessContextRoleForEditedUser: selectedBusinessContextRole ? selectedBusinessContextRole.role : null,
-      selectedDataDomainRolesForEditedUser: selectedDataDomainContextRoles ? selectedDataDomainContextRoles : []
+      selectedDataDomainRolesForEditedUser: selectedDataDomainContextRoles || []
     }
   }),
   on(selectDataDomainRoleForEditedUser, (state: UsersManagementState, {selectedRoleForContext}): UsersManagementState => {
@@ -279,6 +281,21 @@ export const usersManagementReducer = createReducer(
       ...state,
       // subsystemUsersForDashboards: [],
       subsystemUsersForDashboardsLoading: true
+    };
+  }),
+  on(loadCommentPermissionsSuccess, (state: UsersManagementState, {payload}): UsersManagementState => {
+    return {
+      ...state,
+      commentPermissionsForUser: payload
+    };
+  }),
+  on(setCommentPermissionsForUser, (state: UsersManagementState, {contextKey, permissions}): UsersManagementState => {
+    return {
+      ...state,
+      commentPermissionsForUser: {
+        ...state.commentPermissionsForUser,
+        [contextKey]: permissions
+      }
     };
   }),
 );

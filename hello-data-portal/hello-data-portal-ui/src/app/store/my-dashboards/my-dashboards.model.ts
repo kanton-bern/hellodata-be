@@ -54,7 +54,10 @@ export interface DataDomain {
 
 export enum DashboardCommentStatus {
   DRAFT = 'DRAFT',
-  PUBLISHED = 'PUBLISHED'
+  READY_FOR_REVIEW = 'READY_FOR_REVIEW',
+  PUBLISHED = 'PUBLISHED',
+  DECLINED = 'DECLINED',
+  DELETED = 'DELETED'
 }
 
 export interface DashboardCommentVersion {
@@ -63,8 +66,12 @@ export interface DashboardCommentVersion {
   status: DashboardCommentStatus;
   editedDate: number;
   editedBy: string;
+  editedByEmail?: string; // Email of the person who edited this version
   publishedDate?: number;
   publishedBy?: string;
+  publishedByEmail?: string; // Email of the person who published this version
+  declineReason?: string; // Reason for declining the draft (only for DECLINED status)
+  deletionReason?: string; // Reason for deleting the comment (only for DELETED status)
   deleted: boolean; // Soft delete - only non-deleted PUBLISHED versions are shown
   tags?: string[]; // Tags snapshot for this version (for history tracking)
   pointerUrl?: string; // Pointer URL snapshot for this version (for history tracking)
@@ -82,6 +89,8 @@ export interface DashboardCommentEntry {
   deleted: boolean;
   deletedDate?: number;
   deletedBy?: string;
+  deletedByEmail?: string;
+  deletionReason?: string; // Reason for deleting entire comment (when deleteEntire=true)
   // Versioning
   activeVersion: number; // Currently active version from history
   hasActiveDraft?: boolean; // True when this comment has an active draft edit

@@ -35,6 +35,8 @@ import {
   addCommentSuccess,
   cloneCommentForEdit,
   cloneCommentForEditSuccess,
+  declineComment,
+  declineCommentSuccess,
   deleteComment,
   deleteCommentSuccess,
   loadAvailableDataDomains,
@@ -49,9 +51,9 @@ import {
   publishCommentSuccess,
   restoreCommentVersion,
   restoreCommentVersionSuccess,
+  sendForReview,
+  sendForReviewSuccess,
   setSelectedDataDomain,
-  unpublishComment,
-  unpublishCommentSuccess,
   updateComment,
   updateCommentError,
   updateCommentSuccess,
@@ -157,8 +159,8 @@ export class MyDashboardsEffects {
   loadDashboardComments$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadDashboardComments),
-      switchMap(({dashboardId, contextKey, dashboardUrl}) => {
-        return this._myDashboardsService.getDashboardComments(contextKey, dashboardId).pipe(
+      switchMap(({dashboardId, contextKey, dashboardUrl, includeDeleted}) => {
+        return this._myDashboardsService.getDashboardComments(contextKey, dashboardId, includeDeleted).pipe(
           switchMap(comments => scheduled([loadDashboardCommentsSuccess({comments})], asyncScheduler)),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
@@ -237,8 +239,8 @@ export class MyDashboardsEffects {
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
-      switchMap(([{dashboardId, contextKey, commentId, deleteEntire}, dashboardUrl]) => {
-        return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId, deleteEntire).pipe(
+      switchMap(([{dashboardId, contextKey, commentId, deleteEntire, deletionReason}, dashboardUrl]) => {
+        return this._myDashboardsService.deleteComment(contextKey, dashboardId, commentId, deleteEntire, deletionReason).pipe(
           switchMap(restoredComment => {
             const actions: any[] = [
               deleteCommentSuccess({commentId, restoredComment})
@@ -287,18 +289,42 @@ export class MyDashboardsEffects {
     )
   });
 
-  unpublishComment$ = createEffect(() => {
+  sendForReview$ = createEffect(() => {
     return this._actions$.pipe(
-      ofType(unpublishComment),
+      ofType(sendForReview),
       withLatestFrom(
         this._store.select(selectCurrentDashboardUrl)
       ),
       switchMap(([{dashboardId, contextKey, commentId}, dashboardUrl]) => {
-        return this._myDashboardsService.unpublishComment(contextKey, dashboardId, commentId).pipe(
+        return this._myDashboardsService.sendForReview(contextKey, dashboardId, commentId).pipe(
           switchMap(comment => {
             const actions: any[] = [
-              unpublishCommentSuccess({comment}),
-              showSuccess({message: '@Comment unpublished successfully'})
+              sendForReviewSuccess({comment}),
+              showSuccess({message: '@Comment sent for review successfully'})
+            ];
+            if (dashboardUrl) {
+              actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));
+            }
+            return scheduled(actions, asyncScheduler);
+          }),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        );
+      })
+    )
+  });
+
+  declineComment$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(declineComment),
+      withLatestFrom(
+        this._store.select(selectCurrentDashboardUrl)
+      ),
+      switchMap(([{dashboardId, contextKey, commentId, declineReason}, dashboardUrl]) => {
+        return this._myDashboardsService.declineComment(contextKey, dashboardId, commentId, declineReason).pipe(
+          switchMap(comment => {
+            const actions: any[] = [
+              declineCommentSuccess({comment}),
+              showSuccess({message: '@Comment declined successfully'})
             ];
             if (dashboardUrl) {
               actions.push(loadDashboardComments({dashboardId, contextKey, dashboardUrl}));

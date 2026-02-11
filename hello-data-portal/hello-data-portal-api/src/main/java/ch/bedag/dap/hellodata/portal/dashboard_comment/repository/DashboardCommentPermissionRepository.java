@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2024, Kanton Bern
  * All rights reserved.
  *
@@ -24,9 +24,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package ch.bedag.dap.hellodata.portal.dashboard_comment.repository;
 
-.footer-image{
-  max-height: 1.75em;
-  vertical-align: middle;
-  margin-bottom: 5px
+import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentPermissionEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+public interface DashboardCommentPermissionRepository extends JpaRepository<DashboardCommentPermissionEntity, UUID> {
+
+    List<DashboardCommentPermissionEntity> findByUserId(UUID userId);
+
+    Optional<DashboardCommentPermissionEntity> findByUserIdAndContextKey(UUID userId, String contextKey);
+
+    void deleteByUserIdAndContextKey(UUID userId, String contextKey);
 }

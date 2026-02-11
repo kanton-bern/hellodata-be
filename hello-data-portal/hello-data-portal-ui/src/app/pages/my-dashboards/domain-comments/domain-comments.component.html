@@ -7,7 +7,7 @@
     [paginator]="true"
     [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]"
-    [globalFilterFields]="['text', 'author', 'dashboardTitle', 'tagsString']"
+    [globalFilterFields]="['text', 'author', 'dashboardTitle', 'tagsString', 'statusLabel']"
     [tableStyle]="{'min-width': '60rem'}"
     styleClass="p-datatable-striped">
 
@@ -75,7 +75,7 @@
           </span>
         </td>
         <td>
-          <span [pTooltip]="comment.authorEmail" tooltipPosition="top">
+          <span class="cursor-pointer" [pTooltip]="comment.authorEmail" tooltipPosition="top">
             {{ comment.author }}
           </span>
         </td>
@@ -100,14 +100,25 @@
         </td>
         <td>
           <div class="action-buttons">
+            <!-- Open dashboard button -->
+            <p-button
+              icon="fa-up-right-from-square fas"
+              [rounded]="true"
+              class="mr-2"
+              [text]="true"
+              severity="info"
+              [pTooltip]="'@Open Dashboard' | transloco"
+              tooltipPosition="top"
+              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
             <!-- Info button -->
-            @if (canViewMetadata()) {
+            @if (canViewMetadataFn()(comment)) {
               <p-button
                 icon="fa fa-info-circle"
                 [rounded]="true"
                 [text]="true"
-                severity="info"
+                severity="help"
                 class="mr-2"
+                [styleClass]="isExpanded(comment) ? 'info-btn-active' : 'info-btn'"
                 [pTooltip]="'@Info' | transloco"
                 tooltipPosition="top"
                 (click)="toggleDetails(comment)" (keydown.enter)="toggleDetails(comment)"/>
@@ -136,17 +147,29 @@
                 tooltipPosition="top"
                 (click)="publishCommentAction(comment)" (keydown.enter)="publishCommentAction(comment)"/>
             }
-            <!-- Unpublish button -->
-            @if (canUnpublish(comment)) {
+            <!-- Send for review button -->
+            @if (canSendForReview(comment)) {
               <p-button
-                icon="fa-solid fa-cloud-arrow-down"
+                icon="fa-solid fa-paper-plane"
                 [rounded]="true"
                 [text]="true"
-                severity="warn"
+                severity="info"
                 class="mr-2"
-                [pTooltip]="'@Unpublish' | transloco"
+                [pTooltip]="'@Send for review' | transloco"
                 tooltipPosition="top"
-                (click)="unpublishCommentAction(comment)" (keydown.enter)="unpublishCommentAction(comment)"/>
+                (click)="sendForReviewAction(comment)" (keydown.enter)="sendForReviewAction(comment)"/>
+            }
+            <!-- Decline button -->
+            @if (canDecline(comment)) {
+              <p-button
+                icon="fa-solid fa-circle-stop"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                class="mr-2"
+                [pTooltip]="'@Decline' | transloco"
+                tooltipPosition="top"
+                (click)="openDeclineDialog(comment)" (keydown.enter)="openDeclineDialog(comment)"/>
             }
             <!-- Delete button -->
             @if (canDelete(comment)) {
@@ -155,32 +178,22 @@
                 [rounded]="true"
                 [text]="true"
                 severity="danger"
-                class="mr-2"
                 [pTooltip]="'@Delete' | transloco"
                 tooltipPosition="top"
                 (click)="deleteCommentAction(comment)" (keydown.enter)="deleteCommentAction(comment)"/>
             }
-            <!-- Open dashboard button -->
-            <p-button
-              icon="fa-up-right-from-square fas"
-              [rounded]="true"
-              [text]="true"
-              severity="info"
-              [pTooltip]="'@Open Dashboard' | transloco"
-              tooltipPosition="top"
-              (click)="navigateToDashboard(comment)" (keydown.enter)="navigateToDashboard(comment)"/>
           </div>
         </td>
       </tr>
       <!-- Expanded details row -->
-      @if (isExpanded(comment)) {
-        <tr class="expanded-row">
-          <td colspan="7">
+      <tr class="expanded-row" [class.expanded]="isExpanded(comment)">
+        <td colspan="7" class="expanded-row-cell">
+          <div class="comment-details-wrapper">
             <div class="comment-details p-3 bg-gray-50 rounded-md">
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <strong>{{ '@Status' | transloco }}:</strong>
-                  {{ '@' + getActiveVersionData(comment)?.status | transloco }}
+                  {{ (comment.deleted ? '@deleted' : '@' + (getActiveVersionData(comment)?.status | lowercase)) | transloco }}
                 </div>
                 <div>
                   <strong>{{ '@Version' | transloco }}:</strong>
@@ -195,8 +208,50 @@
                     <strong>{{ '@Published' | transloco }}:</strong>
                     {{ getActiveVersionData(comment)?.publishedDate | date:'medium' }}
                     @if (getActiveVersionData(comment)?.publishedBy) {
-                      ({{ getActiveVersionData(comment)?.publishedBy }})
+                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail"
+                            tooltipPosition="top">
+                        ({{ getActiveVersionData(comment)?.publishedBy }})
+                      </span>
                     }
+                  </div>
+                }
+                @if (getActiveVersionData(comment)?.status === DashboardCommentStatus.DECLINED && getActiveVersionData(comment)?.declineReason) {
+                  <div class="col-span-2">
+                    <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+                      <strong class="text-red-700">{{ '@Decline reason' | transloco }}:</strong>
+                      <p class="text-red-600 mt-1">{{ getActiveVersionData(comment)?.declineReason }}</p>
+                      @if (getActiveVersionData(comment)?.publishedBy) {
+                        <p class="text-red-500 text-sm mt-1">
+                          {{ '@Declined by' | transloco }}:
+                          <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.publishedByEmail"
+                                tooltipPosition="top">
+                            {{ getActiveVersionData(comment)?.publishedBy }}
+                          </span>
+                          @if (getActiveVersionData(comment)?.publishedDate) {
+                            - {{ getActiveVersionData(comment)?.publishedDate | date:'short' }}
+                          }
+                        </p>
+                      }
+                    </div>
+                  </div>
+                }
+                @if (comment.deleted && comment.deletionReason) {
+                  <div class="col-span-2">
+                    <div class="bg-gray-100 border-l-4 border-gray-500 p-3 rounded">
+                      <strong class="text-gray-700">{{ '@Deletion reason' | transloco }}:</strong>
+                      <p class="text-gray-600 mt-1">{{ comment.deletionReason }}</p>
+                      @if (comment.deletedBy) {
+                        <p class="text-gray-500 text-sm mt-1">
+                          {{ '@Deleted by' | transloco }}:
+                          <span class="cursor-pointer" [pTooltip]="comment.deletedByEmail" tooltipPosition="top">
+                            {{ comment.deletedBy }}
+                          </span>
+                          @if (comment.deletedDate) {
+                            - {{ comment.deletedDate | date:'short' }}
+                          }
+                        </p>
+                      }
+                    </div>
                   </div>
                 }
                 @if (getActiveVersionData(comment)?.editedDate && getActiveVersionData(comment)?.editedDate !== comment.createdDate) {
@@ -204,7 +259,10 @@
                     <strong>{{ '@Last edited' | transloco }}:</strong>
                     {{ getActiveVersionData(comment)?.editedDate | date:'medium' }}
                     @if (getActiveVersionData(comment)?.editedBy) {
-                      ({{ getActiveVersionData(comment)?.editedBy }})
+                      <span class="cursor-pointer" [pTooltip]="getActiveVersionData(comment)?.editedByEmail"
+                            tooltipPosition="top">
+                        ({{ getActiveVersionData(comment)?.editedBy }})
+                      </span>
                     }
                   </div>
                 }
@@ -218,7 +276,7 @@
                 }
               </div>
               <!-- Version history -->
-              @if (getAllVersions(comment).length > 1) {
+              @if (getAllVersions(comment).length > 1 || comment.deleted) {
                 <div class="version-history mt-4">
                   <strong>{{ '@Version history' | transloco }}:</strong>
                   <table class="history-table w-full mt-2 text-sm">
@@ -251,7 +309,11 @@
                               [style]="{fontSize: '0.7rem'}"/>
                           </td>
                           <td class="p-2">{{ historyItem.editedDate | date:'short' }}</td>
-                          <td class="p-2">{{ historyItem.editedBy }}</td>
+                          <td class="p-2">
+                            <span class="cursor-pointer" [pTooltip]="historyItem.editedByEmail" tooltipPosition="top">
+                              {{ historyItem.editedBy }}
+                            </span>
+                          </td>
                           <td class="p-2">
                           <span [pTooltip]="historyItem.text" tooltipPosition="top">
                             {{ historyItem.text | slice:0:30 }}{{ historyItem.text.length > 30 ? '...' : '' }}
@@ -285,12 +347,13 @@
                             }
                           </td>
                           <td class="p-2">
-                            @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && canViewMetadata()) {
+                            @if (!historyItem.isCurrentVersion && historyItem.status === DashboardCommentStatus.PUBLISHED && userHasReviewPermission() && !isCurrentVersionReadyForReview(comment)) {
                               <p-button
                                 icon="fa-solid fa-rotate-left"
                                 [rounded]="true"
                                 [text]="true"
                                 severity="help"
+                                styleClass="restore-btn"
                                 [pTooltip]="'@Restore this version' | transloco"
                                 tooltipPosition="left"
                                 (click)="restoreVersion(comment, historyItem.version)"
@@ -298,15 +361,35 @@
                             }
                           </td>
                         </tr>
+                        @if (historyItem.status === DashboardCommentStatus.DECLINED && historyItem.declineReason) {
+                          <tr [class.bg-blue-50]="historyItem.isCurrentVersion">
+                            <td colspan="8" class="p-2">
+                              <div class="bg-red-50 border-l-4 border-red-500 p-2 rounded">
+                                <strong class="text-red-700 text-xs">{{ '@Decline reason' | transloco }}:</strong>
+                                <p class="text-red-600 text-xs mt-1">{{ historyItem.declineReason }}</p>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                        @if (historyItem.status === DashboardCommentStatus.DELETED && historyItem.deletionReason) {
+                          <tr [class.bg-blue-50]="historyItem.isCurrentVersion">
+                            <td colspan="8" class="p-2">
+                              <div class="bg-gray-100 border-l-4 border-gray-500 p-2 rounded">
+                                <strong class="text-gray-700 text-xs">{{ '@Deletion reason' | transloco }}:</strong>
+                                <p class="text-gray-600 text-xs mt-1">{{ historyItem.deletionReason }}</p>
+                              </div>
+                            </td>
+                          </tr>
+                        }
                       }
                     </tbody>
                   </table>
                 </div>
               }
             </div>
-          </td>
-        </tr>
-      }
+          </div>
+        </td>
+      </tr>
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
@@ -331,6 +414,12 @@
       <div class="edit-warning mb-3">
         <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
         <span>{{ '@Edit published comment warning' | transloco }}</span>
+      </div>
+    }
+    @if (editingComment && getActiveVersionData(editingComment)?.status === DashboardCommentStatus.DECLINED) {
+      <div class="edit-warning mb-3">
+        <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+        <span>{{ '@Edit declined comment warning' | transloco }}</span>
       </div>
     }
     <textarea pInputTextarea
@@ -419,6 +508,42 @@
   </ng-template>
 </p-dialog>
 
+<!-- Decline Comment Dialog -->
+<p-dialog [header]="'@Decline draft' | transloco"
+          [(visible)]="declineDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '500px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="decline-dialog-content">
+    <div class="decline-warning mb-3 flex items-center p-3 bg-orange-50 border border-orange-200 rounded">
+      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <span class="text-orange-700 text-sm">{{ '@Decline comment warning' | transloco }}</span>
+    </div>
+    <label for="declineReasonInput" class="block text-sm font-medium text-gray-700 mb-2">
+      {{ '@Decline reason' | transloco }} *
+    </label>
+    <textarea pInputTextarea
+              id="declineReasonInput"
+              [(ngModel)]="declineReason"
+              [rows]="4"
+              [autoResize]="true"
+              class="w-full"
+              placeholder="{{ '@Enter reason for declining this draft' | transloco }}"></textarea>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button (click)="closeDeclineDialog()" (keydown.escape)="closeDeclineDialog()"
+              icon="fas fa-circle-xmark"
+              [label]="'@Cancel' | transloco"
+              severity="secondary"/>
+    <p-button (click)="submitDecline()" (keydown.enter)="submitDecline()"
+              icon="fas fa-ban"
+              [label]="'@Decline' | transloco"
+              severity="danger"
+              [disabled]="isDeclineDisabled()"/>
+  </ng-template>
+</p-dialog>
+
 <!-- Confirm Dialog - Publish -->
 <p-confirmDialog #cd1 key="publishComment" [style]="{width: '50vw'}">
   <ng-template pTemplate="footer">
@@ -427,6 +552,16 @@
     <p-button (click)="cd1.onAccept()" icon="fas fa-cloud-arrow-up"
               label="{{'@Publish' | transloco}}" (keydown.enter)="cd1.onAccept()"
               severity="success"/>
+  </ng-template>
+</p-confirmDialog>
+
+<p-confirmDialog #cd5 key="sendForReview" [style]="{width: '50vw'}">
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd5.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
+              severity="secondary" (keydown.escape)="cd5.onReject()"/>
+    <p-button (click)="cd5.onAccept()" icon="fas fa-paper-plane"
+              label="{{'@Send for review' | transloco}}" (keydown.enter)="cd5.onAccept()"
+              severity="info"/>
   </ng-template>
 </p-confirmDialog>
 
@@ -441,27 +576,45 @@
   </ng-template>
 </p-confirmDialog>
 
-<!-- Confirm Dialog - Delete -->
-<p-confirmDialog #cd3 key="deleteComment" [style]="{width: '50vw'}">
-  <ng-template pTemplate="message">
-    <div class="flex flex-col gap-3">
-      <span>{{ '@Delete comment question' | transloco }}</span>
-      <div class="flex items-center gap-2">
-        <input type="checkbox" id="deleteEntireCheckboxDomain"
-               [checked]="commentUtils.deleteEntireFlag"
-               (change)="commentUtils.deleteEntireFlag = $any($event.target).checked"/>
-        <label for="deleteEntireCheckboxDomain">{{ '@Delete entire comment' | transloco }}</label>
-      </div>
+<!-- Delete Comment Dialog -->
+<p-dialog [header]="'@Delete comment' | transloco"
+          [(visible)]="commentUtils.deletionDialogVisible"
+          [modal]="true"
+          [style]="{width: '90%', maxWidth: '500px'}"
+          [draggable]="false"
+          [resizable]="false">
+  <div class="delete-dialog-content">
+    <div class="delete-warning mb-3 flex items-center p-3 bg-orange-50 border border-orange-200 rounded">
+      <i class="fa-solid fa-triangle-exclamation text-orange-500 mr-2"></i>
+      <span class="text-orange-700 text-sm">{{ '@Delete comment warning' | transloco }}</span>
     </div>
-  </ng-template>
+    <label for="deletionReasonInputDomain" class="block text-sm font-medium text-gray-700 mb-2">
+      {{ '@Deletion reason' | transloco }} *
+    </label>
+    <textarea class="w-full border rounded-md px-2 py-2"
+              id="deletionReasonInputDomain"
+              [(ngModel)]="commentUtils.deletionReason"
+              rows="4"
+              placeholder="{{ '@Enter reason for deleting this comment' | transloco }}"></textarea>
+    <div class="flex items-center gap-2 mt-3">
+      <input type="checkbox" id="deleteEntireCheckboxDomain"
+             [checked]="commentUtils.deleteEntireFlag"
+             (change)="commentUtils.deleteEntireFlag = $any($event.target).checked"/>
+      <label for="deleteEntireCheckboxDomain">{{ '@Delete entire comment' | transloco }}</label>
+    </div>
+  </div>
   <ng-template pTemplate="footer">
-    <p-button (click)="cd3.onReject()" icon="fas fa-circle-xmark" label="{{'@Cancel' | transloco}}"
-              severity="secondary" (keydown.escape)="cd3.onReject()"/>
-    <p-button (click)="cd3.onAccept()" icon="fas fa-trash"
-              label="{{'@Delete' | transloco}}" (keydown.enter)="cd3.onAccept()"
-              severity="danger"/>
+    <p-button (click)="commentUtils.closeDeleteDialog()" (keydown.escape)="commentUtils.closeDeleteDialog()"
+              icon="fas fa-circle-xmark"
+              [label]="'@Cancel' | transloco"
+              severity="secondary"/>
+    <p-button (click)="commentUtils.submitDelete()" (keydown.enter)="commentUtils.submitDelete()"
+              icon="fas fa-trash"
+              [label]="'@Delete' | transloco"
+              severity="danger"
+              [disabled]="commentUtils.isDeleteDisabled()"/>
   </ng-template>
-</p-confirmDialog>
+</p-dialog>
 
 <!-- Confirm Dialog - Restore Version -->
 <p-confirmDialog #cd4 key="restoreVersion" [style]="{width: '50vw'}">

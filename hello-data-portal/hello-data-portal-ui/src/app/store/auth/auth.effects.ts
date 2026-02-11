@@ -35,6 +35,8 @@ import {
   checkProfile,
   fetchContextRoles,
   fetchContextRolesSuccess,
+  fetchCurrentUserCommentPermissions,
+  fetchCurrentUserCommentPermissionsSuccess,
   fetchPermissionSuccess,
   login,
   loginComplete,
@@ -64,14 +66,14 @@ import {processNavigation} from "../menu/menu.action";
 
 @Injectable()
 export class AuthEffects {
-  private _actions$ = inject(Actions);
-  private _store = inject<Store<AppState>>(Store);
-  private _authService = inject(AuthService);
-  private _usersManagementService = inject(UsersManagementService);
-  private _translateService = inject(TranslateService);
-  private _cloudbeaverService = inject(CloudbeaverService);
-  private _cloudbeaverSessionService = inject(CloudbeaverSessionService);
-  private _windowManagementService = inject(WindowManagementService);
+  private readonly _actions$ = inject(Actions);
+  private readonly _store = inject<Store<AppState>>(Store);
+  private readonly _authService = inject(AuthService);
+  private readonly _usersManagementService = inject(UsersManagementService);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _cloudbeaverService = inject(CloudbeaverService);
+  private readonly _cloudbeaverSessionService = inject(CloudbeaverSessionService);
+  private readonly _windowManagementService = inject(WindowManagementService);
 
   login$ = createEffect(() => {
     return this._actions$.pipe(
@@ -186,6 +188,7 @@ export class AuthEffects {
           loadDocumentation(),
           loadMyLineageDocs(),
           fetchContextRoles(),
+          fetchCurrentUserCommentPermissions(),
           loadPipelines(),
           loadStorageSize(),
           processNavigation()
@@ -194,12 +197,36 @@ export class AuthEffects {
     )
   });
 
+  fetchCurrentUserCommentPermissions$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(fetchCurrentUserCommentPermissions),
+      switchMap(() => this._usersManagementService.getCurrentUserCommentPermissions()),
+      map(result => {
+        const permissionsMap: Record<string, {
+          readComments: boolean,
+          writeComments: boolean,
+          reviewComments: boolean
+        }> = {};
+        result.forEach(p => {
+          permissionsMap[p.contextKey] = {
+            readComments: p.readComments,
+            writeComments: p.writeComments,
+            reviewComments: p.reviewComments
+          };
+        });
+        return fetchCurrentUserCommentPermissionsSuccess({commentPermissions: permissionsMap});
+      }),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
+    )
+  });
+
   authError$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(authError),
+      tap(action => console.error('Auth error:', action.error)),
       switchMap(action => scheduled([showError({error: action.error})], asyncScheduler))
     )
-  }, {dispatch: false});
+  });
 
   fetchContextRoles$ = createEffect(() => {
     return this._actions$.pipe(
@@ -281,7 +308,7 @@ export class AuthEffects {
         if (selectedLanguage && !supportedLanguages.includes(selectedLanguage.code as string)) {
           const lang = supportedLanguages.find(lang => lang.startsWith(selectedLanguage.code as string));
           if (lang) {
-            this._translateService.setActiveLang(lang as string);
+            this._translateService.setActiveLang(lang);
           } else {
             this._translateService.setActiveLang(this._translateService.getDefaultLanguage());
           }

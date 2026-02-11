@@ -25,21 +25,70 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../store/app/app.state";
-import {checkAuth} from "../store/auth/auth.action";
+import {authError, checkAuth} from "../store/auth/auth.action";
+import {Actions, ofType} from "@ngrx/effects";
+import {Subject, takeUntil, timer} from "rxjs";
 
 @Component({
-    selector: 'app-callback',
-    templateUrl: './callback.component.html',
-    styleUrls: ['./callback.component.css']
+  selector: 'app-callback',
+  standalone: true,
+  templateUrl: './callback.component.html',
+  styleUrls: ['./callback.component.css']
 })
-export class CallbackComponent {
-  private store = inject<Store<AppState>>(Store);
+export class CallbackComponent implements OnInit, OnDestroy {
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly actions$ = inject(Actions);
+  private readonly destroy$ = new Subject<void>();
 
-  constructor() {
+  errorMessage: string | null = null;
+  isLoading = true;
+  private readonly AUTH_TIMEOUT_MS = 30000; // 30 seconds timeout
+
+  ngOnInit(): void {
+    this.startAuth();
+
+    // Listen for auth errors
+    this.actions$.pipe(
+      ofType(authError),
+      takeUntil(this.destroy$)
+    ).subscribe(action => {
+      console.error('Callback received auth error:', action.error);
+      this.isLoading = false;
+      this.errorMessage = action.error?.message || 'Authentication failed. Please try again.';
+    });
+
+    // Set a timeout in case auth hangs
+    timer(this.AUTH_TIMEOUT_MS).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      if (this.isLoading && !this.errorMessage) {
+        console.warn('Auth timeout - checkAuth did not complete within', this.AUTH_TIMEOUT_MS, 'ms');
+        this.isLoading = false;
+        this.errorMessage = 'Authentication timed out. Please try again.';
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private startAuth(): void {
+    this.isLoading = true;
+    this.errorMessage = null;
     this.store.dispatch(checkAuth());
   }
 
+  retry(): void {
+    this.startAuth();
+  }
+
+  goToLogin(): void {
+    // Clear any stale state and redirect to login page
+    window.location.href = '/';
+  }
 }
