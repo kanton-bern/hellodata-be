@@ -58,7 +58,7 @@ RUN uv pip install pymssql
 # psycopg2
 RUN uv pip install psycopg2
 # oracle
-RUN uv pip install cx_Oracle
+RUN uv pip install oracledb
 # statsd
 RUN uv pip install statsd
 
