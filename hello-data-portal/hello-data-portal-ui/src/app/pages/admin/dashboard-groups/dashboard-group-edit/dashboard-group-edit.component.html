@@ -1,0 +1,145 @@
+<div class="card">
+  @if ((editedDashboardGroup$ | async); as editedDashboardGroup) {
+    <form [formGroup]="dashboardGroupForm">
+      <h5>{{ '@Dashboard group' | transloco }}</h5>
+      @if (editedDashboardGroup.createdDate) {
+        <div class="field grid grid-cols-12 gap-4 mb-1">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="createdDate">{{ '@Created date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
+            <input
+              class="opacity-40 text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              disabled
+              id="createdDate"
+              type="text"
+              value="{{editedDashboardGroup.createdDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+          </div>
+        </div>
+      }
+      @if (editedDashboardGroup.createdBy) {
+        <div class="field grid grid-cols-12 gap-4 mb-1">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="createdBy">{{ '@Created by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
+            <input
+              class="opacity-40 text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              disabled
+              id="createdBy"
+              type="text"
+              value="{{editedDashboardGroup.createdBy}}">
+          </div>
+        </div>
+      }
+      @if (editedDashboardGroup.modifiedDate) {
+        <div class="field grid grid-cols-12 gap-4 mb-1">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="modifiedDate">{{ '@Modified date' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
+            <input
+              class="opacity-40 text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              disabled
+              id="modifiedDate"
+              type="text"
+              value="{{editedDashboardGroup.modifiedDate | date: 'dd.MM.yyyy HH:mm:ss'}}">
+          </div>
+        </div>
+      }
+      @if (editedDashboardGroup.modifiedBy) {
+        <div class="field grid grid-cols-12 gap-4 mb-1">
+          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                 for="modifiedBy">{{ '@Modified by' | transloco }}</label>
+          <div class="col-span-12 md:col-span-10">
+            <input
+              class="opacity-40 text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+              disabled
+              id="modifiedBy"
+              type="text"
+              value="{{editedDashboardGroup.modifiedBy}}">
+          </div>
+        </div>
+      }
+      <div class="field grid grid-cols-12 gap-4 mb-2">
+        <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="name">{{ '@Group name' | transloco }}</label>
+        <div class="col-span-12 md:col-span-10">
+          <input
+            class="text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+            formControlName="name"
+            id="name"
+            pInputText
+            type="text">
+          @if (!dashboardGroupForm.controls['name'].valid && dashboardGroupForm.controls['name'].dirty) {
+            <small class="p-error">{{ '@Group name is invalid' | transloco }}</small>
+          }
+        </div>
+      </div>
+
+      <h5>{{ '@Dashboard entries' | transloco }}</h5>
+      <p-table [value]="entriesFormArray.controls" dataKey="index">
+        <ng-template pTemplate="header">
+          <tr>
+            <th id="contextKeyHeader">{{ '@Context key' | transloco }}</th>
+            <th id="dashboardIdHeader">{{ '@Dashboard ID' | transloco }}</th>
+            <th id="dashboardTitleHeader">{{ '@Dashboard title' | transloco }}</th>
+            <th id="entryActionsHeader" style="width:5rem"></th>
+          </tr>
+        </ng-template>
+        <ng-template let-entry let-i="rowIndex" pTemplate="body">
+          <tr [formGroup]="entry">
+            <td>
+              <input
+                class="text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+                formControlName="contextKey" pInputText type="text">
+            </td>
+            <td>
+              <input
+                class="text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+                formControlName="dashboardId" pInputText type="number">
+            </td>
+            <td>
+              <input
+                class="text-base text-color bg-surface-0 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+                formControlName="dashboardTitle" pInputText type="text">
+            </td>
+            <td>
+              <p-button (click)="removeEntry(i)" (keydown.enter)="removeEntry(i)"
+                        [pTooltip]="'@Remove' | transloco"
+                        tooltipPosition="top"
+                        severity="danger"
+                        icon="fas fa-trash"
+                        [rounded]="true"
+                        [text]="true"/>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <div class="mt-2">
+        <p-button (click)="addEntry()" severity="success" icon="fas fa-circle-plus" (keydown.enter)="addEntry()"
+                  [label]="'@Add entry' | transloco" pRipple/>
+      </div>
+
+      <p-toolbar class="mt-4">
+        <div class="p-toolbar-group-start">
+          <p-button (click)="navigateToList()" [pTooltip]="'@Cancel' | transloco" class="mr-2"
+                    icon="fas fa-arrow-left" severity="secondary" pRipple
+                    (keydown.enter)="navigateToList()"/>
+        </div>
+        <div class="p-toolbar-group-end">
+          <p-button (click)="saveDashboardGroup(editedDashboardGroup)"
+                    (keydown.enter)="saveDashboardGroup(editedDashboardGroup)"
+                    [disabled]="!dashboardGroupForm.valid"
+                    icon="fas fa-floppy-disk" class="mr-2"
+                    [label]="'@Save' | transloco"
+                    severity="success" pRipple/>
+          @if (editedDashboardGroup.id) {
+            <p-button (click)="openDeletePopup(editedDashboardGroup)"
+                      (keydown.enter)="openDeletePopup(editedDashboardGroup)"
+                      icon="fas fa-trash" class="mr-2"
+                      [label]="'@Delete' | transloco"
+                      severity="danger" pRipple/>
+          }
+        </div>
+      </p-toolbar>
+    </form>
+  }
+</div>
+
+<app-delete-dashboard-group-popup [action]="getDeletionAction()"/>

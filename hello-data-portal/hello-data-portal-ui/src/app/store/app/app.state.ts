@@ -42,6 +42,7 @@ import {BreadcrumbState} from "../breadcrumb/breadcrumb.state";
 import {UnsavedChangesState} from "../unsaved-changes/unsaved-changes.state";
 import {QueriesState} from "../queries/queries.state";
 import {DashboardAccessState} from "../dashboard-access/dashboard-access.state";
+import {DashboardGroupsState} from "../dashboard-groups/dashboard-groups.state";
 
 export interface AppState {
   readonly auth: AuthState;
@@ -60,5 +61,6 @@ export interface AppState {
   readonly breadcrumbs: BreadcrumbState,
   readonly unsavedChanges: UnsavedChangesState,
   readonly queries: QueriesState,
-  readonly dashboardAccess: DashboardAccessState
+  readonly dashboardAccess: DashboardAccessState,
+  readonly dashboardGroups: DashboardGroupsState
 }

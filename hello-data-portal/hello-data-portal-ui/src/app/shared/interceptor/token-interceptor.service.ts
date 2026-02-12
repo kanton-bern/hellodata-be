@@ -81,8 +81,14 @@ export class TokenInterceptor implements HttpInterceptor {
       return throwError(() => error);
     }
 
-    // Handle 401 Unauthorized or status 0 (network error, often caused by expired token/CORS issues)
-    if (error.status === 401 || error.status === 0) {
+    // Handle status 0 (network error / connection refused) - just propagate so showError can display a toast
+    if (error.status === 0) {
+      console.warn('[TokenInterceptor] Network error (status 0) for:', req.url);
+      return throwError(() => error);
+    }
+
+    // Handle 401 Unauthorized
+    if (error.status === 401) {
       return this.handle401Error(req, next, error);
     }
 
@@ -96,7 +102,15 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(req: HttpRequest<any>, next: HttpHandler, originalError: HttpErrorResponse): Observable<HttpEvent<any>> {
-    if (!this.isRefreshing) {
+    if (this.isRefreshing) {
+      // Another request is already refreshing the token, wait for it
+      console.debug('[TokenInterceptor] Waiting for ongoing token refresh');
+      return this.refreshTokenSubject.pipe(
+        filter(token => token !== null),
+        take(1),
+        switchMap(token => next.handle(this.addTokenToRequest(req, token)))
+      );
+    } else {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
@@ -131,14 +145,6 @@ export class TokenInterceptor implements HttpInterceptor {
           this.redirectToLogin();
           return throwError(() => originalError);
         })
-      );
-    } else {
-      // Another request is already refreshing the token, wait for it
-      console.debug('[TokenInterceptor] Waiting for ongoing token refresh');
-      return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
-        take(1),
-        switchMap(token => next.handle(this.addTokenToRequest(req, token)))
       );
     }
   }

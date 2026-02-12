@@ -369,6 +369,41 @@ const routes: Routes = [
     ]
   },
   {
+    path: naviElements.dashboardGroups.path,
+    canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+    data: {
+      requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT'],
+    },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/admin/dashboard-groups/dashboard-groups.component').then(m => m.DashboardGroupsComponent),
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        data: {
+          requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT'],
+        }
+      },
+      {
+        path: naviElements.dashboardGroupEdit.path,
+        loadComponent: () => import('./pages/admin/dashboard-groups/dashboard-group-edit/dashboard-group-edit.component').then(m => m.DashboardGroupEditComponent),
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        canDeactivate: [unsavedChangesGuard],
+        data: {
+          requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT'],
+        }
+      },
+      {
+        path: naviElements.dashboardGroupCreate.path,
+        loadComponent: () => import('./pages/admin/dashboard-groups/dashboard-group-edit/dashboard-group-edit.component').then(m => m.DashboardGroupEditComponent),
+        canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
+        canDeactivate: [unsavedChangesGuard],
+        data: {
+          requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT'],
+        }
+      },
+    ]
+  },
+  {
     path: naviElements.announcementsManagement.path,
     canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
     data: {
