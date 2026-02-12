@@ -64,15 +64,25 @@ EXECUTE FUNCTION remove_dag_view_menu_and_perms();
 CREATE OR REPLACE FUNCTION create_data_domain_role() RETURNS TRIGGER AS
 $$
 DECLARE
+    dag_permission VARCHAR(10);
     role_name VARCHAR(255);
     role_id_count INTEGER;
 
 BEGIN
-    SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO STRICT role_name FROM dag WHERE dag.dag_id = substring(new.name from 5);
-    SELECT count(ab_role.id) INTO STRICT role_id_count from ab_role where ab_role.name = role_name;
+    -- Check if this is a DAG-related view menu
+    SELECT substring(new.name from 1 for 4) INTO dag_permission;
+    
+    IF dag_permission = 'DAG:' THEN
+        SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO role_name FROM dag WHERE dag.dag_id = substring(new.name from 5);
+        
+        -- Only proceed if we found a matching DAG
+        IF role_name IS NOT NULL THEN
+            SELECT count(ab_role.id) INTO role_id_count from ab_role where ab_role.name = role_name;
 
-    IF role_id_count = 0 THEN
-        INSERT INTO ab_role (name) VALUES(role_name);
+            IF role_id_count = 0 THEN
+                INSERT INTO ab_role (name) VALUES(role_name);
+            END IF;
+        END IF;
     END IF;
 
     RETURN new;
