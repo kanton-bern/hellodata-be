@@ -1,0 +1,1165 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../data-publisher/">
+      
+      
+        <link rel="next" href="../../manuals/user-manual/">
+      
+      
+      <link rel="icon" href="../../images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>Workspace Troubleshoot - HelloDATA BE Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#workspace-troubleshooting" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="HelloDATA BE Docs" class="md-header__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HelloDATA BE Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Workspace Troubleshoot
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../vision/vision-and-goal/" class="md-tabs__link">
+          
+  
+  Vision
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/data-stack/" class="md-tabs__link">
+          
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../showcase/" class="md-tabs__link">
+          
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../manuals/user-manual/" class="md-tabs__link">
+          
+  
+  Manuals
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../more/changelog/" class="md-tabs__link">
+          
+  
+  More
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="HelloDATA BE Docs" class="md-nav__button md-logo" aria-label="HelloDATA BE Docs" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    HelloDATA BE Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Vision
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Vision
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/vision-and-goal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vision
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vision/roadmap/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Roadmap
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data-stack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data Stack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/architecture/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Components & Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/infrastructure/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Infrastructure
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Concepts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Concepts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../showcase/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Showcase
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workspaces/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workspaces
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-publisher/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Data Publisher
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Workspace Troubleshoot
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Workspace Troubleshoot
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Kubernetes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-image-not-build-locally-or-missing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker image not build locally or missing
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Manuals
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Manuals
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manuals/user-manual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    User Manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manuals/role-authorization-concept/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Roles & Authorization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    More
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            More
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/glossary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Glossary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../more/faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="workspace-troubleshooting">Workspace Troubleshooting</h1>
+<h2 id="kubernetes">Kubernetes</h2>
+<p>If you haven't turned on Kubernetes, you'll get an error similar to this:
+<code>urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='kubernetes.docker.internal', port=6443): Max retries exceeded with url: /api/v1/namespaces/default/pods?labelSelector=dag_id%3Drun_boiler_example%2Ckubernetes_pod_operator%3DTrue%2Cpod-label-test%3Dlabel-name-test%2Crun_id%3Dmanual__2024-01-29T095915.2491840000-f3be8d87f%2Ctask_id%3Drun_duckdb_query%2Calready_checked%21%3DTrue%2C%21airflow-worker (Caused by NewConnectionError('&lt;urllib3.connection.HTTPSConnection object at 0xffff82c2ab10&gt;: Failed to establish a new connection: [Errno 111] Connection refused'))</code></p>
+<p>Full log:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">09</span>:48:49<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod.py:1017<span class="o">}</span><span class="w"> </span>ERROR<span class="w"> </span>-<span class="w"> </span><span class="s1">&#39;NoneType&#39;</span><span class="w"> </span>object<span class="w"> </span>has<span class="w"> </span>no<span class="w"> </span>attribute<span class="w"> </span><span class="s1">&#39;metadata&#39;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/connection.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">174</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>_new_conn
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nv">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>connection.create_connection<span class="o">(</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">           </span>^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/util/connection.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">95</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>create_connection
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span>raise<span class="w"> </span>err
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/util/connection.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">85</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>create_connection
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span>sock.connect<span class="o">(</span>sa<span class="o">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>ConnectionRefusedError:<span class="w"> </span><span class="o">[</span>Errno<span class="w"> </span><span class="m">111</span><span class="o">]</span><span class="w"> </span>Connection<span class="w"> </span>refused
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>During<span class="w"> </span>handling<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>above<span class="w"> </span>exception,<span class="w"> </span>another<span class="w"> </span>exception<span class="w"> </span>occurred:
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/connectionpool.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">714</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>urlopen
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nv">httplib_response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>self._make_request<span class="o">(</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">                       </span>^^^^^^^^^^^^^^^^^^^
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/connectionpool.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">403</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>_make_request
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span>self._validate_conn<span class="o">(</span>conn<span class="o">)</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/connectionpool.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">1053</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>_validate_conn
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span>conn.connect<span class="o">()</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/connection.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">363</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>connect
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span>self.sock<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">conn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>self._new_conn<span class="o">()</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">                       </span>^^^^^^^^^^^^^^^^
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/urllib3/connection.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">186</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>_new_conn
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span>raise<span class="w"> </span>NewConnectionError<span class="o">(</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>urllib3.exceptions.NewConnectionError:<span class="w"> </span>&lt;urllib3.connection.HTTPSConnection<span class="w"> </span>object<span class="w"> </span>at<span class="w"> </span>0xffff82db3650&gt;:<span class="w"> </span>Failed<span class="w"> </span>to<span class="w"> </span>establish<span class="w"> </span>a<span class="w"> </span>new<span class="w"> </span>connection:<span class="w"> </span><span class="o">[</span>Errno<span class="w"> </span><span class="m">111</span><span class="o">]</span><span class="w"> </span>Connection<span class="w"> </span>refused
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>During<span class="w"> </span>handling<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>above<span class="w"> </span>exception,<span class="w"> </span>another<span class="w"> </span>exception<span class="w"> </span>occurred:
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/operators/pod.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">583</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>execute_sync
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">    </span>self.pod<span class="w"> </span><span class="o">=</span><span class="w"> </span>self.get_or_create_pod<span class="o">(</span><span class="w">  </span><span class="c1"># must set `self.pod` for `on_kill`</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">               </span>^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/operators/pod.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">545</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>get_or_create_pod
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">    </span><span class="nv">pod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>self.find_pod<span class="o">(</span>self.namespace<span class="w"> </span>or<span class="w"> </span>pod_request_obj.metadata.namespace,<span class="w"> </span><span class="nv">context</span><span class="o">=</span>context<span class="o">)</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>....
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>airflow.exceptions.AirflowException:<span class="w"> </span>Pod<span class="w"> </span>airflow-running-dagster-workspace-jdkqug7h<span class="w"> </span>returned<span class="w"> </span>a<span class="w"> </span>failure.
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>remote_pod:<span class="w"> </span>None
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">09</span>:48:49<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>taskinstance.py:1398<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Marking<span class="w"> </span>task<span class="w"> </span>as<span class="w"> </span>UP_FOR_RETRY.<span class="w"> </span><span class="nv">dag_id</span><span class="o">=</span>run_boiler_example,<span class="w"> </span><span class="nv">task_id</span><span class="o">=</span>run_duckdb_query,<span class="w"> </span><span class="nv">execution_date</span><span class="o">=</span>20210501T000000,<span class="w"> </span><span class="nv">start_date</span><span class="o">=</span>20240129T094849,<span class="w"> </span><span class="nv">end_date</span><span class="o">=</span>20240129T094849
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">09</span>:48:49<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>standard_task_runner.py:104<span class="o">}</span><span class="w"> </span>ERROR<span class="w"> </span>-<span class="w"> </span>Failed<span class="w"> </span>to<span class="w"> </span>execute<span class="w"> </span>job<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>task<span class="w"> </span>run_duckdb_query<span class="w"> </span><span class="o">(</span>Pod<span class="w"> </span>airflow-running-dagster-workspace-jdkqug7h<span class="w"> </span>returned<span class="w"> </span>a<span class="w"> </span>failure.
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>remote_pod:<span class="w"> </span>None<span class="p">;</span><span class="w"> </span><span class="m">225</span><span class="o">)</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">09</span>:48:49<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>local_task_job_runner.py:228<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Task<span class="w"> </span>exited<span class="w"> </span>with<span class="w"> </span><span class="k">return</span><span class="w"> </span>code<span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">09</span>:48:49<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>taskinstance.py:2776<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span><span class="m">0</span><span class="w"> </span>downstream<span class="w"> </span>tasks<span class="w"> </span>scheduled<span class="w"> </span>from<span class="w"> </span>follow-on<span class="w"> </span>schedule<span class="w"> </span>check
+</code></pre></div></p>
+<h2 id="docker-image-not-build-locally-or-missing">Docker image not build locally or missing</h2>
+<p>If your name or image is not available locally (check <code>docker image ls</code>), you'll get an error on Airflow like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:14<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod.py:961<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Building<span class="w"> </span>pod<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj<span class="w"> </span>with<span class="w"> </span>labels:<span class="w"> </span><span class="o">{</span><span class="s1">&#39;dag_id&#39;</span>:<span class="w"> </span><span class="s1">&#39;run_boiler_example&#39;</span>,<span class="w"> </span><span class="s1">&#39;task_id&#39;</span>:<span class="w"> </span><span class="s1">&#39;run_duckdb_query&#39;</span>,<span class="w"> </span><span class="s1">&#39;run_id&#39;</span>:<span class="w"> </span><span class="s1">&#39;manual__2024-01-29T101013.7029880000-328a76b5e&#39;</span>,<span class="w"> </span><span class="s1">&#39;kubernetes_pod_operator&#39;</span>:<span class="w"> </span><span class="s1">&#39;True&#39;</span>,<span class="w"> </span><span class="s1">&#39;try_number&#39;</span>:<span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="o">}</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:14<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod.py:538<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Found<span class="w"> </span>matching<span class="w"> </span>pod<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj<span class="w"> </span>with<span class="w"> </span>labels<span class="w"> </span><span class="o">{</span><span class="s1">&#39;airflow_kpo_in_cluster&#39;</span>:<span class="w"> </span><span class="s1">&#39;False&#39;</span>,<span class="w"> </span><span class="s1">&#39;airflow_version&#39;</span>:<span class="w"> </span><span class="s1">&#39;2.7.1-astro.1&#39;</span>,<span class="w"> </span><span class="s1">&#39;dag_id&#39;</span>:<span class="w"> </span><span class="s1">&#39;run_boiler_example&#39;</span>,<span class="w"> </span><span class="s1">&#39;kubernetes_pod_operator&#39;</span>:<span class="w"> </span><span class="s1">&#39;True&#39;</span>,<span class="w"> </span><span class="s1">&#39;pod-label-test&#39;</span>:<span class="w"> </span><span class="s1">&#39;label-name-test&#39;</span>,<span class="w"> </span><span class="s1">&#39;run_id&#39;</span>:<span class="w"> </span><span class="s1">&#39;manual__2024-01-29T101013.7029880000-328a76b5e&#39;</span>,<span class="w"> </span><span class="s1">&#39;task_id&#39;</span>:<span class="w"> </span><span class="s1">&#39;run_duckdb_query&#39;</span>,<span class="w"> </span><span class="s1">&#39;try_number&#39;</span>:<span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="o">}</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:14<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod.py:539<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span><span class="sb">`</span>try_number<span class="sb">`</span><span class="w"> </span>of<span class="w"> </span>task_instance:<span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:14<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod.py:540<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span><span class="sb">`</span>try_number<span class="sb">`</span><span class="w"> </span>of<span class="w"> </span>pod:<span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:14<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod_manager.py:348<span class="o">}</span><span class="w"> </span>WARNING<span class="w"> </span>-<span class="w"> </span>Pod<span class="w"> </span>not<span class="w"> </span>yet<span class="w"> </span>started:<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:15<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod_manager.py:348<span class="o">}</span><span class="w"> </span>WARNING<span class="w"> </span>-<span class="w"> </span>Pod<span class="w"> </span>not<span class="w"> </span>yet<span class="w"> </span>started:<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:16<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod_manager.py:348<span class="o">}</span><span class="w"> </span>WARNING<span class="w"> </span>-<span class="w"> </span>Pod<span class="w"> </span>not<span class="w"> </span>yet<span class="w"> </span>started:<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:17<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod_manager.py:348<span class="o">}</span><span class="w"> </span>WARNING<span class="w"> </span>-<span class="w"> </span>Pod<span class="w"> </span>not<span class="w"> </span>yet<span class="w"> </span>started:<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:10:18<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod_manager.py:348<span class="o">}</span><span class="w"> </span>WARNING<span class="w"> </span>-<span class="w"> </span>Pod<span class="w"> </span>not<span class="w"> </span>yet<span class="w"> </span>started:<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:12:15<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>pod.py:823<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Deleting<span class="w"> </span>pod:<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:12:15<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>taskinstance.py:1935<span class="o">}</span><span class="w"> </span>ERROR<span class="w"> </span>-<span class="w"> </span>Task<span class="w"> </span>failed<span class="w"> </span>with<span class="w"> </span>exception
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/operators/pod.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">594</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>execute_sync
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span>self.await_pod_start<span class="o">(</span><span class="nv">pod</span><span class="o">=</span>self.pod<span class="o">)</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/operators/pod.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">556</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>await_pod_start
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">    </span>self.pod_manager.await_pod_start<span class="o">(</span><span class="nv">pod</span><span class="o">=</span>pod,<span class="w"> </span><span class="nv">startup_timeout</span><span class="o">=</span>self.startup_timeout_seconds<span class="o">)</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/utils/pod_manager.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">354</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>await_pod_start
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">    </span>raise<span class="w"> </span>PodLaunchFailedException<span class="o">(</span>msg<span class="o">)</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>airflow.providers.cncf.kubernetes.utils.pod_manager.PodLaunchFailedException:<span class="w"> </span>Pod<span class="w"> </span>took<span class="w"> </span>longer<span class="w"> </span>than<span class="w"> </span><span class="m">120</span><span class="w"> </span>seconds<span class="w"> </span>to<span class="w"> </span>start.<span class="w"> </span>Check<span class="w"> </span>the<span class="w"> </span>pod<span class="w"> </span>events<span class="w"> </span><span class="k">in</span><span class="w"> </span>kubernetes<span class="w"> </span>to<span class="w"> </span>determine<span class="w"> </span>why.
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>During<span class="w"> </span>handling<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>above<span class="w"> </span>exception,<span class="w"> </span>another<span class="w"> </span>exception<span class="w"> </span>occurred:
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/operators/pod.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">578</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>execute
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span>self.execute_sync<span class="o">(</span>context<span class="o">)</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">           </span>^^^^^^^^^^^^^^^^^^^^^^^^^^
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/operators/pod.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">617</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>execute_sync
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span>self.cleanup<span class="o">(</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/usr/local/lib/python3.11/site-packages/airflow/providers/cncf/kubernetes/operators/pod.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">746</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>cleanup
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">    </span>raise<span class="w"> </span>AirflowException<span class="o">(</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>airflow.exceptions.AirflowException:<span class="w"> </span>Pod<span class="w"> </span>airflow-running-dagster-workspace-64ngbudj<span class="w"> </span>returned<span class="w"> </span>a<span class="w"> </span>failure.
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>...
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:12:15<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>local_task_job_runner.py:228<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span>Task<span class="w"> </span>exited<span class="w"> </span>with<span class="w"> </span><span class="k">return</span><span class="w"> </span>code<span class="w"> </span><span class="m">1</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="o">[</span><span class="m">2024</span>-01-29,<span class="w"> </span><span class="m">10</span>:12:15<span class="w"> </span>UTC<span class="o">]</span><span class="w"> </span><span class="o">{</span>taskinstance.py:2776<span class="o">}</span><span class="w"> </span>INFO<span class="w"> </span>-<span class="w"> </span><span class="m">0</span><span class="w"> </span>downstream<span class="w"> </span>tasks<span class="w"> </span>scheduled<span class="w"> </span>from<span class="w"> </span>follow-on<span class="w"> </span>schedule<span class="w"> </span>check
+</code></pre></div>
+<p>If you open a kubernetes Monitoring tool such as <a href="https://k8slens.dev/">Lens</a> or <a href="https://k9scli.io/">k9s</a>, you'll also see the pod struggling to pull the image:</p>
+<p><img alt="" src="../../images/workspaces-error-pull-image.png" /></p>
+<p>Another cause, in case you haven't created the local PersistentVolume, you'd see something like "my-pvc" does not exist. Then you'd need to <a href="https://kanton-bern.github.io/hellodata-be/concepts/workspaces/#volumes-pvc">create</a> the pvc first.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2024 Designed and Developed by <a href="https://www.bedag.ch/" target="blank" rel="noopener">Bedag Solutions AG</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/kanton-bern/hellodata-be/" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/kanton_bern" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/company/kaio/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>
