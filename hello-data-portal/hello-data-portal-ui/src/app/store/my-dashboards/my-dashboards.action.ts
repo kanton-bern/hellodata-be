@@ -69,6 +69,7 @@ export enum MyDashboardsActionType {
   RESTORE_COMMENT_VERSION = '[MYDASHBOARDS] Restore comment version',
   RESTORE_COMMENT_VERSION_SUCCESS = '[MYDASHBOARDS] Restore comment version SUCCESS',
   RESTORE_COMMENT_VERSION_ERROR = '[MYDASHBOARDS] Restore comment version ERROR',
+  SET_COMMENTS_INCLUDE_DELETED = '[MYDASHBOARDS] Set comments include deleted',
   // Tags actions
   LOAD_AVAILABLE_TAGS = '[MYDASHBOARDS] Load available tags',
   LOAD_AVAILABLE_TAGS_SUCCESS = '[MYDASHBOARDS] Load available tags SUCCESS',
@@ -274,6 +275,11 @@ export const restoreCommentVersionSuccess = createAction(
 export const restoreCommentVersionError = createAction(
   MyDashboardsActionType.RESTORE_COMMENT_VERSION_ERROR,
   props<{ error: any }>()
+);
+
+export const setCommentsIncludeDeleted = createAction(
+  MyDashboardsActionType.SET_COMMENTS_INCLUDE_DELETED,
+  props<{ includeDeleted: boolean }>()
 );
 
 // Tags actions

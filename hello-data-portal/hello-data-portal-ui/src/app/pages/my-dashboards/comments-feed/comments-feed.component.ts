@@ -32,10 +32,16 @@ import {Button} from "primeng/button";
 import {CommentEntryComponent} from "./comment-entry/comment-entry.component";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {addComment, loadAvailableTags, loadDashboardComments} from "../../../store/my-dashboards/my-dashboards.action";
+import {
+  addComment,
+  loadAvailableTags,
+  loadDashboardComments,
+  setCommentsIncludeDeleted
+} from "../../../store/my-dashboards/my-dashboards.action";
 import {
   canViewMetadataAndVersions,
   selectAvailableTags,
+  selectCommentsIncludeDeleted,
   selectCurrentDashboardContextKey,
   selectCurrentDashboardId,
   selectCurrentDashboardUrl,
@@ -49,14 +55,14 @@ import {Select} from "primeng/select";
 import {Tooltip} from "primeng/tooltip";
 import {DashboardCommentEntry, DashboardCommentStatus} from "../../../store/my-dashboards/my-dashboards.model";
 import {BehaviorSubject, combineLatest, interval, map, Observable, Subscription, take} from "rxjs";
-import {toSignal} from "@angular/core/rxjs-interop";
+import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {AutoComplete} from "primeng/autocomplete";
 import {Dialog} from "primeng/dialog";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../../../environments/environment";
 import {NotificationService} from "../../../shared/services/notification.service";
 import {DashboardCommentUtilsService} from "../services/dashboard-comment-utils.service";
-import {filter, switchMap} from "rxjs/operators";
+import {filter, switchMap, withLatestFrom} from "rxjs/operators";
 
 const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
@@ -94,25 +100,51 @@ interface StatusFilterOption {
   styleUrls: ['./comments-feed.component.scss']
 })
 export class CommentsFeed implements AfterViewInit, OnDestroy {
-  private readonly store = inject<Store<AppState>>(Store);
-  private readonly http = inject(HttpClient);
-  private readonly notificationService = inject(NotificationService);
   readonly commentUtils = inject(DashboardCommentUtilsService);
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
   showCloseButton = input<boolean>(false);
   pointerUrlClick = output<string>();
   closePanel = output<void>();
-
+  // Filter options
+  yearOptions$: Observable<FilterOption[]>;
+  quarterOptions: FilterOption[] = [
+    {label: '@All', value: null},
+    {label: '@Q1', value: 1},
+    {label: '@Q2', value: 2},
+    {label: '@Q3', value: 3},
+    {label: '@Q4', value: 4}
+  ];
+  selectedYear: number | null = null;
+  selectedQuarter: number | null = null;
+  selectedStatus: DashboardCommentStatus | null = null;
+  // Status filter options
+  statusOptions: StatusFilterOption[] = [
+    {label: '@All active', value: null},
+    {label: '@draft', value: DashboardCommentStatus.DRAFT},
+    {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
+    {label: '@published', value: DashboardCommentStatus.PUBLISHED},
+    {label: '@declined', value: DashboardCommentStatus.DECLINED},
+    {label: '@deleted', value: DashboardCommentStatus.DELETED}
+  ];
+  filteredComments$: Observable<DashboardCommentEntry[]>;
+  newCommentText = '';
+  pointerUrl = '';
+  showPointerUrlInput = false;
+  // Tags
+  tagsDialogVisible = false;
+  selectedTags: string[] = [];
+  tagSuggestions: string[] = [];
+  newTagText = '';
+  selectedTagFilter: string | null = null;
+  tagFilterOptions$: Observable<TagFilterOption[]>;
+  private readonly store = inject<Store<AppState>>(Store);
   comments$ = this.store.select(selectVisibleComments);
   currentDashboardId$ = this.store.select(selectCurrentDashboardId);
   currentDashboardContextKey$ = this.store.select(selectCurrentDashboardContextKey);
   currentDashboardUrl$ = this.store.select(selectCurrentDashboardUrl);
-
   // Admin check for import/export functionality
   isAdmin$ = this.store.select(canViewMetadataAndVersions);
-
   // Write permission check for showing the comment form
   canWriteComments$: Observable<boolean> = combineLatest([
     this.store.select(selectCurrentDashboardContextKey),
@@ -124,50 +156,13 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
       return !!perms?.writeComments;
     })
   );
-
-  // Filter options
-  yearOptions$: Observable<FilterOption[]>;
-  quarterOptions: FilterOption[] = [
-    {label: '@All', value: null},
-    {label: '@Q1', value: 1},
-    {label: '@Q2', value: 2},
-    {label: '@Q3', value: 3},
-    {label: '@Q4', value: 4}
-  ];
-
-  selectedYear: number | null = null;
-  selectedQuarter: number | null = null;
-  selectedStatus: DashboardCommentStatus | null = null;
+  availableTags$ = this.store.select(selectAvailableTags);
+  private readonly http = inject(HttpClient);
+  private readonly notificationService = inject(NotificationService);
   private previousSelectedStatus: DashboardCommentStatus | null = null;
-
-  // Status filter options
-  statusOptions: StatusFilterOption[] = [
-    {label: '@All active', value: null},
-    {label: '@draft', value: DashboardCommentStatus.DRAFT},
-    {label: '@ready for review', value: DashboardCommentStatus.READY_FOR_REVIEW},
-    {label: '@published', value: DashboardCommentStatus.PUBLISHED},
-    {label: '@declined', value: DashboardCommentStatus.DECLINED},
-    {label: '@deleted', value: DashboardCommentStatus.DELETED}
-  ];
-
-  filteredComments$: Observable<DashboardCommentEntry[]>;
   // Signal to track filtered comments for auto-scroll
   private readonly filteredCommentsSignal;
   private readonly filterTrigger$ = new BehaviorSubject<void>(undefined);
-
-  newCommentText = '';
-  pointerUrl = '';
-  showPointerUrlInput = false;
-
-  // Tags
-  tagsDialogVisible = false;
-  selectedTags: string[] = [];
-  tagSuggestions: string[] = [];
-  newTagText = '';
-  availableTags$ = this.store.select(selectAvailableTags);
-  selectedTagFilter: string | null = null;
-  tagFilterOptions$: Observable<TagFilterOption[]>;
-
   private currentDashboardId: number | undefined;
   private currentDashboardContextKey: string | undefined;
   private currentDashboardUrl: string | undefined;
@@ -183,20 +178,20 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
       this.currentDashboardId$,
       this.currentDashboardContextKey$,
       this.currentDashboardUrl$
-    ]).subscribe(([id, contextKey, url]) => {
-      const previousId = this.currentDashboardId;
+    ]).pipe(takeUntilDestroyed()).subscribe(([id, contextKey, url]) => {
       this.currentDashboardId = id;
       this.currentDashboardContextKey = contextKey;
       this.currentDashboardUrl = url;
+    });
 
-      this.loadTagsIfNeeded();
-
-      // Reload comments when dashboard changes, respecting current filter
-      if (previousId !== id && id !== undefined && contextKey && url) {
-        this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
-        // Update previousSelectedStatus to avoid unnecessary reload on filter change
-        this.previousSelectedStatus = this.selectedStatus;
+    // Sync selectedStatus with store's includeDeleted
+    this.store.select(selectCommentsIncludeDeleted).pipe(takeUntilDestroyed()).subscribe(includeDeleted => {
+      if (includeDeleted && this.selectedStatus !== DashboardCommentStatus.DELETED) {
+        this.selectedStatus = DashboardCommentStatus.DELETED;
+      } else if (!includeDeleted && this.selectedStatus === DashboardCommentStatus.DELETED) {
+        this.selectedStatus = null;
       }
+      this.previousSelectedStatus = this.selectedStatus;
     });
 
     // Initialize year options based on comments
@@ -255,15 +250,6 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     });
   }
 
-  private loadTagsIfNeeded(): void {
-    if (this.currentDashboardId && this.currentDashboardContextKey) {
-      this.store.dispatch(loadAvailableTags({
-        dashboardId: this.currentDashboardId,
-        contextKey: this.currentDashboardContextKey
-      }));
-    }
-  }
-
   /**
    * Validates that pointerUrl is a valid Superset link (same domain as current dashboard)
    */
@@ -317,19 +303,174 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   onFilterChange(): void {
     // Check if status filter changed between DELETED and non-DELETED
     const statusChanged = this.previousSelectedStatus !== this.selectedStatus;
-    const wasDeleted = this.previousSelectedStatus === DashboardCommentStatus.DELETED;
     const isDeleted = this.selectedStatus === DashboardCommentStatus.DELETED;
 
-    // Only reload from API if status changed and involves DELETED status
-    if (statusChanged && (wasDeleted || isDeleted)) {
-      this.reloadComments(isDeleted);
+    // Only update store if status changed and involves DELETED status
+    if (statusChanged) {
+      this.store.dispatch(setCommentsIncludeDeleted({includeDeleted: isDeleted}));
     }
-
-    // Update previous status
-    this.previousSelectedStatus = this.selectedStatus;
 
     // Always trigger filter refresh for client-side filtering
     this.filterTrigger$.next();
+  }
+
+  ngAfterViewInit(): void {
+    // Enable auto-scroll when panel opens and scroll to bottom
+    this.autoScrollEnabled = true;
+    this.scrollToBottom();
+
+    // Listen for scroll events to manage auto-scroll behavior
+    const container = this.scrollContainer?.nativeElement;
+    if (container) {
+      container.addEventListener('scroll', () => this.onScroll());
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopRefreshTimer();
+  }
+
+  togglePointerUrlInput(): void {
+    this.showPointerUrlInput = !this.showPointerUrlInput;
+    if (!this.showPointerUrlInput) {
+      this.pointerUrl = ''; // Clear pointerUrl when hiding
+    }
+  }
+
+  // Tags methods
+  openTagsDialog(): void {
+    this.tagsDialogVisible = true;
+  }
+
+  closeTagsDialog(): void {
+    this.tagsDialogVisible = false;
+    this.newTagText = '';
+  }
+
+  searchTags(event: { query: string }): void {
+    this.availableTags$.subscribe(tags => {
+      const query = event.query.toLowerCase();
+      this.tagSuggestions = tags.filter(tag =>
+        tag.toLowerCase().includes(query) && !this.selectedTags.includes(tag)
+      );
+    }).unsubscribe();
+  }
+
+  addTag(): void {
+    const tag = this.newTagText.trim().toLowerCase().substring(0, 10);
+    if (tag && !this.selectedTags.includes(tag)) {
+      this.selectedTags = [...this.selectedTags, tag];
+    }
+    this.newTagText = '';
+  }
+
+  removeTag(tag: string): void {
+    this.selectedTags = this.selectedTags.filter(t => t !== tag);
+  }
+
+  onTagSelect(event: { value: string }): void {
+    const tag = event.value.toLowerCase().substring(0, 10);
+    if (tag && !this.selectedTags.includes(tag)) {
+      this.selectedTags = [...this.selectedTags, tag];
+    }
+    this.newTagText = '';
+  }
+
+  submitComment(): void {
+    const text = this.newCommentText.trim();
+    if (!text) return;
+
+    // Block submission if pointerUrl input is shown and URL is invalid
+    if (this.showPointerUrlInput && this.pointerUrl.trim() && !this.isPointerUrlValid()) {
+      return;
+    }
+
+    if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
+      // Only include pointerUrl if input is shown
+      const pointerUrl = this.showPointerUrlInput ? this.getNormalizedPointerUrl() : undefined;
+      // Include tags if any are selected
+      const tags = this.selectedTags.length > 0 ? this.selectedTags : undefined;
+
+      this.store.dispatch(addComment({
+        dashboardId: this.currentDashboardId,
+        contextKey: this.currentDashboardContextKey,
+        dashboardUrl: this.currentDashboardUrl,
+        text,
+        pointerUrl,
+        tags
+      }));
+
+      // Re-enable auto-scroll to show the new comment
+      this.autoScrollEnabled = true;
+    }
+
+    this.newCommentText = '';
+    this.pointerUrl = '';
+    this.showPointerUrlInput = false;
+    this.selectedTags = [];
+    this.tagsDialogVisible = false;
+  }
+
+  onPointerUrlClick(url: string): void {
+    this.pointerUrlClick.emit(url);
+  }
+
+  // Export comments to JSON file
+  exportComments(): void {
+    if (!this.currentDashboardId || !this.currentDashboardContextKey) {
+      this.notificationService.warn('@No dashboard selected');
+      return;
+    }
+
+    this.http.get<{ dashboardTitle?: string }>(
+      `${environment.portalApi}/dashboards/${this.currentDashboardContextKey}/${this.currentDashboardId}/comments/export`
+    ).pipe(take(1)).subscribe({
+      next: (data) => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const url = globalThis.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        // Use dashboard title in filename (sanitized for filesystem)
+        const sanitizedTitle = data.dashboardTitle
+          ? data.dashboardTitle.replaceAll(/[^a-zA-Z0-9-_]/g, '_').substring(0, 50)
+          : `dashboard_${this.currentDashboardId}`;
+        link.download = `comments_${this.currentDashboardContextKey}_${sanitizedTitle}_${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        globalThis.URL.revokeObjectURL(url);
+        this.notificationService.success('@Comments exported successfully');
+      },
+      error: () => {
+        this.notificationService.error('@Failed to export comments');
+      }
+    });
+  }
+
+  // Trigger file input click
+  triggerImport(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  // Handle file selection
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (!file.name.endsWith('.json')) {
+      this.notificationService.error('@File must be JSON format');
+      input.value = '';
+      return;
+    }
+
+    try {
+      const content = await file.text();
+      const data = JSON.parse(content);
+      this.importComments(data);
+    } catch {
+      this.notificationService.error('@Invalid JSON file');
+    } finally {
+      input.value = '';
+    }
   }
 
   private filterComments(comments: DashboardCommentEntry[]): DashboardCommentEntry[] {
@@ -385,22 +526,6 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     return 4;                       // Oct, Nov, Dec -> Q4
   }
 
-  ngAfterViewInit(): void {
-    // Enable auto-scroll when panel opens and scroll to bottom
-    this.autoScrollEnabled = true;
-    this.scrollToBottom();
-
-    // Listen for scroll events to manage auto-scroll behavior
-    const container = this.scrollContainer?.nativeElement;
-    if (container) {
-      container.addEventListener('scroll', () => this.onScroll());
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.stopRefreshTimer();
-  }
-
   private startRefreshTimer(): void {
     this.stopRefreshTimer();
     this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).pipe(
@@ -409,9 +534,10 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
         this.store.select(selectCurrentDashboardContextKey),
         this.store.select(selectCurrentDashboardUrl)
       ]).pipe(take(1))),
-      filter(([id, key, url]) => id !== null && key !== null && url !== null)
-    ).subscribe(() => {
-      this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
+      filter(([id, key, url]) => id !== null && id !== undefined && key !== null && url !== null),
+      withLatestFrom(this.store.select(selectCommentsIncludeDeleted))
+    ).subscribe(([[id, key, url], includeDeleted]) => {
+      this.reloadComments(includeDeleted);
     });
   }
 
@@ -437,92 +563,6 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
     }
   }
 
-  togglePointerUrlInput(): void {
-    this.showPointerUrlInput = !this.showPointerUrlInput;
-    if (!this.showPointerUrlInput) {
-      this.pointerUrl = ''; // Clear pointerUrl when hiding
-    }
-  }
-
-  // Tags methods
-  openTagsDialog(): void {
-    this.tagsDialogVisible = true;
-  }
-
-  closeTagsDialog(): void {
-    this.tagsDialogVisible = false;
-    this.newTagText = '';
-  }
-
-  searchTags(event: { query: string }): void {
-    this.availableTags$.subscribe(tags => {
-      const query = event.query.toLowerCase();
-      this.tagSuggestions = tags.filter(tag =>
-        tag.toLowerCase().includes(query) && !this.selectedTags.includes(tag)
-      );
-    }).unsubscribe();
-  }
-
-  addTag(): void {
-    const tag = this.newTagText.trim().toLowerCase().substring(0, 10);
-    if (tag && !this.selectedTags.includes(tag)) {
-      this.selectedTags = [...this.selectedTags, tag];
-    }
-    this.newTagText = '';
-  }
-
-  removeTag(tag: string): void {
-    this.selectedTags = this.selectedTags.filter(t => t !== tag);
-  }
-
-  onTagSelect(event: { value: string }): void {
-    const tag = event.value.toLowerCase().substring(0, 10);
-    if (tag && !this.selectedTags.includes(tag)) {
-      this.selectedTags = [...this.selectedTags, tag];
-    }
-    this.newTagText = '';
-  }
-
-
-  submitComment(): void {
-    const text = this.newCommentText.trim();
-    if (!text) return;
-
-    // Block submission if pointerUrl input is shown and URL is invalid
-    if (this.showPointerUrlInput && this.pointerUrl.trim() && !this.isPointerUrlValid()) {
-      return;
-    }
-
-    if (this.currentDashboardId && this.currentDashboardContextKey && this.currentDashboardUrl) {
-      // Only include pointerUrl if input is shown
-      const pointerUrl = this.showPointerUrlInput ? this.getNormalizedPointerUrl() : undefined;
-      // Include tags if any are selected
-      const tags = this.selectedTags.length > 0 ? this.selectedTags : undefined;
-
-      this.store.dispatch(addComment({
-        dashboardId: this.currentDashboardId,
-        contextKey: this.currentDashboardContextKey,
-        dashboardUrl: this.currentDashboardUrl,
-        text,
-        pointerUrl,
-        tags
-      }));
-
-      // Re-enable auto-scroll to show the new comment
-      this.autoScrollEnabled = true;
-    }
-
-    this.newCommentText = '';
-    this.pointerUrl = '';
-    this.showPointerUrlInput = false;
-    this.selectedTags = [];
-    this.tagsDialogVisible = false;
-  }
-
-  onPointerUrlClick(url: string): void {
-    this.pointerUrlClick.emit(url);
-  }
-
   private scrollToBottom(): void {
     const container = this.scrollContainer?.nativeElement;
     if (!container) return;
@@ -539,67 +579,6 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
         });
       });
     });
-  }
-
-  // Export comments to JSON file
-  exportComments(): void {
-    if (!this.currentDashboardId || !this.currentDashboardContextKey) {
-      this.notificationService.warn('@No dashboard selected');
-      return;
-    }
-
-    this.http.get<{ dashboardTitle?: string }>(
-      `${environment.portalApi}/dashboards/${this.currentDashboardContextKey}/${this.currentDashboardId}/comments/export`
-    ).pipe(take(1)).subscribe({
-      next: (data) => {
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        // Use dashboard title in filename (sanitized for filesystem)
-        const sanitizedTitle = data.dashboardTitle
-          ? data.dashboardTitle.replace(/[^a-zA-Z0-9-_]/g, '_').substring(0, 50)
-          : `dashboard_${this.currentDashboardId}`;
-        link.download = `comments_${this.currentDashboardContextKey}_${sanitizedTitle}_${new Date().toISOString().slice(0, 10)}.json`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-        this.notificationService.success('@Comments exported successfully');
-      },
-      error: () => {
-        this.notificationService.error('@Failed to export comments');
-      }
-    });
-  }
-
-  // Trigger file input click
-  triggerImport(): void {
-    this.fileInput.nativeElement.click();
-  }
-
-  // Handle file selection
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    if (!file.name.endsWith('.json')) {
-      this.notificationService.error('@File must be JSON format');
-      input.value = '';
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const data = JSON.parse(content);
-        this.importComments(data);
-      } catch {
-        this.notificationService.error('@Invalid JSON file');
-      }
-      input.value = '';
-    };
-    reader.readAsText(file);
   }
 
   // Import comments from JSON data
@@ -625,7 +604,12 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
         // Reload comments list
         this.reloadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
         // Reload tags
-        this.loadTagsIfNeeded();
+        if (this.currentDashboardId && this.currentDashboardContextKey) {
+          this.store.dispatch(loadAvailableTags({
+            dashboardId: this.currentDashboardId,
+            contextKey: this.currentDashboardContextKey
+          }));
+        }
       },
       error: (err) => {
         const message = err.error?.message || '@Failed to import comments';

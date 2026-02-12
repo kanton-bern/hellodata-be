@@ -53,6 +53,8 @@ import {
   restoreCommentVersionSuccess,
   sendForReview,
   sendForReviewSuccess,
+  setCurrentDashboard,
+  setCommentsIncludeDeleted,
   setSelectedDataDomain,
   updateComment,
   updateCommentError,
@@ -66,7 +68,7 @@ import {ScreenService} from "../../shared/services";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {selectCurrentUserPermissions} from "../auth/auth.selector";
-import {selectCurrentDashboardUrl} from "./my-dashboards.selector";
+import {selectCommentsIncludeDeleted, selectCurrentDashboardUrl} from "./my-dashboards.selector";
 
 @Injectable()
 export class MyDashboardsEffects {
@@ -412,6 +414,43 @@ export class MyDashboardsEffects {
           switchMap(tags => scheduled([loadAvailableTagsSuccess({tags})], asyncScheduler)),
           catchError(e => scheduled([showError({error: e})], asyncScheduler))
         );
+      })
+    )
+  });
+
+  setCurrentDashboard$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setCurrentDashboard),
+      withLatestFrom(this._store.select(selectCommentsIncludeDeleted)),
+      switchMap(([{dashboardId, contextKey, dashboardUrl}, includeDeleted]) => {
+        return scheduled([
+          loadDashboardComments({dashboardId, contextKey, dashboardUrl, includeDeleted}),
+          loadAvailableTags({dashboardId, contextKey})
+        ], asyncScheduler);
+      })
+    )
+  });
+
+  setCommentsIncludeDeleted$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(setCommentsIncludeDeleted),
+      withLatestFrom(
+        this._store.select(state => state.myDashboards.currentDashboardId),
+        this._store.select(state => state.myDashboards.currentDashboardContextKey),
+        this._store.select(state => state.myDashboards.currentDashboardUrl)
+      ),
+      switchMap(([action, dashboardId, contextKey, dashboardUrl]) => {
+        if (dashboardId && contextKey && dashboardUrl) {
+          return scheduled([
+            loadDashboardComments({
+              dashboardId,
+              contextKey,
+              dashboardUrl,
+              includeDeleted: action.includeDeleted
+            })
+          ], asyncScheduler);
+        }
+        return scheduled([], asyncScheduler);
       })
     )
   });

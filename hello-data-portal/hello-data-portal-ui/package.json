@@ -43,7 +43,7 @@
     "@tailwindcss/postcss": "^4.1.17",
     "angular-auth-oidc-client": "^20.0.3",
     "angular-build-info": "^2.0.1",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "ngx-matomo-client": "^8.0.0",
     "ngx-pipes": "^3.2.2",
     "primeicons": "^7.0.0",

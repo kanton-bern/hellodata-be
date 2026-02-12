@@ -36,6 +36,7 @@ export interface MyDashboardsState {
   currentDashboardContextKey?: string,
   currentDashboardUrl?: string,
   currentDashboardComments: DashboardCommentEntry[],
+  commentsIncludeDeleted: boolean,
   availableTags: string[] // Tags available for the current dashboard
 }
 
@@ -44,5 +45,6 @@ export const initialMyDashboardsState: MyDashboardsState = {
   selectedDataDomain: null,
   availableDataDomains: [],
   currentDashboardComments: [],
+  commentsIncludeDeleted: false,
   availableTags: []
 }
