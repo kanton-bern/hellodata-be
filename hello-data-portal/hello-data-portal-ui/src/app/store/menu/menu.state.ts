@@ -103,6 +103,12 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         requiredPermissions: ['USER_MANAGEMENT']
       },
       {
+        id: 'dashboardGroupsMenu',
+        label: '@Dashboard groups',
+        routerLink: naviElements.dashboardGroups.path,
+        requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT']
+      },
+      {
         id: 'usersOverviewMenu',
         label: '@Users overview',
         routerLink: naviElements.usersOverview.path,
@@ -137,12 +143,6 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
         label: '@Documentation management',
         routerLink: naviElements.documentationManagement.path,
         requiredPermissions: ['DOCUMENTATION_MANAGEMENT']
-      },
-      {
-        id: 'dashboardGroupsMenu',
-        label: '@Dashboard groups',
-        routerLink: naviElements.dashboardGroups.path,
-        requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT']
       },
       {
         id: 'dashboardImportExportMenu',

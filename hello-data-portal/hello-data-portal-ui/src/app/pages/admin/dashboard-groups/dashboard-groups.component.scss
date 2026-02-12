@@ -27,9 +27,8 @@
 
 :host ::ng-deep {
   #dashboardGroupsTable {
-    #searchBox {
-      display: flex;
-      float: right;
+    .p-datatable-header {
+      padding: 0 0 1rem 0;
     }
   }
 }

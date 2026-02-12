@@ -1,13 +1,5 @@
 <h2 class="content-block">{{ '@Dashboard groups' | transloco }}</h2>
 <div class="card">
-  <p-toolbar class="mb-6 gap-2">
-    <ng-template pTemplate="left">
-      <p-button (click)="createDashboardGroup()" severity="success" icon="fas fa-circle-plus"
-                label="{{'@Create dashboard group' | transloco }}" pRipple
-                (keydown.enter)="createDashboardGroup()"></p-button>
-    </ng-template>
-  </p-toolbar>
-
   <p-table
     #dt
     (onLazyLoad)="loadGroups($event)"
@@ -30,7 +22,10 @@
     stateStorage="session"
   >
     <ng-template pTemplate="caption">
-      <div class="flex items-center justify-end">
+      <div class="flex items-center justify-between">
+        <p-button (click)="createDashboardGroup()" severity="success" icon="fas fa-circle-plus"
+                  label="{{'@Create dashboard group' | transloco }}" pRipple
+                  (keydown.enter)="createDashboardGroup()"/>
         <p-iconfield>
           <p-inputicon class="pi pi-search"/>
           <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
@@ -60,14 +55,22 @@
           {{ group.name }}
         </td>
         <td>
-          <div class="flex flex-wrap gap-2">
-            @for (entry of group.entries; track entry.dashboardId) {
-              <p-badge [value]="entry.dashboardTitle" severity="info" styleClass="text-sm"/>
-            }
-            @if (!group.entries || group.entries.length === 0) {
-              <span class="text-gray-400 text-sm">{{ '@No dashboards' | transloco }}</span>
-            }
-          </div>
+          @if (!group.entries || group.entries.length === 0) {
+            <span class="text-gray-400 text-sm">{{ '@No dashboards' | transloco }}</span>
+          } @else {
+            <div class="flex flex-col gap-2">
+              @for (domainEntry of groupEntriesByDomain(group.entries) | keyvalue; track domainEntry.key) {
+                <div>
+                  <span class="text-sm font-semibold">{{ getDomainName(domainEntry.key) }}:</span>
+                  <span class="flex flex-wrap gap-1 mt-1">
+                    @for (entry of domainEntry.value; track entry.dashboardId) {
+                      <p-badge [value]="entry.dashboardTitle" severity="info" styleClass="text-sm"/>
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+          }
         </td>
         <td>
           @if (group.createdDate) {

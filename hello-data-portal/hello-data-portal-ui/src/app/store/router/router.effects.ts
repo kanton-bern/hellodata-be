@@ -35,7 +35,7 @@ import {loadExternalDashboardById} from "../external-dashboards/external-dasboar
 import {loadFaqById} from "../faq/faq.action";
 import {loadPortalRoleById} from "../portal-roles-management/portal-roles-management.action";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
-import {loadDashboardGroupById} from "../dashboard-groups/dashboard-groups.action";
+import {loadDashboardGroupById, loadDashboardGroupByIdSuccess} from "../dashboard-groups/dashboard-groups.action";
 
 @Injectable()
 export class RouterEffects {
@@ -61,6 +61,9 @@ export class RouterEffects {
         }
         if (urlParts.length === 4 && urlParts[1] === 'dashboard-groups' && urlParts[2] === 'edit') {
           return scheduled([loadDashboardGroupById()], asyncScheduler);
+        }
+        if (urlParts.length === 3 && urlParts[1] === 'dashboard-groups' && urlParts[2] === 'create') {
+          return scheduled([loadDashboardGroupByIdSuccess({dashboardGroup: {name: '', entries: []}})], asyncScheduler);
         }
         return EMPTY;
       }),
