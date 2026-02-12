@@ -41,6 +41,7 @@ import {
   restoreCommentVersionSuccess,
   sendForReviewSuccess,
   setCurrentDashboard,
+  setCommentsIncludeDeleted,
   setSelectedDataDomain,
   updateCommentSuccess
 } from "./my-dashboards.action";
@@ -166,6 +167,12 @@ export const myDashboardsReducer = createReducer(
       currentDashboardComments: state.currentDashboardComments.map(c =>
         c.id === comment.id ? comment : c
       )
+    }
+  }),
+  on(setCommentsIncludeDeleted, (state: MyDashboardsState, {includeDeleted}): MyDashboardsState => {
+    return {
+      ...state,
+      commentsIncludeDeleted: includeDeleted
     }
   }),
   on(loadAvailableTagsSuccess, (state: MyDashboardsState, {tags}): MyDashboardsState => {

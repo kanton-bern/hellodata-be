@@ -182,6 +182,11 @@ export const selectCurrentDashboardUrl = createSelector(
   (state: MyDashboardsState) => state.currentDashboardUrl
 );
 
+export const selectCommentsIncludeDeleted = createSelector(
+  myDashboardsState,
+  (state: MyDashboardsState) => state.commentsIncludeDeleted
+);
+
 export const selectCurrentDashboardComments = createSelector(
   myDashboardsState,
   (state: MyDashboardsState) => state.currentDashboardComments
