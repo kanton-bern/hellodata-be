@@ -30,18 +30,13 @@
     stateStorage="session"
   >
     <ng-template pTemplate="caption">
-      <div>
-        <div id="searchBox">
-          <span class="p-input-icon-left p-ml-auto">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search"/>
-              <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                     placeholder="{{'@Search' | transloco}}" type="text"/>
-            </p-iconfield>
-          </span>
-        </div>
+      <div class="flex items-center justify-end">
+        <p-iconfield>
+          <p-inputicon class="pi pi-search"/>
+          <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                 placeholder="{{'@Search' | transloco}}" type="text"/>
+        </p-iconfield>
       </div>
-      <br><br><br>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
@@ -65,7 +60,14 @@
           {{ group.name }}
         </td>
         <td>
-          {{ group.entries?.length || 0 }}
+          <div class="flex flex-wrap gap-2">
+            @for (entry of group.entries; track entry.dashboardId) {
+              <p-badge [value]="entry.dashboardTitle" severity="info" styleClass="text-sm"/>
+            }
+            @if (!group.entries || group.entries.length === 0) {
+              <span class="text-gray-400 text-sm">{{ '@No dashboards' | transloco }}</span>
+            }
+          </div>
         </td>
         <td>
           @if (group.createdDate) {

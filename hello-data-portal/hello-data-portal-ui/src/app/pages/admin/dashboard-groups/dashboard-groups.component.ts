@@ -56,6 +56,7 @@ import {InputText} from 'primeng/inputtext';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Badge} from 'primeng/badge';
 import {
   DeleteDashboardGroupPopupComponent
 } from './delete-dashboard-group-popup/delete-dashboard-group-popup.component';
@@ -65,7 +66,7 @@ import {
   templateUrl: './dashboard-groups.component.html',
   styleUrls: ['./dashboard-groups.component.scss'],
   imports: [FormsModule, Toolbar, PrimeTemplate, Button, Ripple, TableModule, Tooltip, InputText, IconField, InputIcon,
-    DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+    Badge, DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class DashboardGroupsComponent extends BaseComponent implements OnInit {
   dashboardGroups$: Observable<DashboardGroup[]>;

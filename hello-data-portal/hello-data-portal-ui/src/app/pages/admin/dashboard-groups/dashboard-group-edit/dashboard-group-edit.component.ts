@@ -27,7 +27,7 @@
 
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subscription, tap} from 'rxjs';
-import {FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../../store/app/app.state';
 import {selectEditedDashboardGroup} from '../../../../store/dashboard-groups/dashboard-groups.selector';
@@ -56,29 +56,36 @@ import {Ripple} from 'primeng/ripple';
 import {
   DeleteDashboardGroupPopupComponent
 } from '../delete-dashboard-group-popup/delete-dashboard-group-popup.component';
-import {TableModule} from 'primeng/table';
+import {Divider} from 'primeng/divider';
+import {DashboardGroupSelectorComponent} from './dashboard-group-selector/dashboard-group-selector.component';
+import {loadMyDashboards} from '../../../../store/my-dashboards/my-dashboards.action';
+import {selectAllDataDomains} from '../../../../store/users-management/users-management.selector';
+import {Context} from '../../../../store/users-management/context-role.model';
+import {loadAvailableContexts} from '../../../../store/users-management/users-management.action';
 
 @Component({
   selector: 'app-dashboard-group-edit',
   templateUrl: './dashboard-group-edit.component.html',
   styleUrls: ['./dashboard-group-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Button, Toolbar, Tooltip, InputText, TableModule,
-    DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple]
+  imports: [FormsModule, ReactiveFormsModule, Button, Toolbar, Tooltip, InputText, Divider,
+    DeleteDashboardGroupPopupComponent, DashboardGroupSelectorComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple]
 })
 export class DashboardGroupEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedDashboardGroup$: Observable<any>;
+  dataDomains$: Observable<Context[]>;
   dashboardGroupForm!: FormGroup;
   formValueChangedSub!: Subscription;
+  // Store selected dashboards per domain
+  selectedDashboardsByDomain = new Map<string, DashboardGroupEntry[]>();
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
 
   constructor() {
     super();
+    this.store.dispatch(loadMyDashboards());
+    this.store.dispatch(loadAvailableContexts());
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup);
-  }
-
-  get entriesFormArray(): FormArray {
-    return this.dashboardGroupForm.get('entries') as FormArray;
+    this.dataDomains$ = this.store.select(selectAllDataDomains);
   }
 
   override ngOnInit(): void {
@@ -87,6 +94,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       tap((dashboardGroup) => {
         if (dashboardGroup) {
           this.initForm(dashboardGroup);
+          this.initSelectedDashboards(dashboardGroup);
           if (dashboardGroup.id) {
             this.createEditBreadcrumbs();
           } else {
@@ -103,10 +111,17 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
 
   saveDashboardGroup(editedDashboardGroup: DashboardGroup) {
     const formValue = this.dashboardGroupForm.getRawValue();
+
+    // Collect all entries from selectedDashboardsByDomain
+    const allEntries: DashboardGroupEntry[] = [];
+    this.selectedDashboardsByDomain.forEach((entries) => {
+      allEntries.push(...entries);
+    });
+
     const dashboardGroup: DashboardGroupCreateUpdate = {
       id: editedDashboardGroup.id,
       name: formValue.name,
-      entries: formValue.entries
+      entries: allEntries
     };
     this.store.dispatch(saveChangesToDashboardGroup({dashboardGroup}));
   }
@@ -119,12 +134,13 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     return deleteDashboardGroup();
   }
 
-  addEntry() {
-    this.entriesFormArray.push(this.createEntryFormGroup({contextKey: '', dashboardId: 0, dashboardTitle: ''}));
+  onDashboardsSelected(contextKey: string, entries: DashboardGroupEntry[], editedDashboardGroup: DashboardGroup) {
+    this.selectedDashboardsByDomain.set(contextKey, entries);
+    this.onChange(editedDashboardGroup);
   }
 
-  removeEntry(index: number) {
-    this.entriesFormArray.removeAt(index);
+  getPreselectedEntriesForDomain(contextKey: string): DashboardGroupEntry[] {
+    return this.selectedDashboardsByDomain.get(contextKey) || [];
   }
 
   ngOnDestroy(): void {
@@ -132,10 +148,8 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   }
 
   private initForm(dashboardGroup: DashboardGroup) {
-    const entryFormGroups = (dashboardGroup.entries || []).map(entry => this.createEntryFormGroup(entry));
     this.dashboardGroupForm = this.fb.group({
-      name: [dashboardGroup.name || '', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{N}].*/u)]],
-      entries: this.fb.array(entryFormGroups)
+      name: [dashboardGroup.name || '', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{N}].*/u)]]
     });
     this.unsubFormValueChanges();
     this.formValueChangedSub = this.dashboardGroupForm.valueChanges.subscribe(() => {
@@ -143,20 +157,32 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     });
   }
 
-  private createEntryFormGroup(entry: DashboardGroupEntry): FormGroup {
-    return this.fb.group({
-      contextKey: [entry.contextKey, Validators.required],
-      dashboardId: [entry.dashboardId, [Validators.required, Validators.min(1)]],
-      dashboardTitle: [entry.dashboardTitle, Validators.required]
-    });
+  private initSelectedDashboards(dashboardGroup: DashboardGroup) {
+    // Group entries by contextKey
+    this.selectedDashboardsByDomain.clear();
+    if (dashboardGroup.entries) {
+      dashboardGroup.entries.forEach(entry => {
+        if (!this.selectedDashboardsByDomain.has(entry.contextKey)) {
+          this.selectedDashboardsByDomain.set(entry.contextKey, []);
+        }
+        this.selectedDashboardsByDomain.get(entry.contextKey)?.push(entry);
+      });
+    }
   }
 
   private onChange(editedDashboardGroup: DashboardGroup) {
     const formValue = this.dashboardGroupForm.getRawValue();
+
+    // Collect all entries from selectedDashboardsByDomain
+    const allEntries: DashboardGroupEntry[] = [];
+    this.selectedDashboardsByDomain.forEach((entries) => {
+      allEntries.push(...entries);
+    });
+
     const dashboardGroup: DashboardGroupCreateUpdate = {
       id: editedDashboardGroup.id,
       name: formValue.name,
-      entries: formValue.entries
+      entries: allEntries
     };
     this.store.dispatch(markUnsavedChanges({
       action: saveChangesToDashboardGroup({dashboardGroup}),
