@@ -49,4 +49,8 @@ public interface DashboardGroupRepository extends JpaRepository<DashboardGroupEn
                     "WHERE LOWER(entry->>'dashboardTitle') LIKE LOWER(CONCAT('%', :search, '%')))",
             nativeQuery = true)
     Page<DashboardGroupEntity> searchByNameOrDashboardTitle(@Param("search") String search, Pageable pageable);
+
+    boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCaseAndIdNot(String name, UUID id);
 }

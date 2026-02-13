@@ -49,8 +49,7 @@ export const dashboardGroupsReducer = createReducer(
       ...state,
       dashboardGroups: payload,
       totalElements,
-      loading: false,
-      editedDashboardGroup: null
+      loading: false
     };
   }),
   on(openDashboardGroupEdition, (state: DashboardGroupsState, {dashboardGroup}): DashboardGroupsState => {

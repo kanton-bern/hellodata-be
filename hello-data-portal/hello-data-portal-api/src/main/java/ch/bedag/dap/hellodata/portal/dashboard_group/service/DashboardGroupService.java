@@ -74,6 +74,11 @@ public class DashboardGroupService {
 
     @Transactional
     public void create(DashboardGroupCreateDto createDto) {
+        // Check if name already exists
+        if (dashboardGroupRepository.existsByNameIgnoreCase(createDto.getName())) {
+            log.error("Dashboard group with name '{}' already exists", createDto.getName());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Dashboard group with this name already exists");
+        }
         DashboardGroupEntity entity = modelMapper.map(createDto, DashboardGroupEntity.class);
         dashboardGroupRepository.save(entity);
     }
@@ -84,6 +89,11 @@ public class DashboardGroupService {
         if (entity.isEmpty()) {
             log.error("Dashboard group with id {} not found", updateDto.getId());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        // Check if name already exists for another group
+        if (dashboardGroupRepository.existsByNameIgnoreCaseAndIdNot(updateDto.getName(), updateDto.getId())) {
+            log.error("Dashboard group with name '{}' already exists", updateDto.getName());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Dashboard group with this name already exists");
         }
         DashboardGroupEntity entityToUpdate = entity.get();
         modelMapper.map(updateDto, entityToUpdate);

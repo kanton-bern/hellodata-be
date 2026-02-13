@@ -98,6 +98,7 @@
   "@Delete dashboard group question": "Voulez-vous vraiment supprimer ce groupe de tableaux de bord ?",
   "@Group name": "Nom du groupe",
   "@Group name is invalid": "Le nom du groupe est invalide (min 3, max 150 caractères, doit commencer par une lettre ou un chiffre)",
+  "@Dashboard group name already exists": "Un groupe de tableaux de bord avec ce nom existe déjà",
   "@Context key": "Clé de contexte",
   "@Add entry": "Ajouter une entrée",
   "@Remove": "Supprimer",

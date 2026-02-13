@@ -58,3 +58,15 @@ export const selectDashboardGroupForDeletion = createSelector(
   dashboardGroupsState,
   (state: DashboardGroupsState) => state.dashboardGroupForDeletion
 );
+
+export const selectDashboardGroupNameExists = (name: string, excludeId?: string) => createSelector(
+  dashboardGroupsState,
+  (state: DashboardGroupsState) => {
+    if (!name) return false;
+    return state.dashboardGroups.some(group =>
+      group.name.toLowerCase() === name.toLowerCase() &&
+      group.id !== excludeId
+    );
+  }
+);
+

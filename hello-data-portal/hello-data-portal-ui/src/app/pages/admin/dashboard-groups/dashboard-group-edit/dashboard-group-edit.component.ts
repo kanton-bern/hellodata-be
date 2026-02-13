@@ -27,10 +27,21 @@
 
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subscription, tap} from 'rxjs';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators
+} from '@angular/forms';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../../store/app/app.state';
-import {selectEditedDashboardGroup} from '../../../../store/dashboard-groups/dashboard-groups.selector';
+import {
+  selectDashboardGroups,
+  selectEditedDashboardGroup
+} from '../../../../store/dashboard-groups/dashboard-groups.selector';
 import {
   DashboardGroup,
   DashboardGroupCreateUpdate,
@@ -41,6 +52,7 @@ import {markUnsavedChanges} from '../../../../store/unsaved-changes/unsaved-chan
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {
   deleteDashboardGroup,
+  loadDashboardGroups,
   saveChangesToDashboardGroup,
   showDeleteDashboardGroupPopup
 } from '../../../../store/dashboard-groups/dashboard-groups.action';
@@ -79,13 +91,21 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   selectedDashboardsByDomain = new Map<string, DashboardGroupEntry[]>();
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
+  private allDashboardGroups: DashboardGroup[] = [];
+  private currentGroupId?: string;
 
   constructor() {
     super();
     this.store.dispatch(loadMyDashboards());
     this.store.dispatch(loadAvailableContexts());
+    this.store.dispatch(loadDashboardGroups({page: 0, size: 1000, sort: 'name,asc'}));
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup);
     this.dataDomains$ = this.store.select(selectAllDataDomains);
+
+    // Load all dashboard groups for validation
+    this.store.select(selectDashboardGroups).subscribe(groups => {
+      this.allDashboardGroups = groups;
+    });
   }
 
   override ngOnInit(): void {
@@ -148,13 +168,34 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   }
 
   private initForm(dashboardGroup: DashboardGroup) {
+    this.currentGroupId = dashboardGroup.id;
     this.dashboardGroupForm = this.fb.group({
-      name: [dashboardGroup.name || '', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{N}].*/u)]]
+      name: [
+        dashboardGroup.name || '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(150),
+          Validators.pattern(/^[\p{L}\p{N}].*/u),
+          this.uniqueNameValidator.bind(this)
+        ]
+      ]
     });
     this.unsubFormValueChanges();
     this.formValueChangedSub = this.dashboardGroupForm.valueChanges.subscribe(() => {
       this.onChange(dashboardGroup);
     });
+  }
+
+  private uniqueNameValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+    const nameExists = this.allDashboardGroups.some(group =>
+      group.name.toLowerCase() === control.value.toLowerCase() &&
+      group.id !== this.currentGroupId
+    );
+    return nameExists ? {duplicateName: true} : null;
   }
 
   private initSelectedDashboards(dashboardGroup: DashboardGroup) {

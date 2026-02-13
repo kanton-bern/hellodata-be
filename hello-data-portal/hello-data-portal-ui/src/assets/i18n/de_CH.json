@@ -98,6 +98,7 @@
   "@Delete dashboard group question": "Möchten Sie diese Dashboard-Gruppe wirklich löschen?",
   "@Group name": "Gruppenname",
   "@Group name is invalid": "Gruppenname ist ungültig (min. 3, max. 150 Zeichen, muss mit Buchstabe oder Zahl beginnen)",
+  "@Dashboard group name already exists": "Eine Dashboard-Gruppe mit diesem Namen existiert bereits",
   "@Context key": "Kontext-Schlüssel",
   "@Add entry": "Eintrag hinzufügen",
   "@Remove": "Entfernen",
