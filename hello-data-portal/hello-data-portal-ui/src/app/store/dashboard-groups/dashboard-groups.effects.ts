@@ -121,8 +121,7 @@ export class DashboardGroupsEffects {
   saveChangesToDashboardGroupSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToDashboardGroupSuccess),
-      withLatestFrom(this._store.select(selectActiveContextKey)),
-      switchMap(([, contextKey]) => scheduled([clearUnsavedChanges(), navigate({url: `${naviElements.dashboardGroups.path}/list/${contextKey}`})], asyncScheduler)),
+      switchMap(() => scheduled([clearUnsavedChanges()], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     );
   });

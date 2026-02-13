@@ -177,7 +177,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
             }
             // Create breadcrumbs after domain name is resolved
             if (dashboardGroup.id) {
-              this.createEditBreadcrumbs();
+              this.createEditBreadcrumbs(dashboardGroup.name);
             } else {
               this.createCreateBreadcrumbs();
             }
@@ -219,6 +219,11 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       users
     };
     this.store.dispatch(saveChangesToDashboardGroup({dashboardGroup}));
+
+    // Update breadcrumbs with new name after save
+    if (editedDashboardGroup.id && formValue.name) {
+      this.createEditBreadcrumbs(formValue.name);
+    }
   }
 
   openDeletePopup(editedDashboardGroup: DashboardGroup) {
@@ -419,7 +424,7 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     }));
   }
 
-  private createEditBreadcrumbs() {
+  private createEditBreadcrumbs(groupName: string) {
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
         {
@@ -430,10 +435,19 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
           routerLink: `${naviElements.dashboardGroups.path}/list/${this.currentContextKey}`,
         },
         {
+          label: groupName,
+        },
+        {
           label: naviElements.dashboardGroupEdit.label,
         }
       ]
     }));
+  }
+
+  updateBreadcrumbsWithGroupName(groupName: string) {
+    if (this.currentGroupId) {
+      this.createEditBreadcrumbs(groupName);
+    }
   }
 
   private unsubFormValueChanges() {

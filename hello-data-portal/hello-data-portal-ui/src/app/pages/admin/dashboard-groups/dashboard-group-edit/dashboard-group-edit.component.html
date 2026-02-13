@@ -109,16 +109,18 @@
               @if (filteredDashboards.length === 0) {
                 <div class="text-gray-400 p-4 text-center">{{ '@No dashboards available' | transloco }}</div>
               } @else {
-                @for (dashboard of filteredDashboards; track dashboard.id) {
-                  <div class="flex items-center gap-3 p-2 hover:bg-surface-100 rounded-border">
-                    <p-checkbox [ngModel]="isDashboardSelected(dashboard.id)" [ngModelOptions]="{standalone: true}"
-                                (ngModelChange)="onDashboardSelectionChange(dashboard.id, $event, editedDashboardGroup)"
-                                [binary]="true" [inputId]="'dashboard-' + dashboard.id"/>
-                    <label [for]="'dashboard-' + dashboard.id" class="cursor-pointer flex-1">
-                      {{ dashboard.dashboardTitle }}
-                    </label>
-                  </div>
-                }
+                <div class="grid grid-cols-2 gap-2">
+                  @for (dashboard of filteredDashboards; track dashboard.id) {
+                    <div class="flex items-center gap-3 p-2 hover:bg-surface-100 rounded-border">
+                      <p-checkbox [ngModel]="isDashboardSelected(dashboard.id)" [ngModelOptions]="{standalone: true}"
+                                  (ngModelChange)="onDashboardSelectionChange(dashboard.id, $event, editedDashboardGroup)"
+                                  [binary]="true" [inputId]="'dashboard-' + dashboard.id"/>
+                      <label [for]="'dashboard-' + dashboard.id" class="cursor-pointer flex-1 truncate">
+                        {{ dashboard.dashboardTitle }}
+                      </label>
+                    </div>
+                  }
+                </div>
               }
             </div>
           </p-tabpanel>
