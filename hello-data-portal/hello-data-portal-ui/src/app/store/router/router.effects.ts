@@ -59,11 +59,18 @@ export class RouterEffects {
         if (urlParts.length === 4 && urlParts[1] === 'external-dashboards' && urlParts[2] === 'edit') {
           return scheduled([loadExternalDashboardById()], asyncScheduler);
         }
-        if (urlParts.length === 4 && urlParts[1] === 'dashboard-groups' && urlParts[2] === 'edit') {
+        if (urlParts.length === 5 && urlParts[1] === 'dashboard-groups' && urlParts[3] === 'edit') {
           return scheduled([loadDashboardGroupById()], asyncScheduler);
         }
-        if (urlParts.length === 3 && urlParts[1] === 'dashboard-groups' && urlParts[2] === 'create') {
-          return scheduled([loadDashboardGroupByIdSuccess({dashboardGroup: {name: '', entries: []}})], asyncScheduler);
+        if (urlParts.length === 4 && urlParts[1] === 'dashboard-groups' && urlParts[3] === 'create') {
+          return scheduled([loadDashboardGroupByIdSuccess({
+            dashboardGroup: {
+              name: '',
+              contextKey: urlParts[2],
+              entries: [],
+              users: []
+            }
+          })], asyncScheduler);
         }
         return EMPTY;
       }),

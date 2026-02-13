@@ -39,18 +39,21 @@ import java.util.UUID;
 @Repository
 public interface DashboardGroupRepository extends JpaRepository<DashboardGroupEntity, UUID> {
 
-    @Query(value = "SELECT * FROM dashboard_group dg WHERE " +
+    Page<DashboardGroupEntity> findAllByContextKey(String contextKey, Pageable pageable);
+
+    @Query(value = "SELECT * FROM dashboard_group dg WHERE dg.context_key = :contextKey AND (" +
             "LOWER(dg.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "EXISTS (SELECT 1 FROM jsonb_array_elements(dg.entries) AS entry " +
-            "WHERE LOWER(entry->>'dashboardTitle') LIKE LOWER(CONCAT('%', :search, '%')))",
-            countQuery = "SELECT COUNT(*) FROM dashboard_group dg WHERE " +
+            "WHERE LOWER(entry->>'dashboardTitle') LIKE LOWER(CONCAT('%', :search, '%'))))",
+            countQuery = "SELECT COUNT(*) FROM dashboard_group dg WHERE dg.context_key = :contextKey AND (" +
                     "LOWER(dg.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
                     "EXISTS (SELECT 1 FROM jsonb_array_elements(dg.entries) AS entry " +
-                    "WHERE LOWER(entry->>'dashboardTitle') LIKE LOWER(CONCAT('%', :search, '%')))",
+                    "WHERE LOWER(entry->>'dashboardTitle') LIKE LOWER(CONCAT('%', :search, '%'))))",
             nativeQuery = true)
-    Page<DashboardGroupEntity> searchByNameOrDashboardTitle(@Param("search") String search, Pageable pageable);
+    Page<DashboardGroupEntity> searchByContextKeyAndNameOrDashboardTitle(
+            @Param("contextKey") String contextKey, @Param("search") String search, Pageable pageable);
 
-    boolean existsByNameIgnoreCase(String name);
+    boolean existsByNameIgnoreCaseAndContextKey(String name, String contextKey);
 
-    boolean existsByNameIgnoreCaseAndIdNot(String name, UUID id);
+    boolean existsByNameIgnoreCaseAndContextKeyAndIdNot(String name, String contextKey, UUID id);
 }

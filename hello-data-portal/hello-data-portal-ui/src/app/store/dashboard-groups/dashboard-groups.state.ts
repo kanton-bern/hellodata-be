@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {DashboardGroup} from "./dashboard-groups.model";
+import {DashboardGroup, DashboardGroupDomainUser} from "./dashboard-groups.model";
 
 export interface DashboardGroupsState {
   dashboardGroups: DashboardGroup[];
@@ -33,6 +33,8 @@ export interface DashboardGroupsState {
   loading: boolean;
   editedDashboardGroup: DashboardGroup | null;
   dashboardGroupForDeletion: DashboardGroup | null;
+  eligibleUsers: DashboardGroupDomainUser[];
+  activeContextKey: string | null;
 }
 
 export const initialDashboardGroupsState: DashboardGroupsState = {
@@ -40,5 +42,7 @@ export const initialDashboardGroupsState: DashboardGroupsState = {
   totalElements: 0,
   loading: false,
   editedDashboardGroup: null,
-  dashboardGroupForDeletion: null
+  dashboardGroupForDeletion: null,
+  eligibleUsers: [],
+  activeContextKey: null
 };

@@ -105,7 +105,7 @@ export const ALL_MENU_ITEMS: MenuItem[] = [
       {
         id: 'dashboardGroupsMenu',
         label: '@Dashboard groups',
-        routerLink: naviElements.dashboardGroups.path,
+        items: [],
         requiredPermissions: ['DASHBOARD_GROUPS_MANAGEMENT']
       },
       {

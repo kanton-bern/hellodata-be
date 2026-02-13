@@ -29,23 +29,25 @@ import {Component, inject, OnInit} from '@angular/core';
 import {combineLatest, map, Observable, tap} from 'rxjs';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
-import {DashboardGroup, DashboardGroupEntry} from '../../../store/dashboard-groups/dashboard-groups.model';
+import {DashboardGroup} from '../../../store/dashboard-groups/dashboard-groups.model';
 import {
   selectDashboardGroups,
   selectDashboardGroupsLoading,
-  selectDashboardGroupsTotalElements
+  selectDashboardGroupsTotalElements,
+  selectParamDashboardGroupContextKey
 } from '../../../store/dashboard-groups/dashboard-groups.selector';
 import {selectAllAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.selector';
 import {
   deleteDashboardGroup,
   loadDashboardGroups,
   openDashboardGroupEdition,
+  setActiveContextKey,
   showDeleteDashboardGroupPopup
 } from '../../../store/dashboard-groups/dashboard-groups.action';
 import {naviElements} from '../../../app-navi-elements';
 import {BaseComponent} from '../../../shared/components/base/base.component';
 import {createBreadcrumbs} from '../../../store/breadcrumb/breadcrumb.action';
-import {AsyncPipe, DatePipe, KeyValuePipe} from '@angular/common';
+import {AsyncPipe, DatePipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
@@ -60,20 +62,23 @@ import {Badge} from 'primeng/badge';
 import {
   DeleteDashboardGroupPopupComponent
 } from './delete-dashboard-group-popup/delete-dashboard-group-popup.component';
+import {take} from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard-groups',
   templateUrl: './dashboard-groups.component.html',
   styleUrls: ['./dashboard-groups.component.scss'],
   imports: [FormsModule, PrimeTemplate, Button, Ripple, TableModule, Tooltip, InputText, IconField, InputIcon,
-    Badge, DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, KeyValuePipe, TranslocoPipe]
+    Badge, DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
 })
 export class DashboardGroupsComponent extends BaseComponent implements OnInit {
   dashboardGroups$: Observable<DashboardGroup[]>;
   loading$: Observable<boolean>;
+  paramContextKey$: Observable<string | null>;
   totalRecords = 0;
   filterValue = '';
-  domainNameMap: Map<string, string> = new Map();
+  currentContextKey = '';
+  currentDomainName = '';
   private readonly store = inject<Store<AppState>>(Store);
 
   constructor() {
@@ -88,17 +93,30 @@ export class DashboardGroupsComponent extends BaseComponent implements OnInit {
       map(([groups]) => groups),
     );
     this.loading$ = this.store.select(selectDashboardGroupsLoading);
-    this.store.select(selectAllAvailableDataDomains).subscribe(domains => {
-      this.domainNameMap = new Map(domains.map(d => [d.key, d.name]));
-    });
-    this.store.dispatch(createBreadcrumbs({
-      breadcrumbs: [
-        {
-          label: naviElements.dashboardGroups.label,
-          routerLink: naviElements.dashboardGroups.path,
+
+    this.paramContextKey$ = combineLatest([
+      this.store.select(selectParamDashboardGroupContextKey),
+      this.store.select(selectAllAvailableDataDomains).pipe(take(1))
+    ]).pipe(
+      map(([contextKey, availableDataDomains]) => {
+        if (contextKey) {
+          this.currentContextKey = contextKey;
+          this.store.dispatch(setActiveContextKey({contextKey}));
+          const dataDomain = availableDataDomains.find(d => d.key === contextKey);
+          if (dataDomain) {
+            this.currentDomainName = dataDomain.name;
+            this.createBreadcrumbs(dataDomain.name);
+          }
+          this.store.dispatch(loadDashboardGroups({
+            contextKey,
+            page: 0,
+            size: 10,
+            sort: 'name, asc'
+          }));
         }
-      ]
-    }));
+        return contextKey;
+      })
+    );
   }
 
   override ngOnInit(): void {
@@ -129,6 +147,7 @@ export class DashboardGroupsComponent extends BaseComponent implements OnInit {
       sortParam = `${event.sortField}, ${direction}`;
     }
     this.store.dispatch(loadDashboardGroups({
+      contextKey: this.currentContextKey,
       page: (event.first ?? 0) / (event.rows ?? 10),
       size: event.rows ?? 10,
       sort: sortParam,
@@ -136,24 +155,17 @@ export class DashboardGroupsComponent extends BaseComponent implements OnInit {
     }));
   }
 
-  getDomainName(contextKey: string): string {
-    return this.domainNameMap.get(contextKey) ?? contextKey;
-  }
-
-  groupEntriesByDomain(entries: DashboardGroupEntry[]): Map<string, DashboardGroupEntry[]> {
-    const grouped = new Map<string, DashboardGroupEntry[]>();
-    if (!entries) {
-      return grouped;
-    }
-    for (const entry of entries) {
-      const list = grouped.get(entry.contextKey);
-      if (list) {
-        list.push(entry);
-      } else {
-        grouped.set(entry.contextKey, [entry]);
-      }
-    }
-    return grouped;
+  private createBreadcrumbs(dataDomainName: string): void {
+    this.store.dispatch(createBreadcrumbs({
+      breadcrumbs: [
+        {
+          label: naviElements.dashboardGroups.label,
+        },
+        {
+          label: dataDomainName,
+        }
+      ]
+    }));
   }
 
   private restoreTableSearchFilter() {

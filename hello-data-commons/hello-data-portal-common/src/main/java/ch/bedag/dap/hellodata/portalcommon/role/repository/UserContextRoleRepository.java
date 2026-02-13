@@ -46,4 +46,12 @@ public interface UserContextRoleRepository extends JpaRepository<UserContextRole
     void updateRoleInUserContextRole(@Param("role") RoleEntity role, @Param("id") UUID id, @Param("contextKey") String contextKey);
 
     List<UserContextRoleEntity> findAllByUser(UserEntity user);
+
+    @Query(nativeQuery = true,
+           value = "SELECT ucr.* FROM user_context_role ucr " +
+                   "JOIN role r ON ucr.role_id = r.id " +
+                   "WHERE ucr.context_key = :contextKey AND r.name IN (:roleNames)")
+    List<UserContextRoleEntity> findByContextKeyAndRoleNames(
+            @Param("contextKey") String contextKey,
+            @Param("roleNames") List<String> roleNames);
 }

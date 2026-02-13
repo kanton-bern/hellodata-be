@@ -34,7 +34,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DashboardGroupEntry {
-    private String contextKey;
     private int dashboardId;
     private String dashboardTitle;
 }

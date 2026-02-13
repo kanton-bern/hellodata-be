@@ -40,11 +40,17 @@ import {
   loadDashboardGroupByIdSuccess,
   loadDashboardGroups,
   loadDashboardGroupsSuccess,
+  loadEligibleUsers,
+  loadEligibleUsersSuccess,
   openDashboardGroupEdition,
   saveChangesToDashboardGroup,
   saveChangesToDashboardGroupSuccess,
 } from "./dashboard-groups.action";
-import {selectDashboardGroupForDeletion, selectParamDashboardGroupId} from "./dashboard-groups.selector";
+import {
+  selectActiveContextKey,
+  selectDashboardGroupForDeletion,
+  selectParamDashboardGroupId
+} from "./dashboard-groups.selector";
 import {DashboardGroup} from "./dashboard-groups.model";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
 import {navigate, showError} from "../app/app.action";
@@ -60,7 +66,7 @@ export class DashboardGroupsEffects {
   loadDashboardGroups$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(loadDashboardGroups),
-      switchMap(action => this._dashboardGroupsService.getDashboardGroups(action.page, action.size, action.sort, action.search)),
+      switchMap(action => this._dashboardGroupsService.getDashboardGroups(action.contextKey, action.page, action.size, action.sort, action.search)),
       switchMap(result => scheduled([loadDashboardGroupsSuccess({
         payload: result.content,
         totalElements: result.totalElements
@@ -72,11 +78,13 @@ export class DashboardGroupsEffects {
   openDashboardGroupEdition$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(openDashboardGroupEdition),
-      switchMap(action => {
+      withLatestFrom(this._store.select(selectActiveContextKey)),
+      switchMap(([action, contextKey]) => {
+        const ctxKey = action.dashboardGroup?.contextKey || contextKey;
         if (action.dashboardGroup?.id) {
-          return scheduled([navigate({url: `${naviElements.dashboardGroups.path}/edit/${action.dashboardGroup.id}`})], asyncScheduler);
+          return scheduled([navigate({url: `${naviElements.dashboardGroups.path}/${ctxKey}/edit/${action.dashboardGroup.id}`})], asyncScheduler);
         }
-        return scheduled([navigate({url: `${naviElements.dashboardGroups.path}/create`})], asyncScheduler);
+        return scheduled([navigate({url: `${naviElements.dashboardGroups.path}/${ctxKey}/create`})], asyncScheduler);
       }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     );
@@ -113,7 +121,8 @@ export class DashboardGroupsEffects {
   saveChangesToDashboardGroupSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(saveChangesToDashboardGroupSuccess),
-      switchMap(() => scheduled([clearUnsavedChanges(), navigate({url: naviElements.dashboardGroups.path})], asyncScheduler)),
+      withLatestFrom(this._store.select(selectActiveContextKey)),
+      switchMap(([, contextKey]) => scheduled([clearUnsavedChanges(), navigate({url: `${naviElements.dashboardGroups.path}/list/${contextKey}`})], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
     );
   });
@@ -132,11 +141,22 @@ export class DashboardGroupsEffects {
   deleteDashboardGroupSuccess$ = createEffect(() => {
     return this._actions$.pipe(
       ofType(deleteDashboardGroupSuccess),
+      withLatestFrom(this._store.select(selectActiveContextKey)),
       tap(() => this._notificationService.success('@Dashboard group deleted successfully')),
-      switchMap(() => scheduled([hideDeleteDashboardGroupPopup(), loadDashboardGroups({
+      switchMap(([, contextKey]) => scheduled([hideDeleteDashboardGroupPopup(), loadDashboardGroups({
+        contextKey: contextKey || '',
         page: 0,
         size: 10
       })], asyncScheduler))
+    );
+  });
+
+  loadEligibleUsers$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadEligibleUsers),
+      switchMap(action => this._dashboardGroupsService.getEligibleUsersForDomain(action.contextKey)),
+      switchMap(result => scheduled([loadEligibleUsersSuccess({users: result})], asyncScheduler)),
+      catchError(e => scheduled([showError({error: e})], asyncScheduler))
     );
   });
 }

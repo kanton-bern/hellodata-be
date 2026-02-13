@@ -27,11 +27,17 @@
 package ch.bedag.dap.hellodata.portal.dashboard_group.service;
 
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupCreateDto;
+import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDomainUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupUpdateDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,12 +67,16 @@ class DashboardGroupServiceTest {
     @Mock
     private DashboardGroupRepository dashboardGroupRepository;
 
+    @Mock
+    private UserContextRoleRepository userContextRoleRepository;
+
     @Test
     void testCreate() {
         // given
         DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
         createDto.setName("Test Group");
-        createDto.setEntries(List.of(new DashboardGroupEntry("ctx1", 1, "Dashboard 1")));
+        createDto.setContextKey("ctx1");
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
 
         // when
         dashboardGroupService.create(createDto);
@@ -76,12 +86,28 @@ class DashboardGroupServiceTest {
     }
 
     @Test
+    void testCreateDuplicateNameInSameContext() {
+        // given
+        DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
+        createDto.setName("Test Group");
+        createDto.setContextKey("ctx1");
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+
+        when(dashboardGroupRepository.existsByNameIgnoreCaseAndContextKey("Test Group", "ctx1")).thenReturn(true);
+
+        // when / then
+        assertThrows(ResponseStatusException.class, () -> dashboardGroupService.create(createDto));
+        verify(dashboardGroupRepository, never()).save(any(DashboardGroupEntity.class));
+    }
+
+    @Test
     void testUpdate() {
         // given
         DashboardGroupUpdateDto updateDto = new DashboardGroupUpdateDto();
         updateDto.setId(UUID.randomUUID());
         updateDto.setName("Updated Group");
-        updateDto.setEntries(List.of(new DashboardGroupEntry("ctx1", 1, "Dashboard 1")));
+        updateDto.setContextKey("ctx1");
+        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
 
         DashboardGroupEntity existingEntity = new DashboardGroupEntity();
         existingEntity.setId(updateDto.getId());
@@ -129,6 +155,7 @@ class DashboardGroupServiceTest {
         DashboardGroupEntity existingEntity = new DashboardGroupEntity();
         existingEntity.setId(groupId);
         existingEntity.setName("Test Group");
+        existingEntity.setContextKey("ctx1");
         when(dashboardGroupRepository.findById(groupId)).thenReturn(Optional.of(existingEntity));
 
         // when
@@ -138,6 +165,7 @@ class DashboardGroupServiceTest {
         assertNotNull(resultDto);
         assertEquals(groupId.toString(), resultDto.getId());
         assertEquals("Test Group", resultDto.getName());
+        assertEquals("ctx1", resultDto.getContextKey());
     }
 
     @Test
@@ -152,5 +180,40 @@ class DashboardGroupServiceTest {
 
         // then
         verify(modelMapper, never()).map(any(DashboardGroupEntity.class), eq(DashboardGroupDto.class));
+    }
+
+    @Test
+    void testGetEligibleUsersForDomain() {
+        // given
+        String contextKey = "ctx1";
+        UUID userId = UUID.randomUUID();
+
+        UserEntity user = new UserEntity();
+        user.setId(userId);
+        user.setEmail("john@example.com");
+        user.setFirstName("John");
+        user.setLastName("Doe");
+
+        RoleEntity role = new RoleEntity();
+        role.setName(HdRoleName.DATA_DOMAIN_VIEWER);
+
+        UserContextRoleEntity ucr = new UserContextRoleEntity();
+        ucr.setUser(user);
+        ucr.setRole(role);
+        ucr.setContextKey(contextKey);
+
+        when(userContextRoleRepository.findByContextKeyAndRoleNames(eq(contextKey), anyList()))
+                .thenReturn(List.of(ucr));
+
+        // when
+        List<DashboardGroupDomainUserDto> result = dashboardGroupService.getEligibleUsersForDomain(contextKey);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("john@example.com", result.get(0).getEmail());
+        assertEquals("John", result.get(0).getFirstName());
+        assertEquals("Doe", result.get(0).getLastName());
+        assertEquals("DATA_DOMAIN_VIEWER", result.get(0).getRoleName());
     }
 }

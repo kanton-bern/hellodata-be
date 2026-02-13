@@ -50,10 +50,18 @@ public class DashboardGroupEntity extends BaseEntity {
     @Column(nullable = false, length = 150)
     private String name;
 
+    @Column(nullable = false, length = 255)
+    private String contextKey;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Basic(fetch = FetchType.EAGER)
     @Column(columnDefinition = "json", name = "entries")
     private List<DashboardGroupEntry> entries; //NOSONAR
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Basic(fetch = FetchType.EAGER)
+    @Column(columnDefinition = "json", name = "users")
+    private List<DashboardGroupUserEntry> users; //NOSONAR
 
     @Override
     public int hashCode() {

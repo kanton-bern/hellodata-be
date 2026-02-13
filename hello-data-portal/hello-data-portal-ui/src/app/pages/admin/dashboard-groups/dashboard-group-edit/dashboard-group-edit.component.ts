@@ -40,12 +40,15 @@ import {Store} from '@ngrx/store';
 import {AppState} from '../../../../store/app/app.state';
 import {
   selectDashboardGroups,
-  selectEditedDashboardGroup
+  selectEditedDashboardGroup,
+  selectEligibleUsers
 } from '../../../../store/dashboard-groups/dashboard-groups.selector';
 import {
   DashboardGroup,
   DashboardGroupCreateUpdate,
-  DashboardGroupEntry
+  DashboardGroupDomainUser,
+  DashboardGroupEntry,
+  DashboardGroupUserEntry
 } from '../../../../store/dashboard-groups/dashboard-groups.model';
 import {naviElements} from '../../../../app-navi-elements';
 import {markUnsavedChanges} from '../../../../store/unsaved-changes/unsaved-changes.actions';
@@ -53,7 +56,9 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {
   deleteDashboardGroup,
   loadDashboardGroups,
+  loadEligibleUsers,
   saveChangesToDashboardGroup,
+  setActiveContextKey,
   showDeleteDashboardGroupPopup
 } from '../../../../store/dashboard-groups/dashboard-groups.action';
 import {navigate} from '../../../../store/app/app.action';
@@ -69,26 +74,52 @@ import {
   DeleteDashboardGroupPopupComponent
 } from '../delete-dashboard-group-popup/delete-dashboard-group-popup.component';
 import {Divider} from 'primeng/divider';
-import {DashboardGroupSelectorComponent} from './dashboard-group-selector/dashboard-group-selector.component';
 import {loadMyDashboards} from '../../../../store/my-dashboards/my-dashboards.action';
-import {selectAllDataDomains} from '../../../../store/users-management/users-management.selector';
-import {Context} from '../../../../store/users-management/context-role.model';
-import {loadAvailableContexts} from '../../../../store/users-management/users-management.action';
+import {
+  selectAllAvailableDataDomains,
+  selectMyDashboards
+} from '../../../../store/my-dashboards/my-dashboards.selector';
+import {SupersetDashboard} from '../../../../store/my-dashboards/my-dashboards.model';
+import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
+import {Checkbox} from 'primeng/checkbox';
+import {take} from 'rxjs/operators';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
 
 @Component({
   selector: 'app-dashboard-group-edit',
   templateUrl: './dashboard-group-edit.component.html',
   styleUrls: ['./dashboard-group-edit.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, Button, Toolbar, Tooltip, InputText, Divider,
-    DeleteDashboardGroupPopupComponent, DashboardGroupSelectorComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple]
+    DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple,
+    Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, IconField, InputIcon]
 })
 export class DashboardGroupEditComponent extends BaseComponent implements OnInit, OnDestroy {
-  editedDashboardGroup$: Observable<any>;
-  dataDomains$: Observable<Context[]>;
+  editedDashboardGroup$: Observable<DashboardGroup | null>;
+  eligibleUsers$: Observable<DashboardGroupDomainUser[]>;
+  allDashboards: SupersetDashboard[] = [];
+  filteredDashboards: SupersetDashboard[] = [];
+  filteredUsers: DashboardGroupDomainUser[] = [];
+  allEligibleUsers: DashboardGroupDomainUser[] = [];
+
   dashboardGroupForm!: FormGroup;
   formValueChangedSub!: Subscription;
-  // Store selected dashboards per domain
-  selectedDashboardsByDomain = new Map<string, DashboardGroupEntry[]>();
+
+  // Selected items
+  selectedDashboardIds: Set<number> = new Set();
+  selectedUserIds: Set<string> = new Set();
+
+  // Search filters
+  dashboardSearchFilter = '';
+  userSearchFilter = '';
+
+  // Select all state
+  selectAllDashboards = false;
+  selectAllUsers = false;
+
+  currentContextKey = '';
+  currentDomainName = '';
+
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private allDashboardGroups: DashboardGroup[] = [];
@@ -97,10 +128,20 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   constructor() {
     super();
     this.store.dispatch(loadMyDashboards());
-    this.store.dispatch(loadAvailableContexts());
-    this.store.dispatch(loadDashboardGroups({page: 0, size: 1000, sort: 'name,asc'}));
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup);
-    this.dataDomains$ = this.store.select(selectAllDataDomains);
+    this.eligibleUsers$ = this.store.select(selectEligibleUsers);
+
+    // Subscribe to dashboards for the current domain
+    this.store.select(selectMyDashboards).subscribe(dashboards => {
+      this.allDashboards = dashboards.filter(d => d.contextKey === this.currentContextKey);
+      this.applyDashboardFilter();
+    });
+
+    // Subscribe to eligible users
+    this.eligibleUsers$.subscribe(users => {
+      this.allEligibleUsers = users;
+      this.applyUserFilter();
+    });
 
     // Load all dashboard groups for validation
     this.store.select(selectDashboardGroups).subscribe(groups => {
@@ -113,8 +154,32 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup).pipe(
       tap((dashboardGroup) => {
         if (dashboardGroup) {
+          this.currentContextKey = dashboardGroup.contextKey;
+          this.store.dispatch(setActiveContextKey({contextKey: this.currentContextKey}));
+          this.store.dispatch(loadDashboardGroups({
+            contextKey: this.currentContextKey,
+            page: 0,
+            size: 1000,
+            sort: 'name,asc'
+          }));
+          this.store.dispatch(loadEligibleUsers({contextKey: this.currentContextKey}));
+
+          // Get domain name
+          this.store.select(selectAllAvailableDataDomains).pipe(take(1)).subscribe(domains => {
+            const domain = domains.find(d => d.key === this.currentContextKey);
+            if (domain) {
+              this.currentDomainName = domain.name;
+            }
+          });
+
+          // Reload dashboards for this domain
+          this.store.select(selectMyDashboards).pipe(take(1)).subscribe(dashboards => {
+            this.allDashboards = dashboards.filter(d => d.contextKey === this.currentContextKey);
+            this.applyDashboardFilter();
+          });
+
           this.initForm(dashboardGroup);
-          this.initSelectedDashboards(dashboardGroup);
+          this.initSelectedItems(dashboardGroup);
           if (dashboardGroup.id) {
             this.createEditBreadcrumbs();
           } else {
@@ -126,22 +191,26 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   }
 
   navigateToList() {
-    this.store.dispatch(navigate({url: naviElements.dashboardGroups.path}));
+    this.store.dispatch(navigate({url: `${naviElements.dashboardGroups.path}/list/${this.currentContextKey}`}));
   }
 
   saveDashboardGroup(editedDashboardGroup: DashboardGroup) {
     const formValue = this.dashboardGroupForm.getRawValue();
 
-    // Collect all entries from selectedDashboardsByDomain
-    const allEntries: DashboardGroupEntry[] = [];
-    this.selectedDashboardsByDomain.forEach((entries) => {
-      allEntries.push(...entries);
-    });
+    const entries: DashboardGroupEntry[] = this.allDashboards
+      .filter(d => this.selectedDashboardIds.has(d.id))
+      .map(d => ({dashboardId: d.id, dashboardTitle: d.dashboardTitle}));
+
+    const users: DashboardGroupUserEntry[] = this.allEligibleUsers
+      .filter(u => this.selectedUserIds.has(u.id))
+      .map(u => ({id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, roleName: u.roleName}));
 
     const dashboardGroup: DashboardGroupCreateUpdate = {
       id: editedDashboardGroup.id,
       name: formValue.name,
-      entries: allEntries
+      contextKey: this.currentContextKey,
+      entries,
+      users
     };
     this.store.dispatch(saveChangesToDashboardGroup({dashboardGroup}));
   }
@@ -154,13 +223,98 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     return deleteDashboardGroup();
   }
 
-  onDashboardsSelected(contextKey: string, entries: DashboardGroupEntry[], editedDashboardGroup: DashboardGroup) {
-    this.selectedDashboardsByDomain.set(contextKey, entries);
+  // Dashboard selection methods
+  onDashboardSelectionChange(dashboardId: number, checked: boolean, editedDashboardGroup: DashboardGroup) {
+    if (checked) {
+      this.selectedDashboardIds.add(dashboardId);
+    } else {
+      this.selectedDashboardIds.delete(dashboardId);
+    }
+    this.updateSelectAllDashboardsState();
     this.onChange(editedDashboardGroup);
   }
 
-  getPreselectedEntriesForDomain(contextKey: string): DashboardGroupEntry[] {
-    return this.selectedDashboardsByDomain.get(contextKey) || [];
+  onSelectAllDashboardsChange(checked: boolean, editedDashboardGroup: DashboardGroup) {
+    this.selectAllDashboards = checked;
+    if (checked) {
+      this.filteredDashboards.forEach(d => this.selectedDashboardIds.add(d.id));
+    } else {
+      this.filteredDashboards.forEach(d => this.selectedDashboardIds.delete(d.id));
+    }
+    this.onChange(editedDashboardGroup);
+  }
+
+  isDashboardSelected(dashboardId: number): boolean {
+    return this.selectedDashboardIds.has(dashboardId);
+  }
+
+  onDashboardSearchChange() {
+    this.applyDashboardFilter();
+    this.updateSelectAllDashboardsState();
+  }
+
+  private applyDashboardFilter() {
+    if (!this.dashboardSearchFilter) {
+      this.filteredDashboards = [...this.allDashboards];
+    } else {
+      const filter = this.dashboardSearchFilter.toLowerCase();
+      this.filteredDashboards = this.allDashboards.filter(d =>
+        d.dashboardTitle.toLowerCase().includes(filter)
+      );
+    }
+  }
+
+  private updateSelectAllDashboardsState() {
+    this.selectAllDashboards = this.filteredDashboards.length > 0 &&
+      this.filteredDashboards.every(d => this.selectedDashboardIds.has(d.id));
+  }
+
+  // User selection methods
+  onUserSelectionChange(userId: string, checked: boolean, editedDashboardGroup: DashboardGroup) {
+    if (checked) {
+      this.selectedUserIds.add(userId);
+    } else {
+      this.selectedUserIds.delete(userId);
+    }
+    this.updateSelectAllUsersState();
+    this.onChange(editedDashboardGroup);
+  }
+
+  onSelectAllUsersChange(checked: boolean, editedDashboardGroup: DashboardGroup) {
+    this.selectAllUsers = checked;
+    if (checked) {
+      this.filteredUsers.forEach(u => this.selectedUserIds.add(u.id));
+    } else {
+      this.filteredUsers.forEach(u => this.selectedUserIds.delete(u.id));
+    }
+    this.onChange(editedDashboardGroup);
+  }
+
+  isUserSelected(userId: string): boolean {
+    return this.selectedUserIds.has(userId);
+  }
+
+  onUserSearchChange() {
+    this.applyUserFilter();
+    this.updateSelectAllUsersState();
+  }
+
+  private applyUserFilter() {
+    if (!this.userSearchFilter) {
+      this.filteredUsers = [...this.allEligibleUsers];
+    } else {
+      const filter = this.userSearchFilter.toLowerCase();
+      this.filteredUsers = this.allEligibleUsers.filter(u =>
+        u.firstName.toLowerCase().includes(filter) ||
+        u.lastName.toLowerCase().includes(filter) ||
+        u.email.toLowerCase().includes(filter)
+      );
+    }
+  }
+
+  private updateSelectAllUsersState() {
+    this.selectAllUsers = this.filteredUsers.length > 0 &&
+      this.filteredUsers.every(u => this.selectedUserIds.has(u.id));
   }
 
   ngOnDestroy(): void {
@@ -198,32 +352,43 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
     return nameExists ? {duplicateName: true} : null;
   }
 
-  private initSelectedDashboards(dashboardGroup: DashboardGroup) {
-    // Group entries by contextKey
-    this.selectedDashboardsByDomain.clear();
+  private initSelectedItems(dashboardGroup: DashboardGroup) {
+    this.selectedDashboardIds.clear();
+    this.selectedUserIds.clear();
+
     if (dashboardGroup.entries) {
       dashboardGroup.entries.forEach(entry => {
-        if (!this.selectedDashboardsByDomain.has(entry.contextKey)) {
-          this.selectedDashboardsByDomain.set(entry.contextKey, []);
-        }
-        this.selectedDashboardsByDomain.get(entry.contextKey)?.push(entry);
+        this.selectedDashboardIds.add(entry.dashboardId);
       });
     }
+
+    if (dashboardGroup.users) {
+      dashboardGroup.users.forEach(user => {
+        this.selectedUserIds.add(user.id);
+      });
+    }
+
+    this.updateSelectAllDashboardsState();
+    this.updateSelectAllUsersState();
   }
 
   private onChange(editedDashboardGroup: DashboardGroup) {
     const formValue = this.dashboardGroupForm.getRawValue();
 
-    // Collect all entries from selectedDashboardsByDomain
-    const allEntries: DashboardGroupEntry[] = [];
-    this.selectedDashboardsByDomain.forEach((entries) => {
-      allEntries.push(...entries);
-    });
+    const entries: DashboardGroupEntry[] = this.allDashboards
+      .filter(d => this.selectedDashboardIds.has(d.id))
+      .map(d => ({dashboardId: d.id, dashboardTitle: d.dashboardTitle}));
+
+    const users: DashboardGroupUserEntry[] = this.allEligibleUsers
+      .filter(u => this.selectedUserIds.has(u.id))
+      .map(u => ({id: u.id, email: u.email, firstName: u.firstName, lastName: u.lastName, roleName: u.roleName}));
 
     const dashboardGroup: DashboardGroupCreateUpdate = {
       id: editedDashboardGroup.id,
       name: formValue.name,
-      entries: allEntries
+      contextKey: this.currentContextKey,
+      entries,
+      users
     };
     this.store.dispatch(markUnsavedChanges({
       action: saveChangesToDashboardGroup({dashboardGroup}),
@@ -236,7 +401,10 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       breadcrumbs: [
         {
           label: naviElements.dashboardGroups.label,
-          routerLink: naviElements.dashboardGroups.path,
+        },
+        {
+          label: this.currentDomainName,
+          routerLink: `${naviElements.dashboardGroups.path}/list/${this.currentContextKey}`,
         },
         {
           label: naviElements.dashboardGroupCreate.label,
@@ -250,7 +418,10 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       breadcrumbs: [
         {
           label: naviElements.dashboardGroups.label,
-          routerLink: naviElements.dashboardGroups.path,
+        },
+        {
+          label: this.currentDomainName,
+          routerLink: `${naviElements.dashboardGroups.path}/list/${this.currentContextKey}`,
         },
         {
           label: naviElements.dashboardGroupEdit.label,

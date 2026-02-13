@@ -165,12 +165,16 @@ export const naviElements: any = {
     path: 'dashboard-groups',
     label: '@Dashboard groups'
   },
+  dashboardGroupsList: {
+    path: 'list/:contextKey',
+    label: '@List'
+  },
   dashboardGroupEdit: {
-    path: 'edit/:groupId',
+    path: ':contextKey/edit/:groupId',
     label: '@Edit'
   },
   dashboardGroupCreate: {
-    path: 'create',
+    path: ':contextKey/create',
     label: '@Create'
   },
   dashboardCopy: {

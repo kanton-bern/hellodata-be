@@ -33,6 +33,7 @@ import {selectRouteParam} from "../router/router.selectors";
 const dashboardGroupsState = (state: AppState) => state.dashboardGroups;
 
 export const selectParamDashboardGroupId = selectRouteParam('groupId');
+export const selectParamDashboardGroupContextKey = selectRouteParam('contextKey');
 
 export const selectDashboardGroups = createSelector(
   dashboardGroupsState,
@@ -68,5 +69,15 @@ export const selectDashboardGroupNameExists = (name: string, excludeId?: string)
       group.id !== excludeId
     );
   }
+);
+
+export const selectActiveContextKey = createSelector(
+  dashboardGroupsState,
+  (state: DashboardGroupsState) => state.activeContextKey
+);
+
+export const selectEligibleUsers = createSelector(
+  dashboardGroupsState,
+  (state: DashboardGroupsState) => state.eligibleUsers
 );
 

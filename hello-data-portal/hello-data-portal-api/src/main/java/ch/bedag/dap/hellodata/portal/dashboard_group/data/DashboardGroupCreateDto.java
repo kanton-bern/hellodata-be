@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.dashboard_group.data;
 
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
+import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import lombok.Data;
 
 import java.util.List;
@@ -34,5 +35,7 @@ import java.util.List;
 @Data
 public class DashboardGroupCreateDto {
     private String name;
+    private String contextKey;
     private List<DashboardGroupEntry> entries;
+    private List<DashboardGroupUserEntry> users;
 }

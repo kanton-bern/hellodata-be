@@ -27,10 +27,13 @@
 package ch.bedag.dap.hellodata.portal.dashboard_group.service;
 
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupCreateDto;
+import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDomainUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupUpdateDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
+import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
+import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
@@ -41,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,15 +53,16 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DashboardGroupService {
     private final DashboardGroupRepository dashboardGroupRepository;
+    private final UserContextRoleRepository userContextRoleRepository;
     private final ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
-    public Page<DashboardGroupDto> getAllDashboardGroups(Pageable pageable, String search) {
+    public Page<DashboardGroupDto> getAllDashboardGroups(String contextKey, Pageable pageable, String search) {
         Page<DashboardGroupEntity> page;
         if (search != null && !search.isBlank()) {
-            page = dashboardGroupRepository.searchByNameOrDashboardTitle(search, pageable);
+            page = dashboardGroupRepository.searchByContextKeyAndNameOrDashboardTitle(contextKey, search, pageable);
         } else {
-            page = dashboardGroupRepository.findAll(pageable);
+            page = dashboardGroupRepository.findAllByContextKey(contextKey, pageable);
         }
         return page.map(entity -> modelMapper.map(entity, DashboardGroupDto.class));
     }
@@ -74,9 +79,8 @@ public class DashboardGroupService {
 
     @Transactional
     public void create(DashboardGroupCreateDto createDto) {
-        // Check if name already exists
-        if (dashboardGroupRepository.existsByNameIgnoreCase(createDto.getName())) {
-            log.error("Dashboard group with name '{}' already exists", createDto.getName());
+        if (dashboardGroupRepository.existsByNameIgnoreCaseAndContextKey(createDto.getName(), createDto.getContextKey())) {
+            log.error("Dashboard group with name '{}' already exists in context '{}'", createDto.getName(), createDto.getContextKey());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Dashboard group with this name already exists");
         }
         DashboardGroupEntity entity = modelMapper.map(createDto, DashboardGroupEntity.class);
@@ -90,9 +94,8 @@ public class DashboardGroupService {
             log.error("Dashboard group with id {} not found", updateDto.getId());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        // Check if name already exists for another group
-        if (dashboardGroupRepository.existsByNameIgnoreCaseAndIdNot(updateDto.getName(), updateDto.getId())) {
-            log.error("Dashboard group with name '{}' already exists", updateDto.getName());
+        if (dashboardGroupRepository.existsByNameIgnoreCaseAndContextKeyAndIdNot(updateDto.getName(), updateDto.getContextKey(), updateDto.getId())) {
+            log.error("Dashboard group with name '{}' already exists in context '{}'", updateDto.getName(), updateDto.getContextKey());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Dashboard group with this name already exists");
         }
         DashboardGroupEntity entityToUpdate = entity.get();
@@ -103,5 +106,20 @@ public class DashboardGroupService {
     @Transactional
     public void delete(UUID id) {
         dashboardGroupRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DashboardGroupDomainUserDto> getEligibleUsersForDomain(String contextKey) {
+        List<String> roleNames = List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_BUSINESS_SPECIALIST");
+        List<UserContextRoleEntity> userContextRoles = userContextRoleRepository.findByContextKeyAndRoleNames(contextKey, roleNames);
+        return userContextRoles.stream()
+                .map(ucr -> new DashboardGroupDomainUserDto(
+                        ucr.getUser().getId().toString(),
+                        ucr.getUser().getEmail(),
+                        ucr.getUser().getFirstName(),
+                        ucr.getUser().getLastName(),
+                        ucr.getRole().getName().name()
+                ))
+                .toList();
     }
 }

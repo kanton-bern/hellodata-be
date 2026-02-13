@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.dashboard_group.data;
 
 import ch.bedag.dap.hellodata.portal.base.config.LocalDateTimeToMillisSerializer;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
+import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
@@ -38,7 +39,9 @@ import java.util.List;
 public class DashboardGroupDto {
     private String id;
     private String name;
+    private String contextKey;
     private List<DashboardGroupEntry> entries;
+    private List<DashboardGroupUserEntry> users;
     @JsonSerialize(using = LocalDateTimeToMillisSerializer.class)
     private LocalDateTime createdDate;
     private String createdBy;

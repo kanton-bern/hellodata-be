@@ -26,7 +26,7 @@
 ///
 
 import {createAction, props} from "@ngrx/store";
-import {DashboardGroup, DashboardGroupCreateUpdate} from "./dashboard-groups.model";
+import {DashboardGroup, DashboardGroupCreateUpdate, DashboardGroupDomainUser} from "./dashboard-groups.model";
 
 export enum DashboardGroupsActionType {
   LOAD_DASHBOARD_GROUPS = '[DASHBOARD GROUPS] Load dashboard groups',
@@ -40,11 +40,14 @@ export enum DashboardGroupsActionType {
   HIDE_DELETE_DASHBOARD_GROUP_POPUP = '[DASHBOARD GROUPS] Hide delete dashboard group popup',
   DELETE_DASHBOARD_GROUP = '[DASHBOARD GROUPS] Delete dashboard group',
   DELETE_DASHBOARD_GROUP_SUCCESS = '[DASHBOARD GROUPS] Delete dashboard group success',
+  SET_ACTIVE_CONTEXT_KEY = '[DASHBOARD GROUPS] Set active context key',
+  LOAD_ELIGIBLE_USERS = '[DASHBOARD GROUPS] Load eligible users',
+  LOAD_ELIGIBLE_USERS_SUCCESS = '[DASHBOARD GROUPS] Load eligible users success',
 }
 
 export const loadDashboardGroups = createAction(
   DashboardGroupsActionType.LOAD_DASHBOARD_GROUPS,
-  props<{ page: number; size: number; sort?: string; search?: string }>()
+  props<{ contextKey: string; page: number; size: number; sort?: string; search?: string }>()
 );
 
 export const loadDashboardGroupsSuccess = createAction(
@@ -91,3 +94,19 @@ export const deleteDashboardGroup = createAction(
 export const deleteDashboardGroupSuccess = createAction(
   DashboardGroupsActionType.DELETE_DASHBOARD_GROUP_SUCCESS
 );
+
+export const setActiveContextKey = createAction(
+  DashboardGroupsActionType.SET_ACTIVE_CONTEXT_KEY,
+  props<{ contextKey: string }>()
+);
+
+export const loadEligibleUsers = createAction(
+  DashboardGroupsActionType.LOAD_ELIGIBLE_USERS,
+  props<{ contextKey: string }>()
+);
+
+export const loadEligibleUsersSuccess = createAction(
+  DashboardGroupsActionType.LOAD_ELIGIBLE_USERS_SUCCESS,
+  props<{ users: DashboardGroupDomainUser[] }>()
+);
+

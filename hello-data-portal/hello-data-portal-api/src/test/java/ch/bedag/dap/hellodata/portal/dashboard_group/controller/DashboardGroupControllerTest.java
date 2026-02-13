@@ -52,7 +52,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
     @Test
     void getAllDashboardGroups_userLoggedInNoPrivileges() throws Exception {
         // given / when / then
-        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups?page=0&size=10")
+        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups?contextKey=testDomain&page=0&size=10")
                 .header("authorization", generateToken(new HashSet<>()))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
     }
@@ -60,7 +60,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
     @Test
     void getAllDashboardGroups_userLoggedInHasPrivileges() throws Exception {
         // given / when / then
-        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups?page=0&size=10")
+        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups?contextKey=testDomain&page=0&size=10")
                 .header("authorization", generateToken(Set.of("DASHBOARD_GROUPS_MANAGEMENT")))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
@@ -88,11 +88,28 @@ class DashboardGroupControllerTest extends HDControllerTest {
     }
 
     @Test
+    void getEligibleUsers_userLoggedInNoPrivileges() throws Exception {
+        // given / when / then
+        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups/eligible-users?contextKey=testDomain")
+                .header("authorization", generateToken(new HashSet<>()))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getEligibleUsers_userLoggedInHasPrivileges() throws Exception {
+        // given / when / then
+        mockMvc.perform(MockMvcRequestBuilders.get("/dashboard-groups/eligible-users?contextKey=testDomain")
+                .header("authorization", generateToken(Set.of("DASHBOARD_GROUPS_MANAGEMENT")))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
     void createDashboardGroup_userLoggedInNoPrivileges() throws Exception {
         // given
         DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
         createDto.setName("Test Group");
-        createDto.setEntries(List.of(new DashboardGroupEntry("ctx1", 1, "Dashboard 1")));
+        createDto.setContextKey("ctx1");
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.post("/dashboard-groups")
@@ -106,7 +123,8 @@ class DashboardGroupControllerTest extends HDControllerTest {
         // given
         DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
         createDto.setName("Test Group");
-        createDto.setEntries(List.of(new DashboardGroupEntry("ctx1", 1, "Dashboard 1")));
+        createDto.setContextKey("ctx1");
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.post("/dashboard-groups")
@@ -121,7 +139,8 @@ class DashboardGroupControllerTest extends HDControllerTest {
         DashboardGroupUpdateDto updateDto = new DashboardGroupUpdateDto();
         updateDto.setId(UUID.randomUUID());
         updateDto.setName("Updated Group");
-        updateDto.setEntries(List.of(new DashboardGroupEntry("ctx1", 1, "Dashboard 1")));
+        updateDto.setContextKey("ctx1");
+        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.put("/dashboard-groups")
@@ -136,7 +155,8 @@ class DashboardGroupControllerTest extends HDControllerTest {
         DashboardGroupUpdateDto updateDto = new DashboardGroupUpdateDto();
         updateDto.setId(UUID.randomUUID());
         updateDto.setName("Updated Group");
-        updateDto.setEntries(List.of(new DashboardGroupEntry("ctx1", 1, "Dashboard 1")));
+        updateDto.setContextKey("ctx1");
+        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.put("/dashboard-groups")

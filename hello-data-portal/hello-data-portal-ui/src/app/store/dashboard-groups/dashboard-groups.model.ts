@@ -26,15 +26,32 @@
 ///
 
 export interface DashboardGroupEntry {
-  contextKey: string;
   dashboardId: number;
   dashboardTitle: string;
+}
+
+export interface DashboardGroupUserEntry {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roleName: string;
+}
+
+export interface DashboardGroupDomainUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roleName: string;
 }
 
 export interface DashboardGroup {
   id?: string;
   name: string;
+  contextKey: string;
   entries: DashboardGroupEntry[];
+  users: DashboardGroupUserEntry[];
   createdDate?: number;
   createdBy?: string;
   modifiedDate?: number;
@@ -44,5 +61,7 @@ export interface DashboardGroup {
 export interface DashboardGroupCreateUpdate {
   id?: string;
   name: string;
+  contextKey: string;
   entries: DashboardGroupEntry[];
+  users: DashboardGroupUserEntry[];
 }

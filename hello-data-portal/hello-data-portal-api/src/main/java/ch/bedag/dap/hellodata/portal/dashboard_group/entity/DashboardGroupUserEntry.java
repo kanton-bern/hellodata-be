@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright © 2024, Kanton Bern
  * All rights reserved.
  *
@@ -24,26 +24,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package ch.bedag.dap.hellodata.portal.dashboard_group.entity;
 
-// Fix iconfield positioning within tabs
-:host ::ng-deep {
-  p-iconfield {
-    position: relative;
-    display: inline-flex;
-    width: auto;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    p-inputicon {
-      position: absolute;
-      left: 0.75rem;
-      top: 50%;
-      color: var(--p-text-muted-color);
-      z-index: 1;
-    }
-
-    input {
-      padding-left: 2.5rem;
-      width: 250px;
-    }
-  }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class DashboardGroupUserEntry {
+    private String id;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private String roleName;
 }
-

@@ -28,6 +28,7 @@ package ch.bedag.dap.hellodata.portal.dashboard_group.controller;
 
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupCreateDto;
+import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDomainUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupUpdateDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
@@ -38,6 +39,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -49,18 +51,26 @@ public class DashboardGroupController {
 
     @GetMapping
     public ResponseEntity<Page<DashboardGroupDto>> getAllDashboardGroups(
+            @RequestParam String contextKey,
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String search) {
         Pageable pageable = PageUtil.createPageable(page, size, sort);
-        Page<DashboardGroupDto> result = dashboardGroupService.getAllDashboardGroups(pageable, search);
+        Page<DashboardGroupDto> result = dashboardGroupService.getAllDashboardGroups(contextKey, pageable, search);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
     public DashboardGroupDto getDashboardGroupById(@PathVariable UUID id) {
         return dashboardGroupService.getDashboardGroupById(id);
+    }
+
+    @GetMapping("/eligible-users")
+    public ResponseEntity<List<DashboardGroupDomainUserDto>> getEligibleUsersForDomain(
+            @RequestParam String contextKey) {
+        List<DashboardGroupDomainUserDto> users = dashboardGroupService.getEligibleUsersForDomain(contextKey);
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping

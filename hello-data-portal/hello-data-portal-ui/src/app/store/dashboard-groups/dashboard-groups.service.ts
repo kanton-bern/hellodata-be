@@ -28,7 +28,7 @@
 import {inject, Injectable} from "@angular/core";
 import {Observable} from "rxjs";
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {DashboardGroup, DashboardGroupCreateUpdate} from "./dashboard-groups.model";
+import {DashboardGroup, DashboardGroupCreateUpdate, DashboardGroupDomainUser} from "./dashboard-groups.model";
 import {environment} from "../../../environments/environment";
 
 export interface PageResponse<T> {
@@ -43,8 +43,9 @@ export class DashboardGroupsService {
   protected httpClient = inject(HttpClient);
   baseUrl = `${environment.portalApi}/dashboard-groups`;
 
-  public getDashboardGroups(page: number, size: number, sort?: string, search?: string): Observable<PageResponse<DashboardGroup>> {
+  public getDashboardGroups(contextKey: string, page: number, size: number, sort?: string, search?: string): Observable<PageResponse<DashboardGroup>> {
     let params = new HttpParams()
+      .set('contextKey', contextKey)
       .set('page', page.toString())
       .set('size', size.toString());
     if (sort) {
@@ -58,6 +59,11 @@ export class DashboardGroupsService {
 
   public getDashboardGroupById(id: string): Observable<DashboardGroup> {
     return this.httpClient.get<DashboardGroup>(`${this.baseUrl}/${id}`);
+  }
+
+  public getEligibleUsersForDomain(contextKey: string): Observable<DashboardGroupDomainUser[]> {
+    const params = new HttpParams().set('contextKey', contextKey);
+    return this.httpClient.get<DashboardGroupDomainUser[]>(`${this.baseUrl}/eligible-users`, {params});
   }
 
   public createDashboardGroup(dashboardGroup: DashboardGroupCreateUpdate): Observable<any> {

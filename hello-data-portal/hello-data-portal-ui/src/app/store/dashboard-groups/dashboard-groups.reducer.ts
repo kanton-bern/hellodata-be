@@ -29,10 +29,12 @@ import {createReducer, on} from "@ngrx/store";
 import {DashboardGroupsState, initialDashboardGroupsState} from "./dashboard-groups.state";
 import {
   hideDeleteDashboardGroupPopup,
-  loadDashboardGroups,
   loadDashboardGroupByIdSuccess,
+  loadDashboardGroups,
   loadDashboardGroupsSuccess,
+  loadEligibleUsersSuccess,
   openDashboardGroupEdition,
+  setActiveContextKey,
   showDeleteDashboardGroupPopup
 } from "./dashboard-groups.action";
 
@@ -55,13 +57,30 @@ export const dashboardGroupsReducer = createReducer(
   on(openDashboardGroupEdition, (state: DashboardGroupsState, {dashboardGroup}): DashboardGroupsState => {
     return {
       ...state,
-      editedDashboardGroup: dashboardGroup || {name: '', entries: []}
+      editedDashboardGroup: dashboardGroup || {
+        name: '',
+        contextKey: state.activeContextKey || '',
+        entries: [],
+        users: []
+      }
     };
   }),
   on(loadDashboardGroupByIdSuccess, (state: DashboardGroupsState, {dashboardGroup}): DashboardGroupsState => {
     return {
       ...state,
       editedDashboardGroup: dashboardGroup
+    };
+  }),
+  on(setActiveContextKey, (state: DashboardGroupsState, {contextKey}): DashboardGroupsState => {
+    return {
+      ...state,
+      activeContextKey: contextKey
+    };
+  }),
+  on(loadEligibleUsersSuccess, (state: DashboardGroupsState, {users}): DashboardGroupsState => {
+    return {
+      ...state,
+      eligibleUsers: users
     };
   }),
   on(showDeleteDashboardGroupPopup, (state: DashboardGroupsState, {dashboardGroup}): DashboardGroupsState => {

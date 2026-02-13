@@ -1,7 +1,7 @@
 <div class="card">
   @if ((editedDashboardGroup$ | async); as editedDashboardGroup) {
     <form [formGroup]="dashboardGroupForm">
-      <h5>{{ '@Dashboard group' | transloco }}</h5>
+      <h5>{{ '@Dashboard group' | transloco }} - {{ currentDomainName }}</h5>
       @if (editedDashboardGroup.createdDate) {
         <div class="field grid grid-cols-12 gap-4 mb-1">
           <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
@@ -77,39 +77,89 @@
 
       <p-divider/>
 
-      <h5>{{ '@Dashboard entries' | transloco }}</h5>
-
-      @if ((dataDomains$ | async); as dataDomains) {
-        <div>
-          <div class="field grid grid-cols-12 gap-4">
-            <div class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Data Domain' | transloco }}
-            </div>
-            <div class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Domain Type' | transloco }}
-            </div>
-            <div class="col-span-12 mb-2 md:col-span-8 md:mb-0 font-medium text-lg">{{ '@Dashboards' | transloco }}
-            </div>
-          </div>
-          <br>
-          <div class="col-span-12 md:col-span-12">
-            @for (dataDomain of dataDomains; track dataDomain.contextKey) {
-              <div>
-                <div class="field grid grid-cols-12 gap-4">
-                  <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.name }}</span>
-                  <span
-                    class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</span>
-                  <div class="col-span-12 md:col-span-8">
-                    <app-dashboard-group-selector
-                      [contextKey]="dataDomain.contextKey!"
-                      [preselectedEntries]="getPreselectedEntriesForDomain(dataDomain.contextKey!)"
-                      (selectedDashboardsEvent)="onDashboardsSelected(dataDomain.contextKey!, $event, editedDashboardGroup)"/>
-                  </div>
-                </div>
-                <p-divider/>
+      <p-tabs value="0">
+        <p-tablist>
+          <p-tab value="0">
+            <i class="fas fa-chart-pie mr-2"></i>
+            {{ '@Dashboards' | transloco }} ({{ selectedDashboardIds.size }})
+          </p-tab>
+          <p-tab value="1">
+            <i class="fas fa-users mr-2"></i>
+            {{ '@Users' | transloco }} ({{ selectedUserIds.size }})
+          </p-tab>
+        </p-tablist>
+        <p-tabpanels>
+          <!-- Dashboards Tab -->
+          <p-tabpanel value="0">
+            <div class="mb-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <p-checkbox [(ngModel)]="selectAllDashboards" [ngModelOptions]="{standalone: true}"
+                            (ngModelChange)="onSelectAllDashboardsChange($event, editedDashboardGroup)"
+                            [binary]="true" inputId="selectAllDashboards"/>
+                <label for="selectAllDashboards">{{ '@Select all' | transloco }}</label>
               </div>
-            }
-          </div>
-        </div>
-      }
+              <p-iconfield>
+                <p-inputicon class="pi pi-search"/>
+                <input pInputText [(ngModel)]="dashboardSearchFilter" [ngModelOptions]="{standalone: true}"
+                       (ngModelChange)="onDashboardSearchChange()"
+                       placeholder="{{ '@Search dashboards' | transloco }}" type="text"/>
+              </p-iconfield>
+            </div>
+            <div class="dashboard-list max-h-96 overflow-y-auto border border-surface rounded-border p-2">
+              @if (filteredDashboards.length === 0) {
+                <div class="text-gray-400 p-4 text-center">{{ '@No dashboards available' | transloco }}</div>
+              } @else {
+                @for (dashboard of filteredDashboards; track dashboard.id) {
+                  <div class="flex items-center gap-3 p-2 hover:bg-surface-100 rounded-border">
+                    <p-checkbox [ngModel]="isDashboardSelected(dashboard.id)" [ngModelOptions]="{standalone: true}"
+                                (ngModelChange)="onDashboardSelectionChange(dashboard.id, $event, editedDashboardGroup)"
+                                [binary]="true" [inputId]="'dashboard-' + dashboard.id"/>
+                    <label [for]="'dashboard-' + dashboard.id" class="cursor-pointer flex-1">
+                      {{ dashboard.dashboardTitle }}
+                    </label>
+                  </div>
+                }
+              }
+            </div>
+          </p-tabpanel>
+
+          <!-- Users Tab -->
+          <p-tabpanel value="1">
+            <div class="mb-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <p-checkbox [(ngModel)]="selectAllUsers" [ngModelOptions]="{standalone: true}"
+                            (ngModelChange)="onSelectAllUsersChange($event, editedDashboardGroup)"
+                            [binary]="true" inputId="selectAllUsers"/>
+                <label for="selectAllUsers">{{ '@Select all' | transloco }}</label>
+              </div>
+              <p-iconfield>
+                <p-inputicon class="pi pi-search"/>
+                <input pInputText [(ngModel)]="userSearchFilter" [ngModelOptions]="{standalone: true}"
+                       (ngModelChange)="onUserSearchChange()"
+                       placeholder="{{ '@Search users' | transloco }}" type="text"/>
+              </p-iconfield>
+            </div>
+            <div class="user-list max-h-96 overflow-y-auto border border-surface rounded-border p-2">
+              @if (filteredUsers.length === 0) {
+                <div class="text-gray-400 p-4 text-center">{{ '@No users available' | transloco }}</div>
+              } @else {
+                @for (user of filteredUsers; track user.id) {
+                  <div class="flex items-center gap-3 p-2 hover:bg-surface-100 rounded-border">
+                    <p-checkbox [ngModel]="isUserSelected(user.id)" [ngModelOptions]="{standalone: true}"
+                                (ngModelChange)="onUserSelectionChange(user.id, $event, editedDashboardGroup)"
+                                [binary]="true" [inputId]="'user-' + user.id"/>
+                    <label [for]="'user-' + user.id" class="cursor-pointer flex-1">
+                      <span class="font-semibold">{{ user.firstName }} {{ user.lastName }}</span>
+                      <span class="text-gray-500 ml-2">{{ user.email }}</span>
+                      <span class="text-sm ml-2 bg-surface-200 px-2 py-1 rounded-border">{{ user.roleName }}</span>
+                    </label>
+                  </div>
+                }
+              }
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
 
       <p-toolbar class="mt-4">
         <div class="p-toolbar-group-start">

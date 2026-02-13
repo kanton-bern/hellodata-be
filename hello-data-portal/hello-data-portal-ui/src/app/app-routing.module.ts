@@ -376,7 +376,7 @@ const routes: Routes = [
     },
     children: [
       {
-        path: '',
+        path: naviElements.dashboardGroupsList.path,
         loadComponent: () => import('./pages/admin/dashboard-groups/dashboard-groups.component').then(m => m.DashboardGroupsComponent),
         canActivate: [AutoLoginPartialRoutesGuard, PermissionsGuard],
         data: {
