@@ -82,7 +82,7 @@ import {
 import {SupersetDashboard} from '../../../../store/my-dashboards/my-dashboards.model';
 import {Tab, TabList, TabPanel, TabPanels, Tabs} from 'primeng/tabs';
 import {Checkbox} from 'primeng/checkbox';
-import {take} from 'rxjs/operators';
+import {filter, take} from 'rxjs/operators';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 
@@ -164,11 +164,22 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
           }));
           this.store.dispatch(loadEligibleUsers({contextKey: this.currentContextKey}));
 
-          // Get domain name
-          this.store.select(selectAllAvailableDataDomains).pipe(take(1)).subscribe(domains => {
+          // Get domain name and create breadcrumbs - wait for domains to be loaded
+          this.store.select(selectAllAvailableDataDomains).pipe(
+            filter(domains => domains.length > 0),
+            take(1)
+          ).subscribe(domains => {
             const domain = domains.find(d => d.key === this.currentContextKey);
             if (domain) {
               this.currentDomainName = domain.name;
+            } else {
+              this.currentDomainName = this.currentContextKey;
+            }
+            // Create breadcrumbs after domain name is resolved
+            if (dashboardGroup.id) {
+              this.createEditBreadcrumbs();
+            } else {
+              this.createCreateBreadcrumbs();
             }
           });
 
@@ -180,11 +191,6 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
 
           this.initForm(dashboardGroup);
           this.initSelectedItems(dashboardGroup);
-          if (dashboardGroup.id) {
-            this.createEditBreadcrumbs();
-          } else {
-            this.createCreateBreadcrumbs();
-          }
         }
       })
     );

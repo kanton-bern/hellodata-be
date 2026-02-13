@@ -45,6 +45,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
+import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
@@ -106,6 +107,7 @@ public class UserService {
     private final UserLookupProviderManager userLookupProviderManager;
     private final HelloDataContextConfig helloDataContextConfig;
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
+    private final DashboardGroupService dashboardGroupService;
 
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
@@ -665,14 +667,35 @@ public class UserService {
 
         if (!updateContextRolesForUserDto.getBusinessDomainRole().getName().equalsIgnoreCase(HdRoleName.NONE.name())) {
             roleService.setAllDataDomainRolesForUser(userEntity, HdRoleName.DATA_DOMAIN_ADMIN);
+            // User gets DATA_DOMAIN_ADMIN in all domains - remove from all dashboard groups
+            removeUserFromDashboardGroupsForAllDomains(userId);
         } else if (!CollectionUtils.isEmpty(updateContextRolesForUserDto.getDataDomainRoles())) {
             for (UserContextRoleDto dataDomainRoleForContextDto : updateContextRolesForUserDto.getDataDomainRoles()) {
                 roleService.updateDomainRoleForUser(userEntity, dataDomainRoleForContextDto.getRole(), dataDomainRoleForContextDto.getContext().getContextKey());
+                // Check if role is not eligible for dashboard groups - remove user from groups in this domain
+                removeUserFromDashboardGroupsIfNotEligible(userId, dataDomainRoleForContextDto);
             }
             setRoleForAllRemainingDataDomainsToNone(updateContextRolesForUserDto, userEntity);
         }
         userEntity.setSuperuser(updateContextRolesForUserDto.getBusinessDomainRole().getName().equalsIgnoreCase(HdRoleName.HELLODATA_ADMIN.name()));
         userRepository.save(userEntity);
+    }
+
+    private void removeUserFromDashboardGroupsIfNotEligible(UUID userId, UserContextRoleDto dataDomainRoleForContextDto) {
+        String roleName = dataDomainRoleForContextDto.getRole().getName();
+        boolean isEligibleRole = HdRoleName.DATA_DOMAIN_VIEWER.name().equalsIgnoreCase(roleName) ||
+                HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name().equalsIgnoreCase(roleName);
+        if (!isEligibleRole) {
+            String contextKey = dataDomainRoleForContextDto.getContext().getContextKey();
+            dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
+        }
+    }
+
+    private void removeUserFromDashboardGroupsForAllDomains(UUID userId) {
+        List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
+        for (HdContextEntity dataDomain : allDataDomains) {
+            dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
+        }
     }
 
     private void setRoleForAllRemainingDataDomainsToNone(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity) {

@@ -122,4 +122,24 @@ public class DashboardGroupService {
                 ))
                 .toList();
     }
+
+    /**
+     * Removes a user from all dashboard groups in a specific data domain.
+     * This should be called when a user's role changes to something other than
+     * DATA_DOMAIN_VIEWER or DATA_DOMAIN_BUSINESS_SPECIALIST.
+     *
+     * @param userId     the ID of the user to remove
+     * @param contextKey the context key (data domain) from which to remove the user
+     */
+    @Transactional
+    public void removeUserFromDashboardGroupsInDomain(String userId, String contextKey) {
+        List<DashboardGroupEntity> groups = dashboardGroupRepository.findByContextKeyAndUserId(contextKey, userId);
+        for (DashboardGroupEntity group : groups) {
+            if (group.getUsers() != null) {
+                group.getUsers().removeIf(user -> userId.equals(user.getId()));
+                dashboardGroupRepository.save(group);
+                log.info("Removed user {} from dashboard group '{}' in domain '{}'", userId, group.getName(), contextKey);
+            }
+        }
+    }
 }

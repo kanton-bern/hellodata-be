@@ -62,7 +62,7 @@ import {Badge} from 'primeng/badge';
 import {
   DeleteDashboardGroupPopupComponent
 } from './delete-dashboard-group-popup/delete-dashboard-group-popup.component';
-import {take} from 'rxjs/operators';
+import {filter, take} from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard-groups',
@@ -74,7 +74,7 @@ import {take} from 'rxjs/operators';
 export class DashboardGroupsComponent extends BaseComponent implements OnInit {
   dashboardGroups$: Observable<DashboardGroup[]>;
   loading$: Observable<boolean>;
-  paramContextKey$: Observable<string | null>;
+  paramContextKey$: Observable<string | null | undefined>;
   totalRecords = 0;
   filterValue = '';
   currentContextKey = '';
@@ -96,7 +96,10 @@ export class DashboardGroupsComponent extends BaseComponent implements OnInit {
 
     this.paramContextKey$ = combineLatest([
       this.store.select(selectParamDashboardGroupContextKey),
-      this.store.select(selectAllAvailableDataDomains).pipe(take(1))
+      this.store.select(selectAllAvailableDataDomains).pipe(
+        filter(domains => domains.length > 0),
+        take(1)
+      )
     ]).pipe(
       map(([contextKey, availableDataDomains]) => {
         if (contextKey) {
@@ -106,6 +109,10 @@ export class DashboardGroupsComponent extends BaseComponent implements OnInit {
           if (dataDomain) {
             this.currentDomainName = dataDomain.name;
             this.createBreadcrumbs(dataDomain.name);
+          } else {
+            // Fallback: use contextKey as name if domain not found
+            this.currentDomainName = contextKey;
+            this.createBreadcrumbs(contextKey);
           }
           this.store.dispatch(loadDashboardGroups({
             contextKey,

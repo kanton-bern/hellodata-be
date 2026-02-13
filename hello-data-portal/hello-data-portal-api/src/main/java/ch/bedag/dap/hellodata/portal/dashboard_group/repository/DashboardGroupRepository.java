@@ -34,6 +34,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -56,4 +57,12 @@ public interface DashboardGroupRepository extends JpaRepository<DashboardGroupEn
     boolean existsByNameIgnoreCaseAndContextKey(String name, String contextKey);
 
     boolean existsByNameIgnoreCaseAndContextKeyAndIdNot(String name, String contextKey, UUID id);
+
+    @Query(value = "SELECT * FROM dashboard_group dg WHERE dg.context_key = :contextKey AND " +
+            "EXISTS (SELECT 1 FROM jsonb_array_elements(dg.users) AS u WHERE u->>'id' = :userId)",
+            nativeQuery = true)
+    List<DashboardGroupEntity> findByContextKeyAndUserId(
+            @Param("contextKey") String contextKey, @Param("userId") String userId);
+
+    List<DashboardGroupEntity> findAllByContextKey(String contextKey);
 }

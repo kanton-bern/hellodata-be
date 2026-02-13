@@ -26,18 +26,19 @@
  */
 package ch.bedag.dap.hellodata.portal.dashboard_group.service;
 
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupCreateDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDomainUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.data.DashboardGroupUpdateDto;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
+import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupUserEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.repository.DashboardGroupRepository;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.RoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
-import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -215,5 +216,103 @@ class DashboardGroupServiceTest {
         assertEquals("John", result.get(0).getFirstName());
         assertEquals("Doe", result.get(0).getLastName());
         assertEquals("DATA_DOMAIN_VIEWER", result.get(0).getRoleName());
+    }
+
+    @Test
+    void testRemoveUserFromDashboardGroupsInDomain_userExistsInGroup() {
+        // given
+        String contextKey = "ctx1";
+        String userId = UUID.randomUUID().toString();
+
+        DashboardGroupUserEntry user1 = new DashboardGroupUserEntry(userId, "user1@example.com", "User", "One", "DATA_DOMAIN_VIEWER");
+        DashboardGroupUserEntry user2 = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "user2@example.com", "User", "Two", "DATA_DOMAIN_VIEWER");
+
+        DashboardGroupEntity group = new DashboardGroupEntity();
+        group.setId(UUID.randomUUID());
+        group.setName("Test Group");
+        group.setContextKey(contextKey);
+        group.setUsers(new ArrayList<>(List.of(user1, user2)));
+
+        when(dashboardGroupRepository.findByContextKeyAndUserId(contextKey, userId))
+                .thenReturn(List.of(group));
+
+        // when
+        dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId, contextKey);
+
+        // then
+        verify(dashboardGroupRepository).save(group);
+        assertEquals(1, group.getUsers().size());
+        assertEquals("user2@example.com", group.getUsers().get(0).getEmail());
+    }
+
+    @Test
+    void testRemoveUserFromDashboardGroupsInDomain_userNotInAnyGroup() {
+        // given
+        String contextKey = "ctx1";
+        String userId = UUID.randomUUID().toString();
+
+        when(dashboardGroupRepository.findByContextKeyAndUserId(contextKey, userId))
+                .thenReturn(Collections.emptyList());
+
+        // when
+        dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId, contextKey);
+
+        // then
+        verify(dashboardGroupRepository, never()).save(any());
+    }
+
+    @Test
+    void testRemoveUserFromDashboardGroupsInDomain_multipleGroups() {
+        // given
+        String contextKey = "ctx1";
+        String userId = UUID.randomUUID().toString();
+
+        DashboardGroupUserEntry user1 = new DashboardGroupUserEntry(userId, "user1@example.com", "User", "One", "DATA_DOMAIN_VIEWER");
+        DashboardGroupUserEntry user2 = new DashboardGroupUserEntry(UUID.randomUUID().toString(), "user2@example.com", "User", "Two", "DATA_DOMAIN_VIEWER");
+
+        DashboardGroupEntity group1 = new DashboardGroupEntity();
+        group1.setId(UUID.randomUUID());
+        group1.setName("Group 1");
+        group1.setContextKey(contextKey);
+        group1.setUsers(new ArrayList<>(List.of(user1)));
+
+        DashboardGroupEntity group2 = new DashboardGroupEntity();
+        group2.setId(UUID.randomUUID());
+        group2.setName("Group 2");
+        group2.setContextKey(contextKey);
+        group2.setUsers(new ArrayList<>(List.of(user1, user2)));
+
+        when(dashboardGroupRepository.findByContextKeyAndUserId(contextKey, userId))
+                .thenReturn(List.of(group1, group2));
+
+        // when
+        dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId, contextKey);
+
+        // then
+        verify(dashboardGroupRepository, times(2)).save(any());
+        assertEquals(0, group1.getUsers().size());
+        assertEquals(1, group2.getUsers().size());
+    }
+
+    @Test
+    void testRemoveUserFromDashboardGroupsInDomain_groupWithNullUsers() {
+        // given
+        String contextKey = "ctx1";
+        String userId = UUID.randomUUID().toString();
+
+        DashboardGroupEntity group = new DashboardGroupEntity();
+        group.setId(UUID.randomUUID());
+        group.setName("Test Group");
+        group.setContextKey(contextKey);
+        group.setUsers(null);
+
+        when(dashboardGroupRepository.findByContextKeyAndUserId(contextKey, userId))
+                .thenReturn(List.of(group));
+
+        // when
+        dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId, contextKey);
+
+        // then
+        verify(dashboardGroupRepository, never()).save(any());
     }
 }
