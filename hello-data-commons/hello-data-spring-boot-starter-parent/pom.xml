@@ -41,9 +41,9 @@
         <spring-ws-test.version>4.0.2</spring-ws-test.version>
         <springdoc.version>2.8.8</springdoc.version>
         <testcontainers-keycloak.version>3.9.0</testcontainers-keycloak.version>
-        <testcontainers-postgresql.version>1.21.3</testcontainers-postgresql.version>
-        <testcontainers.version>1.20.4</testcontainers.version>
-        <docker-java.version>3.4.2</docker-java.version>
+        <testcontainers-postgresql.version>1.21.4</testcontainers-postgresql.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
+        <docker-java.version>3.7.0</docker-java.version>
         <thymeleaf-extras-java8time.version>3.0.4.RELEASE</thymeleaf-extras-java8time.version>
         <thymeleaf-layout-dialect.version>2.5.3</thymeleaf-layout-dialect.version>
         <thymeleaf-spring4.version>3.0.12.RELEASE</thymeleaf-spring4.version>
@@ -105,12 +105,12 @@
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-api</artifactId>
-                <version>3.5.0</version>
+                <version>3.7.0</version>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-transport-zerodep</artifactId>
-                <version>3.5.0</version>
+                <version>3.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ws</groupId>
