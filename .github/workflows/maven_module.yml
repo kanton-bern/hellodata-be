@@ -40,7 +40,14 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Set up Docker for Testcontainers
+        run: |
+          sudo systemctl start docker
+          docker info
+
       - name: Build Module with Maven
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: true
         run: mvn -B -pl ${{ github.event.inputs.module }} -am clean install
 
       - name: Login to Docker Hub

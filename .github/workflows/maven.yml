@@ -58,7 +58,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Set up Docker for Testcontainers
+        run: |
+          docker info
+
       - name: Build with Maven
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: true
         run: mvn -B package --file pom.xml
 
       - name: Login to Docker Hub
