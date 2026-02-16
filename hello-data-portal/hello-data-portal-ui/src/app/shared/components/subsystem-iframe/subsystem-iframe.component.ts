@@ -28,6 +28,7 @@
 import {
   Component,
   ElementRef,
+  HostListener,
   inject,
   input,
   OnChanges,
@@ -51,9 +52,6 @@ import {SafePipe} from '../../pipes/safe.pipe';
   imports: [NgStyle, SafePipe]
 })
 export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
-  private readonly authService = inject(AuthService);
-
-
   url = input.required<string>();
   readonly accessTokenInQueryParam = input(false);
   readonly delay = input(0);
@@ -64,8 +62,8 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
   readonly iframeSetup = output<boolean>();
   frameUrl: string | undefined;
   readonly iframe = viewChild.required<ElementRef<HTMLIFrameElement>>('iframe');
-
   accessTokenSub!: Subscription;
+  private readonly authService = inject(AuthService);
 
   ngOnInit(): void {
     console.debug('on init', this.url(), this.delay());
@@ -81,13 +79,24 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
           this.iframeSetup.emit(true);
           if (this.switchStyleOverflow()) {
             const mainContentDiv = document.getElementById('mainContentDiv');
-            mainContentDiv!.style.overflow = 'hidden';
+            if (mainContentDiv) {
+              mainContentDiv.style.overflowX = 'hidden';
+              // Keep overflowY as scroll to allow scrolling to the bottom of the iframe
+            }
           }
+          this.clickScrollTopIfExists();
+
+          // Add listener for iframe load event
+          setTimeout(() => this.setupIframeLoadListener(), 100);
         }, this.delay())
       }
     });
   }
 
+  @HostListener('window:resize')
+  onResize() {
+    this.notifyIframeResize();
+  }
 
   ngOnDestroy() {
     if (this.accessTokenSub) {
@@ -105,10 +114,43 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
         this.accessTokenSub.unsubscribe();
       }
       this.accessTokenSub = this.authService.accessToken.subscribe({
-        next: value => {
+        next: () => {
           this.frameUrl = this.url();
           this.iframeSetup.emit(true);
         }
+      });
+    }
+  }
+
+  private clickScrollTopIfExists() {
+    setTimeout(() => {
+      const elementsByClassNameElement = document.getElementsByClassName('p-scrolltop-sticky')[0];
+      if (elementsByClassNameElement) {
+        (elementsByClassNameElement as HTMLElement).click();
+      }
+    }, 500);
+  }
+
+  private notifyIframeResize() {
+    if (this.iframe && this.iframe()) {
+      const iframeElement = this.iframe().nativeElement;
+      if (iframeElement?.contentWindow) {
+        try {
+          // Send resize event to iframe
+          const targetOrigin = new URL(this.frameUrl || '').origin;
+          iframeElement.contentWindow.postMessage({type: 'resize'}, targetOrigin);
+        } catch (e) {
+          console.debug('Could not send resize message to iframe', e);
+        }
+      }
+    }
+  }
+
+  private setupIframeLoadListener() {
+    const iframeElement = this.iframe()?.nativeElement;
+    if (iframeElement) {
+      iframeElement.addEventListener('load', () => {
+        setTimeout(() => this.notifyIframeResize(), 500);
       });
     }
   }
