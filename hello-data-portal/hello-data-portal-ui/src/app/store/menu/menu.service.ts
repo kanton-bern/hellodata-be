@@ -63,13 +63,12 @@ import {filter} from "rxjs/operators";
   providedIn: 'root'
 })
 export class MenuService {
-  private readonly _store = inject<Store<AppState>>(Store);
-  private readonly _translateService = inject(TranslateService);
-  private readonly _openedSubsystemsService = inject(OpenedSubsystemsService);
-
   private static readonly MY_DASHBOARDS_DETAIL = '/my-dashboards/detail/';
   private static readonly QUERY_LIST = '/queries/list/';
   private static readonly LINEAGE_DOCS_DETAIL = '/lineage-docs/detail/';
+  private readonly _store = inject<Store<AppState>>(Store);
+  private readonly _translateService = inject(TranslateService);
+  private readonly _openedSubsystemsService = inject(OpenedSubsystemsService);
 
   public processNavigation(): Observable<any[]> {
     return combineLatest([
@@ -119,7 +118,7 @@ export class MenuService {
 
           // inject the users dashboards into the menu
           if (menuItem.label === '@Dashboards') {
-            menuItem.items = this.createMyDashboardsSubNav(myDashboards, appInfos, contextRoles, commentPermissions);
+            menuItem.items = this.createMyDashboardsSubNav(myDashboards, appInfos, contextRoles, commentPermissions, selectedDataDomain);
           }
           // inject the users lineage docs into the menu
           if (menuItem.label === '@Lineage') {
@@ -146,9 +145,9 @@ export class MenuService {
           }
           if (menuItem.id === 'devToolsMenu') {
             if (this.displayQueries(contextRoles)) {
-              const queriesMenu = menuItem.items.filter((item: {
+              const queriesMenu = menuItem.items.find((item: {
                 id: string;
-              }) => item.id === 'queriesMenu')[0];
+              }) => item.id === 'queriesMenu');
               queriesMenu.items = this.createQueriesSubNav(availableDomainItems);
             }
           }
@@ -197,11 +196,18 @@ export class MenuService {
     return filteredNavigationElements;
   }
 
-  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>) {
+  private createMyDashboardsSubNav(dashboards: SupersetDashboard[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any) {
     const myDashboards: any[] = [];
     myDashboards.push({id: 'dashboardList', label: '@Dashboard List', routerLink: 'my-dashboards'});
-    this.groupAndInsertDashboardMenuItems(dashboards, contextRoles, appInfos, myDashboards, commentPermissions);
-    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles, commentPermissions);
+
+    // Filter dashboards by selectedDataDomain if one is selected
+    let filteredDashboards = dashboards;
+    if (selectedDataDomain?.key) {
+      filteredDashboards = dashboards.filter(db => db.contextKey === selectedDataDomain.key);
+    }
+
+    this.groupAndInsertDashboardMenuItems(filteredDashboards, contextRoles, appInfos, myDashboards, commentPermissions);
+    this.insertSupersetInstanceLinkIfNoDashboards(myDashboards, appInfos, contextRoles, commentPermissions, selectedDataDomain);
     myDashboards.push({
       id: 'externalDashboards',
       label: '@External dashboards',
@@ -266,11 +272,17 @@ export class MenuService {
     });
   }
 
-  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>) {
+  private insertSupersetInstanceLinkIfNoDashboards(myDashboards: any[], appInfos: MetaInfoResource[], contextRoles: any[], commentPermissions: Record<string, CommentPermissions>, selectedDataDomain: any) {
     const supersets = appInfos.filter(appInfo => appInfo.moduleType === 'SUPERSET');
     supersets.forEach((supersetInstance) => {
       const contextName = supersetInstance.businessContextInfo.subContext.name;
       const contextKey = supersetInstance.businessContextInfo.subContext.key;
+
+      // Filter by selectedDataDomain if one is selected
+      if (selectedDataDomain?.key && contextKey !== selectedDataDomain.key) {
+        return;
+      }
+
       if (this.displaySupersetLink(contextName, contextRoles)) {
         if (myDashboards.filter(item => item.label === contextName).length === 0) {
           const items: any[] = [];
@@ -385,7 +397,7 @@ export class MenuService {
       filteredContexts = filteredContexts.filter(context => context.contextKey === selectedDataDomain?.key);
     }
     for (const filteredContext of filteredContexts) {
-      if (jupyterhubs.filter(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey).length > 0) {
+      if (jupyterhubs.some(jupyterhub => jupyterhub.businessContextInfo?.subContext?.key === filteredContext.contextKey)) {
         subMenuEntry.push({
           id: 'jupyterhub' + filteredContext.contextKey,
           label: 'Advanced Analytics ' + filteredContext.name,
