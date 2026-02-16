@@ -42,12 +42,17 @@ jobs:
 
       - name: Set up Docker for Testcontainers
         run: |
-          sudo systemctl start docker
+          # Check Docker version
+          docker version
           docker info
+          # Set Docker API version compatibility
+          echo "DOCKER_HOST=unix:///var/run/docker.sock" >> $GITHUB_ENV
 
       - name: Build Module with Maven
         env:
           TESTCONTAINERS_RYUK_DISABLED: true
+          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
+          DOCKER_HOST: unix:///var/run/docker.sock
         run: mvn -B -pl ${{ github.event.inputs.module }} -am clean install
 
       - name: Login to Docker Hub

@@ -60,11 +60,15 @@ jobs:
 
       - name: Set up Docker for Testcontainers
         run: |
+          docker version
           docker info
+          echo "DOCKER_HOST=unix:///var/run/docker.sock" >> $GITHUB_ENV
 
       - name: Build with Maven
         env:
           TESTCONTAINERS_RYUK_DISABLED: true
+          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
+          DOCKER_HOST: unix:///var/run/docker.sock
         run: mvn -B package --file pom.xml
 
       - name: Login to Docker Hub
