@@ -25,31 +25,28 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject, input } from '@angular/core';
+import {Component, inject, input} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
 import {selectAppInfoByInstanceName} from "../../../../store/metainfo-resource/metainfo-resource.selector";
 import {map} from "rxjs/operators";
 import {Observable} from "rxjs";
-import { AsyncPipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
-import { Tag } from 'primeng/tag';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate} from 'primeng/api';
+import {Tag} from 'primeng/tag';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-selected-workspace-dashboards',
-    templateUrl: './selected-workspace-dashboards.component.html',
-    styleUrls: ['./selected-workspace-dashboards.component.scss'],
-    imports: [TableModule, PrimeTemplate, Tag, AsyncPipe, TranslocoPipe]
+  selector: 'app-selected-workspace-dashboards',
+  templateUrl: './selected-workspace-dashboards.component.html',
+  styleUrls: ['./selected-workspace-dashboards.component.scss'],
+  imports: [TableModule, PrimeTemplate, Tag, AsyncPipe, TranslocoPipe]
 })
 export class SelectedWorkspaceDashboardsComponent {
-  private store = inject<Store<AppState>>(Store);
-
-
   readonly dashboards = input.required<any[]>();
-
   readonly instanceName = input.required<string>();
+  private readonly store = inject<Store<AppState>>(Store);
 
   createLink(dashboardResource: any): Observable<string> {
     return this.store.select(selectAppInfoByInstanceName(this.instanceName())).pipe(map(appinfos => {
