@@ -80,8 +80,7 @@ export class SubsystemIframeComponent implements OnInit, OnDestroy, OnChanges {
           if (this.switchStyleOverflow()) {
             const mainContentDiv = document.getElementById('mainContentDiv');
             if (mainContentDiv) {
-              mainContentDiv.style.overflowX = 'hidden';
-              // Keep overflowY as scroll to allow scrolling to the bottom of the iframe
+              mainContentDiv.style.overflow = 'hidden';
             }
           }
           this.clickScrollTopIfExists();
