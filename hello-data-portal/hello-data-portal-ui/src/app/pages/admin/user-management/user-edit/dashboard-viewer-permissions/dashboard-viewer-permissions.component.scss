@@ -31,9 +31,9 @@
 
 /* Dashboard label styling with word wrap */
 .dashboard-label {
-  word-wrap: break-word;
+  word-break: break-all;
   overflow-wrap: break-word;
-  max-width: 300px;
+  max-width: 100%;
   display: inline-block;
   line-height: 1.3;
 }

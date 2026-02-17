@@ -42,13 +42,13 @@ import {AsyncPipe} from "@angular/common";
 import {Checkbox} from "primeng/checkbox";
 import {FormsModule} from "@angular/forms";
 import {TranslocoPipe} from "@jsverse/transloco";
-import {Tooltip} from "primeng/tooltip";
+
 
 @Component({
   selector: 'app-dashboard-viewer-permissions',
   templateUrl: './dashboard-viewer-permissions.component.html',
   styleUrls: ['./dashboard-viewer-permissions.component.scss'],
-  imports: [Checkbox, FormsModule, AsyncPipe, TranslocoPipe, Tooltip]
+  imports: [Checkbox, FormsModule, AsyncPipe, TranslocoPipe]
 })
 export class DashboardViewerPermissionsComponent {
   private readonly store = inject<Store<AppState>>(Store);
