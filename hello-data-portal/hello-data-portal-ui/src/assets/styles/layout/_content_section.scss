@@ -82,10 +82,9 @@
 
 @media (min-height: 420px) {
   .embedded-dashboard .comment-form {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
   }
 }
-
 
 /* Responsive height for mainContentDiv when containing subsystem-iframe */
 #mainContentDiv:has(#subsystem-iframe) {
