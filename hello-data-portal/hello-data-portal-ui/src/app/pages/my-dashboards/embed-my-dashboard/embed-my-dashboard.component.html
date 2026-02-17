@@ -3,7 +3,7 @@
        [class.resizing]="isResizing"
        [style.gridTemplateColumns]="canReadComments ? (isCommentsOpen ? commentsGridTemplate : '1fr 0px 30px') : '1fr'">
     <div class="iframe-container h-full relative">
-      <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="false"/>
+      <app-subsystem-iframe [delay]="600" [url]="url" [switchStyleOverflow]="true"/>
       @if (isResizing) {
         <div class="absolute inset-0 z-50 bg-transparent"></div>
       }
