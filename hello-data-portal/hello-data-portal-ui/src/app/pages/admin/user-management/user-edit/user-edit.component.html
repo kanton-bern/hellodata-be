@@ -121,9 +121,6 @@
                         class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Data domain' | transloco }}
                       </div>
                       <div
-                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Domain type' | transloco }}
-                      </div>
-                      <div
                         class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
                       </div>
                       <br>
@@ -131,9 +128,12 @@
                         @for (dataDomain of dataDomains; track dataDomain) {
                           <div>
                             <div class="field grid grid-cols-12 gap-4">
-                              <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.name }}</span>
-                              <span
-                                class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ dataDomain.extra ? 'Extra' : 'Standard' }}</span>
+                              <span class="col-span-12 mb-2 md:col-span-2 md:mb-0 flex items-center gap-1">
+                                {{ dataDomain.name }}
+                                <i class="pi pi-info-circle text-primary cursor-pointer"
+                                   [pTooltip]="('@Domain type' | transloco) + ': ' + (dataDomain.extra ? 'Extra' : 'Standard')"
+                                   tooltipPosition="top"></i>
+                              </span>
                               <div class="col-span-12 md:col-span-2">
                                 <p-select (onChange)="onDataDomainRoleSelected($event, dataDomain)"
                                           [options]="availableDataDomainRoles"
