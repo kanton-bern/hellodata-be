@@ -106,7 +106,8 @@
 }
 
 .comments-filters {
-  flex-shrink: 0;
+  flex-shrink: 1;
+  overflow: hidden;
   border-bottom: 1px solid var(--surface-border, #dee2e6);
 
   .filter-group {
@@ -178,8 +179,11 @@
 
 .comment-form {
   flex: 0 0 auto;
+  flex-shrink: 0;
   padding: 0.5rem;
   background: var(--surface-ground, #fff);
+  border-top: 1px solid var(--surface-border, #dee2e6);
+  z-index: 1;
 
   textarea {
     font-size: 0.75rem;

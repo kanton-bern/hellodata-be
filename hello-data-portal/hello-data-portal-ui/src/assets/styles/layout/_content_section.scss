@@ -70,6 +70,23 @@
   height: 100%;
 }
 
+.embedded-dashboard .comment-form {
+  margin-bottom: 0.5rem;
+}
+
+@media (max-height: 419px) {
+  .embedded-dashboard .comment-form {
+    margin-bottom: 6rem;
+  }
+}
+
+@media (min-height: 420px) {
+  .embedded-dashboard .comment-form {
+    margin-bottom: 0.5rem;
+  }
+}
+
+
 /* Responsive height for mainContentDiv when containing subsystem-iframe */
 #mainContentDiv:has(#subsystem-iframe) {
   height: 80vh;
