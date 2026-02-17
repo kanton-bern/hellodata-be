@@ -73,24 +73,22 @@ import {
   updateUserRoles
 } from "../../../../store/users-management/users-management.action";
 import {AsyncPipe} from '@angular/common';
-import {Toolbar} from 'primeng/toolbar';
-import {Button} from 'primeng/button';
-import {Tooltip} from 'primeng/tooltip';
 import {Divider} from 'primeng/divider';
 import {Select} from 'primeng/select';
 import {Checkbox} from 'primeng/checkbox';
+import {Tooltip} from 'primeng/tooltip';
 import {
   DashboardViewerPermissionsComponent
 } from './dashboard-viewer-permissions/dashboard-viewer-permissions.component';
-import {Ripple} from 'primeng/ripple';
 import {ActionsUserPopupComponent} from '../actions-user-popup/actions-user-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {UserEditToolbarComponent} from './user-edit-toolbar/user-edit-toolbar.component';
 
 @Component({
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   styleUrls: ['./user-edit.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, Toolbar, Button, Tooltip, Divider, Select, Checkbox, DashboardViewerPermissionsComponent, Ripple, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe]
+  imports: [FormsModule, ReactiveFormsModule, Divider, Select, Checkbox, Tooltip, DashboardViewerPermissionsComponent, ActionsUserPopupComponent, AsyncPipe, TranslocoPipe, UserEditToolbarComponent]
 })
 export class UserEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedUser$: Observable<any>;
