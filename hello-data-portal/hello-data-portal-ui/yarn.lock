@@ -5114,18 +5114,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/angular@npm:^18.1.0":
-  version: 18.1.1
-  resolution: "@testing-library/angular@npm:18.1.1"
+"@testing-library/angular@npm:^19.0.0":
+  version: 19.1.0
+  resolution: "@testing-library/angular@npm:19.1.0"
   dependencies:
     tslib: "npm:^2.3.1"
   peerDependencies:
-    "@angular/common": ">= 20.0.0"
-    "@angular/core": ">= 20.0.0"
-    "@angular/platform-browser": ">= 20.0.0"
-    "@angular/router": ">= 20.0.0"
+    "@angular/common": ">= 21.0.0"
+    "@angular/core": ">= 21.0.0"
+    "@angular/platform-browser": ">= 21.0.0"
+    "@angular/router": ">= 21.0.0"
     "@testing-library/dom": ^10.0.0
-  checksum: 10c0/1950368415567aac0f2289d7c5a6694926645c5565148d161a5370acacf6b6269e33032cdcdfe4168ac92278b13086ff7b0c84d362935d127edc55759cae3b9f
+  checksum: 10c0/071fa15e50627450f803d83634cde43ce7dadde3c3c46a3235be4a68e1b967c0893f55df618364ab0a1b47d16b1e581e102ee38a1cdec5b4f6429845fe88b960
   languageName: node
   linkType: hard
 
@@ -8963,7 +8963,7 @@ __metadata:
     "@primeuix/styles": "npm:^1.2.5"
     "@primeuix/themes": "npm:^1.2.5"
     "@tailwindcss/postcss": "npm:^4.1.17"
-    "@testing-library/angular": "npm:^18.1.0"
+    "@testing-library/angular": "npm:^19.0.0"
     "@testing-library/dom": "npm:^10.4.1"
     "@types/jasmine": "npm:^5.1.12"
     "@types/jasminewd2": "npm:^2.0.13"
