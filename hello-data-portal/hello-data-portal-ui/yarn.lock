@@ -6217,9 +6217,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"angular-auth-oidc-client@npm:^20.0.3":
-  version: 20.0.3
-  resolution: "angular-auth-oidc-client@npm:20.0.3"
+"angular-auth-oidc-client@npm:^21.0.0":
+  version: 21.0.1
+  resolution: "angular-auth-oidc-client@npm:21.0.1"
   dependencies:
     rfc4648: "npm:^1.5.0"
     tslib: "npm:^2.3.0"
@@ -6228,7 +6228,7 @@ __metadata:
     "@angular/core": ">=20.0.0"
     "@angular/router": ">=20.0.0"
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/45b3901938d9fb8c99a448e9f2e3a7d3b9e86c6f280c09dde8798c6b2749b8fbad2ad95864cc6d5c78504d3a9dd64f94490df564ecb6db9d1f71bf3b9463ad20
+  checksum: 10c0/f5678d249621aa4645057ce1d4b28094ef2893628bb00baa6a68a94c63ac27470d75c61ae8f574ded37d5a54e544afdba5cb46e05b4d20c9a4a979b06716b2bd
   languageName: node
   linkType: hard
 
@@ -8970,7 +8970,7 @@ __metadata:
     "@types/jest": "npm:^30.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.46.3"
     "@typescript-eslint/parser": "npm:8.52.0"
-    angular-auth-oidc-client: "npm:^20.0.3"
+    angular-auth-oidc-client: "npm:^21.0.0"
     angular-build-info: "npm:^2.0.1"
     axios: "npm:^1.13.5"
     eslint: "npm:^9.39.1"
