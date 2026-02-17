@@ -41,7 +41,7 @@
     "@primeuix/styles": "^1.2.5",
     "@primeuix/themes": "^1.2.5",
     "@tailwindcss/postcss": "^4.1.17",
-    "angular-auth-oidc-client": "^20.0.3",
+    "angular-auth-oidc-client": "^21.0.0",
     "angular-build-info": "^2.0.1",
     "axios": "^1.13.5",
     "ngx-matomo-client": "^8.0.0",
