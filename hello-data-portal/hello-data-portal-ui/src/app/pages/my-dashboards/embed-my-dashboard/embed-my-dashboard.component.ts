@@ -130,22 +130,6 @@ export class EmbedMyDashboardComponent extends BaseComponent implements OnInit, 
     this.isResizing = true;
   }
 
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent): void {
-    if (!this.isResizing) return;
-
-    const gridRect = this.dashboardGrid.nativeElement.getBoundingClientRect();
-    const newWidth = gridRect.right - event.clientX;
-
-    // Min width 300px, max width 80% of screen
-    const minWidth = 300;
-    const maxWidth = gridRect.width * 0.8;
-
-    if (newWidth >= minWidth && newWidth <= maxWidth) {
-      this.commentsPanelWidth = newWidth;
-    }
-  }
-
   @HostListener('document:mouseup')
   stopResizing(): void {
     if (this.isResizing) {
