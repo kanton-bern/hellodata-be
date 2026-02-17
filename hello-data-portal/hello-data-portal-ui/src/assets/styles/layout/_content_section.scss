@@ -36,6 +36,11 @@
 
 }
 
+/* Default height for mainContentDiv to enable scrolling */
+#mainContentDiv {
+  height: calc(100vh - 90px);
+}
+
 /* Layout for .embedded-dashboard - using normal flow for proper zoom scaling */
 #mainContentDiv:has(.embedded-dashboard) {
   height: calc(100vh - 90px);
