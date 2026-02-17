@@ -1,15 +1,57 @@
 @if (dashboardsFetched$ | async) {
-  <div>
+  <div class="w-full">
     @if (dashboards$ | async) {
-      <div>
-        <p-multiSelect (onChange)="onSelectionChange($event)"
-                       [(ngModel)]="selectedDashboards"
-                       [options]="allDashboardsForContext"
-                       [panelStyle]="{'width':'100%'}"
-                       [style]="{'width':'100%'}"
-                       scrollHeight="flex"
-                       placeholder="{{'@Select a Dashboard' | transloco }}"
-                       optionLabel="title"/>
+      <div class="w-full border border-surface rounded-lg p-3">
+        <!-- Header with title, selectAll and search -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-surface">
+          <div class="flex items-center gap-2">
+            <span class="font-medium">{{ '@Selected Dashboards' | transloco }}</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="selectAll"
+                (onChange)="onSelectAllChange($event.checked)"
+                inputId="selectAll"/>
+              <label for="selectAll" class="text-sm">{{ '@Select all' | transloco }}</label>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                (ngModelChange)="onSearchChange($event)"
+                [placeholder]="'@Search' | transloco"
+                class="text-sm p-2 pl-8 border border-surface rounded-md w-48"/>
+              <i class="pi pi-search absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            </div>
+          </div>
+        </div>
+        <!-- Dashboard checkboxes in 3 columns -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          @for (dashboard of filteredDashboards; track dashboard.id) {
+            <div class="flex items-start gap-2 p-1">
+              <p-checkbox
+                class="mt-0.5"
+                [binary]="true"
+                [(ngModel)]="dashboard.viewer"
+                (ngModelChange)="onDashboardSelectionChange(dashboard, $event)"
+                [inputId]="'dashboard-' + dashboard.id"/>
+              <label
+                [for]="'dashboard-' + dashboard.id"
+                class="text-sm dashboard-label cursor-pointer"
+                [pTooltip]="dashboard.title"
+                tooltipPosition="top">
+                {{ dashboard.title }}
+              </label>
+            </div>
+          }
+          @if (filteredDashboards.length === 0) {
+            <div class="col-span-3 text-center text-gray-500 py-4">
+              {{ '@No dashboards found' | transloco }}
+            </div>
+          }
+        </div>
       </div>
     }
   </div>

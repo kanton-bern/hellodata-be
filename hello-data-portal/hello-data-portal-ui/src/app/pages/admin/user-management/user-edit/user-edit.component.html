@@ -1,223 +1,186 @@
 @if (userForm) {
-  <div class="card">
+  <div>
     @if ((editedUser$ | async); as editedUser) {
       <form [formGroup]="userForm" class="form">
-        <h4>{{ '@User data' | transloco }}</h4>
-        <p-toolbar>
-          <div class="p-toolbar-group-start">
-            <p-button (click)="cancel()" (keydown.enter)="cancel()" (keydown.space)="cancel()"
-                      [pTooltip]="'@Cancel' | transloco"
-                      class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary" pRipple/>
+        <!-- Card 1: User Data -->
+        <div class="card mb-4">
+          <h4>{{ '@User data' | transloco }}</h4>
+          <app-user-edit-toolbar
+            [user]="editedUser"
+            [saveDisabled]="saveDisabled"
+            [saveLoading]="(userSaveButtonDisabled$ | async) ?? false"
+            (cancelClicked)="cancel()"
+            (saveClicked)="updateUser()"
+            (disableClicked)="showUserDisablePopup($event)"
+            (enableClicked)="showUserEnablePopup($event)"/>
+          <p-divider/>
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
+            <div class="col-span-12 md:col-span-10">
+              <input
+                class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+                disabled id="email" type="text"
+                value="{{editedUser.email}}">
+            </div>
           </div>
-          <div class="p-toolbar-group-end">
-            @if (!editedUser.superuser && editedUser.enabled) {
-              <p-button (click)="showUserDisablePopup(editedUser)" (keydown.enter)="showUserDisablePopup(editedUser)"
-                        (keydown.space)="showUserDisablePopup(editedUser)"
-                        icon="fas fa-circle-xmark" pRipple
-                        [label]="'@Disable' | transloco"
-                        class="mr-2 p-button-warning"/>
-            }
-            @if (!editedUser.superuser && !editedUser.enabled) {
-              <p-button (click)="showUserEnablePopup(editedUser)" (keydown.enter)="showUserEnablePopup(editedUser)"
-                        (keydown.space)="showUserEnablePopup(editedUser)"
-                        icon="fas fa-circle-plus" pRipple
-                        [label]="'@Enable' | transloco"
-                        severity="success"/>
-            }
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 mb-2 md:col-span-2 md:mb-0"
+                   for="firstName">{{ '@First name' | transloco }}</label>
+            <div class="col-span-12 md:col-span-10">
+              <input
+                class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+                disabled id="firstName" type="text"
+                value="{{editedUser.firstName}}">
+            </div>
           </div>
-        </p-toolbar>
-        <p-divider/>
-        <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="email">{{ '@E-mail' | transloco }}</label>
-          <div class="col-span-12 md:col-span-10">
-            <input
-              class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-              disabled id="email" type="text"
-              value="{{editedUser.email}}">
+          <div class="field grid grid-cols-12 gap-4">
+            <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
+            <div class="col-span-12 md:col-span-10">
+              <input
+                class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
+                disabled id="lastName" type="text"
+                value="{{editedUser.lastName}}">
+            </div>
           </div>
-        </div>
-        <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="firstName">{{ '@First name' | transloco }}</label>
-          <div class="col-span-12 md:col-span-10">
-            <input
-              class="opacity-80 text-base text-color bg-surface-0 mb-1 p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-              disabled id="firstName" type="text"
-              value="{{editedUser.firstName}}">
-          </div>
-        </div>
-        <div class="field grid grid-cols-12 gap-4">
-          <label class="col-span-12 mb-2 md:col-span-2 md:mb-0" for="lastName">{{ '@Last name' | transloco }}</label>
-          <div class="col-span-12 md:col-span-10">
-            <input
-              class="opacity-80 text-base text-color bg-surface-0  p-2 border border-solid border-surface rounded-border appearance-none outline-0 focus:border-primary w-full"
-              disabled id="lastName" type="text"
-              value="{{editedUser.lastName}}">
-          </div>
-        </div>
-        <br>
-        <div class="field grid grid-cols-12 gap-4">
-          <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ '@Enabled' | transloco }}</span>
-          <div class="col-span-12 md:col-span-10">
-            @if (editedUser.enabled) {
-              <div>
-                <i class="fas fa-check"></i>
-              </div>
-            }
-            @if (!editedUser.enabled) {
-              <div>
-                <i class="fas fa-circle-xmark"></i>
-              </div>
-            }
+          <br>
+          <div class="field grid grid-cols-12 gap-4">
+            <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ '@Enabled' | transloco }}</span>
+            <div class="col-span-12 md:col-span-10">
+              @if (editedUser.enabled) {
+                <div>
+                  <i class="fas fa-check"></i>
+                </div>
+              }
+              @if (!editedUser.enabled) {
+                <div>
+                  <i class="fas fa-circle-xmark"></i>
+                </div>
+              }
+            </div>
           </div>
         </div>
-        <p-divider/>
+
         @if (userForm) {
           <div>
             @if ((dataDomains$ | async); as dataDomains) {
               <div>
                 @if ((availableDataDomainRoles$ | async); as availableDataDomainRoles) {
                   <div>
-                    <div class="field grid grid-cols-12 gap-4">
-                      <h4 class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ '@Permissions' | transloco }}</h4>
-                      <div class="col-span-12 md:col-span-10">
-                        &nbsp;
-                      </div>
-                    </div>
-                    <br>
+                    <!-- Card 2: Business Domain Roles -->
                     @if ((businessDomains$ | async); as businessDomains) {
-                      <div class="field grid grid-cols-12 gap-4">
-                        <div
-                          class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Business domain' | transloco }}
-                        </div>
-                        <div
-                          class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
-                        </div>
-                        <br>
-                        <div class="col-span-12 md:col-span-12">
-                          @for (businessDomain of businessDomains; track businessDomain) {
-                            <div>
-                              <br>
-                              <div class="field grid grid-cols-12 gap-4">
-                                <span class="col-span-12 mb-2 md:col-span-2 md:mb-0">{{ businessDomain.name }}</span>
-                                <div class="col-span-12 md:col-span-10">
-                                  <p-select
-                                    (onChange)="onBusinessDomainRoleSelected($event, dataDomains, availableDataDomainRoles)"
-                                    [options]="availableBusinessDomainRoles$ | async"
-                                    formControlName="{{businessDomain.contextKey}}"
-                                    id="businessDomain"
-                                    scrollHeight="flex"
-                                    optionLabel="name"/>
-                                </div>
-                              </div>
+                      @for (businessDomain of businessDomains; track businessDomain) {
+                        <div class="card mb-4">
+                          <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex items-center gap-2">
+                              <span class="text-sm text-gray-600">{{ '@Business domain' | transloco }}:</span>
+                              <span class="font-medium text-lg">{{ businessDomain.name }}</span>
                             </div>
-                          }
+                            <div class="flex items-center gap-2">
+                              <span class="text-sm text-gray-600">{{ '@User role' | transloco }}:</span>
+                              <p-select
+                                (onChange)="onBusinessDomainRoleSelected($event, dataDomains, availableDataDomainRoles)"
+                                [options]="availableBusinessDomainRoles$ | async"
+                                formControlName="{{businessDomain.contextKey}}"
+                                id="businessDomain-{{businessDomain.contextKey}}"
+                                scrollHeight="flex"
+                                optionLabel="name"
+                                [style]="{'min-width': '250px'}"/>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      }
                     }
-                    <br>
-                    <div class="field grid grid-cols-12 gap-4">
-                      <div
-                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@Data domain' | transloco }}
-                      </div>
-                      <div
-                        class="col-span-12 mb-2 md:col-span-2 md:mb-0 font-medium text-lg">{{ '@User role' | transloco }}
-                      </div>
-                      <br>
-                      <div class="col-span-12 md:col-span-12">
-                        @for (dataDomain of dataDomains; track dataDomain) {
+
+                    <!-- Cards for each Data Domain -->
+                    @for (dataDomain of dataDomains; track dataDomain) {
+                      <div class="card mb-4">
+                        <!-- Row 1: Domain name with icon and User role selector -->
+                        <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+                          <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-600">{{ '@Data domain' | transloco }}:</span>
+                            <span class="font-medium text-lg">{{ dataDomain.name }}</span>
+                            <i class="pi pi-info-circle text-primary cursor-pointer"
+                               [pTooltip]="('@Domain type' | transloco) + ': ' + (dataDomain.extra ? 'Extra' : 'Standard')"
+                               tooltipPosition="top"></i>
+                          </div>
+                          <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-600">{{ '@User role' | transloco }}:</span>
+                            <p-select (onChange)="onDataDomainRoleSelected($event, dataDomain)"
+                                      [options]="availableDataDomainRoles"
+                                      formControlName="{{dataDomain.contextKey}}"
+                                      id="dataDomain-{{dataDomain.contextKey}}"
+                                      scrollHeight="flex"
+                                      optionLabel="name"
+                                      [style]="{'min-width': '250px'}"/>
+                          </div>
+                        </div>
+                        <!-- Row 2: Dashboard comment permissions -->
+                        <div class="flex items-center flex-wrap gap-2 mb-3"
+                             [class.opacity-50]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole">
+                          <span class="text-sm text-gray-600 mr-2">{{ '@Dashboard comment permissions' | transloco }}
+                            :</span>
+                          <div class="flex items-center mr-3">
+                            <p-checkbox
+                              [binary]="true"
+                              [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'readComments')"
+                              [ngModelOptions]="{standalone: true}"
+                              (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'readComments', $event)"
+                              [disabled]="isReadCommentDisabled(dataDomain.contextKey)"
+                              inputId="read-{{dataDomain.contextKey}}"/>
+                            <label [for]="'read-' + dataDomain.contextKey"
+                                   class="ml-1 text-sm">{{ '@Read' | transloco }}</label>
+                          </div>
+                          <div class="flex items-center mr-3">
+                            <p-checkbox
+                              [binary]="true"
+                              [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'writeComments')"
+                              [ngModelOptions]="{standalone: true}"
+                              (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'writeComments', $event)"
+                              [disabled]="isWriteCommentDisabled(dataDomain.contextKey)"
+                              inputId="write-{{dataDomain.contextKey}}"/>
+                            <label [for]="'write-' + dataDomain.contextKey"
+                                   class="ml-1 text-sm">{{ '@Write' | transloco }}</label>
+                          </div>
+                          <div class="flex items-center">
+                            <p-checkbox
+                              [binary]="true"
+                              [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'reviewComments')"
+                              [ngModelOptions]="{standalone: true}"
+                              (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'reviewComments', $event)"
+                              [disabled]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole"
+                              inputId="review-{{dataDomain.contextKey}}"/>
+                            <label [for]="'review-' + dataDomain.contextKey"
+                                   class="ml-1 text-sm">{{ '@Review' | transloco }}</label>
+                          </div>
+                        </div>
+                        <!-- Row 3: Dashboard panel (if visible) -->
+                        @if (dashboardTableVisibility.get(dataDomain.contextKey)) {
                           <div>
-                            <div class="field grid grid-cols-12 gap-4">
-                              <span class="col-span-12 mb-2 md:col-span-2 md:mb-0 flex items-center gap-1">
-                                {{ dataDomain.name }}
-                                <i class="pi pi-info-circle text-primary cursor-pointer"
-                                   [pTooltip]="('@Domain type' | transloco) + ': ' + (dataDomain.extra ? 'Extra' : 'Standard')"
-                                   tooltipPosition="top"></i>
-                              </span>
-                              <div class="col-span-12 md:col-span-2">
-                                <p-select (onChange)="onDataDomainRoleSelected($event, dataDomain)"
-                                          [options]="availableDataDomainRoles"
-                                          formControlName="{{dataDomain.contextKey}}"
-                                          id="dataDomain"
-                                          scrollHeight="flex"
-                                          optionLabel="name"
-                                          [style]="{'width': '100%'}"/>
-                              </div>
-                              @if (dashboardTableVisibility.get(dataDomain.contextKey)) {
-                                <div class="col-span-12 md:col-span-6">
-                                  <app-dashboard-viewer-permissions
-                                    (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
-                                    [context]="dataDomain"/>
-                                </div>
-                              }
-                            </div>
-                            <!-- Comment permissions -->
-                            <div class="field grid grid-cols-12 gap-4 mt-2">
-                              <div class="col-span-12 md:col-span-4"></div>
-                              <div class="col-span-12 md:col-span-8 flex items-center flex-wrap gap-2"
-                                   [class.opacity-50]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole">
-                                <span
-                                  class="text-sm text-gray-600 mr-2">{{ '@Dashboard comment permissions' | transloco }}
-                                  :</span>
-                                <div class="flex items-center mr-3">
-                                  <p-checkbox
-                                    [binary]="true"
-                                    [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'readComments')"
-                                    [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'readComments', $event)"
-                                    [disabled]="isReadCommentDisabled(dataDomain.contextKey)"
-                                    inputId="read-{{dataDomain.contextKey}}"/>
-                                  <label [for]="'read-' + dataDomain.contextKey"
-                                         class="ml-1 text-sm">{{ '@Read' | transloco }}</label>
-                                </div>
-                                <div class="flex items-center mr-3">
-                                  <p-checkbox
-                                    [binary]="true"
-                                    [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'writeComments')"
-                                    [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'writeComments', $event)"
-                                    [disabled]="isWriteCommentDisabled(dataDomain.contextKey)"
-                                    inputId="write-{{dataDomain.contextKey}}"/>
-                                  <label [for]="'write-' + dataDomain.contextKey"
-                                         class="ml-1 text-sm">{{ '@Write' | transloco }}</label>
-                                </div>
-                                <div class="flex items-center">
-                                  <p-checkbox
-                                    [binary]="true"
-                                    [ngModel]="isCommentPermissionChecked(dataDomain.contextKey, 'reviewComments')"
-                                    [ngModelOptions]="{standalone: true}"
-                                    (ngModelChange)="onCommentPermissionChange(dataDomain.contextKey, 'reviewComments', $event)"
-                                    [disabled]="isRoleNone(dataDomain.contextKey) || hasBusinessAdminRole"
-                                    inputId="review-{{dataDomain.contextKey}}"/>
-                                  <label [for]="'review-' + dataDomain.contextKey"
-                                         class="ml-1 text-sm">{{ '@Review' | transloco }}</label>
-                                </div>
-                              </div>
-                            </div>
-                            <p-divider/>
+                            <app-dashboard-viewer-permissions
+                              (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
+                              [context]="dataDomain"/>
                           </div>
                         }
                       </div>
-                    </div>
+                    }
                   </div>
                 }
               </div>
             }
           </div>
         }
-        <p-toolbar>
-          <div class="p-toolbar-group-start">
-            <p-button (click)="cancel()" (keydown.enter)="cancel()" (keydown.space)="cancel()"
-                      [pTooltip]="'@Cancel' | transloco"
-                      class="mr-2"
-                      icon="fas fa-arrow-left" severity="secondary" pRipple/>
-            <p-button (click)="updateUser()" (keydown.enter)="updateUser()" (keydown.space)="updateUser()"
-                      [pTooltip]="'@Save' | transloco" [disabled]="saveDisabled"
-                      severity="success" [loading]="userSaveButtonDisabled$ | async"
-                      [label]="'@Save' | transloco"
-                      pRipple/>
-          </div>
-        </p-toolbar>
+
+        <!-- Bottom toolbar with Save/Cancel -->
+        <div class="card">
+          <app-user-edit-toolbar
+            [user]="editedUser"
+            [saveDisabled]="saveDisabled"
+            [saveLoading]="(userSaveButtonDisabled$ | async) ?? false"
+            (cancelClicked)="cancel()"
+            (saveClicked)="updateUser()"
+            (disableClicked)="showUserDisablePopup($event)"
+            (enableClicked)="showUserEnablePopup($event)"/>
+        </div>
       </form>
     }
   </div>

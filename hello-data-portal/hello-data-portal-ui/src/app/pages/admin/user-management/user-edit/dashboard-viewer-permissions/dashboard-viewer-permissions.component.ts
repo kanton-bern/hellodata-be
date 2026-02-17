@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject, input, output } from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {Context} from "../../../../../store/users-management/context-role.model";
 import {DashboardForUser} from "../../../../../store/users-management/users-management.model";
 import {Observable, tap} from "rxjs";
@@ -38,26 +38,29 @@ import {
 import {markUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
 import {take} from "rxjs/operators";
 import {updateUserRoles} from "../../../../../store/users-management/users-management.action";
-import { AsyncPipe } from "@angular/common";
-import { MultiSelect } from "primeng/multiselect";
-import { FormsModule } from "@angular/forms";
-import { TranslocoPipe } from "@jsverse/transloco";
+import {AsyncPipe} from "@angular/common";
+import {Checkbox} from "primeng/checkbox";
+import {FormsModule} from "@angular/forms";
+import {TranslocoPipe} from "@jsverse/transloco";
+import {Tooltip} from "primeng/tooltip";
 
 @Component({
-    selector: 'app-dashboard-viewer-permissions',
-    templateUrl: './dashboard-viewer-permissions.component.html',
-    styleUrls: ['./dashboard-viewer-permissions.component.scss'],
-    imports: [MultiSelect, FormsModule, AsyncPipe, TranslocoPipe]
+  selector: 'app-dashboard-viewer-permissions',
+  templateUrl: './dashboard-viewer-permissions.component.html',
+  styleUrls: ['./dashboard-viewer-permissions.component.scss'],
+  imports: [Checkbox, FormsModule, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class DashboardViewerPermissionsComponent {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
   readonly context = input.required<Context>();
   allDashboardsForContext: DashboardForUser[] = [];
+  filteredDashboards: DashboardForUser[] = [];
   dashboards$: Observable<any>;
   dashboardsFetched$: Observable<boolean>;
 
-  selectedDashboards: DashboardForUser[] = [];
+  selectAll = false;
+  searchQuery = '';
 
   readonly selectedDashboardsEvent = output<DashboardForUser[]>();
 
@@ -68,27 +71,66 @@ export class DashboardViewerPermissionsComponent {
         take(1),
         tap((allDashboards) => {
           this.extractDashboardsForSelectedContext(allDashboards);
-          this.extractSelectedDashboards();
+          this.filteredDashboards = [...this.allDashboardsForContext];
+          this.updateSelectAllState();
         }));
   }
 
-  onSelectionChange($event: any) {
-    this.selectedDashboards = $event.value;
-    this.selectedDashboardsEvent.emit($event.value);
+  onDashboardSelectionChange(dashboard: DashboardForUser, selected: boolean) {
+    dashboard.viewer = selected;
+    this.updateSelectAllState();
+    this.emitSelectedDashboards();
+  }
+
+  onSelectAllChange(selected: boolean) {
+    // Update all dashboards - create new objects to trigger change detection
+    this.allDashboardsForContext = this.allDashboardsForContext.map(dashboard => ({
+      ...dashboard,
+      viewer: selected
+    }));
+    // Rebuild filtered dashboards based on current search
+    if (this.searchQuery.trim() === '') {
+      this.filteredDashboards = [...this.allDashboardsForContext];
+    } else {
+      const lowerQuery = this.searchQuery.toLowerCase();
+      this.filteredDashboards = this.allDashboardsForContext.filter(
+        dashboard => dashboard.title.toLowerCase().includes(lowerQuery)
+      );
+    }
+    this.updateSelectAllState();
+    this.emitSelectedDashboards();
+  }
+
+  onSearchChange(query: string) {
+    this.searchQuery = query;
+    if (query.trim() === '') {
+      this.filteredDashboards = [...this.allDashboardsForContext];
+    } else {
+      const lowerQuery = query.toLowerCase();
+      this.filteredDashboards = this.allDashboardsForContext.filter(
+        dashboard => dashboard.title.toLowerCase().includes(lowerQuery)
+      );
+    }
+    this.updateSelectAllState();
+  }
+
+
+  private updateSelectAllState() {
+    this.selectAll = this.filteredDashboards.length > 0 &&
+      this.filteredDashboards.every(dashboard => dashboard.viewer);
+  }
+
+  private emitSelectedDashboards() {
+    const selectedDashboards = this.allDashboardsForContext.filter(dashboard => dashboard.viewer);
+    this.selectedDashboardsEvent.emit(selectedDashboards);
     this.store.dispatch(markUnsavedChanges({action: updateUserRoles()}));
   }
 
   private extractDashboardsForSelectedContext(allDashboards: DashboardForUser[]) {
     const allDashboardsForContext = allDashboards.filter(dashboard => dashboard.contextKey === this.context().contextKey);
-    this.allDashboardsForContext = allDashboardsForContext.map((item) => {
-      return {...item}
-    });
+    this.allDashboardsForContext = allDashboardsForContext
+      .map((item) => ({...item}))
+      .sort((a, b) => a.title.localeCompare(b.title));
     console.debug(`${this.context().contextKey}` + " - all dashboards for context ", this.allDashboardsForContext);
   }
-
-  private extractSelectedDashboards() {
-    this.selectedDashboards = this.allDashboardsForContext.filter(dashboard => dashboard.viewer);
-    console.debug(`${this.context().contextKey}` + " - selected dashboards " + this.context().contextKey, this.selectedDashboards);
-  }
-
 }
