@@ -81,7 +81,7 @@ public class QuerySynchronizer {
                 Optional<QueryEntity> found = queryRepository.findByContextKeyAndSubsystemId(contextEntity.getContextKey(), supersetQuery.getId());
                 if (found.isPresent()) {
                     QueryEntity existingQuery = found.get();
-                    log.warn("Updating query {}", existingQuery);
+                    log.debug("Updating query {}", existingQuery);
                     queryEntity.setId(existingQuery.getId());
                 }
                 queryRepository.save(queryEntity);
