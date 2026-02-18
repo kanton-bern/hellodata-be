@@ -33,10 +33,6 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKER_BUILDKIT: 1
-      BUILDKIT_PROGRESS: plain
-      DOCKER_CLI_EXPERIMENTAL: enabled
-      BUILDX_EXPERIMENTAL: 1
 
     steps:
       - name: Checkout repository
@@ -50,22 +46,6 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache
           sudo rm -rf /usr/local/lib/node_modules
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker
-
-      - name: Create buildx builder for maven
-        run: |
-          # Create a separate builder for docker-maven-plugin with docker-container driver
-          docker buildx create --name maven-builder --driver docker-container || true
-          docker buildx inspect maven-builder --bootstrap || true
-          docker buildx ls
-
-      - name: Clean Docker space
-        run: |
-          docker system prune -af || true
-          docker builder prune -af || true
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -101,6 +81,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Packages and Docker Images
+        env:
+          # Jib uses docker credentials from the docker login step automatically
+          # These are fallback options in case of issues
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: mvn --batch-mode deploy -Pdocker -DskipTests
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive

@@ -28,10 +28,6 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      DOCKER_BUILDKIT: 1
-      BUILDKIT_PROGRESS: plain
-      DOCKER_CLI_EXPERIMENTAL: enabled
-      BUILDX_EXPERIMENTAL: 1
 
     steps:
       - name: Checkout repository
@@ -49,19 +45,10 @@ jobs:
         with:
           driver: docker
 
-      - name: Create buildx builder for maven
-        run: |
-          # Create a separate builder for docker-maven-plugin with docker-container driver
-          docker buildx create --name maven-builder --driver docker-container || true
-          docker buildx inspect maven-builder --bootstrap || true
-          docker buildx ls
-
       - name: Set up Docker for Testcontainers
         run: |
-          # Check Docker version
           docker version
           docker info
-          # Set Docker API version compatibility
           echo "DOCKER_HOST=unix:///var/run/docker.sock" >> $GITHUB_ENV
 
       - name: Build Module with Maven

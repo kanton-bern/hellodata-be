@@ -99,7 +99,7 @@
                         <executions>
                             <execution>
                                 <id>docker-tag-name</id>
-                                <phase>post-integration-test</phase>
+                                <phase>validate</phase>
                                 <goals>
                                     <goal>regex-property</goal>
                                 </goals>
@@ -116,7 +116,7 @@
                             <execution>
                                 <!-- use standard docker-tag latest for development-SNAPSHOT -->
                                 <id>use-latest</id>
-                                <phase>post-integration-test</phase>
+                                <phase>validate</phase>
                                 <goals>
                                     <goal>regex-property</goal>
                                 </goals>
@@ -130,39 +130,26 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Using Jib for building Docker images without Docker daemon -->
                     <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.43.4</version>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>build-docker-image</id>
-                                <phase>post-integration-test</phase>
+                                <id>build-and-push-docker-image</id>
+                                <phase>deploy</phase>
                                 <goals>
                                     <goal>build</goal>
                                 </goals>
                             </execution>
-                            <execution>
-                                <id>push-docker-image</id>
-                                <phase>${push-docker-image-phase}</phase>
-                                <goals>
-                                    <goal>push</goal>
-                                </goals>
-                            </execution>
                         </executions>
                         <configuration>
-                            <autoPull>always</autoPull>
-                            <verbose>true</verbose>
-                            <logStdout>true</logStdout>
-                            <images>
-                                <image>
-                                    <name>${docker.namespace}/hello-data-sidecar-portal:${docker.tag.name}</name>
-                                    <build>
-                                        <dockerFile>Dockerfile</dockerFile>
-                                        <dockerFileDir>${project.basedir}</dockerFileDir>
-                                    </build>
-                                </image>
-                            </images>
+                            <to>
+                                <image>${docker.namespace}/hello-data-sidecar-portal</image>
+                                <tags>
+                                    <tag>${docker.tag.name}</tag>
+                                </tags>
+                            </to>
                         </configuration>
                     </plugin>
                 </plugins>
