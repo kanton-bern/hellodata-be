@@ -601,17 +601,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/cdk@npm:^20.2.9":
-  version: 20.2.14
-  resolution: "@angular/cdk@npm:20.2.14"
+"@angular/cdk@npm:^21.0.0":
+  version: 21.1.5
+  resolution: "@angular/cdk@npm:21.1.5"
   dependencies:
     parse5: "npm:^8.0.0"
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/common": ^20.0.0 || ^21.0.0
-    "@angular/core": ^20.0.0 || ^21.0.0
+    "@angular/common": ^21.0.0 || ^22.0.0
+    "@angular/core": ^21.0.0 || ^22.0.0
+    "@angular/platform-browser": ^21.0.0 || ^22.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/8f6463252d942cc2a62b861fcb206abeca097e89018191c7d8f390187a7ff6917ee42918e53b4da40e2f9d407fb42bb94b515d82e1daa17fa0c7be4d4fce6de8
+  checksum: 10c0/54c324497b07177c4bb38da6b14c858ed280e51425c177652931d7ffd472be87063740b3db2a6995dd4c0a835627102226526771ebb1fafe708cf32204fd44e1
   languageName: node
   linkType: hard
 
@@ -740,19 +741,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/material@npm:^20.2.12":
-  version: 20.2.14
-  resolution: "@angular/material@npm:20.2.14"
+"@angular/material@npm:^21.0.0":
+  version: 21.1.5
+  resolution: "@angular/material@npm:21.1.5"
   dependencies:
     tslib: "npm:^2.3.0"
   peerDependencies:
-    "@angular/cdk": 20.2.14
-    "@angular/common": ^20.0.0 || ^21.0.0
-    "@angular/core": ^20.0.0 || ^21.0.0
-    "@angular/forms": ^20.0.0 || ^21.0.0
-    "@angular/platform-browser": ^20.0.0 || ^21.0.0
+    "@angular/cdk": 21.1.5
+    "@angular/common": ^21.0.0 || ^22.0.0
+    "@angular/core": ^21.0.0 || ^22.0.0
+    "@angular/forms": ^21.0.0 || ^22.0.0
+    "@angular/platform-browser": ^21.0.0 || ^22.0.0
     rxjs: ^6.5.3 || ^7.4.0
-  checksum: 10c0/6acfc033f7817f0237968fcc5e24500d949afecf88e3d6e20fcbcdeeac4747942a97e210475511d96db1157519df4e5089d8a36e2f1ad53fad5169bb452c0b40
+  checksum: 10c0/6467366fb07fc04d3277bfb90dadb76687b39841c3e967557fbdb2c2a95fc998845962fec2a90e766dac563652f055d932584b92e0d0f85decbbd5eb7e5d289e
   languageName: node
   linkType: hard
 
@@ -8935,7 +8936,7 @@ __metadata:
     "@angular-eslint/schematics": "npm:^21.0.0"
     "@angular-eslint/template-parser": "npm:^21.0.0"
     "@angular/animations": "npm:^20.3.16"
-    "@angular/cdk": "npm:^20.2.9"
+    "@angular/cdk": "npm:^21.0.0"
     "@angular/cli": "npm:^20.3.7"
     "@angular/common": "npm:^20.3.16"
     "@angular/compiler": "npm:^20.3.16"
@@ -8943,7 +8944,7 @@ __metadata:
     "@angular/core": "npm:^20.3.16"
     "@angular/forms": "npm:^20.3.16"
     "@angular/localize": "npm:^20.3.16"
-    "@angular/material": "npm:^20.2.12"
+    "@angular/material": "npm:^21.0.0"
     "@angular/platform-browser": "npm:^20.3.16"
     "@angular/platform-browser-dynamic": "npm:^20.3.16"
     "@angular/router": "npm:^20.3.16"
