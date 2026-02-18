@@ -228,6 +228,8 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     const contextKey = dataDomain.contextKey as string;
     if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes($event.value.name)) {
       this.dashboardTableVisibility.set(contextKey, true);
+      // Clear selected dashboards when switching to viewer/specialist role to force re-selection
+      this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
     } else {
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
       this.dashboardTableVisibility.set(contextKey, false);

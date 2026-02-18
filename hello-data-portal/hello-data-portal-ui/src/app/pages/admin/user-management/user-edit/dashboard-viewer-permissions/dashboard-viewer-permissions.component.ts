@@ -36,7 +36,6 @@ import {
   selectAllDashboardsWithMarkedUserFetched
 } from "../../../../../store/users-management/users-management.selector";
 import {markUnsavedChanges} from "../../../../../store/unsaved-changes/unsaved-changes.actions";
-import {take} from "rxjs/operators";
 import {updateUserRoles} from "../../../../../store/users-management/users-management.action";
 import {AsyncPipe} from "@angular/common";
 import {Checkbox} from "primeng/checkbox";
@@ -68,7 +67,6 @@ export class DashboardViewerPermissionsComponent {
     this.dashboardsFetched$ = this.store.select(selectAllDashboardsWithMarkedUserFetched).pipe(tap(fetched => console.debug("dashboards fetched?", fetched)));
     this.dashboards$ =
       this.store.select(selectAllDashboardsWithMarkedUser).pipe(
-        take(1),
         tap((allDashboards) => {
           this.extractDashboardsForSelectedContext(allDashboards);
           this.filteredDashboards = [...this.allDashboardsForContext];

@@ -215,9 +215,23 @@ export const usersManagementReducer = createReducer(
         dashboards: dashboards
       })
     }
+
+    // Also update allDashboardsWithMarkedUser to sync viewer flags
+    const selectedDashboardIds = new Set(dashboards.map(d => d.id));
+    const updatedAllDashboards = state.allDashboardsWithMarkedUser.map(dashboard => {
+      if (dashboard.contextKey === contextKey) {
+        return {
+          ...dashboard,
+          viewer: selectedDashboardIds.has(dashboard.id)
+        };
+      }
+      return dashboard;
+    });
+
     return {
       ...state,
-      selectedDashboardsForUser: contextDashboardsForUser
+      selectedDashboardsForUser: contextDashboardsForUser,
+      allDashboardsWithMarkedUser: updatedAllDashboards
     };
   }),
   on(navigateToUsersManagement, (state: UsersManagementState): UsersManagementState => {
