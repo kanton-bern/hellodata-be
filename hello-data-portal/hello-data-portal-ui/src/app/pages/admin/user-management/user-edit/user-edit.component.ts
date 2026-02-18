@@ -44,6 +44,7 @@ import {
   CommentPermissions,
   DashboardForUser,
   DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE,
+  DATA_DOMAIN_EDITOR_ROLE,
   DATA_DOMAIN_VIEWER_ROLE,
   HELLODATA_ADMIN_ROLE,
   NONE_ROLE,
@@ -246,8 +247,8 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
         contextKey,
         permissions: {readComments: true, writeComments: true, reviewComments: true}
       }));
-    } else if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes($event.value.name)) {
-      // DATA_DOMAIN_VIEWER and DATA_DOMAIN_BUSINESS_SPECIALIST get only readComments
+    } else if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE, DATA_DOMAIN_EDITOR_ROLE].includes($event.value.name)) {
+      // DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST and DATA_DOMAIN_EDITOR get only readComments
       this.store.dispatch(setCommentPermissionsForUser({
         contextKey,
         permissions: {readComments: true, writeComments: false, reviewComments: false}
