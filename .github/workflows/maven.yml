@@ -80,6 +80,12 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Docker Buildx for fabric8 plugin
+        run: |
+          # Create buildx builder for fabric8 docker-maven-plugin (for non-Java images)
+          docker buildx create --name maven-builder --driver docker-container --use || true
+          docker buildx inspect maven-builder --bootstrap
+
       - name: Publish Packages and Docker Images
         env:
           # Jib uses docker credentials from the docker login step automatically

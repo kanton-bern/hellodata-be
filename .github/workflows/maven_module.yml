@@ -66,7 +66,16 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Docker Buildx for fabric8 plugin
+        run: |
+          # Create buildx builder for fabric8 docker-maven-plugin (for non-Java images)
+          docker buildx create --name maven-builder --driver docker-container --use || true
+          docker buildx inspect maven-builder --bootstrap
+
       - name: Publish Packages and Docker Images
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: mvn --batch-mode deploy -Pdocker -DskipTests -pl ${{ github.event.inputs.module }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive

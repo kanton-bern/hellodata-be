@@ -236,18 +236,27 @@
               </execution>
             </executions>
             <configuration>
-              <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
               <imagePullPolicy>Always</imagePullPolicy>
+              <!-- Use buildx with OCI-compliant output -->
+              <buildx>
+                <builderName>maven-builder</builderName>
+                <platforms>
+                  <platform>linux/amd64</platform>
+                </platforms>
+                <attestations>
+                  <provenance>false</provenance>
+                  <sbom>false</sbom>
+                </attestations>
+              </buildx>
               <images>
                 <image>
                   <name>${docker.namespace}/hello-data-portal-ui:${docker.tag.name}</name>
                   <build>
                     <contextDir>${project.basedir}/build/docker</contextDir>
                     <dockerFile>${project.basedir}/build/docker/Dockerfile</dockerFile>
-                    <!-- extract the assembly into the docker context directory-->
                     <assembly>
                       <descriptor>${project.basedir}/assembly-descriptor.xml
-                      </descriptor> <!-- copy dist/frontend to docker image -->
+                      </descriptor>
                       <name>hello-data-portal-ui</name>
                     </assembly>
                   </build>

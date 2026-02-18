@@ -150,14 +150,23 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
                             <imagePullPolicy>Always</imagePullPolicy>
+                            <!-- Use buildx with OCI-compliant output -->
+                            <buildx>
+                                <builderName>maven-builder</builderName>
+                                <platforms>
+                                    <platform>linux/amd64</platform>
+                                </platforms>
+                                <attestations>
+                                    <provenance>false</provenance>
+                                    <sbom>false</sbom>
+                                </attestations>
+                            </buildx>
                             <images>
                                 <image>
                                     <name>${docker.namespace}/hello-data-cloudbeaver:${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/main/docker</contextDir>
-                                        <!-- extract the assembly into the docker context directory-->
                                         <assembly>
                                             <name>hello-data-cloudbeaver</name>
                                         </assembly>
