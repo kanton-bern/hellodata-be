@@ -49,35 +49,6 @@ public class DashboardAccessSynchronizer {
     private final Connection connection;
     private final ObjectMapper objectMapper;
 
-    @Scheduled(timeUnit = TimeUnit.MINUTES,
-            fixedDelayString = "${hello-data.synchronize-dashboard-access-in-minutes:60}",
-            initialDelayString = "${hello-data.synchronize-dashboard-access.initial-delay-minutes:2}")
-    @Transactional
-    public void synchronizeDashboardAccessFromSupersets() {
-        List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
-        log.info("[fetchDashboardAccess] Synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
-        for (HdContextEntity contextEntity : dataDomains) {
-            log.info("[fetchDashboardAccess] Started synchronizing dashboard accesses for data domain {}", contextEntity.getName());
-            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextEntity.getContextKey());
-            for (SupersetLog supersetLog : fetchDashboardAccess(contextEntity.getContextKey(), supersetInstanceName)) {
-                log.debug("[fetchDashboardAccess] Processing dashboard access: {}", supersetLog);
-                DashboardAccessEntity dashboardAccessEntity = createDashboardAccessEntity(contextEntity, supersetLog);
-                fillDashboardTitleAndSlug(contextEntity, supersetLog, dashboardAccessEntity);
-                fillUserDetails(supersetLog, dashboardAccessEntity, supersetInstanceName);
-                Optional<DashboardAccessEntity> found = dashboardAccessRepository.findByContextKeyAndDttm(contextEntity.getContextKey(), dashboardAccessEntity.getDttm());
-                if (found.isPresent()) {
-                    DashboardAccessEntity existingDashboardAccess = found.get();
-                    log.warn(" [fetchDashboardAccess]Updating dashboard access {}", existingDashboardAccess);
-                    dashboardAccessEntity.setId(existingDashboardAccess.getId());
-                }
-                dashboardAccessRepository.save(dashboardAccessEntity);
-                log.debug("[fetchDashboardAccess] Saved dashboard access {}", dashboardAccessEntity);
-            }
-            log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses for data domain {}", contextEntity.getName());
-        }
-        log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
-    }
-
     private static DashboardAccessEntity createDashboardAccessEntity(HdContextEntity contextEntity, SupersetLog supersetLog) {
         DashboardAccessEntity dashboardAccessEntity = new DashboardAccessEntity();
         dashboardAccessEntity.setContextKey(contextEntity.getContextKey());
@@ -90,6 +61,46 @@ public class DashboardAccessSynchronizer {
         dashboardAccessEntity.setUsername(supersetLog.getUser().getUsername());
         dashboardAccessEntity.setUserId(supersetLog.getUserId());
         return dashboardAccessEntity;
+    }
+
+    @Scheduled(timeUnit = TimeUnit.MINUTES,
+            fixedDelayString = "${hello-data.synchronize-dashboard-access-in-minutes:60}",
+            initialDelayString = "${hello-data.synchronize-dashboard-access.initial-delay-minutes:2}")
+    @Transactional
+    public void synchronizeDashboardAccessFromSupersets() {
+        List<HdContextEntity> dataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
+        log.info("[fetchDashboardAccess] Synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
+        for (HdContextEntity contextEntity : dataDomains) {
+            log.info("[fetchDashboardAccess] Started synchronizing dashboard accesses for data domain {}", contextEntity.getName());
+            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextEntity.getContextKey());
+            for (SupersetLog supersetLog : fetchDashboardAccess(contextEntity.getContextKey(), supersetInstanceName)) {
+                assembleAndSaveEntity(contextEntity, supersetLog, supersetInstanceName);
+            }
+            log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses for data domain {}", contextEntity.getName());
+        }
+        log.info("[fetchDashboardAccess] Finished synchronizing dashboard accesses from data domains {}", String.join(" : ", dataDomains.stream().map(HdContextEntity::getName).toList()));
+    }
+
+    private void assembleAndSaveEntity(HdContextEntity contextEntity, SupersetLog supersetLog, String supersetInstanceName) {
+        log.debug("[fetchDashboardAccess] Processing dashboard access: {}", supersetLog);
+        DashboardAccessEntity dashboardAccessEntity = createDashboardAccessEntity(contextEntity, supersetLog);
+        fillDashboardTitleAndSlug(contextEntity, supersetLog, dashboardAccessEntity);
+        if (dashboardAccessEntity.getDashboardTitle() == null) {
+            dashboardAccessEntity.setDashboardTitle("unknown [id: " + dashboardAccessEntity.getDashboardId() + "]");
+        }
+        fillUserDetails(supersetLog, dashboardAccessEntity, supersetInstanceName);
+        Optional<DashboardAccessEntity> found = dashboardAccessRepository.findByContextKeyAndDttm(contextEntity.getContextKey(), dashboardAccessEntity.getDttm());
+        if (found.isPresent()) {
+            DashboardAccessEntity existingDashboardAccess = found.get();
+            log.warn(" [fetchDashboardAccess]Updating dashboard access {}", existingDashboardAccess);
+            dashboardAccessEntity.setId(existingDashboardAccess.getId());
+        }
+        try {
+            dashboardAccessRepository.save(dashboardAccessEntity);
+            log.debug("[fetchDashboardAccess] Saved dashboard access {}", dashboardAccessEntity);
+        } catch (RuntimeException e) {
+            log.error("[fetchDashboardAccess] Error saving dashboard access entity {}: {}", dashboardAccessEntity, e.getMessage(), e);
+        }
     }
 
     private void fillDashboardTitleAndSlug(HdContextEntity contextEntity, SupersetLog supersetLog, DashboardAccessEntity dashboardAccessEntity) {
