@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.bedag.dap.hellodata</groupId>
@@ -151,17 +152,6 @@
                         </executions>
                         <configuration>
                             <imagePullPolicy>Always</imagePullPolicy>
-                            <!-- Use buildx with OCI-compliant output -->
-                            <buildx>
-                                <builderName>maven-builder</builderName>
-                                <platforms>
-                                    <platform>linux/amd64</platform>
-                                </platforms>
-                                <attestations>
-                                    <provenance>false</provenance>
-                                    <sbom>false</sbom>
-                                </attestations>
-                            </buildx>
                             <images>
                                 <image>
                                     <name>${docker.namespace}/hello-data-superset:${docker.tag.name}</name>
@@ -170,6 +160,15 @@
                                         <assembly>
                                             <name>hello-data-superset</name>
                                         </assembly>
+                                        <!-- Use buildx with OCI-compliant output to fix podman/buildah compatibility -->
+                                        <buildx>
+                                            <platforms>
+                                                <platform>linux/amd64</platform>
+                                            </platforms>
+                                            <attestations>
+                                                <provenance>false</provenance>
+                                            </attestations>
+                                        </buildx>
                                     </build>
                                 </image>
                             </images>

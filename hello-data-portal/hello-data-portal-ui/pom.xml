@@ -237,17 +237,6 @@
             </executions>
             <configuration>
               <imagePullPolicy>Always</imagePullPolicy>
-              <!-- Use buildx with OCI-compliant output -->
-              <buildx>
-                <builderName>maven-builder</builderName>
-                <platforms>
-                  <platform>linux/amd64</platform>
-                </platforms>
-                <attestations>
-                  <provenance>false</provenance>
-                  <sbom>false</sbom>
-                </attestations>
-              </buildx>
               <images>
                 <image>
                   <name>${docker.namespace}/hello-data-portal-ui:${docker.tag.name}</name>
@@ -259,6 +248,15 @@
                       </descriptor>
                       <name>hello-data-portal-ui</name>
                     </assembly>
+                    <!-- Use buildx with OCI-compliant output to fix podman/buildah compatibility -->
+                    <buildx>
+                      <platforms>
+                        <platform>linux/amd64</platform>
+                      </platforms>
+                      <attestations>
+                        <provenance>false</provenance>
+                      </attestations>
+                    </buildx>
                   </build>
                 </image>
               </images>
