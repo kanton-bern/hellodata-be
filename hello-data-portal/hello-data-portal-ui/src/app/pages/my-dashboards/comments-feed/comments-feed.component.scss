@@ -143,6 +143,18 @@
   }
 }
 
+// Style dla dropdown renderowanego w body (appendTo="body")
+::ng-deep .p-select-overlay {
+  .p-select-list {
+    font-size: 0.65rem;
+  }
+
+  .p-select-option {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+  }
+}
+
 .comment-scrollpanel {
   flex: 1 1 0;
   min-height: 0; // important for the flexbox with overflow

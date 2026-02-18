@@ -104,6 +104,7 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef<HTMLElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   showCloseButton = input<boolean>(false);
+  isOpen = input<boolean>(false);
   pointerUrlClick = output<string>();
   closePanel = output<void>();
   // Filter options
@@ -248,6 +249,19 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
         }, 150);
       }
     });
+
+    // Scroll to bottom when panel is opened
+    effect(() => {
+      const isOpen = this.isOpen();
+      if (isOpen) {
+        // Re-enable auto-scroll when panel opens
+        this.autoScrollEnabled = true;
+        // Use longer delay to ensure panel animation is complete and DOM is rendered
+        setTimeout(() => {
+          this.scrollToBottom();
+        }, 300);
+      }
+    });
   }
 
   /**
@@ -317,7 +331,22 @@ export class CommentsFeed implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     // Enable auto-scroll when panel opens and scroll to bottom
     this.autoScrollEnabled = true;
-    this.scrollToBottom();
+
+    // Wait for comments to be loaded and DOM to be rendered, then scroll to bottom
+    this.filteredComments$.pipe(
+      filter(comments => comments && comments.length > 0),
+      take(1)
+    ).subscribe(() => {
+      // Use longer delay to ensure DOM is fully rendered with comments
+      setTimeout(() => {
+        this.scrollToBottom();
+      }, 200);
+    });
+
+    // Also scroll after short delay even if no comments (for initial render)
+    setTimeout(() => {
+      this.scrollToBottom();
+    }, 100);
 
     // Listen for scroll events to manage auto-scroll behavior
     const container = this.scrollContainer?.nativeElement;

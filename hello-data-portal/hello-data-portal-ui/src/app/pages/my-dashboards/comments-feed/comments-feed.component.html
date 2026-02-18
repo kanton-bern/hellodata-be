@@ -46,7 +46,8 @@
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
                 [style]="{'width': '100%'}"
-                size="small">
+                size="small"
+                appendTo="body">
         <ng-template pTemplate="item" let-option>
           {{ option.label.startsWith('@') ? (option.label | transloco) : option.label }}
         </ng-template>
@@ -64,7 +65,8 @@
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
                 [style]="{'width': '100%'}"
-                size="small">
+                size="small"
+                appendTo="body">
         <ng-template pTemplate="item" let-option>
           {{ option.label | transloco }}
         </ng-template>
@@ -82,7 +84,8 @@
                 optionValue="value"
                 placeholder="{{ '@All' | transloco }}"
                 [style]="{'width': '100%'}"
-                size="small">
+                size="small"
+                appendTo="body">
         <ng-template pTemplate="item" let-option>
           {{ option.label | transloco }}
         </ng-template>
@@ -102,7 +105,8 @@
                     optionValue="value"
                     placeholder="{{ '@All' | transloco }}"
                     [style]="{'width': '100%'}"
-                    size="small">
+                    size="small"
+                    appendTo="body">
             <ng-template pTemplate="item" let-option>
               {{ option.label.startsWith('@') ? (option.label | transloco) : option.label }}
             </ng-template>

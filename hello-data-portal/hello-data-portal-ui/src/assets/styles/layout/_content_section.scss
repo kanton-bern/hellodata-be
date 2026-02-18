@@ -88,107 +88,142 @@
 /* Responsive height for mainContentDiv when containing subsystem-iframe */
 #mainContentDiv:has(#subsystem-iframe) {
   height: 80vh;
+  padding-bottom: 0 !important;
+}
+
+@media (min-height: 260px) {
+  #mainContentDiv:has(#subsystem-iframe) {
+    height: 81vh;
+    overflow: scroll !important;
+    padding-bottom: 175px !important;
+  }
+}
+
+@media (min-height: 350px) {
+  #mainContentDiv:has(#subsystem-iframe) {
+    height: 81vh;
+    overflow: scroll !important;
+    padding-bottom: 100px !important;
+  }
 }
 
 @media (min-height: 400px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 81vh;
+    overflow: scroll !important;
+    padding-bottom: 30px !important;
   }
 }
 
 @media (min-height: 485px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 82vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 495px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 83vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 500px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 83vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 550px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 84vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 580px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 85vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 615px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 86vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 650px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 87vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 680px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 88vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 735px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 89vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 750px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 90vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 850px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 91vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 900px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 92vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 1000px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 93vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 1105px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 94vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 1380px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 95vh;
+    padding-bottom: 0 !important;
   }
 }
 
 @media (min-height: 1800px) {
   #mainContentDiv:has(#subsystem-iframe) {
     height: 96vh;
+    padding-bottom: 0 !important;
   }
 }
 

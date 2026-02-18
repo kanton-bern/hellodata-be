@@ -7,5 +7,6 @@
       <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
     </button>
   </div>
-  <app-comments-feed class="comments-feed-wrapper" (pointerUrlClick)="pointerUrlClick.emit($event)"></app-comments-feed>
+  <app-comments-feed class="comments-feed-wrapper" [isOpen]="isOpen()"
+                     (pointerUrlClick)="pointerUrlClick.emit($event)"></app-comments-feed>
 </div>

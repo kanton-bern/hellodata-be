@@ -22,6 +22,7 @@
         </div>
 
         <app-comments-toggle-panel [style.display]="isCommentsOpen ? 'flex' : 'none'"
+                                   [isOpen]="isCommentsOpen"
                                    (toggleComments)="toggleComments()"
                                    (pointerUrlClick)="navigateToPointerUrl($event)"
                                    class="w-full h-full"></app-comments-toggle-panel>

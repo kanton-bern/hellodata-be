@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, input, Output} from '@angular/core';
 import {CommentsFeed} from "../comments-feed/comments-feed.component";
 import {Tooltip} from "primeng/tooltip";
 import {TranslocoPipe} from "@jsverse/transloco";
@@ -41,6 +41,7 @@ import {TranslocoPipe} from "@jsverse/transloco";
   styleUrls: ['./comments-toggle-panel.component.scss']
 })
 export class CommentsTogglePanelComponent {
+  isOpen = input<boolean>(false);
   @Output() toggleComments = new EventEmitter<void>();
   @Output() pointerUrlClick = new EventEmitter<string>();
 }
