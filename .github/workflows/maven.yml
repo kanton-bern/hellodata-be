@@ -53,6 +53,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
+          driver: docker-container
           driver-opts: |
             image=moby/buildkit:v0.12.5
           buildkitd-config-inline: |
@@ -63,8 +64,11 @@ jobs:
 
       - name: Create buildx builder for maven
         run: |
-          docker buildx create --name maven-builder --driver docker-container --use || true
-          docker buildx inspect maven-builder --bootstrap
+          # Create a separate builder for docker-maven-plugin
+          docker buildx create --name maven-builder --driver docker-container \
+            --driver-opt image=moby/buildkit:v0.12.5 \
+            --buildkitd-flags '--allow-insecure-entitlement network.host' || true
+          docker buildx inspect maven-builder --bootstrap || true
 
       - name: Clean Docker space
         run: |
