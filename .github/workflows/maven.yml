@@ -35,6 +35,8 @@ jobs:
       GIT_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DOCKER_BUILDKIT: 1
       BUILDKIT_PROGRESS: plain
+      DOCKER_CLI_EXPERIMENTAL: enabled
+      BUILDX_EXPERIMENTAL: 1
 
     steps:
       - name: Checkout repository
@@ -53,6 +55,16 @@ jobs:
         with:
           driver-opts: |
             image=moby/buildkit:v0.12.5
+          buildkitd-config-inline: |
+            [worker.oci]
+              enabled = true
+            [worker.containerd]
+              enabled = true
+
+      - name: Create buildx builder for maven
+        run: |
+          docker buildx create --name maven-builder --driver docker-container --use || true
+          docker buildx inspect maven-builder --bootstrap
 
       - name: Clean Docker space
         run: |

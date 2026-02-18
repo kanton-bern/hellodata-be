@@ -24,7 +24,7 @@
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <build.number>local-build</build.number>
         <docker.namespace>bedag</docker.namespace>
-        <docker-maven-plugin.version>0.45.0</docker-maven-plugin.version>
+        <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
     </properties>
 
     <build>

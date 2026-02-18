@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.bedag.dap.hellodata</groupId>
@@ -34,7 +35,7 @@
         <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <docker.namespace>bedag</docker.namespace>
-        <docker-maven-plugin.version>0.45.0</docker-maven-plugin.version>
+        <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <build.number>local-build</build.number>
     </properties>
@@ -109,6 +110,19 @@
                         <verbose>true</verbose>
                         <logStdout>true</logStdout>
                         <imagePullPolicy>Always</imagePullPolicy>
+                        <!-- Use buildx with provenance=false and sbom=false to avoid mixed media types (OCI/Docker v2)
+                             This fixes compatibility with buildah/podman on GitLab
+                             See: https://github.com/containers/buildah/issues/5272 -->
+                        <buildx>
+                            <builderName>maven-builder</builderName>
+                            <platforms>
+                                <platform>linux/amd64</platform>
+                            </platforms>
+                            <attestations>
+                                <provenance>false</provenance>
+                                <sbom>false</sbom>
+                            </attestations>
+                        </buildx>
                     </configuration>
                 </plugin>
                 <plugin>
