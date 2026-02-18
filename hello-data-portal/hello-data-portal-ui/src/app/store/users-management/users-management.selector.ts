@@ -33,7 +33,10 @@ import {
   BUSINESS_DOMAIN_ADMIN_ROLE,
   BUSINESS_DOMAIN_CONTEXT_TYPE,
   DATA_DOMAIN_ADMIN_ROLE,
+  DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE,
   DATA_DOMAIN_CONTEXT_TYPE,
+  DATA_DOMAIN_EDITOR_ROLE,
+  DATA_DOMAIN_VIEWER_ROLE,
   HELLODATA_ADMIN_ROLE,
   NONE_ROLE
 } from "./users-management.model";
@@ -161,18 +164,27 @@ export const selectAvailableRolesForBusinessDomain = createSelector(
 export const selectAvailableRolesForDataDomain = createSelector(
   usersManagementState,
   (state: UsersManagementState) => {
+    const DATA_DOMAIN_ROLE_ORDER = [
+      NONE_ROLE,
+      DATA_DOMAIN_VIEWER_ROLE,
+      DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE,
+      DATA_DOMAIN_EDITOR_ROLE,
+      DATA_DOMAIN_ADMIN_ROLE
+    ];
+
     if (state.selectedBusinessContextRoleForEditedUser && (state.selectedBusinessContextRoleForEditedUser.name === HELLODATA_ADMIN_ROLE || state.selectedBusinessContextRoleForEditedUser.name === BUSINESS_DOMAIN_ADMIN_ROLE)) {
       return state.allAvailableContextRoles.filter(role => role.name === DATA_DOMAIN_ADMIN_ROLE);
     }
-    return state.allAvailableContextRoles.filter(role => role.contextType === DATA_DOMAIN_CONTEXT_TYPE || role.contextType === null).sort((roleA, roleB) => {
-      if (roleA.name === NONE_ROLE && roleB.name !== NONE_ROLE) {
-        return -1; // roleA with name 'NONE' comes first
-      } else if (roleA.name !== NONE_ROLE && roleB.name === NONE_ROLE) {
-        return 1; // roleB with name 'NONE' comes first
-      } else {
-        return 0; // Both have the same name (either 'NONE' or not 'NONE')
-      }
-    });
+    return state.allAvailableContextRoles
+      .filter(role => role.contextType === DATA_DOMAIN_CONTEXT_TYPE || role.contextType === null)
+      .sort((roleA, roleB) => {
+        const indexA = DATA_DOMAIN_ROLE_ORDER.indexOf(roleA.name ?? '');
+        const indexB = DATA_DOMAIN_ROLE_ORDER.indexOf(roleB.name ?? '');
+        // Roles not in the order list go to the end
+        const orderA = indexA === -1 ? DATA_DOMAIN_ROLE_ORDER.length : indexA;
+        const orderB = indexB === -1 ? DATA_DOMAIN_ROLE_ORDER.length : indexB;
+        return orderA - orderB;
+      });
   });
 
 export const selectSelectedRolesForUser = createSelector(
