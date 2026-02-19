@@ -24,7 +24,7 @@
         <build.number>local-build</build.number>
         <docker.namespace>bedag</docker.namespace>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
-        <docker-maven-plugin.version>0.43.4</docker-maven-plugin.version>
+        <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
     </properties>
 
     <build>
@@ -150,17 +150,24 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <!-- Make sure we always have the latest version of the base image, since we are using a rolling tag -->
                             <imagePullPolicy>Always</imagePullPolicy>
                             <images>
                                 <image>
                                     <name>${docker.namespace}/hello-data-cloudbeaver:${docker.tag.name}</name>
                                     <build>
                                         <contextDir>${project.basedir}/src/main/docker</contextDir>
-                                        <!-- extract the assembly into the docker context directory-->
                                         <assembly>
                                             <name>hello-data-cloudbeaver</name>
                                         </assembly>
+                                        <!-- Use buildx with OCI-compliant output to fix podman/buildah compatibility -->
+                                        <buildx>
+                                            <platforms>
+                                                <platform>linux/amd64</platform>
+                                            </platforms>
+                                            <attestations>
+                                                <provenance>false</provenance>
+                                            </attestations>
+                                        </buildx>
                                     </build>
                                 </image>
                             </images>

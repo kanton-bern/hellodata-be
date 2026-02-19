@@ -34,7 +34,7 @@
         <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <docker.namespace>bedag</docker.namespace>
-        <docker-maven-plugin.version>0.45.0</docker-maven-plugin.version>
+        <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <build.number>local-build</build.number>
     </properties>
@@ -108,6 +108,7 @@
                     <configuration>
                         <verbose>true</verbose>
                         <logStdout>true</logStdout>
+                        <imagePullPolicy>Always</imagePullPolicy>
                     </configuration>
                 </plugin>
                 <plugin>
