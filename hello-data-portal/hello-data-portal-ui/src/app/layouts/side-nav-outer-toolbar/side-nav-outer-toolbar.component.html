@@ -1,7 +1,7 @@
 <div class="sidebar close" id="appSidebar">
   <div [pTooltip]="'@HelloDATA' | transloco" class="logo-details" tooltipPosition="bottom">
-    <img alt="logo" src="/assets/img/hd.png" style="cursor: pointer" (click)="navigateHome()"
-         (keydown)="navigateHome()"/>
+    <img (click)="navigateHome()" (keydown)="navigateHome()" alt="logo" src="/assets/img/hd.png"
+         style="cursor: pointer"/>
     <span class="logo_name">{{ '@HelloDATA' | transloco }}</span>
   </div>
   @if ((navItems$ | async); as navItems) {
@@ -54,7 +54,7 @@
 <section class="content-section">
   <app-header [title]="title()"/>
   <div class="grid [grid-template-columns:repeat(11,minmax(0,1fr))_30px]">
-    <div class="col-span-11 overflow-y-scroll" id="mainContentDiv">
+    <div class="col-span-11" id="mainContentDiv">
       <ng-content/>
     </div>
 
