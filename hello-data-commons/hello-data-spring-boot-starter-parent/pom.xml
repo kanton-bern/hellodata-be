@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -22,10 +23,8 @@
         <commons-io.version>2.17.0</commons-io.version>
         <commons-validator.version>1.10.1</commons-validator.version>
         <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
-        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
         <docker.namespace>bedag</docker.namespace>
-        <jib.base.image>eclipse-temurin:17.0.9_9-jre</jib.base.image>
         <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <httpmime.version>4.5.14</httpmime.version>
@@ -442,38 +441,6 @@
                         <verbose>true</verbose>
                         <logStdout>true</logStdout>
                         <imagePullPolicy>Always</imagePullPolicy>
-                    </configuration>
-                </plugin>
-                <!-- Jib Maven Plugin for Docker image building without Docker daemon -->
-                <plugin>
-                    <groupId>com.google.cloud.tools</groupId>
-                    <artifactId>jib-maven-plugin</artifactId>
-                    <version>${jib-maven-plugin.version}</version>
-                    <configuration>
-                        <from>
-                            <image>${jib.base.image}</image>
-                        </from>
-                        <to>
-                            <image>${docker.namespace}/${project.artifactId}</image>
-                            <tags>
-                                <tag>${docker.tag.name}</tag>
-                            </tags>
-                        </to>
-                        <container>
-                            <mainClass>${main.class}</mainClass>
-                            <user>3012:3012</user>
-                            <workingDirectory>/app</workingDirectory>
-                            <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-                            <ports>
-                                <port>8080</port>
-                            </ports>
-                            <jvmFlags>
-                                <jvmFlag>-XX:+UseContainerSupport</jvmFlag>
-                            </jvmFlags>
-                            <labels>
-                                <MAINTAINER>HelloData Team</MAINTAINER>
-                            </labels>
-                        </container>
                     </configuration>
                 </plugin>
                 <plugin>
