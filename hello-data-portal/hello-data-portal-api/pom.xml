@@ -255,10 +255,6 @@
                                     <build>
                                         <contextDir>${project.basedir}</contextDir>
                                         <dockerFile>${project.basedir}/src/main/docker/Dockerfile</dockerFile>
-                                        <!-- extract the assembly into the docker context directory-->
-                                        <assembly>
-                                            <name>hello-data-portal-api</name>
-                                        </assembly>
                                         <!-- Use buildx with OCI-compliant output to fix podman/buildah compatibility -->
                                         <buildx>
                                             <platforms>
