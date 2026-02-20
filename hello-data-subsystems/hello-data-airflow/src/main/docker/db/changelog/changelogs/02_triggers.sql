@@ -64,15 +64,25 @@ EXECUTE FUNCTION remove_dag_view_menu_and_perms();
 CREATE OR REPLACE FUNCTION create_data_domain_role() RETURNS TRIGGER AS
 $$
 DECLARE
+    dag_permission VARCHAR(10);
     role_name VARCHAR(255);
     role_id_count INTEGER;
 
 BEGIN
-    SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO STRICT role_name FROM dag WHERE dag.dag_id = substring(new.name from 5);
-    SELECT count(ab_role.id) INTO STRICT role_id_count from ab_role where ab_role.name = role_name;
+    -- Check if this is a DAG-related view menu
+    SELECT substring(new.name from 1 for 4) INTO dag_permission;
+    
+    IF dag_permission = 'DAG:' THEN
+        SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO role_name FROM dag WHERE dag.dag_id = substring(new.name from 5);
+        
+        -- Only proceed if we found a matching DAG
+        IF role_name IS NOT NULL THEN
+            SELECT count(ab_role.id) INTO role_id_count from ab_role where ab_role.name = role_name;
 
-    IF role_id_count = 0 THEN
-        INSERT INTO ab_role (name) VALUES(role_name);
+            IF role_id_count = 0 THEN
+                INSERT INTO ab_role (name) VALUES(role_name);
+            END IF;
+        END IF;
     END IF;
 
     RETURN new;
@@ -105,16 +115,26 @@ DECLARE
 
 BEGIN
 
-    SELECT substring(ab_view_menu.name from 1 for 4) INTO STRICT dag_permission FROM ab_view_menu WHERE ab_view_menu.id = new.view_menu_id;
+    SELECT substring(ab_view_menu.name from 1 for 4) INTO dag_permission FROM ab_view_menu WHERE ab_view_menu.id = new.view_menu_id;
 
-    IF dag_permission = 'DAG:' THEN
-        SELECT substring(ab_view_menu.name from 5) INTO STRICT dag_name FROM ab_view_menu WHERE ab_view_menu.id = new.view_menu_id;
-        SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO STRICT role_name FROM dag WHERE dag.dag_id = dag_name;
-        SELECT ab_role.id INTO STRICT _role_id FROM ab_role where name = role_name;
-        SELECT count(ab_permission_view_role.id) INTO STRICT ab_permission_view_role_id_count FROM ab_permission_view_role WHERE ab_permission_view_role.role_id = _role_id AND ab_permission_view_role.permission_view_id = new.id;
+    IF dag_permission is not null and dag_permission = 'DAG:' THEN
+        SELECT substring(ab_view_menu.name from 5) INTO dag_name FROM ab_view_menu WHERE ab_view_menu.id = new.view_menu_id;
+        
+        -- Check if DAG exists before attempting to create role
+        SELECT 'DD_' || substring(fileloc from '^/opt/airflow/dags/([a-zA-Z0-9_]*)') INTO role_name FROM dag WHERE dag.dag_id = dag_name;
+        
+        -- Only proceed if we found a matching DAG
+        IF role_name IS NOT NULL THEN
+            SELECT ab_role.id INTO _role_id FROM ab_role where name = role_name;
+            
+            -- Only proceed if we found a matching role
+            IF _role_id IS NOT NULL THEN
+                SELECT count(ab_permission_view_role.id) INTO ab_permission_view_role_id_count FROM ab_permission_view_role WHERE ab_permission_view_role.role_id = _role_id AND ab_permission_view_role.permission_view_id = new.id;
 
-        IF ab_permission_view_role_id_count = 0 THEN
-            INSERT INTO ab_permission_view_role (permission_view_id, role_id) VALUES(new.id, _role_id);
+                IF ab_permission_view_role_id_count = 0 THEN
+                    INSERT INTO ab_permission_view_role (permission_view_id, role_id) VALUES(new.id, _role_id);
+                END IF;
+            END IF;
         END IF;
     END IF;
 
