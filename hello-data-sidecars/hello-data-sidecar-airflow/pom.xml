@@ -149,15 +149,22 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <autoPull>always</autoPull>
-                            <verbose>true</verbose>
-                            <logStdout>true</logStdout>
+                            <imagePullPolicy>Always</imagePullPolicy>
                             <images>
                                 <image>
                                     <name>${docker.namespace}/hello-data-sidecar-airflow:${docker.tag.name}</name>
                                     <build>
-                                        <dockerFile>Dockerfile</dockerFile>
-                                        <dockerFileDir>${project.basedir}</dockerFileDir>
+                                        <contextDir>${project.basedir}</contextDir>
+                                        <dockerFile>${project.basedir}/Dockerfile</dockerFile>
+                                        <!-- Use buildx with OCI-compliant output to fix podman/buildah compatibility -->
+                                        <buildx>
+                                            <platforms>
+                                                <platform>linux/amd64</platform>
+                                            </platforms>
+                                            <attestations>
+                                                <provenance>false</provenance>
+                                            </attestations>
+                                        </buildx>
                                     </build>
                                 </image>
                             </images>

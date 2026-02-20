@@ -259,6 +259,15 @@
                                         <assembly>
                                             <name>hello-data-portal-api</name>
                                         </assembly>
+                                        <!-- Use buildx with OCI-compliant output to fix podman/buildah compatibility -->
+                                        <buildx>
+                                            <platforms>
+                                                <platform>linux/amd64</platform>
+                                            </platforms>
+                                            <attestations>
+                                                <provenance>false</provenance>
+                                            </attestations>
+                                        </buildx>
                                     </build>
                                 </image>
                             </images>
