@@ -24,27 +24,47 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.user.data;
+package ch.bedag.dap.hellodata.portal.user.entity;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
-import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+import ch.badag.dap.hellodata.commons.basemodel.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UpdateContextRolesForUserDto {
-    private RoleDto businessDomainRole;
-    private List<UserContextRoleDto> dataDomainRoles;
-    private Map<String, List<DashboardForUserDto>> selectedDashboardsForUser;
-    //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
-    private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
-    private List<DashboardCommentPermissionDto> commentPermissions;
-    private Map<String, List<String>> selectedDashboardGroupIdsForUser = new HashMap<>();
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Entity(name = "user_selected_dashboard")
+public class UserSelectedDashboardEntity extends BaseEntity {
+
+    @Column(nullable = false)
+    private UUID userId;
+
+    @Column(nullable = false)
+    private int dashboardId;
+
+    @Column(nullable = false, length = 500)
+    private String dashboardTitle;
+
+    @Column(nullable = false, length = 255)
+    private String contextKey;
+
+    @Column(length = 500)
+    private String instanceName;
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 }

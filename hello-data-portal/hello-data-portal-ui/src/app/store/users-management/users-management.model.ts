@@ -133,3 +133,11 @@ export interface DashboardUsersResultDto {
   instanceName: string;
   users: SubsystemUserDto[]
 }
+
+export interface DashboardGroupMembership {
+  groupId: string;
+  groupName: string;
+  isMember: boolean;
+  dashboardTitles: string[];
+}
+

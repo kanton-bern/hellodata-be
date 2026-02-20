@@ -83,6 +83,8 @@
   "@Dashboard import-export": "Dashboard Import/Export",
   "@Dashboard group": "Dashboard-Gruppe",
   "@Dashboard groups": "Dashboard-Gruppen",
+  "@Dashboard Groups": "Dashboard-Gruppen",
+  "@Select dashboard groups to add user to multiple dashboards at once": "Dashboard-Gruppen auswählen, um Benutzer mehreren Dashboards gleichzeitig hinzuzufügen",
   "@Dashboard group created successfully": "Dashboard-Gruppe erfolgreich erstellt",
   "@Dashboard group updated successfully": "Dashboard-Gruppe erfolgreich aktualisiert",
   "@Dashboard group deleted successfully": "Dashboard-Gruppe erfolgreich gelöscht",

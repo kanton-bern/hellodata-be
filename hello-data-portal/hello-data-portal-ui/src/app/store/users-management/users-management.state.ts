@@ -29,6 +29,7 @@ import {
   CommentPermissions,
   ContextDashboardsForUser,
   DashboardForUser,
+  DashboardGroupMembership,
   DashboardUsersResultDto,
   SubsystemUsersResultDto,
   User,
@@ -59,7 +60,9 @@ export interface UsersManagementState {
   subsystemUsersForDashboards: DashboardUsersResultDto[],
   subsystemUsersForDashboardsLoading: boolean,
   syncStatus: string,
-  currentPagination: any
+  currentPagination: any,
+  dashboardGroupMembershipsForUser: Record<string, DashboardGroupMembership[]>,
+  selectedDashboardGroupIdsForUser: Record<string, string[]>
 }
 
 export const initialUsersManagementState: UsersManagementState = {
@@ -86,6 +89,8 @@ export const initialUsersManagementState: UsersManagementState = {
   subsystemUsersForDashboardsLoading: false,
   syncStatus: 'COMPLETED',
   currentPagination: null,
+  dashboardGroupMembershipsForUser: {},
+  selectedDashboardGroupIdsForUser: {}
 }
 
 

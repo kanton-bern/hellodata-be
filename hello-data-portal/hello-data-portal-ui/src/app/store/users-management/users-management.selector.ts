@@ -242,4 +242,12 @@ export const selectCommentPermissionsForUser = createSelector(
   (state: UsersManagementState) => state.commentPermissionsForUser
 );
 
+export const selectDashboardGroupMembershipsForUser = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.dashboardGroupMembershipsForUser
+);
 
+export const selectSelectedDashboardGroupIdsForUser = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.selectedDashboardGroupIdsForUser
+);

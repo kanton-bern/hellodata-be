@@ -77,7 +77,7 @@ class DashboardGroupServiceTest {
         DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
         createDto.setName("Test Group");
         createDto.setContextKey("ctx1");
-        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1", null)));
 
         // when
         dashboardGroupService.create(createDto);
@@ -92,7 +92,7 @@ class DashboardGroupServiceTest {
         DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
         createDto.setName("Test Group");
         createDto.setContextKey("ctx1");
-        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1", null)));
 
         when(dashboardGroupRepository.existsByNameIgnoreCaseAndContextKey("Test Group", "ctx1")).thenReturn(true);
 
@@ -108,7 +108,7 @@ class DashboardGroupServiceTest {
         updateDto.setId(UUID.randomUUID());
         updateDto.setName("Updated Group");
         updateDto.setContextKey("ctx1");
-        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1", null)));
 
         DashboardGroupEntity existingEntity = new DashboardGroupEntity();
         existingEntity.setId(updateDto.getId());
@@ -311,6 +311,119 @@ class DashboardGroupServiceTest {
 
         // when
         dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId, contextKey);
+
+        // then
+        verify(dashboardGroupRepository, never()).save(any());
+    }
+
+    @Test
+    void testFindAllGroupsByContextKey() {
+        // given
+        String contextKey = "ctx1";
+        DashboardGroupEntity group1 = new DashboardGroupEntity();
+        group1.setId(UUID.randomUUID());
+        group1.setName("Group 1");
+        group1.setContextKey(contextKey);
+
+        DashboardGroupEntity group2 = new DashboardGroupEntity();
+        group2.setId(UUID.randomUUID());
+        group2.setName("Group 2");
+        group2.setContextKey(contextKey);
+
+        when(dashboardGroupRepository.findAllByContextKey(contextKey))
+                .thenReturn(List.of(group1, group2));
+
+        // when
+        List<DashboardGroupEntity> result = dashboardGroupService.findAllGroupsByContextKey(contextKey);
+
+        // then
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testSaveGroup() {
+        // given
+        DashboardGroupEntity group = new DashboardGroupEntity();
+        group.setId(UUID.randomUUID());
+        group.setName("Test Group");
+
+        // when
+        dashboardGroupService.saveGroup(group);
+
+        // then
+        verify(dashboardGroupRepository).save(group);
+    }
+
+    @Test
+    void testCleanupStaleDashboardsInGroups() {
+        // given
+        String contextKey = "ctx1";
+        Set<Integer> validDashboardIds = Set.of(1, 2);
+
+        DashboardGroupEntity group = new DashboardGroupEntity();
+        group.setId(UUID.randomUUID());
+        group.setName("Test Group");
+        group.setContextKey(contextKey);
+        group.setEntries(new ArrayList<>(List.of(
+                new DashboardGroupEntry(1, "Dashboard 1", "instance1"),
+                new DashboardGroupEntry(2, "Dashboard 2", "instance1"),
+                new DashboardGroupEntry(999, "Stale Dashboard", "instance1") // should be removed
+        )));
+
+        when(dashboardGroupRepository.findAllByContextKey(contextKey))
+                .thenReturn(List.of(group));
+
+        // when
+        dashboardGroupService.cleanupStaleDashboardsInGroups(contextKey, validDashboardIds);
+
+        // then
+        verify(dashboardGroupRepository).save(group);
+        assertEquals(2, group.getEntries().size());
+        assertTrue(group.getEntries().stream().noneMatch(e -> e.getDashboardId() == 999));
+    }
+
+    @Test
+    void testCleanupStaleDashboardsInGroups_noStaleEntries() {
+        // given
+        String contextKey = "ctx1";
+        Set<Integer> validDashboardIds = Set.of(1, 2);
+
+        DashboardGroupEntity group = new DashboardGroupEntity();
+        group.setId(UUID.randomUUID());
+        group.setName("Test Group");
+        group.setContextKey(contextKey);
+        group.setEntries(new ArrayList<>(List.of(
+                new DashboardGroupEntry(1, "Dashboard 1", "instance1"),
+                new DashboardGroupEntry(2, "Dashboard 2", "instance1")
+        )));
+
+        when(dashboardGroupRepository.findAllByContextKey(contextKey))
+                .thenReturn(List.of(group));
+
+        // when
+        dashboardGroupService.cleanupStaleDashboardsInGroups(contextKey, validDashboardIds);
+
+        // then
+        verify(dashboardGroupRepository, never()).save(any());
+    }
+
+    @Test
+    void testCleanupStaleDashboardsInGroups_nullEntries() {
+        // given
+        String contextKey = "ctx1";
+        Set<Integer> validDashboardIds = Set.of(1, 2);
+
+        DashboardGroupEntity group = new DashboardGroupEntity();
+        group.setId(UUID.randomUUID());
+        group.setName("Test Group");
+        group.setContextKey(contextKey);
+        group.setEntries(null);
+
+        when(dashboardGroupRepository.findAllByContextKey(contextKey))
+                .thenReturn(List.of(group));
+
+        // when
+        dashboardGroupService.cleanupStaleDashboardsInGroups(contextKey, validDashboardIds);
 
         // then
         verify(dashboardGroupRepository, never()).save(any());

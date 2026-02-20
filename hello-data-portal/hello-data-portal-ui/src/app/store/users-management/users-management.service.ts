@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Injectable, inject } from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {
@@ -35,6 +35,7 @@ import {
   CreateUserForm,
   CreateUserResponse,
   DashboardForUser,
+  DashboardGroupMembership,
   DashboardResponse,
   DashboardUsersResultDto,
   SubsystemUsersResultDto,
@@ -143,7 +144,12 @@ export class UsersManagementService {
     return this.httpClient.get<any>(`${this.baseUsersUrl}/${userId}/context-roles`);
   }
 
-  public updateUserRoles(data: any, contextDashboardsForUser: ContextDashboardsForUser[], commentPermissions?: Map<string, CommentPermissions>): Observable<any> {
+  public updateUserRoles(
+    data: any,
+    contextDashboardsForUser: ContextDashboardsForUser[],
+    commentPermissions?: Map<string, CommentPermissions>,
+    selectedDashboardGroupIdsForUser?: Record<string, string[]>
+  ): Observable<any> {
     const selectedDashboardsForUser = new Map<string, DashboardForUser[]>();
     contextDashboardsForUser.forEach(contextDashboardForUser => {
       selectedDashboardsForUser.set(contextDashboardForUser.contextKey, contextDashboardForUser.dashboards);
@@ -162,16 +168,42 @@ export class UsersManagementService {
       businessDomainRole: data.businessDomainRole,
       dataDomainRoles: data.dataDomainRoles,
       selectedDashboardsForUser: this.convertMapToJson(selectedDashboardsForUser),
-      commentPermissions: commentPermissionsList
+      commentPermissions: commentPermissionsList,
+      selectedDashboardGroupIdsForUser: selectedDashboardGroupIdsForUser || {}
     });
   }
 
-  public getCommentPermissions(userId: string): Observable<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]> {
-    return this.httpClient.get<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]>(`${this.baseUsersUrl}/${userId}/comment-permissions`);
+  public getDashboardGroupMemberships(userId: string, contextKey: string): Observable<DashboardGroupMembership[]> {
+    const params = new HttpParams().set('contextKey', contextKey);
+    return this.httpClient.get<DashboardGroupMembership[]>(`${this.baseUsersUrl}/${userId}/dashboard-groups-membership`, {params});
   }
 
-  public getCurrentUserCommentPermissions(): Observable<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]> {
-    return this.httpClient.get<{contextKey: string, readComments: boolean, writeComments: boolean, reviewComments: boolean}[]>(`${this.baseUsersUrl}/current/comment-permissions`);
+  public getCommentPermissions(userId: string): Observable<{
+    contextKey: string,
+    readComments: boolean,
+    writeComments: boolean,
+    reviewComments: boolean
+  }[]> {
+    return this.httpClient.get<{
+      contextKey: string,
+      readComments: boolean,
+      writeComments: boolean,
+      reviewComments: boolean
+    }[]>(`${this.baseUsersUrl}/${userId}/comment-permissions`);
+  }
+
+  public getCurrentUserCommentPermissions(): Observable<{
+    contextKey: string,
+    readComments: boolean,
+    writeComments: boolean,
+    reviewComments: boolean
+  }[]> {
+    return this.httpClient.get<{
+      contextKey: string,
+      readComments: boolean,
+      writeComments: boolean,
+      reviewComments: boolean
+    }[]>(`${this.baseUsersUrl}/current/comment-permissions`);
   }
 
   public searchUserByEmail(email: string | undefined): Observable<AdUser[]> {

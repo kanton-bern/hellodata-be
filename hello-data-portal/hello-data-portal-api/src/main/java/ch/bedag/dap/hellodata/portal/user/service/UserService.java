@@ -26,7 +26,6 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
-import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
@@ -37,13 +36,11 @@ import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
-import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -55,9 +52,6 @@ import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nats.client.Connection;
-import io.nats.client.Message;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -78,15 +72,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static ch.bedag.dap.hellodata.commons.SlugifyUtil.DASHBOARD_ROLE_PREFIX;
 
 @Log4j2
 @Service
@@ -98,8 +88,6 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final MetaInfoResourceService metaInfoResourceService;
-    private final Connection connection;
-    private final ObjectMapper objectMapper;
     private final NatsSenderService natsSenderService;
     private final HdContextRepository contextRepository;
     private final RoleService roleService;
@@ -108,6 +96,8 @@ public class UserService {
     private final HelloDataContextConfig helloDataContextConfig;
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
     private final DashboardGroupService dashboardGroupService;
+    private final UserSelectedDashboardService userSelectedDashboardService;
+    private final UserDashboardSyncService userDashboardSyncService;
 
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
@@ -276,24 +266,45 @@ public class UserService {
         return UserDtoMapper.map(userEntity);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public DashboardsDto getDashboardsMarkUser(String userId) {
         DashboardsDto result = new DashboardsDto();
         result.setDashboards(new ArrayList<>());
         List<MetaInfoResourceEntity> dashboardsWithContext = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS);
         UserEntity userEntity = getUserEntity(userId);
+        UUID userUuid = userEntity.getId();
+
+        // Collect valid dashboard IDs per context for stale cleanup
+        Map<String, Set<Integer>> validDashboardIdsByContext = new HashMap<>();
+
         for (MetaInfoResourceEntity dashboardWithContext : dashboardsWithContext) {
             if (dashboardWithContext.getMetainfo() instanceof DashboardResource dashboardResource) {
+                String contextKey = dashboardWithContext.getContextKey();
                 SubsystemUser subsystemUser = metaInfoResourceService.findUserInInstance(userEntity.getEmail(), dashboardResource.getInstanceName());
                 if (subsystemUser == null) {
                     log.warn("User {} not found in instance {}", userEntity.getEmail(), dashboardResource.getInstanceName());
                 }
+
+                // Get selected dashboard IDs from persisted table
+                Set<Integer> selectedIds = userSelectedDashboardService.getSelectedDashboardIds(userUuid, contextKey);
+
                 List<SupersetDashboard> data = dashboardResource.getData().stream().filter(SupersetDashboard::isPublished).toList();
+                Set<Integer> contextValidIds = validDashboardIdsByContext.computeIfAbsent(contextKey, k -> new HashSet<>());
+
                 for (SupersetDashboard supersetDashboard : data) {
-                    result.getDashboards().add(createDashboardDto(dashboardResource, subsystemUser, supersetDashboard, dashboardWithContext.getContextKey()));
+                    contextValidIds.add(supersetDashboard.getId());
+                    boolean isViewer = selectedIds.contains(supersetDashboard.getId());
+                    result.getDashboards().add(createDashboardDtoFromSelection(dashboardResource, subsystemUser, supersetDashboard, contextKey, isViewer));
                 }
             }
         }
+
+        // Cleanup stale dashboard selections
+        for (Map.Entry<String, Set<Integer>> entry : validDashboardIdsByContext.entrySet()) {
+            userSelectedDashboardService.cleanupStaleDashboards(userUuid, entry.getKey(), entry.getValue());
+            dashboardGroupService.cleanupStaleDashboardsInGroups(entry.getKey(), entry.getValue());
+        }
+
         return result;
     }
 
@@ -313,7 +324,17 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only a HelloData Admin can assign the HelloData Admin role to another user");
         }
         updateContextRoles(userId, updateContextRolesForUserDto);
-        synchronizeDashboardsForUser(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
+
+        // Persist direct dashboard selections before syncing with Superset
+        persistDirectDashboardSelections(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
+
+        // Update dashboard group memberships
+        dashboardGroupService.updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
+
+        // Merge direct + group dashboards and synchronize with Superset
+        Map<String, List<DashboardForUserDto>> mergedDashboards = userDashboardSyncService.mergeDashboardSelectionsWithGroups(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
+        userDashboardSyncService.synchronizeDashboardsForUser(userId, mergedDashboards);
+
         if (updateContextRolesForUserDto.getCommentPermissions() != null) {
             dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
         }
@@ -688,6 +709,7 @@ public class UserService {
         if (!isEligibleRole) {
             String contextKey = dataDomainRoleForContextDto.getContext().getContextKey();
             dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
+            userSelectedDashboardService.removeAllForUserInContext(userId, contextKey);
         }
     }
 
@@ -696,6 +718,7 @@ public class UserService {
         for (HdContextEntity dataDomain : allDataDomains) {
             dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
         }
+        userSelectedDashboardService.removeAllForUser(userId);
     }
 
     private void setRoleForAllRemainingDataDomainsToNone(UpdateContextRolesForUserDto updateContextRolesForUserDto, UserEntity userEntity) {
@@ -752,60 +775,36 @@ public class UserService {
                 }).filter(Objects::nonNull).toList();
     }
 
-    private void synchronizeDashboardsForUser(UUID userId, Map<String, List<DashboardForUserDto>> selectedDashboardsForUser) {
+    /**
+     * Persists direct dashboard selections (not from groups) to the database
+     */
+    private void persistDirectDashboardSelections(UUID userId, Map<String, List<DashboardForUserDto>> selectedDashboardsForUser) {
+        if (selectedDashboardsForUser == null) {
+            return;
+        }
         for (Map.Entry<String, List<DashboardForUserDto>> entry : selectedDashboardsForUser.entrySet()) {
             String contextKey = entry.getKey();
-            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
-            updateDashboardRoleForUser(userId, entry.getValue(), supersetInstanceName);
+            List<DashboardForUserDto> dashboards = entry.getValue();
+            List<UserSelectedDashboardService.DashboardSelection> selections = dashboards.stream()
+                    .filter(DashboardForUserDto::isViewer)
+                    .map(d -> new UserSelectedDashboardService.DashboardSelection(d.getId(), d.getTitle(), d.getInstanceName()))
+                    .toList();
+            userSelectedDashboardService.saveSelectedDashboards(userId, contextKey, selections);
         }
     }
 
-    private void updateDashboardRoleForUser(UUID userId, List<DashboardForUserDto> dashboardForUserDtoList, String supersetInstanceName) {
-        try {
-            SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = new SupersetDashboardsForUserUpdate();
-            UserEntity userEntity = getUserEntity(userId);
-            supersetDashboardsForUserUpdate.setSupersetUserName(userEntity.getEmail());
-            supersetDashboardsForUserUpdate.setSupersetUserEmail(userEntity.getEmail());
-            supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
-            supersetDashboardsForUserUpdate.setSupersetFirstName(userEntity.getFirstName());
-            supersetDashboardsForUserUpdate.setSupersetLastName(userEntity.getLastName());
-            supersetDashboardsForUserUpdate.setActive(userEntity.isEnabled());
-            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
-            log.info("[updateDashboardRoleForUser] Sending request to subject: {}", subject);
-            Message reply =
-                    connection.request(subject, objectMapper.writeValueAsString(supersetDashboardsForUserUpdate).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
-            if (reply == null) {
-                log.warn("Reply is null, please verify superset sidecar or nats connection");
-            } else {
-                reply.ack();
-                log.info("[updateDashboardRoleForUser] Response received: {}", new String(reply.getData()));
-            }
-        } catch (Exception e) {
-            log.error("Error updating dashboard role for user", e);
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt(); // Re-interrupt the thread
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating user", e);
-        }
-    }
-
-    private DashboardForUserDto createDashboardDto(DashboardResource dashboardResource, SubsystemUser subsystemUser, SupersetDashboard supersetDashboard, String contextKey) {
-        String dashboardTitle = supersetDashboard.getDashboardTitle();
-        SubsystemRole subsystemRole = supersetDashboard.getRoles().stream()
-                .filter(role -> role.getName().startsWith(DASHBOARD_ROLE_PREFIX)).findFirst().orElse(null);
-        boolean userHasSlugifyDashboardRole = false;
-        if (subsystemRole != null && subsystemUser != null) {
-            userHasSlugifyDashboardRole = subsystemUser.getRoles().contains(subsystemRole);
-        }
+    /**
+     * Creates a DashboardForUserDto using persisted viewer status instead of deriving it from Superset roles
+     */
+    private DashboardForUserDto createDashboardDtoFromSelection(DashboardResource dashboardResource, SubsystemUser subsystemUser,
+                                                                SupersetDashboard supersetDashboard, String contextKey, boolean isViewer) {
         DashboardForUserDto dashboardForUserDto = new DashboardForUserDto();
         dashboardForUserDto.setId(supersetDashboard.getId());
-        dashboardForUserDto.setTitle(dashboardTitle);
+        dashboardForUserDto.setTitle(supersetDashboard.getDashboardTitle());
         if (subsystemUser != null) {
-            boolean userHasDashboardViewerRole = subsystemUser.getRoles().stream()
-                    .anyMatch(role -> role.getName().equalsIgnoreCase(SlugifyUtil.BI_VIEWER_ROLE_NAME));
             dashboardForUserDto.setInstanceUserId(subsystemUser.getId());
-            dashboardForUserDto.setViewer(userHasSlugifyDashboardRole && userHasDashboardViewerRole);
         }
+        dashboardForUserDto.setViewer(isViewer);
         dashboardForUserDto.setInstanceName(dashboardResource.getInstanceName());
         dashboardForUserDto.setChangedOnUtc(supersetDashboard.getChangedOnUtc());
         dashboardForUserDto.setCompositeId(dashboardResource.getInstanceName() + "_" + supersetDashboard.getId());

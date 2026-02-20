@@ -36,4 +36,5 @@ import lombok.NoArgsConstructor;
 public class DashboardGroupEntry {
     private int dashboardId;
     private String dashboardTitle;
+    private String instanceName;
 }

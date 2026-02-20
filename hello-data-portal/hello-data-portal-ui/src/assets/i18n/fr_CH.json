@@ -83,6 +83,8 @@
   "@Dashboard import-export": "Import-export de tableaux de bord",
   "@Dashboard group": "Groupe de tableaux de bord",
   "@Dashboard groups": "Groupes de tableaux de bord",
+  "@Dashboard Groups": "Groupes de tableaux de bord",
+  "@Select dashboard groups to add user to multiple dashboards at once": "Sélectionnez des groupes de tableaux de bord pour ajouter un utilisateur à plusieurs tableaux de bord à la fois",
   "@Dashboard group created successfully": "Groupe de tableaux de bord créé avec succès",
   "@Dashboard group updated successfully": "Groupe de tableaux de bord mis à jour avec succès",
   "@Dashboard group deleted successfully": "Groupe de tableaux de bord supprimé avec succès",

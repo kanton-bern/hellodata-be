@@ -26,25 +26,20 @@
  */
 package ch.bedag.dap.hellodata.portal.user.data;
 
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
-import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UpdateContextRolesForUserDto {
-    private RoleDto businessDomainRole;
-    private List<UserContextRoleDto> dataDomainRoles;
-    private Map<String, List<DashboardForUserDto>> selectedDashboardsForUser;
-    //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
-    private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
-    private List<DashboardCommentPermissionDto> commentPermissions;
-    private Map<String, List<String>> selectedDashboardGroupIdsForUser = new HashMap<>();
+@AllArgsConstructor
+@NoArgsConstructor
+public class DashboardGroupMembershipDto {
+    private String groupId;
+    private String groupName;
+    @JsonProperty("isMember")
+    private boolean isMember;
+    private List<String> dashboardTitles;
 }

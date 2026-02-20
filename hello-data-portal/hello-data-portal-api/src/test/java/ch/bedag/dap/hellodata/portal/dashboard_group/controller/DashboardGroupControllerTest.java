@@ -38,7 +38,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -109,7 +112,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
         DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
         createDto.setName("Test Group");
         createDto.setContextKey("ctx1");
-        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1", null)));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.post("/dashboard-groups")
@@ -124,7 +127,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
         DashboardGroupCreateDto createDto = new DashboardGroupCreateDto();
         createDto.setName("Test Group");
         createDto.setContextKey("ctx1");
-        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+        createDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1", null)));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.post("/dashboard-groups")
@@ -140,7 +143,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
         updateDto.setId(UUID.randomUUID());
         updateDto.setName("Updated Group");
         updateDto.setContextKey("ctx1");
-        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1", null)));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.put("/dashboard-groups")
@@ -156,7 +159,7 @@ class DashboardGroupControllerTest extends HDControllerTest {
         updateDto.setId(UUID.randomUUID());
         updateDto.setName("Updated Group");
         updateDto.setContextKey("ctx1");
-        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1")));
+        updateDto.setEntries(List.of(new DashboardGroupEntry(1, "Dashboard 1", null)));
 
         // when / then
         mockMvc.perform(MockMvcRequestBuilders.put("/dashboard-groups")

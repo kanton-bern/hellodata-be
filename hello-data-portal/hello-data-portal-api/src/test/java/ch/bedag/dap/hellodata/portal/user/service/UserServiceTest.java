@@ -103,6 +103,9 @@ class UserServiceTest {
     @Mock
     private DashboardGroupService dashboardGroupService;
 
+    @Mock
+    private UserSelectedDashboardService userSelectedDashboardService;
+
     @InjectMocks
     private UserService userService;
 

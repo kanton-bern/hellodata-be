@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
+import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -57,6 +58,7 @@ import java.util.*;
 public class UserController {
 
     private final UserService userService;
+    private final DashboardGroupService dashboardGroupService;
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
 
@@ -204,6 +206,13 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void updateContextRolesForUser(@PathVariable UUID userId, @NotNull @Valid @RequestBody UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         userService.updateContextRolesForUser(userId, updateContextRolesForUserDto, true);
+    }
+
+    @GetMapping("/{userId}/dashboard-groups-membership")
+    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
+    public List<DashboardGroupMembershipDto> getDashboardGroupMembership(
+            @PathVariable UUID userId, @RequestParam String contextKey) {
+        return dashboardGroupService.getDashboardGroupMembership(userId, contextKey);
     }
 
     @GetMapping("search/{email}")
