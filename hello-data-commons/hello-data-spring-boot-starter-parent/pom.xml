@@ -25,7 +25,8 @@
         <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
         <docker.file>Dockerfile</docker.file>
         <docker.namespace>bedag</docker.namespace>
-        <jib.base.image>eclipse-temurin:17.0.9_9-jre</jib.base.image>
+        <!-- Use distroless Java 17 which has nonroot user (65532) built-in -->
+        <jib.base.image>gcr.io/distroless/java17-debian12:nonroot</jib.base.image>
         <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
         <httpclient5.version>5.2.1</httpclient5.version>
         <httpmime.version>4.5.14</httpmime.version>
@@ -461,7 +462,8 @@
                         </to>
                         <container>
                             <mainClass>${main.class}</mainClass>
-                            <user>3012:3012</user>
+                            <!-- User 65532 (nonroot) is built into distroless images -->
+                            <user>65532:65532</user>
                             <workingDirectory>/app</workingDirectory>
                             <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                             <ports>
