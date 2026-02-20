@@ -299,6 +299,7 @@ class UserServiceTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(userId);
         userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
 
         HdContextEntity dataDomain = new HdContextEntity();
         dataDomain.setContextKey(contextKey);
@@ -307,6 +308,7 @@ class UserServiceTest {
         RoleDto businessRole = new RoleDto();
         businessRole.setName("NONE");
         updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
 
         ContextDto contextDto = new ContextDto();
         contextDto.setContextKey(contextKey);
@@ -342,11 +344,13 @@ class UserServiceTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(userId);
         userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
 
         UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
         RoleDto businessRole = new RoleDto();
         businessRole.setName("NONE");
         updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
 
         ContextDto contextDto = new ContextDto();
         contextDto.setContextKey(contextKey);
@@ -382,11 +386,13 @@ class UserServiceTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(userId);
         userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
 
         UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
         RoleDto businessRole = new RoleDto();
         businessRole.setName("NONE");
         updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
 
         ContextDto contextDto = new ContextDto();
         contextDto.setContextKey(contextKey);
@@ -423,6 +429,7 @@ class UserServiceTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(userId);
         userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
 
         HdContextEntity dataDomain1 = new HdContextEntity();
         dataDomain1.setContextKey(contextKey1);
@@ -434,6 +441,7 @@ class UserServiceTest {
         RoleDto businessRole = new RoleDto();
         businessRole.setName("BUSINESS_DOMAIN_ADMIN"); // Not NONE - user becomes admin in all domains
         updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
         when(contextRepository.findAllByTypeIn(anyList())).thenReturn(List.of(dataDomain1, dataDomain2));
@@ -460,11 +468,13 @@ class UserServiceTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(userId);
         userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
 
         UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
         RoleDto businessRole = new RoleDto();
         businessRole.setName("NONE");
         updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
 
         ContextDto contextDto = new ContextDto();
         contextDto.setContextKey(contextKey);
