@@ -8966,10 +8966,10 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"hono@npm:^4.11.4":
-  version: 4.11.7
-  resolution: "hono@npm:4.11.7"
-  checksum: 10c0/c7cde1779c9352fc6aacb242af009f280f4d89315cf95135d08df5c680f845fcfb1c3c1a650ec15e1d1c2d0af26fdc87b745bb3c471c5045d88c247a7bd2aae4
+"hono@npm:^4.11.10":
+  version: 4.12.0
+  resolution: "hono@npm:4.12.0"
+  checksum: 10c0/d12bd0dcbe5de62939d221dd7d62e46a155530631ccdade6b2adb3fb1ac72ca8a6feee7a9dab2cd6d9b85bc1321ce36c972918185be5a045197cd307ff3180bd
   languageName: node
   linkType: hard
 
