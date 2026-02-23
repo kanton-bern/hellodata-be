@@ -33,7 +33,7 @@ import {SupersetDashboard} from '../../../../../store/my-dashboards/my-dashboard
 import {selectMyDashboards} from '../../../../../store/my-dashboards/my-dashboards.selector';
 import {FormsModule} from '@angular/forms';
 import {DashboardGroupEntry} from '../../../../../store/dashboard-groups/dashboard-groups.model';
-import {MultiSelect} from 'primeng/multiselect';
+import {Checkbox} from 'primeng/checkbox';
 import {TranslocoPipe} from '@jsverse/transloco';
 
 interface DashboardSelectionItem {
@@ -45,7 +45,7 @@ interface DashboardSelectionItem {
   selector: 'app-dashboard-group-selector',
   templateUrl: './dashboard-group-selector.component.html',
   styleUrls: ['./dashboard-group-selector.component.scss'],
-  imports: [FormsModule, MultiSelect, TranslocoPipe]
+  imports: [FormsModule, Checkbox, TranslocoPipe]
 })
 export class DashboardGroupSelectorComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
@@ -54,8 +54,11 @@ export class DashboardGroupSelectorComponent implements OnInit, OnDestroy {
   readonly preselectedEntries = input<DashboardGroupEntry[]>([]);
 
   allDashboardsForContext: DashboardSelectionItem[] = [];
+  filteredDashboards: DashboardSelectionItem[] = [];
   allDashboards$: Observable<SupersetDashboard[]>;
   selectedDashboards: DashboardSelectionItem[] = [];
+  searchQuery = '';
+  selectAll = false;
 
   readonly selectedDashboardsEvent = output<DashboardGroupEntry[]>();
 
@@ -70,6 +73,8 @@ export class DashboardGroupSelectorComponent implements OnInit, OnDestroy {
       if (allDashboards && allDashboards.length > 0) {
         this.extractDashboardsForSelectedContext(allDashboards);
         this.extractSelectedDashboards();
+        this.applyFilter();
+        this.updateSelectAllState();
       }
     });
   }
@@ -80,10 +85,66 @@ export class DashboardGroupSelectorComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSelectionChange($event: any) {
-    this.selectedDashboards = $event.value;
+  isDashboardSelected(dashboard: DashboardSelectionItem): boolean {
+    return this.selectedDashboards.some(d => d.id === dashboard.id);
+  }
+
+  onDashboardSelectionChange(dashboard: DashboardSelectionItem, selected: boolean) {
+    if (selected) {
+      if (!this.isDashboardSelected(dashboard)) {
+        this.selectedDashboards = [...this.selectedDashboards, dashboard];
+      }
+    } else {
+      this.selectedDashboards = this.selectedDashboards.filter(d => d.id !== dashboard.id);
+    }
+    this.updateSelectAllState();
+    this.emitSelection();
+  }
+
+  onSelectAllChange(checked: boolean) {
+    this.selectAll = checked;
+    if (checked) {
+      // Select all filtered dashboards
+      this.filteredDashboards.forEach(dashboard => {
+        if (!this.isDashboardSelected(dashboard)) {
+          this.selectedDashboards = [...this.selectedDashboards, dashboard];
+        }
+      });
+    } else {
+      // Deselect all filtered dashboards
+      const filteredIds = new Set(this.filteredDashboards.map(d => d.id));
+      this.selectedDashboards = this.selectedDashboards.filter(d => !filteredIds.has(d.id));
+    }
+    this.emitSelection();
+  }
+
+  onSearchChange(query: string) {
+    this.searchQuery = query;
+    this.applyFilter();
+    this.updateSelectAllState();
+  }
+
+  private applyFilter() {
+    if (!this.searchQuery || this.searchQuery.trim() === '') {
+      this.filteredDashboards = [...this.allDashboardsForContext];
+    } else {
+      const lowerQuery = this.searchQuery.toLowerCase();
+      this.filteredDashboards = this.allDashboardsForContext.filter(
+        d => d.title.toLowerCase().includes(lowerQuery)
+      );
+    }
+  }
+
+  private updateSelectAllState() {
+    if (this.filteredDashboards.length === 0) {
+      this.selectAll = false;
+    } else {
+      this.selectAll = this.filteredDashboards.every(d => this.isDashboardSelected(d));
+    }
+  }
+
+  private emitSelection() {
     const entries: DashboardGroupEntry[] = this.selectedDashboards.map(dashboard => ({
-      contextKey: this.contextKey(),
       dashboardId: dashboard.id,
       dashboardTitle: dashboard.title
     }));
@@ -105,10 +166,7 @@ export class DashboardGroupSelectorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const contextKey = this.contextKey();
-    const entriesForContext = preselected.filter(entry => entry.contextKey === contextKey);
-
-    this.selectedDashboards = entriesForContext
+    this.selectedDashboards = preselected
       .map(entry => {
         const dashboard = this.allDashboardsForContext.find(d => d.id === entry.dashboardId);
         if (dashboard) {

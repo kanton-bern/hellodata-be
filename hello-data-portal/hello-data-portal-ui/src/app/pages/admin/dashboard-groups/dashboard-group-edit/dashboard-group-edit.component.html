@@ -107,15 +107,16 @@
             </div>
             <div class="dashboard-list max-h-96 overflow-y-auto border border-surface rounded-border p-2">
               @if (filteredDashboards.length === 0) {
-                <div class="text-gray-400 p-4 text-center">{{ '@No dashboards available' | transloco }}</div>
+                <div class="text-gray-400 p-4 text-center text-sm">{{ '@No dashboards available' | transloco }}</div>
               } @else {
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
                   @for (dashboard of filteredDashboards; track dashboard.id) {
-                    <div class="flex items-center gap-3 p-2 hover:bg-surface-100 rounded-border">
-                      <p-checkbox [ngModel]="isDashboardSelected(dashboard.id)" [ngModelOptions]="{standalone: true}"
+                    <div class="flex items-start gap-2 p-1 hover:bg-surface-100 rounded-border">
+                      <p-checkbox class="mt-0.5" [ngModel]="isDashboardSelected(dashboard.id)"
+                                  [ngModelOptions]="{standalone: true}"
                                   (ngModelChange)="onDashboardSelectionChange(dashboard.id, $event, editedDashboardGroup)"
                                   [binary]="true" [inputId]="'dashboard-' + dashboard.id"/>
-                      <label [for]="'dashboard-' + dashboard.id" class="cursor-pointer flex-1 truncate">
+                      <label [for]="'dashboard-' + dashboard.id" class="cursor-pointer flex-1 text-sm dashboard-label">
                         {{ dashboard.dashboardTitle }}
                       </label>
                     </div>
@@ -143,20 +144,22 @@
             </div>
             <div class="user-list max-h-96 overflow-y-auto border border-surface rounded-border p-2">
               @if (filteredUsers.length === 0) {
-                <div class="text-gray-400 p-4 text-center">{{ '@No users available' | transloco }}</div>
+                <div class="text-gray-400 p-4 text-center text-sm">{{ '@No users available' | transloco }}</div>
               } @else {
-                @for (user of filteredUsers; track user.id) {
-                  <div class="flex items-center gap-3 p-2 hover:bg-surface-100 rounded-border">
-                    <p-checkbox [ngModel]="isUserSelected(user.id)" [ngModelOptions]="{standalone: true}"
-                                (ngModelChange)="onUserSelectionChange(user.id, $event, editedDashboardGroup)"
-                                [binary]="true" [inputId]="'user-' + user.id"/>
-                    <label [for]="'user-' + user.id" class="cursor-pointer flex-1">
-                      <span class="font-semibold">{{ user.firstName }} {{ user.lastName }}</span>
-                      <span class="text-gray-500 ml-2">{{ user.email }}</span>
-                      <span class="text-sm ml-2 bg-surface-200 px-2 py-1 rounded-border">{{ user.roleName }}</span>
-                    </label>
-                  </div>
-                }
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1">
+                  @for (user of filteredUsers; track user.id) {
+                    <div class="flex items-start gap-2 p-1 hover:bg-surface-100 rounded-border">
+                      <p-checkbox class="mt-0.5" [ngModel]="isUserSelected(user.id)"
+                                  [ngModelOptions]="{standalone: true}"
+                                  (ngModelChange)="onUserSelectionChange(user.id, $event, editedDashboardGroup)"
+                                  [binary]="true" [inputId]="'user-' + user.id"/>
+                      <label [for]="'user-' + user.id" class="cursor-pointer flex-1 text-xs leading-tight">
+                        <span class="font-medium block truncate">{{ user.firstName }} {{ user.lastName }}</span>
+                        <span class="text-gray-500 block truncate">{{ user.email }}</span>
+                      </label>
+                    </div>
+                  }
+                </div>
               }
             </div>
           </p-tabpanel>
