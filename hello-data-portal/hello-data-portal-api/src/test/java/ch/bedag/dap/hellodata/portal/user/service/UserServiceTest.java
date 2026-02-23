@@ -54,6 +54,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.util.Collections;
 import java.util.List;
@@ -104,10 +105,25 @@ class UserServiceTest {
     private DashboardGroupService dashboardGroupService;
 
     @Mock
+    private ObjectProvider<DashboardGroupService> dashboardGroupServiceProvider;
+
+    @Mock
     private UserSelectedDashboardService userSelectedDashboardService;
+
+    @Mock
+    private UserDashboardSyncService userDashboardSyncService;
+
+    @Mock
+    private ObjectProvider<UserDashboardSyncService> userDashboardSyncServiceProvider;
 
     @InjectMocks
     private UserService userService;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        when(dashboardGroupServiceProvider.getObject()).thenReturn(dashboardGroupService);
+        when(userDashboardSyncServiceProvider.getObject()).thenReturn(userDashboardSyncService);
+    }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)
@@ -325,6 +341,7 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -367,6 +384,7 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -409,6 +427,7 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -448,6 +467,7 @@ class UserServiceTest {
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
         when(contextRepository.findAllByTypeIn(anyList())).thenReturn(List.of(dataDomain1, dataDomain2));
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
@@ -491,6 +511,7 @@ class UserServiceTest {
         updateDto.setDataDomainRoles(List.of(userContextRoleDto));
 
         when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
 
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
             utilities.when(SecurityUtils::isSuperuser).thenReturn(true);

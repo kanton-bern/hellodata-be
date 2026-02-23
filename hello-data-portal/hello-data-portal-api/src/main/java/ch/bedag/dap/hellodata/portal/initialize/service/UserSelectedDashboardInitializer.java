@@ -69,17 +69,21 @@ public class UserSelectedDashboardInitializer implements ApplicationListener<Ini
     private final UserContextRoleRepository userContextRoleRepository;
     private final HdContextRepository hdContextRepository;
     private final MetaInfoResourceService metaInfoResourceService;
-    @org.springframework.context.annotation.Lazy
-    private final UserSelectedDashboardInitializer self;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onApplicationEvent(InitializationCompletedEvent event) {
-        self.migrateUserSelectedDashboards();
+        migrateUserSelectedDashboardsInternal();
     }
 
-    @Transactional
+    /**
+     * Public method for testing - delegates to internal implementation
+     */
     public void migrateUserSelectedDashboards() {
+        migrateUserSelectedDashboardsInternal();
+    }
+
+    private void migrateUserSelectedDashboardsInternal() {
         // Check if migration already happened (idempotent)
         if (!userSelectedDashboardService.isEmpty()) {
             log.debug("user_selected_dashboard table is not empty, skipping migration");

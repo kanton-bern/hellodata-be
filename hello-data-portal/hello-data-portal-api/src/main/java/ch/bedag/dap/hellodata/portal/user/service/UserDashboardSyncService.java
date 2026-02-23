@@ -57,7 +57,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -65,14 +64,12 @@ import java.util.stream.Collectors;
 public class UserDashboardSyncService {
 
     private final UserSelectedDashboardService userSelectedDashboardService;
-    private final DashboardGroupService dashboardGroupService;
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserRepository userRepository;
     private final HdContextRepository contextRepository;
     private final Connection connection;
     private final ObjectMapper objectMapper;
-    @org.springframework.context.annotation.Lazy
-    private final UserDashboardSyncService self;
+    private final DashboardGroupService dashboardGroupServiceProvider;
 
     /**
      * Synchronizes user's dashboards (direct selections + group memberships) to Superset sidecar.
@@ -98,7 +95,7 @@ public class UserDashboardSyncService {
 
         // Collect dashboards from groups
         Set<Integer> groupDashboardIds = new HashSet<>();
-        List<DashboardGroupEntity> userGroups = dashboardGroupService.findGroupsByContextKeyAndUserId(contextKey, userId.toString());
+        List<DashboardGroupEntity> userGroups = dashboardGroupServiceProvider.findGroupsByContextKeyAndUserId(contextKey, userId.toString());
         for (DashboardGroupEntity group : userGroups) {
             if (group.getEntries() != null) {
                 group.getEntries().forEach(entry -> groupDashboardIds.add(entry.getDashboardId()));
@@ -130,7 +127,7 @@ public class UserDashboardSyncService {
 
         // Sync to Superset
         String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
-        self.updateDashboardRoleForUser(userId, dashboardDtos, supersetInstanceName);
+        updateDashboardRoleForUser(userId, dashboardDtos, supersetInstanceName);
         log.info("Synchronized {} dashboards for user {} in context {} (direct: {}, from groups: {})",
                 dashboardDtos.size(), userId, contextKey, directDashboardIds.size(), groupDashboardIds.size());
     }
@@ -177,7 +174,7 @@ public class UserDashboardSyncService {
 
     private Map<Integer, DashboardForUserDto> collectGroupDashboardsForUser(String userIdStr, String contextKey) {
         Map<Integer, DashboardForUserDto> dashboardIdToDto = new HashMap<>();
-        List<DashboardGroupEntity> groups = dashboardGroupService.findAllGroupsByContextKey(contextKey);
+        List<DashboardGroupEntity> groups = dashboardGroupServiceProvider.findAllGroupsByContextKey(contextKey);
 
         for (DashboardGroupEntity group : groups) {
             boolean isMember = group.getUsers() != null && group.getUsers().stream().anyMatch(u -> userIdStr.equals(u.getId()));
@@ -220,7 +217,7 @@ public class UserDashboardSyncService {
     /**
      * Synchronizes the provided dashboards with Superset.
      *
-     * @param userId                     the user ID
+     * @param userId                    the user ID
      * @param selectedDashboardsForUser mapping of context key to list of dashboard DTOs
      */
     @Transactional
@@ -228,7 +225,7 @@ public class UserDashboardSyncService {
         for (Map.Entry<String, List<DashboardForUserDto>> entry : selectedDashboardsForUser.entrySet()) {
             String contextKey = entry.getKey();
             String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
-            self.updateDashboardRoleForUser(userId, entry.getValue(), supersetInstanceName);
+            updateDashboardRoleForUser(userId, entry.getValue(), supersetInstanceName);
         }
     }
 

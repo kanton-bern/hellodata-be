@@ -62,6 +62,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,10 +96,10 @@ public class UserService {
     private final UserLookupProviderManager userLookupProviderManager;
     private final HelloDataContextConfig helloDataContextConfig;
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
-    private final DashboardGroupService dashboardGroupService;
     private final UserSelectedDashboardService userSelectedDashboardService;
-    private final UserDashboardSyncService userDashboardSyncService;
 
+    private final ObjectProvider<DashboardGroupService> dashboardGroupServiceProvider;
+    private final ObjectProvider<UserDashboardSyncService> userDashboardSyncServiceProvider;
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
      */
@@ -302,7 +303,7 @@ public class UserService {
         // Cleanup stale dashboard selections
         for (Map.Entry<String, Set<Integer>> entry : validDashboardIdsByContext.entrySet()) {
             userSelectedDashboardService.cleanupStaleDashboards(userUuid, entry.getKey(), entry.getValue());
-            dashboardGroupService.cleanupStaleDashboardsInGroups(entry.getKey(), entry.getValue());
+            dashboardGroupServiceProvider.getObject().cleanupStaleDashboardsInGroups(entry.getKey(), entry.getValue());
         }
 
         return result;
@@ -329,11 +330,11 @@ public class UserService {
         persistDirectDashboardSelections(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
 
         // Update dashboard group memberships
-        dashboardGroupService.updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
+        dashboardGroupServiceProvider.getObject().updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
 
         // Merge direct + group dashboards and synchronize with Superset
-        Map<String, List<DashboardForUserDto>> mergedDashboards = userDashboardSyncService.mergeDashboardSelectionsWithGroups(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
-        userDashboardSyncService.synchronizeDashboardsForUser(userId, mergedDashboards);
+        Map<String, List<DashboardForUserDto>> mergedDashboards = userDashboardSyncServiceProvider.getObject().mergeDashboardSelectionsWithGroups(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
+        userDashboardSyncServiceProvider.getObject().synchronizeDashboardsForUser(userId, mergedDashboards);
 
         if (updateContextRolesForUserDto.getCommentPermissions() != null) {
             dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
@@ -708,7 +709,7 @@ public class UserService {
                 HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name().equalsIgnoreCase(roleName);
         if (!isEligibleRole) {
             String contextKey = dataDomainRoleForContextDto.getContext().getContextKey();
-            dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
+            dashboardGroupServiceProvider.getObject().removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
             userSelectedDashboardService.removeAllForUserInContext(userId, contextKey);
         }
     }
@@ -716,7 +717,7 @@ public class UserService {
     private void removeUserFromDashboardGroupsForAllDomains(UUID userId) {
         List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         for (HdContextEntity dataDomain : allDataDomains) {
-            dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
+            dashboardGroupServiceProvider.getObject().removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
         }
         userSelectedDashboardService.removeAllForUser(userId);
     }

@@ -36,7 +36,6 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
-import ch.bedag.dap.hellodata.portal.initialize.event.InitializationCompletedEvent;
 import ch.bedag.dap.hellodata.portal.user.service.UserSelectedDashboardService;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.role.repository.UserContextRoleRepository;
@@ -79,8 +78,8 @@ class UserSelectedDashboardInitializerTest {
         // given
         when(userSelectedDashboardService.isEmpty()).thenReturn(false);
 
-        // when
-        initializer.onApplicationEvent(new InitializationCompletedEvent());
+        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        initializer.migrateUserSelectedDashboards();
 
         // then
         verify(hdContextRepository, never()).findAllByTypeIn(any());
@@ -96,8 +95,8 @@ class UserSelectedDashboardInitializerTest {
         when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS))
                 .thenReturn(List.of());
 
-        // when
-        initializer.onApplicationEvent(new InitializationCompletedEvent());
+        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        initializer.migrateUserSelectedDashboards();
 
         // then
         verify(hdContextRepository).findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
@@ -164,8 +163,8 @@ class UserSelectedDashboardInitializerTest {
         when(metaInfoResourceService.findUserInInstance("test@example.com", "superset-instance"))
                 .thenReturn(subsystemUser);
 
-        // when
-        initializer.onApplicationEvent(new InitializationCompletedEvent());
+        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        initializer.migrateUserSelectedDashboards();
 
         // then
         verify(userSelectedDashboardService).saveSelectedDashboards(
@@ -206,8 +205,8 @@ class UserSelectedDashboardInitializerTest {
         when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS))
                 .thenReturn(List.of(dashboardResource));
 
-        // when
-        initializer.onApplicationEvent(new InitializationCompletedEvent());
+        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        initializer.migrateUserSelectedDashboards();
 
         // then
         verify(userSelectedDashboardService, never()).saveSelectedDashboards(any(), any(), any());
@@ -239,8 +238,8 @@ class UserSelectedDashboardInitializerTest {
         when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS))
                 .thenReturn(List.of(dashboardResource));
 
-        // when
-        initializer.onApplicationEvent(new InitializationCompletedEvent());
+        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        initializer.migrateUserSelectedDashboards();
 
         // then
         verify(userSelectedDashboardService, never()).saveSelectedDashboards(any(), any(), any());
@@ -284,8 +283,8 @@ class UserSelectedDashboardInitializerTest {
         when(metaInfoResourceService.findUserInInstance("test@example.com", "superset-instance"))
                 .thenReturn(null);
 
-        // when
-        initializer.onApplicationEvent(new InitializationCompletedEvent());
+        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        initializer.migrateUserSelectedDashboards();
 
         // then
         verify(userSelectedDashboardService, never()).saveSelectedDashboards(any(), any(), any());

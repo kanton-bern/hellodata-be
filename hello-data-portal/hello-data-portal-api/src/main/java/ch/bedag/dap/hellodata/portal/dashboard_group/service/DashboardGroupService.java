@@ -44,7 +44,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -64,8 +63,6 @@ public class DashboardGroupService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final ApplicationEventPublisher eventPublisher;
-    @Lazy
-    private final DashboardGroupService self;
 
     @Transactional(readOnly = true)
     public Page<DashboardGroupDto> getAllDashboardGroups(String contextKey, Pageable pageable, String search) {
@@ -178,7 +175,7 @@ public class DashboardGroupService {
 
     @Transactional(readOnly = true)
     public List<DashboardGroupMembershipDto> getDashboardGroupMembership(UUID userId, String contextKey) {
-        List<DashboardGroupEntity> groups = self.findAllGroupsByContextKey(contextKey);
+        List<DashboardGroupEntity> groups = findAllGroupsByContextKeyInternal(contextKey);
         String userIdStr = userId.toString();
         return groups.stream().map(group -> {
             boolean isMember = group.getUsers() != null &&
@@ -222,7 +219,7 @@ public class DashboardGroupService {
 
     private void processContextGroupMemberships(String userIdStr, DashboardGroupUserEntry userEntry, String contextKey, List<String> selectedGroupIdsList) {
         Set<String> selectedGroupIds = new HashSet<>(selectedGroupIdsList != null ? selectedGroupIdsList : Collections.emptyList());
-        List<DashboardGroupEntity> allGroupsInContext = self.findAllGroupsByContextKey(contextKey);
+        List<DashboardGroupEntity> allGroupsInContext = findAllGroupsByContextKeyInternal(contextKey);
         for (DashboardGroupEntity group : allGroupsInContext) {
             updateUserMembershipInGroup(userIdStr, userEntry, group, selectedGroupIds, contextKey);
         }
@@ -246,13 +243,13 @@ public class DashboardGroupService {
             group.setUsers(new ArrayList<>());
         }
         group.getUsers().add(userEntry);
-        self.saveGroup(group);
+        saveGroupInternal(group);
         log.info("Added user {} to dashboard group '{}' in context '{}'", userIdStr, group.getName(), contextKey);
     }
 
     private void removeUserFromGroup(String userIdStr, DashboardGroupEntity group, String contextKey) {
         group.getUsers().removeIf(u -> userIdStr.equals(u.getId()));
-        self.saveGroup(group);
+        saveGroupInternal(group);
         log.info("Removed user {} from dashboard group '{}' in context '{}'", userIdStr, group.getName(), contextKey);
     }
 
@@ -293,7 +290,7 @@ public class DashboardGroupService {
 
     @Transactional(readOnly = true)
     public List<DashboardGroupEntity> findAllGroupsByContextKey(String contextKey) {
-        return dashboardGroupRepository.findAllByContextKey(contextKey);
+        return findAllGroupsByContextKeyInternal(contextKey);
     }
 
     @Transactional(readOnly = true)
@@ -303,7 +300,7 @@ public class DashboardGroupService {
 
     @Transactional
     public void saveGroup(DashboardGroupEntity group) {
-        dashboardGroupRepository.save(group);
+        saveGroupInternal(group);
     }
 
     @Transactional
@@ -320,5 +317,15 @@ public class DashboardGroupService {
                 }
             }
         }
+    }
+
+    // ===== Internal methods (no @Transactional - use parent transaction) =====
+
+    private List<DashboardGroupEntity> findAllGroupsByContextKeyInternal(String contextKey) {
+        return dashboardGroupRepository.findAllByContextKey(contextKey);
+    }
+
+    private void saveGroupInternal(DashboardGroupEntity group) {
+        dashboardGroupRepository.save(group);
     }
 }
