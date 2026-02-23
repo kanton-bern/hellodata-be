@@ -39,7 +39,9 @@ import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUser;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
@@ -48,6 +50,8 @@ import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
 import ch.bedag.dap.hellodata.portal.user.data.*;
+import ch.bedag.dap.hellodata.portal.user.event.UserContextRoleSyncEvent;
+import ch.bedag.dap.hellodata.portal.user.event.UserFullSyncEvent;
 import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -56,18 +60,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
@@ -75,7 +78,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -99,7 +101,7 @@ public class UserService {
 
     private final DashboardGroupService dashboardGroupService;
     private final UserDashboardSyncService userDashboardSyncService;
-    private final UserSubsystemSyncService userSubsystemSyncService;
+    private final ApplicationEventPublisher eventPublisher;
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
      */
@@ -121,44 +123,6 @@ public class UserService {
         return !userEntity.isEnabled();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void syncAllUsers() {
-        List<UserDto> allUsers = userRepository.getUserEntitiesByEnabled(true).stream().map(UserDtoMapper::map).toList();
-        log.info("[syncAllUsers] Found {} users to sync with surrounding systems.", allUsers.size());
-        AtomicInteger counter = new AtomicInteger();
-        List<UserContextRoleUpdate> list = allUsers.stream().map(user -> {
-            UserEntity userEntity;
-            UUID id = UUID.fromString(user.getId());
-            if (!userRepository.existsByIdOrAuthId(id, id.toString())) {
-                userEntity = new UserEntity();
-                userEntity.setId(id);
-                userEntity.setEmail(user.getEmail());
-                userRepository.saveAndFlush(userEntity);
-                roleService.createNoneContextRoles(userEntity);
-            } else {
-                userEntity = getUserEntity(id);
-                if (CollectionUtils.isEmpty(userEntity.getContextRoles())) {
-                    roleService.createNoneContextRoles(userEntity);
-                }
-            }
-
-            // Sync default comment permissions for user (creates permissions for new data domains)
-            dashboardCommentPermissionService.syncDefaultPermissionsForUser(userEntity);
-
-            boolean isLast = counter.incrementAndGet() == allUsers.size();
-            return getUserContextRoleUpdate(userEntity, isLast);
-        }).toList();
-        List<List<UserContextRoleUpdate>> partition = partitionToBatches(list);
-
-        // Proceed with publishing the partitions
-        for (List<UserContextRoleUpdate> batch : partition) {
-            AllUsersContextRoleUpdate allUsersContextRoleUPdate = new AllUsersContextRoleUpdate();
-            allUsersContextRoleUPdate.setUserContextRoleUpdates(batch);
-            natsSenderService.publishMessageToJetStream(HDEvent.SYNC_USERS, allUsersContextRoleUPdate);
-            log.info("[syncUsers] Synchronized batch of {} users.", batch.size());
-        }
-        log.info("[syncAllUsers] Synchronized {} out of {} users with subsystems.", counter.get(), allUsers.size());
-    }
 
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
@@ -262,7 +226,7 @@ public class UserService {
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(true);
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
-        userSubsystemSyncService.synchronizeContextRoles(userEntity, true, new HashMap<>());
+        eventPublisher.publishEvent(new UserContextRoleSyncEvent(dbId, true, new HashMap<>()));
         emailNotificationService.notifyAboutUserActivation(userEntity.getFirstName(), userEntity.getEmail(), userEntity.getSelectedLanguage());
         return UserDtoMapper.map(userEntity);
     }
@@ -338,10 +302,9 @@ public class UserService {
         if (updateContextRolesForUserDto.getCommentPermissions() != null) {
             dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
         }
-        UserEntity userEntity = getUserEntity(userId);
-        // Single unified sync: context roles + dashboards in one JetStream message
-        userSubsystemSyncService.synchronizeUser(userEntity, sendBackUserList,
-                updateContextRolesForUserDto.getContextToModuleRoleNamesMap(), mergedDashboards);
+        // Single unified sync: context roles + dashboards in one JetStream message (via event)
+        eventPublisher.publishEvent(new UserFullSyncEvent(userId, sendBackUserList,
+                updateContextRolesForUserDto.getContextToModuleRoleNamesMap(), mergedDashboards));
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 
@@ -360,10 +323,6 @@ public class UserService {
         return result;
     }
 
-    @Transactional
-    public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap) {
-        userSubsystemSyncService.synchronizeContextRoles(userEntity, true, contextToModuleRoleNamesMap);
-    }
 
     @Transactional(readOnly = true)
     public Set<String> getUserPortalPermissions(UUID userId) {
@@ -601,52 +560,6 @@ public class UserService {
         return EmailValidator.getInstance().isValid(email);
     }
 
-    /**
-     * partition list to batches and leave the last one as the biggest one, because it will trigger users list pushback
-     */
-    private List<List<UserContextRoleUpdate>> partitionToBatches(List<UserContextRoleUpdate> list) {
-        List<List<UserContextRoleUpdate>> partition = new ArrayList<>(ListUtils.partition(list, 25));
-
-        // Check if we have at least three partitions
-        if (partition.size() >= 3) {
-            // Remove the last three partitions
-            List<UserContextRoleUpdate> lastPartition = partition.remove(partition.size() - 1);
-            List<UserContextRoleUpdate> secondLastPartition = partition.remove(partition.size() - 1);
-            List<UserContextRoleUpdate> thirdLastPartition = partition.remove(partition.size() - 1);
-
-            // Merge the last three partitions into one
-            List<UserContextRoleUpdate> mergedPartition = new ArrayList<>();
-            mergedPartition.addAll(thirdLastPartition);
-            mergedPartition.addAll(secondLastPartition);
-            mergedPartition.addAll(lastPartition);
-
-            // Add the merged partition back to the list
-            partition.add(mergedPartition);
-        }
-        return partition;
-    }
-
-    private UserContextRoleUpdate getUserContextRoleUpdate(UserEntity userEntity, boolean sendBackUsersList) {
-        UserContextRoleUpdate userContextRoleUpdate = new UserContextRoleUpdate();
-        userContextRoleUpdate.setEmail(userEntity.getEmail());
-        userContextRoleUpdate.setUsername(userEntity.getEmail());
-        userContextRoleUpdate.setFirstName(userEntity.getFirstName());
-        userContextRoleUpdate.setLastName(userEntity.getLastName());
-        userContextRoleUpdate.setActive(userEntity.isEnabled());
-        List<UserContextRoleEntity> allContextRolesForUser = roleService.getAllContextRolesForUser(userEntity);
-        List<UserContextRoleUpdate.ContextRole> contextRoles = new ArrayList<>();
-        allContextRolesForUser.forEach(contextRoleForUser -> {
-            UserContextRoleUpdate.ContextRole contextRole = new UserContextRoleUpdate.ContextRole();
-            contextRole.setContextKey(contextRoleForUser.getContextKey());
-            contextRole.setRoleName(contextRoleForUser.getRole().getName());
-            Optional<HdContextEntity> byContextKey = contextRepository.getByContextKey(contextRoleForUser.getContextKey());
-            byContextKey.ifPresent(contextEntity -> contextRole.setParentContextKey(contextRole.getParentContextKey()));
-            contextRoles.add(contextRole);
-        });
-        userContextRoleUpdate.setContextRoles(contextRoles);
-        userContextRoleUpdate.setSendBackUsersList(sendBackUsersList);
-        return userContextRoleUpdate;
-    }
 
     private SubsystemUserUpdate getSubsystemUserUpdate(UserRepresentation representation) {
         SubsystemUserUpdate createUser = new SubsystemUserUpdate();

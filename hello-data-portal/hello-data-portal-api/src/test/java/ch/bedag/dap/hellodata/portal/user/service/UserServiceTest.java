@@ -31,8 +31,6 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
-import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersContextRoleUpdate;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -60,7 +58,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @Log4j2
@@ -110,7 +107,7 @@ class UserServiceTest {
     private UserDashboardSyncService userDashboardSyncService;
 
     @Mock
-    private UserSubsystemSyncService userSubsystemSyncService;
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private UserService userService;
@@ -143,30 +140,6 @@ class UserServiceTest {
         assertEquals(createdUserId, result);
     }
 
-    @Test
-    void testSyncAllUsers() {
-        // given
-        String email = "test@example.com";
-        String firstName = "John";
-        String lastName = "Doe";
-        String createdUserId = UUID.randomUUID().toString();
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(UUID.fromString(createdUserId));
-        userEntity.setEmail(email);
-        userEntity.setPortalRoles(Collections.emptySet());
-        UserRepresentation userRepresentation = mock(UserRepresentation.class, Mockito.RETURNS_DEEP_STUBS);
-
-        when(userRepository.getUserEntitiesByEnabled(true)).thenReturn(List.of(userEntity));
-        when(userRepository.existsByIdOrAuthId(any(UUID.class), any(String.class))).thenReturn(false);
-        when(userRepository.saveAndFlush(any(UserEntity.class))).thenReturn(new UserEntity());
-
-        // when
-        userService.syncAllUsers();
-
-        // then
-        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.SYNC_USERS), any(AllUsersContextRoleUpdate.class));
-    }
 
     @Test
     void testDeleteUserById_UserFound() {

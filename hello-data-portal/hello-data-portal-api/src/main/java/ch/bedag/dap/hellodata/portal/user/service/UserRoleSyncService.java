@@ -5,11 +5,13 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
+import ch.bedag.dap.hellodata.portal.user.event.UserContextRoleSyncEvent;
 import ch.bedag.dap.hellodata.portalcommon.role.entity.relation.UserContextRoleEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +26,7 @@ public class UserRoleSyncService {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final HdContextRepository contextRepository;
-    private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * In case of another data domain has been plugged in, add missing context roles to users
@@ -74,7 +76,7 @@ public class UserRoleSyncService {
                 log.debug("User {} is not an admin, setting missing role to NONE", userEntity.getEmail());
                 roleService.addContextRoleToUser(userEntity, dataDomainKeyNotFoundInUserRole, HdRoleName.NONE);
             }
-            userService.synchronizeContextRolesWithSubsystems(userEntity, new HashMap<>());
+            eventPublisher.publishEvent(new UserContextRoleSyncEvent(userEntity.getId(), true, new HashMap<>()));
         }
     }
 

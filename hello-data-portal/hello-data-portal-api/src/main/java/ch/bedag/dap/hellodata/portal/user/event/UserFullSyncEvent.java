@@ -26,29 +26,21 @@
  */
 package ch.bedag.dap.hellodata.portal.user.event;
 
-import ch.bedag.dap.hellodata.portal.user.service.UserSubsystemSyncService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 
-@Log4j2
-@Component
-@RequiredArgsConstructor
-public class UserDashboardSyncEventListener {
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-    private final UserSubsystemSyncService userSubsystemSyncService;
-
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleUserDashboardSyncEvent(UserDashboardSyncEvent event) {
-        log.info("Received UserDashboardSyncEvent for user {} and context {}", event.userId(), event.contextKey());
-        try {
-            userSubsystemSyncService.synchronizeUserWithDashboards(event.userId(), event.contextKey());
-        } catch (Exception e) {
-            log.error("Failed to sync dashboards for user {} in context {}: {}", event.userId(), event.contextKey(), e.getMessage());
-        }
-    }
+/**
+ * Event published when user needs full synchronization with subsystems.
+ * This includes context roles and dashboard permissions.
+ */
+public record UserFullSyncEvent(
+        UUID userId,
+        boolean sendBackUsersList,
+        Map<String, List<ModuleRoleNames>> extraModuleRoles,
+        Map<String, List<DashboardForUserDto>> dashboardsPerContext
+) {
 }

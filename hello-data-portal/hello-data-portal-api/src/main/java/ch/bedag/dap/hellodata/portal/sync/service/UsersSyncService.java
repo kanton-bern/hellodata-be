@@ -4,11 +4,12 @@ import ch.bedag.dap.hellodata.portal.lock.service.AdvisoryLockService;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncLockEntity;
 import ch.bedag.dap.hellodata.portal.sync.entity.UserSyncStatus;
 import ch.bedag.dap.hellodata.portal.sync.repository.UserSyncLockRepository;
-import ch.bedag.dap.hellodata.portal.user.service.UserService;
+import ch.bedag.dap.hellodata.portal.user.event.SyncAllUsersEvent;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class UsersSyncService {
 
     private static final long LOCK_ID = 5432543124L;
-    private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
     private final UserSyncLockRepository userSyncLockRepository;
     private final AdvisoryLockService advisoryLockService;
 
@@ -55,7 +56,7 @@ public class UsersSyncService {
                 LocalDateTime startTime = LocalDateTime.now();
                 try {
                     log.info("[syncAllUsers] Synchronize users started");
-                    userService.syncAllUsers();
+                    eventPublisher.publishEvent(new SyncAllUsersEvent());
                 } finally {
                     userSyncLockEntity.setStatus(UserSyncStatus.COMPLETED);
                     userSyncLockRepository.save(userSyncLockEntity);
