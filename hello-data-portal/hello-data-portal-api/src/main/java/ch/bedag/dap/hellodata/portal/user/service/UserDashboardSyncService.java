@@ -26,36 +26,17 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
-import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.HdContextEntity;
-import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextRepository;
-import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
-import ch.bedag.dap.hellodata.commons.sidecars.events.RequestReplySubject;
-import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.SupersetDashboardsForUserUpdate;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
 import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntry;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
-import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
-import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nats.client.Connection;
-import io.nats.client.Message;
-import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.*;
 
 @Log4j2
@@ -63,74 +44,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserDashboardSyncService {
 
-    private final UserSelectedDashboardService userSelectedDashboardService;
-    private final MetaInfoResourceService metaInfoResourceService;
-    private final UserRepository userRepository;
     private final HdContextRepository contextRepository;
-    private final Connection connection;
-    private final ObjectMapper objectMapper;
     private final DashboardGroupService dashboardGroupServiceProvider;
-
-    /**
-     * Synchronizes user's dashboards (direct selections + group memberships) to Superset sidecar.
-     *
-     * @param userId     the user ID
-     * @param contextKey the context key (data domain)
-     */
-    @Transactional
-    public void syncUserDashboardsToSuperset(UUID userId, String contextKey) {
-        // Get all dashboards for this context
-        List<MetaInfoResourceEntity> allDashboards = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS);
-        List<MetaInfoResourceEntity> contextDashboards = allDashboards.stream()
-                .filter(d -> contextKey.equals(d.getContextKey()))
-                .toList();
-
-        if (contextDashboards.isEmpty()) {
-            log.debug("No dashboards found for context {} - skipping sync for user {}", contextKey, userId);
-            return;
-        }
-
-        // Collect dashboards from direct selections
-        Set<Integer> directDashboardIds = userSelectedDashboardService.getSelectedDashboardIds(userId, contextKey);
-
-        // Collect dashboards from groups
-        Set<Integer> groupDashboardIds = new HashSet<>();
-        List<DashboardGroupEntity> userGroups = dashboardGroupServiceProvider.findGroupsByContextKeyAndUserId(contextKey, userId.toString());
-        for (DashboardGroupEntity group : userGroups) {
-            if (group.getEntries() != null) {
-                group.getEntries().forEach(entry -> groupDashboardIds.add(entry.getDashboardId()));
-            }
-        }
-
-        // Merge both sets
-        Set<Integer> allSelectedDashboardIds = new HashSet<>();
-        allSelectedDashboardIds.addAll(directDashboardIds);
-        allSelectedDashboardIds.addAll(groupDashboardIds);
-
-        // Build dashboard DTOs for synchronization
-        List<DashboardForUserDto> dashboardDtos = new ArrayList<>();
-        for (MetaInfoResourceEntity dashboardEntity : contextDashboards) {
-            if (dashboardEntity.getMetainfo() instanceof DashboardResource dashboardResource) {
-                for (SupersetDashboard dashboard : dashboardResource.getData()) {
-                    if (dashboard.isPublished()) {
-                        boolean isViewer = allSelectedDashboardIds.contains(dashboard.getId());
-                        DashboardForUserDto dto = new DashboardForUserDto();
-                        dto.setId(dashboard.getId());
-                        dto.setTitle(dashboard.getDashboardTitle());
-                        dto.setViewer(isViewer);
-                        dto.setInstanceName(dashboardResource.getInstanceName());
-                        dashboardDtos.add(dto);
-                    }
-                }
-            }
-        }
-
-        // Sync to Superset
-        String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
-        updateDashboardRoleForUser(userId, dashboardDtos, supersetInstanceName);
-        log.info("Synchronized {} dashboards for user {} in context {} (direct: {}, from groups: {})",
-                dashboardDtos.size(), userId, contextKey, directDashboardIds.size(), groupDashboardIds.size());
-    }
 
     /**
      * Merges direct dashboard selections with dashboards from groups
@@ -212,57 +127,5 @@ public class UserDashboardSyncService {
                 contextDashboards.add(groupEntry.getValue());
             }
         }
-    }
-
-    /**
-     * Synchronizes the provided dashboards with Superset.
-     *
-     * @param userId                    the user ID
-     * @param selectedDashboardsForUser mapping of context key to list of dashboard DTOs
-     */
-    @Transactional
-    public void synchronizeDashboardsForUser(UUID userId, Map<String, List<DashboardForUserDto>> selectedDashboardsForUser) {
-        for (Map.Entry<String, List<DashboardForUserDto>> entry : selectedDashboardsForUser.entrySet()) {
-            String contextKey = entry.getKey();
-            String supersetInstanceName = metaInfoResourceService.findSupersetInstanceNameByContextKey(contextKey);
-            updateDashboardRoleForUser(userId, entry.getValue(), supersetInstanceName);
-        }
-    }
-
-    private void updateDashboardRoleForUser(UUID userId, List<DashboardForUserDto> dashboardForUserDtoList, String supersetInstanceName) {
-        try {
-            SupersetDashboardsForUserUpdate supersetDashboardsForUserUpdate = new SupersetDashboardsForUserUpdate();
-            UserEntity userEntity = getUserEntity(userId);
-            supersetDashboardsForUserUpdate.setSupersetUserName(userEntity.getEmail());
-            supersetDashboardsForUserUpdate.setSupersetUserEmail(userEntity.getEmail());
-            supersetDashboardsForUserUpdate.setDashboards(dashboardForUserDtoList);
-            supersetDashboardsForUserUpdate.setSupersetFirstName(userEntity.getFirstName());
-            supersetDashboardsForUserUpdate.setSupersetLastName(userEntity.getLastName());
-            supersetDashboardsForUserUpdate.setActive(userEntity.isEnabled());
-            String subject = SlugifyUtil.slugify(supersetInstanceName + RequestReplySubject.UPDATE_DASHBOARD_ROLES_FOR_USER.getSubject());
-            log.info("[updateDashboardRoleForUser] Sending request to subject: {}", subject);
-            Message reply =
-                    connection.request(subject, objectMapper.writeValueAsString(supersetDashboardsForUserUpdate).getBytes(StandardCharsets.UTF_8), Duration.ofSeconds(10));
-            if (reply == null) {
-                log.warn("Reply is null, please verify superset sidecar or nats connection");
-            } else {
-                reply.ack();
-                log.info("[updateDashboardRoleForUser] Response received: {}", new String(reply.getData()));
-            }
-        } catch (Exception e) {
-            log.error("Error updating dashboard role for user", e);
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt(); // Re-interrupt the thread
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error updating user", e);
-        }
-    }
-
-    private UserEntity getUserEntity(UUID userId) {
-        UserEntity userEntity = userRepository.getByIdOrAuthId(userId.toString());
-        if (userEntity == null) {
-            throw new NotFoundException(String.format("User %s not found in the DB", userId));
-        }
-        return userEntity;
     }
 }

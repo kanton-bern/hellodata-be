@@ -54,7 +54,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.ObjectProvider;
 
 import java.util.Collections;
 import java.util.List;
@@ -105,25 +104,16 @@ class UserServiceTest {
     private DashboardGroupService dashboardGroupService;
 
     @Mock
-    private ObjectProvider<DashboardGroupService> dashboardGroupServiceProvider;
-
-    @Mock
     private UserSelectedDashboardService userSelectedDashboardService;
 
     @Mock
     private UserDashboardSyncService userDashboardSyncService;
 
     @Mock
-    private ObjectProvider<UserDashboardSyncService> userDashboardSyncServiceProvider;
+    private UserSubsystemSyncService userSubsystemSyncService;
 
     @InjectMocks
     private UserService userService;
-
-    @org.junit.jupiter.api.BeforeEach
-    void setUp() {
-        when(dashboardGroupServiceProvider.getObject()).thenReturn(dashboardGroupService);
-        when(userDashboardSyncServiceProvider.getObject()).thenReturn(userDashboardSyncService);
-    }
 
     @Test
     @MockitoSettings(strictness = Strictness.LENIENT)

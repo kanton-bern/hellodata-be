@@ -73,39 +73,44 @@ class UserSelectedDashboardInitializerTest {
     @Mock
     private MetaInfoResourceService metaInfoResourceService;
 
-    @Test
-    void testMigrationSkippedWhenTableNotEmpty() {
-        // given
-        when(userSelectedDashboardService.isEmpty()).thenReturn(false);
+    @Mock
+    private MigrationService migrationService;
 
-        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+    @Test
+    void testMigrationSkippedWhenAlreadyCompleted() {
+        // given
+        when(migrationService.isMigrationCompleted(anyString())).thenReturn(true);
+
+        // when
         initializer.migrateUserSelectedDashboards();
 
         // then
         verify(hdContextRepository, never()).findAllByTypeIn(any());
         verify(userSelectedDashboardService, never()).saveSelectedDashboards(any(), any(), any());
+        verify(migrationService, never()).recordMigrationSuccess(anyString(), anyString());
     }
 
     @Test
-    void testMigrationRunsWhenTableEmpty() {
+    void testMigrationRunsWhenNotYetCompleted() {
         // given
-        when(userSelectedDashboardService.isEmpty()).thenReturn(true);
+        when(migrationService.isMigrationCompleted(anyString())).thenReturn(false);
         when(hdContextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN)))
                 .thenReturn(List.of());
         when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS))
                 .thenReturn(List.of());
 
-        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        // when
         initializer.migrateUserSelectedDashboards();
 
         // then
         verify(hdContextRepository).findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
+        verify(migrationService).recordMigrationSuccess(anyString(), anyString());
     }
 
     @Test
     void testMigrationWithEligibleUsersAndDashboards() {
         // given
-        when(userSelectedDashboardService.isEmpty()).thenReturn(true);
+        when(migrationService.isMigrationCompleted(anyString())).thenReturn(false);
 
         // Setup data domain
         HdContextEntity dataDomain = mock(HdContextEntity.class);
@@ -122,8 +127,7 @@ class UserSelectedDashboardInitializerTest {
         UserContextRoleEntity userContextRole = mock(UserContextRoleEntity.class);
         when(userContextRole.getUser()).thenReturn(user);
 
-        when(userContextRoleRepository.findByContextKeyAndRoleNames(
-                "test-context",
+        when(userContextRoleRepository.findByContextKeyAndRoleNames("test-context",
                 eq(List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_BUSINESS_SPECIALIST"))
         )).thenReturn(List.of(userContextRole));
 
@@ -163,7 +167,7 @@ class UserSelectedDashboardInitializerTest {
         when(metaInfoResourceService.findUserInInstance("test@example.com", "superset-instance"))
                 .thenReturn(subsystemUser);
 
-        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        // when
         initializer.migrateUserSelectedDashboards();
 
         // then
@@ -172,12 +176,13 @@ class UserSelectedDashboardInitializerTest {
                 eq("test-context"),
                 anyList()
         );
+        verify(migrationService).recordMigrationSuccess(anyString(), anyString());
     }
 
     @Test
     void testMigrationSkipsDisabledUsers() {
         // given
-        when(userSelectedDashboardService.isEmpty()).thenReturn(true);
+        when(migrationService.isMigrationCompleted(anyString())).thenReturn(false);
 
         HdContextEntity dataDomain = mock(HdContextEntity.class);
         when(dataDomain.getContextKey()).thenReturn("test-context");
@@ -201,11 +206,10 @@ class UserSelectedDashboardInitializerTest {
         // Setup dashboard resource so contextDashboards is not empty (code needs to reach user loop)
         MetaInfoResourceEntity dashboardResource = mock(MetaInfoResourceEntity.class);
         when(dashboardResource.getContextKey()).thenReturn("test-context");
-        // Note: getMetainfo() is NOT called because user is disabled (continue before reaching that code)
         when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS))
                 .thenReturn(List.of(dashboardResource));
 
-        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        // when
         initializer.migrateUserSelectedDashboards();
 
         // then
@@ -215,7 +219,7 @@ class UserSelectedDashboardInitializerTest {
     @Test
     void testMigrationSkipsUsersWithNullUser() {
         // given
-        when(userSelectedDashboardService.isEmpty()).thenReturn(true);
+        when(migrationService.isMigrationCompleted(anyString())).thenReturn(false);
 
         HdContextEntity dataDomain = mock(HdContextEntity.class);
         when(dataDomain.getContextKey()).thenReturn("test-context");
@@ -234,11 +238,10 @@ class UserSelectedDashboardInitializerTest {
         // Setup dashboard resource so contextDashboards is not empty (code needs to reach user loop)
         MetaInfoResourceEntity dashboardResource = mock(MetaInfoResourceEntity.class);
         when(dashboardResource.getContextKey()).thenReturn("test-context");
-        // Note: getMetainfo() is NOT called because user is null (continue before reaching that code)
         when(metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS))
                 .thenReturn(List.of(dashboardResource));
 
-        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        // when
         initializer.migrateUserSelectedDashboards();
 
         // then
@@ -248,7 +251,7 @@ class UserSelectedDashboardInitializerTest {
     @Test
     void testMigrationSkipsWhenNoSubsystemUserFound() {
         // given
-        when(userSelectedDashboardService.isEmpty()).thenReturn(true);
+        when(migrationService.isMigrationCompleted(anyString())).thenReturn(false);
 
         HdContextEntity dataDomain = mock(HdContextEntity.class);
         when(dataDomain.getContextKey()).thenReturn("test-context");
@@ -283,7 +286,7 @@ class UserSelectedDashboardInitializerTest {
         when(metaInfoResourceService.findUserInInstance("test@example.com", "superset-instance"))
                 .thenReturn(null);
 
-        // when - call migrateUserSelectedDashboards directly instead of onApplicationEvent (which requires self)
+        // when
         initializer.migrateUserSelectedDashboards();
 
         // then

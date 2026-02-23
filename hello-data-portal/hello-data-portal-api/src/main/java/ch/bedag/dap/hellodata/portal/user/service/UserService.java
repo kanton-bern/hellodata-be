@@ -62,7 +62,6 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -98,8 +97,9 @@ public class UserService {
     private final DashboardCommentPermissionService dashboardCommentPermissionService;
     private final UserSelectedDashboardService userSelectedDashboardService;
 
-    private final ObjectProvider<DashboardGroupService> dashboardGroupServiceProvider;
-    private final ObjectProvider<UserDashboardSyncService> userDashboardSyncServiceProvider;
+    private final DashboardGroupService dashboardGroupService;
+    private final UserDashboardSyncService userDashboardSyncService;
+    private final UserSubsystemSyncService userSubsystemSyncService;
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
      */
@@ -262,7 +262,7 @@ public class UserService {
         SubsystemUserUpdate subsystemUserUpdate = getSubsystemUserUpdate(userEntity.getEmail(), userEntity.getUsername(), userEntity.getFirstName(), userEntity.getLastName());
         subsystemUserUpdate.setActive(true);
         natsSenderService.publishMessageToJetStream(HDEvent.ENABLE_USER, subsystemUserUpdate);
-        synchronizeContextRolesWithSubsystems(userEntity, true, new HashMap<>());
+        userSubsystemSyncService.synchronizeContextRoles(userEntity, true, new HashMap<>());
         emailNotificationService.notifyAboutUserActivation(userEntity.getFirstName(), userEntity.getEmail(), userEntity.getSelectedLanguage());
         return UserDtoMapper.map(userEntity);
     }
@@ -303,7 +303,7 @@ public class UserService {
         // Cleanup stale dashboard selections
         for (Map.Entry<String, Set<Integer>> entry : validDashboardIdsByContext.entrySet()) {
             userSelectedDashboardService.cleanupStaleDashboards(userUuid, entry.getKey(), entry.getValue());
-            dashboardGroupServiceProvider.getObject().cleanupStaleDashboardsInGroups(entry.getKey(), entry.getValue());
+            dashboardGroupService.cleanupStaleDashboardsInGroups(entry.getKey(), entry.getValue());
         }
 
         return result;
@@ -330,17 +330,18 @@ public class UserService {
         persistDirectDashboardSelections(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
 
         // Update dashboard group memberships
-        dashboardGroupServiceProvider.getObject().updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
+        dashboardGroupService.updateDashboardGroupMemberships(userId, updateContextRolesForUserDto.getSelectedDashboardGroupIdsForUser());
 
-        // Merge direct + group dashboards and synchronize with Superset
-        Map<String, List<DashboardForUserDto>> mergedDashboards = userDashboardSyncServiceProvider.getObject().mergeDashboardSelectionsWithGroups(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
-        userDashboardSyncServiceProvider.getObject().synchronizeDashboardsForUser(userId, mergedDashboards);
+        // Merge direct + group dashboards
+        Map<String, List<DashboardForUserDto>> mergedDashboards = userDashboardSyncService.mergeDashboardSelectionsWithGroups(userId, updateContextRolesForUserDto.getSelectedDashboardsForUser());
 
         if (updateContextRolesForUserDto.getCommentPermissions() != null) {
             dashboardCommentPermissionService.updatePermissions(userId, updateContextRolesForUserDto.getCommentPermissions());
         }
         UserEntity userEntity = getUserEntity(userId);
-        synchronizeContextRolesWithSubsystems(userEntity, sendBackUserList, updateContextRolesForUserDto.getContextToModuleRoleNamesMap());
+        // Single unified sync: context roles + dashboards in one JetStream message
+        userSubsystemSyncService.synchronizeUser(userEntity, sendBackUserList,
+                updateContextRolesForUserDto.getContextToModuleRoleNamesMap(), mergedDashboards);
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 
@@ -361,7 +362,7 @@ public class UserService {
 
     @Transactional
     public void synchronizeContextRolesWithSubsystems(UserEntity userEntity, Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap) {
-        synchronizeContextRolesWithSubsystems(userEntity, true, contextToModuleRoleNamesMap);
+        userSubsystemSyncService.synchronizeContextRoles(userEntity, true, contextToModuleRoleNamesMap);
     }
 
     @Transactional(readOnly = true)
@@ -570,12 +571,6 @@ public class UserService {
         }
     }
 
-    private void synchronizeContextRolesWithSubsystems(UserEntity userEntity, boolean sendBackUsersList, Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap) {
-        UserContextRoleUpdate userContextRoleUpdate = getUserContextRoleUpdate(userEntity, sendBackUsersList);
-        userContextRoleUpdate.setExtraModuleRoles(contextToModuleRoleNamesMap);
-        natsSenderService.publishMessageToJetStream(HDEvent.UPDATE_USER_CONTEXT_ROLE, userContextRoleUpdate);
-    }
-
     private Set<UserContextRoleEntity> getCurrentUserDataDomainRolesExceptNone() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
         if (currentUserId == null) {
@@ -709,7 +704,7 @@ public class UserService {
                 HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name().equalsIgnoreCase(roleName);
         if (!isEligibleRole) {
             String contextKey = dataDomainRoleForContextDto.getContext().getContextKey();
-            dashboardGroupServiceProvider.getObject().removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
+            dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
             userSelectedDashboardService.removeAllForUserInContext(userId, contextKey);
         }
     }
@@ -717,7 +712,7 @@ public class UserService {
     private void removeUserFromDashboardGroupsForAllDomains(UUID userId) {
         List<HdContextEntity> allDataDomains = contextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         for (HdContextEntity dataDomain : allDataDomains) {
-            dashboardGroupServiceProvider.getObject().removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
+            dashboardGroupService.removeUserFromDashboardGroupsInDomain(userId.toString(), dataDomain.getContextKey());
         }
         userSelectedDashboardService.removeAllForUser(userId);
     }

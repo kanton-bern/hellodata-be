@@ -58,17 +58,21 @@ import static ch.bedag.dap.hellodata.commons.SlugifyUtil.DASHBOARD_ROLE_PREFIX;
 /**
  * Initializer that migrates existing dashboard viewer permissions from Superset resource table
  * to the portal's user_selected_dashboard table. This runs once on application startup after
- * the main initialization is completed, and only if the table is empty (idempotent).
+ * the main initialization is completed. Uses MigrationService to ensure it runs exactly once.
  */
 @Log4j2
 @Component
 @RequiredArgsConstructor
 public class UserSelectedDashboardInitializer implements ApplicationListener<InitializationCompletedEvent> {
 
+    private static final String MIGRATION_KEY = "USER_SELECTED_DASHBOARD_MIGRATION_V1";
+    private static final String MIGRATION_DESCRIPTION = "Migrate existing dashboard viewer permissions from Superset to user_selected_dashboard table";
+
     private final UserSelectedDashboardService userSelectedDashboardService;
     private final UserContextRoleRepository userContextRoleRepository;
     private final HdContextRepository hdContextRepository;
     private final MetaInfoResourceService metaInfoResourceService;
+    private final MigrationService migrationService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -84,14 +88,25 @@ public class UserSelectedDashboardInitializer implements ApplicationListener<Ini
     }
 
     private void migrateUserSelectedDashboardsInternal() {
-        // Check if migration already happened (idempotent)
-        if (!userSelectedDashboardService.isEmpty()) {
-            log.debug("user_selected_dashboard table is not empty, skipping migration");
+        // Check if migration already happened using MigrationService
+        if (migrationService.isMigrationCompleted(MIGRATION_KEY)) {
+            log.debug("Migration '{}' already completed, skipping", MIGRATION_KEY);
             return;
         }
 
-        log.info("Starting migration of user selected dashboards from Superset resource table...");
+        log.info("Starting migration: {}", MIGRATION_DESCRIPTION);
 
+        try {
+            int totalMigrated = executeMigration();
+            migrationService.recordMigrationSuccess(MIGRATION_KEY, MIGRATION_DESCRIPTION);
+            log.info("Migration completed successfully. Total dashboard selections migrated: {}", totalMigrated);
+        } catch (Exception e) {
+            migrationService.recordMigrationFailure(MIGRATION_KEY, MIGRATION_DESCRIPTION, e.getMessage());
+            throw e;
+        }
+    }
+
+    private int executeMigration() {
         List<HdContextEntity> dataDomains = hdContextRepository.findAllByTypeIn(List.of(HdContextType.DATA_DOMAIN));
         List<MetaInfoResourceEntity> allDashboards = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS);
 
@@ -100,8 +115,7 @@ public class UserSelectedDashboardInitializer implements ApplicationListener<Ini
             int migratedForDomain = migrateForDataDomain(dataDomain, allDashboards);
             totalMigrated += migratedForDomain;
         }
-
-        log.info("Migration completed. Total dashboard selections migrated: {}", totalMigrated);
+        return totalMigrated;
     }
 
     private int migrateForDataDomain(HdContextEntity dataDomain, List<MetaInfoResourceEntity> allDashboards) {

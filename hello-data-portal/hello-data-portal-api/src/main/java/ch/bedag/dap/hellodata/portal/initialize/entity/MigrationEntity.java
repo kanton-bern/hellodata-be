@@ -24,31 +24,59 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package ch.bedag.dap.hellodata.portal.user.event;
+package ch.bedag.dap.hellodata.portal.initialize.entity;
 
-import ch.bedag.dap.hellodata.portal.user.service.UserSubsystemSyncService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Log4j2
-@Component
-@RequiredArgsConstructor
-public class UserDashboardSyncEventListener {
+import java.time.LocalDateTime;
 
-    private final UserSubsystemSyncService userSubsystemSyncService;
+/**
+ * Entity to track executed application migrations.
+ * Similar to Flyway's schema_history table but for application-level data migrations.
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "app_migration")
+public class MigrationEntity {
 
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleUserDashboardSyncEvent(UserDashboardSyncEvent event) {
-        log.info("Received UserDashboardSyncEvent for user {} and context {}", event.userId(), event.contextKey());
-        try {
-            userSubsystemSyncService.synchronizeUserWithDashboards(event.userId(), event.contextKey());
-        } catch (Exception e) {
-            log.error("Failed to sync dashboards for user {} in context {}: {}", event.userId(), event.contextKey(), e.getMessage());
-        }
+    @Id
+    @Column(nullable = false, unique = true, length = 100)
+    private String migrationKey;
+
+    @Column(length = 500)
+    private String description;
+
+    @Column(nullable = false)
+    private LocalDateTime executedAt;
+
+    @Column(nullable = false)
+    private boolean success;
+
+    @Column(length = 2000)
+    private String errorMessage;
+
+    public MigrationEntity(String migrationKey, String description) {
+        this.migrationKey = migrationKey;
+        this.description = description;
+        this.executedAt = LocalDateTime.now();
+        this.success = true;
+    }
+
+    public static MigrationEntity failed(String migrationKey, String description, String errorMessage) {
+        MigrationEntity entity = new MigrationEntity();
+        entity.setMigrationKey(migrationKey);
+        entity.setDescription(description);
+        entity.setExecutedAt(LocalDateTime.now());
+        entity.setSuccess(false);
+        entity.setErrorMessage(errorMessage);
+        return entity;
     }
 }

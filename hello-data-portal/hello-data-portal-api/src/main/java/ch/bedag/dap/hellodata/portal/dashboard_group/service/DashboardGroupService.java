@@ -49,6 +49,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -93,6 +95,24 @@ public class DashboardGroupService {
         }
         DashboardGroupEntity entity = modelMapper.map(createDto, DashboardGroupEntity.class);
         dashboardGroupRepository.save(entity);
+
+        // If the new group has both users and dashboards, sync those users after commit
+        boolean hasUsers = entity.getUsers() != null && !entity.getUsers().isEmpty();
+        boolean hasDashboards = entity.getEntries() != null && !entity.getEntries().isEmpty();
+        if (hasUsers && hasDashboards) {
+            String contextKey = createDto.getContextKey();
+            Set<String> userIds = entity.getUsers().stream()
+                    .map(DashboardGroupUserEntry::getId)
+                    .collect(Collectors.toSet());
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    for (String userId : userIds) {
+                        eventPublisher.publishEvent(new UserDashboardSyncEvent(UUID.fromString(userId), contextKey));
+                    }
+                }
+            });
+        }
     }
 
     @Transactional
@@ -125,19 +145,34 @@ public class DashboardGroupService {
         unchangedUsers.retainAll(newUserIds);
         usersToSync.removeAll(unchangedUsers);
 
-        // Also check if dashboards changed - if so, sync all current users
+        // Also check if dashboards changed - if so, sync all users (both old and new)
         boolean dashboardsChanged = haveDashboardsChanged(entityToUpdate.getEntries(), updateDto.getEntries());
         if (dashboardsChanged) {
+            // When dashboards change, we need to sync all users who are or were in the group
+            usersToSync.addAll(oldUserIds);
             usersToSync.addAll(newUserIds);
         }
 
-        modelMapper.map(updateDto, entityToUpdate);
+        // Update entity fields explicitly (not using modelMapper to avoid list merging issues)
+        entityToUpdate.setName(updateDto.getName());
+        entityToUpdate.setContextKey(updateDto.getContextKey());
+        entityToUpdate.setEntries(updateDto.getEntries());
+        entityToUpdate.setUsers(updateDto.getUsers());
         dashboardGroupRepository.save(entityToUpdate);
 
-        // Sync affected users to Superset
-        String contextKey = updateDto.getContextKey();
-        for (String userId : usersToSync) {
-            eventPublisher.publishEvent(new UserDashboardSyncEvent(UUID.fromString(userId), contextKey));
+        // Sync affected users to Superset after transaction commits,
+        // so async event handlers see committed data
+        if (!usersToSync.isEmpty()) {
+            String contextKey = updateDto.getContextKey();
+            Set<String> usersToSyncCopy = Set.copyOf(usersToSync);
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    for (String userId : usersToSyncCopy) {
+                        eventPublisher.publishEvent(new UserDashboardSyncEvent(UUID.fromString(userId), contextKey));
+                    }
+                }
+            });
         }
     }
 
@@ -164,9 +199,16 @@ public class DashboardGroupService {
 
             dashboardGroupRepository.deleteById(id);
 
-            // Sync affected users to Superset after deletion
-            for (String userId : userIds) {
-                eventPublisher.publishEvent(new UserDashboardSyncEvent(UUID.fromString(userId), contextKey));
+            // Sync affected users to Superset after transaction commits
+            if (!userIds.isEmpty()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        for (String userId : userIds) {
+                            eventPublisher.publishEvent(new UserDashboardSyncEvent(UUID.fromString(userId), contextKey));
+                        }
+                    }
+                });
             }
         } else {
             dashboardGroupRepository.deleteById(id);
