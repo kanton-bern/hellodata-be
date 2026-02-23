@@ -59,6 +59,7 @@ import {markUnsavedChanges} from "../../../../store/unsaved-changes/unsaved-chan
 import {BaseComponent} from "../../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../../store/breadcrumb/breadcrumb.action";
 import {
+  clearDashboardGroupMembershipsForContext,
   loadAvailableContextRoles,
   loadAvailableContexts,
   loadCommentPermissions,
@@ -200,9 +201,13 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       });
       const dataDomainAdmin = availableDataDomainRoles.find(dataDomainRole => dataDomainRole.name === 'DATA_DOMAIN_ADMIN');
       dataDomains.forEach(dataDomain => {
+        const contextKey = dataDomain.contextKey as string;
         if (this.userForm) {
-          this.userForm.get(dataDomain?.contextKey as string)?.setValue(dataDomainAdmin);
+          this.userForm.get(contextKey)?.setValue(dataDomainAdmin);
         }
+        // Clear selected dashboards and dashboard group memberships when switching to admin role
+        this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
+        this.store.dispatch(clearDashboardGroupMembershipsForContext({contextKey}));
         this.store.dispatch(selectDataDomainRoleForEditedUser({
           selectedRoleForContext: {
             role: dataDomainAdmin,
@@ -233,7 +238,9 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       // Clear selected dashboards when switching to viewer/specialist role to force re-selection
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
     } else {
+      // Clear selected dashboards and dashboard group memberships when switching away from viewer/specialist role
       this.store.dispatch(setSelectedDashboardForUser({dashboards: [], contextKey}));
+      this.store.dispatch(clearDashboardGroupMembershipsForContext({contextKey}));
       this.dashboardTableVisibility.set(contextKey, false);
     }
     if ($event.value.name === NONE_ROLE) {
@@ -372,6 +379,9 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
     if (userContextRoles.length > 0) {
       this.userForm = this.fb.group({});
 
+      // Clear the visibility map before regenerating to ensure correct state
+      this.dashboardTableVisibility.clear();
+
       // Check if any context has admin role (HELLODATA_ADMIN or BUSINESS_DOMAIN_ADMIN are only for business domains)
       this.hasBusinessAdminRole = userContextRoles.some(ucr =>
         [HELLODATA_ADMIN_ROLE, BUSINESS_DOMAIN_ADMIN_ROLE].includes(ucr.role.name)
@@ -380,9 +390,9 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
       userContextRoles.forEach(userContextRole => {
         const contextKey = userContextRole.context.contextKey as string;
 
-        if ([DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes(userContextRole.role.name)) {
-          this.dashboardTableVisibility.set(contextKey, true);
-        }
+        // Set visibility based on role - only viewer and business specialist should see dashboard selection
+        const shouldShowDashboards = [DATA_DOMAIN_VIEWER_ROLE, DATA_DOMAIN_BUSINESS_SPECIALIST_ROLE].includes(userContextRole.role.name);
+        this.dashboardTableVisibility.set(contextKey, shouldShowDashboards);
 
         const disabled = editedUserSuperuser && !isCurrentSuperuser;
         this.saveDisabled = disabled;

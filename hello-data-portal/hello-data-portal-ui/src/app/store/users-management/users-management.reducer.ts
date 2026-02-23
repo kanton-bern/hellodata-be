@@ -27,6 +27,7 @@
 
 import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
 import {
+  clearDashboardGroupMembershipsForContext,
   clearSubsystemUsersCache,
   clearSubsystemUsersForDashboardsCache,
   deleteUserInStore,
@@ -348,6 +349,15 @@ export const usersManagementReducer = createReducer(
       selectedDashboardGroupIdsForUser: {
         ...state.selectedDashboardGroupIdsForUser,
         [contextKey]: newIds
+      }
+    };
+  }),
+  on(clearDashboardGroupMembershipsForContext, (state: UsersManagementState, {contextKey}): UsersManagementState => {
+    return {
+      ...state,
+      selectedDashboardGroupIdsForUser: {
+        ...state.selectedDashboardGroupIdsForUser,
+        [contextKey]: []
       }
     };
   }),

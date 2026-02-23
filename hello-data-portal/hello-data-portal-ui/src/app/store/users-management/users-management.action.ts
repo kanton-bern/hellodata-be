@@ -85,6 +85,7 @@ export enum UsersManagementActionType {
   LOAD_DASHBOARD_GROUP_MEMBERSHIPS = '[USERS MANAGEMENT] Load dashboard group memberships',
   LOAD_DASHBOARD_GROUP_MEMBERSHIPS_SUCCESS = '[USERS MANAGEMENT] Load dashboard group memberships SUCCESS',
   SET_DASHBOARD_GROUP_MEMBERSHIP_FOR_USER = '[USERS MANAGEMENT] Set dashboard group membership for user',
+  CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT = '[USERS MANAGEMENT] Clear dashboard group memberships for context',
 }
 
 export const loadUsers = createAction(
@@ -297,5 +298,10 @@ export const loadDashboardGroupMembershipsSuccess = createAction(
 export const setDashboardGroupMembershipForUser = createAction(
   UsersManagementActionType.SET_DASHBOARD_GROUP_MEMBERSHIP_FOR_USER,
   props<{ contextKey: string, groupId: string, isMember: boolean }>()
+);
+
+export const clearDashboardGroupMembershipsForContext = createAction(
+  UsersManagementActionType.CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT,
+  props<{ contextKey: string }>()
 );
 

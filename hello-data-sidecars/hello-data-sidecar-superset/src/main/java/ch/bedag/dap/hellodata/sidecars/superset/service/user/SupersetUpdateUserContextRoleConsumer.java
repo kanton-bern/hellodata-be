@@ -218,7 +218,7 @@ public class SupersetUpdateUserContextRoleConsumer {
     private void assignRoleToUser(String roleName, SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
         List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SubsystemRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles();
-        supersetUserRolesUpdate.setRoles(Stream.concat(roles.stream(), userRoles.stream()).toList());
+        supersetUserRolesUpdate.setRoles(Stream.concat(roles.stream(), userRoles.stream()).distinct().toList());
     }
 
     private void assignDashboardRoleToUser(SubsystemUser user, @Nullable SupersetDashboard dashboard, SupersetRolesResponse allRoles,

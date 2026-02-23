@@ -32,10 +32,10 @@ import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.UUID;
 
@@ -51,8 +51,8 @@ public class UserSyncEventListener {
     private final UserSubsystemSyncService userSubsystemSyncService;
     private final UserRepository userRepository;
 
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserDashboardSyncEvent(UserDashboardSyncEvent event) {
         log.info("Received UserDashboardSyncEvent for user {} and context {}", event.userId(), event.contextKey());
         try {
@@ -62,8 +62,8 @@ public class UserSyncEventListener {
         }
     }
 
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserContextRoleSyncEvent(UserContextRoleSyncEvent event) {
         log.info("Received UserContextRoleSyncEvent for user {}", event.userId());
         try {
@@ -74,8 +74,8 @@ public class UserSyncEventListener {
         }
     }
 
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserFullSyncEvent(UserFullSyncEvent event) {
         log.info("Received UserFullSyncEvent for user {}", event.userId());
         try {
@@ -87,8 +87,8 @@ public class UserSyncEventListener {
         }
     }
 
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleSyncAllUsersEvent(SyncAllUsersEvent event) {
         log.info("Received SyncAllUsersEvent - synchronizing all users with dashboards");
         try {

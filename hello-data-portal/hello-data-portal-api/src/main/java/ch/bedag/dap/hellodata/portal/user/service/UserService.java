@@ -43,6 +43,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserDelete;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
+import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
 import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
@@ -102,6 +103,7 @@ public class UserService {
     private final DashboardGroupService dashboardGroupService;
     private final UserDashboardSyncService userDashboardSyncService;
     private final ApplicationEventPublisher eventPublisher;
+    private final HellodataAuthenticationConverter authenticationConverter;
     /**
      * A flag to indicate if the user should be deleted in the provider when deleting it in the portal
      */
@@ -288,6 +290,7 @@ public class UserService {
         if (!isCurrentUserHDAdmin && HdRoleName.HELLODATA_ADMIN.name().equalsIgnoreCase(updateContextRolesForUserDto.getBusinessDomainRole().getName())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only a HelloData Admin can assign the HelloData Admin role to another user");
         }
+        UserEntity userEntity = getUserEntity(userId);
         updateContextRoles(userId, updateContextRolesForUserDto);
 
         // Persist direct dashboard selections before syncing with Superset
@@ -305,6 +308,10 @@ public class UserService {
         // Single unified sync: context roles + dashboards in one JetStream message (via event)
         eventPublisher.publishEvent(new UserFullSyncEvent(userId, sendBackUserList,
                 updateContextRolesForUserDto.getContextToModuleRoleNamesMap(), mergedDashboards));
+
+        // Invalidate user cache so permissions are refreshed immediately
+        authenticationConverter.invalidateUserCache(userEntity.getEmail());
+
         notifyUserViaEmail(userId, updateContextRolesForUserDto);
     }
 
@@ -323,6 +330,11 @@ public class UserService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public boolean isUserSuperuser(UUID userId) {
+        UserEntity userEntity = getUserEntity(userId);
+        return BooleanUtils.isTrue(userEntity.isSuperuser());
+    }
 
     @Transactional(readOnly = true)
     public Set<String> getUserPortalPermissions(UUID userId) {

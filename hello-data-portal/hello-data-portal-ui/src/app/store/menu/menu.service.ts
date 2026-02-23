@@ -32,6 +32,7 @@ import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
 import {
   selectCurrentContextRoles,
+  selectCurrentContextRolesFilterOffNone,
   selectCurrentUserCommentPermissions,
   selectCurrentUserPermissions,
   selectCurrentUserPermissionsLoaded
@@ -119,12 +120,17 @@ export class MenuService {
       this._store.select(selectMyLineageDocs),
       this._store.select(selectAppInfos),
       this._store.select(selectCurrentContextRoles),
+      this._store.select(selectCurrentContextRolesFilterOffNone),
       this._store.select(selectAvailableDataDomainItems),
       this._store.select(selectSelectedDataDomain),
       this._store.select(selectCurrentUserCommentPermissions)
     ]).pipe(
       map(([myDashboards, myDocs,
-             appInfos, contextRoles, availableDomainItems, selectedDataDomain, commentPermissions]) => {
+             appInfos, contextRoles, contextRolesNotNone, availableDomainItems, selectedDataDomain, commentPermissions]) => {
+        // If user has no roles other than NONE, return empty menu
+        if (!contextRolesNotNone || contextRolesNotNone.length === 0) {
+          return [];
+        }
         const filteredNavigationElements = this.filterNavigationByPermissions(ALL_MENU_ITEMS, currentUserPermissions);
         const ctx = {
           myDashboards,

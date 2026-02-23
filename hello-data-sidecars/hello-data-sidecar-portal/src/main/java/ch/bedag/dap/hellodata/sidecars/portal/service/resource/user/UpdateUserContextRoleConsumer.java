@@ -113,11 +113,16 @@ public class UpdateUserContextRoleConsumer {
     }
 
     private void deleteExistingUserPortalRoles(UserEntity userEntity, Set<UserPortalRoleEntity> userPortalRoleEntities) {
-        for (UserPortalRoleEntity userPortalRoleEntity : userPortalRoleEntities) {
-            userPortalRoleRepository.deleteById(userPortalRoleEntity.getId());
+        log.info("Deleting {} existing portal roles for user {}", userPortalRoleEntities.size(), userEntity.getEmail());
+        // Create a copy to avoid ConcurrentModificationException
+        Set<UserPortalRoleEntity> rolesToDelete = new HashSet<>(userPortalRoleEntities);
+        for (UserPortalRoleEntity userPortalRoleEntity : rolesToDelete) {
+            log.debug("Deleting portal role {} for context {}", userPortalRoleEntity.getRole().getName(), userPortalRoleEntity.getContextKey());
+            userEntity.getPortalRoles().remove(userPortalRoleEntity);
+            userPortalRoleRepository.delete(userPortalRoleEntity);
         }
-        userEntity.getPortalRoles().removeAll(userEntity.getPortalRoles());
         userPortalRoleRepository.flush();
-        userRepository.flush();
+        userRepository.saveAndFlush(userEntity);
+        log.info("Deleted all existing portal roles for user {}", userEntity.getEmail());
     }
 }
