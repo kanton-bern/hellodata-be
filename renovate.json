@@ -17,13 +17,13 @@
     {
       "description": "Ignore internal Maven packages that Renovate cannot resolve",
       "matchManagers": ["maven"],
-      "matchPackagePatterns": ["^ch\\.bedag\\.dap\\.hellodata:"],
+      "matchPackageNames": ["/^ch\\.bedag\\.dap\\.hellodata:/"],
       "enabled": false
     },
     {
       "description": "Group all Spring packages (minor/patch)",
       "matchManagers": ["maven"],
-      "matchPackagePatterns": ["^org\\.springframework"],
+      "matchPackageNames": ["/^org\\.springframework/"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "Spring packages (minor/patch)",
       "groupSlug": "spring-minor-patch"
@@ -31,15 +31,17 @@
     {
       "description": "Group all Angular packages (minor/patch)",
       "matchManagers": ["npm"],
-      "matchPackagePatterns": [
-        "^@angular/",
-        "^@angular-devkit/",
-        "^@ngrx/",
-        "^@schematics/",
-        "^ng-packagr",
-        "^zone\\.js",
-        "^rxjs",
-        "^tslib"
+      "matchPackageNames": [
+        "/^@angular\\//",
+        "/^@angular-/",
+        "/^angular-auth-oidc-client/",
+        "/^primeng/",
+        "/^@ngrx\\//",
+        "/^@schematics\\//",
+        "/^ng-packagr/",
+        "/^zone\\.js/",
+        "/^rxjs/",
+        "/^tslib/"
       ],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "Angular packages (minor/patch)",
@@ -48,9 +50,9 @@
     {
       "description": "Group remaining Java/Maven packages (minor/patch)",
       "matchManagers": ["maven"],
-      "excludePackagePatterns": [
-        "^org\\.springframework",
-        "^ch\\.bedag\\.dap\\.hellodata:"
+      "excludePackageNames": [
+        "/^org\\.springframework/",
+        "/^ch\\.bedag\\.dap\\.hellodata:/"
       ],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "Java packages (minor/patch)",
@@ -59,15 +61,17 @@
     {
       "description": "Group remaining npm/yarn packages (minor/patch)",
       "matchManagers": ["npm"],
-      "excludePackagePatterns": [
-        "^@angular/",
-        "^@angular-devkit/",
-        "^@ngrx/",
-        "^@schematics/",
-        "^ng-packagr",
-        "^zone\\.js",
-        "^rxjs",
-        "^tslib"
+      "excludePackageNames": [
+        "/^@angular\\//",
+        "/^@angular-/",
+        "/^angular-auth-oidc-client/",
+        "/^primeng/",
+        "/^@ngrx\\//",
+        "/^@schematics\\//",
+        "/^ng-packagr/",
+        "/^zone\\.js/",
+        "/^rxjs/",
+        "/^tslib/"
       ],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "npm packages (minor/patch)",
@@ -76,44 +80,49 @@
     {
       "description": "Group all Angular major updates",
       "matchManagers": ["npm"],
-      "matchPackagePatterns": [
-        "^@angular/",
-        "^@angular-devkit/",
-        "^@ngrx/",
-        "^@schematics/",
-        "^ng-packagr",
-        "^zone\\.js",
-        "^rxjs",
-        "^tslib"
+      "matchPackageNames": [
+        "/^@angular\\//",
+        "/^@angular-/",
+        "/^angular-auth-oidc-client/",
+        "/^@ngrx\\//",
+        "/^primeng/",
+        "/^@schematics\\//",
+        "/^ng-packagr/",
+        "/^zone\\.js/",
+        "/^rxjs/",
+        "/^tslib/"
       ],
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true,
-      "groupName": "Angular packages (major)",
+      "groupName": "Angular packages",
       "groupSlug": "angular-major"
     },
     {
       "description": "Group all Spring major updates",
       "matchManagers": ["maven"],
-      "matchPackagePatterns": ["^org\\.springframework"],
+      "matchPackageNames": ["/^org\\.springframework/"],
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true,
-      "groupName": "Spring packages (major)",
+      "groupName": "Spring packages",
       "groupSlug": "spring-major"
     },
     {
       "description": "Each remaining major update gets its own PR",
       "matchUpdateTypes": ["major"],
-      "excludePackagePatterns": [
-        "^@angular/",
-        "^@angular-devkit/",
-        "^@ngrx/",
-        "^@schematics/",
-        "^ng-packagr",
-        "^zone\\.js",
-        "^rxjs",
-        "^tslib",
-        "^org\\.springframework",
-        "^ch\\.bedag\\.dap\\.hellodata:"
+      "excludePackageNames": [
+        "/^@angular\\//",
+        "/^@angular-/",
+        "/^angular-auth-oidc-client/",
+        "/^@ngrx\\//",
+        "/^@schematics\\//",
+        "/^ng-packagr/",
+        "/^zone\\.js/",
+        "/^rxjs/",
+        "/^tslib/",
+        "/^org\\.springframework/",
+        "/^ch\\.bedag\\.dap\\.hellodata:/",
+        "/^@fortawesome\\//",
+        "/^primeng/"
       ],
       "dependencyDashboardApproval": true,
       "groupName": "major update: {{depName}}",
