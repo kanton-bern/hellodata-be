@@ -128,7 +128,7 @@ class UserSelectedDashboardInitializerTest {
         when(userContextRole.getUser()).thenReturn(user);
 
         when(userContextRoleRepository.findByContextKeyAndRoleNames("test-context",
-                eq(List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_BUSINESS_SPECIALIST"))
+                List.of("DATA_DOMAIN_VIEWER", "DATA_DOMAIN_BUSINESS_SPECIALIST")
         )).thenReturn(List.of(userContextRole));
 
         // Setup dashboard resource
