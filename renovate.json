@@ -74,8 +74,47 @@
       "groupSlug": "npm-minor-patch"
     },
     {
-      "description": "Each major update gets its own PR",
+      "description": "Group all Angular major updates",
+      "matchManagers": ["npm"],
+      "matchPackagePatterns": [
+        "^@angular/",
+        "^@angular-devkit/",
+        "^@ngrx/",
+        "^@schematics/",
+        "^ng-packagr",
+        "^zone\\.js",
+        "^rxjs",
+        "^tslib"
+      ],
       "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "groupName": "Angular packages (major)",
+      "groupSlug": "angular-major"
+    },
+    {
+      "description": "Group all Spring major updates",
+      "matchManagers": ["maven"],
+      "matchPackagePatterns": ["^org\\.springframework"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "groupName": "Spring packages (major)",
+      "groupSlug": "spring-major"
+    },
+    {
+      "description": "Each remaining major update gets its own PR",
+      "matchUpdateTypes": ["major"],
+      "excludePackagePatterns": [
+        "^@angular/",
+        "^@angular-devkit/",
+        "^@ngrx/",
+        "^@schematics/",
+        "^ng-packagr",
+        "^zone\\.js",
+        "^rxjs",
+        "^tslib",
+        "^org\\.springframework",
+        "^ch\\.bedag\\.dap\\.hellodata:"
+      ],
       "dependencyDashboardApproval": true,
       "groupName": "major update: {{depName}}",
       "groupSlug": "major-{{depName}}"
