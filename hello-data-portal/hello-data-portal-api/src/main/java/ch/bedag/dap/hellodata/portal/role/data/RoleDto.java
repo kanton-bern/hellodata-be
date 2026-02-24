@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.role.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.UUID;
@@ -35,6 +36,7 @@ import java.util.UUID;
  * a DTO for a context role
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoleDto {
     private UUID id;
     private String name;
