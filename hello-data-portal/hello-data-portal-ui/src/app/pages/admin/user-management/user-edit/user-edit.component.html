@@ -83,7 +83,7 @@
                                 formControlName="{{businessDomain.contextKey}}"
                                 id="businessDomain-{{businessDomain.contextKey}}"
                                 scrollHeight="flex"
-                                optionLabel="name"
+                                optionLabel="displayName"
                                 [style]="{'min-width': '250px'}"/>
                             </div>
                           </div>
@@ -110,7 +110,7 @@
                                       formControlName="{{dataDomain.contextKey}}"
                                       id="dataDomain-{{dataDomain.contextKey}}"
                                       scrollHeight="flex"
-                                      optionLabel="name"
+                                      optionLabel="displayName"
                                       [style]="{'min-width': '250px'}"/>
                           </div>
                         </div>
@@ -156,6 +156,9 @@
                         <!-- Row 3: Dashboard panel (if visible) -->
                         @if (dashboardTableVisibility.get(dataDomain.contextKey)) {
                           <div>
+                            <app-dashboard-group-membership
+                              class="mb-4 block"
+                              [context]="dataDomain"/>
                             <app-dashboard-viewer-permissions
                               (selectedDashboardsEvent)="selectedDashboardsEvent($event, dataDomain)"
                               [context]="dataDomain"/>

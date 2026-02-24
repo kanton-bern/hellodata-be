@@ -30,6 +30,7 @@ import {
   CommentPermissions,
   CreateUserForm,
   DashboardForUser,
+  DashboardGroupMembership,
   DashboardUsersResultDto,
   SubsystemUsersResultDto,
   User,
@@ -81,6 +82,10 @@ export enum UsersManagementActionType {
   LOAD_COMMENT_PERMISSIONS = '[USERS MANAGEMENT] Load comment permissions',
   LOAD_COMMENT_PERMISSIONS_SUCCESS = '[USERS MANAGEMENT] Load comment permissions SUCCESS',
   SET_COMMENT_PERMISSIONS_FOR_USER = '[USERS MANAGEMENT] Set comment permissions for user',
+  LOAD_DASHBOARD_GROUP_MEMBERSHIPS = '[USERS MANAGEMENT] Load dashboard group memberships',
+  LOAD_DASHBOARD_GROUP_MEMBERSHIPS_SUCCESS = '[USERS MANAGEMENT] Load dashboard group memberships SUCCESS',
+  SET_DASHBOARD_GROUP_MEMBERSHIP_FOR_USER = '[USERS MANAGEMENT] Set dashboard group membership for user',
+  CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT = '[USERS MANAGEMENT] Clear dashboard group memberships for context',
 }
 
 export const loadUsers = createAction(
@@ -279,3 +284,24 @@ export const setCommentPermissionsForUser = createAction(
   UsersManagementActionType.SET_COMMENT_PERMISSIONS_FOR_USER,
   props<{ contextKey: string, permissions: CommentPermissions }>()
 );
+
+export const loadDashboardGroupMemberships = createAction(
+  UsersManagementActionType.LOAD_DASHBOARD_GROUP_MEMBERSHIPS,
+  props<{ contextKey: string }>()
+);
+
+export const loadDashboardGroupMembershipsSuccess = createAction(
+  UsersManagementActionType.LOAD_DASHBOARD_GROUP_MEMBERSHIPS_SUCCESS,
+  props<{ contextKey: string, memberships: DashboardGroupMembership[] }>()
+);
+
+export const setDashboardGroupMembershipForUser = createAction(
+  UsersManagementActionType.SET_DASHBOARD_GROUP_MEMBERSHIP_FOR_USER,
+  props<{ contextKey: string, groupId: string, isMember: boolean }>()
+);
+
+export const clearDashboardGroupMembershipsForContext = createAction(
+  UsersManagementActionType.CLEAR_DASHBOARD_GROUP_MEMBERSHIPS_FOR_CONTEXT,
+  props<{ contextKey: string }>()
+);
+

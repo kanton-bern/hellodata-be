@@ -30,6 +30,7 @@ import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.portal.base.config.SystemProperties;
 import ch.bedag.dap.hellodata.portal.base.util.PageUtil;
+import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portal.user.service.UserService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
@@ -57,6 +58,7 @@ import java.util.*;
 public class UserController {
 
     private final UserService userService;
+    private final DashboardGroupService dashboardGroupService;
     private final HelloDataContextConfig helloDataContextConfig;
     private final SystemProperties systemProperties;
 
@@ -121,12 +123,14 @@ public class UserController {
                 log.debug("Current user id {}", currentUserId);
                 String currentUserIdStr = currentUserId.toString();
                 userService.updateLastAccess(currentUserIdStr);
-                return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
+                // Fetch isSuperuser from database to avoid using cached token value
+                boolean isSuperuser = userService.isUserSuperuser(currentUserId);
+                return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), isSuperuser,
                         helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
                         userService.isUserDisabled(currentUserIdStr), userService.getSelectedLanguage(currentUserIdStr)
                 );
             }
-            return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), SecurityUtils.isSuperuser(),
+            return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), false,
                     helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
                     false, Locale.ROOT);
         } catch (ClientErrorException e) {
@@ -204,6 +208,13 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
     public void updateContextRolesForUser(@PathVariable UUID userId, @NotNull @Valid @RequestBody UpdateContextRolesForUserDto updateContextRolesForUserDto) {
         userService.updateContextRolesForUser(userId, updateContextRolesForUserDto, true);
+    }
+
+    @GetMapping("/{userId}/dashboard-groups-membership")
+    @PreAuthorize("hasAnyAuthority('USER_MANAGEMENT')")
+    public List<DashboardGroupMembershipDto> getDashboardGroupMembership(
+            @PathVariable UUID userId, @RequestParam String contextKey) {
+        return dashboardGroupService.getDashboardGroupMembership(userId, contextKey);
     }
 
     @GetMapping("search/{email}")

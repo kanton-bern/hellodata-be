@@ -46,4 +46,5 @@ public class UpdateContextRolesForUserDto {
     //CONTEXT -> MODULE -> ROLE NAMES i.e. "Data Domain One" -> "Superset DD One" -> ["Role1", "Role2"]
     private Map<String, List<ModuleRoleNames>> contextToModuleRoleNamesMap = new HashMap<>();
     private List<DashboardCommentPermissionDto> commentPermissions;
+    private Map<String, List<String>> selectedDashboardGroupIdsForUser = new HashMap<>();
 }

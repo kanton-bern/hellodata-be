@@ -63,6 +63,25 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
             .maximumSize(1000)
             .build();
 
+    /**
+     * Invalidate cached user data and permissions for a specific user.
+     * Should be called when user roles/permissions change.
+     *
+     * @param email - user email
+     */
+    public void invalidateUserCache(String email) {
+        userDatabaseCache.invalidate(email);
+        userPermissionsCache.invalidate(email);
+    }
+
+    /**
+     * Invalidate all cached user data and permissions.
+     */
+    public void invalidateAllUserCaches() {
+        userDatabaseCache.invalidateAll();
+        userPermissionsCache.invalidateAll();
+    }
+
     @Override
     @Transactional
     public HellodataAuthenticationToken convert(Jwt jwt) {

@@ -111,7 +111,13 @@ export const selectAllDataDomains = createSelector(
 
 export const selectUserContextRoles = createSelector(
   usersManagementState,
-  (state: UsersManagementState) => state.userContextRoles
+  (state: UsersManagementState) => state.userContextRoles.map(ucr => ({
+    ...ucr,
+    role: {
+      ...ucr.role,
+      displayName: formatRoleName(ucr.role.name)
+    }
+  }))
 );
 
 export const selectEditedUserIsBusinessContextAdmin = createSelector(
@@ -143,21 +149,31 @@ export const selectEditedUserIsAdminAndCurrentIsSuperuser = createSelector(
   }
 );
 
+// Helper function to format role name for display (replace underscores with spaces)
+const formatRoleName = (name: string): string => name.replace(/_/g, ' ');
+
+// Helper function to add displayName to roles
+const addDisplayName = (roles: any[]) => roles.map(role => ({
+  ...role,
+  displayName: formatRoleName(role.name)
+}));
+
 export const selectAvailableRolesForBusinessDomain = createSelector(
   usersManagementState,
   selectCurrentUserPermissions,
   selectEditedUserIsAdminAndCurrentIsSuperuser,
   (state: UsersManagementState, currentUserPermissions, result) => {
+    let roles;
     if (!result.isCurrentUserSuperuser && result.isEditedUserHDAdmin) {
-      return state.allAvailableContextRoles.filter(role => role.name === HELLODATA_ADMIN_ROLE);
+      roles = state.allAvailableContextRoles.filter(role => role.name === HELLODATA_ADMIN_ROLE);
+    } else if (!result.isCurrentUserSuperuser && currentUserPermissions.some(permission => permission === 'USER_MANAGEMENT')) {
+      roles = state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
+    } else if (!result.isEditedUserBDAdmin && !result.isCurrentUserSuperuser) {
+      roles = state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE);
+    } else {
+      roles = state.allAvailableContextRoles.filter(role => role.contextType === BUSINESS_DOMAIN_CONTEXT_TYPE || role.contextType === null);
     }
-    if (!result.isCurrentUserSuperuser && currentUserPermissions.some(permission => permission === 'USER_MANAGEMENT')) {
-      return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE || role.name === BUSINESS_DOMAIN_ADMIN_ROLE);
-    }
-    if (!result.isEditedUserBDAdmin && !result.isCurrentUserSuperuser) {
-      return state.allAvailableContextRoles.filter(role => role.name === NONE_ROLE);
-    }
-    return state.allAvailableContextRoles.filter(role => role.contextType === BUSINESS_DOMAIN_CONTEXT_TYPE || role.contextType === null);
+    return addDisplayName(roles);
   }
 );
 
@@ -172,19 +188,22 @@ export const selectAvailableRolesForDataDomain = createSelector(
       DATA_DOMAIN_ADMIN_ROLE
     ];
 
+    let roles;
     if (state.selectedBusinessContextRoleForEditedUser && (state.selectedBusinessContextRoleForEditedUser.name === HELLODATA_ADMIN_ROLE || state.selectedBusinessContextRoleForEditedUser.name === BUSINESS_DOMAIN_ADMIN_ROLE)) {
-      return state.allAvailableContextRoles.filter(role => role.name === DATA_DOMAIN_ADMIN_ROLE);
+      roles = state.allAvailableContextRoles.filter(role => role.name === DATA_DOMAIN_ADMIN_ROLE);
+    } else {
+      roles = state.allAvailableContextRoles
+        .filter(role => role.contextType === DATA_DOMAIN_CONTEXT_TYPE || role.contextType === null)
+        .sort((roleA, roleB) => {
+          const indexA = DATA_DOMAIN_ROLE_ORDER.indexOf(roleA.name ?? '');
+          const indexB = DATA_DOMAIN_ROLE_ORDER.indexOf(roleB.name ?? '');
+          // Roles not in the order list go to the end
+          const orderA = indexA === -1 ? DATA_DOMAIN_ROLE_ORDER.length : indexA;
+          const orderB = indexB === -1 ? DATA_DOMAIN_ROLE_ORDER.length : indexB;
+          return orderA - orderB;
+        });
     }
-    return state.allAvailableContextRoles
-      .filter(role => role.contextType === DATA_DOMAIN_CONTEXT_TYPE || role.contextType === null)
-      .sort((roleA, roleB) => {
-        const indexA = DATA_DOMAIN_ROLE_ORDER.indexOf(roleA.name ?? '');
-        const indexB = DATA_DOMAIN_ROLE_ORDER.indexOf(roleB.name ?? '');
-        // Roles not in the order list go to the end
-        const orderA = indexA === -1 ? DATA_DOMAIN_ROLE_ORDER.length : indexA;
-        const orderB = indexB === -1 ? DATA_DOMAIN_ROLE_ORDER.length : indexB;
-        return orderA - orderB;
-      });
+    return addDisplayName(roles);
   });
 
 export const selectSelectedRolesForUser = createSelector(
@@ -242,4 +261,12 @@ export const selectCommentPermissionsForUser = createSelector(
   (state: UsersManagementState) => state.commentPermissionsForUser
 );
 
+export const selectDashboardGroupMembershipsForUser = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.dashboardGroupMembershipsForUser
+);
 
+export const selectSelectedDashboardGroupIdsForUser = createSelector(
+  usersManagementState,
+  (state: UsersManagementState) => state.selectedDashboardGroupIdsForUser
+);

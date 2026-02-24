@@ -161,4 +161,21 @@ p-button[severity="help"] .p-button {
   color: var(--p-button-help-color) !important;
 }
 
+/* Reduce font size in role selector dropdown options */
+.p-select-overlay .p-select-option {
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.8125rem !important;
+}
+
+/* Reduce size of p-select component by ~10% */
+.p-select {
+  padding: 0.45rem 0.7rem !important;
+  font-size: 0.9rem !important;
+}
+
+.p-select .p-select-label {
+  padding: 0 !important;
+  font-size: 0.9rem !important;
+}
+
 

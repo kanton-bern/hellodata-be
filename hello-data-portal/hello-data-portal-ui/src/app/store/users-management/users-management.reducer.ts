@@ -27,6 +27,7 @@
 
 import {initialUsersManagementState, UsersManagementState} from "./users-management.state";
 import {
+  clearDashboardGroupMembershipsForContext,
   clearSubsystemUsersCache,
   clearSubsystemUsersForDashboardsCache,
   deleteUserInStore,
@@ -35,6 +36,7 @@ import {
   loadAvailableContextRolesSuccess,
   loadAvailableContextsSuccess,
   loadCommentPermissionsSuccess,
+  loadDashboardGroupMembershipsSuccess,
   loadDashboardsSuccess,
   loadSubsystemUsers,
   loadSubsystemUsersForDashboards,
@@ -49,6 +51,7 @@ import {
   selectBusinessDomainRoleForEditedUser,
   selectDataDomainRoleForEditedUser,
   setCommentPermissionsForUser,
+  setDashboardGroupMembershipForUser,
   setSelectedDashboardForUser,
   showUserActionPopup,
   syncUsersSuccess,
@@ -309,6 +312,52 @@ export const usersManagementReducer = createReducer(
       commentPermissionsForUser: {
         ...state.commentPermissionsForUser,
         [contextKey]: permissions
+      }
+    };
+  }),
+  on(loadDashboardGroupMembershipsSuccess, (state: UsersManagementState, {
+    contextKey,
+    memberships
+  }): UsersManagementState => {
+    const selectedIds = memberships.filter(m => m.isMember).map(m => m.groupId);
+    return {
+      ...state,
+      dashboardGroupMembershipsForUser: {
+        ...state.dashboardGroupMembershipsForUser,
+        [contextKey]: memberships
+      },
+      selectedDashboardGroupIdsForUser: {
+        ...state.selectedDashboardGroupIdsForUser,
+        [contextKey]: selectedIds
+      }
+    };
+  }),
+  on(setDashboardGroupMembershipForUser, (state: UsersManagementState, {
+    contextKey,
+    groupId,
+    isMember
+  }): UsersManagementState => {
+    const currentIds = state.selectedDashboardGroupIdsForUser[contextKey] || [];
+    let newIds: string[];
+    if (isMember) {
+      newIds = currentIds.includes(groupId) ? currentIds : [...currentIds, groupId];
+    } else {
+      newIds = currentIds.filter(id => id !== groupId);
+    }
+    return {
+      ...state,
+      selectedDashboardGroupIdsForUser: {
+        ...state.selectedDashboardGroupIdsForUser,
+        [contextKey]: newIds
+      }
+    };
+  }),
+  on(clearDashboardGroupMembershipsForContext, (state: UsersManagementState, {contextKey}): UsersManagementState => {
+    return {
+      ...state,
+      selectedDashboardGroupIdsForUser: {
+        ...state.selectedDashboardGroupIdsForUser,
+        [contextKey]: []
       }
     };
   }),

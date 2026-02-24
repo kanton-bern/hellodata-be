@@ -31,11 +31,13 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.respon
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemRole;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
 import lombok.experimental.UtilityClass;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @UtilityClass
 public class RoleUtil {
 
@@ -49,6 +51,7 @@ public class RoleUtil {
      */
     public static void leaveOnlyBiViewerRoleIfNoneAttached(SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
         if (CollectionUtils.isEmpty(supersetUserRolesUpdate.getRoles())) {
+            log.info("No roles set for user, leaving only bi viewer role");
             supersetUserRolesUpdate.setRoles(allRoles.getResult()
                     .stream()
                     .filter(supersetRole -> supersetRole.getName().equalsIgnoreCase(SlugifyUtil.BI_VIEWER_ROLE_NAME))

@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data;
 
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -51,6 +52,7 @@ public class UserContextRoleUpdate implements Serializable {
     private Boolean active;
     private List<ContextRole> contextRoles;
     private Map<String, List<ModuleRoleNames>> extraModuleRoles = new HashMap<>(); //NOSONAR
+    private Map<String, List<DashboardForUserDto>> dashboardsPerContext; //NOSONAR
     //technical - send user list pushback enabled by default
     private boolean sendBackUsersList = true;
 

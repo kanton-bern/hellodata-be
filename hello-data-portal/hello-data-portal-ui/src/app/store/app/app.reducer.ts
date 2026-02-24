@@ -44,6 +44,7 @@ import {breadcrumbReducer} from "../breadcrumb/breadcrumb.reducer";
 import {unsavedChangesReducer} from "../unsaved-changes/unsaved-changes.reducer";
 import {queriesReducer} from "../queries/queries.reducer";
 import {dashboardAccessReducer} from "../dashboard-access/dashboard-access.reducer";
+import {dashboardGroupsReducer} from "../dashboard-groups/dashboard-groups.reducer";
 
 export const appReducers: ActionReducerMap<AppState, any> = {
   auth: authReducer,
@@ -62,5 +63,6 @@ export const appReducers: ActionReducerMap<AppState, any> = {
   breadcrumbs: breadcrumbReducer,
   unsavedChanges: unsavedChangesReducer,
   queries: queriesReducer,
-  dashboardAccess: dashboardAccessReducer
+  dashboardAccess: dashboardAccessReducer,
+  dashboardGroups: dashboardGroupsReducer
 };

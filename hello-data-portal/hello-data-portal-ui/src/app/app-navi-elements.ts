@@ -161,6 +161,22 @@ export const naviElements: any = {
     path: 'documentation-management',
     label: '@Documentation management'
   },
+  dashboardGroups: {
+    path: 'dashboard-groups',
+    label: '@Dashboard groups'
+  },
+  dashboardGroupsList: {
+    path: 'list/:contextKey',
+    label: '@List'
+  },
+  dashboardGroupEdit: {
+    path: ':contextKey/edit/:groupId',
+    label: '@Edit'
+  },
+  dashboardGroupCreate: {
+    path: ':contextKey/create',
+    label: '@Create'
+  },
   dashboardCopy: {
     path: 'dashboard-import-export',
     label: '@Dashboard import-export'

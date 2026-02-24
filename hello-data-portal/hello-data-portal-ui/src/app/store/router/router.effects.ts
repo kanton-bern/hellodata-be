@@ -35,10 +35,11 @@ import {loadExternalDashboardById} from "../external-dashboards/external-dasboar
 import {loadFaqById} from "../faq/faq.action";
 import {loadPortalRoleById} from "../portal-roles-management/portal-roles-management.action";
 import {clearUnsavedChanges} from "../unsaved-changes/unsaved-changes.actions";
+import {loadDashboardGroupById, loadDashboardGroupByIdSuccess} from "../dashboard-groups/dashboard-groups.action";
 
 @Injectable()
 export class RouterEffects {
-  private _actions$ = inject(Actions);
+  private readonly _actions$ = inject(Actions);
 
 
   openEditionFinished$ = createEffect(() => {
@@ -57,6 +58,19 @@ export class RouterEffects {
         }
         if (urlParts.length === 4 && urlParts[1] === 'external-dashboards' && urlParts[2] === 'edit') {
           return scheduled([loadExternalDashboardById()], asyncScheduler);
+        }
+        if (urlParts.length === 5 && urlParts[1] === 'dashboard-groups' && urlParts[3] === 'edit') {
+          return scheduled([loadDashboardGroupById()], asyncScheduler);
+        }
+        if (urlParts.length === 4 && urlParts[1] === 'dashboard-groups' && urlParts[3] === 'create') {
+          return scheduled([loadDashboardGroupByIdSuccess({
+            dashboardGroup: {
+              name: '',
+              contextKey: urlParts[2],
+              entries: [],
+              users: []
+            }
+          })], asyncScheduler);
         }
         return EMPTY;
       }),

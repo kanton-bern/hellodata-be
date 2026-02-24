@@ -31,13 +31,13 @@ import ch.bedag.dap.hellodata.commons.metainfomodel.repository.HdContextReposito
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.nats.service.NatsSenderService;
 import ch.bedag.dap.hellodata.commons.security.SecurityUtils;
-import ch.bedag.dap.hellodata.commons.sidecars.events.HDEvent;
-import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.AllUsersContextRoleUpdate;
+import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.service.DashboardCommentPermissionService;
+import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
+import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
-import ch.bedag.dap.hellodata.portal.user.data.AdUserOrigin;
-import ch.bedag.dap.hellodata.portal.user.data.DataDomainDto;
+import ch.bedag.dap.hellodata.portal.user.data.*;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @Log4j2
@@ -99,6 +98,21 @@ class UserServiceTest {
     @Mock
     private DashboardCommentPermissionService dashboardCommentPermissionService;
 
+    @Mock
+    private DashboardGroupService dashboardGroupService;
+
+    @Mock
+    private UserSelectedDashboardService userSelectedDashboardService;
+
+    @Mock
+    private UserDashboardSyncService userDashboardSyncService;
+
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    private HellodataAuthenticationConverter authenticationConverter;
+
     @InjectMocks
     private UserService userService;
 
@@ -130,30 +144,6 @@ class UserServiceTest {
         assertEquals(createdUserId, result);
     }
 
-    @Test
-    void testSyncAllUsers() {
-        // given
-        String email = "test@example.com";
-        String firstName = "John";
-        String lastName = "Doe";
-        String createdUserId = UUID.randomUUID().toString();
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(UUID.fromString(createdUserId));
-        userEntity.setEmail(email);
-        userEntity.setPortalRoles(Collections.emptySet());
-        UserRepresentation userRepresentation = mock(UserRepresentation.class, Mockito.RETURNS_DEEP_STUBS);
-
-        when(userRepository.getUserEntitiesByEnabled(true)).thenReturn(List.of(userEntity));
-        when(userRepository.existsByIdOrAuthId(any(UUID.class), any(String.class))).thenReturn(false);
-        when(userRepository.saveAndFlush(any(UserEntity.class))).thenReturn(new UserEntity());
-
-        // when
-        userService.syncAllUsers();
-
-        // then
-        verify(natsSenderService).publishMessageToJetStream(eq(HDEvent.SYNC_USERS), any(AllUsersContextRoleUpdate.class));
-    }
 
     @Test
     void testDeleteUserById_UserFound() {
@@ -284,5 +274,220 @@ class UserServiceTest {
             assertTrue(availableDataDomains.isEmpty());
         }
     }
-}
 
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void testUpdateContextRoles_roleChangedToAdmin_removesUserFromDashboardGroups() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String contextKey = "ctx1";
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
+
+        HdContextEntity dataDomain = new HdContextEntity();
+        dataDomain.setContextKey(contextKey);
+
+        UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("NONE");
+        updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
+
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey(contextKey);
+
+        RoleDto dataDomainRole = new RoleDto();
+        dataDomainRole.setName("DATA_DOMAIN_ADMIN"); // Not eligible for dashboard groups
+
+        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+        userContextRoleDto.setContext(contextDto);
+        userContextRoleDto.setRole(dataDomainRole);
+        updateDto.setDataDomainRoles(List.of(userContextRoleDto));
+
+        when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
+
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // when
+            userService.updateContextRolesForUser(userId, updateDto, false);
+
+            // then - verify user was removed from dashboard groups in this domain
+            verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
+        }
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void testUpdateContextRoles_roleChangedToViewer_doesNotRemoveUserFromDashboardGroups() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String contextKey = "ctx1";
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
+
+        UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("NONE");
+        updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
+
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey(contextKey);
+
+        RoleDto dataDomainRole = new RoleDto();
+        dataDomainRole.setName("DATA_DOMAIN_VIEWER"); // Eligible for dashboard groups
+
+        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+        userContextRoleDto.setContext(contextDto);
+        userContextRoleDto.setRole(dataDomainRole);
+        updateDto.setDataDomainRoles(List.of(userContextRoleDto));
+
+        when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
+
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // when
+            userService.updateContextRolesForUser(userId, updateDto, false);
+
+            // then - verify user was NOT removed from dashboard groups
+            verify(dashboardGroupService, never()).removeUserFromDashboardGroupsInDomain(anyString(), anyString());
+        }
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void testUpdateContextRoles_roleChangedToBusinessSpecialist_doesNotRemoveUserFromDashboardGroups() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String contextKey = "ctx1";
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
+
+        UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("NONE");
+        updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
+
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey(contextKey);
+
+        RoleDto dataDomainRole = new RoleDto();
+        dataDomainRole.setName("DATA_DOMAIN_BUSINESS_SPECIALIST"); // Eligible for dashboard groups
+
+        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+        userContextRoleDto.setContext(contextDto);
+        userContextRoleDto.setRole(dataDomainRole);
+        updateDto.setDataDomainRoles(List.of(userContextRoleDto));
+
+        when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
+
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // when
+            userService.updateContextRolesForUser(userId, updateDto, false);
+
+            // then - verify user was NOT removed from dashboard groups
+            verify(dashboardGroupService, never()).removeUserFromDashboardGroupsInDomain(anyString(), anyString());
+        }
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void testUpdateContextRoles_businessDomainRoleNotNone_removesUserFromAllDomains() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String contextKey1 = "ctx1";
+        String contextKey2 = "ctx2";
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
+
+        HdContextEntity dataDomain1 = new HdContextEntity();
+        dataDomain1.setContextKey(contextKey1);
+
+        HdContextEntity dataDomain2 = new HdContextEntity();
+        dataDomain2.setContextKey(contextKey2);
+
+        UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("BUSINESS_DOMAIN_ADMIN"); // Not NONE - user becomes admin in all domains
+        updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
+
+        when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(contextRepository.findAllByTypeIn(anyList())).thenReturn(List.of(dataDomain1, dataDomain2));
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
+
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // when
+            userService.updateContextRolesForUser(userId, updateDto, false);
+
+            // then - verify user was removed from dashboard groups in ALL domains
+            verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey1);
+            verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey2);
+        }
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void testUpdateContextRoles_roleChangedToEditor_removesUserFromDashboardGroups() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String contextKey = "ctx1";
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail("test@example.com");
+        userEntity.setContextRoles(Collections.emptySet());
+
+        UpdateContextRolesForUserDto updateDto = new UpdateContextRolesForUserDto();
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("NONE");
+        updateDto.setBusinessDomainRole(businessRole);
+        updateDto.setSelectedDashboardsForUser(Collections.emptyMap());
+
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey(contextKey);
+
+        RoleDto dataDomainRole = new RoleDto();
+        dataDomainRole.setName("DATA_DOMAIN_EDITOR"); // Not eligible for dashboard groups
+
+        UserContextRoleDto userContextRoleDto = new UserContextRoleDto();
+        userContextRoleDto.setContext(contextDto);
+        userContextRoleDto.setRole(dataDomainRole);
+        updateDto.setDataDomainRoles(List.of(userContextRoleDto));
+
+        when(userRepository.getByIdOrAuthId(userId.toString())).thenReturn(userEntity);
+        when(userDashboardSyncService.mergeDashboardSelectionsWithGroups(any(), any())).thenReturn(Collections.emptyMap());
+
+        try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
+            utilities.when(SecurityUtils::isSuperuser).thenReturn(true);
+
+            // when
+            userService.updateContextRolesForUser(userId, updateDto, false);
+
+            // then - verify user was removed from dashboard groups in this domain
+            verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId.toString(), contextKey);
+        }
+    }
+}

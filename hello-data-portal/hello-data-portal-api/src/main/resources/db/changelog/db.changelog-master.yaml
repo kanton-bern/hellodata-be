@@ -146,3 +146,11 @@ databaseChangeLog:
       file: db/changelog/changelogs/59_add_deletion_reason.xml
   - include:
       file: db/changelog/changelogs/60_add_deleted_by_email_to_dashboard_comment.xml
+  - include:
+      file: db/changelog/changelogs/61_create_dashboard_group_table.xml
+  - include:
+      file: db/changelog/changelogs/62_add_context_key_and_users_to_dashboard_group.xml
+  - include:
+      file: db/changelog/changelogs/63_create_user_selected_dashboard_table.xml
+  - include:
+      file: db/changelog/changelogs/64_create_app_migration_table.xml

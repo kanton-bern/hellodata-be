@@ -61,6 +61,8 @@ class UserControllerTest extends HDControllerTest {
     @MockitoBean
     private UserService userService;
     @MockitoBean
+    private ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService dashboardGroupService;
+    @MockitoBean
     private HelloDataContextConfig helloDataContextConfig;
     @MockitoBean
     private SystemProperties systemProperties;

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, inject } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {selectCurrentContextRoles, selectProfile, selectSelectedLanguage} from "../../store/auth/auth.selector";
@@ -36,19 +36,19 @@ import {
 } from "../../store/users-management/users-management.model";
 import {naviElements} from "../../app-navi-elements";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
-import { AsyncPipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
-import { PrimeTemplate } from 'primeng/api';
-import { Tooltip } from 'primeng/tooltip';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {TableModule} from 'primeng/table';
+import {PrimeTemplate} from 'primeng/api';
+import {Tooltip} from 'primeng/tooltip';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    templateUrl: 'profile.component.html',
-    styleUrls: ['./profile.component.scss'],
-    imports: [TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe]
+  templateUrl: 'profile.component.html',
+  styleUrls: ['./profile.component.scss'],
+  imports: [TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe]
 })
 export class ProfileComponent {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
   userDetails$: Observable<any>;
   userContextRoles$: Observable<any[]>;
@@ -70,4 +70,10 @@ export class ProfileComponent {
     }));
   }
 
+  /**
+   * Formats role name for display by replacing underscores with spaces
+   */
+  formatRoleName(roleName: string): string {
+    return roleName.replace(/_/g, ' ');
+  }
 }

@@ -37,6 +37,7 @@ import {
   selectCurrentPagination,
   selectDashboardsForUser,
   selectParamUserId,
+  selectSelectedDashboardGroupIdsForUser,
   selectSelectedRolesForUser,
   selectUserForPopup
 } from "./users-management.selector";
@@ -62,6 +63,8 @@ import {
   loadAvailableContextsSuccess,
   loadCommentPermissions,
   loadCommentPermissionsSuccess,
+  loadDashboardGroupMemberships,
+  loadDashboardGroupMembershipsSuccess,
   loadDashboards,
   loadDashboardsSuccess,
   loadSubsystemUsers,
@@ -311,11 +314,12 @@ export class UsersManagementEffects {
       withLatestFrom(
         this._store.select(selectSelectedRolesForUser),
         this._store.select(selectDashboardsForUser),
-        this._store.select(selectCommentPermissionsForUser)
+        this._store.select(selectCommentPermissionsForUser),
+        this._store.select(selectSelectedDashboardGroupIdsForUser)
       ),
-      switchMap(([action, selectedRoles, selectedDashboards, commentPermissions]) => {
+      switchMap(([action, selectedRoles, selectedDashboards, commentPermissions, selectedGroupIds]) => {
         const commentPermissionsMap = new Map(Object.entries(commentPermissions));
-        return this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards, commentPermissionsMap);
+        return this._usersManagementService.updateUserRoles(selectedRoles, selectedDashboards, commentPermissionsMap, selectedGroupIds);
       }),
       switchMap(() => scheduled([updateUserRolesSuccess(), clearUnsavedChanges()], asyncScheduler)),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
@@ -388,6 +392,19 @@ export class UsersManagementEffects {
         return loadCommentPermissionsSuccess({payload: permissionsMap});
       }),
       catchError(e => scheduled([showError({error: e})], asyncScheduler))
+    )
+  });
+
+  loadDashboardGroupMemberships$ = createEffect(() => {
+    return this._actions$.pipe(
+      ofType(loadDashboardGroupMemberships),
+      withLatestFrom(this._store.select(selectParamUserId)),
+      switchMap(([action, userId]) =>
+        this._usersManagementService.getDashboardGroupMemberships(userId as string, action.contextKey).pipe(
+          map(memberships => loadDashboardGroupMembershipsSuccess({contextKey: action.contextKey, memberships})),
+          catchError(e => scheduled([showError({error: e})], asyncScheduler))
+        )
+      )
     )
   });
 }

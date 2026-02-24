@@ -31,8 +31,11 @@ import ch.bedag.dap.hellodata.commons.nats.annotation.JetStreamSubscribe;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HelloDataContextConfig;
 import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboardResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.response.SupersetRolesResponse;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.*;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.IdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
@@ -40,6 +43,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersRespons
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -100,26 +104,29 @@ public class SupersetUpdateUserContextRoleConsumer {
             }
 
             assignAdminRoleIfSuperuser(userContextRoleUpdate, allRoles, supersetUserRolesUpdate);
+            removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);
             switch (contextRole.getRoleName()) {
                 case DATA_DOMAIN_ADMIN -> {
-                    removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SlugifyUtil.BI_ADMIN_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SlugifyUtil.BI_EDITOR_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SQL_LAB_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
                 case DATA_DOMAIN_EDITOR -> {
-                    removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SlugifyUtil.BI_EDITOR_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                     assignRoleToUser(SQL_LAB_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
-                case DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST ->
-                        assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
-                case NONE -> {
-                    removeAllDashboardRoles(allRoles, supersetUserRolesUpdate);
+                case DATA_DOMAIN_VIEWER, DATA_DOMAIN_BUSINESS_SPECIALIST -> {
+                    SupersetDashboardResponse dashboardsFromSuperset = supersetClient.dashboards();
+                    List<SupersetDashboard> allDashboards = dashboardsFromSuperset.getResult();
+                    assignDashboardSpecificRoles(userContextRoleUpdate, allDashboards, allRoles, dataDomainKey, contextRole, supersetUser, supersetUserRolesUpdate);
                     assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
                 }
+                case NONE -> assignRoleToUser(SlugifyUtil.BI_VIEWER_ROLE_NAME, allRoles, supersetUserRolesUpdate);
+
                 default -> log.debug("Irrelevant role name? {}", contextRole.getRoleName());
             }
+
+
             removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
             List<SubsystemRole> usersRoles = allRoles.getResult().stream().filter(role -> supersetUserRolesUpdate.getRoles().contains(role.getId())).toList();
             log.debug("\tRoles that user {} should now have: {}", userContextRoleUpdate.getEmail(), usersRoles);
@@ -130,6 +137,47 @@ public class SupersetUpdateUserContextRoleConsumer {
                 userResourceProviderService.publishUsers();
             }
         }
+    }
+
+    // Assign dashboard-specific roles (only for VIEWER/BUSINESS_SPECIALIST — admins/editors already had removeAllDashboardRoles called)
+    private void assignDashboardSpecificRoles(UserContextRoleUpdate userContextRoleUpdate, List<SupersetDashboard> dashboardsFromSuperset,
+                                              SupersetRolesResponse allRoles, String dataDomainKey, UserContextRoleUpdate.ContextRole contextRole,
+                                              SubsystemUser supersetUser, SupersetUserRolesUpdate supersetUserRolesUpdate) {
+        Map<String, List<DashboardForUserDto>> dashboards = userContextRoleUpdate.getDashboardsPerContext();
+        if (shouldAssignDashboardRoles(dashboards, dataDomainKey, contextRole)) {
+            List<DashboardForUserDto> contextDashboards = dashboards.get(dataDomainKey);
+            assignViewerDashboardRoles(contextDashboards, dashboardsFromSuperset, allRoles, supersetUser, supersetUserRolesUpdate, userContextRoleUpdate.getEmail());
+        }
+
+        leaveOnlyBiViewerRoleIfNoneAttached(allRoles, supersetUserRolesUpdate);
+    }
+
+    private boolean shouldAssignDashboardRoles(Map<String, List<DashboardForUserDto>> dashboards, String dataDomainKey, UserContextRoleUpdate.ContextRole contextRole) {
+        if (dashboards == null || !dashboards.containsKey(dataDomainKey)) {
+            return false;
+        }
+        HdRoleName roleName = contextRole.getRoleName();
+        return roleName == HdRoleName.DATA_DOMAIN_VIEWER || roleName == HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST;
+    }
+
+    private void assignViewerDashboardRoles(List<DashboardForUserDto> contextDashboards, List<SupersetDashboard> dashboardsFromSuperset,
+                                            SupersetRolesResponse allRoles, SubsystemUser supersetUser,
+                                            SupersetUserRolesUpdate supersetUserRolesUpdate, String userEmail) {
+        contextDashboards.stream()
+                .filter(DashboardForUserDto::isViewer)
+                .forEach(dto -> {
+                    SupersetDashboard dashboard = findDashboardById(dashboardsFromSuperset, dto.getId());
+                    String dashboardName = dashboard != null ? dashboard.getDashboardTitle() : String.valueOf(dto.getId());
+                    log.info("\tAssigning dashboard-specific role for dashboard {} to user {}", dashboardName, userEmail);
+                    assignDashboardRoleToUser(supersetUser, dashboard, allRoles, supersetUserRolesUpdate);
+                });
+    }
+
+    private SupersetDashboard findDashboardById(List<SupersetDashboard> dashboards, int dashboardId) {
+        return dashboards.stream()
+                .filter(sd -> sd.getId() == dashboardId)
+                .findFirst()
+                .orElse(null);
     }
 
     private SubsystemUser getSupersetUser(UserContextRoleUpdate userContextRoleUpdate, SupersetClient supersetClient, SupersetRolesResponse allRoles) throws URISyntaxException, IOException {
@@ -170,6 +218,20 @@ public class SupersetUpdateUserContextRoleConsumer {
     private void assignRoleToUser(String roleName, SupersetRolesResponse allRoles, SupersetUserRolesUpdate supersetUserRolesUpdate) {
         List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(roleName)).map(SubsystemRole::getId).toList();
         List<Integer> userRoles = supersetUserRolesUpdate.getRoles();
-        supersetUserRolesUpdate.setRoles(Stream.concat(roles.stream(), userRoles.stream()).toList());
+        supersetUserRolesUpdate.setRoles(Stream.concat(roles.stream(), userRoles.stream()).distinct().toList());
+    }
+
+    private void assignDashboardRoleToUser(SubsystemUser user, @Nullable SupersetDashboard dashboard, SupersetRolesResponse allRoles,
+                                           SupersetUserRolesUpdate supersetUserRolesUpdate) {
+        if (dashboard == null) {
+            return;
+        }
+        log.debug("\tAssigning dashboard roles {} to user {}", dashboard.getRoles(), user.getEmail());
+        List<Integer> rolesFromDashboard = CollectionUtils.emptyIfNull(dashboard.getRoles()).stream().map(SubsystemRole::getId).toList();
+        List<Integer> userRoles = supersetUserRolesUpdate.getRoles();
+        List<Integer> userRolesPlusDashboardRoles = Stream.concat(rolesFromDashboard.stream(), userRoles.stream()).distinct().toList();
+        supersetUserRolesUpdate.setRoles(userRolesPlusDashboardRoles);
+        log.debug("\tsuperset update request roles: {}", supersetUserRolesUpdate.getRoles());
+        removePublicRoleIfAdded(allRoles, supersetUserRolesUpdate);
     }
 }

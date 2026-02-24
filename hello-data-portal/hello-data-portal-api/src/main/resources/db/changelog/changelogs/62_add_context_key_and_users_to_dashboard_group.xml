@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright © 2024, Kanton Bern
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-->
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="62-1" author="slawomir.wieczorek">
+        <comment>Add context_key column to dashboard_group</comment>
+        <addColumn tableName="dashboard_group">
+            <column name="context_key" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="62-2" author="slawomir.wieczorek">
+        <comment>Add users JSONB column to dashboard_group</comment>
+        <addColumn tableName="dashboard_group">
+            <column name="users" type="jsonb" defaultValue="[]"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="62-3" author="slawomir.wieczorek">
+        <comment>Migrate context_key from entries JSON for existing rows</comment>
+        <sql>
+            UPDATE dashboard_group
+            SET context_key = (entries->0->>'contextKey')
+            WHERE entries IS NOT NULL AND jsonb_array_length(entries) > 0;
+        </sql>
+    </changeSet>
+
+    <changeSet id="62-4" author="slawomir.wieczorek">
+        <comment>Strip contextKey from each entry in entries JSONB array</comment>
+        <sql>
+            UPDATE dashboard_group
+            SET entries = (
+                SELECT COALESCE(jsonb_agg(entry - 'contextKey'), '[]'::jsonb)
+                FROM jsonb_array_elements(entries) AS entry
+            )
+            WHERE entries IS NOT NULL AND jsonb_array_length(entries) > 0;
+        </sql>
+    </changeSet>
+
+    <changeSet id="62-5" author="slawomir.wieczorek">
+        <comment>Set context_key NOT NULL constraint</comment>
+        <addNotNullConstraint tableName="dashboard_group" columnName="context_key" columnDataType="varchar(255)"/>
+    </changeSet>
+
+    <changeSet id="62-6" author="slawomir.wieczorek">
+        <comment>Add index on context_key</comment>
+        <createIndex tableName="dashboard_group" indexName="idx_dashboard_group_context_key">
+            <column name="context_key"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

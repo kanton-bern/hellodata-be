@@ -1,0 +1,18 @@
+@if (dashboardGroupToBeDeleted$ | async) {
+  <div></div>
+}
+<p-confirmDialog #cd [style]="{width: '50vw'}">
+  <ng-template pTemplate="header">
+    <h3>{{ '@Delete dashboard group' | transloco }}</h3>
+  </ng-template>
+  <ng-template pTemplate="body">
+    <span class="ui-confirmdialog-message">{{ "@Delete dashboard group question" | transloco }}</span>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button (click)="cd.onReject()" icon="fas fa-circle-xmark" [label]="'@Cancel' | transloco"
+              pRipple severity="secondary" type="button" (keydown.escape)="cd.onReject()"/>
+    <p-button (click)="cd.onAccept()" icon="fas fa-trash" [label]="'@Delete' | transloco"
+              pRipple (keydown.enter)="cd.onAccept()"
+              severity="danger" type="button"/>
+  </ng-template>
+</p-confirmDialog>
