@@ -170,6 +170,7 @@ INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VAL
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_created_dashboards','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_created_slices','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_csv','Superset','BI_EDITOR_TEMP');
+INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_upload','Database','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_dashboard','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_dashboard_permalink','Superset','BI_EDITOR_TEMP');
 INSERT INTO temp_permission_view_role(permission_name, view_name, role_name) VALUES ('can_datasources','Superset','BI_EDITOR_TEMP');
