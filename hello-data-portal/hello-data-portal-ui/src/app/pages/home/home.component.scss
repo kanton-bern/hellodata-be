@@ -27,6 +27,7 @@
 .logos-container {
   margin: 20px 0 40px 0;
   text-align: center;
+
   svg {
     display: inline-block;
   }
@@ -53,6 +54,7 @@
   svg {
     width: 100%;
     display: block;
+
     &.plus {
       margin: 0;
     }
@@ -67,7 +69,7 @@
   margin-right: 2rem;
 }
 
-.permission-error{
+.permission-error {
   white-space: pre-wrap;
   margin-top: 2vh;
 }
@@ -77,3 +79,24 @@
   padding-left: 40px;
   padding-top: 4vh;
 }
+
+// Fix for long text overflow in fieldsets
+::ng-deep {
+  .grid {
+    p-fieldset {
+      min-width: 0;
+      overflow: hidden;
+
+      .p-fieldset {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .p-fieldset-content {
+        min-width: 0;
+        overflow: hidden;
+      }
+    }
+  }
+}
+

@@ -39,16 +39,16 @@
             </tr>
           </ng-template>
           <ng-template let-dashboard pTemplate="body">
-            <tr (click)="onRowNavigate(dashboard)" class="cursor-pointer">
+            <tr (click)="onRowNavigate(dashboard)" class="cursor-pointer" (keydown.enter)="onRowNavigate(dashboard)">
               <td>
                 <div class="flex items-center justify-center gap-2">
                   <i class="fas fa-up-right-from-square"></i>
                 </div>
               </td>
-              <td>
+              <td [pTooltip]="dashboard.contextName" tooltipPosition="top">
                 {{ dashboard.contextName }}
               </td>
-              <td>
+              <td [pTooltip]="dashboard.title" tooltipPosition="top">
                 {{ dashboard.title }}
               </td>
             </tr>

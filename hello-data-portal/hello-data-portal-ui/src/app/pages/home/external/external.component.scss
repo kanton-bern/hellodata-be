@@ -24,3 +24,47 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+::ng-deep {
+  .p-datatable {
+    width: 100%;
+    max-width: 100%;
+
+    .p-datatable-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    th, td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 0;
+    }
+
+    // Icon column
+    th#icon, td:first-child {
+      width: 40px;
+      max-width: 40px;
+    }
+
+    // Data domain column
+    th#contextName, td:nth-child(2) {
+      width: 80px;
+      max-width: 80px;
+    }
+
+    // Dashboard column - takes remaining space
+    th#title, td:nth-child(3) {
+      width: auto;
+    }
+  }
+}
+

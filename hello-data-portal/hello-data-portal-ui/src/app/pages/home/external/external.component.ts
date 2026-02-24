@@ -42,12 +42,13 @@ import {InputIcon} from 'primeng/inputicon';
 import {FormsModule} from '@angular/forms';
 import {InputText} from 'primeng/inputtext';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-external',
   templateUrl: './external.component.html',
   styleUrls: ['./external.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class ExternalComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
@@ -121,7 +122,7 @@ export class ExternalComponent implements OnInit {
       eventCategory: 'External Dashboard (Home Page)',
       eventAction: '[Click] - ' + dashboard.title
     }));
-    
+
     const url = this.createExternalUrl(dashboard.url);
     window.open(url, '_blank', 'noopener');
   }

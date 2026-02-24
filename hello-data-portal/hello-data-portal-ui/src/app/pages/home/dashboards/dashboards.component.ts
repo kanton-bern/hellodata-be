@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnInit, inject, viewChild } from '@angular/core';
+import {Component, inject, OnInit, viewChild} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -33,25 +33,26 @@ import {SupersetDashboard} from "../../../store/my-dashboards/my-dashboards.mode
 import {MenuService} from "../../../store/menu/menu.service";
 import {SupersetDashboardWithMetadata} from "../../../store/start-page/start-page.model";
 import {selectMyDashboards} from "../../../store/my-dashboards/my-dashboards.selector";
-import { Table, TablePageEvent, TableModule } from "primeng/table";
+import {Table, TableModule, TablePageEvent} from "primeng/table";
 import {navigate, trackEvent} from "../../../store/app/app.action";
-import { AsyncPipe } from '@angular/common';
-import { PrimeTemplate } from 'primeng/api';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { FormsModule } from '@angular/forms';
-import { InputText } from 'primeng/inputtext';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe} from '@angular/common';
+import {PrimeTemplate} from 'primeng/api';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {FormsModule} from '@angular/forms';
+import {InputText} from 'primeng/inputtext';
+import {TranslocoPipe} from '@jsverse/transloco';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
-    selector: 'app-dashboards',
-    templateUrl: './dashboards.component.html',
-    styleUrls: ['./dashboards.component.scss'],
-    imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe]
+  selector: 'app-dashboards',
+  templateUrl: './dashboards.component.html',
+  styleUrls: ['./dashboards.component.scss'],
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class DashboardsComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private menuService = inject(MenuService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly menuService = inject(MenuService);
 
   dashboards$: Observable<SupersetDashboard[]>;
   filterValue = '';

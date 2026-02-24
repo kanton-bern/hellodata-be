@@ -37,14 +37,15 @@
         </tr>
       </ng-template>
       <ng-template let-dashboard pTemplate="body">
-        <tr style="cursor: pointer" (click)="navigateToDashboard(dashboard)">
+        <tr style="cursor: pointer" (click)="navigateToDashboard(dashboard)"
+            (keydown.enter)="navigateToDashboard(dashboard)">
           <td>
             <i class="fas fa-light fa-chart-line"></i>
           </td>
-          <td>
+          <td [pTooltip]="dashboard.contextName" tooltipPosition="top">
             {{ dashboard.contextName }}
           </td>
-          <td>
+          <td [pTooltip]="dashboard.dashboardTitle" tooltipPosition="top">
             {{ dashboard.dashboardTitle }}
           </td>
         </tr>
