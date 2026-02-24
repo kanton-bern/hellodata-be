@@ -1,64 +1,84 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "ignorePresets": [
+    "group:springBoot",
+    "group:springCloud", 
+    "group:springWs",
+    "group:kotlinMonorepo",
+    "group:typescriptEslintMonorepo"
+  ],
   "timezone": "Europe/Zurich",
-  "ignorePaths": ["hello-data-portal/hello-data-portal-ui-e2e/**"],
+  "ignorePaths": ["hello-data-portal/hello-data-portal-ui-e2e/**", "**/requirements*.txt"],
+  "enabledManagers": ["maven", "npm"],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 10,
   "packageRules": [
     {
-      "matchFileNames": ["**/pom.xml"],
-      "matchManagers": ["maven"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "all non-major dependencies (maven)",
-      "groupSlug": "all-minor-patch-maven"
-    },
-    {
-      "matchFileNames": ["**/pom.xml"],
-      "matchManagers": ["maven"],
-      "matchUpdateTypes": ["major"],
-      "groupName": "major update for {{depName}}",
-      "groupSlug": "{{depName}}-major"
-    },
-    {
-      "matchManagers": ["yarn"],
-      "matchFileNames": ["**/yarn.lock", "**/package.json"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "all non-major dependencies (yarn)",
-      "groupSlug": "all-minor-patch-yarn"
-    },
-    {
-      "matchManagers": ["yarn"],
-      "matchFileNames": ["**/yarn.lock", "**/package.json"],
-      "matchUpdateTypes": ["major"],
-      "groupName": "major update for {{depName}}",
-      "groupSlug": "{{depName}}-major"
-    },
-    {
-      "matchManagers": ["dockerfile"],
-      "matchFileNames": ["**/Dockerfile"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "all non-major dependencies (Dockerfiles)",
-      "groupSlug": "all-minor-patch-dockerfiles"
-    },
-    {
-      "matchManagers": ["dockerfile"],
-      "matchFileNames": ["**/Dockerfile"],
-      "matchUpdateTypes": ["major"],
-      "groupName": "major update for {{depName}}",
-      "groupSlug": "{{depName}}-major"
-    },
-    {
-      "matchManagers": ["maven"],
-      "enabled": false,
       "description": "Ignore internal Maven packages that Renovate cannot resolve",
-      "matchPackageNames": ["ch.bedag.dap.hellodata:{/,}**"]
+      "matchManagers": ["maven"],
+      "matchPackagePatterns": ["^ch\\.bedag\\.dap\\.hellodata:"],
+      "enabled": false
     },
     {
-      "matchManagers": ["dockerfile"],
-      "enabled": false,
-      "description": "Ignore internal Docker images from private registry",
-      "matchPackageNames": ["registry.mgmtbi.ch/{/,}**"]
+      "description": "Group all Spring packages (minor/patch)",
+      "matchManagers": ["maven"],
+      "matchPackagePatterns": ["^org\\.springframework"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "Spring packages (minor/patch)",
+      "groupSlug": "spring-minor-patch"
+    },
+    {
+      "description": "Group all Angular packages (minor/patch)",
+      "matchManagers": ["npm"],
+      "matchPackagePatterns": [
+        "^@angular/",
+        "^@angular-devkit/",
+        "^@ngrx/",
+        "^@schematics/",
+        "^ng-packagr",
+        "^zone\\.js",
+        "^rxjs",
+        "^tslib"
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "Angular packages (minor/patch)",
+      "groupSlug": "angular-minor-patch"
+    },
+    {
+      "description": "Group remaining Java/Maven packages (minor/patch)",
+      "matchManagers": ["maven"],
+      "excludePackagePatterns": [
+        "^org\\.springframework",
+        "^ch\\.bedag\\.dap\\.hellodata:"
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "Java packages (minor/patch)",
+      "groupSlug": "java-minor-patch"
+    },
+    {
+      "description": "Group remaining npm/yarn packages (minor/patch)",
+      "matchManagers": ["npm"],
+      "excludePackagePatterns": [
+        "^@angular/",
+        "^@angular-devkit/",
+        "^@ngrx/",
+        "^@schematics/",
+        "^ng-packagr",
+        "^zone\\.js",
+        "^rxjs",
+        "^tslib"
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm packages (minor/patch)",
+      "groupSlug": "npm-minor-patch"
+    },
+    {
+      "description": "Each major update gets its own PR",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "groupName": "major update: {{depName}}",
+      "groupSlug": "major-{{depName}}"
     }
   ]
 }
