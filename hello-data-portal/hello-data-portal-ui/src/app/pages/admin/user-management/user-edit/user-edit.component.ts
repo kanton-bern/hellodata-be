@@ -377,6 +377,13 @@ export class UserEditComponent extends BaseComponent implements OnInit, OnDestro
 
   private generateForm(userContextRoles: any[], isCurrentSuperuser: boolean, editedUserSuperuser: boolean) {
     if (userContextRoles.length > 0) {
+      // Skip rebuilding if the form already has the same context keys
+      const newKeys = userContextRoles.map(ucr => ucr.context.contextKey as string).sort((a, b) => a.localeCompare(b));
+      const existingKeys = this.userForm ? Object.keys(this.userForm.controls).sort((a, b) => a.localeCompare(b)) : [];
+      if (this.userForm && JSON.stringify(newKeys) === JSON.stringify(existingKeys)) {
+        return;
+      }
+
       this.userForm = this.fb.group({});
 
       // Clear the visibility map before regenerating to ensure correct state

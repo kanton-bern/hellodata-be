@@ -109,9 +109,14 @@ export const selectAllDataDomains = createSelector(
   })
 );
 
-export const selectUserContextRoles = createSelector(
+const selectRawUserContextRoles = createSelector(
   usersManagementState,
-  (state: UsersManagementState) => state.userContextRoles.map(ucr => ({
+  (state: UsersManagementState) => state.userContextRoles
+);
+
+export const selectUserContextRoles = createSelector(
+  selectRawUserContextRoles,
+  (userContextRoles) => userContextRoles.map(ucr => ({
     ...ucr,
     role: {
       ...ucr.role,
