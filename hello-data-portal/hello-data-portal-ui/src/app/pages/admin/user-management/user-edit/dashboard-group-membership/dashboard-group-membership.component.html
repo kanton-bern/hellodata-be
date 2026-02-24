@@ -43,11 +43,17 @@
                 [inputId]="'group-' + group.groupId">
               </p-checkbox>
               <div class="group-info">
-                <label [for]="'group-' + group.groupId" class="group-name">{{ group.groupName }}</label>
+                <label [for]="'group-' + group.groupId" class="group-name">{{ group.groupName }}
+                  @if (group.dashboardTitles && group.dashboardTitles.length > 0) {
+                    <span class="dashboard-count">({{ group.dashboardTitles.length }})</span>
+                  }
+                </label>
                 @if (group.dashboardTitles && group.dashboardTitles.length > 0) {
-                  <span class="dashboard-list text-sm text-gray-500">
-                    {{ group.dashboardTitles.join(', ') }}
-                  </span>
+                  <div class="dashboard-badges">
+                    @for (title of group.dashboardTitles; track title) {
+                      <p-tag [value]="title" severity="secondary" [rounded]="true"/>
+                    }
+                  </div>
                 }
               </div>
             </div>

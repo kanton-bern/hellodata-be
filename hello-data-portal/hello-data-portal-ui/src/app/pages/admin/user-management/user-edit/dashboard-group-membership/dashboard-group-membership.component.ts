@@ -43,6 +43,7 @@ import {
 } from "../../../../../store/users-management/users-management.action";
 import {AsyncPipe} from "@angular/common";
 import {Checkbox} from "primeng/checkbox";
+import {Tag} from "primeng/tag";
 import {FormsModule} from "@angular/forms";
 import {TranslocoPipe} from "@jsverse/transloco";
 import {map} from "rxjs/operators";
@@ -52,7 +53,7 @@ import {map} from "rxjs/operators";
   selector: 'app-dashboard-group-membership',
   templateUrl: './dashboard-group-membership.component.html',
   styleUrls: ['./dashboard-group-membership.component.scss'],
-  imports: [Checkbox, FormsModule, AsyncPipe, TranslocoPipe]
+  imports: [Checkbox, Tag, FormsModule, AsyncPipe, TranslocoPipe]
 })
 export class DashboardGroupMembershipComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
