@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.6</version>
+            <version>0.2.9</version>
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
