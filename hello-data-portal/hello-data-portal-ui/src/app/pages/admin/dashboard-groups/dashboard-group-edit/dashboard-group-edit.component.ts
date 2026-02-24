@@ -120,6 +120,13 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   currentContextKey = '';
   currentDomainName = '';
 
+  /**
+   * Formats role name for display by replacing underscores with spaces
+   */
+  formatRoleName(roleName: string): string {
+    return roleName.replace(/_/g, ' ');
+  }
+
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private allDashboardGroups: DashboardGroup[] = [];
@@ -318,7 +325,8 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
       this.filteredUsers = this.allEligibleUsers.filter(u =>
         u.firstName.toLowerCase().includes(filter) ||
         u.lastName.toLowerCase().includes(filter) ||
-        u.email.toLowerCase().includes(filter)
+        u.email.toLowerCase().includes(filter) ||
+        u.roleName.toLowerCase().includes(filter)
       );
     }
   }

@@ -54,7 +54,7 @@
         </tr>
       </ng-template>
       <ng-template let-group pTemplate="body">
-        <tr>
+        <tr class="align-top">
           <td>
             {{ group.name }}
           </td>
@@ -71,13 +71,9 @@
           </td>
           <td>
             @if (!group.users || group.users.length === 0) {
-              <span class="text-gray-400 text-sm">{{ '@No users' | transloco }}</span>
+              <span class="text-gray-400 text-sm">0</span>
             } @else {
-              <span class="flex flex-wrap gap-1">
-              @for (user of group.users; track user.id) {
-                <p-badge [value]="user.firstName + ' ' + user.lastName" severity="secondary" styleClass="text-sm"/>
-              }
-            </span>
+              <span class="font-medium">{{ group.users.length }}</span>
             }
           </td>
           <td>
