@@ -39,6 +39,7 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVe
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
+import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,6 +89,9 @@ class DashboardCommentServiceTest {
     @Mock
     private MetaInfoResourceService metaInfoResourceService;
 
+    @Mock
+    private EmailNotificationService emailNotificationService;
+
     private DashboardCommentService commentService;
 
     // In-memory storage for tests
@@ -108,7 +112,7 @@ class DashboardCommentServiceTest {
     @BeforeEach
     void setUp() {
         commentStore.clear();
-        commentService = new DashboardCommentService(commentRepository, commentPermissionRepository, commentMapper, metaInfoResourceService, userRepository);
+        commentService = new DashboardCommentService(commentRepository, commentPermissionRepository, commentMapper, metaInfoResourceService, userRepository, emailNotificationService);
 
         // Setup default mocking behavior for repository save
         lenient().when(commentRepository.save(any(DashboardCommentEntity.class)))

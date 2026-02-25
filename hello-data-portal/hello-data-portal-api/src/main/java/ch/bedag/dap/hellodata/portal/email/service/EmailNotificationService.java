@@ -75,6 +75,37 @@ public class EmailNotificationService {
         fillCommonParamsAndSend(editedUserFirstName, editedUserEmail, emailTemplateData, locale);
     }
 
+    public void notifyAboutCommentPublished(String authorFirstName, String authorEmail, String commentText,
+                                            String dashboardName, String reviewerFullName, Locale locale) {
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_STATUS_PUBLISHED);
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, commentText);
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "PUBLISHED");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, dashboardName);
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, authorFirstName);
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, reviewerFullName);
+        emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
+        emailTemplateData.getReceivers().add(authorEmail);
+        emailTemplateData.setLocale(locale);
+        emailSendService.sendEmailFromTemplate(emailTemplateData);
+    }
+
+    public void notifyAboutCommentDeclined(String authorFirstName, String authorEmail, String commentText,
+                                           String dashboardName, String declineReason, String reviewerFullName, Locale locale) {
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_STATUS_DECLINED);
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, commentText);
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "DECLINED");
+        emailTemplateData.getTemplateModel().put(COMMENT_DECLINE_REASON_PARAM, declineReason);
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, dashboardName);
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, authorFirstName);
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, reviewerFullName);
+        emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
+        emailTemplateData.getReceivers().add(authorEmail);
+        emailTemplateData.setLocale(locale);
+        emailSendService.sendEmailFromTemplate(emailTemplateData);
+    }
+
     private void fillCommonParamsAndSend(String editedUserFirstName, String createdUserEmail, EmailTemplateData emailTemplateData, Locale locale) {
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, editedUserFirstName);

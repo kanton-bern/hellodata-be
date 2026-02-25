@@ -36,4 +36,8 @@ public class EmailTemplateModelKeys {
     public static final String DATA_DOMAIN_ROLES_PARAM = "DATA_DOMAIN_ROLES";
     public static final String AFFECTED_USER_FIRST_NAME_PARAM = "AFFECTED_USER_FIRST_NAME";
     public static final String FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM = "FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE";
+    public static final String COMMENT_TEXT_PARAM = "COMMENT_TEXT";
+    public static final String COMMENT_NEW_STATUS_PARAM = "COMMENT_NEW_STATUS";
+    public static final String COMMENT_DECLINE_REASON_PARAM = "COMMENT_DECLINE_REASON";
+    public static final String DASHBOARD_NAME_PARAM = "DASHBOARD_NAME";
 }

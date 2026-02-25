@@ -101,8 +101,8 @@
             </td>
             <td>{{ query.tabName }}</td>
             <td>{{ query.databaseName }}</td>
-            <td>{{ query.schema }}</td>
-            <td>
+            <td class="break-all">{{ query.schema }}</td>
+            <td class="break-all">
               @for (table of query.parsedTables; track table; let last = $last) {
                 {{ table.table }}@if (!last) {
                   <span>, </span>

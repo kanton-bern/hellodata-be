@@ -87,7 +87,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
     }
 
     @Test
-    void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content_multilanguage() {
+    void toSimpleMailMessage_when_user_deactivated_should_generate_correct_html_content_default_locale_uses_de_CH() {
         //given
         EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.USER_DEACTIVATED);
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
@@ -100,21 +100,10 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
                 <html xmlns="http://www.w3.org/1999/html">
                  <head></head>
                  <body>
-                  <!-- German -->
                   <p>Hallo <span>John Doe</span></p>
                   <p>Der Administrator <span>Darth Vader</span> hat dir deinen HelloDATA Benutzer*in in der Fachdomäne <span>Fancy Business Domain</span> deaktiviert.</p>
                   <p>Link zu Fachdomäne <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
                   <p>Freundliche Grüsse<br>HelloDATA</p>
-                  <hr><!-- French -->
-                  <p>Bonjour <span>John Doe</span></p>
-                  <p>L'administrateur <span>Darth Vader</span> a désactivé votre compte utilisateur HelloDATA dans le domaine métier <span>Fancy Business Domain</span>.</p>
-                  <p>Lien vers le domaine métier <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
-                  <p>Cordialement<br>HelloDATA</p>
-                  <hr><!-- English -->
-                  <p>Hello <span>John Doe</span></p>
-                  <p>The administrator <span>Darth Vader</span> has deactivated your HelloDATA user account in the business domain <span>Fancy Business Domain</span>.</p>
-                  <p>Link to Business Domain <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
-                  <p>Kind regards<br>HelloDATA</p>
                  </body>
                 </html>""";
         Document expectedDoc = Jsoup.parse(expectedHTML);
@@ -125,7 +114,7 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
 
         //then
         assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
-        assertThat(email.getSubject()).isEqualTo("Info HelloDATA Business Domain Fancy Business Domain");
+        assertThat(email.getSubject()).isEqualTo("Benutzer in HelloDATA Fachdomäne Fancy Business Domain deaktiviert");
     }
 
 

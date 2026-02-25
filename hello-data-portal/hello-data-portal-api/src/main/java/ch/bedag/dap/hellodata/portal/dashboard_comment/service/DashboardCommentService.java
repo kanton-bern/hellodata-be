@@ -44,6 +44,8 @@ import ch.bedag.dap.hellodata.portal.dashboard_comment.entity.DashboardCommentVe
 import ch.bedag.dap.hellodata.portal.dashboard_comment.mapper.DashboardCommentMapper;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentPermissionRepository;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.repository.DashboardCommentRepository;
+import ch.bedag.dap.hellodata.portal.email.service.EmailNotificationService;
+import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -76,6 +78,7 @@ public class DashboardCommentService {
     private final DashboardCommentMapper commentMapper;
     private final MetaInfoResourceService metaInfoResourceService;
     private final UserRepository userRepository;
+    private final EmailNotificationService emailNotificationService;
 
     private void checkDashboardAccess(String contextKey, int dashboardId) {
         String currentUserEmail = SecurityUtils.getCurrentUserEmail();
@@ -660,6 +663,14 @@ public class DashboardCommentService {
 
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Published comment {} for dashboard {}/{}", commentId, contextKey, dashboardId);
+
+        // Notify author about comment being published
+        try {
+            sendCommentStatusNotification(savedComment, contextKey, dashboardId, publisherName, true, null);
+        } catch (Exception e) {
+            log.warn("Failed to send comment published notification for comment {}: {}", commentId, e.getMessage());
+        }
+
         return commentMapper.toDto(savedComment);
     }
 
@@ -706,6 +717,14 @@ public class DashboardCommentService {
         DashboardCommentEntity savedComment = commentRepository.save(comment);
         log.info("Declined comment {} for dashboard {}/{} by {} with reason: {}",
                 commentId, contextKey, dashboardId, reviewerName, declineDto.getDeclineReason());
+
+        // Notify author about comment being declined
+        try {
+            sendCommentStatusNotification(savedComment, contextKey, dashboardId, reviewerName, false, declineDto.getDeclineReason());
+        } catch (Exception e) {
+            log.warn("Failed to send comment declined notification for comment {}: {}", commentId, e.getMessage());
+        }
+
         return commentMapper.toDto(savedComment);
     }
 
@@ -788,6 +807,54 @@ public class DashboardCommentService {
         DashboardCommentPermissionEntity perm = getCommentPermissionForCurrentUser(contextKey);
         if (perm == null || !perm.isWriteComments()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, NO_WRITE_PERMISSION_ERROR);
+        }
+    }
+
+    /**
+     * Send email notification to the comment author when their comment status changes.
+     */
+    private void sendCommentStatusNotification(DashboardCommentEntity comment, String contextKey, int dashboardId,
+                                               String reviewerFullName, boolean published, String declineReason) {
+        String authorEmail = comment.getAuthorEmail();
+        if (authorEmail == null || authorEmail.isBlank()) {
+            log.debug("No author email for comment {}, skipping notification", comment.getId());
+            return;
+        }
+
+        // Don't notify if the reviewer is the author themselves
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        if (currentUserEmail != null && currentUserEmail.equalsIgnoreCase(authorEmail)) {
+            log.debug("Reviewer is the author, skipping self-notification for comment {}", comment.getId());
+            return;
+        }
+
+        String authorFirstName = comment.getAuthor();
+        Locale authorLocale = null;
+
+        // Try to get author's preferred language from user entity
+        Optional<UserEntity> authorUser = userRepository.findUserEntityByEmailIgnoreCase(authorEmail);
+        if (authorUser.isPresent()) {
+            if (authorUser.get().getFirstName() != null) {
+                authorFirstName = authorUser.get().getFirstName();
+            }
+            authorLocale = authorUser.get().getSelectedLanguage();
+        }
+
+        String dashboardName = getDashboardTitle(contextKey, dashboardId);
+
+        // Get active version text
+        String commentText = comment.getHistory().stream()
+                .filter(v -> v.getVersion().equals(comment.getActiveVersion()))
+                .map(DashboardCommentVersionEntity::getText)
+                .findFirst()
+                .orElse("");
+
+        if (published) {
+            emailNotificationService.notifyAboutCommentPublished(
+                    authorFirstName, authorEmail, commentText, dashboardName, reviewerFullName, authorLocale);
+        } else {
+            emailNotificationService.notifyAboutCommentDeclined(
+                    authorFirstName, authorEmail, commentText, dashboardName, declineReason, reviewerFullName, authorLocale);
         }
     }
 

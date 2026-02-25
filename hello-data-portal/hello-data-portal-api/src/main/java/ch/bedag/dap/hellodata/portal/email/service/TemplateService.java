@@ -38,14 +38,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 class TemplateService {
 
-    private static final String MULTILANGUAGE_TEMPLATE_PATH = "default";
+    private static final String DEFAULT_TEMPLATE_PATH = "de_CH";
     private final SpringTemplateEngine templateEngine;
 
     String getContent(String templateName, Map<String, Object> model, Locale locale) {
         Context context = new Context(locale, model);
         String rootTemplateLangPath;
         if (locale == null) {
-            rootTemplateLangPath = MULTILANGUAGE_TEMPLATE_PATH;
+            rootTemplateLangPath = DEFAULT_TEMPLATE_PATH;
         } else {
             rootTemplateLangPath = locale.toString();
         }

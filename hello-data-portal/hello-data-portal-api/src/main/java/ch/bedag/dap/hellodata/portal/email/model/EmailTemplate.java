@@ -28,7 +28,9 @@ package ch.bedag.dap.hellodata.portal.email.model;
 
 public enum EmailTemplate {
     USER_ACCOUNT_CREATED("Notify_user_account_created", "notify-user-account-created"), USER_ROLE_CHANGED("Notify_user_role_changed", "notify-user-role-changed"),
-    USER_DEACTIVATED("Notify_user_deactivated", "notify-user-deactivated"), USER_ACTIVATED("Notify_user_activated", "notify-user-activated");
+    USER_DEACTIVATED("Notify_user_deactivated", "notify-user-deactivated"), USER_ACTIVATED("Notify_user_activated", "notify-user-activated"),
+    COMMENT_STATUS_PUBLISHED("Notify_comment_status_published", "notify-comment-status-published"),
+    COMMENT_STATUS_DECLINED("Notify_comment_status_declined", "notify-comment-status-declined");
 
     private final String subjectKey;
     private final String templateKey;

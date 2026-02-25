@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="de" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head><title>Kommentar abgelehnt</title></head>
+<body>
+<p>Hallo <span th:text="${#objects.nullSafe(AFFECTED_USER_FIRST_NAME, '_Unbekannt_')}"/></p>
+
+<p>
+    Der Reviewer <span th:text="${#objects.nullSafe(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE, '_Unbekannt_')}"/>
+    hat deinen Kommentar zum Dashboard
+    <span th:text="${#objects.nullSafe(DASHBOARD_NAME, '_Unbekannt_')}"/> in der Fachdomäne
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unbekannt_')}"/> abgelehnt.
+</p>
+
+<p><strong>Dein Kommentar:</strong></p>
+<blockquote th:text="${#objects.nullSafe(COMMENT_TEXT, '')}"></blockquote>
+
+<p><strong>Ablehnungsgrund:</strong></p>
+<blockquote th:text="${#objects.nullSafe(COMMENT_DECLINE_REASON, '')}"></blockquote>
+
+<p>Link zu Fachdomäne
+    <a th:href="${#objects.nullSafe(link, '_Unbekannt_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unbekannt_')}"/></a>
+</p>
+
+<p>Freundliche Grüsse<br/>HelloDATA</p>
+
+</body>
+</html>
