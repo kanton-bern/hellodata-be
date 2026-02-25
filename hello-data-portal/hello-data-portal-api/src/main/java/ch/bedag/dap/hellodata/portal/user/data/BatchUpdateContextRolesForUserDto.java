@@ -29,9 +29,18 @@ package ch.bedag.dap.hellodata.portal.user.data;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class BatchUpdateContextRolesForUserDto extends UpdateContextRolesForUserDto {
     private String email;
+    /**
+     * Dashboard group names from CSV file, keyed by context key.
+     * Used during batch import to resolve group names to group IDs.
+     */
+    private Map<String, List<String>> dashboardGroupNamesFromCsv = new HashMap<>();
 
 }

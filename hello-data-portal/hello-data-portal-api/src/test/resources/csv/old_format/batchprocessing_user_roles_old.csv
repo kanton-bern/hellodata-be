@@ -1,0 +1,3 @@
+﻿email;businessDomainRole;context;dataDomainRole;supersetRole
+john.doe@example.com;NONE;some_data_domain_key;DATA_DOMAIN_VIEWER;D_test_dashboard_6,D_example_dashboard_2,RLS_01
+bob.williams@example.com;NONE;some_data_domain_key;DATA_DOMAIN_ADMIN;

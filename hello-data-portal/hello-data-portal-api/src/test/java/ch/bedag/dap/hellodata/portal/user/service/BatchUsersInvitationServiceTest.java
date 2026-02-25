@@ -39,6 +39,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemR
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
+import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.user.data.BatchUpdateContextRolesForUserDto;
 import ch.bedag.dap.hellodata.portal.user.data.ContextDto;
@@ -52,10 +54,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -65,6 +64,17 @@ class BatchUsersInvitationServiceTest {
 
     @Mock
     private MetaInfoResourceService metaInfoResourceService;
+
+    @Mock
+    private DashboardGroupService dashboardGroupService;
+
+    private DashboardGroupEntity createDashboardGroupEntity(String name, String contextKey) {
+        DashboardGroupEntity entity = new DashboardGroupEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setName(name);
+        entity.setContextKey(contextKey);
+        return entity;
+    }
 
     @Test
     void fetchDataFromFileTest() { //NOSONAR
@@ -87,9 +97,14 @@ class BatchUsersInvitationServiceTest {
         List<MetaInfoResourceEntity> metaInfoResourceEntities = List.of(metaInfoResourceEntity);
         when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES)).thenReturn(metaInfoResourceEntities);
 
+        // Set up dashboard group mocks for the CSV with dashboardGroup column
+        DashboardGroupEntity groupA = createDashboardGroupEntity("GroupA", "some_data_domain_key");
+        DashboardGroupEntity groupB = createDashboardGroupEntity("GroupB", "some_data_domain_key");
+        when(dashboardGroupService.findAllGroupsByContextKey("some_data_domain_key")).thenReturn(List.of(groupA, groupB));
+
         String testResourcesPath = new File(resource.getFile()).getAbsolutePath();
         BatchUsersInvitationService batchUsersInvitationService1 = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, testResourcesPath);
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, testResourcesPath);
 
         ContextsDto availableContexts = new ContextsDto();
         ContextDto contextDto = new ContextDto();
@@ -101,52 +116,47 @@ class BatchUsersInvitationServiceTest {
 
         assertEquals(7, parsedUsers.size());
 
-        //First user
+        //First user - john.doe with GroupA,GroupB
         BatchUpdateContextRolesForUserDto batchUpdateContextRolesForUserDto = parsedUsers.get(0);
         assertEquals("john.doe@example.com", batchUpdateContextRolesForUserDto.getEmail());
-
         assertEquals("NONE", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
-
         assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
         assertEquals("DATA_DOMAIN_VIEWER", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
         assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
-
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
+        // Verify dashboard group names from CSV
+        assertNotNull(batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv());
+        assertEquals(List.of("GroupA", "GroupB"), batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv().get("some_data_domain_key"));
 
-        //Second user
+        //Second user - jane.smith with GroupA
         batchUpdateContextRolesForUserDto = parsedUsers.get(1);
         assertEquals("jane.smith@example.com", batchUpdateContextRolesForUserDto.getEmail());
-
         assertEquals("NONE", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
-
         assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
         assertEquals("DATA_DOMAIN_VIEWER", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
         assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
-
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
+        assertEquals(List.of("GroupA"), batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv().get("some_data_domain_key"));
 
-        //Fourth user
+        //Fourth user - bob.williams (admin, no groups)
         batchUpdateContextRolesForUserDto = parsedUsers.get(3);
         assertEquals("bob.williams@example.com", batchUpdateContextRolesForUserDto.getEmail());
-
         assertEquals("NONE", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
-
         assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
         assertEquals("DATA_DOMAIN_ADMIN", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
         assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
-
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
+        assertTrue(batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv().isEmpty()
+                || !batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv().containsKey("some_data_domain_key")
+                || batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv().get("some_data_domain_key").isEmpty());
 
-        //Sixth user
+        //Sixth user - laura.anderson (HELLODATA_ADMIN)
         batchUpdateContextRolesForUserDto = parsedUsers.get(5);
         assertEquals("laura.anderson@example.com", batchUpdateContextRolesForUserDto.getEmail());
-
         assertEquals("HELLODATA_ADMIN", batchUpdateContextRolesForUserDto.getBusinessDomainRole().getName());
-
         assertEquals(1, batchUpdateContextRolesForUserDto.getDataDomainRoles().size());
         assertEquals("DATA_DOMAIN_ADMIN", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getRole().getName());
         assertEquals("some_data_domain_key", batchUpdateContextRolesForUserDto.getDataDomainRoles().get(0).getContext().getContextKey());
-
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
     }
 
@@ -190,9 +200,13 @@ class BatchUsersInvitationServiceTest {
         List<MetaInfoResourceEntity> metaInfoResourceEntities = List.of(metaInfoResourceEntity, metaInfoResourceEntity1);
         when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES)).thenReturn(metaInfoResourceEntities);
 
+        // Set up dashboard group mocks - only data_domain_one_key has groups in CSV
+        DashboardGroupEntity groupA = createDashboardGroupEntity("GroupA", "data_domain_one_key");
+        when(dashboardGroupService.findAllGroupsByContextKey("data_domain_one_key")).thenReturn(List.of(groupA));
+
         String testResourcesPath = new File(resource.getFile()).getAbsolutePath();
         BatchUsersInvitationService batchUsersInvitationService1 = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, testResourcesPath);
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, testResourcesPath);
 
         ContextsDto availableContexts = new ContextsDto();
         ContextDto contextDto = new ContextDto();
@@ -224,13 +238,147 @@ class BatchUsersInvitationServiceTest {
 
         assertNull(batchUpdateContextRolesForUserDto.getSelectedDashboardsForUser());
 
+        // Verify dashboard groups - GroupA assigned for data_domain_one_key
+        assertNotNull(batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv());
+        assertEquals(List.of("GroupA"), batchUpdateContextRolesForUserDto.getDashboardGroupNamesFromCsv().get("data_domain_one_key"));
+    }
+
+    @Test
+    void fetchDataFromFile_oldFormatWithoutDashboardGroupColumn() {
+        URL resource = getClass().getClassLoader().getResource("./csv/old_format");
+        assertNotNull(resource, "The test resources directory should exist in the classpath");
+        MetaInfoResourceEntity metaInfoResourceEntity = new MetaInfoResourceEntity();
+        metaInfoResourceEntity.setContextKey("some_data_domain_key");
+        metaInfoResourceEntity.setModuleType(ModuleType.SUPERSET);
+        List<RolePermissions> existingRoles = List.of(
+                new RolePermissions(1, "D_test_dashboard_6", List.of()),
+                new RolePermissions(2, "D_example_dashboard_2", List.of()),
+                new RolePermissions(3, "RLS_01", List.of()));
+        RoleResource roleResource = new RoleResource("superset instance", ModuleType.SUPERSET, existingRoles);
+        metaInfoResourceEntity.setMetainfo(roleResource);
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES)).thenReturn(List.of(metaInfoResourceEntity));
+
+        String testResourcesPath = new File(resource.getFile()).getAbsolutePath();
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, testResourcesPath);
+
+        ContextsDto availableContexts = new ContextsDto();
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey("some_data_domain_key");
+        contextDto.setName("Some Data Domain");
+        contextDto.setType(HdContextType.DATA_DOMAIN);
+        availableContexts.setContexts(List.of(contextDto));
+
+        List<BatchUpdateContextRolesForUserDto> parsedUsers = service.fetchDataFromFile(false, availableContexts);
+
+        assertEquals(2, parsedUsers.size());
+
+        // Verify old format works - no dashboard groups
+        BatchUpdateContextRolesForUserDto viewer = parsedUsers.get(0);
+        assertEquals("john.doe@example.com", viewer.getEmail());
+        assertTrue(viewer.getDashboardGroupNamesFromCsv().isEmpty(), "Old format should have no dashboard groups");
+
+        BatchUpdateContextRolesForUserDto admin = parsedUsers.get(1);
+        assertEquals("bob.williams@example.com", admin.getEmail());
+        assertTrue(admin.getDashboardGroupNamesFromCsv().isEmpty(), "Old format should have no dashboard groups");
+    }
+
+    @Test
+    void fetchDataFromFile_invalidDashboardGroupName_shouldThrowException() {
+        URL resource = getClass().getClassLoader().getResource("./csv/many_users");
+        assertNotNull(resource, "The test resources directory should exist in the classpath");
+        MetaInfoResourceEntity metaInfoResourceEntity = new MetaInfoResourceEntity();
+        metaInfoResourceEntity.setContextKey("some_data_domain_key");
+        metaInfoResourceEntity.setModuleType(ModuleType.SUPERSET);
+        List<RolePermissions> existingRoles = List.of(
+                new RolePermissions(1, "D_test_dashboard_6", List.of()),
+                new RolePermissions(2, "D_example_dashboard_2", List.of()),
+                new RolePermissions(3, "RLS_01", List.of()),
+                new RolePermissions(3, "RLS_02", List.of()),
+                new RolePermissions(3, "RLS_03", List.of()),
+                new RolePermissions(3, "RLS_04", List.of()),
+                new RolePermissions(3, "RLS_05", List.of()),
+                new RolePermissions(3, "RLS_06", List.of()));
+        RoleResource roleResource = new RoleResource("superset instance", ModuleType.SUPERSET, existingRoles);
+        metaInfoResourceEntity.setMetainfo(roleResource);
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES)).thenReturn(List.of(metaInfoResourceEntity));
+
+        // Return only GroupA - GroupB does not exist, which should cause validation failure
+        DashboardGroupEntity groupA = createDashboardGroupEntity("GroupA", "some_data_domain_key");
+        when(dashboardGroupService.findAllGroupsByContextKey("some_data_domain_key")).thenReturn(List.of(groupA));
+
+        String testResourcesPath = new File(resource.getFile()).getAbsolutePath();
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, testResourcesPath);
+
+        ContextsDto availableContexts = new ContextsDto();
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey("some_data_domain_key");
+        contextDto.setName("Some Data Domain");
+        contextDto.setType(HdContextType.DATA_DOMAIN);
+        availableContexts.setContexts(List.of(contextDto));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.fetchDataFromFile(false, availableContexts),
+                "Should throw exception when dashboard group name does not exist");
+        // Verify the error message contains details about the missing group
+        assertTrue(exception.getMessage().contains("GroupB"), "Error should mention the missing group 'GroupB'");
+        assertTrue(exception.getMessage().contains("some_data_domain_key"), "Error should mention the context key");
+    }
+
+    @Test
+    void fetchDataFromFile_multipleValidationErrors_shouldCollectAllErrors() {
+        URL resource = getClass().getClassLoader().getResource("./csv/invalid_mixed");
+        assertNotNull(resource, "The test resources directory should exist in the classpath");
+
+        MetaInfoResourceEntity metaInfoResourceEntity = new MetaInfoResourceEntity();
+        metaInfoResourceEntity.setContextKey("some_data_domain_key");
+        metaInfoResourceEntity.setModuleType(ModuleType.SUPERSET);
+        List<RolePermissions> existingRoles = List.of(
+                new RolePermissions(1, "D_test_dashboard_6", List.of()));
+        RoleResource roleResource = new RoleResource("superset instance", ModuleType.SUPERSET, existingRoles);
+        metaInfoResourceEntity.setMetainfo(roleResource);
+        when(metaInfoResourceService.findAllByModuleTypeAndKind(ModuleType.SUPERSET, ModuleResourceKind.HELLO_DATA_ROLES))
+                .thenReturn(List.of(metaInfoResourceEntity));
+
+        // Only GroupA exists - MissingGroup does not
+        DashboardGroupEntity groupA = createDashboardGroupEntity("GroupA", "some_data_domain_key");
+        when(dashboardGroupService.findAllGroupsByContextKey("some_data_domain_key")).thenReturn(List.of(groupA));
+
+        String testResourcesPath = new File(resource.getFile()).getAbsolutePath();
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, testResourcesPath);
+
+        ContextsDto availableContexts = new ContextsDto();
+        ContextDto contextDto = new ContextDto();
+        contextDto.setContextKey("some_data_domain_key");
+        contextDto.setName("Some Data Domain");
+        contextDto.setType(HdContextType.DATA_DOMAIN);
+        availableContexts.setContexts(List.of(contextDto));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.fetchDataFromFile(false, availableContexts));
+
+        String errorMessage = exception.getMessage();
+        // Should contain context key error for wrong_context_key
+        assertTrue(errorMessage.contains("wrong_context_key"),
+                "Error should mention invalid context key 'wrong_context_key'. Actual: " + errorMessage);
+        // Should contain superset role error for WRONG_ROLE
+        assertTrue(errorMessage.contains("WRONG_ROLE"),
+                "Error should mention invalid superset role 'WRONG_ROLE'. Actual: " + errorMessage);
+        // Should contain dashboard group error for MissingGroup
+        assertTrue(errorMessage.contains("MissingGroup"),
+                "Error should mention missing dashboard group 'MissingGroup'. Actual: " + errorMessage);
+        // Should report multiple errors at once
+        assertTrue(errorMessage.contains("CSV validation failed"),
+                "Error should start with CSV validation failed prefix. Actual: " + errorMessage);
     }
 
     @Test
     void buildDefaultCommentPermissions_forHelloDataAdmin_shouldGrantFullAccessToAllDomains() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, "/tmp");
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
 
         BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
         user.setEmail("admin@example.com");
@@ -268,7 +416,7 @@ class BatchUsersInvitationServiceTest {
     void buildDefaultCommentPermissions_forDataDomainViewer_shouldGrantReadOnlyAccess() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, "/tmp");
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
 
         BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
         user.setEmail("viewer@example.com");
@@ -311,7 +459,7 @@ class BatchUsersInvitationServiceTest {
     void buildDefaultCommentPermissions_forDataDomainEditor_shouldGrantReadWriteAccess() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, "/tmp");
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
 
         BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
         user.setEmail("editor@example.com");
@@ -354,7 +502,7 @@ class BatchUsersInvitationServiceTest {
     void buildDefaultCommentPermissions_forDataDomainAdmin_shouldGrantFullAccess() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, "/tmp");
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
 
         BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
         user.setEmail("ddadmin@example.com");
@@ -394,10 +542,91 @@ class BatchUsersInvitationServiceTest {
     }
 
     @Test
+    void buildDefaultCommentPermissions_forBusinessDomainAdmin_shouldGrantFullAccessToAllDomains() throws Exception {
+        // Arrange
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("bdadmin@example.com");
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("BUSINESS_DOMAIN_ADMIN");
+        user.setBusinessDomainRole(businessRole);
+        user.setDataDomainRoles(new ArrayList<>());
+
+        ContextsDto availableContexts = new ContextsDto();
+        ContextDto context1 = new ContextDto();
+        context1.setContextKey("dd1");
+        context1.setType(HdContextType.DATA_DOMAIN);
+        ContextDto context2 = new ContextDto();
+        context2.setContextKey("dd2");
+        context2.setType(HdContextType.DATA_DOMAIN);
+        availableContexts.setContexts(List.of(context1, context2));
+
+        // Act
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "buildDefaultCommentPermissions", BatchUpdateContextRolesForUserDto.class, ContextsDto.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<DashboardCommentPermissionDto> result = (List<DashboardCommentPermissionDto>) method.invoke(service, user, availableContexts);
+
+        // Assert
+        assertEquals(2, result.size());
+        for (DashboardCommentPermissionDto perm : result) {
+            assertTrue(perm.isReadComments(), "BUSINESS_DOMAIN_ADMIN should have read access");
+            assertTrue(perm.isWriteComments(), "BUSINESS_DOMAIN_ADMIN should have write access");
+            assertTrue(perm.isReviewComments(), "BUSINESS_DOMAIN_ADMIN should have review access");
+        }
+    }
+
+    @Test
+    void buildDefaultCommentPermissions_forBusinessSpecialist_shouldGrantReadOnlyAccess() throws Exception {
+        // Arrange
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("specialist@example.com");
+        RoleDto businessRole = new RoleDto();
+        businessRole.setName("NONE");
+        user.setBusinessDomainRole(businessRole);
+
+        UserContextRoleDto ddRole = new UserContextRoleDto();
+        RoleDto specialistRole = new RoleDto();
+        specialistRole.setName("DATA_DOMAIN_BUSINESS_SPECIALIST");
+        ddRole.setRole(specialistRole);
+        ContextDto ddContext = new ContextDto();
+        ddContext.setContextKey("dd1");
+        ddRole.setContext(ddContext);
+        user.setDataDomainRoles(List.of(ddRole));
+
+        ContextsDto availableContexts = new ContextsDto();
+        ContextDto context1 = new ContextDto();
+        context1.setContextKey("dd1");
+        context1.setType(HdContextType.DATA_DOMAIN);
+        availableContexts.setContexts(List.of(context1));
+
+        // Act
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "buildDefaultCommentPermissions", BatchUpdateContextRolesForUserDto.class, ContextsDto.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<DashboardCommentPermissionDto> result = (List<DashboardCommentPermissionDto>) method.invoke(service, user, availableContexts);
+
+        // Assert
+        assertEquals(1, result.size());
+        DashboardCommentPermissionDto perm = result.get(0);
+        assertEquals("dd1", perm.getContextKey());
+        assertTrue(perm.isReadComments(), "DATA_DOMAIN_BUSINESS_SPECIALIST should have read access");
+        assertFalse(perm.isWriteComments(), "DATA_DOMAIN_BUSINESS_SPECIALIST should NOT have write access");
+        assertFalse(perm.isReviewComments(), "DATA_DOMAIN_BUSINESS_SPECIALIST should NOT have review access");
+    }
+
+    @Test
     void mapSupersetRolesToDashboards_forViewerWithMatchingRoles_shouldMapDashboards() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, "/tmp");
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
 
         BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
         user.setEmail("viewer@example.com");
@@ -480,7 +709,7 @@ class BatchUsersInvitationServiceTest {
     void mapSupersetRolesToDashboards_forAdmin_shouldNotMapDashboards() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, "/tmp");
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
 
         BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
         user.setEmail("admin@example.com");
@@ -530,7 +759,7 @@ class BatchUsersInvitationServiceTest {
     void mapSupersetRolesToDashboards_forBusinessSpecialist_shouldMapDashboards() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
-                new CsvParserService(), null, metaInfoResourceService, null, null, "/tmp");
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
 
         BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
         user.setEmail("specialist@example.com");
@@ -576,4 +805,86 @@ class BatchUsersInvitationServiceTest {
         assertTrue(result.containsKey("dd1"));
         assertEquals(1, result.get("dd1").size(), "BUSINESS_SPECIALIST should get dashboard assignments");
     }
+
+    @Test
+    void resolveDashboardGroupNamesToIds_shouldResolveCorrectly() throws Exception {
+        // Arrange
+        DashboardGroupEntity group1 = createDashboardGroupEntity("GroupA", "dd1");
+        DashboardGroupEntity group2 = createDashboardGroupEntity("GroupB", "dd1");
+        when(dashboardGroupService.findAllGroupsByContextKey("dd1")).thenReturn(List.of(group1, group2));
+
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("test@example.com");
+        Map<String, List<String>> groupNames = new HashMap<>();
+        groupNames.put("dd1", List.of("GroupA", "GroupB"));
+        user.setDashboardGroupNamesFromCsv(groupNames);
+
+        // Act
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "resolveDashboardGroupNamesToIds", BatchUpdateContextRolesForUserDto.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> result = (Map<String, List<String>>) method.invoke(service, user);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.containsKey("dd1"));
+        assertEquals(2, result.get("dd1").size());
+        assertTrue(result.get("dd1").contains(group1.getId().toString()));
+        assertTrue(result.get("dd1").contains(group2.getId().toString()));
+    }
+
+    @Test
+    void resolveDashboardGroupNamesToIds_nonExistentGroup_shouldThrow() throws Exception {
+        // Arrange
+        DashboardGroupEntity group1 = createDashboardGroupEntity("GroupA", "dd1");
+        when(dashboardGroupService.findAllGroupsByContextKey("dd1")).thenReturn(List.of(group1));
+
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("test@example.com");
+        Map<String, List<String>> groupNames = new HashMap<>();
+        groupNames.put("dd1", List.of("GroupA", "NonExistentGroup"));
+        user.setDashboardGroupNamesFromCsv(groupNames);
+
+        // Act & Assert
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "resolveDashboardGroupNamesToIds", BatchUpdateContextRolesForUserDto.class);
+        method.setAccessible(true);
+        assertThrows(Exception.class, () -> {
+            try {
+                method.invoke(service, user);
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                throw e.getCause();
+            }
+        });
+    }
+
+    @Test
+    void resolveDashboardGroupNamesToIds_emptyGroups_shouldReturnEmpty() throws Exception {
+        // Arrange
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+        user.setEmail("test@example.com");
+        // No dashboard groups set
+
+        // Act
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "resolveDashboardGroupNamesToIds", BatchUpdateContextRolesForUserDto.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, List<String>> result = (Map<String, List<String>>) method.invoke(service, user);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
 }
+

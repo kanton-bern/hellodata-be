@@ -1,0 +1,3 @@
+﻿email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup
+john.doe@example.com;NONE;wrong_context_key;DATA_DOMAIN_VIEWER;D_test_dashboard_6;
+jane.smith@example.com;NONE;some_data_domain_key;DATA_DOMAIN_VIEWER;WRONG_ROLE;MissingGroup

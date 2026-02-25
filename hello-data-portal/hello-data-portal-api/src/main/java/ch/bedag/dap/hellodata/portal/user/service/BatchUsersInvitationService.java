@@ -40,6 +40,8 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePe
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
 import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
+import ch.bedag.dap.hellodata.portal.dashboard_group.entity.DashboardGroupEntity;
+import ch.bedag.dap.hellodata.portal.dashboard_group.service.DashboardGroupService;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
@@ -68,6 +70,7 @@ public class BatchUsersInvitationService {
     private final MetaInfoResourceService metaInfoResourceService;
     private final RoleService roleService;
     private final BatchUsersCustomLogger batchUsersCustomLogger;
+    private final DashboardGroupService dashboardGroupService;
 
     private final String batchUsersFileLocation;
 
@@ -76,6 +79,7 @@ public class BatchUsersInvitationService {
                                        MetaInfoResourceService metaInfoResourceService,
                                        RoleService roleService,
                                        BatchUsersCustomLogger batchUsersCustomLogger,
+                                       DashboardGroupService dashboardGroupService,
                                        @Value("${hello-data.batch-users-file.location}") String batchUsersFileLocation) {
         this.csvParserService = csvParserService;
         this.userService = userService;
@@ -83,6 +87,7 @@ public class BatchUsersInvitationService {
         this.metaInfoResourceService = metaInfoResourceService;
         this.roleService = roleService;
         this.batchUsersCustomLogger = batchUsersCustomLogger;
+        this.dashboardGroupService = dashboardGroupService;
     }
 
     @Scheduled(fixedDelayString = "${hello-data.batch-users-file.scan-interval-seconds}", timeUnit = TimeUnit.SECONDS)
@@ -120,26 +125,10 @@ public class BatchUsersInvitationService {
         // Pre-load all dashboards for mapping supersetRoles to dashboards
         Map<String, List<SupersetDashboard>> contextToDashboards = loadDashboardsByContext();
 
-        int i = 0;
-        for (BatchUpdateContextRolesForUserDto user : users) {
+        for (int i = 0; i < users.size(); i++) {
+            BatchUpdateContextRolesForUserDto user = users.get(i);
             batchUsersCustomLogger.logMessage(String.format("Processing user %s", user.getEmail()));
-            List<AdUserDto> usersSearched = this.userService.searchUser(user.getEmail());
-            log.info("Found {} user(s) by email {}: {}", usersSearched.size(), user.getEmail(), usersSearched);
-            Optional<AdUserDto> any = usersSearched.stream().findAny();
-            log.info("Found any? {}", any.isPresent());
-            Optional<AdUserDto> firstAD = usersSearched.stream().filter(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP).findFirst();
-            AdUserDto adUserDto = firstAD.orElseGet(() -> any.orElseThrow(() -> new NoSuchElementException("User not found: " + user.getEmail())));
-            String userId;
-            try {
-                userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin());
-                Thread.sleep(1000L); //wait for it to push to subsystems before proceeding to set context roles
-                batchUsersCustomLogger.logMessage(String.format("Created user %s", user.getEmail()));
-            } catch (UserAlreadyExistsException e) {
-                String errMsg = "User %s already exists, updating roles...".formatted(adUserDto.getEmail());
-                log.info(errMsg);
-                batchUsersCustomLogger.logMessage(errMsg);
-                userId = allUsers.stream().filter(userDto -> userDto.getEmail().equalsIgnoreCase(adUserDto.getEmail())).findFirst().get().getId();
-            }
+            String userId = findOrCreateUser(user, allUsers);
             insertFullBusinessDomainRole(user, allRoles);
             insertFullContextRoles(user, allRoles, availableContexts);
 
@@ -151,10 +140,75 @@ public class BatchUsersInvitationService {
             List<DashboardCommentPermissionDto> commentPermissions = buildDefaultCommentPermissions(user, availableContexts);
             user.setCommentPermissions(commentPermissions);
 
+            // Resolve dashboard group names from CSV to group IDs
+            Map<String, List<String>> resolvedGroupIds = resolveDashboardGroupNamesToIds(user);
+            user.setSelectedDashboardGroupIdsForUser(resolvedGroupIds);
+
             boolean isLast = i == users.size() - 1;
             userService.updateContextRolesForUserFromBatch(UUID.fromString(userId), user, isLast);
-            i++;
         }
+    }
+
+    private String findOrCreateUser(BatchUpdateContextRolesForUserDto user, List<UserDto> allUsers) throws InterruptedException {
+        List<AdUserDto> usersSearched = this.userService.searchUser(user.getEmail());
+        log.info("Found {} user(s) by email {}: {}", usersSearched.size(), user.getEmail(), usersSearched);
+        Optional<AdUserDto> any = usersSearched.stream().findAny();
+        log.info("Found any? {}", any.isPresent());
+        Optional<AdUserDto> firstAD = usersSearched.stream().filter(adUserDto -> adUserDto.getOrigin() == AdUserOrigin.LDAP).findFirst();
+        AdUserDto adUserDto = firstAD.orElseGet(() -> any.orElseThrow(() -> new NoSuchElementException("User not found: " + user.getEmail())));
+        try {
+            String userId = userService.createUser(adUserDto.getEmail(), adUserDto.getFirstName(), adUserDto.getLastName(), adUserDto.getOrigin());
+            Thread.sleep(1000L); //wait for it to push to subsystems before proceeding to set context roles
+            batchUsersCustomLogger.logMessage(String.format("Created user %s", user.getEmail()));
+            return userId;
+        } catch (UserAlreadyExistsException e) {
+            String errMsg = "User %s already exists, updating roles...".formatted(adUserDto.getEmail());
+            log.info(errMsg);
+            batchUsersCustomLogger.logMessage(errMsg);
+            return allUsers.stream().filter(userDto -> userDto.getEmail().equalsIgnoreCase(adUserDto.getEmail())).findFirst().get().getId();
+        }
+    }
+
+    /**
+     * Resolves dashboard group names from the CSV to dashboard group IDs.
+     * Uses DashboardGroupService to look up groups by name and context key.
+     */
+    private Map<String, List<String>> resolveDashboardGroupNamesToIds(BatchUpdateContextRolesForUserDto user) {
+        Map<String, List<String>> dashboardGroupNamesMap = user.getDashboardGroupNamesFromCsv();
+        if (dashboardGroupNamesMap == null || dashboardGroupNamesMap.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        Map<String, List<String>> resolvedGroupIds = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : dashboardGroupNamesMap.entrySet()) {
+            String contextKey = entry.getKey();
+            List<String> groupNames = entry.getValue();
+            List<String> groupIds = resolveGroupNamesForContext(contextKey, groupNames, user.getEmail());
+            if (!groupIds.isEmpty()) {
+                resolvedGroupIds.put(contextKey, groupIds);
+            }
+        }
+        return resolvedGroupIds;
+    }
+
+    private List<String> resolveGroupNamesForContext(String contextKey, List<String> groupNames, String userEmail) {
+        List<DashboardGroupEntity> allGroupsInContext = dashboardGroupService.findAllGroupsByContextKey(contextKey);
+        Map<String, String> groupNameToIdMap = allGroupsInContext.stream()
+                .collect(Collectors.toMap(
+                        g -> g.getName().toLowerCase(Locale.ROOT),
+                        g -> g.getId().toString(),
+                        (existing, replacement) -> existing));
+
+        List<String> groupIds = new ArrayList<>();
+        for (String groupName : groupNames) {
+            String groupId = groupNameToIdMap.get(groupName.toLowerCase(Locale.ROOT));
+            if (groupId == null) {
+                throw new IllegalArgumentException(
+                        "Dashboard group '%s' not found in context '%s' for user '%s'".formatted(groupName, contextKey, userEmail));
+            }
+            groupIds.add(groupId);
+        }
+        return groupIds;
     }
 
     /**
@@ -303,7 +357,6 @@ public class BatchUsersInvitationService {
      * - NONE: no access
      */
     private List<DashboardCommentPermissionDto> buildDefaultCommentPermissions(BatchUpdateContextRolesForUserDto user, ContextsDto availableContexts) {
-        List<DashboardCommentPermissionDto> permissions = new ArrayList<>();
         String businessRoleName = user.getBusinessDomainRole().getName();
 
         boolean isPortalAdmin = HdRoleName.HELLODATA_ADMIN.name().equalsIgnoreCase(businessRoleName)
@@ -316,55 +369,48 @@ public class BatchUsersInvitationService {
                 .collect(Collectors.toSet());
 
         if (isPortalAdmin) {
-            // Portal admins get full access to all data domains
-            for (String contextKey : allDataDomainKeys) {
-                DashboardCommentPermissionDto permission = new DashboardCommentPermissionDto();
-                permission.setContextKey(contextKey);
-                permission.setReadComments(true);
-                permission.setWriteComments(true);
-                permission.setReviewComments(true);
-                permissions.add(permission);
-            }
-        } else {
-            // Build a map of context key -> role name from user's data domain roles
-            Map<String, String> contextToRoleMap = user.getDataDomainRoles().stream()
-                    .collect(Collectors.toMap(
-                            ddRole -> ddRole.getContext().getContextKey(),
-                            ddRole -> ddRole.getRole().getName(),
-                            (existing, replacement) -> existing));
-
-            for (String contextKey : allDataDomainKeys) {
-                String roleName = contextToRoleMap.getOrDefault(contextKey, HdRoleName.NONE.name());
-                DashboardCommentPermissionDto permission = new DashboardCommentPermissionDto();
-                permission.setContextKey(contextKey);
-
-                if (HdRoleName.DATA_DOMAIN_ADMIN.name().equalsIgnoreCase(roleName)) {
-                    // Data Domain Admin gets full access
-                    permission.setReadComments(true);
-                    permission.setWriteComments(true);
-                    permission.setReviewComments(true);
-                } else if (HdRoleName.DATA_DOMAIN_EDITOR.name().equalsIgnoreCase(roleName)) {
-                    // Data Domain Editor gets read and write access
-                    permission.setReadComments(true);
-                    permission.setWriteComments(true);
-                    permission.setReviewComments(false);
-                } else if (HdRoleName.DATA_DOMAIN_VIEWER.name().equalsIgnoreCase(roleName)
-                        || HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name().equalsIgnoreCase(roleName)) {
-                    // Viewer and Business Specialist get read-only access
-                    permission.setReadComments(true);
-                    permission.setWriteComments(false);
-                    permission.setReviewComments(false);
-                } else {
-                    // NONE or other roles get no access
-                    permission.setReadComments(false);
-                    permission.setWriteComments(false);
-                    permission.setReviewComments(false);
-                }
-                permissions.add(permission);
-            }
+            return allDataDomainKeys.stream()
+                    .map(contextKey -> createCommentPermission(contextKey, true, true, true))
+                    .toList();
         }
 
-        return permissions;
+        // Build a map of context key -> role name from user's data domain roles
+        Map<String, String> contextToRoleMap = user.getDataDomainRoles().stream()
+                .collect(Collectors.toMap(
+                        ddRole -> ddRole.getContext().getContextKey(),
+                        ddRole -> ddRole.getRole().getName(),
+                        (existing, replacement) -> existing));
+
+        return allDataDomainKeys.stream()
+                .map(contextKey -> buildCommentPermissionForRole(contextKey, contextToRoleMap.getOrDefault(contextKey, HdRoleName.NONE.name())))
+                .toList();
+    }
+
+    private static final Map<String, boolean[]> ROLE_TO_COMMENT_PERMISSIONS = Map.of(
+            HdRoleName.DATA_DOMAIN_ADMIN.name(), new boolean[]{true, true, true},
+            HdRoleName.DATA_DOMAIN_EDITOR.name(), new boolean[]{true, true, false},
+            HdRoleName.DATA_DOMAIN_VIEWER.name(), new boolean[]{true, false, false},
+            HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name(), new boolean[]{true, false, false}
+    );
+
+    private static final boolean[] NO_PERMISSIONS = {false, false, false};
+
+    private DashboardCommentPermissionDto buildCommentPermissionForRole(String contextKey, String roleName) {
+        boolean[] perms = ROLE_TO_COMMENT_PERMISSIONS.entrySet().stream()
+                .filter(e -> e.getKey().equalsIgnoreCase(roleName))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(NO_PERMISSIONS);
+        return createCommentPermission(contextKey, perms[0], perms[1], perms[2]);
+    }
+
+    private DashboardCommentPermissionDto createCommentPermission(String contextKey, boolean read, boolean write, boolean review) {
+        DashboardCommentPermissionDto permission = new DashboardCommentPermissionDto();
+        permission.setContextKey(contextKey);
+        permission.setReadComments(read);
+        permission.setWriteComments(write);
+        permission.setReviewComments(review);
+        return permission;
     }
 
     /**
@@ -409,15 +455,6 @@ public class BatchUsersInvitationService {
         }
     }
 
-    private void verifyContextKeys(List<BatchUpdateContextRolesForUserDto> users, Set<String> availableDataDomainKeys) {
-        for (BatchUpdateContextRolesForUserDto user : users) {
-            for (UserContextRoleDto dataDomainRole : user.getDataDomainRoles()) {
-                if (!availableDataDomainKeys.contains(dataDomainRole.getContext().getContextKey())) {
-                    throw new IllegalArgumentException("Context key not found: " + dataDomainRole.getContext().getContextKey());
-                }
-            }
-        }
-    }
 
     private Set<String> getAvailableDataDomainKeys(ContextsDto availableContexts) {
         return availableContexts.getContexts().stream()
@@ -433,13 +470,8 @@ public class BatchUsersInvitationService {
                                 .map(RolePermissions::name).toList()));
     }
 
-    private void verifySupersetRoles(List<BatchUpdateContextRolesForUserDto> users, Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap) {
-        for (BatchUpdateContextRolesForUserDto user : users) {
-            verifySupersetRoleExists(dataDomainKeyToExistingSupersetRolesMap, user);
-        }
-    }
 
-    private static void verifySupersetRoleExists(Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap, BatchUpdateContextRolesForUserDto user) {
+    private static void collectSupersetRoleErrors(Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap, BatchUpdateContextRolesForUserDto user, List<String> errors) {
         user.getContextToModuleRoleNamesMap().forEach((contextKey, moduleRoleNamesList) -> {
             List<String> existingSupersetRoles = dataDomainKeyToExistingSupersetRolesMap.get(contextKey);
             if (existingSupersetRoles != null) {
@@ -448,12 +480,88 @@ public class BatchUsersInvitationService {
                         .findFirst()
                         .ifPresent(supersetModule -> {
                             List<String> proposedRoleNamesFromFile = supersetModule.roleNames();
-                            if (!new HashSet<>(existingSupersetRoles).containsAll(proposedRoleNamesFromFile)) {
-                                throw new IllegalArgumentException("The following role(s) is not present in the Superset %s, please check it: %s".formatted(contextKey, proposedRoleNamesFromFile));
+                            Set<String> existingSet = new HashSet<>(existingSupersetRoles);
+                            List<String> missingRoles = proposedRoleNamesFromFile.stream()
+                                    .filter(role -> !existingSet.contains(role))
+                                    .toList();
+                            if (!missingRoles.isEmpty()) {
+                                errors.add("User '%s': the following role(s) are not present in Superset for context '%s': %s"
+                                        .formatted(user.getEmail(), contextKey, missingRoles));
                             }
                         });
             }
         });
+    }
+
+
+    /**
+     * Validates all CSV data at once: context keys, superset roles, and dashboard groups.
+     * Collects all errors and throws a single exception with a comprehensive error report.
+     */
+    private void validateCsvData(List<BatchUpdateContextRolesForUserDto> users,
+                                 Set<String> availableDataDomainKeys,
+                                 Map<String, List<String>> dataDomainKeyToExistingSupersetRolesMap) {
+        List<String> allErrors = new ArrayList<>();
+
+        // 1. Verify context keys
+        for (BatchUpdateContextRolesForUserDto user : users) {
+            for (UserContextRoleDto dataDomainRole : user.getDataDomainRoles()) {
+                if (!availableDataDomainKeys.contains(dataDomainRole.getContext().getContextKey())) {
+                    allErrors.add("User '%s': context key not found: '%s'"
+                            .formatted(user.getEmail(), dataDomainRole.getContext().getContextKey()));
+                }
+            }
+        }
+
+        // 2. Verify superset roles
+        for (BatchUpdateContextRolesForUserDto user : users) {
+            collectSupersetRoleErrors(dataDomainKeyToExistingSupersetRolesMap, user, allErrors);
+        }
+
+        // 3. Verify dashboard group names (pre-load groups per context for efficiency)
+        collectDashboardGroupErrors(users, allErrors);
+
+        if (!allErrors.isEmpty()) {
+            String errorReport = "CSV validation failed with %d error(s):%n%s"
+                    .formatted(allErrors.size(), String.join(System.lineSeparator(), allErrors));
+            throw new IllegalArgumentException(errorReport);
+        }
+    }
+
+    private void collectDashboardGroupErrors(List<BatchUpdateContextRolesForUserDto> users, List<String> errors) {
+        Set<String> contextKeysWithGroups = users.stream()
+                .flatMap(u -> u.getDashboardGroupNamesFromCsv().keySet().stream())
+                .collect(Collectors.toSet());
+
+        if (contextKeysWithGroups.isEmpty()) {
+            return;
+        }
+
+        Map<String, Set<String>> contextToExistingGroupNames = new HashMap<>();
+        for (String contextKey : contextKeysWithGroups) {
+            Set<String> groupNames = dashboardGroupService.findAllGroupsByContextKey(contextKey).stream()
+                    .map(g -> g.getName().toLowerCase(Locale.ROOT))
+                    .collect(Collectors.toSet());
+            contextToExistingGroupNames.put(contextKey, groupNames);
+        }
+
+        for (BatchUpdateContextRolesForUserDto user : users) {
+            Map<String, List<String>> groupNamesMap = user.getDashboardGroupNamesFromCsv();
+            if (groupNamesMap == null || groupNamesMap.isEmpty()) {
+                continue;
+            }
+            for (Map.Entry<String, List<String>> entry : groupNamesMap.entrySet()) {
+                String contextKey = entry.getKey();
+                Set<String> existingNames = contextToExistingGroupNames.getOrDefault(contextKey, Set.of());
+                List<String> missingGroups = entry.getValue().stream()
+                        .filter(groupName -> !existingNames.contains(groupName.toLowerCase(Locale.ROOT)))
+                        .toList();
+                if (!missingGroups.isEmpty()) {
+                    errors.add("User '%s': dashboard group(s) not found in context '%s': %s"
+                            .formatted(user.getEmail(), contextKey, missingGroups));
+                }
+            }
+        }
     }
 
     List<BatchUpdateContextRolesForUserDto> fetchDataFromFile(boolean removeFilesAfterFetch, ContextsDto availableContexts) {
@@ -478,8 +586,7 @@ public class BatchUsersInvitationService {
                 log.debug("File {} content \n{}", file.getAbsolutePath(), FileUtils.readFileToString(file, StandardCharsets.UTF_8));
                 List<BatchUpdateContextRolesForUserDto> users = csvParserService.transform(fis);
                 log.debug("Batch users file successfully read: {}", users);
-                verifyContextKeys(users, availableDataDomainKeys);
-                verifySupersetRoles(users, dataDomainKeyToExistingSupersetRolesMap);
+                validateCsvData(users, availableDataDomainKeys, dataDomainKeyToExistingSupersetRolesMap);
                 allUsers.addAll(users);
                 if (removeFilesAfterFetch) {
                     deleteFile(file);
