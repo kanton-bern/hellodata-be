@@ -14,7 +14,7 @@
           </a>
           @if (item.items && item.items.length) {
             <ul class="second-level-menu">
-              @for (sub of item.items; track sub.id) {
+              @for (sub of item.items; track sub.id || sub.label || $index) {
                 <li>
                   <a class="flex items-center" (click)="openWindow(sub)">
                     @if (sub.icon) {
@@ -27,7 +27,7 @@
                   </a>
                   @if (sub.items && sub.items.length) {
                     <ul class="third-level-menu">
-                      @for (third of sub.items; track third.id) {
+                      @for (third of sub.items; track third.id || third.label || $index) {
                         <li>
                           <a class="flex items-center" (click)="openWindow(third)">
                             @if (third.icon) {

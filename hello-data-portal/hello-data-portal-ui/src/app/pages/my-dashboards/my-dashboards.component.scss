@@ -24,3 +24,87 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+:host {
+  // Ensure table container allows horizontal scrolling
+  ::ng-deep .card {
+    overflow-x: auto;
+  }
+
+  // Action buttons column - keep buttons in a row
+  ::ng-deep td:last-child {
+    white-space: nowrap;
+
+    p-button {
+      display: inline-flex;
+    }
+  }
+
+  // Limit Dashboard column width and allow word breaking
+  ::ng-deep .p-datatable {
+    th#dashboardTitle,
+    td:first-child {
+      max-width: 300px;
+      word-break: break-all;
+    }
+  }
+
+  // Responsive scaling for smaller screens
+  @media screen and (max-width: 1400px) {
+    ::ng-deep .p-datatable {
+      font-size: 0.9rem;
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.5rem;
+      }
+
+      // Smaller action buttons
+      p-button .p-button {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
+
+  @media screen and (max-width: 1200px) {
+    ::ng-deep .p-datatable {
+      font-size: 0.85rem;
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.4rem;
+      }
+
+      p-button .p-button {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  @media screen and (max-width: 992px) {
+    ::ng-deep .p-datatable {
+      font-size: 0.8rem;
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.3rem;
+      }
+
+      p-button .p-button {
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.75rem;
+      }
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    ::ng-deep .p-datatable {
+      font-size: 0.75rem;
+    }
+  }
+}
+
