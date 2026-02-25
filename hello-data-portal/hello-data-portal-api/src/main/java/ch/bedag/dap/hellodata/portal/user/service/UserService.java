@@ -290,6 +290,20 @@ public class UserService {
         if (!isCurrentUserHDAdmin && HdRoleName.HELLODATA_ADMIN.name().equalsIgnoreCase(updateContextRolesForUserDto.getBusinessDomainRole().getName())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only a HelloData Admin can assign the HelloData Admin role to another user");
         }
+        updateContextRolesForUserInternal(userId, updateContextRolesForUserDto, sendBackUserList);
+    }
+
+    /**
+     * Updates context roles for a user from batch import.
+     * This method bypasses the security check for HELLODATA_ADMIN role assignment
+     * because batch import is a system-level operation that should be able to create admin users.
+     */
+    @Transactional
+    public void updateContextRolesForUserFromBatch(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
+        updateContextRolesForUserInternal(userId, updateContextRolesForUserDto, sendBackUserList);
+    }
+
+    private void updateContextRolesForUserInternal(UUID userId, UpdateContextRolesForUserDto updateContextRolesForUserDto, boolean sendBackUserList) {
         UserEntity userEntity = getUserEntity(userId);
         updateContextRoles(userId, updateContextRolesForUserDto);
 

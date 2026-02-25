@@ -26,14 +26,20 @@
  */
 package ch.bedag.dap.hellodata.portal.user.service;
 
+import ch.bedag.dap.hellodata.commons.SlugifyUtil;
 import ch.bedag.dap.hellodata.commons.metainfomodel.entity.MetaInfoResourceEntity;
 import ch.bedag.dap.hellodata.commons.metainfomodel.service.MetaInfoResourceService;
 import ch.bedag.dap.hellodata.commons.sidecars.context.HdContextType;
+import ch.bedag.dap.hellodata.commons.sidecars.context.role.HdRoleName;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleResourceKind;
 import ch.bedag.dap.hellodata.commons.sidecars.modules.ModuleType;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.DashboardResource;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.dashboard.response.superset.SupersetDashboard;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.RoleResource;
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.role.superset.RolePermissions;
+import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.request.DashboardForUserDto;
 import ch.bedag.dap.hellodata.portal.csv.service.CsvParserService;
+import ch.bedag.dap.hellodata.portal.dashboard_comment.data.DashboardCommentPermissionDto;
 import ch.bedag.dap.hellodata.portal.role.data.RoleDto;
 import ch.bedag.dap.hellodata.portal.role.service.RoleService;
 import ch.bedag.dap.hellodata.portal.user.UserAlreadyExistsException;
@@ -111,6 +117,9 @@ public class BatchUsersInvitationService {
     }
 
     private void createOrUpdateUsers(List<BatchUpdateContextRolesForUserDto> users, List<UserDto> allUsers, List<RoleDto> allRoles, ContextsDto availableContexts) throws InterruptedException {
+        // Pre-load all dashboards for mapping supersetRoles to dashboards
+        Map<String, List<SupersetDashboard>> contextToDashboards = loadDashboardsByContext();
+
         int i = 0;
         for (BatchUpdateContextRolesForUserDto user : users) {
             batchUsersCustomLogger.logMessage(String.format("Processing user %s", user.getEmail()));
@@ -133,11 +142,229 @@ public class BatchUsersInvitationService {
             }
             insertFullBusinessDomainRole(user, allRoles);
             insertFullContextRoles(user, allRoles, availableContexts);
-            user.setSelectedDashboardsForUser(new HashMap<>()); // prevent NPE
+
+            // Map supersetRoles to dashboard selections for VIEWER and BUSINESS_SPECIALIST roles
+            Map<String, List<DashboardForUserDto>> selectedDashboards = mapSupersetRolesToDashboards(user, contextToDashboards);
+            user.setSelectedDashboardsForUser(selectedDashboards);
+
+            // Set default dashboard comment permissions based on roles
+            List<DashboardCommentPermissionDto> commentPermissions = buildDefaultCommentPermissions(user, availableContexts);
+            user.setCommentPermissions(commentPermissions);
+
             boolean isLast = i == users.size() - 1;
-            userService.updateContextRolesForUser(UUID.fromString(userId), user, isLast);
+            userService.updateContextRolesForUserFromBatch(UUID.fromString(userId), user, isLast);
             i++;
         }
+    }
+
+    /**
+     * Loads all dashboards from metainfo resources and groups them by context key.
+     * Also stores the instanceName for each dashboard.
+     */
+    private Map<String, List<SupersetDashboard>> loadDashboardsByContext() {
+        Map<String, List<SupersetDashboard>> result = new HashMap<>();
+        List<MetaInfoResourceEntity> dashboardResources = metaInfoResourceService.findAllByKindWithContext(ModuleResourceKind.HELLO_DATA_DASHBOARDS);
+
+        for (MetaInfoResourceEntity entity : dashboardResources) {
+            if (entity.getMetainfo() instanceof DashboardResource dashboardResource) {
+                String contextKey = entity.getContextKey();
+                List<SupersetDashboard> dashboards = result.computeIfAbsent(contextKey, k -> new ArrayList<>());
+
+                // Add all published dashboards
+                for (SupersetDashboard dashboard : dashboardResource.getData()) {
+                    if (dashboard.isPublished()) {
+                        dashboards.add(dashboard);
+                    }
+                }
+            }
+        }
+
+        log.debug("Loaded dashboards for {} contexts", result.size());
+        return result;
+    }
+
+    /**
+     * Maps supersetRoles from CSV (D_* roles) to dashboard selections.
+     * Only applies to users with DATA_DOMAIN_VIEWER or DATA_DOMAIN_BUSINESS_SPECIALIST roles.
+     * <p>
+     * For each context, checks if the user's supersetRoles match any dashboard role (starting with D_).
+     * If a match is found, the dashboard is added to the user's selected dashboards.
+     */
+    private Map<String, List<DashboardForUserDto>> mapSupersetRolesToDashboards(
+            BatchUpdateContextRolesForUserDto user,
+            Map<String, List<SupersetDashboard>> contextToDashboards) {
+
+        Map<String, List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames>> contextToModuleRoles =
+                user.getContextToModuleRoleNamesMap();
+
+        if (contextToModuleRoles == null || contextToModuleRoles.isEmpty()) {
+            log.debug("No module role names defined for user {}", user.getEmail());
+            return new HashMap<>();
+        }
+
+        Map<String, String> contextToDataDomainRole = buildContextToDataDomainRoleMap(user);
+
+        Map<String, List<DashboardForUserDto>> selectedDashboards = new HashMap<>();
+        for (Map.Entry<String, List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames>> entry : contextToModuleRoles.entrySet()) {
+            String contextKey = entry.getKey();
+            List<DashboardForUserDto> matched = mapDashboardsForContext(
+                    contextKey, entry.getValue(), contextToDataDomainRole, contextToDashboards, user.getEmail());
+            if (!matched.isEmpty()) {
+                selectedDashboards.put(contextKey, matched);
+            }
+        }
+        return selectedDashboards;
+    }
+
+    private Map<String, String> buildContextToDataDomainRoleMap(BatchUpdateContextRolesForUserDto user) {
+        return user.getDataDomainRoles().stream()
+                .collect(Collectors.toMap(
+                        ddRole -> ddRole.getContext().getContextKey(),
+                        ddRole -> ddRole.getRole().getName(),
+                        (existing, replacement) -> existing));
+    }
+
+    private boolean isEligibleForDashboardAssignment(String dataDomainRole) {
+        return HdRoleName.DATA_DOMAIN_VIEWER.name().equalsIgnoreCase(dataDomainRole)
+                || HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name().equalsIgnoreCase(dataDomainRole);
+    }
+
+    private List<DashboardForUserDto> mapDashboardsForContext(
+            String contextKey,
+            List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames> moduleRoleNamesList,
+            Map<String, String> contextToDataDomainRole,
+            Map<String, List<SupersetDashboard>> contextToDashboards,
+            String userEmail) {
+
+        String dataDomainRole = contextToDataDomainRole.get(contextKey);
+        if (!isEligibleForDashboardAssignment(dataDomainRole)) {
+            log.debug("Skipping dashboard assignment for context {} - role {} is not VIEWER or BUSINESS_SPECIALIST",
+                    contextKey, dataDomainRole);
+            return List.of();
+        }
+
+        Set<String> supersetRoleNames = extractDashboardRoleNames(moduleRoleNamesList);
+        if (supersetRoleNames.isEmpty()) {
+            log.debug("No dashboard roles (D_*) found for context {}", contextKey);
+            return List.of();
+        }
+
+        List<SupersetDashboard> dashboards = contextToDashboards.getOrDefault(contextKey, List.of());
+        if (dashboards.isEmpty()) {
+            log.debug("No dashboards found for context {}", contextKey);
+            return List.of();
+        }
+
+        List<DashboardForUserDto> matchedDashboards = dashboards.stream()
+                .filter(dashboard -> hasMatchingRole(dashboard, supersetRoleNames))
+                .map(dashboard -> toDashboardForUserDto(dashboard, contextKey))
+                .toList();
+
+        if (!matchedDashboards.isEmpty()) {
+            log.info("Assigned {} dashboards to user {} for context {}",
+                    matchedDashboards.size(), userEmail, contextKey);
+        }
+        return matchedDashboards;
+    }
+
+    private Set<String> extractDashboardRoleNames(
+            List<ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.ModuleRoleNames> moduleRoleNamesList) {
+        return moduleRoleNamesList.stream()
+                .filter(moduleRoleNames -> moduleRoleNames.moduleType() == ModuleType.SUPERSET)
+                .flatMap(moduleRoleNames -> moduleRoleNames.roleNames().stream())
+                .filter(roleName -> roleName.startsWith(SlugifyUtil.DASHBOARD_ROLE_PREFIX))
+                .collect(Collectors.toSet());
+    }
+
+    private boolean hasMatchingRole(SupersetDashboard dashboard, Set<String> supersetRoleNames) {
+        if (dashboard.getRoles() == null) {
+            return false;
+        }
+        return dashboard.getRoles().stream()
+                .anyMatch(role -> supersetRoleNames.contains(role.getName()));
+    }
+
+    private DashboardForUserDto toDashboardForUserDto(SupersetDashboard dashboard, String contextKey) {
+        DashboardForUserDto dto = new DashboardForUserDto();
+        dto.setId(dashboard.getId());
+        dto.setTitle(dashboard.getDashboardTitle());
+        dto.setViewer(true);
+        dto.setChangedOnUtc(dashboard.getChangedOnUtc());
+        dto.setContextKey(contextKey);
+        return dto;
+    }
+
+    /**
+     * Builds default dashboard comment permissions based on user's roles.
+     * - HELLODATA_ADMIN and BUSINESS_DOMAIN_ADMIN: full access (read, write, review) in all data domains
+     * - DATA_DOMAIN_ADMIN: full access in their assigned data domains
+     * - DATA_DOMAIN_EDITOR: read and write access in their assigned data domains
+     * - DATA_DOMAIN_VIEWER and DATA_DOMAIN_BUSINESS_SPECIALIST: read-only access in their assigned data domains
+     * - NONE: no access
+     */
+    private List<DashboardCommentPermissionDto> buildDefaultCommentPermissions(BatchUpdateContextRolesForUserDto user, ContextsDto availableContexts) {
+        List<DashboardCommentPermissionDto> permissions = new ArrayList<>();
+        String businessRoleName = user.getBusinessDomainRole().getName();
+
+        boolean isPortalAdmin = HdRoleName.HELLODATA_ADMIN.name().equalsIgnoreCase(businessRoleName)
+                || HdRoleName.BUSINESS_DOMAIN_ADMIN.name().equalsIgnoreCase(businessRoleName);
+
+        // Get all data domain context keys
+        Set<String> allDataDomainKeys = availableContexts.getContexts().stream()
+                .filter(ctx -> ctx.getType() == HdContextType.DATA_DOMAIN)
+                .map(ContextDto::getContextKey)
+                .collect(Collectors.toSet());
+
+        if (isPortalAdmin) {
+            // Portal admins get full access to all data domains
+            for (String contextKey : allDataDomainKeys) {
+                DashboardCommentPermissionDto permission = new DashboardCommentPermissionDto();
+                permission.setContextKey(contextKey);
+                permission.setReadComments(true);
+                permission.setWriteComments(true);
+                permission.setReviewComments(true);
+                permissions.add(permission);
+            }
+        } else {
+            // Build a map of context key -> role name from user's data domain roles
+            Map<String, String> contextToRoleMap = user.getDataDomainRoles().stream()
+                    .collect(Collectors.toMap(
+                            ddRole -> ddRole.getContext().getContextKey(),
+                            ddRole -> ddRole.getRole().getName(),
+                            (existing, replacement) -> existing));
+
+            for (String contextKey : allDataDomainKeys) {
+                String roleName = contextToRoleMap.getOrDefault(contextKey, HdRoleName.NONE.name());
+                DashboardCommentPermissionDto permission = new DashboardCommentPermissionDto();
+                permission.setContextKey(contextKey);
+
+                if (HdRoleName.DATA_DOMAIN_ADMIN.name().equalsIgnoreCase(roleName)) {
+                    // Data Domain Admin gets full access
+                    permission.setReadComments(true);
+                    permission.setWriteComments(true);
+                    permission.setReviewComments(true);
+                } else if (HdRoleName.DATA_DOMAIN_EDITOR.name().equalsIgnoreCase(roleName)) {
+                    // Data Domain Editor gets read and write access
+                    permission.setReadComments(true);
+                    permission.setWriteComments(true);
+                    permission.setReviewComments(false);
+                } else if (HdRoleName.DATA_DOMAIN_VIEWER.name().equalsIgnoreCase(roleName)
+                        || HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name().equalsIgnoreCase(roleName)) {
+                    // Viewer and Business Specialist get read-only access
+                    permission.setReadComments(true);
+                    permission.setWriteComments(false);
+                    permission.setReviewComments(false);
+                } else {
+                    // NONE or other roles get no access
+                    permission.setReadComments(false);
+                    permission.setWriteComments(false);
+                    permission.setReviewComments(false);
+                }
+                permissions.add(permission);
+            }
+        }
+
+        return permissions;
     }
 
     /**
