@@ -36,7 +36,7 @@ ADD src/main/python/export_check.py /app/export_check.py
 RUN chown app /app/export_check.py
 RUN chmod +x /app/export_check.py
 USER app
-WORKDIR app
+WORKDIR /app
 
 COPY target/*.jar /app/app.jar
 CMD ["java", "-jar", "/app/app.jar"]

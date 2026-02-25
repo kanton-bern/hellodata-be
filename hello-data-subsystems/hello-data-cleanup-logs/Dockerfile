@@ -31,7 +31,7 @@ LABEL MAINTAINER="HelloData Team"
 # add 'app' user with uid 3012 and corresponding group
 RUN useradd -d /app -m -s /bin/bash -u 3012 app -U
 USER app
-WORKDIR app
+WORKDIR /app
 
 COPY target/*.jar /app/app.jar
 CMD ["java", "-jar", "/app/app.jar"]
