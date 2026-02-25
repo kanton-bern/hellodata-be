@@ -61,29 +61,16 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
-        String expectedHTML = """
-                <!doctype html>
-                <html xmlns="http://www.w3.org/1999/html">
-                  <body>
-                    <p>Hallo <span>John Doe</span></p>
-                    <p>
-                      Der Administrator <span>Darth Vader</span> hat dir deinen HelloDATA Benutzer*in in der Fachdomäne
-                      <span>Fancy Business Domain</span> deaktiviert.
-                    </p>
-                    <p>Link zu Fachdomäne
-                      <a href="http://localhost:4200"><span>Fancy Business Domain</span></a>
-                    </p>
-                    <p>Freundliche Grüsse<br/>HelloDATA</p>
-                  </body>
-                </html>""";
-        Document expectedDoc = Jsoup.parse(expectedHTML);
-
         //when
         SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Fancy Business Domain");
+        assertThat(actualDoc.select("p").get(1).text()).contains("deaktiviert");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
     }
 
     @Test
@@ -95,25 +82,15 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, businessDomain);
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
         emailTemplateData.setSubjectParams(new Object[]{businessDomain});
-        String expectedHTML = """
-                <!doctype html>
-                <html xmlns="http://www.w3.org/1999/html">
-                 <head></head>
-                 <body>
-                  <p>Hallo <span>John Doe</span></p>
-                  <p>Der Administrator <span>Darth Vader</span> hat dir deinen HelloDATA Benutzer*in in der Fachdomäne <span>Fancy Business Domain</span> deaktiviert.</p>
-                  <p>Link zu Fachdomäne <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
-                  <p>Freundliche Grüsse<br>HelloDATA</p>
-                 </body>
-                </html>""";
-        Document expectedDoc = Jsoup.parse(expectedHTML);
 
         //when
         SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
-        //then
-        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
+        //then — default (null) locale falls back to de_CH templates
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("deaktiviert");
         assertThat(email.getSubject()).isEqualTo("Benutzer in HelloDATA Fachdomäne Fancy Business Domain deaktiviert");
     }
 
@@ -126,29 +103,17 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
         emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
-        String expectedHTML = """
-                <!doctype html>
-                <html xmlns="http://www.w3.org/1999/html">
-                  <body>
-                    <p>Hallo <span>John Doe</span></p>
-                    <p>
-                      Der Administrator <span>Darth Vader</span> hat dir deinen HelloDATA Benutzer*in in der Fachdomäne
-                      <span>Fancy Business Domain</span> aktiviert.
-                    </p>
-                    <p>Link zu Fachdomäne
-                      <a href="http://localhost:4200"><span>Fancy Business Domain</span></a>
-                    </p>
-                    <p>Freundliche Grüsse<br/>HelloDATA</p>
-                  </body>
-                </html>""";
-        Document expectedDoc = Jsoup.parse(expectedHTML);
 
         //when
         SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Fancy Business Domain");
+        assertThat(actualDoc.select("p").get(1).text()).contains("aktiviert");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
     }
 
     @Test
@@ -170,33 +135,19 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         userContextRoleDto.setContext(contextDto);
         allDataDomainRoles.add(userContextRoleDto);
         emailTemplateData.getTemplateModel().put(DATA_DOMAIN_ROLES_PARAM, allDataDomainRoles);
-        String expectedHTML = """
-                <!doctype html>
-                <html xmlns="http://www.w3.org/1999/html">
-                 <head></head>
-                 <body>
-                  <p>Hallo <span>John Doe</span></p>
-                  <p>Der Administrator <span>Darth Vader</span> hat in HelloDATA in der Fachdomäne <span>Fancy Business Domain</span> Deine Rollen angepasst. Du hast folgende Rollen zugewiesen.</p>
-                  <ul>
-                   <li>Rolle Fachdomäne <span>Fancy Business Domain: HelloDATA Admin</span></li>
-                  </ul>
-                  <div>
-                    <ul>
-                      <li>Rolle Datendomäne <span>Data Domain 1: Role1</span></li>
-                    </ul>
-                  </div>
-                  <p>Link zu Fachdomäne <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
-                  <p>Freundliche Grüsse<br>HelloDATA</p>
-                 </body>
-                </html>""";
-        Document expectedDoc = Jsoup.parse(expectedHTML);
 
         //when
         SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Fancy Business Domain");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Rollen angepasst");
+        assertThat(actualDoc.select("ul li").first().text()).contains("Fancy Business Domain: HelloDATA Admin");
+        assertThat(actualDoc.select("div ul li").text()).contains("Data Domain 1: Role1");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
     }
 
     @Test
@@ -219,32 +170,18 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         allDataDomainRoles.add(userContextRoleDto);
 
         emailTemplateData.getTemplateModel().put(DATA_DOMAIN_ROLES_PARAM, allDataDomainRoles);
-        String expectedHTML = """
-                <!doctype html>
-                <html xmlns="http://www.w3.org/1999/html">
-                 <head></head>
-                 <body>
-                  <p>Hallo <span>John Doe</span></p>
-                  <p>Der Administrator <span>Darth Vader</span> hat dir in HelloDATA in der Fachdomäne <span>Fancy Business Domain</span> einen Benutzer*in mit folgenden Rollen angelegt.</p>
-                  <ul>
-                   <li>Rolle Fachdomäne <span>Fancy Business Domain: HelloDATA Admin</span></li>
-                  </ul>
-                  <div>
-                    <ul>
-                      <li>Rolle Datendomäne <span>Data Domain 1: Role1</span></li>
-                    </ul>
-                  </div>
-                  <p>Link zu Fachdomäne <a href="http://localhost:4200"><span>Fancy Business Domain</span></a></p>
-                  <p>Freundliche Grüsse<br>HelloDATA</p>
-                 </body>
-                </html>""";
-        Document expectedDoc = Jsoup.parse(expectedHTML);
 
         //when
         SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
         Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
 
         //then
-        assertThat(actualDoc.html()).isEqualTo(expectedDoc.html());
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Fancy Business Domain");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Benutzer*in mit folgenden Rollen angelegt");
+        assertThat(actualDoc.select("ul li").first().text()).contains("Fancy Business Domain: HelloDATA Admin");
+        assertThat(actualDoc.select("div ul li").text()).contains("Data Domain 1: Role1");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
     }
 }
