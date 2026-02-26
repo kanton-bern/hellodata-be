@@ -388,7 +388,7 @@ public class BatchUsersInvitationService {
 
     private static final Map<String, boolean[]> ROLE_TO_COMMENT_PERMISSIONS = Map.of(
             HdRoleName.DATA_DOMAIN_ADMIN.name(), new boolean[]{true, true, true},
-            HdRoleName.DATA_DOMAIN_EDITOR.name(), new boolean[]{true, true, false},
+            HdRoleName.DATA_DOMAIN_EDITOR.name(), new boolean[]{true, false, false},
             HdRoleName.DATA_DOMAIN_VIEWER.name(), new boolean[]{true, false, false},
             HdRoleName.DATA_DOMAIN_BUSINESS_SPECIALIST.name(), new boolean[]{true, false, false}
     );

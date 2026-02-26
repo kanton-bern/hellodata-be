@@ -456,7 +456,7 @@ class BatchUsersInvitationServiceTest {
     }
 
     @Test
-    void buildDefaultCommentPermissions_forDataDomainEditor_shouldGrantReadWriteAccess() throws Exception {
+    void buildDefaultCommentPermissions_forDataDomainEditor_shouldGrantReadOnlyAccess() throws Exception {
         // Arrange
         BatchUsersInvitationService service = new BatchUsersInvitationService(
                 new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
@@ -494,7 +494,7 @@ class BatchUsersInvitationServiceTest {
         DashboardCommentPermissionDto perm = result.get(0);
         assertEquals("dd1", perm.getContextKey());
         assertTrue(perm.isReadComments(), "DATA_DOMAIN_EDITOR should have read access");
-        assertTrue(perm.isWriteComments(), "DATA_DOMAIN_EDITOR should have write access");
+        assertFalse(perm.isWriteComments(), "DATA_DOMAIN_EDITOR should NOT have write access");
         assertFalse(perm.isReviewComments(), "DATA_DOMAIN_EDITOR should NOT have review access");
     }
 
@@ -885,6 +885,78 @@ class BatchUsersInvitationServiceTest {
         // Assert
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void buildDefaultCommentPermissions_allRoles_shouldHaveCorrectPermissions() throws Exception {
+        // This test verifies the complete permission matrix for all roles:
+        // HELLODATA_ADMIN         -> read=true,  write=true,  review=true
+        // BUSINESS_DOMAIN_ADMIN   -> read=true,  write=true,  review=true
+        // DATA_DOMAIN_ADMIN       -> read=true,  write=true,  review=true
+        // DATA_DOMAIN_EDITOR      -> read=true,  write=false, review=false
+        // DATA_DOMAIN_VIEWER      -> read=true,  write=false, review=false
+        // DATA_DOMAIN_BUSINESS_SPECIALIST -> read=true, write=false, review=false
+        // NONE                    -> read=false, write=false, review=false
+
+        BatchUsersInvitationService service = new BatchUsersInvitationService(
+                new CsvParserService(), null, metaInfoResourceService, null, null, dashboardGroupService, "/tmp");
+
+        Method method = BatchUsersInvitationService.class.getDeclaredMethod(
+                "buildDefaultCommentPermissions", BatchUpdateContextRolesForUserDto.class, ContextsDto.class);
+        method.setAccessible(true);
+
+        ContextsDto availableContexts = new ContextsDto();
+        ContextDto context = new ContextDto();
+        context.setContextKey("dd1");
+        context.setType(HdContextType.DATA_DOMAIN);
+        availableContexts.setContexts(List.of(context));
+
+        // Define expected permissions: businessRole, dataDomainRole, expectedRead, expectedWrite, expectedReview
+        Object[][] testCases = {
+                {"HELLODATA_ADMIN", "DATA_DOMAIN_ADMIN", true, true, true},
+                {"BUSINESS_DOMAIN_ADMIN", "DATA_DOMAIN_ADMIN", true, true, true},
+                {"NONE", "DATA_DOMAIN_ADMIN", true, true, true},
+                {"NONE", "DATA_DOMAIN_EDITOR", true, false, false},
+                {"NONE", "DATA_DOMAIN_VIEWER", true, false, false},
+                {"NONE", "DATA_DOMAIN_BUSINESS_SPECIALIST", true, false, false},
+                {"NONE", "NONE", false, false, false},
+        };
+
+        for (Object[] testCase : testCases) {
+            String businessRoleName = (String) testCase[0];
+            String dataDomainRoleName = (String) testCase[1];
+            boolean expectedRead = (boolean) testCase[2];
+            boolean expectedWrite = (boolean) testCase[3];
+            boolean expectedReview = (boolean) testCase[4];
+
+            BatchUpdateContextRolesForUserDto user = new BatchUpdateContextRolesForUserDto();
+            user.setEmail("test@example.com");
+            RoleDto businessRole = new RoleDto();
+            businessRole.setName(businessRoleName);
+            user.setBusinessDomainRole(businessRole);
+
+            UserContextRoleDto ddRole = new UserContextRoleDto();
+            RoleDto role = new RoleDto();
+            role.setName(dataDomainRoleName);
+            ddRole.setRole(role);
+            ContextDto ddContext = new ContextDto();
+            ddContext.setContextKey("dd1");
+            ddRole.setContext(ddContext);
+            user.setDataDomainRoles(List.of(ddRole));
+
+            @SuppressWarnings("unchecked")
+            List<DashboardCommentPermissionDto> result = (List<DashboardCommentPermissionDto>) method.invoke(service, user, availableContexts);
+
+            assertEquals(1, result.size(),
+                    "Expected 1 permission for business=%s, dd=%s".formatted(businessRoleName, dataDomainRoleName));
+            DashboardCommentPermissionDto perm = result.get(0);
+            assertEquals(expectedRead, perm.isReadComments(),
+                    "Read permission mismatch for business=%s, dd=%s".formatted(businessRoleName, dataDomainRoleName));
+            assertEquals(expectedWrite, perm.isWriteComments(),
+                    "Write permission mismatch for business=%s, dd=%s".formatted(businessRoleName, dataDomainRoleName));
+            assertEquals(expectedReview, perm.isReviewComments(),
+                    "Review permission mismatch for business=%s, dd=%s".formatted(businessRoleName, dataDomainRoleName));
+        }
     }
 }
 
