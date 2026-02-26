@@ -29,13 +29,14 @@ import {Component, HostBinding, inject, OnInit} from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
-import {selectCurrentBusinessDomain, selectIsAuthenticated} from "./store/auth/auth.selector";
+import {selectCurrentBusinessDomain} from "./store/auth/auth.selector";
 import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
+import {checkAuth} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
 import {navigate} from "./store/app/app.action";
 import {AsyncPipe} from '@angular/common';
-import {RouterOutlet} from '@angular/router';
+import {Router, RouterOutlet} from '@angular/router';
 import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 
 @Component({
@@ -47,22 +48,18 @@ import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 export class AppComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly screen = inject(ScreenService);
+  private readonly router = inject(Router);
   appInfo = inject(AppInfoService);
   private readonly title = inject(Title);
 
   private static readonly REDIRECT_TO_PARAM = 'redirectTo';
 
-  isAuthenticated$: Observable<boolean>;
   businessDomain$: Observable<string>;
   redirectTo$: Observable<any>;
   isMobile$: Observable<boolean>;
 
   constructor() {
     const appInfo = this.appInfo;
-
-    // Auth is handled solely by the OIDC library's AutoLoginPartialRoutesGuard (on guarded routes)
-    // and by the CallbackComponent (on /callback). No need to dispatch checkAuth() from here.
-    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
 
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain).pipe(tap(businessDomainName => {
       this.title.setTitle(`${appInfo.title} -- ${businessDomainName}`);
@@ -83,6 +80,12 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Restore auth session on page refresh. Skip on /callback to avoid race condition
+    // with CallbackComponent which handles the OIDC code exchange itself.
+    if (!this.router.url.includes('/callback')) {
+      this.store.dispatch(checkAuth());
+    }
+
     // Handle redirectTo param stored in sessionStorage (for opening new tab links)
     setTimeout(() => {
       const clearRedirectInterval = setInterval(() => {
