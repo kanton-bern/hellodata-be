@@ -32,7 +32,7 @@ import {AppState} from "./store/app/app.state";
 import {selectCurrentBusinessDomain} from "./store/auth/auth.selector";
 import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
-import {checkAuth} from "./store/auth/auth.action";
+import {checkAuth, checkProfile} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
 import {navigate} from "./store/app/app.action";
 import {AsyncPipe} from '@angular/common';
@@ -99,5 +99,13 @@ export class AppComponent implements OnInit {
       }, 200);
       setTimeout(() => clearInterval(clearRedirectInterval), 5000);
     }, 500);
+    this.checkProfile();
+  }
+
+  private checkProfile() {
+    setInterval(() => {
+      console.debug("Check profile")
+      this.store.dispatch(checkProfile());
+    }, 30000);
   }
 }
