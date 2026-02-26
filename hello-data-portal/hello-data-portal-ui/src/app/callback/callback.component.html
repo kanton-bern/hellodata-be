@@ -4,4 +4,9 @@
       <p>Setting everything up...you are getting redirected...</p>
     </div>
   }
+  @if (hasError) {
+    <div class="error-state">
+      <p>Authentication failed. Redirecting...</p>
+    </div>
+  }
 </div>

@@ -28,9 +28,10 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../store/app/app.state";
-import {authError, checkAuth} from "../store/auth/auth.action";
-import {Actions, ofType} from "@ngrx/effects";
-import {Subject, takeUntil, timer} from "rxjs";
+import {checkAuth} from "../store/auth/auth.action";
+import {selectIsAuthenticated} from "../store/auth/auth.selector";
+import {Router} from "@angular/router";
+import {filter, Subject, takeUntil, timer} from "rxjs";
 
 @Component({
   selector: 'app-callback',
@@ -40,30 +41,36 @@ import {Subject, takeUntil, timer} from "rxjs";
 })
 export class CallbackComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
-  private readonly actions$ = inject(Actions);
+  private readonly router = inject(Router);
   private readonly destroy$ = new Subject<void>();
 
   isLoading = true;
-  private readonly AUTH_TIMEOUT_MS = 30000; // 30 seconds timeout
+  hasError = false;
+
+  private static readonly MAX_RETRIES = 3;
+  private static readonly RETRY_COUNT_KEY = 'hd_callback_retry_count';
+  private static readonly AUTH_TIMEOUT_MS = 30000;
 
   ngOnInit(): void {
-    this.startAuth();
+    this.store.dispatch(checkAuth());
 
-    // On auth error or timeout, reload the page to trigger a fresh auth cycle
-    this.actions$.pipe(
-      ofType(authError),
+    // When auth succeeds, navigate to /home and clear retry counter
+    this.store.select(selectIsAuthenticated).pipe(
+      filter(isAuth => isAuth),
       takeUntil(this.destroy$)
-    ).subscribe(action => {
-      console.error('Callback received auth error, reloading page:', action.error);
-      window.location.reload();
+    ).subscribe(() => {
+      this.isLoading = false;
+      sessionStorage.removeItem(CallbackComponent.RETRY_COUNT_KEY);
+      this.router.navigate(['/home']);
     });
 
-    timer(this.AUTH_TIMEOUT_MS).pipe(
+    // Safety timeout — if auth doesn't complete, retry with a limit
+    timer(CallbackComponent.AUTH_TIMEOUT_MS).pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
       if (this.isLoading) {
-        console.warn('Auth timeout - checkAuth did not complete within', this.AUTH_TIMEOUT_MS, 'ms, reloading page');
-        window.location.reload();
+        console.warn('[Callback] Auth timeout after', CallbackComponent.AUTH_TIMEOUT_MS, 'ms');
+        this.retryOrFail();
       }
     });
   }
@@ -73,9 +80,20 @@ export class CallbackComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private startAuth(): void {
-    this.isLoading = true;
-    this.store.dispatch(checkAuth());
+  private retryOrFail(): void {
+    const retryCount = Number(sessionStorage.getItem(CallbackComponent.RETRY_COUNT_KEY) || '0');
+    if (retryCount >= CallbackComponent.MAX_RETRIES) {
+      console.error('[Callback] Max retries reached, navigating to error page');
+      sessionStorage.removeItem(CallbackComponent.RETRY_COUNT_KEY);
+      this.isLoading = false;
+      this.hasError = true;
+      this.router.navigate(['/unauthorized']);
+      return;
+    }
+    sessionStorage.setItem(CallbackComponent.RETRY_COUNT_KEY, String(retryCount + 1));
+    console.warn('[Callback] Retry', retryCount + 1, 'of', CallbackComponent.MAX_RETRIES);
+    // Strip stale OIDC query params (code/state) but preserve the path (including any reverse proxy prefix like /app)
+    window.location.href = window.location.origin + window.location.pathname;
   }
 
 }

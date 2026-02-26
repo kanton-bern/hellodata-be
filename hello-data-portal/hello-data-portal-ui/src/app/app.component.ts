@@ -32,7 +32,6 @@ import {AppState} from "./store/app/app.state";
 import {selectCurrentBusinessDomain, selectIsAuthenticated} from "./store/auth/auth.selector";
 import {Observable, tap} from "rxjs";
 import {Title} from "@angular/platform-browser";
-import {checkAuth, checkProfile} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
 import {navigate} from "./store/app/app.action";
 import {AsyncPipe} from '@angular/common';
@@ -46,40 +45,30 @@ import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
   imports: [RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent]
 })
 export class AppComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private screen = inject(ScreenService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly screen = inject(ScreenService);
   appInfo = inject(AppInfoService);
-  private title = inject(Title);
-
+  private readonly title = inject(Title);
 
   private static readonly REDIRECT_TO_PARAM = 'redirectTo';
 
   isAuthenticated$: Observable<boolean>;
   businessDomain$: Observable<string>;
-  checkAuth = false;
   redirectTo$: Observable<any>;
   isMobile$: Observable<boolean>;
 
   constructor() {
     const appInfo = this.appInfo;
 
-    setTimeout(() => {
-      this.checkAuth = true;
-    }, 1500);
+    // Auth is handled solely by the OIDC library's AutoLoginPartialRoutesGuard (on guarded routes)
+    // and by the CallbackComponent (on /callback). No need to dispatch checkAuth() from here.
+    this.isAuthenticated$ = this.store.select(selectIsAuthenticated);
 
-    this.isAuthenticated$ = this.store.select(selectIsAuthenticated).pipe(
-      tap(isAuthenticated => {
-        console.debug('is authenticated', isAuthenticated)
-        if (!isAuthenticated) {
-          this.store.dispatch(checkAuth());
-        }
-      }))
     this.businessDomain$ = this.store.select(selectCurrentBusinessDomain).pipe(tap(businessDomainName => {
       this.title.setTitle(`${appInfo.title} -- ${businessDomainName}`);
     }));
 
     this.redirectTo$ = this.store.select(selectQueryParam(AppComponent.REDIRECT_TO_PARAM)).pipe(tap(param => {
-      // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks the new tab fullscreen DWH viewer opening
       console.debug('enabled redirect param?', param);
       if (param) {
         sessionStorage.setItem(AppComponent.REDIRECT_TO_PARAM, param as string);
@@ -94,26 +83,17 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Handle redirectTo param stored in sessionStorage (for opening new tab links)
     setTimeout(() => {
-      // temporary omit the '/auth request done twice' random problem by the auth lib, which blocks the new tab fullscreen DWH viewer opening
       const clearRedirectInterval = setInterval(() => {
         const redirectToParam = sessionStorage.getItem(AppComponent.REDIRECT_TO_PARAM);
         if (redirectToParam) {
           console.debug('found redirect param in the session storage, redirecting', redirectToParam);
           sessionStorage.removeItem(AppComponent.REDIRECT_TO_PARAM);
-          this.store.dispatch(navigate({url: redirectToParam as string}));
+          this.store.dispatch(navigate({url: redirectToParam}));
         }
       }, 200);
       setTimeout(() => clearInterval(clearRedirectInterval), 5000);
     }, 500);
-
-    this.checkProfile();
-  }
-
-  private checkProfile() {
-    setInterval(() => {
-      console.debug("Check profile")
-      this.store.dispatch(checkProfile());
-    }, 30000);
   }
 }

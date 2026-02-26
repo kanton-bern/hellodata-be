@@ -39,13 +39,16 @@ import {catchError, filter, take} from "rxjs/operators";
 import {AuthService} from "../services";
 import {environment} from "../../../environments/environment";
 import {OidcSecurityService} from "angular-auth-oidc-client";
+import {Router} from "@angular/router";
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
   private readonly oidcSecurityService = inject(OidcSecurityService);
+  private readonly router = inject(Router);
 
   private isRefreshing = false;
+  private isRedirectingToLogin = false;
   private readonly refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
 
   intercept(
@@ -161,8 +164,18 @@ export class TokenInterceptor implements HttpInterceptor {
   }
 
   private redirectToLogin(): void {
-    // Clear any stale auth state and redirect to login
+    if (this.isRedirectingToLogin) {
+      return; // Prevent multiple concurrent login redirects
+    }
+    this.isRedirectingToLogin = true;
+    console.warn('[TokenInterceptor] Clearing local auth state and navigating to /home for re-authentication');
+    // Clear stale local auth state. The AutoLoginPartialRoutesGuard on /home
+    // will trigger the OIDC authorize flow properly.
     this.oidcSecurityService.logoffLocal();
-    this.authService.doLogin();
+    // Use setTimeout to avoid triggering navigation during change detection
+    setTimeout(() => {
+      this.isRedirectingToLogin = false;
+      this.router.navigate(['/home']);
+    }, 0);
   }
 }

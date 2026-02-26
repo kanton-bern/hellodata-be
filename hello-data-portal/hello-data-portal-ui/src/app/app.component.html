@@ -1,25 +1,19 @@
-<ng-container >
+<ng-container>
   @if ((isMobile$ | async) === false) {
     <app-side-nav-outer-toolbar title="{{appInfo.title}}">
-      <router-outlet />
+      <router-outlet/>
     </app-side-nav-outer-toolbar>
   }
   @if (isMobile$ | async) {
     <app-mobile>
-      <router-outlet />
+      <router-outlet/>
     </app-mobile>
   }
 </ng-container>
 
+<!-- subscriptions kept for side effects (title update, redirect handling) -->
 @if ((businessDomain$ | async)) {
   <div style="display: none"></div>
-}
-@if (checkAuth) {
-  <div>
-    @if ((isAuthenticated$ | async)) {
-      <div style="display: none"></div>
-    }
-  </div>
 }
 @if ((redirectTo$ | async)) {
 }

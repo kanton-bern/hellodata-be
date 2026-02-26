@@ -50,7 +50,7 @@ import {
 } from "./auth.action";
 import {AuthService} from "../../shared/services";
 import {UsersManagementService} from "../users-management/users-management.service";
-import {logError, navigate, showError} from "../app/app.action";
+import {logError, showError} from "../app/app.action";
 import {loadMyLineageDocs} from "../lineage-docs/lineage-docs.action";
 import {loadAppInfoResources} from "../metainfo-resource/metainfo-resource.action";
 import {loadAvailableDataDomains, loadMyDashboards} from "../my-dashboards/my-dashboards.action";
@@ -142,7 +142,10 @@ export class AuthEffects {
               accessToken: action.accessToken
             })], asyncScheduler);
           }
-          return scheduled([navigate({url: 'home'})], asyncScheduler);
+          // Not logged in — trigger the OIDC authorize flow directly.
+          // Do NOT navigate to a guarded route (which would cause a redirect loop).
+          console.debug('[Auth] checkAuth completed but not logged in, triggering login');
+          return scheduled([login()], asyncScheduler);
         }
       ),
       catchError(e => scheduled([authError(e)], asyncScheduler))

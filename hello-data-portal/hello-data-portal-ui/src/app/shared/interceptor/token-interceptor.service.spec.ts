@@ -34,6 +34,7 @@ import {beforeAll, describe, expect, it, jest} from '@jest/globals';
 import {TokenInterceptor} from './token-interceptor.service';
 import {AuthService} from '../services';
 import {environment} from '../../../environments/environment';
+import {Router} from '@angular/router';
 
 describe('TokenInterceptor', () => {
   const testUrl = '/api/test';
@@ -64,6 +65,10 @@ describe('TokenInterceptor', () => {
       logoffLocal: jest.fn()
     };
 
+    const routerMock = {
+      navigate: jest.fn()
+    };
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -73,14 +78,15 @@ describe('TokenInterceptor', () => {
           multi: true
         },
         {provide: AuthService, useValue: authMock},
-        {provide: OidcSecurityService, useValue: oidcMock}
+        {provide: OidcSecurityService, useValue: oidcMock},
+        {provide: Router, useValue: routerMock}
       ]
     });
 
     const httpClient = TestBed.inject(HttpClient);
     const httpMock = TestBed.inject(HttpTestingController);
 
-    return {authMock, oidcMock, httpClient, httpMock, doLoginFn};
+    return {authMock, oidcMock, routerMock, httpClient, httpMock, doLoginFn};
   };
 
   describe('Token attachment', () => {
@@ -161,7 +167,7 @@ describe('TokenInterceptor', () => {
     });
 
     it('should redirect to login when token refresh fails', (done) => {
-      const {doLoginFn, oidcMock, httpClient, httpMock} = setupTestBed(mockToken);
+      const {routerMock, oidcMock, httpClient, httpMock} = setupTestBed(mockToken);
 
       oidcMock.forceRefreshSession.mockReturnValue(
         of({isAuthenticated: false} as LoginResponse)
@@ -174,7 +180,7 @@ describe('TokenInterceptor', () => {
             try {
               expect(oidcMock.forceRefreshSession).toHaveBeenCalled();
               expect(oidcMock.logoffLocal).toHaveBeenCalled();
-              expect(doLoginFn).toHaveBeenCalled();
+              expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
               httpMock.verify();
               done();
             } catch (e) {
@@ -189,7 +195,7 @@ describe('TokenInterceptor', () => {
     });
 
     it('should redirect to login when token refresh throws error', (done) => {
-      const {doLoginFn, oidcMock, httpClient, httpMock} = setupTestBed(mockToken);
+      const {routerMock, oidcMock, httpClient, httpMock} = setupTestBed(mockToken);
 
       oidcMock.forceRefreshSession.mockReturnValue(
         throwError(() => new Error('Refresh failed'))
@@ -202,7 +208,7 @@ describe('TokenInterceptor', () => {
             try {
               expect(oidcMock.forceRefreshSession).toHaveBeenCalled();
               expect(oidcMock.logoffLocal).toHaveBeenCalled();
-              expect(doLoginFn).toHaveBeenCalled();
+              expect(routerMock.navigate).toHaveBeenCalledWith(['/home']);
               httpMock.verify();
               done();
             } catch (e) {
@@ -216,28 +222,21 @@ describe('TokenInterceptor', () => {
       req.flush({message: 'Unauthorized'}, {status: 401, statusText: 'Unauthorized'});
     });
 
-    it('should handle status 0 (network error) same as 401', (done) => {
-      const {oidcMock, httpClient, httpMock} = setupTestBed(newMockToken);
-
-      oidcMock.forceRefreshSession.mockReturnValue(
-        of({isAuthenticated: true} as LoginResponse)
-      );
+    it('should propagate status 0 (network error) without refresh attempt', (done) => {
+      const {oidcMock, httpClient, httpMock} = setupTestBed(mockToken);
 
       httpClient.get(testUrl).subscribe({
-        next: () => {
-          expect(oidcMock.forceRefreshSession).toHaveBeenCalled();
+        next: () => done(new Error('Should have errored')),
+        error: (err: HttpErrorResponse) => {
+          expect(err.status).toBe(0);
+          expect(oidcMock.forceRefreshSession).not.toHaveBeenCalled();
           httpMock.verify();
           done();
-        },
-        error: (err) => done(err)
+        }
       });
 
       const req = httpMock.expectOne(testUrl);
       req.error(new ProgressEvent('error'), {status: 0, statusText: 'Unknown Error'});
-
-      const retryReq = httpMock.expectOne(testUrl);
-      expect(retryReq.request.headers.get('Authorization')).toBe(`Bearer ${newMockToken}`);
-      retryReq.flush({success: true});
     });
 
     it('should pass through 403 errors without refresh attempt', (done) => {
