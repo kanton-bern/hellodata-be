@@ -36,7 +36,7 @@ import {checkAuth} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
 import {navigate} from "./store/app/app.action";
 import {AsyncPipe} from '@angular/common';
-import {Router, RouterOutlet} from '@angular/router';
+import {RouterOutlet} from '@angular/router';
 import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 
 @Component({
@@ -48,7 +48,6 @@ import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
 export class AppComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly screen = inject(ScreenService);
-  private readonly router = inject(Router);
   appInfo = inject(AppInfoService);
   private readonly title = inject(Title);
 
@@ -82,7 +81,9 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     // Restore auth session on page refresh. Skip on /callback to avoid race condition
     // with CallbackComponent which handles the OIDC code exchange itself.
-    if (!this.router.url.includes('/callback')) {
+    // Use window.location instead of router.url because Angular Router may not have
+    // resolved the URL yet at bootstrap time.
+    if (!window.location.pathname.includes('/callback')) {
       this.store.dispatch(checkAuth());
     }
 
