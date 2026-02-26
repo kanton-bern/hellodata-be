@@ -64,7 +64,7 @@
             } @else {
               <span class="flex flex-wrap gap-1">
               @for (entry of group.entries; track entry.dashboardId) {
-                <p-badge [value]="entry.dashboardTitle" severity="info" styleClass="text-sm"/>
+                <p-tag [value]="entry.dashboardTitle" severity="info" styleClass="text-sm dashboard-title-tag"/>
               }
             </span>
             }
