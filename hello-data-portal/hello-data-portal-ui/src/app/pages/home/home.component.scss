@@ -85,16 +85,15 @@
   .grid {
     p-fieldset {
       min-width: 0;
-      overflow: hidden;
+      overflow: visible;
 
       .p-fieldset {
         min-width: 0;
-        overflow: hidden;
+        overflow: visible;
       }
 
       .p-fieldset-content {
         min-width: 0;
-        overflow: hidden;
       }
     }
   }
