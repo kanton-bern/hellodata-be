@@ -109,7 +109,8 @@ nav:
       - Showcase: concepts/showcase.md
       - Workspaces: concepts/workspaces.md
       - Data Publisher: concepts/data-publisher.md
-
+      - Dashboard Comments: concepts/dashboard-comments.md
+      - Dashboard Groups: concepts/dashboard-groups.md
       - Workspace Troubleshoot: concepts/workspaces-troubleshoot.md
   - Manuals:
       - User Manual: manuals/user-manual.md
