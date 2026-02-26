@@ -184,4 +184,134 @@ class EmailSendServiceTest extends KeycloakTestContainerTest {
         assertThat(actualDoc.select("div ul li").text()).contains("Data Domain 1: Role1");
         assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
     }
+
+    @Test
+    void toSimpleMailMessage_when_comment_published_should_generate_correct_html_content() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_STATUS_PUBLISHED);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, "This is my comment");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, "Sales Dashboard");
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "PUBLISHED");
+
+        //when
+        SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Sales Dashboard");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Fancy Business Domain");
+        assertThat(actualDoc.select("p").get(1).text()).contains("veröffentlicht");
+        assertThat(actualDoc.select("blockquote").text()).isEqualTo("This is my comment");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
+    }
+
+    @Test
+    void toSimpleMailMessage_when_comment_declined_should_generate_correct_html_content() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_STATUS_DECLINED);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, "This is my comment");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, "Sales Dashboard");
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "DECLINED");
+        emailTemplateData.getTemplateModel().put(COMMENT_DECLINE_REASON_PARAM, "Not relevant");
+
+        //when
+        SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Sales Dashboard");
+        assertThat(actualDoc.select("p").get(1).text()).contains("abgelehnt");
+        assertThat(actualDoc.select("blockquote").first().text()).isEqualTo("This is my comment");
+        assertThat(actualDoc.select("blockquote").get(1).text()).isEqualTo("Not relevant");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
+    }
+
+    @Test
+    void toSimpleMailMessage_when_comment_sent_for_review_should_generate_correct_html_content() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_SENT_FOR_REVIEW);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "Reviewer Hans");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, "Please review this");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, "Sales Dashboard");
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "READY_FOR_REVIEW");
+
+        //when
+        SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo Reviewer Hans");
+        assertThat(actualDoc.select("p").get(1).text()).contains("John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Sales Dashboard");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Überprüfung");
+        assertThat(actualDoc.select("blockquote").text()).isEqualTo("Please review this");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
+    }
+
+    @Test
+    void toSimpleMailMessage_when_comment_deleted_should_generate_correct_html_content() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_DELETED);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, "This was my comment");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, "Sales Dashboard");
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "DELETED");
+        emailTemplateData.getTemplateModel().put(COMMENT_DELETION_REASON_PARAM, "Spam content");
+
+        //when
+        SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Sales Dashboard");
+        assertThat(actualDoc.select("p").get(1).text()).contains("gelöscht");
+        assertThat(actualDoc.select("blockquote").first().text()).isEqualTo("This was my comment");
+        assertThat(actualDoc.select("blockquote").get(1).text()).isEqualTo("Spam content");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
+    }
+
+    @Test
+    void toSimpleMailMessage_when_comment_edited_by_reviewer_should_generate_correct_html_content() {
+        //given
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_EDITED_BY_REVIEWER);
+        emailTemplateData.setLocale(Locale.forLanguageTag("de-CH"));
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, "John Doe");
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, "Fancy Business Domain");
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, "Darth Vader");
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, "Edited comment text");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, "Sales Dashboard");
+
+        //when
+        SimpleMailMessage email = emailSendService.toSimpleMailMessage(emailTemplateData);
+        Document actualDoc = Jsoup.parse(Objects.requireNonNull(email.getText()));
+
+        //then
+        assertThat(actualDoc.select("p").first().text()).isEqualTo("Hallo John Doe");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Darth Vader");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Sales Dashboard");
+        assertThat(actualDoc.select("p").get(1).text()).contains("Fancy Business Domain");
+        assertThat(actualDoc.select("p").get(1).text()).contains("bearbeitet");
+        assertThat(actualDoc.select("blockquote").text()).isEqualTo("Edited comment text");
+        assertThat(actualDoc.select("a").attr("href")).isEqualTo("http://localhost:4200");
+    }
 }

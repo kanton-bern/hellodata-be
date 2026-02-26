@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head><title>Comment edited by reviewer</title></head>
+<body>
+<p>Hello <span th:text="${#objects.nullSafe(AFFECTED_USER_FIRST_NAME, '_Unknown_')}"/></p>
+
+<p>
+    The reviewer <span th:text="${#objects.nullSafe(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE, '_Unknown_')}"/>
+    has edited your comment on dashboard
+    <span th:text="${#objects.nullSafe(DASHBOARD_NAME, '_Unknown_')}"/> in the business domain
+    <span th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unknown_')}"/>.
+</p>
+
+<p><strong>New version of the comment:</strong></p>
+<blockquote th:text="${#objects.nullSafe(COMMENT_TEXT, '')}"></blockquote>
+
+<p>Link to Business Domain
+    <a th:href="${#objects.nullSafe(link, '_Unknown_')}"><span
+            th:text="${#objects.nullSafe(BUSINESS_DOMAIN_NAME, '_Unknown_')}"/></a>
+</p>
+
+<p>Kind regards<br/>HelloDATA</p>
+
+</body>
+</html>

@@ -106,6 +106,51 @@ public class EmailNotificationService {
         emailSendService.sendEmailFromTemplate(emailTemplateData);
     }
 
+    public void notifyAboutCommentSentForReview(String reviewerFirstName, String reviewerEmail, String commentText,
+                                                String dashboardName, String authorFullName, Locale locale) {
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_SENT_FOR_REVIEW);
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, commentText);
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "READY_FOR_REVIEW");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, dashboardName);
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, reviewerFirstName);
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, authorFullName);
+        emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
+        emailTemplateData.getReceivers().add(reviewerEmail);
+        emailTemplateData.setLocale(locale);
+        emailSendService.sendEmailFromTemplate(emailTemplateData);
+    }
+
+    public void notifyAboutCommentDeleted(String authorFirstName, String authorEmail, String commentText,
+                                          String dashboardName, String deletionReason, String deleterFullName, Locale locale) {
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_DELETED);
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, commentText);
+        emailTemplateData.getTemplateModel().put(COMMENT_NEW_STATUS_PARAM, "DELETED");
+        emailTemplateData.getTemplateModel().put(COMMENT_DELETION_REASON_PARAM, deletionReason != null ? deletionReason : "");
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, dashboardName);
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, authorFirstName);
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, deleterFullName);
+        emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
+        emailTemplateData.getReceivers().add(authorEmail);
+        emailTemplateData.setLocale(locale);
+        emailSendService.sendEmailFromTemplate(emailTemplateData);
+    }
+
+    public void notifyAboutCommentEditedByReviewer(String authorFirstName, String authorEmail, String commentText,
+                                                   String dashboardName, String reviewerFullName, Locale locale) {
+        EmailTemplateData emailTemplateData = new EmailTemplateData(EmailTemplate.COMMENT_EDITED_BY_REVIEWER);
+        emailTemplateData.getTemplateModel().put(COMMENT_TEXT_PARAM, commentText);
+        emailTemplateData.getTemplateModel().put(DASHBOARD_NAME_PARAM, dashboardName);
+        emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
+        emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, authorFirstName);
+        emailTemplateData.getTemplateModel().put(FIRST_NAME_LAST_NAME_OF_USER_THAT_MADE_CHANGE_PARAM, reviewerFullName);
+        emailTemplateData.setSubjectParams(new Object[]{helloDataContextConfig.getBusinessContext().getName()});
+        emailTemplateData.getReceivers().add(authorEmail);
+        emailTemplateData.setLocale(locale);
+        emailSendService.sendEmailFromTemplate(emailTemplateData);
+    }
+
     private void fillCommonParamsAndSend(String editedUserFirstName, String createdUserEmail, EmailTemplateData emailTemplateData, Locale locale) {
         emailTemplateData.getTemplateModel().put(BUSINESS_DOMAIN_NAME_PARAM, helloDataContextConfig.getBusinessContext().getName());
         emailTemplateData.getTemplateModel().put(AFFECTED_USER_FIRST_NAME_PARAM, editedUserFirstName);

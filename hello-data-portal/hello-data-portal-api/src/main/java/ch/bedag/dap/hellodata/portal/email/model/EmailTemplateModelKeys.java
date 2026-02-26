@@ -39,5 +39,6 @@ public class EmailTemplateModelKeys {
     public static final String COMMENT_TEXT_PARAM = "COMMENT_TEXT";
     public static final String COMMENT_NEW_STATUS_PARAM = "COMMENT_NEW_STATUS";
     public static final String COMMENT_DECLINE_REASON_PARAM = "COMMENT_DECLINE_REASON";
+    public static final String COMMENT_DELETION_REASON_PARAM = "COMMENT_DELETION_REASON";
     public static final String DASHBOARD_NAME_PARAM = "DASHBOARD_NAME";
 }

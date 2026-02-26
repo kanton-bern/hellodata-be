@@ -41,5 +41,7 @@ public interface DashboardCommentPermissionRepository extends JpaRepository<Dash
 
     Optional<DashboardCommentPermissionEntity> findByUserIdAndContextKey(UUID userId, String contextKey);
 
+    List<DashboardCommentPermissionEntity> findByContextKeyAndReviewCommentsTrue(String contextKey);
+
     void deleteByUserIdAndContextKey(UUID userId, String contextKey);
 }
