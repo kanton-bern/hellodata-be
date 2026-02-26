@@ -41,6 +41,11 @@
   font-weight: 500;
 }
 
+#statusHeader > p-accordion + p-accordion {
+  display: block;
+  border-top: 1px solid #e0e0e0;
+}
+
 #summary-content .card {
   margin: 0 !important;
 }
