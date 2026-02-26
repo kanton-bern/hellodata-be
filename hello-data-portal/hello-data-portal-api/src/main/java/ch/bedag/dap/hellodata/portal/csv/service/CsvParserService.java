@@ -102,6 +102,12 @@ public class CsvParserService {
         return EmailValidator.getInstance().isValid(email);
     }
 
+    private void verifyContext(String context) {
+        if (context == null || context.isEmpty()) {
+            throw new IllegalArgumentException("Context must not be empty");
+        }
+    }
+
     private void verifyRoleName(String roleName, HdContextType contextType) {
         List<HdRoleName> hdRoleNames = getByContextType(contextType);
         if (hdRoleNames.stream().noneMatch(role -> role.name().equals(roleName))) {
@@ -151,15 +157,20 @@ public class CsvParserService {
         throw new IllegalArgumentException("No proper headers found in the CSV file! Should have: " + Arrays.toString(CSV_HEADERS) + " or " + Arrays.toString(CSV_HEADERS_WITH_DASHBOARD_GROUP));
     }
 
+    private String getFieldOrEmpty(CSVRecord csvRecord, int index) {
+        return index < csvRecord.size() ? csvRecord.get(index) : "";
+    }
+
     private CsvUserRole parseRecord(CSVRecord csvRecord, boolean hasDashboardGroupColumn) {
-        String email = csvRecord.get(0);
+        String email = getFieldOrEmpty(csvRecord, 0);
         verifyEmail(email);
-        String businessDomainRole = csvRecord.get(1).toUpperCase(Locale.ROOT);
+        String businessDomainRole = getFieldOrEmpty(csvRecord, 1).toUpperCase(Locale.ROOT);
         verifyRoleName(businessDomainRole, HdContextType.BUSINESS_DOMAIN);
-        String context = csvRecord.get(2);
-        String dataDomainRole = csvRecord.get(3).toUpperCase(Locale.ROOT);
+        String context = getFieldOrEmpty(csvRecord, 2);
+        verifyContext(context);
+        String dataDomainRole = getFieldOrEmpty(csvRecord, 3).toUpperCase(Locale.ROOT);
         verifyRoleName(dataDomainRole, HdContextType.DATA_DOMAIN);
-        String supersetRoleRaw = csvRecord.get(4);
+        String supersetRoleRaw = getFieldOrEmpty(csvRecord, 4);
         log.debug("Superset Roles Raw: {}", supersetRoleRaw);
         List<String> supersetRoles = supersetRoleRaw.isEmpty() ? List.of() : List.of(supersetRoleRaw.split(ROLE_DELIMITER));
         log.debug("Superset roles for email {}: {}", email, supersetRoles);

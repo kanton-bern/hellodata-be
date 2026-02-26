@@ -275,6 +275,40 @@ class CsvParserServiceTest {
     }
 
     @Test
+    void testParseCsvFile_missingTrailingColumns_shouldNotThrowIndexOutOfBounds() throws IOException {
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                blaba@dana.com;NONE;some_context;DATA_DOMAIN_ADMIN
+                """;
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+
+        List<CsvUserRole> result = csvParserService.parseCsvFile(inputStream);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        CsvUserRole user = result.get(0);
+        assertEquals("blaba@dana.com", user.email());
+        assertEquals("NONE", user.businessDomainRole());
+        assertEquals("some_context", user.context());
+        assertEquals("DATA_DOMAIN_ADMIN", user.dataDomainRole());
+        assertTrue(user.supersetRoles().isEmpty());
+        assertTrue(user.dashboardGroups().isEmpty());
+    }
+
+    @Test
+    void testParseCsvFile_should_throw_exception_on_empty_context() {
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                blaba@dana.com;NONE;;DATA_DOMAIN_ADMIN;
+                """;
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                csvParserService.parseCsvFile(inputStream));
+        assertEquals("Context must not be empty", exception.getMessage());
+    }
+
+    @Test
     void testParseCsvFile_multipleDashboardGroups() throws IOException {
         String csvContent = """
                 email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup
