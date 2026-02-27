@@ -78,7 +78,7 @@ spring:
                 - Path=/**
                 - Header=Upgrade, websocket # React only to WebSockets
               filters:
-                - AddCbAuth
+                #                - AddCbAuth
                 - RemoveRequestCookie
                 - RemoveRequestHeader=Upgrade
                 - RemoveRequestHeader=Connection
