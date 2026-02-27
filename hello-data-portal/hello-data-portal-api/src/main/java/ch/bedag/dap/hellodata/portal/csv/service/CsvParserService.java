@@ -148,13 +148,23 @@ public class CsvParserService {
         log.info("Extracted Headers: {}", Arrays.toString(headerNames));
         log.info("Expected Headers (base): {}", Arrays.toString(CSV_HEADERS));
         log.info("Expected Headers (extended): {}", Arrays.toString(CSV_HEADERS_WITH_DASHBOARD_GROUP));
-        if (Arrays.equals(headerNames, CSV_HEADERS_WITH_DASHBOARD_GROUP)) {
+        // Strip trailing empty strings caused by trailing semicolons in the header line
+        String[] trimmedHeaders = stripTrailingEmpty(headerNames);
+        if (Arrays.equals(trimmedHeaders, CSV_HEADERS_WITH_DASHBOARD_GROUP)) {
             return true;
         }
-        if (Arrays.equals(headerNames, CSV_HEADERS)) {
+        if (Arrays.equals(trimmedHeaders, CSV_HEADERS)) {
             return false;
         }
         throw new IllegalArgumentException("No proper headers found in the CSV file! Should have: " + Arrays.toString(CSV_HEADERS) + " or " + Arrays.toString(CSV_HEADERS_WITH_DASHBOARD_GROUP));
+    }
+
+    private String[] stripTrailingEmpty(String[] array) {
+        int end = array.length;
+        while (end > 0 && array[end - 1].isEmpty()) {
+            end--;
+        }
+        return Arrays.copyOf(array, end);
     }
 
     private String getFieldOrEmpty(CSVRecord csvRecord, int index) {
@@ -183,6 +193,17 @@ public class CsvParserService {
         if (hasDashboardGroupColumn && csvRecord.size() > 5) {
             String dashboardGroupRaw = csvRecord.get(5);
             dashboardGroups = dashboardGroupRaw.isEmpty() ? List.of() : List.of(dashboardGroupRaw.split(ROLE_DELIMITER));
+        } else if (!hasDashboardGroupColumn && csvRecord.size() > 5) {
+            // Check if there are non-empty extra fields beyond supersetRole – this likely means the user
+            // intended to specify dashboard groups but forgot the dashboardGroup header
+            for (int i = 5; i < csvRecord.size(); i++) {
+                if (!csvRecord.get(i).trim().isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "Row for user '%s' contains data beyond the 'supersetRole' column, but the CSV header does not include '%s'. "
+                                    .formatted(email, DASHBOARD_GROUP)
+                                    + "Please add '%s' to the header: %s".formatted(DASHBOARD_GROUP, Arrays.toString(CSV_HEADERS_WITH_DASHBOARD_GROUP)));
+                }
+            }
         }
 
         return new CsvUserRole(email, businessDomainRole, context, dataDomainRole, roles, dashboardGroups);

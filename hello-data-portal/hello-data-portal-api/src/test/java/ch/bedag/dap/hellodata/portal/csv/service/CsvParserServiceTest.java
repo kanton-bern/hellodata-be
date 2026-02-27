@@ -324,4 +324,91 @@ class CsvParserServiceTest {
         assertEquals(List.of("Group1", "Group2", "Group3"), user.dashboardGroups());
     }
 
+    @Test
+    void testParseCsvFile_headerWithTrailingSemicolon_shouldDetectBaseHeaders() throws IOException {
+        // Header "email;businessDomainRole;context;dataDomainRole;supersetRole;" has a trailing semicolon
+        // which produces an empty 6th field. This should still be recognized as the base header format.
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole;
+                user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;;
+                """;
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+
+        List<CsvUserRole> result = csvParserService.parseCsvFile(inputStream);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        CsvUserRole user1 = result.get(0);
+        assertEquals("user1@example.com", user1.email());
+        assertTrue(user1.dashboardGroups().isEmpty());
+    }
+
+    @Test
+    void testParseCsvFile_headerWithTrailingSemicolon_extendedFormat_shouldDetectDashboardGroupHeader() throws IOException {
+        // Header "email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup;" has a trailing semicolon
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole;dashboardGroup;
+                user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;;GroupX;
+                """;
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+
+        List<CsvUserRole> result = csvParserService.parseCsvFile(inputStream);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        CsvUserRole user1 = result.get(0);
+        assertEquals("user1@example.com", user1.email());
+        assertEquals(List.of("GroupX"), user1.dashboardGroups());
+    }
+
+    @Test
+    void testParseCsvFile_missingDashboardGroupHeader_withGroupDataInRow_shouldThrowError() {
+        // dashboardGroup is missing from header, but the data row contains group names after supersetRole
+        // This is the tester's Case 2: should NOT silently ignore the data
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                new@user1.ch;NONE;demo;DATA_DOMAIN_VIEWER;;DST,eDashboards20!
+                """;
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                csvParserService.parseCsvFile(inputStream));
+        assertTrue(exception.getMessage().contains("dashboardGroup"),
+                "Error should mention the missing 'dashboardGroup' header");
+    }
+
+    @Test
+    void testParseCsvFile_missingDashboardGroupHeader_correctGroupDataInRow_shouldThrowError() {
+        // dashboardGroup is missing from header but with trailing semicolon, and data row has group names.
+        // This is the tester's Case 1 - after the fix, the trailing ; on the header is stripped,
+        // header is detected as base format, and then the extra data in the row triggers the validation error.
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole;
+                new@user3.ch;NONE;demo;DATA_DOMAIN_VIEWER;;DST_A,emptyDashboards2026!,
+                """;
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                csvParserService.parseCsvFile(inputStream));
+        assertTrue(exception.getMessage().contains("dashboardGroup"),
+                "Error should mention the missing 'dashboardGroup' header");
+    }
+
+    @Test
+    void testParseCsvFile_missingDashboardGroupHeader_emptyExtraFields_shouldNotThrow() throws IOException {
+        // Header without dashboardGroup, data rows have trailing semicolons but all extra fields are empty
+        // This should be fine - no false positive
+        String csvContent = """
+                email;businessDomainRole;context;dataDomainRole;supersetRole
+                user1@example.com;NONE;context1;DATA_DOMAIN_VIEWER;;
+                """;
+        InputStream inputStream = new ByteArrayInputStream(csvContent.getBytes());
+
+        List<CsvUserRole> result = csvParserService.parseCsvFile(inputStream);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertTrue(result.get(0).dashboardGroups().isEmpty());
+    }
+
 }
