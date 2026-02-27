@@ -36,7 +36,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This filter is used to propagate the auth.access_token cookie internally to the spring-cloud-gateway security filter as an Auth Header.
@@ -49,7 +51,7 @@ public class TokenAuthenticationFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         log.debug("-->TokenAuthenticationFilter");
         log.debug("\tRequested URI Path: \n\t{}", exchange.getRequest().getURI().getPath());
-        log.debug("\texisting cookies: \n\t{}", exchange.getRequest().getCookies().entrySet().stream().map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n").toList());
+        log.debug("\texisting cookies: \n\t{}", new ArrayList<>(exchange.getRequest().getCookies().entrySet()).stream().map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n").collect(Collectors.toList()));
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         ServerHttpRequest request = exchange.getRequest().mutate().headers(httpHeaders -> {
@@ -61,7 +63,7 @@ public class TokenAuthenticationFilter implements WebFilter {
                 }
             }
         }).build();
-        log.debug("\tadded headers: " + exchange.getRequest().getHeaders().entrySet().stream().map(entry -> "\n\t" + entry.getValue() + "\n").toList());
+        log.debug("\tadded headers: " + new ArrayList<>(exchange.getRequest().getHeaders().entrySet()).stream().map(entry -> "\n\t" + entry.getValue() + "\n").collect(Collectors.toList()));
         return chain.filter(exchange.mutate().request(request).build());
     }
 }

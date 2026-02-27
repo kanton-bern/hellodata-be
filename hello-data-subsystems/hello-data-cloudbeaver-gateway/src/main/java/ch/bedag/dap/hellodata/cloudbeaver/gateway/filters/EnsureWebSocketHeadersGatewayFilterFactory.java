@@ -26,70 +26,51 @@
  */
 package ch.bedag.dap.hellodata.cloudbeaver.gateway.filters;
 
-import ch.bedag.dap.hellodata.cloudbeaver.gateway.config.SecurityConfig;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
+/**
+ * Gateway filter that ensures WebSocket upgrade headers (Upgrade: websocket, Connection: Upgrade)
+ * are present on the request. This is needed because Nginx Ingress may strip these headers
+ * when proxying WebSocket connections to backend services.
+ * <p>
+ * Spring Cloud Gateway's {@code WebsocketRoutingFilter} / {@code HandshakeWebSocketService}
+ * requires these headers to be present even on routes with {@code ws://} URI scheme.
+ * Without them, the handshake fails with "Invalid 'Upgrade' header" (400 BAD_REQUEST).
+ */
 @Log4j2
 @Component
-public class RemoveRequestCookieGatewayFilterFactory extends AbstractGatewayFilterFactory<RemoveRequestCookieGatewayFilterFactory.Config> {
-
-    public RemoveRequestCookieGatewayFilterFactory() {
-        super(Config.class);
-    }
+public class EnsureWebSocketHeadersGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
 
     @Override
-    public GatewayFilter apply(Config config) {
+    public GatewayFilter apply(Object config) {
         return (exchange, chain) -> {
             HttpHeaders headers = exchange.getRequest().getHeaders();
-            // Get the existing cookies
-            String cookieHeader = headers.getFirst(HttpHeaders.COOKIE);
-            if (cookieHeader != null) {
-                // Remove the specific cookie
-                String updatedCookies = removeCookie(cookieHeader, SecurityConfig.ACCESS_TOKEN_COOKIE_NAME);
-                // Build a mutated request with the updated cookies and pass the mutated exchange to the chain
-                return chain.filter(
-                        exchange.mutate()
-                                .request(r -> r.headers(h -> h.set(HttpHeaders.COOKIE, updatedCookies)))
-                                .build()
-                );
+            String upgradeHeader = headers.getUpgrade();
+            boolean needsFixup = !"websocket".equalsIgnoreCase(upgradeHeader);
+
+            if (needsFixup) {
+                log.debug("WebSocket route matched but Upgrade header is missing or invalid (value: '{}'), injecting Upgrade/Connection headers", upgradeHeader);
             }
-            // Continue the filter chain
-            return chain.filter(exchange);
+
+            log.debug("WS handshake request URI: {}, headers present: {}", exchange.getRequest().getURI(), headers.keySet());
+
+            return chain.filter(
+                    exchange.mutate()
+                            .request(r -> r.headers(h -> {
+                                // Always ensure Upgrade/Connection are set correctly (single value, no duplicates)
+                                h.set(HttpHeaders.UPGRADE, "websocket");
+                                h.set(HttpHeaders.CONNECTION, "Upgrade");
+                                // Ensure Sec-WebSocket-Version is present (required by RFC 6455)
+                                if (!h.containsKey("Sec-WebSocket-Version")) {
+                                    h.set("Sec-WebSocket-Version", "13");
+                                }
+                            }))
+                            .build()
+            );
         };
-    }
-
-    protected String removeCookie(String cookieHeader, String cookieName) {
-        // Split the cookies
-        String[] cookies = cookieHeader.split(";");
-
-        // Build the updated cookie header without the specified cookie
-        StringBuilder updatedCookies = new StringBuilder();
-        for (String cookie : cookies) {
-            String trimmedCookie = cookie.trim();
-            if (!trimmedCookie.startsWith(cookieName + "=")) {
-                if (updatedCookies.length() > 0) {
-                    updatedCookies.append("; ");
-                }
-                updatedCookies.append(trimmedCookie);
-            }
-        }
-
-        return updatedCookies.toString();
-    }
-
-    public static class Config {
-        private String cookieName;
-
-        public String getCookieName() {
-            return cookieName;
-        }
-
-        public void setCookieName(String cookieName) {
-            this.cookieName = cookieName;
-        }
     }
 }

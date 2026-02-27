@@ -60,46 +60,70 @@ spring:
   cloud:
     discovery:
       enabled: false
-    kubernetes:
-      discovery:
-        enabled: false
     gateway:
-      metrics:
-        enabled: true
-      httpserver:
-        wiretap: true
-      httpclient:
-        wiretap: true
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "${hello-data.cors.allowed-origins:http://localhost:8080}"
-            allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,HEAD,PATCH,OPTIONS}"
-            allowedHeaders: "${CORS_ALLOWED_HEADERS:Access-Control-Allow-Methods,Access-Control-Allow-Origin,Authorization,Access-Control-Allow-Headers,Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers"
-            allowCredentials: ${CORS_ALLOW_CREDENTIALS:true}
-      routes:
-        - id: actuator_route
-          uri: http://localhost:8082
-          predicates:
-            - Path=/actuator/**
-          filters:
-            - RemoveRequestCookie
-        - id: cloudbeaver_route
-          uri: http://${hello-data.cloudbeaver.service-name}
-          predicates:
-            - Path=/**
-          filters:
-            - AddCbAuth
-            - RemoveRequestCookie
-        - id: cloudbeaver_websocket_route
-          uri: ws://${hello-data.cloudbeaver.service-name}
-          predicates:
-            - Path=/**
-          filters:
-            - AddCbAuth
-            - RemoveRequestCookie
+      server:
+        webflux:
+          routes:
+            - id: actuator_route
+              uri: http://localhost:8082
+              predicates:
+                - Path=/actuator/**
+              filters:
+                - RemoveRequestCookie
+
+            # WEBSOCKET by path - dedicated route for CloudBeaver's known WS endpoint
+            # This route does not depend on the Upgrade header (which may be stripped by Nginx Ingress)
+            - id: cloudbeaver_websocket_path_route
+              uri: ws://${hello-data.cloudbeaver.service-name}
+              predicates:
+                - Path=/cloudbeaver/api/ws,/api/ws
+              filters:
+                - EnsureWebSocketHeaders
+                - RemoveRequestCookie
+                - AddCbAuth
+
+            # WEBSOCKET by header - fallback for any other WebSocket upgrade requests
+            - id: cloudbeaver_websocket_route
+              uri: ws://${hello-data.cloudbeaver.service-name}
+              predicates:
+                - Path=/**
+                - Header=Upgrade, (?i)websocket # React only to WebSockets (case-insensitive)
+              filters:
+                - EnsureWebSocketHeaders
+                - RemoveRequestCookie
+                - AddCbAuth
+
+            # HTTP - will serve all non-WebSocket requests, has to be after WebSocket route
+            - id: cloudbeaver_route
+              uri: http://${hello-data.cloudbeaver.service-name}
+              predicates:
+                - Path=/**
+              filters:
+                - AddCbAuth
+                - RemoveRequestCookie
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "${hello-data.cors.allowed-origins:http://localhost:8080}"
+                allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,HEAD,PATCH,OPTIONS}"
+                allowedHeaders: "${CORS_ALLOWED_HEADERS:Access-Control-Allow-Methods,Access-Control-Allow-Origin,Authorization,Access-Control-Allow-Headers,Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Upgrade,Connection}"
+                allowCredentials: ${CORS_ALLOW_CREDENTIALS:true}
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+          metrics:
+            enabled: true
+          httpserver:
+            wiretap: true
+          httpclient:
+            wiretap: true
+            websocket:
+              max-frame-payload-length: 65536
+              proxy-ping: true
+            pool:
+              type: elastic
+              max-idle-time: 30s
+            connect-timeout: 10000
+            response-timeout: 5m
 server:
   port: 8087
   error:
@@ -145,8 +169,11 @@ management:
 logging:
   level:
     org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway.filter.WebsocketRoutingFilter: DEBUG
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: INFO
     org.springframework.web.HttpLogging: INFO
+    org.springframework.web.reactive.socket: DEBUG
     reactor.netty.http.server: INFO
-    reactor.netty.http.client: INFO
+    reactor.netty.http.client: DEBUG
     org.springframework.web.filter.CommonsRequestLoggingFilter: INFO
+    ch.bedag.dap.hellodata.cloudbeaver.gateway.filters: DEBUG
