@@ -36,6 +36,8 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+
 public class WebFluxLogFilter implements WebFilter, Ordered {
     final Logger log = LoggerFactory.getLogger(WebFluxLogFilter.class);
 
@@ -48,23 +50,25 @@ public class WebFluxLogFilter implements WebFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return chain.filter(exchange).doOnEach(signal -> {
             if (signal.isOnComplete() || signal.isOnError()) {
-                log.info("\n:: Request Log ::");
-                log.info("Request id: {}", exchange.getRequest().getId());
-                log.info("Ip: {}", exchange.getRequest().getRemoteAddress());
-                log.info("Method: {}", exchange.getRequest().getMethod());
-                log.info("Path: {}", exchange.getRequest().getURI());
-                log.info("Request Headers: {}", exchange.getRequest()
-                        .getHeaders()
-                        .entrySet()
-                        .stream()
-                        .toList());
-                log.info("Response: {}", exchange.getResponse().getStatusCode());
-                log.info("Response Headers: {}", exchange.getResponse()
-                        .getHeaders()
-                        .entrySet()
-                        .stream()
-                        .toList());
-                log.info("\n:: End Request Log ::");
+                try {
+                    log.info("\n:: Request Log ::");
+                    log.info("Request id: {}", exchange.getRequest().getId());
+                    log.info("Ip: {}", exchange.getRequest().getRemoteAddress());
+                    log.info("Method: {}", exchange.getRequest().getMethod());
+                    log.info("Path: {}", exchange.getRequest().getURI());
+                    // Use ArrayList copy to avoid ConcurrentModificationException / FixedNodeBuilder
+                    // crash during WebSocket upgrade when headers are modified concurrently
+                    log.info("Request Headers: {}", new ArrayList<>(exchange.getRequest()
+                            .getHeaders()
+                            .entrySet()));
+                    log.info("Response: {}", exchange.getResponse().getStatusCode());
+                    log.info("Response Headers: {}", new ArrayList<>(exchange.getResponse()
+                            .getHeaders()
+                            .entrySet()));
+                    log.info("\n:: End Request Log ::");
+                } catch (Exception e) {
+                    log.warn("Could not log request/response details: {}", e.getMessage());
+                }
             }
         });
     }

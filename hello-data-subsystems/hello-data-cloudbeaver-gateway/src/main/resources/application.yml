@@ -71,13 +71,25 @@ spring:
               filters:
                 - RemoveRequestCookie
 
-            # WEBSOCKET - has to be first for path /**
+            # WEBSOCKET by path - dedicated route for CloudBeaver's known WS endpoint
+            # This route does not depend on the Upgrade header (which may be stripped by Nginx Ingress)
+            - id: cloudbeaver_websocket_path_route
+              uri: ws://${hello-data.cloudbeaver.service-name}
+              predicates:
+                - Path=/cloudbeaver/api/ws,/api/ws
+              filters:
+                - EnsureWebSocketHeaders
+                - RemoveRequestCookie
+                - AddCbAuth
+
+            # WEBSOCKET by header - fallback for any other WebSocket upgrade requests
             - id: cloudbeaver_websocket_route
               uri: ws://${hello-data.cloudbeaver.service-name}
               predicates:
                 - Path=/**
                 - Header=Upgrade, (?i)websocket # React only to WebSockets (case-insensitive)
               filters:
+                - EnsureWebSocketHeaders
                 - RemoveRequestCookie
                 - AddCbAuth
 
