@@ -17,6 +17,45 @@ on:
         description: 'Module to build'
         required: true
         default: 'hello-data-portal/hello-data-portal-api'
+        type: choice
+        options:
+          # Portal
+          - hello-data-portal/hello-data-portal-api
+          - hello-data-portal/hello-data-portal-ui
+          - hello-data-portal/hello-data-portal-ui-e2e
+          # Sidecars
+          - hello-data-sidecars/hello-data-sidecar-airflow
+          - hello-data-sidecars/hello-data-sidecar-portal
+          - hello-data-sidecars/hello-data-sidecar-superset
+          - hello-data-sidecars/hello-data-sidecar-dbt-docs
+          - hello-data-sidecars/hello-data-sidecar-cloudbeaver
+          - hello-data-sidecars/hello-data-sidecar-jupyterhub
+          - hello-data-sidecars/hello-data-sidecar-sftpgo
+          # Subsystems
+          - hello-data-subsystems/hello-data-superset
+          - hello-data-subsystems/hello-data-airflow
+          - hello-data-subsystems/hello-data-cloudbeaver
+          - hello-data-subsystems/hello-data-cloudbeaver-gateway
+          - hello-data-subsystems/hello-data-dbt-docs
+          - hello-data-subsystems/hello-data-monitoring-storage
+          - hello-data-subsystems/hello-data-cleanup-logs
+          - hello-data-subsystems/hello-data-jupyterhub-gateway
+          # Deployment
+          - hello-data-deployment/hello-data-dc-cloudbeaver
+          - hello-data-deployment/hello-data-dc-keycloak
+          - hello-data-deployment/hello-data-dc-portal
+          - hello-data-deployment/hello-data-dc-postgres
+          - hello-data-deployment/hello-data-dc-airflow
+          - hello-data-deployment/hello-data-dc-superset
+          - hello-data-deployment/hello-data-showcase
+          # Commons
+          - hello-data-commons/hello-data-spring-boot-starter-parent
+          - hello-data-commons/hello-data-common
+          - hello-data-commons/hello-data-base-model
+          - hello-data-commons/hello-data-sidecar-common
+          - hello-data-commons/hello-data-metainfo-model
+          - hello-data-commons/hello-data-nats-spring
+          - hello-data-commons/hello-data-portal-common
 
 jobs:
 
