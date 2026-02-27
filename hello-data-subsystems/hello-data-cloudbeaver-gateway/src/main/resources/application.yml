@@ -78,10 +78,10 @@ spring:
                 - Path=/**
                 - Header=Upgrade, websocket # React only to WebSockets
               filters:
-                #                - AddCbAuth
                 - RemoveRequestCookie
                 - RemoveRequestHeader=Upgrade
                 - RemoveRequestHeader=Connection
+                - AddCbAuth
 
             # HTTP - will serve all non-WebSocket requests, has to be after WebSocket route
             - id: cloudbeaver_route
