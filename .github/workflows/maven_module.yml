@@ -22,7 +22,6 @@ on:
           # Portal
           - hello-data-portal/hello-data-portal-api
           - hello-data-portal/hello-data-portal-ui
-          - hello-data-portal/hello-data-portal-ui-e2e
           # Sidecars
           - hello-data-sidecars/hello-data-sidecar-airflow
           - hello-data-sidecars/hello-data-sidecar-portal
@@ -40,22 +39,6 @@ on:
           - hello-data-subsystems/hello-data-monitoring-storage
           - hello-data-subsystems/hello-data-cleanup-logs
           - hello-data-subsystems/hello-data-jupyterhub-gateway
-          # Deployment
-          - hello-data-deployment/hello-data-dc-cloudbeaver
-          - hello-data-deployment/hello-data-dc-keycloak
-          - hello-data-deployment/hello-data-dc-portal
-          - hello-data-deployment/hello-data-dc-postgres
-          - hello-data-deployment/hello-data-dc-airflow
-          - hello-data-deployment/hello-data-dc-superset
-          - hello-data-deployment/hello-data-showcase
-          # Commons
-          - hello-data-commons/hello-data-spring-boot-starter-parent
-          - hello-data-commons/hello-data-common
-          - hello-data-commons/hello-data-base-model
-          - hello-data-commons/hello-data-sidecar-common
-          - hello-data-commons/hello-data-metainfo-model
-          - hello-data-commons/hello-data-nats-spring
-          - hello-data-commons/hello-data-portal-common
 
 jobs:
 
