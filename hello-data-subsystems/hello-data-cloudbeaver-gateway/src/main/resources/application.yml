@@ -80,6 +80,8 @@ spring:
               filters:
                 - AddCbAuth
                 - RemoveRequestCookie
+                - RemoveRequestHeader=Upgrade
+                - RemoveRequestHeader=Connection
 
             # HTTP - will serve all non-WebSocket requests, has to be after WebSocket route
             - id: cloudbeaver_route
