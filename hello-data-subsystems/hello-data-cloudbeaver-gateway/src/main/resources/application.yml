@@ -76,11 +76,9 @@ spring:
               uri: ws://${hello-data.cloudbeaver.service-name}
               predicates:
                 - Path=/**
-                - Header=Upgrade, websocket # React only to WebSockets
+                - Header=Upgrade, (?i)websocket # React only to WebSockets (case-insensitive)
               filters:
                 - RemoveRequestCookie
-                - RemoveRequestHeader=Upgrade
-                - RemoveRequestHeader=Connection
                 - AddCbAuth
 
             # HTTP - will serve all non-WebSocket requests, has to be after WebSocket route
@@ -96,7 +94,7 @@ spring:
               '[/**]':
                 allowedOrigins: "${hello-data.cors.allowed-origins:http://localhost:8080}"
                 allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,HEAD,PATCH,OPTIONS}"
-                allowedHeaders: "${CORS_ALLOWED_HEADERS:Access-Control-Allow-Methods,Access-Control-Allow-Origin,Authorization,Access-Control-Allow-Headers,Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers"
+                allowedHeaders: "${CORS_ALLOWED_HEADERS:Access-Control-Allow-Methods,Access-Control-Allow-Origin,Authorization,Access-Control-Allow-Headers,Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers,Upgrade,Connection}"
                 allowCredentials: ${CORS_ALLOW_CREDENTIALS:true}
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
