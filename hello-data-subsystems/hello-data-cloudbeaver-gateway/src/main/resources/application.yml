@@ -78,8 +78,8 @@ spring:
                 - Path=/**
                 - Header=Upgrade, websocket # React only to WebSockets
               filters:
-                - SetRequestHeader=Connection, Upgrade
-                - SetRequestHeader=Upgrade, websocket
+                - AddCbAuth
+                - RemoveRequestCookie
 
             # HTTP - will serve all non-WebSocket requests, has to be after WebSocket route
             - id: cloudbeaver_route
@@ -106,9 +106,12 @@ spring:
             wiretap: true
             websocket:
               max-frame-payload-length: 65536
+              proxy-ping: true
             pool:
               type: elastic
               max-idle-time: 30s
+            connect-timeout: 10000
+            response-timeout: 5m
 server:
   port: 8087
   error:
