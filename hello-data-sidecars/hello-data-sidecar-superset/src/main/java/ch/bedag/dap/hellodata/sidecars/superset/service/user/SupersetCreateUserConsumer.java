@@ -32,6 +32,7 @@ import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemU
 import ch.bedag.dap.hellodata.commons.sidecars.resources.v1.user.data.SubsystemUserUpdate;
 import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserActiveUpdate;
@@ -112,7 +113,15 @@ public class SupersetCreateUserConsumer {
                 () -> log.warn("Couldn't find a Public role to set for created/enabled user {}", supersetUserCreate.getEmail()));
         // logging with keycloak changes the password in the superset DB
         supersetUserCreate.setPassword(supersetUserCreate.getFirstName());
-        supersetClient.createUser(supersetUserCreate);
+        try {
+            supersetClient.createUser(supersetUserCreate);
+        } catch (UnexpectedResponseException e) {
+            if (e.getCode() == 422) {
+                log.info("User {} already exists in Superset (concurrent creation), skipping", supersetUserCreate.getEmail());
+            } else {
+                throw e;
+            }
+        }
     }
 
     private void enableUser(SubsystemUserUpdate supersetUserCreate, SubsystemUser supersetUser, SupersetClient supersetClient, Optional<Integer> aPublicRoleId) throws

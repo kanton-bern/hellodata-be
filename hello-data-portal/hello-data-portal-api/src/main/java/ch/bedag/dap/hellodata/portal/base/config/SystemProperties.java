@@ -40,4 +40,5 @@ public class SystemProperties {
     private Locale defaultLocale;
     private String applicationLink;
     private boolean disableLogout;
+    private boolean autoProvisionViewerOnLogin;
 }

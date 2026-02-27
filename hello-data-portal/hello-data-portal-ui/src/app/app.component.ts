@@ -103,9 +103,24 @@ export class AppComponent implements OnInit {
   }
 
   private checkProfile() {
-    setInterval(() => {
-      console.debug("Check profile")
+    // Poll quickly (every 5s) for the first 2 minutes after page load so newly
+    // auto-provisioned users see their roles/dashboards as soon as subsystem
+    // sync completes, then fall back to the normal 30s interval.
+    const FAST_INTERVAL_MS = 5000;
+    const NORMAL_INTERVAL_MS = 30000;
+    const FAST_PHASE_MS = 120000;
+
+    const fastTimer = setInterval(() => {
+      console.debug("Check profile (fast)");
       this.store.dispatch(checkProfile());
-    }, 30000);
+    }, FAST_INTERVAL_MS);
+
+    setTimeout(() => {
+      clearInterval(fastTimer);
+      setInterval(() => {
+        console.debug("Check profile");
+        this.store.dispatch(checkProfile());
+      }, NORMAL_INTERVAL_MS);
+    }, FAST_PHASE_MS);
   }
 }

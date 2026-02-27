@@ -56,6 +56,7 @@ hello-data:
     no-reply-email: "no-reply@hellodata.ch"
     default-locale: "de_CH"
     disable-logout: false # to disable logout button on frontend (for AD logged-in users)
+    auto-provision-viewer-on-login: false
   ldap:
     url: ldap://ldap.forumsys.com:389
     base: dc=example,dc=com

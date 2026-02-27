@@ -29,26 +29,32 @@ package ch.bedag.dap.hellodata.portal.base.auth;
 import ch.bedag.dap.hellodata.commons.security.HellodataAuthenticationToken;
 import ch.bedag.dap.hellodata.commons.security.Permission;
 import ch.bedag.dap.hellodata.portal.user.data.UserDto;
+import ch.bedag.dap.hellodata.portal.user.service.AutoProvisionService;
 import ch.bedag.dap.hellodata.portal.user.util.UserDtoMapper;
 import ch.bedag.dap.hellodata.portalcommon.user.entity.UserEntity;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class HellodataAuthenticationConverter implements Converter<Jwt, HellodataAuthenticationToken> {
 
     private final UserRepository userRepository;
+    private final AutoProvisionService autoProvisionService;
 
     @Value("${hello-data.cache.user-database-ttl-minutes:2}")
     private int userDatabaseTtlCacheMinutes;
@@ -93,6 +99,19 @@ public class HellodataAuthenticationConverter implements Converter<Jwt, Hellodat
         UUID userId = null;
 
         UserDto userDto = getUserDto(email);
+        if (userDto == null) {
+            try {
+                UserEntity provisioned = autoProvisionService.autoProvisionIfEnabled(email, givenName, familyName, jwt.getSubject());
+                if (provisioned != null) {
+                    invalidateUserCache(email);
+                    userDto = getUserDto(email);
+                }
+            } catch (DataAccessException | PersistenceException e) {
+                log.debug("Concurrent auto-provision for {} ({}), reading existing user", email, e.getClass().getSimpleName());
+                invalidateUserCache(email);
+                userDto = getUserDto(email);
+            }
+        }
         if (userDto != null) { //NOSONAR
             userId = UUID.fromString(userDto.getId());
             isSuperuser = BooleanUtils.isTrue(userDto.getSuperuser());

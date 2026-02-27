@@ -40,6 +40,7 @@ import ch.bedag.dap.hellodata.sidecars.superset.client.SupersetClient;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.IdResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUserUpdateResponse;
 import ch.bedag.dap.hellodata.sidecars.superset.client.data.SupersetUsersResponse;
+import ch.bedag.dap.hellodata.sidecars.superset.client.exception.UnexpectedResponseException;
 import ch.bedag.dap.hellodata.sidecars.superset.service.client.SupersetClientProvider;
 import ch.bedag.dap.hellodata.sidecars.superset.service.resource.UserResourceProviderService;
 import ch.bedag.dap.hellodata.sidecars.superset.service.user.data.SupersetUserRolesUpdate;
@@ -194,8 +195,19 @@ public class SupersetUpdateUserContextRoleConsumer {
 
             List<Integer> roles = allRoles.getResult().stream().filter(role -> role.getName().equalsIgnoreCase(PUBLIC_ROLE_NAME)).map(SubsystemRole::getId).toList();
             subsystemUserUpdate.setRoles(roles);
-            IdResponse createdUser = supersetClient.createUser(subsystemUserUpdate);
-            return supersetClient.user(createdUser.id).getResult();
+            try {
+                IdResponse createdUser = supersetClient.createUser(subsystemUserUpdate);
+                return supersetClient.user(createdUser.id).getResult();
+            } catch (UnexpectedResponseException e) {
+                if (e.getCode() == 422) {
+                    log.info("User {} was concurrently created by another event, fetching existing user", userContextRoleUpdate.getEmail());
+                    response = supersetClient.getUser(userContextRoleUpdate.getUsername(), userContextRoleUpdate.getEmail());
+                    if (response != null && !response.getResult().isEmpty()) {
+                        return response.getResult().get(0);
+                    }
+                }
+                throw e;
+            }
         }
         return response.getResult().get(0);
     }
