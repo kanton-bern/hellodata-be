@@ -79,18 +79,15 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
                     h.set("X-Role", cbRolesHeader);
                     h.set("X-First-name", (String) givenName);
                     h.set("X-Last-name", (String) familyName);
+                    // Remove Authorization header - CloudBeaver with reverseProxy auth
+                    // only needs X-User/X-Role. Keeping the large JWT token unnecessarily
+                    // increases header size which can cause the backend to reject with 400.
+                    h.remove(SecurityConfig.AUTHORIZATION_HEADER_NAME);
                 })
                 .build();
         return exchange.mutate().request(serverHttpRequest).build();
     }
 
-    public static ServerWebExchange removeAuthorizationHeader(ServerWebExchange exchange) {
-        return exchange.mutate().request(r ->
-                r.headers(httpHeaders ->
-                        httpHeaders.remove(SecurityConfig.AUTHORIZATION_HEADER_NAME) //don't need to pass the Authorization header to the cloudbeaver
-                )
-        ).build();
-    }
 
     @Override
     public GatewayFilter apply(Object config) {

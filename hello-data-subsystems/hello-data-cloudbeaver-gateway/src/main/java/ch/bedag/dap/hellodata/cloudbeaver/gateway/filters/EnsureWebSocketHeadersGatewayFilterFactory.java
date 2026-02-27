@@ -50,20 +50,27 @@ public class EnsureWebSocketHeadersGatewayFilterFactory extends AbstractGatewayF
         return (exchange, chain) -> {
             HttpHeaders headers = exchange.getRequest().getHeaders();
             String upgradeHeader = headers.getUpgrade();
+            boolean needsFixup = !"websocket".equalsIgnoreCase(upgradeHeader);
 
-            if (!"websocket".equalsIgnoreCase(upgradeHeader)) {
+            if (needsFixup) {
                 log.debug("WebSocket route matched but Upgrade header is missing or invalid (value: '{}'), injecting Upgrade/Connection headers", upgradeHeader);
-                return chain.filter(
-                        exchange.mutate()
-                                .request(r -> r.headers(h -> {
-                                    h.set(HttpHeaders.UPGRADE, "websocket");
-                                    h.set(HttpHeaders.CONNECTION, "Upgrade");
-                                }))
-                                .build()
-                );
             }
 
-            return chain.filter(exchange);
+            log.debug("WS handshake request URI: {}, headers present: {}", exchange.getRequest().getURI(), headers.keySet());
+
+            return chain.filter(
+                    exchange.mutate()
+                            .request(r -> r.headers(h -> {
+                                // Always ensure Upgrade/Connection are set correctly (single value, no duplicates)
+                                h.set(HttpHeaders.UPGRADE, "websocket");
+                                h.set(HttpHeaders.CONNECTION, "Upgrade");
+                                // Ensure Sec-WebSocket-Version is present (required by RFC 6455)
+                                if (!h.containsKey("Sec-WebSocket-Version")) {
+                                    h.set("Sec-WebSocket-Version", "13");
+                                }
+                            }))
+                            .build()
+            );
         };
     }
 }

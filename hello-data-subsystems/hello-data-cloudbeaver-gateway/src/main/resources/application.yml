@@ -169,8 +169,11 @@ management:
 logging:
   level:
     org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway.filter.WebsocketRoutingFilter: DEBUG
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: INFO
     org.springframework.web.HttpLogging: INFO
+    org.springframework.web.reactive.socket: DEBUG
     reactor.netty.http.server: INFO
-    reactor.netty.http.client: INFO
+    reactor.netty.http.client: DEBUG
     org.springframework.web.filter.CommonsRequestLoggingFilter: INFO
+    ch.bedag.dap.hellodata.cloudbeaver.gateway.filters: DEBUG
