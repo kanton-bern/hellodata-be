@@ -38,7 +38,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This filter is used to propagate the auth.access_token cookie internally to the spring-cloud-gateway security filter as an Auth Header.
@@ -60,9 +62,9 @@ public class TokenAuthenticationFilter implements WebFilter {
         log.info("\n\n-->TokenAuthenticationFilter");
         log.info("\t--->Requested URI Path: \n\t{}", path);
         log.info("\t--->existing cookies: \n\t{}",
-                exchange.getRequest().getCookies().entrySet().stream()
+                new ArrayList<>(exchange.getRequest().getCookies().entrySet()).stream()
                         .map(stringListEntry -> "\n\t" + stringListEntry.getValue() + "\n")
-                        .toList());
+                        .collect(Collectors.toList()));
 
         MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
         HttpHeaders headers = exchange.getRequest().getHeaders();
@@ -83,9 +85,9 @@ public class TokenAuthenticationFilter implements WebFilter {
             }
         }).build();
 
-        log.info("\t--->Added headers: {}", request.getHeaders().entrySet().stream()
+        log.info("\t--->Added headers: {}", new ArrayList<>(request.getHeaders().entrySet()).stream()
                 .map(entry -> "\n\t" + entry.getKey() + ": " + entry.getValue() + "\n")
-                .toList());
+                .collect(Collectors.toList()));
 
         return chain.filter(exchange.mutate().request(request).build());
     }
