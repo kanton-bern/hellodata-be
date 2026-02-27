@@ -161,6 +161,8 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete yourself");//NOSONAR
         }
         Optional<UserEntity> userEntityResult = Optional.of(getUserEntity(dbId));
+        // Remove user from all dashboard groups before deleting the user entity
+        removeUserFromDashboardGroupsForAllDomains(dbId);
         AtomicBoolean isUserFederated = new AtomicBoolean(false);
         userEntityResult.ifPresentOrElse(
                 userEntity -> {

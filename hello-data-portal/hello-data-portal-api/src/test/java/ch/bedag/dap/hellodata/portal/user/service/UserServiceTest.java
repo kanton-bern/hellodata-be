@@ -157,9 +157,13 @@ class UserServiceTest {
         UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setEmail(userEntity.getEmail());
 
+        HdContextEntity dataDomain = new HdContextEntity();
+        dataDomain.setContextKey("test-domain");
+
         when(userRepository.getByIdOrAuthId(any(String.class))).thenReturn(userEntity);
         when(keycloakService.getUserResourceById(any())).thenReturn(userResourceMock);
         when(userResourceMock.toRepresentation()).thenReturn(userRepresentation);
+        when(contextRepository.findAllByTypeIn(any())).thenReturn(List.of(dataDomain));
 
         // when
         try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
@@ -170,6 +174,8 @@ class UserServiceTest {
 
         // then
         verify(userRepository).delete(userEntity);
+        verify(dashboardGroupService).removeUserFromDashboardGroupsInDomain(userId, "test-domain");
+        verify(userSelectedDashboardService).removeAllForUser(uuid);
     }
 
     @Test
