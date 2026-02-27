@@ -7,6 +7,9 @@
 # documentation.
 
 name: Build selected Module only (with Maven)
+
+run-name: "Build Module: ${{ inputs.module }}"
+
 on:
   workflow_dispatch:
     inputs:
