@@ -35,18 +35,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.logging.Level;
 
 @Log4j2
 @Component
 public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
 
-    public static String toCbRolesHeader(Collection<GrantedAuthority> authorities) {
+    public static String toCbRolesHeader(Collection<? extends GrantedAuthority> authorities) {
         StringBuilder sb = new StringBuilder();
         for (GrantedAuthority grantedAuthority : authorities) {
             if (!sb.isEmpty()) {
@@ -74,10 +71,15 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
         log.debug("\tX-Role header: {}", cbRolesHeader);
         ServerHttpRequest serverHttpRequest = exchange.getRequest()
                 .mutate()
-                .header("X-User", email)
-                .header("X-Role", cbRolesHeader)
-                .header("X-First-name", (String) givenName)
-                .header("X-Last-name", (String) familyName)
+                .headers(h -> {
+                    // Using .set() inside the headers consumer ensures that
+                    // any existing headers (from Ingress or previous hops) are overwritten,
+                    // preventing duplicate headers like Upgrade=[websocket, websocket]
+                    h.set("X-User", email);
+                    h.set("X-Role", cbRolesHeader);
+                    h.set("X-First-name", (String) givenName);
+                    h.set("X-Last-name", (String) familyName);
+                })
                 .build();
         return exchange.mutate().request(serverHttpRequest).build();
     }
@@ -90,15 +92,20 @@ public class AddCbAuthGatewayFilterFactory extends AbstractGatewayFilterFactory<
         ).build();
     }
 
+    @Override
     public GatewayFilter apply(Object config) {
-        return (exchange, chain) -> {
-            Mono<ServerWebExchange> webExchange = exchange.getPrincipal()
-                    .log("auth-gateway-filter-factory", Level.INFO)
-                    .filter(principal -> principal instanceof JwtAuthenticationToken) //NOSONAR
-                    .cast(JwtAuthenticationToken.class)
-                    .map(token -> addCbAuthHeaders(exchange, token));
-            Objects.requireNonNull(chain);
-            return webExchange.flatMap(chain::filter);
-        };
+        return (exchange, chain) -> exchange.getPrincipal()
+                // Check if the principal exists and is of type JwtAuthenticationToken
+                .filter(JwtAuthenticationToken.class::isInstance)
+                .cast(JwtAuthenticationToken.class)
+                // If authenticated, transform the exchange by adding headers
+                .map(token -> addCbAuthHeaders(exchange, token))
+                // If not authenticated or empty principal, fall back to the original exchange.
+                // This ensures the chain continues and avoids breaking the WebSocket handshake
+                // with a premature connection close (which causes error 1006/400)
+                .defaultIfEmpty(exchange)
+                // FlatMap into the filter chain. Mono<Void> from chain.filter(exchange)
+                // is now correctly handled because flatMap receives the emitted exchange
+                .flatMap(chain::filter);
     }
 }
