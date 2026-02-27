@@ -60,46 +60,50 @@ spring:
   cloud:
     discovery:
       enabled: false
-    kubernetes:
-      discovery:
-        enabled: false
     gateway:
-      metrics:
-        enabled: true
-      httpserver:
-        wiretap: true
-      httpclient:
-        wiretap: true
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "${hello-data.cors.allowed-origins:http://localhost:8080}"
-            allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,HEAD,PATCH,OPTIONS}"
-            allowedHeaders: "${CORS_ALLOWED_HEADERS:Access-Control-Allow-Methods,Access-Control-Allow-Origin,Authorization,Access-Control-Allow-Headers,Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers"
-            allowCredentials: ${CORS_ALLOW_CREDENTIALS:true}
-      routes:
-        - id: actuator_route
-          uri: http://localhost:8082
-          predicates:
-            - Path=/actuator/**
-          filters:
-            - RemoveRequestCookie
-        - id: cloudbeaver_route
-          uri: http://${hello-data.cloudbeaver.service-name}
-          predicates:
-            - Path=/**
-          filters:
-            - AddCbAuth
-            - RemoveRequestCookie
-        - id: cloudbeaver_websocket_route
-          uri: ws://${hello-data.cloudbeaver.service-name}
-          predicates:
-            - Path=/**
-          filters:
-            - AddCbAuth
-            - RemoveRequestCookie
+      server:
+        webflux:
+          routes:
+            - id: actuator_route
+              uri: http://localhost:8082
+              predicates:
+                - Path=/actuator/**
+              filters:
+                - RemoveRequestCookie
+
+            # WEBSOCKET - has to be first for path /**
+            - id: cloudbeaver_websocket_route
+              uri: ws://${hello-data.cloudbeaver.service-name}
+              predicates:
+                - Path=/**
+                - Header=Upgrade, websocket # React only to WebSockets
+              filters:
+                - AddCbAuth
+                - RemoveRequestCookie
+
+            # HTTP - will serve all non-WebSocket requests, has to be after WebSocket route
+            - id: cloudbeaver_route
+              uri: http://${hello-data.cloudbeaver.service-name}
+              predicates:
+                - Path=/**
+              filters:
+                - AddCbAuth
+                - RemoveRequestCookie
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins: "${hello-data.cors.allowed-origins:http://localhost:8080}"
+                allowedMethods: "${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,HEAD,PATCH,OPTIONS}"
+                allowedHeaders: "${CORS_ALLOWED_HEADERS:Access-Control-Allow-Methods,Access-Control-Allow-Origin,Authorization,Access-Control-Allow-Headers,Origin,Accept,X-Requested-With,Content-Type,Access-Control-Request-Method,Access-Control-Request-Headers"
+                allowCredentials: ${CORS_ALLOW_CREDENTIALS:true}
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+          metrics:
+            enabled: true
+          httpserver:
+            wiretap: true
+          httpclient:
+            wiretap: true
 server:
   port: 8087
   error:
