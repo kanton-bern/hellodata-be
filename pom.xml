@@ -35,7 +35,7 @@
         <push-docker-image-phase>post-integration-test</push-docker-image-phase>
         <docker.namespace>bedag</docker.namespace>
         <docker-maven-plugin.version>0.48.1</docker-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <build.number>local-build</build.number>
     </properties>
 
@@ -114,7 +114,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>tidy-maven-plugin</artifactId>
-                    <version>1.2.0</version>
+                    <version>1.4.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
