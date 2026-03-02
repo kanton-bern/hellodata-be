@@ -25,12 +25,12 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, HostBinding, inject, OnInit} from '@angular/core';
+import {Component, HostBinding, inject, OnDestroy, OnInit} from '@angular/core';
 import {AppInfoService, ScreenService} from './shared/services';
 import {Store} from "@ngrx/store";
 import {AppState} from "./store/app/app.state";
-import {selectCurrentBusinessDomain} from "./store/auth/auth.selector";
-import {Observable, tap} from "rxjs";
+import {selectCurrentBusinessDomain, selectFirstLogin} from "./store/auth/auth.selector";
+import {filter, Observable, Subject, take, takeUntil, tap, timer} from "rxjs";
 import {Title} from "@angular/platform-browser";
 import {checkAuth, checkProfile} from "./store/auth/auth.action";
 import {selectQueryParam} from "./store/router/router.selectors";
@@ -38,24 +38,30 @@ import {navigate} from "./store/app/app.action";
 import {AsyncPipe} from '@angular/common';
 import {RouterOutlet} from '@angular/router';
 import {MobileComponent, SideNavOuterToolbarComponent} from "./layouts";
+import {TranslocoModule} from "@jsverse/transloco";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent]
+  imports: [RouterOutlet, AsyncPipe, SideNavOuterToolbarComponent, MobileComponent, TranslocoModule]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly screen = inject(ScreenService);
   appInfo = inject(AppInfoService);
   private readonly title = inject(Title);
+  private readonly destroy$ = new Subject<void>();
 
   private static readonly REDIRECT_TO_PARAM = 'redirectTo';
+  private static readonly FIRST_LOGIN_DELAY_MS = 5000;
+  private static readonly FADE_OUT_DURATION_MS = 600;
 
   businessDomain$: Observable<string>;
   redirectTo$: Observable<any>;
   isMobile$: Observable<boolean>;
+  showFirstLoginOverlay = false;
+  overlayFadingOut = false;
 
   constructor() {
     const appInfo = this.appInfo;
@@ -100,6 +106,37 @@ export class AppComponent implements OnInit {
       setTimeout(() => clearInterval(clearRedirectInterval), 5000);
     }, 500);
     this.checkProfile();
+    this.watchFirstLogin();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private watchFirstLogin(): void {
+    this.store.select(selectFirstLogin).pipe(
+      filter(firstLogin => firstLogin),
+      take(1),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      console.debug('[App] First login detected, showing overlay for', AppComponent.FIRST_LOGIN_DELAY_MS, 'ms');
+      this.showFirstLoginOverlay = true;
+      this.overlayFadingOut = false;
+      // After display duration, trigger fade-out animation
+      timer(AppComponent.FIRST_LOGIN_DELAY_MS).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(() => {
+        this.overlayFadingOut = true;
+        // Remove from DOM after fade-out animation completes
+        timer(AppComponent.FADE_OUT_DURATION_MS).pipe(
+          takeUntil(this.destroy$)
+        ).subscribe(() => {
+          this.showFirstLoginOverlay = false;
+          this.overlayFadingOut = false;
+        });
+      });
+    });
   }
 
   private checkProfile() {

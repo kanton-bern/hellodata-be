@@ -125,6 +125,12 @@ public class UserService {
         return !userEntity.isEnabled();
     }
 
+    @Transactional(readOnly = true)
+    public boolean isFirstLogin(String userId) {
+        UserEntity userEntity = getUserEntity(userId);
+        return userEntity.getLastAccess() == null;
+    }
+
 
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {

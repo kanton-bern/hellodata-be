@@ -1,3 +1,12 @@
+@if (showFirstLoginOverlay) {
+  <div class="first-login-overlay" [class.fade-out]="overlayFadingOut">
+    <div class="first-login-content">
+      <img src="assets/img/hellodata-logo.png" alt="HelloDATA" class="first-login-logo spinning"/>
+      <p class="first-login-text">{{ '@Preparing your workspace' | transloco }}</p>
+    </div>
+  </div>
+}
+
 <ng-container>
   @if ((isMobile$ | async) === false) {
     <app-side-nav-outer-toolbar title="{{appInfo.title}}">

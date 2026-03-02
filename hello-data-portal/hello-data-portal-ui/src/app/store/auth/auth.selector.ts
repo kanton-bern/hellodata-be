@@ -151,6 +151,16 @@ export const selectCurrentUserCommentPermissions = createSelector(
 export const selectCurrentUserCommentPermissionsForContext = (contextKey: string) => createSelector(
   authState,
   (state: AuthState): CommentPermissions => {
-    return state.currentUserCommentPermissions[contextKey] || {readComments: false, writeComments: false, reviewComments: false};
+    return state.currentUserCommentPermissions[contextKey] || {
+      readComments: false,
+      writeComments: false,
+      reviewComments: false
+    };
   }
 );
+
+export const selectFirstLogin = createSelector(
+  authState,
+  (state: AuthState) => state.firstLogin
+);
+

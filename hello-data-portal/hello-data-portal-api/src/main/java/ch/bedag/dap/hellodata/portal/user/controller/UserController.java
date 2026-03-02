@@ -122,17 +122,19 @@ public class UserController {
             if (currentUserId != null) {
                 log.debug("Current user id {}", currentUserId);
                 String currentUserIdStr = currentUserId.toString();
+                boolean firstLogin = userService.isFirstLogin(currentUserIdStr);
                 userService.updateLastAccess(currentUserIdStr);
                 // Fetch isSuperuser from database to avoid using cached token value
                 boolean isSuperuser = userService.isUserSuperuser(currentUserId);
                 return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), isSuperuser,
                         helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
-                        userService.isUserDisabled(currentUserIdStr), userService.getSelectedLanguage(currentUserIdStr)
+                        userService.isUserDisabled(currentUserIdStr), userService.getSelectedLanguage(currentUserIdStr),
+                        firstLogin
                 );
             }
             return new CurrentUserDto(SecurityUtils.getCurrentUserEmail(), getCurrentUserPermissions(), false,
                     helloDataContextConfig.getBusinessContext().getName(), systemProperties.isDisableLogout(),
-                    false, Locale.ROOT);
+                    false, Locale.ROOT, true);
         } catch (ClientErrorException e) {
             log.error("Error on getting user sessions", e);
             throw new ResponseStatusException(HttpStatusCode.valueOf(e.getResponse().getStatus()));

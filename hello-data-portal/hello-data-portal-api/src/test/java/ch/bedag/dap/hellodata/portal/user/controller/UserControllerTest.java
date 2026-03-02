@@ -192,7 +192,7 @@ class UserControllerTest extends HDControllerTest {
     void getPermissionsForCurrentUser() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName", false, false, Locale.ENGLISH);
+        CurrentUserDto currentUser = new CurrentUserDto("user@test.com", Set.of("PERMISSION1", "PERMISSION2"), false, "ContextName", false, false, Locale.ENGLISH, false);
 
         when(userService.getUserPortalPermissions(userId)).thenReturn(currentUser.permissions());
         HelloDataContextConfig.BusinessContext businessContext = new HelloDataContextConfig.BusinessContext();

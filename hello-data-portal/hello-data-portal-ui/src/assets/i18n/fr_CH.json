@@ -394,7 +394,8 @@
   "@Year": "Année",
   "@Yes": "Oui",
   "@You are not allowed to access this page": "Vous n'êtes pas autorisé à accéder à cette page. Veuillez contactez votre administrateur.",
+  "@Preparing your workspace": "Préparation de votre espace de travail...",
   "@draft": "Brouillon",
-  "@declined": "Refusé",
-  "@edited": "modifié"
+  "@declined": "Refus",
+  "@edited": "modifi"
 }

@@ -40,7 +40,8 @@ export interface AuthState {
   userDisabled: boolean,
   supportedLanguages: string[],
   selectedLanguage: string | null,
-  defaultLanguage: string | null
+  defaultLanguage: string | null,
+  firstLogin: boolean
 }
 
 export interface CurrentUserAuthData {
@@ -49,7 +50,8 @@ export interface CurrentUserAuthData {
   businessDomain: string,
   disableLogout: boolean,
   userDisabled: boolean,
-  selectedLanguage: string | null
+  selectedLanguage: string | null,
+  firstLogin: boolean
 }
 
 export const initialAuthState: AuthState = {
@@ -65,6 +67,7 @@ export const initialAuthState: AuthState = {
   userDisabled: false,
   supportedLanguages: [],
   selectedLanguage: null,
-  defaultLanguage: null
+  defaultLanguage: null,
+  firstLogin: false
 }
 

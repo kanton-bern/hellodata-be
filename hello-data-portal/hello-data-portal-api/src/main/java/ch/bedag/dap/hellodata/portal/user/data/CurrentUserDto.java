@@ -30,5 +30,6 @@ import java.util.Locale;
 import java.util.Set;
 
 public record CurrentUserDto(String email, Set<String> permissions, boolean isSuperuser, String businessDomain,
-                             boolean disableLogout, boolean userDisabled, Locale selectedLanguage) {
+                             boolean disableLogout, boolean userDisabled, Locale selectedLanguage,
+                             boolean firstLogin) {
 }
