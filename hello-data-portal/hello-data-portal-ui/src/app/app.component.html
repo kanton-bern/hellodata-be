@@ -1,7 +1,13 @@
 @if (showFirstLoginOverlay) {
   <div class="first-login-overlay" [class.fade-out]="overlayFadingOut">
     <div class="first-login-content">
-      <img src="assets/img/hellodata-logo.png" alt="HelloDATA" class="first-login-logo spinning"/>
+      <div class="card-stack">
+        <div class="card card-1"><img src="assets/img/hellodata-logo.png" alt=""/></div>
+        <div class="card card-2"><img src="assets/img/hellodata-logo.png" alt=""/></div>
+        <div class="card card-3"><img src="assets/img/hellodata-logo.png" alt=""/></div>
+        <div class="card card-4"><img src="assets/img/hellodata-logo.png" alt=""/></div>
+        <div class="card card-5"><img src="assets/img/hellodata-logo.png" alt=""/></div>
+      </div>
       <p class="first-login-text">{{ '@Preparing your workspace' | transloco }}</p>
     </div>
   </div>

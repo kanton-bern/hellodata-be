@@ -42,16 +42,17 @@ import {MatomoTrackerDirective} from 'ngx-matomo-client';
 import {Editor} from 'primeng/editor';
 import {FormsModule} from '@angular/forms';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Tooltip} from 'primeng/tooltip';
 
 @Component({
   selector: 'app-faq',
   templateUrl: './faq.component.html',
   styleUrls: ['./faq.component.scss'],
-  imports: [TableModule, PrimeTemplate, Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class FaqComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
 
   faq$: Observable<GroupedFaq[]>;
   selectedLanguage$: Observable<any>;

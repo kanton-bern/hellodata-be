@@ -37,17 +37,18 @@ import {AsyncPipe} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Tooltip} from 'primeng/tooltip';
 import {navigate} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-lineage',
   templateUrl: './lineage.component.html',
   styleUrls: ['./lineage.component.scss'],
-  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class LineageComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly fb = inject(FormBuilder);
 
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;

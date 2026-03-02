@@ -30,7 +30,8 @@
           <ng-template pTemplate="header">
             <tr>
               <th id="icon"></th>
-              <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
+              <th id="contextName" pSortableColumn="contextName" [pTooltip]="'@Data domain' | transloco"
+                  tooltipPosition="top">{{ '@Data domain' | transloco }}
                 <p-sortIcon field="contextName"/>
               </th>
               <th id="title" pSortableColumn="title">{{ '@Dashboard' | transloco }}

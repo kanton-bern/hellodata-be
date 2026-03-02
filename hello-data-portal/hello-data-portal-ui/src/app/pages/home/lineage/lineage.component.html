@@ -11,7 +11,8 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="icon"></th>
-          <th id="dataDomain" pSortableColumn="name">{{ '@Data domain' | transloco }}
+          <th id="dataDomain" pSortableColumn="name" [pTooltip]="'@Data domain' | transloco"
+              tooltipPosition="top">{{ '@Data domain' | transloco }}
             <p-sortIcon field="name"/>
           </th>
           <th id="name" pSortableColumn="name">{{ '@Docs' | transloco }}
@@ -20,11 +21,11 @@
         </tr>
       </ng-template>
       <ng-template let-projectDoc pTemplate="body">
-        <tr class="cursor-pointer" (click)="onRowNavigate(projectDoc)">
+        <tr class="cursor-pointer" (click)="onRowNavigate(projectDoc)" (keydown.enter)="onRowNavigate(projectDoc)">
           <td>
             <i class="fas fa-light fa-diagram-project"></i>
           </td>
-          <td>
+          <td [pTooltip]="projectDoc.contextName" tooltipPosition="top">
             {{ projectDoc.contextName }}
           </td>
           <td>

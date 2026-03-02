@@ -47,29 +47,125 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  animation: contentSlideUp 0.5s ease-out 0.1s both;
+  gap: 2rem;
 }
 
-.first-login-logo {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
+// ── Card stack ──────────────────────────────────────────────
+.card-stack {
+  position: relative;
+  width: 140px;
+  height: 140px;
 }
 
-.first-login-logo.spinning {
-  animation: spin 2s linear infinite;
+.card {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  opacity: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
 
-@keyframes spin {
+// Each card flies in from a different direction, then settles with a slight offset & rotation
+.card-1 {
+  animation: cardIn1 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+
+.card-2 {
+  animation: cardIn2 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+}
+
+.card-3 {
+  animation: cardIn3 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
+}
+
+.card-4 {
+  animation: cardIn4 0.6s cubic-bezier(0.22, 1, 0.36, 1) 1.15s forwards;
+}
+
+.card-5 {
+  animation: cardIn5 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.5s forwards;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13);
+}
+
+// Card 1 — from top-left, settles bottom of stack
+@keyframes cardIn1 {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translate(-180px, -120px) rotate(-25deg) scale(0.7);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translate(-4px, 4px) rotate(-4deg) scale(1);
   }
 }
 
+// Card 2 — from right, settles slightly offset
+@keyframes cardIn2 {
+  from {
+    opacity: 0;
+    transform: translate(180px, -60px) rotate(20deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translate(3px, 3px) rotate(3deg) scale(1);
+  }
+}
+
+// Card 3 — from bottom-left
+@keyframes cardIn3 {
+  from {
+    opacity: 0;
+    transform: translate(-150px, 140px) rotate(15deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-2px, -2px) rotate(-1.5deg) scale(1);
+  }
+}
+
+// Card 4 — from bottom-right
+@keyframes cardIn4 {
+  from {
+    opacity: 0;
+    transform: translate(160px, 100px) rotate(-18deg) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translate(1px, -1px) rotate(1deg) scale(1);
+  }
+}
+
+// Card 5 — top card, drops from above, lands centered with a subtle bounce
+@keyframes cardIn5 {
+  0% {
+    opacity: 0;
+    transform: translateY(-200px) rotate(0deg) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(6px) rotate(0deg) scale(1.03);
+  }
+  80% {
+    transform: translateY(-3px) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+}
+
+// ── Shared keyframes ────────────────────────────────────────
 @keyframes overlayFadeIn {
   from {
     opacity: 0;
@@ -88,20 +184,22 @@
   }
 }
 
-@keyframes contentSlideUp {
+.first-login-text {
+  font-size: 1.2rem;
+  color: #555;
+  font-weight: 500;
+  opacity: 0;
+  animation: textFadeIn 0.5s ease-out 2s forwards;
+}
+
+@keyframes textFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.first-login-text {
-  font-size: 1.2rem;
-  color: #555;
-  font-weight: 500;
 }
 

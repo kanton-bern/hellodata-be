@@ -9,7 +9,8 @@
   <ng-template pTemplate="header">
     <tr>
       <th id="iconHeader"></th>
-      <th id="dataDomain" pSortableColumn="domain">{{ '@Data domain' | transloco }}
+      <th id="dataDomain" pSortableColumn="domain" [pTooltip]="'@Data domain' | transloco"
+          tooltipPosition="top">{{ '@Data domain' | transloco }}
         <p-sortIcon field="domain"/>
       </th>
       <th id="name" pSortableColumn="name">{{ '@Data Mart' | transloco }}
@@ -18,11 +19,11 @@
     </tr>
   </ng-template>
   <ng-template let-datamart pTemplate="body">
-    <tr class="cursor-pointer" (click)="onRowNavigate()">
+    <tr class="cursor-pointer" (click)="onRowNavigate()" (keydown.enter)="onRowNavigate()">
       <td>
         <i class="fas fa-light fa-store"></i>
       </td>
-      <td>
+      <td [pTooltip]="datamart.label" tooltipPosition="top">
         {{ datamart.label }}
       </td>
       <td>

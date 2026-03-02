@@ -15,7 +15,8 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th id="icon"></th>
-                  <th id="dataDomain" pSortableColumn="contextKey">{{ '@Data domain' | transloco }}
+                  <th id="dataDomain" pSortableColumn="contextKey" [pTooltip]="'@Data domain' | transloco"
+                      tooltipPosition="top">{{ '@Data domain' | transloco }}
                     <p-sortIcon field="contextKey"/>
                   </th>
                   <th id="name" pSortableColumn="name">{{ '@Faq' | transloco }}
@@ -28,7 +29,9 @@
                   <td>
                     <i class="fa fa-question-circle fa-lg"></i>
                   </td>
-                  <td>
+                  <td
+                    [pTooltip]="item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName"
+                    tooltipPosition="top">
                     {{ item.contextKey === 'ALL_DATA_DOMAINS' ? ('@All Data Domains' | transloco) : item.contextName }}
                   </td>
                   <td>

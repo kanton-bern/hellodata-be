@@ -35,17 +35,18 @@ import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {AsyncPipe} from '@angular/common';
 import {TranslocoPipe} from '@jsverse/transloco';
+import {Tooltip} from 'primeng/tooltip';
 import {navigate} from "../../../store/app/app.action";
 
 @Component({
   selector: 'app-dm',
   templateUrl: './dm.component.html',
   styleUrls: ['./dm.component.scss'],
-  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class DmComponent {
-  private route = inject(ActivatedRoute);
-  private store = inject<Store<AppState>>(Store);
+  private readonly route = inject(ActivatedRoute);
+  private readonly store = inject<Store<AppState>>(Store);
 
   dataMarts$: Observable<any>;
 
