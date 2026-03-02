@@ -27,6 +27,7 @@
 package ch.bedag.dap.hellodata.portal.base;
 
 import ch.bedag.dap.hellodata.portal.base.auth.HellodataAuthenticationConverter;
+import ch.bedag.dap.hellodata.portal.user.service.AutoProvisionService;
 import ch.bedag.dap.hellodata.portalcommon.user.repository.UserRepository;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,6 +59,8 @@ public abstract class HDControllerTest {
     protected MockMvc mockMvc;
     @MockitoBean
     protected UserRepository userRepository;
+    @MockitoBean
+    private AutoProvisionService autoProvisionService;
     @MockitoBean
     private InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository;
 
