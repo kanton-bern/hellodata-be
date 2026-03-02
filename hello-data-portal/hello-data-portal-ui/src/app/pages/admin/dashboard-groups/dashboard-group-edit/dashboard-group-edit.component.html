@@ -77,7 +77,7 @@
 
       <p-divider/>
 
-      <p-tabs value="0">
+      <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
         <p-tablist>
           <p-tab value="0">
             <i class="fas fa-chart-pie mr-2"></i>

@@ -123,6 +123,15 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
   currentContextKey = '';
   currentDomainName = '';
 
+  // Active tab persisted via sessionStorage
+  private static readonly TAB_STORAGE_KEY = 'dashboardGroupEditActiveTab';
+  activeTab: string = sessionStorage.getItem(DashboardGroupEditComponent.TAB_STORAGE_KEY) || '0';
+
+  onTabChange(tabValue: string | number | undefined) {
+    this.activeTab = String(tabValue ?? '0');
+    sessionStorage.setItem(DashboardGroupEditComponent.TAB_STORAGE_KEY, this.activeTab);
+  }
+
   /**
    * Formats role name for display by replacing underscores with spaces
    */
