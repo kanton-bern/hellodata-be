@@ -142,11 +142,16 @@ export class DashboardGroupsEffects {
       ofType(deleteDashboardGroupSuccess),
       withLatestFrom(this._store.select(selectActiveContextKey)),
       tap(() => this._notificationService.success('@Dashboard group deleted successfully')),
-      switchMap(([, contextKey]) => scheduled([hideDeleteDashboardGroupPopup(), loadDashboardGroups({
-        contextKey: contextKey || '',
-        page: 0,
-        size: 10
-      })], asyncScheduler))
+      switchMap(([, contextKey]) => scheduled([
+        hideDeleteDashboardGroupPopup(),
+        clearUnsavedChanges(),
+        navigate({url: `${naviElements.dashboardGroups.path}/list/${contextKey || ''}`}),
+        loadDashboardGroups({
+          contextKey: contextKey || '',
+          page: 0,
+          size: 10
+        })
+      ], asyncScheduler))
     );
   });
 

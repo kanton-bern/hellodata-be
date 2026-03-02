@@ -36,6 +36,7 @@ import {
   ValidationErrors,
   Validators
 } from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../../store/app/app.state';
 import {
@@ -55,8 +56,10 @@ import {markUnsavedChanges} from '../../../../store/unsaved-changes/unsaved-chan
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {
   deleteDashboardGroup,
+  loadDashboardGroupById,
   loadDashboardGroups,
   loadEligibleUsers,
+  openDashboardGroupEdition,
   saveChangesToDashboardGroup,
   setActiveContextKey,
   showDeleteDashboardGroupPopup
@@ -129,12 +132,25 @@ export class DashboardGroupEditComponent extends BaseComponent implements OnInit
 
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   private allDashboardGroups: DashboardGroup[] = [];
   private currentGroupId?: string;
 
   constructor() {
     super();
     this.store.dispatch(loadMyDashboards());
+
+    // Load dashboard group by ID from route params (handles page refresh)
+    const groupId = this.route.snapshot.paramMap.get('groupId');
+    const contextKey = this.route.snapshot.paramMap.get('contextKey');
+    if (groupId) {
+      this.store.dispatch(loadDashboardGroupById());
+    } else if (contextKey) {
+      // Create mode: initialize empty dashboard group with contextKey from route
+      this.store.dispatch(setActiveContextKey({contextKey}));
+      this.store.dispatch(openDashboardGroupEdition({dashboardGroup: null}));
+    }
+
     this.editedDashboardGroup$ = this.store.select(selectEditedDashboardGroup);
     this.eligibleUsers$ = this.store.select(selectEligibleUsers);
 
