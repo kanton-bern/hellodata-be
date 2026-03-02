@@ -178,4 +178,15 @@ p-button[severity="help"] .p-button {
   font-size: 0.9rem !important;
 }
 
+/* ── PrimeNG Tabs: separator line & stronger active indicator ── */
+.p-tablist {
+  border-bottom: 1px solid var(--p-surface-border, var(--p-surface-200));
+}
+
+.p-tab-active {
+  border-bottom: 2px solid var(--p-primary-color, var(--p-primary-500)) !important;
+  color: var(--p-primary-color, var(--p-primary-500)) !important;
+  font-weight: 600;
+}
+
 
