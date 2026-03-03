@@ -111,6 +111,7 @@ nav:
       - Data Publisher: concepts/data-publisher.md
       - Dashboard Comments: concepts/dashboard-comments.md
       - Dashboard Groups: concepts/dashboard-groups.md
+      - Auto-Provision Viewer on Login: concepts/auto-provision-viewer-on-login.md
       - Workspace Troubleshoot: concepts/workspaces-troubleshoot.md
   - Manuals:
       - User Manual: manuals/user-manual.md
