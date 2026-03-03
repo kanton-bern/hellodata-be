@@ -25,7 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-FROM bedag/hellodata-superset:5.0-HD.rc1
+FROM bedag/hellodata-superset:5.0-HD.rc3
 
 ARG GECKODRIVER_VERSION=0.34.0
 
