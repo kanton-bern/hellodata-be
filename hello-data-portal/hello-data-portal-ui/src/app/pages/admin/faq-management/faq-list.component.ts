@@ -29,21 +29,19 @@ import {Component, inject, OnInit} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {selectAllFaq} from "../../../store/faq/faq.selector";
+import {selectFilteredFaq} from "../../../store/faq/faq.selector";
 import {Faq} from "../../../store/faq/faq.model";
 import {naviElements} from "../../../app-navi-elements";
 import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../store/faq/faq.action";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, UpperCasePipe} from '@angular/common';
 import {Toolbar} from 'primeng/toolbar';
 import {PrimeTemplate, SharedModule} from 'primeng/api';
 import {Button} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
 import {TableModule} from 'primeng/table';
-import {Editor} from 'primeng/editor';
-import {FormsModule} from '@angular/forms';
 import {Tooltip} from 'primeng/tooltip';
 import {DeleteFaqPopupComponent} from './delete-faq-popup/delete-faq-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
@@ -52,18 +50,19 @@ import {TranslocoPipe} from '@jsverse/transloco';
   selector: 'app-faq-list',
   templateUrl: './faq-list.component.html',
   styleUrls: ['./faq-list.component.scss'],
-  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Editor, FormsModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, UpperCasePipe, TranslocoPipe]
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;
   selectedLanguage$: Observable<any>;
-  private store = inject<Store<AppState>>(Store);
+  expandedRows: { [key: string]: boolean } = {};
+  private readonly store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();
     const store = this.store;
 
-    this.faq$ = this.store.select(selectAllFaq);
+    this.faq$ = this.store.select(selectFilteredFaq);
     this.selectedLanguage$ = this.store.select(selectSelectedLanguage);
     store.dispatch(loadFaq());
     this.store.dispatch(createBreadcrumbs({
@@ -96,11 +95,22 @@ export class FaqListComponent extends BaseComponent implements OnInit {
     return deleteFaq();
   }
 
+  private static readonly DEFAULT_LOCALE = 'de_CH';
+
   getTitle(faq: Faq, selectedLanguage: any): string | undefined {
-    return faq?.messages?.[selectedLanguage.code]?.title;
+    return faq?.messages?.[selectedLanguage.code]?.title
+      || faq?.messages?.[FaqListComponent.DEFAULT_LOCALE]?.title;
   }
 
-  getMessage(faq: Faq, selectedLanguage: any): string | undefined {
-    return faq?.messages?.[selectedLanguage.code]?.message;
+
+  getTranslations(faq: Faq): { locale: string; title: string; message: string }[] {
+    if (!faq?.messages) {
+      return [];
+    }
+    return Object.entries(faq.messages).map(([locale, msg]) => ({
+      locale,
+      title: msg.title || '',
+      message: msg.message || ''
+    }));
   }
 }
