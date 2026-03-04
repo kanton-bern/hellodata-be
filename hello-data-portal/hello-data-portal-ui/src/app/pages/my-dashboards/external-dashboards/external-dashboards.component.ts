@@ -26,7 +26,7 @@
 ///
 
 import {Component, inject, OnInit, viewChild} from '@angular/core';
-import {Observable} from "rxjs";
+import {distinctUntilChanged, Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {ConfirmationService, PrimeTemplate} from "primeng/api";
@@ -66,14 +66,17 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;
-  private store = inject<Store<AppState>>(Store);
-  private confirmationService = inject(ConfirmationService);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
   private filterTimer: any;
+  paginatorFirst = 0;
 
   constructor() {
     super();
-    this.externalDashboards$ = this.store.select(selectExternalDashboards);
+    this.externalDashboards$ = this.store.select(selectExternalDashboards).pipe(
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    );
     this.currentUserPermissions$ = this.store.select(selectCurrentUserPermissions);
     this.store.dispatch(createBreadcrumbs({
       breadcrumbs: [
@@ -135,6 +138,7 @@ export class ExternalDashboardsComponent extends BaseComponent implements OnInit
   }
 
   onPageChange($event: TablePageEvent) {
+    this.paginatorFirst = $event.first;
     const pageIndex = $event.first / $event.rows;   // 0-based
     const pageNumber = pageIndex + 1;
 

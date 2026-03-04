@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
@@ -99,6 +99,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   readonly commentUtils = inject(DashboardCommentUtilsService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
+  readonly dt = viewChild<Table>('dt');
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
@@ -113,6 +114,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   // For filtering
   globalFilterValue: string = '';
   selectedStatus: DashboardCommentStatus | null = null;
+  paginatorFirst = 0;
 
   // Status filter options
   statusOptions: any[] = [
@@ -186,6 +188,14 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         this.contextName = resolvedName;
         this.globalFilterValue = '';
 
+        // Reset table state so PrimeNG restores from the new stateKey when new data arrives
+        const table = this.dt();
+        if (table) {
+          table.first = 0;
+          table.stateRestored = false;
+        }
+        this.comments = [];
+
         // Initialize permission selectors with the contextKey
         this.canEditFn = this.store.selectSignal(canEditCommentForContext(contextKey!));
         this.canPublishFn = this.store.selectSignal(canPublishCommentForContext(contextKey!));
@@ -232,7 +242,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     this.domainCommentsService.getCommentsForDomain(this.contextKey, includeDeleted).subscribe({
       next: (comments: DomainDashboardComment[]) => {
         // Map active version text to 'text' field and tags to 'tagsString' for filtering
-        this.comments = comments.filter(comment => {
+        const newComments = comments.filter(comment => {
           if (this.selectedStatus === DashboardCommentStatus.DELETED) {
             // If deleted filter is on, show all returned comments (already filtered by backend)
             return true;
@@ -253,6 +263,10 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           };
         });
 
+        // Only reassign if data changed to prevent p-table pagination reset
+        if (JSON.stringify(newComments) !== JSON.stringify(this.comments)) {
+          this.comments = newComments;
+        }
         this.domainTags = this.extractUniqueTags(comments);
         this.loading = false;
       },

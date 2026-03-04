@@ -9,6 +9,8 @@
     [rowsPerPageOptions]="[10, 25, 50]"
     [globalFilterFields]="['text', 'author', 'dashboardTitle', 'tagsString', 'statusLabel']"
     [tableStyle]="{'min-width': '60rem'}"
+    [stateKey]="'domain-comments-table-state-' + contextKey"
+    stateStorage="session"
     styleClass="p-datatable-striped">
 
     <ng-template pTemplate="caption">

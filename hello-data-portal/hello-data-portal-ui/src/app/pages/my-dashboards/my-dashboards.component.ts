@@ -28,7 +28,7 @@
 import {Component, inject, OnInit, viewChild} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
-import {combineLatest, map, Observable, tap} from "rxjs";
+import {combineLatest, distinctUntilChanged, map, Observable, tap} from "rxjs";
 import {SupersetDashboard} from "../../store/my-dashboards/my-dashboards.model";
 import {SupersetDashboardWithMetadata} from "../../store/start-page/start-page.model";
 import {MenuService} from "../../store/menu/menu.service";
@@ -68,9 +68,10 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   editDashboardMetadataDialog = false;
   viewDashboardDataDialog = false;
   selectedDashboard!: SupersetDashboardWithMetadata;
-  private store = inject<Store<AppState>>(Store);
-  private menuService = inject(MenuService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly menuService = inject(MenuService);
   private filterTimer: any;
+  paginatorFirst = 0;
 
   constructor() {
     super();
@@ -89,6 +90,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
           }
           return myDashboards;
         }),
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
       )
 
   }
@@ -153,6 +155,7 @@ export class MyDashboardsComponent extends BaseComponent implements OnInit {
   }
 
   onPageChange($event: TablePageEvent) {
+    this.paginatorFirst = $event.first;
     const pageIndex = $event.first / $event.rows;   // 0-based
     const pageNumber = pageIndex + 1;
 
