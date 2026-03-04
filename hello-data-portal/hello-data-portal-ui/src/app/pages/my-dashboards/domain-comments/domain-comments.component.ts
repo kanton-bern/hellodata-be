@@ -43,7 +43,7 @@ import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
-import {combineLatest, filter, Subscription} from 'rxjs';
+import {combineLatest, filter, interval, Subscription} from 'rxjs';
 import {
   canDeleteCommentForContext,
   canEditCommentForContext,
@@ -63,6 +63,8 @@ import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.
 import {AutoComplete} from 'primeng/autocomplete';
 import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
 import {TranslateService} from '../../../shared/services/translate.service';
+
+const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 
 @Component({
@@ -101,6 +103,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
   private routeSubscription?: Subscription;
+  private commentsRefreshSubscription: Subscription | null = null;
 
   contextKey: string = '';
   contextName: string = '';
@@ -192,6 +195,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
         this.createBreadcrumbs();
         this.loadComments();
+        this.startRefreshTimer();
       } else if (contextNameChanged) {
         // Update breadcrumb when contextName resolves after data domains load
         this.contextName = resolvedName;
@@ -202,6 +206,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSubscription?.unsubscribe();
+    this.stopRefreshTimer();
   }
 
   private createBreadcrumbs(): void {
@@ -255,6 +260,22 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  private startRefreshTimer(): void {
+    this.stopRefreshTimer();
+    this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).subscribe(() => {
+      if (this.contextKey) {
+        this.loadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
+      }
+    });
+  }
+
+  private stopRefreshTimer(): void {
+    if (this.commentsRefreshSubscription) {
+      this.commentsRefreshSubscription.unsubscribe();
+      this.commentsRefreshSubscription = null;
+    }
   }
 
   private extractUniqueTags(comments: DomainDashboardComment[]): string[] {
