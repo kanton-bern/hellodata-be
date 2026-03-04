@@ -43,7 +43,7 @@
     "@tailwindcss/postcss": "^4.1.17",
     "angular-auth-oidc-client": "^20.0.3",
     "angular-build-info": "^2.0.1",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "ngx-matomo-client": "^8.0.0",
     "ngx-pipes": "^3.2.2",
     "primeicons": "^7.0.0",
@@ -88,12 +88,14 @@
     "typescript": "^5.5.4"
   },
   "resolutions": {
-    "tar": "^7.5.7",
+    "tar": "^7.5.8",
     "js-yaml": "^4.1.1",
     "glob": "^10.5.0",
     "qs": "^6.14.2",
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "webpack": "^5.104.1",
     "minimatch": "^10.2.1",
     "hono": "^4.11.10"
   },
