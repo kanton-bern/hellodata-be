@@ -183,6 +183,20 @@ requiring a new login.
 
 ---
 
+## First Login User Experience
+
+When a user logs in for the first time and auto-provisioning is active, the portal displays a **loading overlay** to
+indicate that the workspace is being prepared. This overlay:
+
+- Appears **immediately** (no entrance animation) with a card stack visual and a "Preparing your workspace" message.
+- Remains visible for a brief period (~5 seconds) while subsystem synchronization completes in the background.
+- **Fades out smoothly** (0.6s animation) once the preparation period ends.
+
+During this time, the portal polls for the user's profile at a faster interval (every 5 seconds) to detect when
+subsystem roles and dashboards become available. After 2 minutes, polling falls back to the normal 30-second interval.
+
+---
+
 ## Related Components
 
 | Component                                     | Description                                                        |

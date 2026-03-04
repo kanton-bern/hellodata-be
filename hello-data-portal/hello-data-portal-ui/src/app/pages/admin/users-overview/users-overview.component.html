@@ -1,15 +1,22 @@
 <h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
 @if ((tableData$ | async); as tableData) {
   <div class="card">
-    @if ((columns$ | async); as columns) {
+    @if ((dynamicColumns$ | async); as dynamicColumns) {
       <div>
-        <p-table #dt [columns]="columns" [loading]="(dataLoading$ | async) ?? false" [value]="tableData"
+        <p-table #dt [value]="tableData"
+                 [loading]="(dataLoading$ | async) ?? false"
                  [scrollable]="true" [stripedRows]="true"
-                 scrollHeight="flex">
+                 scrollHeight="flex"
+                 dataKey="email"
+                 [expandedRowKeys]="expandedRows"
+                 [paginator]="true"
+                 [rows]="10"
+                 [rowsPerPageOptions]="[10, 20, 50, 100]"
+                 [globalFilterFields]="['email', 'businessDomainRole']">
           <ng-template pTemplate="caption">
             <div class="flex">
               <div style="text-align: left">
-                <p-button (onClick)="dt.exportCSV()" severity="info"
+                <p-button (onClick)="exportCsv(tableData, dynamicColumns)" severity="info"
                           [disabled]="(dataLoading$ | async) ?? false"
                           icon="pi pi-external-link" pRipple
                           label="{{ '@Export' | transloco }}"/>
@@ -28,49 +35,82 @@
               </div>
             </div>
           </ng-template>
-          <ng-template let-columns let-row pTemplate="header">
+          <ng-template pTemplate="header">
             <tr>
-              @for (col of columns; track col) {
-                <th id="{{col.header}}">{{ translateValue(col.header) }}</th>
-              }
+              <th id="email" scope="col">{{ '@Users' | transloco }}</th>
+              <th id="businessDomainRole" scope="col">{{ '@Business Domain Role' | transloco }}</th>
+              <th id="enabled" scope="col">{{ '@Enabled' | transloco }}</th>
+              <th scope="col" style="width: 3rem"></th>
             </tr>
             <tr>
-              @for (col of columns; track col) {
-                <th id="{{col.header}}-filter">
-                  <p-columnFilter
-                    [hidden]="col.field === 'enabled'"
-                    ariaLabel="Filter {{col.header}}"
-                    field="{{ col.field }}"
-                    matchMode="contains"
-                    placeholder="{{ '@Type and press enter' | transloco }}"
-                    type="text"/>
-                </th>
-              }
+              <th scope="col">
+                <p-columnFilter
+                  ariaLabel="Filter email"
+                  field="email"
+                  matchMode="contains"
+                  placeholder="{{ '@Type and press enter' | transloco }}"
+                  type="text"/>
+              </th>
+              <th scope="col">
+                <p-columnFilter
+                  ariaLabel="Filter businessDomainRole"
+                  field="businessDomainRole"
+                  matchMode="contains"
+                  placeholder="{{ '@Type and press enter' | transloco }}"
+                  type="text"/>
+              </th>
+              <th scope="col"></th>
+              <th scope="col"></th>
             </tr>
           </ng-template>
-          <ng-template let-columns="columns" let-row pTemplate="body">
+          <ng-template let-row pTemplate="body" let-expanded="expanded">
             <tr>
-              @for (col of columns; track col) {
-                <td>
-                  @if (shouldShowTag(row[col.field], row[col.field + NO_TAG])) {
-                    @for (value of row[col.field].split(','); track value) {
-                      <p-tag [severity]="getTagSeverity(value)"
-                             [value]="value.trim()"
-                             class="m-1"/>
+              <td>{{ row.email }}</td>
+              <td>
+                @if (row.businessDomainRole) {
+                  <p-tag [severity]="getTagSeverity(row.businessDomainRole)"
+                         [value]="row.businessDomainRole"/>
+                }
+              </td>
+              <td>
+                @if (row.enabled === 'true') {
+                  <i class="fa fa-check text-success"></i>
+                }
+                @if (row.enabled === 'false') {
+                  <i class="fa fa-times text-danger"></i>
+                }
+              </td>
+              <td>
+                <p-button type="button" pRipple [pRowToggler]="row"
+                          [text]="true" [rounded]="true" [plain]="true"
+                          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template let-row pTemplate="expandedrow">
+            <tr>
+              <td [attr.colspan]="4">
+                <div class="p-3">
+                  <div class="subsystem-details-grid">
+                    @for (col of dynamicColumns; track col.field) {
+                      <div class="subsystem-detail-card">
+                        <div class="subsystem-detail-header">{{ translateValue(col.header) }}</div>
+                        <div class="subsystem-detail-body">
+                          @if (shouldShowTag(row[col.field], row[col.field + NO_TAG])) {
+                            @for (value of row[col.field].split(','); track value) {
+                              <p-tag [severity]="getTagSeverity(value)"
+                                     [value]="value.trim()"
+                                     class="m-1"/>
+                            }
+                          } @else {
+                            {{ translateValue(row[col.field]) }}
+                          }
+                        </div>
+                      </div>
                     }
-                  } @else {
-                    @if (row[col.field] === 'true') {
-                      <i class="fa fa-check text-success"></i>
-                    }
-                    @if (row[col.field] === 'false') {
-                      <i class="fa fa-times text-danger"></i>
-                    }
-                    @if (row[col.field] !== 'true' && row[col.field] !== 'false') {
-                      {{ translateValue(row[col.field]) }}
-                    }
-                  }
-                </td>
-              }
+                  </div>
+                </div>
+              </td>
             </tr>
           </ng-template>
         </p-table>
