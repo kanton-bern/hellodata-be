@@ -32,11 +32,6 @@
 }
 
 ::ng-deep {
-  // Divider between accordion entries
-  p-accordion-panel + p-accordion-panel {
-    border-top: 1px solid #e0e0e0;
-  }
-
   .faq-domain-icon {
     margin-left: 0.5rem;
     font-size: 0.85rem;
