@@ -83,7 +83,7 @@
     "jest-preset-angular": "^15.0.3",
     "jest-sonar": "^0.2.16",
     "postcss": "^8.5.6",
-    "tailwindcss": "3",
+    "tailwindcss": "4",
     "ts-jest": "^29.4.5",
     "typescript": "^5.5.4"
   },
