@@ -35,12 +35,8 @@ import {loadFaqStartPage} from "../../../store/start-page/start-page.action";
 import {selectDefaultLanguage, selectSelectedLanguage} from "../../../store/auth/auth.selector";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {AsyncPipe} from '@angular/common';
-import {TableModule} from 'primeng/table';
-import {PrimeTemplate, SharedModule} from 'primeng/api';
 import {Accordion, AccordionContent, AccordionHeader, AccordionPanel} from 'primeng/accordion';
 import {MatomoTrackerDirective} from 'ngx-matomo-client';
-import {Editor} from 'primeng/editor';
-import {FormsModule} from '@angular/forms';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Tooltip} from 'primeng/tooltip';
 
@@ -48,7 +44,7 @@ import {Tooltip} from 'primeng/tooltip';
   selector: 'app-faq',
   templateUrl: './faq.component.html',
   styleUrls: ['./faq.component.scss'],
-  imports: [TableModule, PrimeTemplate, Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, Editor, FormsModule, SharedModule, AsyncPipe, TranslocoPipe, Tooltip]
+  imports: [Accordion, AccordionPanel, AccordionHeader, MatomoTrackerDirective, AccordionContent, AsyncPipe, TranslocoPipe, Tooltip]
 })
 export class FaqComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);

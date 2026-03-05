@@ -36,7 +36,7 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {deleteFaq, loadFaq, openFaqEdition, showDeleteFaqPopup} from "../../../store/faq/faq.action";
 import {selectSelectedLanguage} from "../../../store/auth/auth.selector";
-import {AsyncPipe, UpperCasePipe} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 import {Toolbar} from 'primeng/toolbar';
 import {PrimeTemplate, SharedModule} from 'primeng/api';
 import {Button} from 'primeng/button';
@@ -50,7 +50,7 @@ import {TranslocoPipe} from '@jsverse/transloco';
   selector: 'app-faq-list',
   templateUrl: './faq-list.component.html',
   styleUrls: ['./faq-list.component.scss'],
-  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, UpperCasePipe, TranslocoPipe]
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, SharedModule, Button, Tooltip, DeleteFaqPopupComponent, AsyncPipe, TranslocoPipe]
 })
 export class FaqListComponent extends BaseComponent implements OnInit {
   faq$: Observable<any>;
@@ -98,17 +98,25 @@ export class FaqListComponent extends BaseComponent implements OnInit {
   private static readonly DEFAULT_LOCALE = 'de_CH';
 
   getTitle(faq: Faq, selectedLanguage: any): string | undefined {
-    return faq?.messages?.[selectedLanguage.code]?.title
-      || faq?.messages?.[FaqListComponent.DEFAULT_LOCALE]?.title;
+    const title = faq?.messages?.[selectedLanguage.code]?.title;
+    if (title) {
+      return title;
+    }
+    const fallbackTitle = faq?.messages?.[FaqListComponent.DEFAULT_LOCALE]?.title;
+    if (fallbackTitle) {
+      return `${fallbackTitle} [Translation not available, fallback to DE]`;
+    }
+    return undefined;
   }
 
 
-  getTranslations(faq: Faq): { locale: string; title: string; message: string }[] {
+  getTranslations(faq: Faq): { locale: string; displayLocale: string; title: string; message: string }[] {
     if (!faq?.messages) {
       return [];
     }
     return Object.entries(faq.messages).map(([locale, msg]) => ({
       locale,
+      displayLocale: locale.split('_')[0].toUpperCase(),
       title: msg.title || '',
       message: msg.message || ''
     }));

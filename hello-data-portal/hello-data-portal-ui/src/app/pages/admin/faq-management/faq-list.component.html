@@ -85,7 +85,7 @@
                       <tbody>
                         @for (translation of getTranslations(faqItem); track translation.locale) {
                           <tr>
-                            <td><strong>{{ translation.locale | uppercase }}</strong></td>
+                            <td><strong>{{ translation.displayLocale }}</strong></td>
                             <td>{{ translation.title }}</td>
                             <td>
                               <div class="faq-message-content" [innerHTML]="translation.message"></div>
