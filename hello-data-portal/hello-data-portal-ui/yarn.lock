@@ -8759,7 +8759,7 @@ __metadata:
     quill: "npm:^2.0.3"
     rxjs: "npm:^7.8.1"
     tailwindcss: "npm:4"
-    tailwindcss-primeui: "npm:^0.6.1"
+    tailwindcss-primeui: "patch:tailwindcss-primeui@npm%3A0.6.1#~/.yarn/patches/tailwindcss-primeui-npm-0.6.1-25afb922f5.patch"
     ts-jest: "npm:^29.4.5"
     tslib: "npm:^2.8.1"
     typescript: "npm:^5.5.4"
@@ -13305,12 +13305,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss-primeui@npm:^0.6.1":
+"tailwindcss-primeui@npm:0.6.1":
   version: 0.6.1
   resolution: "tailwindcss-primeui@npm:0.6.1"
   peerDependencies:
     tailwindcss: ">=3.1.0"
   checksum: 10c0/a7a576660d4b42dd31d8851c69a1c67199bf79b74bb0ac7e7ff3c8f721e8f05b41278d9af47550a78b234426e9df68cea802ddd5d28a97b00af28b2979226f74
+  languageName: node
+  linkType: hard
+
+"tailwindcss-primeui@patch:tailwindcss-primeui@npm%3A0.6.1#~/.yarn/patches/tailwindcss-primeui-npm-0.6.1-25afb922f5.patch":
+  version: 0.6.1
+  resolution: "tailwindcss-primeui@patch:tailwindcss-primeui@npm%3A0.6.1#~/.yarn/patches/tailwindcss-primeui-npm-0.6.1-25afb922f5.patch::version=0.6.1&hash=6586c8"
+  peerDependencies:
+    tailwindcss: ">=3.1.0"
+  checksum: 10c0/bbc98c61b4ccb4fd991ff0a9c6353a1b846c276b06345157aeafd3976b0bc5aefc8ca4ef6acf3303d67002a63b2f05adf08d19405f8f9334b6090570300cbefa
   languageName: node
   linkType: hard
 
