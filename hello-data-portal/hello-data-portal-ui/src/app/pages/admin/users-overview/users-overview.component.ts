@@ -67,8 +67,9 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   readonly NO_TAG = '_no_tag';
   tableData$: Observable<TableRow[]>;
-  columns$: Observable<any[]>;
+  dynamicColumns$: Observable<any[]>;
   dataLoading$: Observable<boolean>;
+  expandedRows: { [s: string]: boolean } = {};
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
@@ -78,7 +79,7 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     const store = this.store;
 
     store.dispatch(loadSubsystemUsersForDashboards());
-    this.columns$ = this.createDynamicColumns();
+    this.dynamicColumns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
     this.dataLoading$ = this.store.select(selectSubsystemUsersForDashboardsLoading);
@@ -133,17 +134,38 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     this.store.dispatch(loadSubsystemUsersForDashboards());
   }
 
+  exportCsv(tableData: TableRow[], dynamicColumns: any[]) {
+    const fixedHeaders = ['Email', 'Business Domain Role', 'Enabled'];
+    const dynamicHeaders = dynamicColumns.map(c => this.translateValue(c.header));
+    const headers = [...fixedHeaders, ...dynamicHeaders];
+
+    const rows = tableData.map(row => {
+      const fixedValues = [row['email'], row['businessDomainRole'] || '', row['enabled'] || ''];
+      const dynamicValues = dynamicColumns.map(c => row[c.field] || '');
+      return [...fixedValues, ...dynamicValues];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], {type: 'text/csv;charset=utf-8;'});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'users-overview.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
   private createDynamicColumns(): Observable<any[]> {
     return this.store.select(selectSubsystemUsersForDashboards).pipe(
-      map((subsystemUsers) => [
-        {field: 'email', header: '@Users'},
-        {field: 'businessDomainRole', header: '@Business Domain Role'},
-        {field: 'enabled', header: '@Enabled'},
-        ...subsystemUsers.map(subsystem => ({
+      map((subsystemUsers) =>
+        subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.contextName
         }))
-      ])
+      )
     );
   }
 

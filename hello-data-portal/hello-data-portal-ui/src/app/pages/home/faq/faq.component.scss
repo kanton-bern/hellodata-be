@@ -32,38 +32,33 @@
 }
 
 ::ng-deep {
-  .p-datatable {
-    width: 100%;
-    max-width: 100%;
+  // Divider between accordion entries
+  p-accordion-panel + p-accordion-panel {
+    border-top: 1px solid #e0e0e0;
+  }
 
-    .p-datatable-table {
-      table-layout: fixed;
-      width: 100%;
+  .faq-domain-icon {
+    margin-left: 0.5rem;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    cursor: help;
+    flex-shrink: 0;
+  }
+
+  // FAQ message content rendered via innerHTML
+  .faq-message-content {
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    word-break: break-word;
+    white-space: pre-wrap;
+
+    p {
+      margin: 0 0 0.5rem 0;
     }
 
-    th, td {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 0;
-    }
-
-    // Icon column
-    th#icon, td:first-child {
-      width: 40px;
-      max-width: 40px;
-    }
-
-    // Data domain column
-    th#dataDomain, td:nth-child(2) {
-      width: 35%;
-    }
-
-    // FAQ column - takes remaining space, allow wrapping for accordion content
-    th#name, td:nth-child(3) {
-      width: auto;
-      white-space: normal;
+    img {
+      max-width: 100%;
     }
   }
 }
-

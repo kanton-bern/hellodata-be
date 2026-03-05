@@ -140,24 +140,37 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private checkProfile() {
-    // Poll quickly (every 5s) for the first 2 minutes after page load so newly
-    // auto-provisioned users see their roles/dashboards as soon as subsystem
-    // sync completes, then fall back to the normal 30s interval.
-    const FAST_INTERVAL_MS = 5000;
     const NORMAL_INTERVAL_MS = 30000;
+    const FAST_INTERVAL_MS = 5000;
     const FAST_PHASE_MS = 120000;
 
-    const fastTimer = setInterval(() => {
-      console.debug("Check profile (fast)");
+    // Start the normal 30s polling immediately
+    let profileTimer = setInterval(() => {
+      console.debug("Check profile");
       this.store.dispatch(checkProfile());
-    }, FAST_INTERVAL_MS);
+    }, NORMAL_INTERVAL_MS);
 
-    setTimeout(() => {
-      clearInterval(fastTimer);
-      setInterval(() => {
-        console.debug("Check profile");
+    // If first login, temporarily switch to fast 5s polling, then revert to 30s
+    this.store.select(selectFirstLogin).pipe(
+      filter(firstLogin => firstLogin),
+      take(1),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      console.debug('[App] First login detected, switching to fast profile polling');
+      clearInterval(profileTimer);
+
+      const fastTimer = setInterval(() => {
+        console.debug("Check profile (fast)");
         this.store.dispatch(checkProfile());
-      }, NORMAL_INTERVAL_MS);
-    }, FAST_PHASE_MS);
+      }, FAST_INTERVAL_MS);
+
+      setTimeout(() => {
+        clearInterval(fastTimer);
+        profileTimer = setInterval(() => {
+          console.debug("Check profile");
+          this.store.dispatch(checkProfile());
+        }, NORMAL_INTERVAL_MS);
+      }, FAST_PHASE_MS);
+    });
   }
 }

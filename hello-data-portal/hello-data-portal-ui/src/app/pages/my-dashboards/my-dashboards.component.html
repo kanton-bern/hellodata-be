@@ -1,120 +1,120 @@
 <h3 class="content-block">{{ '@Dashboards' | transloco }}</h3>
-@if ((dashboards$ | async); as dashboards) {
-  <div class="card">
-    <p-table #dt (onRowSelect)="onRowSelect($event)"
-             [filterDelay]="0"
-             [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
-             [paginator]="true"
-             [rowHover]="true"
-             [rows]="10"
-             [selectionPageOnly]="true"
-             [showCurrentPageReport]="true"
-             [tableStyle]="{ 'min-width': '50rem' }"
-             [value]="dashboards"
-             sortField="dashboardTitle"
-             [stripedRows]="true"
-             [sortOrder]="1"
-             (onPage)="onPageChange($event)"
-             dataKey="id"
-             selectionMode="single">
-      <ng-template pTemplate="caption">
-        <div class="flex items-center justify-between">
-          <h5 class="m-0">&nbsp;</h5>
-          <span class="p-input-icon-left">
+<div class="card">
+  <p-table #dt (onRowSelect)="onRowSelect($event)"
+           [filterDelay]="0"
+           [globalFilterFields]="['dashboardTitle', 'instanceName', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'status']"
+           [paginator]="true"
+           [rowHover]="true"
+           [rows]="10"
+           [selectionPageOnly]="true"
+           [showCurrentPageReport]="true"
+           [tableStyle]="{ 'min-width': '50rem' }"
+           [value]="(dashboards$ | async) ?? []"
+           stateKey="dashboards-table-state"
+           stateStorage="session"
+           sortField="dashboardTitle"
+           [stripedRows]="true"
+           [sortOrder]="1"
+           (onPage)="onPageChange($event)"
+           dataKey="id"
+           selectionMode="single">
+    <ng-template pTemplate="caption">
+      <div class="flex items-center justify-between">
+        <h5 class="m-0">&nbsp;</h5>
+        <span class="p-input-icon-left">
             <p-iconfield>
               <p-inputicon class="pi pi-search"/>
               <input (input)="applyFilterGlobal($event, 'contains')" pInputText
                      placeholder="{{'@Search' | transloco}}" type="text"/>
             </p-iconfield>
           </span>
-        </div>
-      </ng-template>
-      <ng-template pTemplate="header">
-        <tr>
-          <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
-            <p-sortIcon field="dashboardTitle"/>
-          </th>
-          <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
-            <p-sortIcon field="contextName"/>
-          </th>
-          <th id="businessProcessHeader" pSortableColumn="businessProcess">{{ '@Business process' | transloco }}
-            <p-sortIcon field="businessProcess"/>
-          </th>
-          <th id="departmentHeader" pSortableColumn="department">{{ '@Department' | transloco }}
-            <p-sortIcon field="department"/>
-          </th>
-          <th id="responsibilityHeader"
-              pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
-            <p-sortIcon field="responsibility"/>
-          </th>
-          <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{ '@Data analyst' | transloco }}
-            <p-sortIcon field="dataAnalyst"/>
-          </th>
-          <th id="status" pSortableColumn="status">{{ '@Status' | transloco }}
-            <p-sortIcon field="status"/>
-          </th>
-          <th id="actions" style="width: auto; min-width: 7rem;"></th>
-        </tr>
-      </ng-template>
-      <ng-template let-dashboard pTemplate="body">
-        <tr [pSelectableRow]="dashboard">
-          <td>
-            {{ dashboard.dashboardTitle }}
-          </td>
-          <td>
-            {{ dashboard.contextName }}
-          </td>
-          <td>
-            {{ dashboard.businessProcess }}
-          </td>
-          <td>
-            {{ dashboard.department }}
-          </td>
-          <td>
-            {{ dashboard.responsibility }}
-          </td>
-          <td>
-            {{ dashboard.dataAnalyst }}
-          </td>
-          <td>
-            {{ dashboard.status }}
-          </td>
-          <td>
-            <p-button (click)="openDashboard(dashboard)" (keydown.enter)="openDashboard(dashboard)"
-                      [pTooltip]="'@Open' | transloco"
-                      tooltipPosition="top"
-                      [rounded]="true"
-                      [text]="true"
-                      severity="info"
-                      class="mr-2"
-                      icon="fas fa-up-right-from-square"/>
-            <p-button (click)="openInfoPanel(dashboard)" (keydown.enter)="openInfoPanel(dashboard)"
-                      [pTooltip]="'@Info' | transloco"
-                      tooltipPosition="top"
-                      [rounded]="true"
-                      [text]="true"
-                      severity="help"
-                      class="mr-2"
-                      icon="fas fa-circle-info"/>
-            <p-button (click)="editDashboard(dashboard)" (keydown.enter)="editDashboard(dashboard)"
-                      [pTooltip]="'@Edit' | transloco"
-                      tooltipPosition="top"
-                      [rounded]="true"
-                      [text]="true"
-                      severity="success"
-                      icon="fas fa-light fa-pen-to-square"
-                      [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"/>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="9">{{ '@No dashboards found' | transloco }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-}
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="dashboardTitle" pSortableColumn="dashboardTitle">{{ '@Dashboard' | transloco }}
+          <p-sortIcon field="dashboardTitle"/>
+        </th>
+        <th id="contextName" pSortableColumn="contextName">{{ '@Data domain' | transloco }}
+          <p-sortIcon field="contextName"/>
+        </th>
+        <th id="businessProcessHeader" pSortableColumn="businessProcess">{{ '@Business process' | transloco }}
+          <p-sortIcon field="businessProcess"/>
+        </th>
+        <th id="departmentHeader" pSortableColumn="department">{{ '@Department' | transloco }}
+          <p-sortIcon field="department"/>
+        </th>
+        <th id="responsibilityHeader"
+            pSortableColumn="responsibility">{{ '@Professional responsibility' | transloco }}
+          <p-sortIcon field="responsibility"/>
+        </th>
+        <th id="dataAnalystHeader" pSortableColumn="dataAnalyst">{{ '@Data analyst' | transloco }}
+          <p-sortIcon field="dataAnalyst"/>
+        </th>
+        <th id="status" pSortableColumn="status">{{ '@Status' | transloco }}
+          <p-sortIcon field="status"/>
+        </th>
+        <th id="actions" style="width: auto; min-width: 7rem;"></th>
+      </tr>
+    </ng-template>
+    <ng-template let-dashboard pTemplate="body">
+      <tr [pSelectableRow]="dashboard">
+        <td>
+          {{ dashboard.dashboardTitle }}
+        </td>
+        <td>
+          {{ dashboard.contextName }}
+        </td>
+        <td>
+          {{ dashboard.businessProcess }}
+        </td>
+        <td>
+          {{ dashboard.department }}
+        </td>
+        <td>
+          {{ dashboard.responsibility }}
+        </td>
+        <td>
+          {{ dashboard.dataAnalyst }}
+        </td>
+        <td>
+          {{ dashboard.status }}
+        </td>
+        <td>
+          <p-button (click)="openDashboard(dashboard)" (keydown.enter)="openDashboard(dashboard)"
+                    [pTooltip]="'@Open' | transloco"
+                    tooltipPosition="top"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="info"
+                    class="mr-2"
+                    icon="fas fa-up-right-from-square"/>
+          <p-button (click)="openInfoPanel(dashboard)" (keydown.enter)="openInfoPanel(dashboard)"
+                    [pTooltip]="'@Info' | transloco"
+                    tooltipPosition="top"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="help"
+                    class="mr-2"
+                    icon="fas fa-circle-info"/>
+          <p-button (click)="editDashboard(dashboard)" (keydown.enter)="editDashboard(dashboard)"
+                    [pTooltip]="'@Edit' | transloco"
+                    tooltipPosition="top"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="success"
+                    icon="fas fa-light fa-pen-to-square"
+                    [style.display]="(dashboard.currentUserAdmin || dashboard.currentUserEditor) ? '' : 'none'"/>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9">{{ '@No dashboards found' | transloco }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
 <br/>
 <p-dialog [(visible)]="editDashboardMetadataDialog"
           [modal]="true"

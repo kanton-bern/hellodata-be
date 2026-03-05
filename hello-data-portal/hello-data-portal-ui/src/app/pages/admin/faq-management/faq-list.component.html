@@ -11,46 +11,40 @@
       <div>
         @if (faq.length > 0) {
           <p-table
-            #dt showGridlines
-            [paginator]="false"
+            #dt
+            [paginator]="true"
+            [rows]="10"
             [rowHover]="true"
+            [stripedRows]="true"
             [showCurrentPageReport]="true"
-            [tableStyle]="{ 'min-width': '75rem' }"
+            [tableStyle]="{ 'min-width': '50rem' }"
             [value]="faq"
             dataKey="id"
-            class="p-datatable-striped"
+            [expandedRowKeys]="expandedRows"
           >
             <ng-template pTemplate="header">
               <tr>
-                <th id="title">
+                <th id="faq-title" scope="col">
                   {{ '@Title' | transloco }}
                 </th>
-                <th id="dataDomain">
+                <th id="faq-dataDomain" scope="col">
                   {{ '@Data domain' | transloco }}
                 </th>
-                <th id="message" style="min-width:15rem">
-                  {{ '@Message' | transloco }}
-                </th>
-                <th id="actions" style="width:8rem"></th>
+                <th id="faq-actions" scope="col" style="width: 10rem"></th>
               </tr>
             </ng-template>
-            <ng-template let-faq pTemplate="body">
+            <ng-template let-faqItem pTemplate="body" let-expanded="expanded">
               <tr>
-                <td>{{ getTitle(faq, selectedLanguage) }}</td>
-                @if (faq.contextName) {
-                  <td>{{ faq.contextName }}</td>
-                }
-                @if (faq.contextName === null) {
-                  <td class="italic">{{ '@All Data Domains' | transloco }}</td>
-                }
+                <td>{{ getTitle(faqItem, selectedLanguage) }}</td>
                 <td>
-                  <p-editor [disabled]="true" [ngModel]="getMessage(faq, selectedLanguage)" [readonly]="true"
-                            [style]="{ height: '320px' }" class="p-editor-readonly">
-                    <p-header hidden/>
-                  </p-editor>
+                  @if (faqItem.contextName) {
+                    {{ faqItem.contextName }}
+                  } @else {
+                    <span class="italic">{{ '@All Data Domains' | transloco }}</span>
+                  }
                 </td>
                 <td>
-                  <p-button (click)="editFaq(faq)" (keydown.enter)="editFaq(faq)"
+                  <p-button (click)="editFaq(faqItem)" (keydown.enter)="editFaq(faqItem)"
                             [pTooltip]="'@Edit' | transloco"
                             tooltipPosition="top"
                             severity="success"
@@ -58,16 +52,55 @@
                             [text]="true"
                             class="mr-2"
                             icon="fas fa-light fa-pen-to-square"
-                            id="{{'editFaq_' + faq.title}}"/>
-                  <p-button (click)="showFaqDeletionPopup(faq)" (keydown.enter)="showFaqDeletionPopup(faq)"
+                            id="{{'editFaq_' + faqItem.title}}"/>
+                  <p-button (click)="showFaqDeletionPopup(faqItem)" (keydown.enter)="showFaqDeletionPopup(faqItem)"
                             [pTooltip]="'@Delete' | transloco"
                             tooltipPosition="top"
                             severity="danger"
                             [rounded]="true"
                             [text]="true"
+                            class="mr-2"
                             icon="fas fa-trash"
-                            id="{{'deleteFaq_' + faq.title}}"/>
+                            id="{{'deleteFaq_' + faqItem.title}}"/>
+                  <p-button type="button" pRipple [pRowToggler]="faqItem"
+                            [text]="true" [rounded]="true" [plain]="true"
+                            [pTooltip]="'@Details' | transloco"
+                            tooltipPosition="top"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"/>
                 </td>
+              </tr>
+            </ng-template>
+            <ng-template let-faqItem pTemplate="expandedrow">
+              <tr>
+                <td [attr.colspan]="3">
+                  <div class="p-3">
+                    <table class="faq-translations-table">
+                      <thead>
+                      <tr>
+                        <th scope="col" style="width: 8%">{{ '@Language' | transloco }}</th>
+                        <th scope="col" style="width: 20%">{{ '@Title' | transloco }}</th>
+                        <th scope="col">{{ '@Message' | transloco }}</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                        @for (translation of getTranslations(faqItem); track translation.locale) {
+                          <tr>
+                            <td><strong>{{ translation.displayLocale }}</strong></td>
+                            <td>{{ translation.title }}</td>
+                            <td>
+                              <div class="faq-message-content" [innerHTML]="translation.message"></div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="3">{{ '@No FAQ entries found' | transloco }}</td>
               </tr>
             </ng-template>
           </p-table>

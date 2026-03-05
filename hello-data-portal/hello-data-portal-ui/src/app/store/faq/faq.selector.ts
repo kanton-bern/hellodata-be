@@ -29,6 +29,7 @@ import {AppState} from "../app/app.state";
 import {selectRouteParam} from "../router/router.selectors";
 import {createSelector} from "@ngrx/store";
 import {FaqState} from "./faq.state";
+import {selectSelectedDataDomain} from "../my-dashboards/my-dashboards.selector";
 
 const faqState = (state: AppState) => state.faq;
 
@@ -37,6 +38,17 @@ export const selectParamFaqId = selectRouteParam('faqId');
 export const selectAllFaq = createSelector(
   faqState,
   (state: FaqState) => state.faq
+);
+
+export const selectFilteredFaq = createSelector(
+  selectAllFaq,
+  selectSelectedDataDomain,
+  (faq, selectedDataDomain) => {
+    if (selectedDataDomain === null || selectedDataDomain.id === '') {
+      return faq;
+    }
+    return faq.filter(f => !f.contextKey || f.contextKey === selectedDataDomain.key);
+  }
 );
 
 export const selectEditedFaq = createSelector(

@@ -41,6 +41,16 @@
   white-space: nowrap;
 }
 
+.dashboard-title {
+  word-break: break-all;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
 .tag-chip {
   display: inline-flex;
   align-items: center;

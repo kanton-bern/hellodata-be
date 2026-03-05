@@ -28,7 +28,7 @@
 import {AppInfoService, ScreenService} from './app/shared/services';
 import {importProvidersFrom, LOCALE_ID} from '@angular/core';
 import {environment} from './environments/environment';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {TokenInterceptor} from './app/shared/interceptor/token-interceptor.service';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {AsyncPipe, CommonModule, JsonPipe, registerLocaleData, TitleCasePipe} from '@angular/common';
@@ -39,7 +39,7 @@ import {EffectsModule} from '@ngrx/effects';
 import {appEffects} from './app/store/app/app.effects';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {bootstrapApplication, BrowserModule} from '@angular/platform-browser';
-import {provideAnimations} from '@angular/platform-browser/animations';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import {TranslocoRootModule} from './app/transloco-root.module';
 import {AppRoutingModule} from './app/app-routing.module';
 import {StoreRouterConnectingModule} from '@ngrx/router-store';
@@ -57,7 +57,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {MatomoModule, MatomoRouterModule} from 'ngx-matomo-client';
 import {FormsModule} from '@angular/forms';
 import {AppComponent} from './app/app.component';
-import Material from "@primeuix/themes/material";
+import Aura from "@primeuix/themes/aura";
 
 async function loadLocaleData(locale: string) {
   switch (locale) {
@@ -96,7 +96,6 @@ async function loadLocaleData(locale: string) {
         EffectsModule.forRoot(appEffects),
         StoreDevtoolsModule.instrument({maxAge: 25}),
         BrowserModule,
-        HttpClientModule,
         TranslocoRootModule,
         AppRoutingModule,
         StoreRouterConnectingModule.forRoot(),
@@ -135,7 +134,7 @@ async function loadLocaleData(locale: string) {
       TitleCasePipe,
       providePrimeNG({
         theme: {
-          preset: Material,
+          preset: Aura,
           options: {
             darkModeSelector: '.dark-mode',
             cssLayer: {
@@ -145,7 +144,7 @@ async function loadLocaleData(locale: string) {
           }
         }
       }),
-      provideAnimations()
+      provideAnimationsAsync()
     ]
   }).catch(err => console.error(err));
 })();

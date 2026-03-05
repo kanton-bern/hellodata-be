@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {AppState} from '../../../store/app/app.state';
@@ -43,7 +43,7 @@ import {InputText} from 'primeng/inputtext';
 import {FormsModule} from '@angular/forms';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
-import {combineLatest, filter, Subscription} from 'rxjs';
+import {combineLatest, filter, interval, Subscription} from 'rxjs';
 import {
   canDeleteCommentForContext,
   canEditCommentForContext,
@@ -63,6 +63,8 @@ import {DashboardCommentUtilsService} from '../services/dashboard-comment-utils.
 import {AutoComplete} from 'primeng/autocomplete';
 import {loadAvailableDataDomains} from '../../../store/my-dashboards/my-dashboards.action';
 import {TranslateService} from '../../../shared/services/translate.service';
+
+const COMMENTS_REFRESH_INTERVAL_MS = 30000; // 30 seconds
 
 
 @Component({
@@ -97,10 +99,12 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   readonly commentUtils = inject(DashboardCommentUtilsService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
+  readonly dt = viewChild<Table>('dt');
 
   protected readonly DashboardCommentStatus = DashboardCommentStatus;
 
   private routeSubscription?: Subscription;
+  private commentsRefreshSubscription: Subscription | null = null;
 
   contextKey: string = '';
   contextName: string = '';
@@ -110,6 +114,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
   // For filtering
   globalFilterValue: string = '';
   selectedStatus: DashboardCommentStatus | null = null;
+  paginatorFirst = 0;
 
   // Status filter options
   statusOptions: any[] = [
@@ -183,6 +188,14 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         this.contextName = resolvedName;
         this.globalFilterValue = '';
 
+        // Reset table state so PrimeNG restores from the new stateKey when new data arrives
+        const table = this.dt();
+        if (table) {
+          table.first = 0;
+          table.stateRestored = false;
+        }
+        this.comments = [];
+
         // Initialize permission selectors with the contextKey
         this.canEditFn = this.store.selectSignal(canEditCommentForContext(contextKey!));
         this.canPublishFn = this.store.selectSignal(canPublishCommentForContext(contextKey!));
@@ -192,6 +205,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
         this.createBreadcrumbs();
         this.loadComments();
+        this.startRefreshTimer();
       } else if (contextNameChanged) {
         // Update breadcrumb when contextName resolves after data domains load
         this.contextName = resolvedName;
@@ -202,6 +216,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSubscription?.unsubscribe();
+    this.stopRefreshTimer();
   }
 
   private createBreadcrumbs(): void {
@@ -227,7 +242,7 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
     this.domainCommentsService.getCommentsForDomain(this.contextKey, includeDeleted).subscribe({
       next: (comments: DomainDashboardComment[]) => {
         // Map active version text to 'text' field and tags to 'tagsString' for filtering
-        this.comments = comments.filter(comment => {
+        const newComments = comments.filter(comment => {
           if (this.selectedStatus === DashboardCommentStatus.DELETED) {
             // If deleted filter is on, show all returned comments (already filtered by backend)
             return true;
@@ -248,6 +263,10 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
           };
         });
 
+        // Only reassign if data changed to prevent p-table pagination reset
+        if (JSON.stringify(newComments) !== JSON.stringify(this.comments)) {
+          this.comments = newComments;
+        }
         this.domainTags = this.extractUniqueTags(comments);
         this.loading = false;
       },
@@ -255,6 +274,22 @@ export class DomainDashboardCommentsComponent implements OnInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  private startRefreshTimer(): void {
+    this.stopRefreshTimer();
+    this.commentsRefreshSubscription = interval(COMMENTS_REFRESH_INTERVAL_MS).subscribe(() => {
+      if (this.contextKey) {
+        this.loadComments(this.selectedStatus === DashboardCommentStatus.DELETED);
+      }
+    });
+  }
+
+  private stopRefreshTimer(): void {
+    if (this.commentsRefreshSubscription) {
+      this.commentsRefreshSubscription.unsubscribe();
+      this.commentsRefreshSubscription = null;
+    }
   }
 
   private extractUniqueTags(comments: DomainDashboardComment[]): string[] {

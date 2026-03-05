@@ -69,18 +69,19 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';
   private static readonly NO_PERMISSIONS = '@User has no permissions in the instance';
   tableData$: Observable<TableRow[]>;
-  columns$: Observable<any[]>;
+  dynamicColumns$: Observable<any[]>;
   dataLoading$: Observable<boolean>;
-  private store = inject<Store<AppState>>(Store);
-  private translateService = inject(TranslateService);
-  private destroy$ = new Subject<void>();
+  expandedRows: { [s: string]: boolean } = {};
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
+  private readonly destroy$ = new Subject<void>();
 
   constructor() {
     super();
     const store = this.store;
 
     store.dispatch(loadSubsystemUsers());
-    this.columns$ = this.createDynamicColumns();
+    this.dynamicColumns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.createBreadcrumbs();
     this.dataLoading$ = this.store.select(selectSubsystemUsersLoading);
@@ -127,16 +128,38 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
     this.store.dispatch(loadSubsystemUsers());
   }
 
+  exportCsv(tableData: TableRow[], dynamicColumns: any[]) {
+    const fixedHeaders = ['Email', 'Enabled'];
+    const dynamicHeaders = dynamicColumns.map(c => this.translateValue(c.header));
+    const headers = [...fixedHeaders, ...dynamicHeaders];
+
+    const rows = tableData.map(row => {
+      const fixedValues = [row['email'], row['enabled'] || ''];
+      const dynamicValues = dynamicColumns.map(c => row[c.field] || '');
+      return [...fixedValues, ...dynamicValues];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], {type: 'text/csv;charset=utf-8;'});
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'subsystem-users.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
   private createDynamicColumns(): Observable<any[]> {
     return this.store.select(selectSubsystemUsers).pipe(
-      map(subsystemUsers => [
-        {field: 'email', header: '@Users'},
-        {field: 'enabled', header: '@Enabled'},
-        ...subsystemUsers.map(subsystem => ({
+      map(subsystemUsers =>
+        subsystemUsers.map(subsystem => ({
           field: subsystem.instanceName,
           header: subsystem.instanceName
         }))
-      ])
+      )
     );
   }
 
@@ -151,17 +174,21 @@ export class SubsystemUsersComponent extends BaseComponent implements OnInit, On
           email,
         })).sort((a, b) => a.email.localeCompare(b.email));
 
-        tableRows.forEach(row => {
-          subsystemUsers.forEach(subsystem => {
-            const user = subsystem.users.find(user => user.email === row.email);
-            if (user) {
-              row['enabled'] = '' + user?.enabled;
-            }
-            row[subsystem.instanceName] = user ? user.roles.join(', ') || SubsystemUsersComponent.NO_PERMISSIONS : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
-          });
-        });
+        tableRows.forEach(row => this.populateRowWithSubsystemData(row, subsystemUsers));
         return tableRows;
       }));
+  }
+
+  private populateRowWithSubsystemData(row: TableRow, subsystemUsers: any[]): void {
+    subsystemUsers.forEach(subsystem => {
+      const user = subsystem.users.find((u: any) => u.email === row.email);
+      if (user) {
+        row['enabled'] = '' + user.enabled;
+      }
+      row[subsystem.instanceName] = user
+        ? user.roles.join(', ') || SubsystemUsersComponent.NO_PERMISSIONS
+        : SubsystemUsersComponent.NOT_FOUND_IN_INSTANCE_TEXT;
+    });
   }
 
   private createBreadcrumbs(): void {
