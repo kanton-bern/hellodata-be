@@ -27,6 +27,10 @@
 /* You can add global styles to this file, and also import other style files */
 @import "assets/styles/layout/layout.scss";
 
+:root {
+  --p-text-muted-color: var(--p-surface-800) !important;
+}
+
 * {
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
@@ -44,6 +48,10 @@
 .p-menu a,
 .p-breadcrumb a {
   color: inherit !important;
+}
+
+.p-breadcrumb * {
+  color: var(--p-breadcrumb-item-color) !important;
 }
 
 .p-menu .p-menu-list > .p-menu-item:first-child > .p-menu-item-content {
