@@ -43,7 +43,7 @@ body {
   background: $background-color;
   z-index: 100;
   transition: all 0.5s ease;
-  box-shadow: var(--p-card-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1));
+  box-shadow: 2px 0 6px 0 rgba(0, 0, 0, 0.12);
 }
 
 .sidebar.close {
