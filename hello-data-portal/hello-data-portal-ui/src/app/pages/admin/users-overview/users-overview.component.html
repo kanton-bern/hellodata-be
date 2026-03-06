@@ -34,15 +34,37 @@
                           label="{{ '@Clear cache' | transloco }}"
                           severity="help"/>
               </div>
-              <div class="ml-auto">
-                <p-iconfield>
-                  <p-inputicon class="pi pi-search"/>
-                  <input (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue"
-                         pInputText
-                         placeholder="{{ '@Search' | transloco }}" type="text"/>
-                </p-iconfield>
+              <div class="ml-auto filter-search-area">
+                <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
+                <form (submit)="addFilterTerm($event)" class="filter-search-form">
+                  <p-iconfield>
+                    <p-inputicon class="pi pi-search"/>
+                    <input [(ngModel)]="currentFilterInput"
+                           name="filterInput"
+                           pInputText
+                           [placeholder]="getFilterPlaceholder()"
+                           type="text"/>
+                  </p-iconfield>
+                </form>
               </div>
             </div>
+            @if (filterTerms.length > 0) {
+              <div class="filter-chips-row">
+                <div class="filter-chips-list">
+                  @for (term of filterTerms; track term; let i = $index) {
+                    <span class="filter-chip">
+                      <span class="filter-chip-label">{{ term }}</span>
+                      <i class="pi pi-times filter-chip-remove" (click)="removeFilterTerm(i)"
+                         (keydown.enter)="removeFilterTerm(i)"></i>
+                    </span>
+                  }
+                  <p-button (onClick)="clearAllFilters()" icon="pi pi-filter-slash"
+                            [text]="true" [rounded]="true"
+                            severity="secondary"
+                            pTooltip="{{ '@Clear all filters' | transloco }}"/>
+                </div>
+              </div>
+            }
           </ng-template>
           <ng-template pTemplate="header">
             <tr>

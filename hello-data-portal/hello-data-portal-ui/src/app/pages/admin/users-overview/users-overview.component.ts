@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, ViewChild} from "@angular/core";
+import {AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {AsyncPipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {TranslocoPipe} from "@jsverse/transloco";
@@ -39,7 +39,7 @@ import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
-import {combineLatest, map, Observable, Subject} from "rxjs";
+import {combineLatest, first, map, Observable, Subject} from "rxjs";
 import {
   clearSubsystemUsersForDashboardsCache,
   loadSubsystemUsersForDashboards
@@ -52,6 +52,7 @@ import {BaseComponent} from "../../../shared/components/base/base.component";
 import {TranslateService} from "../../../shared/services/translate.service";
 import {PrimeTemplate} from "primeng/api";
 import {Ripple} from "primeng/ripple";
+import {Tooltip} from "primeng/tooltip";
 import {DashboardUsersResultDto} from "../../../store/users-management/users-management.model";
 import {Card} from 'primeng/card';
 
@@ -66,18 +67,21 @@ interface TableRow {
   selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
   styleUrls: ['./users-overview.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card, FormsModule, InputText, IconField, InputIcon]
+  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card, FormsModule, InputText, IconField, InputIcon, Tooltip]
 })
-export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
+export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy, AfterViewInit {
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
+  private static readonly FILTER_STORAGE_KEY = 'users-overview-filter-terms';
   readonly NO_TAG = '_no_tag';
   @ViewChild('dt') table!: Table;
   tableData$: Observable<TableRow[]>;
   dynamicColumns$: Observable<any[]>;
   globalFilterFields$: Observable<string[]>;
   dataLoading$: Observable<boolean>;
-  filterValue = '';
+  filterTerms: string[] = [];
+  currentFilterInput = '';
   expandedRows: { [s: string]: boolean } = {};
+  private allFilterFields: string[] = ['email', 'businessDomainRole'];
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
   private readonly destroy$ = new Subject<void>();
@@ -86,14 +90,32 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     super();
     const store = this.store;
 
+    this.filterTerms = this.loadFilterTerms();
+
     store.dispatch(loadSubsystemUsersForDashboards());
     this.dynamicColumns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
     this.globalFilterFields$ = this.dynamicColumns$.pipe(
-      map(columns => ['email', 'businessDomainRole', ...columns.map(c => c.field)])
+      map(columns => {
+        const fields = ['email', 'businessDomainRole', ...columns.map(c => c.field)];
+        this.allFilterFields = fields;
+        return fields;
+      })
     );
     this.createBreadcrumbs();
     this.dataLoading$ = this.store.select(selectSubsystemUsersForDashboardsLoading);
+  }
+
+  ngAfterViewInit(): void {
+    // Re-apply restored filters once the table and data are ready
+    if (this.filterTerms.length > 0) {
+      this.tableData$.pipe(
+        first(data => data.length > 0)
+      ).subscribe(() => {
+        // Small delay to ensure the table has rendered with the data
+        setTimeout(() => this.applyCustomFilter(), 0);
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -105,9 +127,81 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     super.ngOnInit();
   }
 
+  addFilterTerm(event: Event): void {
+    event.preventDefault();
+    const term = this.currentFilterInput.trim();
+    if (term && !this.filterTerms.includes(term)) {
+      this.filterTerms = [...this.filterTerms, term];
+      this.currentFilterInput = '';
+      this.saveFilterTerms();
+      this.applyCustomFilter();
+    }
+  }
+
+  removeFilterTerm(index: number): void {
+    this.filterTerms = this.filterTerms.filter((_, i) => i !== index);
+    this.saveFilterTerms();
+    this.applyCustomFilter();
+  }
+
+  clearAllFilters(): void {
+    this.filterTerms = [];
+    this.currentFilterInput = '';
+    this.saveFilterTerms();
+    this.applyCustomFilter();
+  }
+
+  getFilterPlaceholder(): string {
+    return this.translateService.translate('@Search');
+  }
+
+  private applyCustomFilter(): void {
+    if (!this.table) {
+      return;
+    }
+    if (this.filterTerms.length === 0) {
+      // Clear all filters
+      this.table.filterGlobal('', 'contains');
+      this.expandedRows = {};
+      return;
+    }
+    // Use the first term for PrimeNG's built-in global filter (keeps paginator etc. working)
+    // Then we refine with our custom callback
+    this.table.filterGlobal(this.filterTerms[0], 'contains');
+
+    // After PrimeNG applies the first filter, further narrow down with remaining terms (AND)
+    if (this.filterTerms.length > 1 && this.table.filteredValue) {
+      this.table.filteredValue = this.table.filteredValue.filter(row => this.rowMatchesAllTerms(row));
+    }
+    this.table.totalRecords = (this.table.filteredValue || this.table.value).length;
+
+    // Auto-expand filtered rows
+    const filteredData: TableRow[] = this.table.filteredValue || this.table.value || [];
+    const expanded: { [s: string]: boolean } = {};
+    filteredData.forEach(row => {
+      expanded[row.email] = true;
+    });
+    this.expandedRows = expanded;
+  }
+
+  private rowMatchesAllTerms(row: TableRow): boolean {
+    return this.filterTerms.every(term => {
+      const lowerTerm = term.toLowerCase();
+      return this.allFilterFields.some(field => {
+        const val = row[field];
+        return val && String(val).toLowerCase().includes(lowerTerm);
+      });
+    });
+  }
+
   onGlobalFilterChange(table: Table): void {
-    if (this.filterValue && this.filterValue.trim().length > 0) {
-      // Expand all visible (filtered) rows
+    // Called by (onFilter) event — further narrow results for multi-term AND
+    if (this.filterTerms.length > 1 && table.filteredValue) {
+      table.filteredValue = table.filteredValue.filter(row => this.rowMatchesAllTerms(row));
+      table.totalRecords = table.filteredValue.length;
+    }
+
+    if (this.filterTerms.length > 0) {
       const filteredData: TableRow[] = table.filteredValue || table.value || [];
       const expanded: { [s: string]: boolean } = {};
       filteredData.forEach(row => {
@@ -115,16 +209,17 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
       });
       this.expandedRows = expanded;
     } else {
-      // Collapse all rows when filter is cleared
       this.expandedRows = {};
     }
   }
 
+  /** Returns true if ANY active filter term matches the given value (used for highlight glow) */
   matchesFilter(value: string): boolean {
-    if (!this.filterValue?.trim()) {
+    if (this.filterTerms.length === 0) {
       return false;
     }
-    return value.toLowerCase().includes(this.filterValue.trim().toLowerCase());
+    const lowerValue = value.toLowerCase();
+    return this.filterTerms.some(term => lowerValue.includes(term.toLowerCase()));
   }
 
   shouldShowTag(value: string, noTag: any): boolean {
@@ -190,6 +285,23 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     link.download = 'users-overview.csv';
     link.click();
     URL.revokeObjectURL(link.href);
+  }
+
+  private saveFilterTerms(): void {
+    if (this.filterTerms.length > 0) {
+      sessionStorage.setItem(UsersOverviewComponent.FILTER_STORAGE_KEY, JSON.stringify(this.filterTerms));
+    } else {
+      sessionStorage.removeItem(UsersOverviewComponent.FILTER_STORAGE_KEY);
+    }
+  }
+
+  private loadFilterTerms(): string[] {
+    try {
+      const stored = sessionStorage.getItem(UsersOverviewComponent.FILTER_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
   }
 
   private createDynamicColumns(): Observable<any[]> {
