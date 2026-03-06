@@ -39,6 +39,40 @@ $background-color: #ffffff;
   height: 60px;
   display: flex;
   align-items: center;
+  transition: height 0.3s ease;
+}
+
+// Minimized topbar
+#layout-topbar.topbar-minimized {
+  height: 45px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#layout-topbar.topbar-minimized .env-badge {
+  font-size: 0.85rem !important;
+  height: 20px;
+}
+
+#layout-topbar.topbar-minimized .app-title {
+  font-size: 1rem;
+}
+
+#layout-topbar.topbar-minimized .layout-topbar-button {
+  font-size: 0.85rem;
+  padding: 3px;
+}
+
+#layout-topbar.topbar-minimized .data-domain-name {
+  font-size: 0.85rem;
+}
+
+#layout-topbar.topbar-minimized #topbar-language-selector {
+  font-size: 0.85rem;
+}
+
+#layout-topbar.topbar-minimized #userMenu {
+  font-size: 0.85rem;
 }
 
 #topbar-right-group {
@@ -103,6 +137,12 @@ app-breadcrumb {
   display: flex;
   align-items: center;
   padding: 0 0.5rem;
+  transition: height 0.3s ease;
+}
+
+.breadcrumb-minimized .p-breadcrumb {
+  height: 20px;
+  font-size: 0.75rem;
 }
 
 .topbar-left-group {

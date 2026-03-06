@@ -58,8 +58,8 @@
 </div>
 
 
-<section class="content-section">
-  <app-header [title]="title()"/>
+<section class="content-section" [class.topbar-minimized]="sidebarMinimized">
+  <app-header [title]="title()" [minimized]="sidebarMinimized"/>
   <div class="overflow-y-scroll pl-1" id="mainContentDiv">
     <ng-content/>
   </div>

@@ -27,6 +27,7 @@
 .content-section {
   background-color: var(--surface-ground);
   padding-top: 90px; /* Offset for fixed header (60px topbar + 30px breadcrumb) */
+  transition: padding-top 0.3s ease;
 
   .content-block, .card, p-card {
     margin-left: 40px;
@@ -36,9 +37,19 @@
 
 }
 
+// Minimized topbar: 45px topbar + 20px breadcrumb = 65px
+.content-section.topbar-minimized {
+  padding-top: 65px;
+}
+
 /* Default height for mainContentDiv to enable scrolling */
 #mainContentDiv {
   height: calc(100vh - 90px);
+  transition: height 0.3s ease;
+}
+
+.topbar-minimized #mainContentDiv {
+  height: calc(100vh - 65px);
 }
 
 /* Layout for .embedded-dashboard - using normal flow for proper zoom scaling */
@@ -46,6 +57,10 @@
   height: calc(100vh - 90px);
   min-height: 400px;
   overflow: hidden !important;
+}
+
+.topbar-minimized #mainContentDiv:has(.embedded-dashboard) {
+  height: calc(100vh - 65px);
 }
 
 .p-button.p-button-icon-only.p-button-rounded {
