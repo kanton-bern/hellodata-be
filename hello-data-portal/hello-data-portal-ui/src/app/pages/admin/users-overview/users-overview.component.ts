@@ -168,11 +168,12 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
   }
 
   exportCsv(tableData: TableRow[], dynamicColumns: any[]) {
+    const dataToExport: TableRow[] = this.table.filteredValue || tableData;
     const fixedHeaders = ['Email', 'Business Domain Role', 'Enabled'];
     const dynamicHeaders = dynamicColumns.map(c => this.translateValue(c.header));
     const headers = [...fixedHeaders, ...dynamicHeaders];
 
-    const rows = tableData.map(row => {
+    const rows = dataToExport.map(row => {
       const fixedValues = [row['email'], row['businessDomainRole'] || '', row['enabled'] || ''];
       const dynamicValues = dynamicColumns.map(c => row[c.field] || '');
       return [...fixedValues, ...dynamicValues];
