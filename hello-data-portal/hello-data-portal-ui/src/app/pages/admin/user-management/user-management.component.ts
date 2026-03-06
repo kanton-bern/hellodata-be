@@ -97,7 +97,7 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
   private readonly userService = inject(UsersManagementService);
-  private readonly searchSubscription?: Subscription;
+  private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
   private readonly destroy$ = new Subject<void>();
 
