@@ -52,15 +52,18 @@ body {
 }
 
 .sidebar .logo-details {
-  height: 55px;
+  height: 60px;
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 10px;
-  margin-top: 7px;
 
   img {
-    width: 55px;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
   }
 }
 
@@ -85,6 +88,8 @@ body {
   transition-delay: 0s;
   opacity: 0;
   pointer-events: none;
+  width: 0;
+  overflow: hidden;
 }
 
 // CSS-only flyout submenus
