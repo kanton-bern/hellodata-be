@@ -43,9 +43,7 @@ body {
   background: $background-color;
   z-index: 100;
   transition: all 0.5s ease;
-  -webkit-box-shadow: 1px 1px 5px -2px rgba(66, 68, 90, 1);
-  -moz-box-shadow: 1px 1px 5px -2px rgba(66, 68, 90, 1);
-  box-shadow: 1px 1px 5px -2px rgba(66, 68, 90, 1);
+  box-shadow: var(--p-card-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1));
 }
 
 .sidebar.close {
@@ -267,13 +265,13 @@ body {
 }
 
 .sidebar.close ~ .content-section {
-  left: 70px;
-  width: calc(100% - 63px);
+  left: 77px;
+  width: calc(100% - 77px);
 }
 
 .sidebar.close ~ .content-section app-header {
-  left: 70px;
-  width: calc(100% - 70px);
+  left: 77px;
+  width: calc(100% - 77px);
 }
 
 .home-content {
