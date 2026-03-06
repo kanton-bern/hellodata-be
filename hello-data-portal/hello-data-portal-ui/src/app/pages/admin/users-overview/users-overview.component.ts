@@ -25,12 +25,16 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {AsyncPipe} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {TranslocoPipe} from "@jsverse/transloco";
-import {TableModule} from "primeng/table";
+import {Table, TableModule} from "primeng/table";
 import {Tag} from "primeng/tag";
 import {Button} from "primeng/button";
+import {InputText} from "primeng/inputtext";
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
 import {createBreadcrumbs} from "../../../store/breadcrumb/breadcrumb.action";
 import {naviElements} from "../../../app-navi-elements";
 import {Store} from "@ngrx/store";
@@ -49,6 +53,7 @@ import {TranslateService} from "../../../shared/services/translate.service";
 import {PrimeTemplate} from "primeng/api";
 import {Ripple} from "primeng/ripple";
 import {DashboardUsersResultDto} from "../../../store/users-management/users-management.model";
+import {Card} from 'primeng/card';
 
 interface TableRow {
   email: string;
@@ -56,20 +61,22 @@ interface TableRow {
   [key: string]: any; // To allow dynamic columns for instanceNames
 }
 
-import {Card} from 'primeng/card';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
   styleUrls: ['./users-overview.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card]
+  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card, FormsModule, InputText, IconField, InputIcon]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';
   readonly NO_TAG = '_no_tag';
+  @ViewChild('dt') table!: Table;
   tableData$: Observable<TableRow[]>;
   dynamicColumns$: Observable<any[]>;
+  globalFilterFields$: Observable<string[]>;
   dataLoading$: Observable<boolean>;
+  filterValue = '';
   expandedRows: { [s: string]: boolean } = {};
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
@@ -82,6 +89,9 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
     store.dispatch(loadSubsystemUsersForDashboards());
     this.dynamicColumns$ = this.createDynamicColumns();
     this.tableData$ = this.createTableData();
+    this.globalFilterFields$ = this.dynamicColumns$.pipe(
+      map(columns => ['email', 'businessDomainRole', ...columns.map(c => c.field)])
+    );
     this.createBreadcrumbs();
     this.dataLoading$ = this.store.select(selectSubsystemUsersForDashboardsLoading);
   }
@@ -93,6 +103,28 @@ export class UsersOverviewComponent extends BaseComponent implements OnInit, OnD
 
   override ngOnInit(): void {
     super.ngOnInit();
+  }
+
+  onGlobalFilterChange(table: Table): void {
+    if (this.filterValue && this.filterValue.trim().length > 0) {
+      // Expand all visible (filtered) rows
+      const filteredData: TableRow[] = table.filteredValue || table.value || [];
+      const expanded: { [s: string]: boolean } = {};
+      filteredData.forEach(row => {
+        expanded[row.email] = true;
+      });
+      this.expandedRows = expanded;
+    } else {
+      // Collapse all rows when filter is cleared
+      this.expandedRows = {};
+    }
+  }
+
+  matchesFilter(value: string): boolean {
+    if (!this.filterValue?.trim()) {
+      return false;
+    }
+    return value.toLowerCase().includes(this.filterValue.trim().toLowerCase());
   }
 
   shouldShowTag(value: string, noTag: any): boolean {

@@ -56,3 +56,21 @@
   align-items: center;
 }
 
+// Glowing highlight for filter matches
+@keyframes filter-glow {
+  0%, 100% {
+    box-shadow: 0 0 4px 1px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 10px 3px rgba(59, 130, 246, 0.8);
+  }
+}
+
+:host ::ng-deep .filter-highlight {
+  animation: filter-glow 1.5s ease-in-out infinite;
+  border-radius: 6px;
+  padding: 1px 4px;
+  background-color: rgba(59, 130, 246, 0.1);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
