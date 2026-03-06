@@ -63,6 +63,7 @@ body {
 
 .sidebar.minimized .logo-details {
   padding: 4px;
+  height: 36px;
 }
 
 .sidebar.minimized .first-level-label {
@@ -85,6 +86,10 @@ body {
 
 .sidebar.minimized .sidebar-toggle-btn i {
   font-size: 0.8rem;
+}
+
+.sidebar.minimized .nav-links {
+  height: calc(100% - 36px - 32px);
 }
 
 
