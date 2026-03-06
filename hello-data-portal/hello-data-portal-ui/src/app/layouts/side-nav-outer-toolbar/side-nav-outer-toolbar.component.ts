@@ -57,12 +57,12 @@ export class SideNavOuterToolbarComponent {
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
-  sidebarMinimized = true;
+  sidebarMinimized = false;
 
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
     const stored = sessionStorage.getItem(SideNavOuterToolbarComponent.SIDEBAR_STATE_KEY);
-    this.sidebarMinimized = stored === null ? true : stored === 'true';
+    this.sidebarMinimized = stored === null ? false : stored === 'true';
   }
 
   toggleSidebar(): void {
