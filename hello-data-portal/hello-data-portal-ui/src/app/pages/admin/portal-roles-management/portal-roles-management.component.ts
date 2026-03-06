@@ -51,11 +51,12 @@ import {
 } from "../../../store/portal-roles-management/portal-roles-management.action";
 
 
+import {Card} from 'primeng/card';
 @Component({
   selector: 'app-roles-management',
   templateUrl: './portal-roles-management.component.html',
   styleUrls: ['./portal-roles-management.component.scss'],
-  imports: [TableModule, PrimeTemplate, Tag, Button, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, Tag, Button, Ripple, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, TranslocoPipe, Card]
 })
 export class PortalRolesManagementComponent extends BaseComponent implements OnInit {
   roles$: Observable<any>;

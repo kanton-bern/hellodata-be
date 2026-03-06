@@ -1,5 +1,5 @@
 <h2 class="content-block">{{ '@Documentation management' | transloco }}</h2>
-<div class="card">
+<p-card>
   @if ((initForm$ | async); as result) {
     <form [formGroup]="documentationForm">
       @if ((supportedLanguages$ | async); as supportedLanguages) {
@@ -40,4 +40,4 @@
     </form>
   }
 
-</div>
+</p-card>

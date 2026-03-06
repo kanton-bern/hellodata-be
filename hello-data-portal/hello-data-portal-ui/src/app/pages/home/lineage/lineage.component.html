@@ -8,6 +8,11 @@
              [tableStyle]="{ 'min-width': '20rem' }"
              [value]="lineageDocs"
              dataKey="displayName">
+      <ng-template pTemplate="caption">
+        <div class="flex items-center">
+          <h5 class="m-0">{{ title() }}</h5>
+        </div>
+      </ng-template>
       <ng-template pTemplate="header">
         <tr>
           <th id="icon"></th>

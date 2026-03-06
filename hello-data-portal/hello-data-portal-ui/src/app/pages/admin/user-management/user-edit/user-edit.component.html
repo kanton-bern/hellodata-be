@@ -176,7 +176,7 @@
         }
 
         <!-- Bottom toolbar with Save/Cancel -->
-        <div class="card">
+        <p-card>
           <app-user-edit-toolbar
             [user]="editedUser"
             [saveDisabled]="saveDisabled"
@@ -185,7 +185,7 @@
             (saveClicked)="updateUser()"
             (disableClicked)="showUserDisablePopup($event)"
             (enableClicked)="showUserEnablePopup($event)"/>
-        </div>
+        </p-card>
       </form>
     }
   </div>

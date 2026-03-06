@@ -1,4 +1,4 @@
-<div class="card">
+<p-card>
   @if ((editedDashboardGroup$ | async); as editedDashboardGroup) {
     <form [formGroup]="dashboardGroupForm">
       <h5>{{ '@Dashboard group' | transloco }} - {{ currentDomainName }}</h5>
@@ -192,6 +192,6 @@
       </p-toolbar>
     </form>
   }
-</div>
+</p-card>
 <br>
 <app-delete-dashboard-group-popup [action]="getDeletionAction()"/>

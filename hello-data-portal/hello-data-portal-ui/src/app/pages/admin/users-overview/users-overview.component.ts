@@ -56,12 +56,13 @@ interface TableRow {
   [key: string]: any; // To allow dynamic columns for instanceNames
 }
 
+import {Card} from 'primeng/card';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-users-overview',
   templateUrl: './users-overview.component.html',
   styleUrls: ['./users-overview.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple]
+  imports: [TableModule, PrimeTemplate, Button, Tag, AsyncPipe, TranslocoPipe, Ripple, Card]
 })
 export class UsersOverviewComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NO_PERMISSIONS_TRANSLATION_KEY = '@No permissions';

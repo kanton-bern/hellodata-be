@@ -49,6 +49,7 @@ import {Ripple} from 'primeng/ripple';
 import {TableModule} from 'primeng/table';
 import {Tooltip} from 'primeng/tooltip';
 import {Editor} from 'primeng/editor';
+import {Card} from 'primeng/card';
 import {FormsModule} from '@angular/forms';
 import {DeleteAnnouncementPopupComponent} from './delete-announcement-popup/delete-announcement-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
@@ -57,12 +58,12 @@ import {TranslocoPipe} from '@jsverse/transloco';
   selector: 'app-announcements-management',
   templateUrl: './announcements-management.component.html',
   styleUrls: ['./announcements-management.component.scss'],
-  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, Editor, FormsModule, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [Toolbar, PrimeTemplate, Ripple, TableModule, Tooltip, Editor, FormsModule, SharedModule, Button, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class AnnouncementsManagementComponent extends BaseComponent implements OnInit {
   allAnnouncements$: Observable<any>;
   selectedLanguage$: Observable<any>;
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();

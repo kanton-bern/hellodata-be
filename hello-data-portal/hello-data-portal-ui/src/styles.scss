@@ -31,6 +31,10 @@
   --p-text-muted-color: var(--p-surface-800) !important;
 }
 
+.p-card-body {
+  padding: 0 !important;
+}
+
 * {
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
@@ -79,6 +83,14 @@ body {
   margin-right: 0;
   margin-top: 20px;
   height: 100%;
+}
+
+.home-view .grid > p-card {
+  margin: 25px !important;
+}
+
+#summary-content > p-card {
+  margin: 25px !important;
 }
 
 .home-view .p-fieldset .p-fieldset-content {

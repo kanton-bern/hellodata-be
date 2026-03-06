@@ -45,6 +45,7 @@ import {PrimeTemplate} from 'primeng/api';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {Tag} from 'primeng/tag';
+import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {FormsModule} from "@angular/forms";
 import {IconField} from "primeng/iconfield";
@@ -63,7 +64,7 @@ interface TableRow {
   templateUrl: './subsystem-users.component.html',
   styleUrls: ['./subsystem-users.component.scss'],
   imports: [TableModule, PrimeTemplate, Button, InputText, Tag, AsyncPipe, TranslocoPipe, FormsModule, IconField,
-    InputIcon, Ripple]
+    InputIcon, Ripple, Card]
 })
 export class SubsystemUsersComponent extends BaseComponent implements OnInit, OnDestroy {
   private static readonly NOT_FOUND_IN_INSTANCE_TEXT = '@User not found in the instance';

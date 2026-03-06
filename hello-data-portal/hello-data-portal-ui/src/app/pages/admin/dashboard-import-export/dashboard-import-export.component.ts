@@ -49,6 +49,7 @@ import {PrimeTemplate} from 'primeng/api';
 import {Button} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
 import {Tooltip} from 'primeng/tooltip';
+import {Card} from 'primeng/card';
 import {SilentLoginComponent} from '../../../shared/components/silent-login/silent-login.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {NgArrayPipesModule} from 'ngx-pipes';
@@ -57,7 +58,7 @@ import {NgArrayPipesModule} from 'ngx-pipes';
   selector: 'app-dashboard-import-export',
   templateUrl: './dashboard-import-export.component.html',
   styleUrl: './dashboard-import-export.component.scss',
-  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule]
+  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, FileUpload, SilentLoginComponent, AsyncPipe, TranslocoPipe, NgArrayPipesModule, Card]
 })
 export class DashboardImportExportComponent extends BaseComponent {
   supersetInfos$: Observable<MetaInfoResource[]>;
@@ -66,7 +67,7 @@ export class DashboardImportExportComponent extends BaseComponent {
   selectedDashboardsMap = new Map<string, SupersetDashboard[]>();
   showUploadForContextMap = new Map<string, boolean>();
   uploadDashboardsUrl = `${environment.portalApi}/superset/upload-dashboards/`;
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
   constructor() {
     super();

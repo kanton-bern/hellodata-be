@@ -2,7 +2,7 @@
   <div style="display: none"></div>
 }
 @if ((paramContextKey$ | async); as contextKey) {
-  <div class="card">
+  <p-card>
     @if ((queries$ | async); as queries) {
       <p-table #dt
                [lazy]="true"
@@ -137,6 +137,6 @@
         </ng-template>
       </p-table>
     }
-  </div>
+  </p-card>
 }
 <br/>

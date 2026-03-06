@@ -1,6 +1,6 @@
 <h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
 @if ((tableData$ | async); as tableData) {
-  <div class="card">
+  <p-card>
     @if ((dynamicColumns$ | async); as dynamicColumns) {
       <div>
         <p-table #dt [value]="tableData"
@@ -116,6 +116,6 @@
         </p-table>
       </div>
     }
-  </div>
+  </p-card>
 }
 <br/>

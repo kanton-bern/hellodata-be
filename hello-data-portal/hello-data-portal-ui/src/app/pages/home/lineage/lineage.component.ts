@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, input, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
 import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
@@ -50,6 +50,7 @@ export class LineageComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly fb = inject(FormBuilder);
 
+  title = input<string>('');
   projectDocsForm!: FormGroup;
   docs$: Observable<any>;
 

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject} from '@angular/core';
+import {Component, inject, input} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -48,6 +48,7 @@ export class DmComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly store = inject<Store<AppState>>(Store);
 
+  title = input<string>('');
   dataMarts$: Observable<any>;
 
   constructor() {

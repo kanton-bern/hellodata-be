@@ -25,10 +25,10 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../../store/app/app.state";
-import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Observable, Subscription, tap} from "rxjs";
 import {
   selectAvailablePermissions,
@@ -50,24 +50,25 @@ import {
   saveChangesToPortalRole,
   showDeletePortalRolePopup
 } from "../../../../store/portal-roles-management/portal-roles-management.action";
-import { AsyncPipe, DatePipe } from '@angular/common';
-import { Textarea } from 'primeng/textarea';
-import { AutoComplete } from 'primeng/autocomplete';
-import { Toolbar } from 'primeng/toolbar';
-import { Button } from 'primeng/button';
-import { Tooltip } from 'primeng/tooltip';
-import { DeletePortalRolePopupComponent } from '../delete-portal-role-popup/delete-portal-role-popup.component';
-import { TranslocoPipe } from '@jsverse/transloco';
+import {AsyncPipe, DatePipe} from '@angular/common';
+import {Textarea} from 'primeng/textarea';
+import {AutoComplete} from 'primeng/autocomplete';
+import {Toolbar} from 'primeng/toolbar';
+import {Button} from 'primeng/button';
+import {Tooltip} from 'primeng/tooltip';
+import {Card} from 'primeng/card';
+import {DeletePortalRolePopupComponent} from '../delete-portal-role-popup/delete-portal-role-popup.component';
+import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
-    selector: 'app-role-edit',
-    templateUrl: './portal-role-edit.component.html',
-    styleUrls: ['./portal-role-edit.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  selector: 'app-role-edit',
+  templateUrl: './portal-role-edit.component.html',
+  styleUrls: ['./portal-role-edit.component.scss'],
+  imports: [FormsModule, ReactiveFormsModule, Textarea, AutoComplete, Toolbar, Button, Tooltip, DeletePortalRolePopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class PortalRoleEditComponent implements OnInit, OnDestroy {
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly fb = inject(FormBuilder);
 
 
   editedRole$: Observable<any>;

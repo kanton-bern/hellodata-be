@@ -28,7 +28,7 @@
   background-color: var(--surface-ground);
   padding-top: 90px; /* Offset for fixed header (60px topbar + 30px breadcrumb) */
 
-  .content-block, .card {
+  .content-block, .card, p-card {
     margin-left: 40px;
     margin-right: 40px;
     margin-top: 20px;

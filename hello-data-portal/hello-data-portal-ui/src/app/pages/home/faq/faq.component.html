@@ -1,6 +1,7 @@
 @if ((defaultLanguage$ | async); as defaultLanguage) {
   @if ((selectedLanguage$ | async); as selectedLanguage) {
     @if ((faq$ | async); as faq) {
+      <h5 class="m-0 mb-3">{{ title() }}</h5>
       <p-accordion value="0">
         @for (item of faq; track item.contextKey) {
           @for (domainFaq of item.faqs; track $index) {

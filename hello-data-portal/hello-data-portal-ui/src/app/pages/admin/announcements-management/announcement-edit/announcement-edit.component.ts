@@ -51,6 +51,7 @@ import {Editor} from 'primeng/editor';
 import {Button} from 'primeng/button';
 import {Toolbar} from 'primeng/toolbar';
 import {Tooltip} from 'primeng/tooltip';
+import {Card} from 'primeng/card';
 import {DeleteAnnouncementPopupComponent} from '../delete-announcement-popup/delete-announcement-popup.component';
 import {TranslocoPipe} from '@jsverse/transloco';
 import {Ripple} from "primeng/ripple";
@@ -60,7 +61,7 @@ import {Ripple} from "primeng/ripple";
   templateUrl: './announcement-edit.component.html',
   styleUrls: ['./announcement-edit.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, Checkbox, Tabs, TabList, Tab, TabPanels, TabPanel, Editor, Button,
-    Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple]
+    Toolbar, Tooltip, DeleteAnnouncementPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple, Card]
 })
 export class AnnouncementEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedAnnouncement$: Observable<any>;
@@ -68,8 +69,8 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
   formValueChangedSub!: Subscription;
   supportedLanguages$: Observable<string[]>;
   defaultLanguage$: Observable<string | null>;
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly fb = inject(FormBuilder);
 
   constructor() {
     super();
@@ -121,7 +122,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
 
   saveAnnouncement(editedAnnouncement: Announcement) {
     const announcementToBeSaved = {...editedAnnouncement} as Announcement;
-    const formAnnouncement = this.announcementForm.getRawValue() as any;
+    const formAnnouncement = this.announcementForm.getRawValue();
     announcementToBeSaved.messages = Object.keys(formAnnouncement.languages).reduce((acc, locale) => {
       acc[locale] = formAnnouncement.languages[locale].message;
       return acc;
@@ -153,7 +154,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
     const languageForm = languagesGroup?.get(language) as FormGroup;
 
     const messageControl = languageForm?.get('message') as FormControl;
-    return !messageControl || messageControl.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
+    return messageControl?.value === null || messageControl.value === undefined || messageControl.value.trim() === '';
   }
 
   isAtLeastDefaultLanguageFilled(defaultLanguage: string): boolean {
@@ -201,7 +202,7 @@ export class AnnouncementEditComponent extends BaseComponent implements OnInit, 
 
   private onChange(editedAnnouncement: Announcement) {
     const announcementToBeSaved = {...editedAnnouncement} as Announcement;
-    const formAnnouncement = this.announcementForm.getRawValue() as any;
+    const formAnnouncement = this.announcementForm.getRawValue();
     //convert structures
     announcementToBeSaved.messages = Object.keys(formAnnouncement.languages).reduce((acc, locale) => {
       acc[locale] = formAnnouncement.languages[locale].message;

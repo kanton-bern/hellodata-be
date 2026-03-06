@@ -1,5 +1,5 @@
 <h2 class="content-block">{{ '@Portal roles management' | transloco }}</h2>
-<div class="card">
+<p-card>
   @if ((roles$ | async); as roles) {
     <div>
       <p-table
@@ -62,6 +62,6 @@
       </p-table>
     </div>
   }
-</div>
+</p-card>
 
 <app-delete-role-popup [action]="getDeletionAction()"/>

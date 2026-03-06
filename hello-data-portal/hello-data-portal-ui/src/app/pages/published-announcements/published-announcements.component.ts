@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from "@angular/core";
+import {Component, inject, OnInit} from "@angular/core";
 import {DialogService} from "primeng/dynamicdialog";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
@@ -10,23 +10,25 @@ import {selectDefaultLanguage, selectSelectedLanguage} from "../../store/auth/au
 import {Announcement} from "../../store/announcement/announcement.model";
 import {selectAllAnnouncementsByPublishedFlag} from "../../store/announcement/announcement.selector";
 import {TranslateService} from "../../shared/services/translate.service";
-import { AsyncPipe, DatePipe } from "@angular/common";
-import { Toolbar } from "primeng/toolbar";
-import { Editor } from "primeng/editor";
-import { FormsModule } from "@angular/forms";
-import { SharedModule } from "primeng/api";
-import { TranslocoPipe } from "@jsverse/transloco";
+import {AsyncPipe, DatePipe} from "@angular/common";
+import {Toolbar} from "primeng/toolbar";
+import {Editor} from "primeng/editor";
+import {FormsModule} from "@angular/forms";
+import {SharedModule} from "primeng/api";
+import {TranslocoPipe} from "@jsverse/transloco";
+
+import {Card} from 'primeng/card';
 
 @Component({
-    providers: [DialogService],
-    selector: 'app-published-announcements',
-    templateUrl: './published-announcements.component.html',
-    styleUrls: ['./published-announcements.component.scss'],
-    imports: [Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe]
+  providers: [DialogService],
+  selector: 'app-published-announcements',
+  templateUrl: './published-announcements.component.html',
+  styleUrls: ['./published-announcements.component.scss'],
+  imports: [Toolbar, Editor, FormsModule, SharedModule, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class PublishedAnnouncementsComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
-  private translateService = inject(TranslateService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly translateService = inject(TranslateService);
 
   announcements$: Observable<any>;
   selectedLanguage$: Observable<any>;

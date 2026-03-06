@@ -1,6 +1,6 @@
 <h2 class="content-block">{{ '@Dashboard access' | transloco }}</h2>
 @if ((selectedDataDomain$ | async); as selectedDataDomain) {
-  <div class="card">
+  <p-card>
     @if ((dashboardAccess$ | async); as dashboardAccessList) {
       <div>
         <p-table #dt
@@ -72,6 +72,6 @@
         </p-table>
       </div>
     }
-  </div>
+  </p-card>
 }
 <br/>

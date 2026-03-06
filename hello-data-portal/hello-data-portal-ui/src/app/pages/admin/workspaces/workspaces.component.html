@@ -1,6 +1,6 @@
 <h2 class="content-block">Workspaces</h2>
 @if ((appInfos$ | async); as appInfos) {
-  <div class="card">
+  <p-card>
     <div class="grid grid-cols-12 gap-4">
       @for (item of appInfos | orderBy: 'moduleType'; track item) {
         <div class="col-span-2">
@@ -38,5 +38,5 @@
         </div>
       }
     </div>
-  </div>
+  </p-card>
 }

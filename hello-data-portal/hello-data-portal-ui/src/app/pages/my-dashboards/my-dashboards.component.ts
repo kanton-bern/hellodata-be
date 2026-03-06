@@ -55,12 +55,13 @@ import {Tooltip} from 'primeng/tooltip';
 import {Dialog} from 'primeng/dialog';
 import {FormsModule} from '@angular/forms';
 import {Tag} from 'primeng/tag';
+import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   templateUrl: 'my-dashboards.component.html',
   styleUrls: ['./my-dashboards.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, InputText, Button, Ripple, Tooltip, Dialog, FormsModule, Tag, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class MyDashboardsComponent extends BaseComponent implements OnInit {
   readonly dt = viewChild.required<Table | undefined>('dt');
