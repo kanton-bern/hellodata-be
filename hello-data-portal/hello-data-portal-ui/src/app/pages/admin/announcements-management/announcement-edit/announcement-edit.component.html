@@ -1,4 +1,4 @@
-<div class="card">
+<p-card>
   @if ((editedAnnouncement$ | async); as editedAnnouncement) {
     <form [formGroup]="announcementForm">
       <h5>{{ '@Announcement' | transloco }}</h5>
@@ -126,6 +126,6 @@
       </p-toolbar>
     </form>
   }
-</div>
+</p-card>
 
 <app-delete-announcement-popup [action]="getDeletionAction()"/>

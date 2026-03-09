@@ -1,7 +1,7 @@
 @if (availableDataPermissions$ | async) {
   <div></div>
 }
-<div class="card">
+<p-card>
   @if ((editedRole$ | async); as editedRole) {
     <form [formGroup]="roleForm">
       <h5>{{ '@Portal role data' | transloco }}</h5>
@@ -109,6 +109,6 @@
       </p-toolbar>
     </form>
   }
-</div>
+</p-card>
 
 <app-delete-role-popup [action]="getDeletionAction()"/>

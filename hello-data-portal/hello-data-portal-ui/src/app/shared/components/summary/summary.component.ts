@@ -56,6 +56,7 @@ import {AppInfoComponent} from "../footer/app-info.component";
 import {AppInfoService} from "../../services";
 import {TranslateService} from "../../services/translate.service";
 import {SharedModule} from 'primeng/api';
+import {Card} from 'primeng/card';
 import {ContainsPipe} from '../../pipes/contains.pipe';
 import {TruncatePipe} from "../../pipes/truncate.pipe";
 
@@ -64,7 +65,7 @@ import {TruncatePipe} from "../../pipes/truncate.pipe";
   selector: 'app-summary',
   templateUrl: './summary.component.html',
   styleUrls: ['./summary.component.scss'],
-  imports: [SharedModule, Accordion, AccordionPanel, AccordionHeader,
+  imports: [SharedModule, Card, Accordion, AccordionPanel, AccordionHeader,
     AccordionContent, Tooltip, Button, Editor, FormsModule,
     SubscriptionsComponent, AppInfoComponent, AsyncPipe, ContainsPipe,
     TranslocoPipe, TruncatePipe, DatePipe]

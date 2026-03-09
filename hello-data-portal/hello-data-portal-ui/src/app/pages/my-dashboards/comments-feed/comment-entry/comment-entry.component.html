@@ -1,4 +1,4 @@
-<div class="comment-item border rounded-md px-2 py-2"
+<div class="comment-item border border-gray-200 rounded-md px-2 py-2"
      [class.bg-white]="activeVersion()?.status === DashboardCommentStatus.PUBLISHED && !comment().deleted"
      [class.bg-gray-100]="activeVersion()?.status === DashboardCommentStatus.DRAFT && !comment().deleted"
      [class.bg-red-50]="activeVersion()?.status === DashboardCommentStatus.DECLINED && !comment().deleted"
@@ -164,7 +164,9 @@
             </div>
           }
         } @else {
-          <div><strong>{{ '@Status' | transloco }}:</strong> {{ getStatusLabel(activeVersion()?.status || '') | transloco }}</div>
+          <div><strong>{{ '@Status' | transloco }}
+            :</strong> {{ getStatusLabel(activeVersion()?.status || '') | transloco }}
+          </div>
         }
         <div><strong>{{ '@Version' | transloco }}:</strong> {{ comment().activeVersion }}</div>
         <div><strong>{{ '@Created date' | transloco }}:</strong> {{ comment().createdDate | date:'medium' }}</div>

@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, input, OnInit} from '@angular/core';
 import {combineLatest, map, Observable} from "rxjs";
 import {Faq} from "../../../store/faq/faq.model";
 import {Store} from "@ngrx/store";
@@ -50,6 +50,7 @@ export class FaqComponent implements OnInit {
   private readonly store = inject<Store<AppState>>(Store);
   private readonly translateService = inject(TranslateService);
 
+  title = input<string>('');
   faq$: Observable<GroupedFaq[]>;
   selectedLanguage$: Observable<any>;
   defaultLanguage$: Observable<any>;

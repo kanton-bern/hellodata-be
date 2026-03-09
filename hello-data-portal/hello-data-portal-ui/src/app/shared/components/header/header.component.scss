@@ -64,6 +64,12 @@ app-breadcrumb {
   font-size: 0.85rem;
   display: block;
   height: 30px;
+  transition: height 0.3s ease, font-size 0.3s ease;
+}
+
+.breadcrumb-minimized {
+  height: 20px !important;
+  font-size: 0.75rem !important;
 }
 
 .breadcrumb-container, .published-announcements-container {
@@ -75,6 +81,7 @@ app-breadcrumb {
   font-weight: bold;
   text-decoration: underline;
 }
+
 
 @media (max-width: 1034px) {
   .hide-on-small {

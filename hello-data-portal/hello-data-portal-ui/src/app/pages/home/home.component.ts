@@ -46,7 +46,7 @@ import {resetBreadcrumb} from "../../store/breadcrumb/breadcrumb.action";
 import {ScreenService} from "../../shared/services";
 import {AsyncPipe} from '@angular/common';
 import {Tooltip} from 'primeng/tooltip';
-import {Fieldset} from 'primeng/fieldset';
+import {Card} from 'primeng/card';
 import {PrimeTemplate} from 'primeng/api';
 import {Badge} from 'primeng/badge';
 import {DashboardsComponent} from './dashboards/dashboards.component';
@@ -61,10 +61,10 @@ import {TranslocoPipe} from '@jsverse/transloco';
 @Component({
   templateUrl: 'home.component.html',
   styleUrls: ['./home.component.scss'],
-  imports: [Tooltip, Fieldset, PrimeTemplate, Badge, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
+  imports: [Tooltip, Card, PrimeTemplate, Badge, DashboardsComponent, ExternalComponent, DmComponent, LineageComponent, FaqComponent, HomeDocumentationComponent, AdminInitComponent, AsyncPipe, TranslocoPipe]
 })
 export class HomeComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
   protected readonly screenService = inject(ScreenService);
 
 

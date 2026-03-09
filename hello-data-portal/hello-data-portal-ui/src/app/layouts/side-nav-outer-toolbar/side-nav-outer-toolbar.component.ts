@@ -51,13 +51,23 @@ import {HeaderComponent} from '../../shared/components';
     Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
 })
 export class SideNavOuterToolbarComponent {
+  private static readonly SIDEBAR_STATE_KEY = 'sidebar-minimized';
   private readonly store = inject<Store<AppState>>(Store);
   private readonly router = inject(Router);
 
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
+  sidebarMinimized = false;
+
   constructor() {
     this.navItems$ = this.store.select(selectNavItems).pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)));
+    const stored = sessionStorage.getItem(SideNavOuterToolbarComponent.SIDEBAR_STATE_KEY);
+    this.sidebarMinimized = stored === null ? false : stored === 'true';
+  }
+
+  toggleSidebar(): void {
+    this.sidebarMinimized = !this.sidebarMinimized;
+    sessionStorage.setItem(SideNavOuterToolbarComponent.SIDEBAR_STATE_KEY, String(this.sidebarMinimized));
   }
 
   navigateHome() {

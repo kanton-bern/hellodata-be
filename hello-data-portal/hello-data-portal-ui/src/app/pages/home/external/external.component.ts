@@ -25,7 +25,7 @@
 /// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///
 
-import {Component, inject, OnInit, viewChild} from '@angular/core';
+import {Component, inject, input, OnInit, viewChild} from '@angular/core';
 import {Observable} from "rxjs";
 import {Store} from "@ngrx/store";
 import {AppState} from "../../../store/app/app.state";
@@ -53,6 +53,7 @@ import {Tooltip} from 'primeng/tooltip';
 export class ExternalComponent implements OnInit {
   private store = inject<Store<AppState>>(Store);
 
+  title = input<string>('');
   readonly dt = viewChild.required<Table | undefined>('dt');
   externalDashboards$: Observable<ExternalDashboard[]>;
   currentUserPermissions$: Observable<string[]>;

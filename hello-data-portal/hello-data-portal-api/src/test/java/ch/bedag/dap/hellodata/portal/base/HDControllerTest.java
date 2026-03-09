@@ -33,7 +33,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -49,7 +48,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ch.bedag.dap.hellodata.portal.base.TestJwtProvider.JWT_EXPIRATION_IN_MS;
-import static ch.bedag.dap.hellodata.portal.base.TestJwtProvider.JWT_SECRET;
+import static ch.bedag.dap.hellodata.portal.base.TestJwtProvider.getSigningKey;
 
 @AutoConfigureMockMvc
 @ContextConfiguration(classes = {TestSecurityConfig.class, HellodataAuthenticationConverter.class})
@@ -76,15 +75,15 @@ public abstract class HDControllerTest {
 
     protected String generateToken(UUID userId, String firstname, String lastName, String email, boolean superuser, Set<String> permissions) {
         return "Bearer " + Jwts.builder()
-                .setSubject(email)
+                .subject(email)
                 .claim("userId", userId)
                 .claim("email", email)
                 .claim("given_name", firstname)
                 .claim("family_name", lastName)
                 .claim("is_superuser", superuser)
                 .claim("authorities", !permissions.isEmpty() ? permissions.stream().collect(Collectors.joining(",")) : "NONE")
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_IN_MS))
-                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .expiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_IN_MS))
+                .signWith(getSigningKey())
                 .compact();
     }
 

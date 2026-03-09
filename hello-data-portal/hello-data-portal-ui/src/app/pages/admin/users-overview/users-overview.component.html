@@ -1,6 +1,6 @@
 <h2 class="content-block">{{ '@Users overview' | transloco }}</h2>
 @if ((tableData$ | async); as tableData) {
-  <div class="card">
+  <p-card>
     @if ((dynamicColumns$ | async); as dynamicColumns) {
       <div>
         <p-table #dt [value]="tableData"
@@ -12,28 +12,59 @@
                  [paginator]="true"
                  [rows]="10"
                  [rowsPerPageOptions]="[10, 20, 50, 100]"
-                 [globalFilterFields]="['email', 'businessDomainRole']">
+                 [globalFilterFields]="(globalFilterFields$ | async) ?? ['email', 'businessDomainRole']"
+                 (onFilter)="onGlobalFilterChange(dt)">
           <ng-template pTemplate="caption">
-            <div class="flex">
+            <div class="flex flex-wrap align-items-center gap-2">
               <div style="text-align: left">
                 <p-button (onClick)="exportCsv(tableData, dynamicColumns)" severity="info"
                           [disabled]="(dataLoading$ | async) ?? false"
                           icon="pi pi-external-link" pRipple
                           label="{{ '@Export' | transloco }}"/>
               </div>
-              <div class="ml-1" style="text-align: left">
+              <div style="text-align: left">
                 <p-button (onClick)="reload()" [disabled]="(dataLoading$ | async) ?? false"
                           icon="pi pi-replay" pRipple
                           label="{{ '@Reload' | transloco }}"
                           severity="success"/>
               </div>
-              <div class="ml-1" style="text-align: left">
+              <div style="text-align: left">
                 <p-button (onClick)="clearCache()" [disabled]="(dataLoading$ | async) ?? false"
                           icon="pi pi-times-circle" pRipple
                           label="{{ '@Clear cache' | transloco }}"
                           severity="help"/>
               </div>
+              <div class="ml-auto filter-search-area">
+                <span class="filter-hint">{{ '@Filter hint' | transloco }}</span>
+                <form (submit)="addFilterTerm($event)" class="filter-search-form">
+                  <p-iconfield>
+                    <p-inputicon class="pi pi-search"/>
+                    <input [(ngModel)]="currentFilterInput"
+                           name="filterInput"
+                           pInputText
+                           [placeholder]="getFilterPlaceholder()"
+                           type="text"/>
+                  </p-iconfield>
+                </form>
+              </div>
             </div>
+            @if (filterTerms.length > 0) {
+              <div class="filter-chips-row">
+                <div class="filter-chips-list">
+                  @for (term of filterTerms; track term; let i = $index) {
+                    <span class="filter-chip">
+                      <span class="filter-chip-label">{{ term }}</span>
+                      <i class="pi pi-times filter-chip-remove" (click)="removeFilterTerm(i)"
+                         (keydown.enter)="removeFilterTerm(i)"></i>
+                    </span>
+                  }
+                  <p-button (onClick)="clearAllFilters()" icon="pi pi-filter-slash"
+                            [text]="true" [rounded]="true"
+                            severity="secondary"
+                            pTooltip="{{ '@Clear all filters' | transloco }}"/>
+                </div>
+              </div>
+            }
           </ng-template>
           <ng-template pTemplate="header">
             <tr>
@@ -42,34 +73,15 @@
               <th id="enabled" scope="col">{{ '@Enabled' | transloco }}</th>
               <th scope="col" style="width: 3rem"></th>
             </tr>
-            <tr>
-              <th scope="col">
-                <p-columnFilter
-                  ariaLabel="Filter email"
-                  field="email"
-                  matchMode="contains"
-                  placeholder="{{ '@Type and press enter' | transloco }}"
-                  type="text"/>
-              </th>
-              <th scope="col">
-                <p-columnFilter
-                  ariaLabel="Filter businessDomainRole"
-                  field="businessDomainRole"
-                  matchMode="contains"
-                  placeholder="{{ '@Type and press enter' | transloco }}"
-                  type="text"/>
-              </th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-            </tr>
           </ng-template>
           <ng-template let-row pTemplate="body" let-expanded="expanded">
             <tr>
-              <td>{{ row.email }}</td>
+              <td><span [class.filter-highlight]="matchesFilter(row.email)">{{ row.email }}</span></td>
               <td>
                 @if (row.businessDomainRole) {
                   <p-tag [severity]="getTagSeverity(row.businessDomainRole)"
-                         [value]="row.businessDomainRole"/>
+                         [value]="row.businessDomainRole"
+                         [class.filter-highlight]="matchesFilter(row.businessDomainRole)"/>
                 }
               </td>
               <td>
@@ -100,10 +112,12 @@
                             @for (value of row[col.field].split(','); track value) {
                               <p-tag [severity]="getTagSeverity(value)"
                                      [value]="value.trim()"
+                                     [class.filter-highlight]="matchesFilter(value.trim())"
                                      class="m-1"/>
                             }
                           } @else {
-                            {{ translateValue(row[col.field]) }}
+                            <span
+                              [class.filter-highlight]="matchesFilter(translateValue(row[col.field]))">{{ translateValue(row[col.field]) }}</span>
                           }
                         </div>
                       </div>
@@ -116,6 +130,6 @@
         </p-table>
       </div>
     }
-  </div>
+  </p-card>
 }
 <br/>

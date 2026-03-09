@@ -1,5 +1,5 @@
 <h2 class="content-block">{{ '@Users management' | transloco }}</h2>
-<div class="card">
+<p-card>
   <h3>{{ '@Invite user' | transloco }}</h3>
   <form [formGroup]="inviteForm" autocomplete="off">
     <div class="field grid grid-cols-12 gap-4">
@@ -68,24 +68,9 @@
       </div>
     </p-toolbar>
   </form>
-</div>
+</p-card>
 
-<div class="card">
-  <p-toolbar>
-    <div class="p-toolbar-group-start">
-      <h3>{{ '@Users' | transloco }}</h3>
-
-    </div>
-    @if ((syncStatus$ | async); as syncStatus) {
-      <div class="p-toolbar-group-end">
-        <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
-                  [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
-                  icon="fas fa-arrows-rotate" tooltipPosition="top"
-                  [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
-                  severity="success" pRipple/>
-      </div>
-    }
-  </p-toolbar>
+<p-card>
 
   <p-table
     #dt
@@ -109,18 +94,25 @@
     stateStorage="session"
   >
     <ng-template pTemplate="caption">
-      <div>
-        <div id="searchBox">
-          <span class="p-input-icon-left p-ml-auto">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search"/>
-              <input #textInput (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
-                     placeholder="{{'@Search' | transloco}}" type="text"/>
-            </p-iconfield>
-          </span>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <h3 class="m-0" style="margin: 0">{{ '@Users' | transloco }}</h3>
+          @if ((syncStatus$ | async); as syncStatus) {
+            <p-button (click)="syncUsers()" [disabled]="syncStatus === 'STARTED'" [loading]="syncStatus === 'STARTED'"
+                      [pTooltip]="'@Sync Users Title' | transloco" (keydown.enter)="syncUsers()"
+                      icon="fas fa-arrows-rotate" tooltipPosition="top"
+                      [label]="(syncStatus === 'STARTED' ? '@Sync in progress' : '@Sync Users') | transloco"
+                      severity="success" pRipple/>
+          }
         </div>
+        <span class="p-input-icon-left">
+          <p-iconfield>
+            <p-inputicon class="pi pi-search"/>
+            <input (input)="dt.filterGlobal(filterValue, 'contains')" [(ngModel)]="filterValue" pInputText
+                   placeholder="{{'@Search' | transloco}}" type="text"/>
+          </p-iconfield>
+        </span>
       </div>
-      <br><br><br>
     </ng-template>
     <ng-template pTemplate="header">
       <tr>
@@ -228,6 +220,6 @@
       </tr>
     </ng-template>
   </p-table>
-</div>
+</p-card>
 <br/>
 <app-actions-user-popup/>

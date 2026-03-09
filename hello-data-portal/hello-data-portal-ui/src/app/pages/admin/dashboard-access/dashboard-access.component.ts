@@ -52,13 +52,15 @@ import {FormsModule} from "@angular/forms";
 import {InputText} from "primeng/inputtext";
 import {TranslocoPipe} from "@jsverse/transloco";
 
+import {Card} from 'primeng/card';
+
 @Component({
   templateUrl: 'dashboard-access.component.html',
   styleUrls: ['./dashboard-access.component.scss'],
-  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, IconField, InputIcon, FormsModule, InputText, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class DashboardAccessComponent extends BaseComponent implements OnInit {
-  private store = inject<Store<AppState>>(Store);
+  private readonly store = inject<Store<AppState>>(Store);
 
   dashboardAccess$: Observable<DashboardAccess[]>;
   selectedDataDomain$: Observable<DataDomain | null>;

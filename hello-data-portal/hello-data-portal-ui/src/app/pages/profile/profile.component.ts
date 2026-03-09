@@ -40,12 +40,13 @@ import {AsyncPipe} from '@angular/common';
 import {TableModule} from 'primeng/table';
 import {PrimeTemplate} from 'primeng/api';
 import {Tooltip} from 'primeng/tooltip';
+import {Card} from 'primeng/card';
 import {TranslocoPipe} from '@jsverse/transloco';
 
 @Component({
   templateUrl: 'profile.component.html',
   styleUrls: ['./profile.component.scss'],
-  imports: [TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, Tooltip, AsyncPipe, TranslocoPipe, Card]
 })
 export class ProfileComponent {
   private readonly store = inject<Store<AppState>>(Store);

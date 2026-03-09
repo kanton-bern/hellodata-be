@@ -6,7 +6,7 @@
           <div>
             @if (announcements.length > 0) {
               @for (announcement of announcements; track announcement) {
-                <div class="card">
+                <p-card>
                   <p-toolbar>
                     <div class="p-toolbar-group-start">
                       <i class="fas fa-circle-info"></i>
@@ -26,7 +26,7 @@
                       }
                     </div>
                   </p-toolbar>
-                </div>
+                </p-card>
               }
             } @else {
               <!-- Observable is an empty array -->

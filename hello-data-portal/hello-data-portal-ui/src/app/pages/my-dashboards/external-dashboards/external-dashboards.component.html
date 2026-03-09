@@ -1,6 +1,6 @@
 <h3 class="content-block">{{ '@External dashboards' | transloco }}</h3>
 @if ((currentUserPermissions$ | async); as permissions) {
-  <div class="card">
+  <p-card>
     <div>
       <p-table #dt [filterDelay]="0"
                [globalFilterFields]="['title', 'businessProcess', 'department', 'responsibility', 'dataAnalyst', 'scheduled', 'datasource']"
@@ -125,7 +125,7 @@
         </ng-template>
       </p-table>
     </div>
-  </div>
+  </p-card>
 }
 <br/>
 <p-confirmDialog #cd [style]="{width: '50vw'}">

@@ -45,12 +45,13 @@ import {BaseComponent} from "../../shared/components/base/base.component";
 import {navigate} from "../../store/app/app.action";
 import {createBreadcrumbs} from "../../store/breadcrumb/breadcrumb.action";
 import {PrimeTemplate} from 'primeng/api';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-docs',
   templateUrl: './lineage-docs.component.html',
   styleUrls: ['./lineage-docs.component.scss'],
-  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [TableModule, PrimeTemplate, Button, Ripple, Tooltip, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class LineageDocsComponent extends BaseComponent implements OnInit {
   projectDocsForm!: FormGroup;

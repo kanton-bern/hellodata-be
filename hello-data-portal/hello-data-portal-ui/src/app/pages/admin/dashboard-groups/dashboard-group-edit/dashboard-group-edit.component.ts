@@ -88,6 +88,7 @@ import {Checkbox} from 'primeng/checkbox';
 import {filter, take} from 'rxjs/operators';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-dashboard-group-edit',
@@ -95,7 +96,7 @@ import {InputIcon} from 'primeng/inputicon';
   styleUrls: ['./dashboard-group-edit.component.scss'],
   imports: [FormsModule, ReactiveFormsModule, Button, Toolbar, Tooltip, InputText, Divider,
     DeleteDashboardGroupPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Ripple,
-    Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, IconField, InputIcon]
+    Tabs, TabList, Tab, TabPanels, TabPanel, Checkbox, IconField, InputIcon, Card]
 })
 export class DashboardGroupEditComponent extends BaseComponent implements OnInit, OnDestroy {
   editedDashboardGroup$: Observable<DashboardGroup | null>;

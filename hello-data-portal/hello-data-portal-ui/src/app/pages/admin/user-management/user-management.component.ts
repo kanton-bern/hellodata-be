@@ -76,12 +76,13 @@ import {IUser} from "../../../store/auth/auth.model";
 import {IconField} from "primeng/iconfield";
 import {InputIcon} from "primeng/inputicon";
 import {PrimeTemplate} from 'primeng/api';
+import {Card} from 'primeng/card';
 
 @Component({
   selector: 'app-user-management',
   templateUrl: './user-management.component.html',
   styleUrls: ['./user-management.component.scss'],
-  imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe]
+  imports: [FormsModule, ReactiveFormsModule, AutoComplete, PrimeTemplate, Tooltip, InputText, Toolbar, Button, TableModule, IconField, InputIcon, Ripple, ActionsUserPopupComponent, AsyncPipe, DatePipe, TranslocoPipe, Card]
 })
 export class UserManagementComponent extends BaseComponent implements OnInit, OnDestroy {
   users$: Observable<any>;
@@ -93,12 +94,12 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
   suggestedAdUsers: AdUser[] = [];
   filterValue = '';
   syncStatusInterval$ = interval(30000);
-  private store = inject<Store<AppState>>(Store);
-  private fb = inject(FormBuilder);
-  private userService = inject(UsersManagementService);
+  private readonly store = inject<Store<AppState>>(Store);
+  private readonly fb = inject(FormBuilder);
+  private readonly userService = inject(UsersManagementService);
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor() {
     super();
@@ -218,7 +219,8 @@ export class UserManagementComponent extends BaseComponent implements OnInit, On
       )
       .subscribe(
         (users: AdUser[]) => {
-          return this.suggestedAdUsers = this.enhanceSuggestedAdUsers(users);
+          this.suggestedAdUsers = this.enhanceSuggestedAdUsers(users);
+          return this.suggestedAdUsers;
         }
       )
   }

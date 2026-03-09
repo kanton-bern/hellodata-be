@@ -66,8 +66,10 @@
 }
 
 .grid {
-  margin-right: 2rem;
+  padding-left: 8px;
+  padding-right: 8px;
 }
+
 
 .permission-error {
   white-space: pre-wrap;
@@ -82,6 +84,16 @@
 
 // Fix for long text overflow in fieldsets
 ::ng-deep {
+
+  #dashboardsHeader,
+  #externalDashboardsHeader,
+  #dataMartsHeader,
+  #lineageHeader,
+  #faqHeader,
+  #documentationHeader {
+    margin: 0;
+  }
+
   .grid {
     p-fieldset {
       min-width: 0;
