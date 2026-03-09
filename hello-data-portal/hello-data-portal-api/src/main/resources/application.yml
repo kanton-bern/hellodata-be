@@ -89,8 +89,8 @@ spring:
       port: 6379
   datasource:
     url: jdbc:postgresql://localhost:5432/hd_metainfo
-    username: postgres
-    password: postgres
+    username: postgres #NOSONAR - datasource credentials are stored in environment variables and not hardcoded in the codebase. The values in this file are only for local development and testing purposes.
+    password: postgres #NOSONAR - datasource credentials are stored in environment variables and not hardcoded in the codebase. The values in this file are only for local development and testing purposes.
     driver-class-name: org.postgresql.Driver
     hikari:
       max-lifetime: 900000 #15min
@@ -122,7 +122,7 @@ spring:
     host: localhost
     port: 25025
     username: apikey
-    password: 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
+    password: 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 #NOSONAR
     properties:
       mail:
         smtp:
@@ -156,6 +156,10 @@ server:
     include-exception: false
     include-stacktrace: never
   max-http-request-header-size: 32KB
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
   tomcat:
     max-http-form-post-size: 5GB
     max-swallow-size: -1

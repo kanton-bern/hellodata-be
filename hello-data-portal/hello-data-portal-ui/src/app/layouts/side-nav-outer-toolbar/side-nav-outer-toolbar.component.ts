@@ -39,7 +39,7 @@ import {Toast} from "primeng/toast";
 import {
   UnsavedChangesDialogComponent
 } from "../../shared/components/unsaved-changes-dialog/unsaved-changes-dialog.component";
-import {navigate, openWindow, trackEvent} from "../../store/app/app.action";
+import {openWindow, trackEvent} from "../../store/app/app.action";
 import {MenuItem} from "primeng/api";
 import {HeaderComponent} from '../../shared/components';
 
@@ -71,7 +71,7 @@ export class SideNavOuterToolbarComponent {
   }
 
   navigateHome() {
-    this.store.dispatch(navigate({url: 'home'}));
+    this.router.navigate(['home']);
     this.store.dispatch(trackEvent({
       eventCategory: 'Menu Item',
       eventAction: '[Click] - Moved to Home'
@@ -81,7 +81,7 @@ export class SideNavOuterToolbarComponent {
   openWindow(item: MenuItem) {
     let isRouterOrUrl = false;
     if (item.routerLink) {
-      this.store.dispatch(navigate({url: item.routerLink}));
+      this.router.navigate([item.routerLink]);
       isRouterOrUrl = true;
     }
     if (item.target || item.url) {
