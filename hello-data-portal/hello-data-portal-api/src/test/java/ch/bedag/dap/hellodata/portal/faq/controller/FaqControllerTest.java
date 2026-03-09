@@ -54,7 +54,10 @@ class FaqControllerTest extends HDControllerTest {
         // given
         FaqCreateDto createDto = new FaqCreateDto();
         HashMap<Locale, FaqMessage> messages = new HashMap<>();
-        messages.put(Locale.ENGLISH, new FaqMessage());
+        FaqMessage faqMessage = new FaqMessage();
+        faqMessage.setTitle("Test title");
+        faqMessage.setMessage("Test message");
+        messages.put(Locale.ENGLISH, faqMessage);
         createDto.setMessages(messages);
         createDto.setContextKey("Test context key");
 
@@ -71,7 +74,10 @@ class FaqControllerTest extends HDControllerTest {
         FaqCreateDto createDto = new FaqCreateDto();
         createDto.setContextKey("Test context key");
         HashMap<Locale, FaqMessage> messages = new HashMap<>();
-        messages.put(Locale.ENGLISH, new FaqMessage());
+        FaqMessage faqMessage = new FaqMessage();
+        faqMessage.setTitle("Test title");
+        faqMessage.setMessage("Test message");
+        messages.put(Locale.ENGLISH, faqMessage);
         createDto.setMessages(messages);
 
         // when then
@@ -89,7 +95,10 @@ class FaqControllerTest extends HDControllerTest {
         updateDto.setId(uuid);
         updateDto.setContextKey("Test context key");
         HashMap<Locale, FaqMessage> messages = new HashMap<>();
-        messages.put(Locale.ENGLISH, new FaqMessage());
+        FaqMessage faqMessage = new FaqMessage();
+        faqMessage.setTitle("Test title");
+        faqMessage.setMessage("Test message");
+        messages.put(Locale.ENGLISH, faqMessage);
         updateDto.setMessages(messages);
 
         // when then
@@ -106,7 +115,10 @@ class FaqControllerTest extends HDControllerTest {
         updateDto.setId(uuid);
         updateDto.setContextKey("Test context key");
         HashMap<Locale, FaqMessage> messages = new HashMap<>();
-        messages.put(Locale.ENGLISH, new FaqMessage());
+        FaqMessage faqMessage = new FaqMessage();
+        faqMessage.setTitle("Test title");
+        faqMessage.setMessage("Test message");
+        messages.put(Locale.ENGLISH, faqMessage);
         updateDto.setMessages(messages);
 
         // when then
