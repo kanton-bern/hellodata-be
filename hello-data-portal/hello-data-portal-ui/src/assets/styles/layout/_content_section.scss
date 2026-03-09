@@ -243,6 +243,148 @@
   }
 }
 
+/* Minimized topbar variants for subsystem-iframe responsive heights */
+.topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+  height: 83vh;
+  padding-bottom: 0 !important;
+}
+
+@media (min-height: 260px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 84vh;
+    overflow: scroll !important;
+    padding-bottom: 150px !important;
+  }
+}
+
+@media (min-height: 350px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 84vh;
+    overflow: scroll !important;
+    padding-bottom: 75px !important;
+  }
+}
+
+@media (min-height: 400px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 84vh;
+    overflow: scroll !important;
+    padding-bottom: 5px !important;
+  }
+}
+
+@media (min-height: 485px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 85vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 495px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 86vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 500px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 86vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 550px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 87vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 580px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 88vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 615px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 89vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 650px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 90vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 680px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 91vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 735px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 92vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 750px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 93vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 850px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 94vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 900px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 95vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 1000px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 96vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 1105px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 96vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 1380px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 97vh;
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (min-height: 1800px) {
+  .topbar-minimized #mainContentDiv:has(#subsystem-iframe) {
+    height: 97vh;
+    padding-bottom: 0 !important;
+  }
+}
+
 #mainContentDiv > .ng-star-inserted > div.ng-star-inserted:not(.card):not(.content-block) {
   width: 100%;
 }
