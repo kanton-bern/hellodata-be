@@ -86,6 +86,11 @@
   padding-left: 0;
 }
 
+#mainContentDiv > ng-component:has(#subsystem-iframe),
+#mainContentDiv > .ng-star-inserted:has(#subsystem-iframe) {
+  padding-left: 0 !important;
+}
+
 .embedded-dashboard .comment-form {
   margin-bottom: 0.5rem;
 }
