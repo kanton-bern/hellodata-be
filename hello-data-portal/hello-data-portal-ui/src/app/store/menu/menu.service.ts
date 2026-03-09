@@ -26,7 +26,7 @@
 ///
 
 import {inject, Injectable} from "@angular/core";
-import {combineLatest, map, Observable, switchMap} from "rxjs";
+import {combineLatest, debounceTime, map, Observable, switchMap} from "rxjs";
 import {DataDomain, SupersetDashboard} from "../my-dashboards/my-dashboards.model";
 import {Store} from "@ngrx/store";
 import {AppState} from "../app/app.state";
@@ -125,6 +125,7 @@ export class MenuService {
       this._store.select(selectSelectedDataDomain),
       this._store.select(selectCurrentUserCommentPermissions)
     ]).pipe(
+      debounceTime(50),
       map(([myDashboards, myDocs,
              appInfos, contextRoles, contextRolesNotNone, availableDomainItems, selectedDataDomain, commentPermissions]) => {
         // If user has no roles other than NONE, return empty menu
