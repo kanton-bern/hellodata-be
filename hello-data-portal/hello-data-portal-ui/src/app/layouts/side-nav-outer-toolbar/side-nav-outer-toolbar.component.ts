@@ -27,7 +27,7 @@
 
 import {Component, inject, input} from '@angular/core';
 
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgStyle} from '@angular/common';
 import {Store} from "@ngrx/store";
 import {AppState} from "../../store/app/app.state";
 import {Observable} from "rxjs";
@@ -42,13 +42,15 @@ import {
 import {openWindow, trackEvent} from "../../store/app/app.action";
 import {MenuItem} from "primeng/api";
 import {HeaderComponent} from '../../shared/components';
+import {environment} from "../../../environments/environment";
+import {Environment} from "../../shared/components/header/header.component";
 
 @Component({
   selector: 'app-side-nav-outer-toolbar',
   templateUrl: './side-nav-outer-toolbar.component.html',
   styleUrls: ['./side-nav-outer-toolbar.component.scss'],
   imports: [Tooltip, HeaderComponent,
-    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe]
+    Toast, UnsavedChangesDialogComponent, AsyncPipe, TranslocoPipe, NgStyle]
 })
 export class SideNavOuterToolbarComponent {
   private static readonly SIDEBAR_STATE_KEY = 'sidebar-minimized';
@@ -58,11 +60,17 @@ export class SideNavOuterToolbarComponent {
   readonly title = input.required<string>();
   navItems$: Observable<any[]>;
   sidebarMinimized = false;
+  environment: Environment;
 
   constructor() {
     this.navItems$ = this.store.select(selectNavItems);
     const stored = sessionStorage.getItem(SideNavOuterToolbarComponent.SIDEBAR_STATE_KEY);
     this.sidebarMinimized = stored === null ? false : stored === 'true';
+    this.environment = {
+      name: environment.deploymentEnvironment.name,
+      showEnvironment: environment.deploymentEnvironment.showEnvironment ?? true,
+      color: environment.deploymentEnvironment.headerColor ? environment.deploymentEnvironment.headerColor : ''
+    };
   }
 
   toggleSidebar(): void {
